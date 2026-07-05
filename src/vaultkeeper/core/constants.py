@@ -53,6 +53,20 @@ MOD_NIT_DIR: Final = "nitconfig"
 #: Normalised name the game-root folder maps to inside a FileKey (Mapper.C.ModRoot).
 MOD_ROOT_FOLDER: Final = "nwn"
 
+# --- Game subfolder names (Mapper.C) -------------------------------------- #
+#: The game's ``modules`` folder (Mapper.C.ModFolder).
+MOD_FOLDER: Final = "modules"
+#: The game's ``nwm`` folder for premium modules (Mapper.C.ModNwmFolder).
+MOD_NWM_FOLDER: Final = "nwm"
+
+# --- Hak patch ini filenames (NwnFolderInfo) ------------------------------ #
+PATCH_INI_FILE: Final = "nwnpatch.ini"
+USER_PATCH_INI_FILE: Final = "userpatch.ini"
+
+# --- Sentinel integer ----------------------------------------------------- #
+#: "not specified" for optional integer mod properties (Pdc.NullValue).
+NULL_VALUE: Final = -1
+
 # --- File extensions (data contract) -------------------------------------- #
 #: Module file extension (Mapper.C.ModFile); ``.nwm`` is the other module type.
 EXT_MOD: Final = ".mod"

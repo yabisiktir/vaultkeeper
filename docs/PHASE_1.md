@@ -21,8 +21,22 @@ Work in committed increments; update the checklist below + memory as you go.
       (`Group\ModName\Folder\Filename`), case-insensitive equality+hash, `comparer`
       by (qualifier, file_key), predicates, installed_key, from_full_key. Tested
       incl. dict-key case-insensitivity + winner selection.
-- [ ] **data records** — `FileData`, `InstalledFileData`, `ModData`,
-      `GroupMemberData`, `ChangeData`. VB: same-named .vb files. IN PROGRESS.
+- [~] **data records** — IN PROGRESS.
+  - [x] `core/state.py` — State + Ratings IntEnums (data-contract values verified).
+        Commit aa42108.
+  - [x] `core/file_data.py` — FileData + InstalledFileData records (fields + pure
+        derived props + clone). Commit aa42108. **Deferred** to ProfileData: the
+        pfd-coupled transitions on InstalledFileData (Installer setter/resolver,
+        reset_mod_files, installer_conflicts, remove_mod_file, remove_file, rename)
+        — VB refs in file_data.py comments + InstalledFileData.vb.
+  - [ ] `core/mod_data.py` — ModData (ModData.vb, 1053 lines): mod OR group row,
+        SetModState machine, folder layout, user properties (rating/levels/weapon/
+        hench/weblink/completed/workshopid/dates), Rename (renames folder + rewrites
+        file keys), type file (.nitins/.nitres). LARGE.
+  - [ ] `core/group_member.py` — GroupMemberData (GroupMemberData.vb, 246).
+  - [ ] `core/change_data.py` — ChangeData (ChangeData.vb, 813): Installed/File/Mods
+        sub-trackers; SaveInfo/RestoreSavedInfo/MergeSavedInfo (load-bearing for the
+        install→anneal choreography).
 - [ ] **`core/mapper.py`** — `Mapper.GetMappedFolder` ladder + tables/defaults.
       VB: `Mapper.vb` (3,124 lines; MapVersion 21). The engine the old port faked.
 - [ ] **`core/profile_data.py`** — unified `ProfileData`: load/scan/rebuild/save +

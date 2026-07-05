@@ -12,7 +12,7 @@ installed variants. ``None`` (-2) means "no installer exists for this mod".
 
 from __future__ import annotations
 
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 
 
 class State(IntEnum):
@@ -52,3 +52,74 @@ class Ratings(IntEnum):
     BAD = 5
     HORRIBLE = 6
     ABANDONED = 7
+
+
+class Weapon(IntEnum):
+    """Best-weapon mod property (Pde.Weapon). Values verified against source.
+
+    Standard weapons are 0..36; custom weapons jump to 1000+ (persisted values).
+    """
+
+    NONE = 0
+    BASTARD_SWORD = 1
+    GREAT_SWORD = 2
+    KATANA = 3
+    LONG_SWORD = 4
+    RAPIER = 5
+    SCIMITAR = 6
+    SHORT_SWORD = 7
+    DAGGER = 8
+    KUKRI = 9
+    TWOBLADED_SWORD = 10
+    DOUBLE_AXE = 11
+    GREATAXE = 12
+    BATTLEAXE = 13
+    HANDAXE = 14
+    MORNINGSTAR = 15
+    HEAVY_FLAIL = 16
+    LIGHT_FLAIL = 17
+    DIRE_MACE = 18
+    MACE = 19
+    WARHAMMER = 20
+    LIGHT_HAMMER = 21
+    SCYTHE = 22
+    HALBERD = 23
+    SPEAR = 24
+    TRIDENT = 25
+    CLUB = 26
+    QUARTERSTAFF = 27
+    MAGIC_STAFF = 28
+    SICKLE = 29
+    KAMA = 30
+    WHIP = 31
+    HEAVY_CROSSBOW = 32
+    LIGHT_CROSSBOW = 33
+    LONGBOW = 34
+    SHORTBOW = 35
+    SLING = 36
+    # Custom weapons
+    FALCHION = 1000
+    MOON_ON_A_STICK = 1001
+    DWARVEN_WARAXE = 1002
+    LANCE = 1003
+    SAI = 1004
+    NUNCHAKU = 1005
+    KATAR = 1006
+    MAUL = 1007
+    MERCURIAL_LONGSWORD = 1008
+    MERCURIAL_GREATSWORD = 1009
+    SCIMITAR_DOUBLE = 1010
+    WIND_FIREWHEEL = 1011
+    MAUG_DOUBLESWORD = 1012
+    SHORT_SPEAR = 1013
+
+
+class GroupStatus(StrEnum):
+    """Expanded/collapsed state of a group row (LazWorks FileViewGroupStatus).
+
+    Serialized by name in Vaultkeeper's native store (VB integer values are only
+    relevant to the deferred legacy NRBF importer).
+    """
+
+    EXPANDED = "expanded"
+    COLLAPSED = "collapsed"
