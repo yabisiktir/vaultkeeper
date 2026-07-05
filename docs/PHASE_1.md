@@ -29,10 +29,10 @@ Work in committed increments; update the checklist below + memory as you go.
         pfd-coupled transitions on InstalledFileData (Installer setter/resolver,
         reset_mod_files, installer_conflicts, remove_mod_file, remove_file, rename)
         — VB refs in file_data.py comments + InstalledFileData.vb.
-  - [ ] `core/mod_data.py` — ModData (ModData.vb, 1053 lines): mod OR group row,
-        SetModState machine, folder layout, user properties (rating/levels/weapon/
-        hench/weblink/completed/workshopid/dates), Rename (renames folder + rewrites
-        file keys), type file (.nitins/.nitres). LARGE.
+  - [x] `core/mod_data.py` — ModData record + set_mod_state machine + Weapon/
+        GroupStatus enums. Commit 38f3494. Deferred to ProfileData: rename/remove/
+        remove_file/remove_all_files/create_installer/update_file_keys/
+        rebuild_file_list/path+notes resolution.
   - [ ] `core/group_member.py` — GroupMemberData (GroupMemberData.vb, 246).
   - [ ] `core/change_data.py` — ChangeData (ChangeData.vb, 813): Installed/File/Mods
         sub-trackers; SaveInfo/RestoreSavedInfo/MergeSavedInfo (load-bearing for the
