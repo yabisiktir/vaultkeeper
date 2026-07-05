@@ -72,6 +72,34 @@ RESERVED_MOD_NAMES: Final = frozenset(
     }
 )
 
+# --- Installer sentinel names (InstalledFileData.Installer values) -------- #
+#: File is an unmodified game-shipped original (Pdc.ModOriginal).
+INSTALLER_ORIGINAL: Final = "Neverwinter Nights installation"
+#: File is a saved character (Pdc.ModCharacter).
+INSTALLER_CHARACTER: Final = "Saved character"
+#: Journal notes file (Pdc.ModJournalNotes).
+INSTALLER_JOURNAL_NOTES: Final = "Journal notes"
+#: NWN log file (Pdc.NwnLogFile).
+INSTALLER_NWN_LOG: Final = "Neverwinter Nights log file"
+#: Leto log file (Pdc.LetoLogFile).
+INSTALLER_LETO_LOG: Final = "Leto log file"
+#: Installer source is unknown (Pdc.ModUnknown).
+INSTALLER_UNKNOWN: Final = "Unknown source"
+#: Sentinel requesting the owning-mod resolution logic run (Pdc.FindInstaller).
+INSTALLER_FIND: Final = "\\FindInstaller\\"
+
+#: The set of "default" (non-user-mod) installer names, sorted for lookup.
+DEFAULT_INSTALLERS: Final = frozenset(
+    {
+        INSTALLER_ORIGINAL,
+        INSTALLER_CHARACTER,
+        INSTALLER_JOURNAL_NOTES,
+        INSTALLER_NWN_LOG,
+        INSTALLER_LETO_LOG,
+        INSTALLER_UNKNOWN,
+    }
+)
+
 # --- On-disk data versions ------------------------------------------------ #
 #: VB BinaryFormatter data-format version (for the legacy NRBF importer only).
 LEGACY_DATA_FORMAT_VERSION: Final = 2

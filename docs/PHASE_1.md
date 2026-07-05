@@ -15,19 +15,14 @@ Work in committed increments; update the checklist below + memory as you go.
 
 ## Build order & status
 
-- [ ] **`core/win_sort.py`** — `win_compare(a,b)`: reproduce `WinCompare` =
-      `StrCmpLogicalW(x.lower(), y.lower())` (natural/numeric-aware, case-insensitive).
-      Drives conflict-winner ordering. VB: `LazWorks Miscellaneous.vb:30`,
-      `WindowsAPI.vb:114`.
-- [ ] **`core/file_key.py`** — `FileKeyInfo` value object. VB: `FileKeyInfo.vb`.
-      Identity = FullKey (`Group\ModName\Folder\Filename`), **case-insensitive**
-      equality+hash (resolves a VB latent inconsistency where Object.Equals was
-      ordinal but GetHashCode was case-insensitive — the EqualityComparer used for
-      the real dicts is case-insensitive, and Mac needs it). `Comparer` sorts by
-      (Qualifier, FileKey) via win_compare; winner = greatest (install "last wins",
-      uninstall sorts reversed & takes [0]). Root-folder name normalises to "nwn".
+- [x] **`core/win_sort.py`** — DONE (commit ccbf747). `win_compare` = StrCmpLogicalW
+      (lower, lower), natural/numeric-aware. 3-way, total order. Tested.
+- [x] **`core/file_key.py`** — DONE (commit ccbf747). `FileKeyInfo`: FullKey identity
+      (`Group\ModName\Folder\Filename`), case-insensitive equality+hash, `comparer`
+      by (qualifier, file_key), predicates, installed_key, from_full_key. Tested
+      incl. dict-key case-insensitivity + winner selection.
 - [ ] **data records** — `FileData`, `InstalledFileData`, `ModData`,
-      `GroupMemberData`, `ChangeData`. VB: same-named .vb files.
+      `GroupMemberData`, `ChangeData`. VB: same-named .vb files. IN PROGRESS.
 - [ ] **`core/mapper.py`** — `Mapper.GetMappedFolder` ladder + tables/defaults.
       VB: `Mapper.vb` (3,124 lines; MapVersion 21). The engine the old port faked.
 - [ ] **`core/profile_data.py`** — unified `ProfileData`: load/scan/rebuild/save +
