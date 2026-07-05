@@ -1,0 +1,78 @@
+"""Core domain constants, ported faithfully from the VB app.
+
+Sourced from ``Defs.vb``, ``Paths.vb``, ``ProfileData.*`` and ``Mapper.vb``.
+Values that are part of the *data contract* (reserved names, folder markers,
+group names) must match the original so a migrated store and the game folder are
+interpreted identically. Vaultkeeper-specific presentation strings live
+elsewhere; this module is the domain vocabulary only.
+"""
+
+from __future__ import annotations
+
+from typing import Final
+
+# --- Identity ------------------------------------------------------------- #
+#: Original tool's acronym, retained where it appears in on-disk artifacts.
+NIT_ACRONYM: Final = "NIT"
+
+# --- Reserved group rows (ModList keys that are groups, not mods) --------- #
+# These are LazWorks FileView sentinel strings (not friendly names): the control
+# uses a "......" hidden-group prefix. Verified against LazWorks
+# (FileViewGroupHidden="......", FileViewGroupHide=+"000", FileViewGroupNone=+"001")
+# and Defs.vb (GroupInstalled=FileViewGroupHide, GroupNone=FileViewGroupNone).
+# They are persisted verbatim as ModList keys, so they MUST match exactly.
+_FILEVIEW_GROUP_HIDDEN: Final = "......"
+#: The reserved "Installed" group key (Defs.GroupInstalled = FileViewGroupHide).
+GROUP_INSTALLED: Final = _FILEVIEW_GROUP_HIDDEN + "000"
+#: The "no group" bucket key (Defs.GroupNone = FileViewGroupNone).
+GROUP_NONE: Final = _FILEVIEW_GROUP_HIDDEN + "001"
+#: Human-readable label for the installed-files pseudo-mod ("Installed Files").
+INSTALLED_FILES_LABEL: Final = "Installed Files"
+#: Key of the installed-files pseudo-mod (Defs.InstalledModKey). Note the "/" join.
+INSTALLED_MOD_KEY: Final = GROUP_INSTALLED + "/" + INSTALLED_FILES_LABEL
+#: Mandatory groups that must exist; their absence signals a corrupt profile DB.
+MANDATORY_GROUPS: Final = (GROUP_NONE, GROUP_INSTALLED)
+
+# --- Mod folder layout (subfolders inside a mod directory) ---------------- #
+#: The installer payload folder — files here are what get copied into the game.
+MOD_INSTALLER_DIR: Final = ".Mod Installer"
+#: Downloaded archives awaiting installer creation.
+DOWNLOADS_DIR: Final = "_Downloads"
+#: Superseded/previous downloads.
+HISTORY_DIR: Final = "_History"
+#: Published (distributable) packages.
+PUBLISHED_DIR: Final = "_Published"
+#: Steam Workshop-managed content.
+WORKSHOP_DIR: Final = "_Workshop"
+#: Quarantine for files that violate mapping rules.
+REMOVED_ITEMS_DIR: Final = ".Removed Items"
+#: Per-mod durable play-time record (RTF).
+PLAY_TIME_FILE: Final = ".Game Play Time.rtf"
+
+#: Reserved folder names that can never be mod names.
+RESERVED_MOD_NAMES: Final = frozenset(
+    {
+        DOWNLOADS_DIR,
+        HISTORY_DIR,
+        PUBLISHED_DIR,
+        WORKSHOP_DIR,
+    }
+)
+
+# --- On-disk data versions ------------------------------------------------ #
+#: VB BinaryFormatter data-format version (for the legacy NRBF importer only).
+LEGACY_DATA_FORMAT_VERSION: Final = 2
+#: Mapper table version in the VB app (``Mapper.vb`` MapVersion).
+LEGACY_MAP_VERSION: Final = 21
+#: Vaultkeeper's own native store schema version (independent of the legacy one).
+NATIVE_STORE_VERSION: Final = 1
+
+# --- Install engine invariants (from ModInstallationManager.vb) ----------- #
+#: Files strictly smaller than this are always copied even when the CRC matches,
+#: guarding against CRC-32 collisions on tiny files. VB constant = 5121 (5 KB + 1).
+NO_CRC_CHECK_MAX_BYTES: Final = 5121
+
+# --- Path separator contract --------------------------------------------- #
+#: FileKeys persist a backslash separator regardless of host OS; normalise only
+#: at the filesystem boundary. (VB stored "Folder\Filename".)
+FILEKEY_SEPARATOR: Final = "\\"
