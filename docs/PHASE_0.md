@@ -37,13 +37,37 @@ ever mutated in this phase.
   (replaces the old port's two competing settings files); preserves unknown keys.
 - **Tests:** 45 total, all green.
 
-## Remaining in Phase 0 (final stretch)
+## Done (final stretch)
 
-- [ ] Logging + message-history ("don't show again" display-count) service.
-- [ ] Startup validation scaffolding for the config-isolation sync prompt
-      (detect game-config divergence; never write silently).
-- [ ] Salvage triage: copy the KEEP binary readers (erf/gff/tga/bic — pure-stdlib)
-      from the old repo into `core/formats` with a verification pass.
+- **`core/log.py`** — single stdlib logging setup (rotating file + console);
+  replaces the old port's loguru/stdlib split.
+- **`core/message_history.py`** — persistent display-count throttle for
+  "don't show again"/diagnostics (ports VB `MessageHistory`/`MessageId`).
+- **`game/config_guard.py`** — config-isolation guard: fingerprints the game's
+  `nwn.ini`/`settings.tml`, detects added/removed/modified since the last accepted
+  baseline, and **never writes game files** (only VK's own snapshot). Powers the
+  startup "your game config changed — apply?" prompt.
+- **Salvaged binary readers** into `core/formats/` (erf/gff/tga/bic): loguru →
+  stdlib logging; removed `src.*` couplings; stripped Qt image conversion out of
+  the pure decoders (moves to UI in Phase 7). Verification caught + fixed **real
+  latent bugs**: `bic_reader` imported `GffReader` (class is `GFFReader`) and both
+  `bic`/`tga` readers were missing `typing` imports (`Tuple`/`List`) that would
+  crash at import time.
+
+## Phase 0 status: COMPLETE
+
+- 22 source modules, ~2,740 lines; 10 test files, **89 passing** (+2 pre-existing
+  ERF xfails). `ruff` clean, entry point verified on the owner's Mac (native Steam
+  + CrossOver/Wine installs discovered).
+- Dev env: Python 3.13 (`.venv`), full stack incl. PySide6 6.8.3 validated.
+
+## Next: Phase 1 — domain core
+
+`FileKeyInfo` (equality/comparer semantics first, with tests — winner selection
+depends on it), then FileData/InstalledFileData/ModData/GroupMemberData/ChangeData,
+the **Mapper** (GetMappedFolder ladder + tables), and a unified **ProfileData**
+(load/scan/rebuild/save + state pipeline), all headless. Native store format;
+legacy NRBF import stays deferred.
 
 ## Notes / decisions
 

@@ -48,7 +48,7 @@ class Settings:
 
     # -- (de)serialisation -------------------------------------------------- #
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Settings":
+    def from_dict(cls, data: dict[str, Any]) -> Settings:
         known = {f.name for f in fields(cls) if not f.name.startswith("_")}
         kwargs = {k: v for k, v in data.items() if k in known}
         extra = {k: v for k, v in data.items() if k not in known}

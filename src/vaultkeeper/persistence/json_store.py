@@ -10,6 +10,7 @@ safety more simply.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import tempfile
@@ -61,9 +62,7 @@ def write_json(path: str | Path, data: Any, *, indent: int = 2) -> Path:
         os.replace(tmp_name, p)
     except BaseException:
         # Clean up the temp file on any failure (including interrupts).
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(tmp_name)
-        except OSError:
-            pass
         raise
     return p

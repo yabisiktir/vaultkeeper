@@ -22,7 +22,7 @@ import os
 import sys
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path, PurePath
 
 from vaultkeeper.game.editions import Edition
@@ -35,13 +35,13 @@ _EE_DATA_MARKERS = ("data", "bin")
 _EE_EXE_NAMES = ("nwmain", "nwmain.exe", "nwn.exe", "nwmain-x86", "nwmain_x64")
 
 
-class HostOS(str, Enum):
+class HostOS(StrEnum):
     WINDOWS = "windows"
     MACOS = "macos"
     LINUX = "linux"
 
     @staticmethod
-    def current() -> "HostOS":
+    def current() -> HostOS:
         if sys.platform.startswith("win"):
             return HostOS.WINDOWS
         if sys.platform == "darwin":
@@ -49,7 +49,7 @@ class HostOS(str, Enum):
         return HostOS.LINUX
 
 
-class InstallKind(str, Enum):
+class InstallKind(StrEnum):
     STEAM = "steam"
     GOG = "gog"
     BEAMDOG = "beamdog"
@@ -94,25 +94,13 @@ def is_network_path(path: os.PathLike[str] | str) -> bool:
     about availability, not to block usage.
     """
     s = str(path)
-    if s.startswith("\\\\") or s.startswith("//"):
+    if s.startswith(("\\\\", "//")):  # Windows UNC
         return True
-    pure = PurePath(s)
-    # PurePath on POSIX won't parse a UNC drive; check the leading parts too.
-    parts = pure.parts
-    if not parts:
-        return False
-    lead = parts[0].rstrip("/\\").lower()
-    first_two = "/".join(p.lower() for p in parts[:2])
-    if lead in ("//", "\\\\"):
-        return True
-    if first_two in ("/net",) or parts[0] == "/" and len(parts) >= 2 and parts[1] in (
-        "Volumes",
-        "mnt",
-        "media",
-        "net",
-    ):
-        return True
-    return False
+    parts = PurePath(s).parts
+    # POSIX network mount roots: /Volumes (macOS SMB/AFP), /mnt & /media (Linux),
+    # /net (autofs).
+    network_roots = {"Volumes", "mnt", "media", "net"}
+    return len(parts) >= 2 and parts[0] == "/" and parts[1] in network_roots
 
 
 def resolve_wine_path(windows_path: str, prefix: Path) -> Path:
@@ -158,7 +146,7 @@ def steam_library_roots(host: HostOS) -> list[Path]:
         ]
     # Windows
     return [
-        Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"))
+        Path(os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"))
         / "Steam/steamapps"
     ]
 
@@ -208,7 +196,8 @@ def user_documents_dir(host: HostOS, wine_prefix: Path | None = None) -> Path:
     """
     if wine_prefix is not None:
         # Inside a prefix the game uses the Windows Documents location.
-        return wine_prefix / "drive_c/users" / _wine_user(wine_prefix) / "Documents/Neverwinter Nights"
+        user_home = wine_prefix / "drive_c/users" / _wine_user(wine_prefix)
+        return user_home / "Documents/Neverwinter Nights"
     home = _home()
     if host is HostOS.MACOS:
         return home / "Documents/Neverwinter Nights"
@@ -319,7 +308,7 @@ def _native_gog_beamdog_roots(host: HostOS) -> list[Path]:
             home / ".local/share/GOG.com/Neverwinter Nights Enhanced Edition",
         ]
     # Windows
-    pf = Path(os.environ.get("ProgramFiles", r"C:\Program Files"))
+    pf = Path(os.environ.get("PROGRAMFILES", r"C:\Program Files"))
     return [
         pf / "GOG Galaxy/Games/Neverwinter Nights Enhanced Edition",
         Path(r"C:\GOG Games/Neverwinter Nights Enhanced Edition"),

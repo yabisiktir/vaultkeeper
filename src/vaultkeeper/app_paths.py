@@ -71,7 +71,7 @@ class VaultStore:
     root: Path
 
     @classmethod
-    def default(cls) -> "VaultStore":
+    def default(cls) -> VaultStore:
         return cls(root=data_root())
 
     # -- Top-level sub-trees (mirror NIT's store concepts) ------------------- #

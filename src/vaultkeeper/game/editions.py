@@ -10,10 +10,10 @@ availability, but treats EE as the default.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class Edition(str, Enum):
+class Edition(StrEnum):
     """Which NWN release a game folder / profile targets."""
 
     ENHANCED = "enhanced"  # Neverwinter Nights: Enhanced Edition (Beamdog, 2018)
