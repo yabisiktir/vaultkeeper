@@ -48,6 +48,19 @@ WORKSHOP_DIR: Final = "_Workshop"
 REMOVED_ITEMS_DIR: Final = ".Removed Items"
 #: Per-mod durable play-time record (RTF).
 PLAY_TIME_FILE: Final = ".Game Play Time.rtf"
+#: The nit config subfolder holding a mod's identifier files (Pdc.ModNit).
+MOD_NIT_DIR: Final = "nitconfig"
+#: Normalised name the game-root folder maps to inside a FileKey (Mapper.C.ModRoot).
+MOD_ROOT_FOLDER: Final = "nwn"
+
+# --- File extensions (data contract) -------------------------------------- #
+#: Module file extension (Mapper.C.ModFile); ``.nwm`` is the other module type.
+EXT_MOD: Final = ".mod"
+EXT_NWM: Final = ".nwm"
+#: Installer identifier-file extension (Pdc.ExtInstaller).
+EXT_INSTALLER: Final = ".nitins"
+#: Restorer identifier-file extension (Pdc.ExtRestorer).
+EXT_RESTORER: Final = ".nitres"
 
 #: Reserved folder names that can never be mod names.
 RESERVED_MOD_NAMES: Final = frozenset(
