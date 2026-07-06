@@ -131,9 +131,7 @@ def _consume_control(rtf: str, i: int, out: list[str], ctx: _Ctx) -> int:
 
     if word == "uc" and param:
         ctx.uc = int(param)
-    elif word == "*":
-        ctx.ignoring = True
-    elif word in _IGNORED_DESTINATIONS:
+    elif word == "*" or word in _IGNORED_DESTINATIONS:
         ctx.ignoring = True
     elif not ctx.ignoring:
         if word in ("par", "line"):
