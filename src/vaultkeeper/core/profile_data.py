@@ -113,6 +113,28 @@ class ProfileData:
         ifd = self.installed_list.get(FileKeyInfo.installed_from_key(file_key))
         return ifd.installer if ifd is not None else ""
 
+    # -- Installation analysis (ProfileData.Properties.vb) ----------------- #
+    def unknown_source_files(self, mapper) -> list[FileKeyInfo]:  # noqa: ANN001
+        """Installed files from an unknown source with a mapped extension."""
+        return [
+            fk
+            for fk, ifd in self.installed_list.items()
+            if ifd.is_unknown_installer and mapper.mapped_extension(ifd.extension)
+        ]
+
+    def original_file_keys(self) -> list[FileKeyInfo]:
+        """Installed files whose file_key is a known original game file."""
+        return [fk for fk in self.installed_list if fk.file_key in self.original_files]
+
+    def changed_original_files(self) -> list[FileKeyInfo]:
+        """Installed original files whose CRC no longer matches the pristine value."""
+        changed: list[FileKeyInfo] = []
+        for fk, ifd in self.installed_list.items():
+            original_crc = self.original_files.get(fk.file_key)
+            if original_crc is not None and ifd.file_crc != original_crc:
+                changed.append(fk)
+        return changed
+
     # -- Dependencies (ProfileData.vb:2840-2939) --------------------------- #
     def has_dependants(self, mod_name: str) -> bool:
         """True if any mod declares ``mod_name`` as a dependency (case-insensitive)."""
