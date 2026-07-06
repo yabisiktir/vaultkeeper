@@ -35,12 +35,10 @@ Work in committed increments; update the checklist below + memory as you go.
         GroupStatus enums. Commit 38f3494. Deferred to ProfileData: rename/remove/
         remove_file/remove_all_files/create_installer/update_file_keys/
         rebuild_file_list/path+notes resolution.
-- [ ] **`core/mapper.py`** — `Mapper.GetMappedFolder` ladder + tables/defaults.
-      VB: `Mapper.vb` (3,124 lines; MapVersion 21). The engine the old port faked.
-      NEXT UP. Big single piece — read Mapper.vb (esp. Initialise ~516,
-      GetMappedFolder ~2153, DefineNwnFolders/DefineEeFolders ~1601/1643, the
-      exception/prefix/extension-map/demo-mod/ERF-exclusion ladder). Legacy version
-      migrations (UpdateFromVersion6..21) can be skipped — start at v21 defaults.
+- [x] **`core/mapper.py`** — DONE (commit fc3d0c9). Default v21 tables +
+      GetMappedFolder ladder + predicates + EE tweaks, name-level. 26 tests.
+      Deferred: settings persistence/editors/import/migrations (Phase 8),
+      folder-name->abs-path resolution (needs Paths).
 - [ ] **`core/profile_data.py`** — unified `ProfileData`: load/scan/rebuild/save +
       state pipeline + checksums, headless. VB: `ProfileData*.vb`.
 

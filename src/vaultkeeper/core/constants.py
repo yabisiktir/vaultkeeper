@@ -63,6 +63,10 @@ MOD_NWM_FOLDER: Final = "nwm"
 PATCH_INI_FILE: Final = "nwnpatch.ini"
 USER_PATCH_INI_FILE: Final = "userpatch.ini"
 
+# --- Special log filenames (installer classification) --------------------- #
+LETO_LOG_FILENAME: Final = "LoadITPLog.leto.txt"
+NWN_LOG_FILENAME: Final = "AR_ERROR.LOG"
+
 # --- Sentinel integer ----------------------------------------------------- #
 #: "not specified" for optional integer mod properties (Pdc.NullValue).
 NULL_VALUE: Final = -1
