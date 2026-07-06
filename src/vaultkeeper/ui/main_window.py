@@ -1,10 +1,12 @@
 """Vaultkeeper main window (PySide6).
 
-A first functional three-pane manager: a grouped mod tree on the left, a details
-panel on the right, a menu bar and a status bar. It is wired to a
-:class:`ProfileController`, so selecting mods and choosing Install/Uninstall drives
-the real domain engine. The layout deliberately mirrors the VB NIT main form
-(mods list | mod details) and grows toward full parity in later phases.
+The functional three-pane manager (grouped mod tree | contents | details) wrapped in
+the faithful VB NIT chrome: the seven-tab :class:`Ribbon`, the :class:`QuickToolbar`,
+and the :class:`NitStatusBar`, plus the menu bar and the app icon. It is wired to a
+:class:`ProfileController`, so selecting mods and choosing Install/Uninstall (from the
+menu, ribbon or toolbar) drives the real domain engine. Ribbon/toolbar buttons emit
+their VB control-name ids into :meth:`_on_command`, which dispatches the commands
+implemented so far and reports "not available yet" for the rest.
 """
 
 from __future__ import annotations
@@ -20,11 +22,17 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
 )
 
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.state import State
+from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
+from vaultkeeper.ui.quick_toolbar import QuickToolbar
+from vaultkeeper.ui.ribbon import Ribbon
+from vaultkeeper.ui.status_bar import NitStatusBar
 
 _INSTALLED_BRUSH = QBrush(QColor(0x2E, 0x7D, 0x32))  # green
 _OVERRIDDEN_BRUSH = QBrush(QColor(0xB2, 0x6A, 0x00))  # amber
@@ -38,6 +46,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.controller = controller
         self.setWindowTitle("Vaultkeeper")
+        self.setWindowIcon(R.app_icon())
         self.resize(1000, 640)
 
         self._tree = QTreeWidget()
@@ -59,7 +68,24 @@ class MainWindow(QMainWindow):
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 3)
         splitter.setStretchFactor(2, 2)
-        self.setCentralWidget(splitter)
+
+        # Command chrome (faithful ports of the VB ribbon/toolbar/status bar).
+        self.ribbon = Ribbon()
+        self.ribbon.action_triggered.connect(self._on_command)
+        self.quick_toolbar = QuickToolbar()
+        self.quick_toolbar.action_triggered.connect(self._on_command)
+        self.addToolBar(self.quick_toolbar)
+
+        central = QWidget()
+        layout = QVBoxLayout(central)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.ribbon)
+        layout.addWidget(splitter, 1)
+        self.setCentralWidget(central)
+
+        self.nit_status = NitStatusBar()
+        self.setStatusBar(self.nit_status)
 
         self._build_menu()
         self.statusBar().showMessage("Ready")
@@ -233,6 +259,29 @@ class MainWindow(QMainWindow):
         if md.web_link:
             lines.append(f"<b>Web:</b> {md.web_link}<br>")
         self._details.setHtml("".join(lines))
+
+    # -- Ribbon / toolbar dispatch ----------------------------------------- #
+    def _on_command(self, action: str) -> None:
+        """Route a ribbon/toolbar action id to its handler (VB Handles subs).
+
+        Actions already implemented in this phase are wired to their handlers;
+        the rest report "not yet available" so the chrome is fully clickable while
+        later phases fill in the remaining commands.
+        """
+        handlers = {
+            "TsInstall": self._on_install,
+            "RbnInstallUninstall": self._on_install,
+            "TsUninstall": self._on_uninstall,
+            "TsRename": self._on_rename,
+            "TsDelete": self._on_remove,
+            "TsPlayNeverwinterNights": self._not_implemented,
+            "RbnPlay": self._not_implemented,
+        }
+        handler = handlers.get(action, self._not_implemented)
+        handler()
+
+    def _not_implemented(self) -> None:
+        self.statusBar().showMessage("That command is not available yet.")
 
     def _on_install(self) -> None:
         names = self.selected_mod_names()

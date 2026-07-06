@@ -164,3 +164,39 @@ def test_rename_mod_via_controller(qtbot, controller) -> None:
     assert "Alpha Renamed" in controller.pd.mod_keys
     assert "Alpha" not in controller.pd.mod_keys
     assert any("Alpha Renamed" in label for label in _all_mod_labels(win))
+
+
+def test_window_has_ribbon_toolbar_and_status_bar(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # The faithful chrome widgets are present.
+    assert win.ribbon.count() == 7
+    assert "TsInstall" in win.quick_toolbar.actions_by_id
+    assert win.nit_status.bt_mods.text() == "Mods:"
+    assert not win.windowIcon().isNull()
+
+
+def test_ribbon_install_action_drives_install(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # Select a mod, then trigger the ribbon's Install/Uninstall button.
+    win._tree.setCurrentItem(_find_mod_item(win, "Alpha"))
+    win.ribbon.button("RbnInstallUninstall").click()
+    assert controller.pd.mod_item("Alpha").installed
+
+
+def test_unimplemented_command_reports_status(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.quick_toolbar.actions_by_id["TsPlayNeverwinterNights"].trigger()
+    assert "not available" in win.statusBar().currentMessage().lower()
+
+
+def _find_mod_item(win, name):
+    for i in range(win._tree.topLevelItemCount()):
+        group = win._tree.topLevelItem(i)
+        for j in range(group.childCount()):
+            child = group.child(j)
+            if name in child.text(0):
+                return child
+    return None
