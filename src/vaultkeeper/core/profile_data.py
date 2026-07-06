@@ -96,6 +96,13 @@ class ProfileData:
             if md.is_group_item and not md.is_hidden_group
         ]
 
+    def initialise_groups(self) -> None:
+        """(Re)build the Groups views from the group rows in ModList (InitialiseGroups)."""
+        self.groups = CIStrDict()
+        for md in self.mod_list.values():
+            if md.is_group_item:
+                self.groups[md.group] = GroupMemberData(md.group, self.mod_list)
+
     def get_conflicts(self, file_key: str) -> list[FileKeyInfo]:
         """Mod file keys whose file_key matches (all installers of this file)."""
         target = file_key.lower()
