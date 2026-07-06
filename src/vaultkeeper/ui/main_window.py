@@ -45,14 +45,20 @@ class MainWindow(QMainWindow):
         self._tree.setSelectionMode(QTreeWidget.SelectionMode.ExtendedSelection)
         self._tree.itemSelectionChanged.connect(self._on_selection_changed)
 
+        self._contents = QTreeWidget()
+        self._contents.setHeaderLabels(["Contents"])
+
         self._details = QTextEdit()
         self._details.setReadOnly(True)
 
+        # Three panes: mods | contents | details (mirrors the VB NIT layout).
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self._tree)
+        splitter.addWidget(self._contents)
         splitter.addWidget(self._details)
-        splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 2)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 3)
+        splitter.setStretchFactor(2, 2)
         self.setCentralWidget(splitter)
 
         self._build_menu()
@@ -60,6 +66,17 @@ class MainWindow(QMainWindow):
 
         if controller is not None:
             self.refresh()
+        else:
+            self._show_empty_state()
+
+    def _show_empty_state(self) -> None:
+        self._details.setHtml(
+            "<h3>Welcome to Vaultkeeper</h3>"
+            "<p>No profile is open yet.</p>"
+            "<p>Use <b>File &rarr; Set Up Profile…</b> to locate your Neverwinter "
+            "Nights folder and create a profile.</p>"
+        )
+        self.statusBar().showMessage("No profile — use File ▸ Set Up Profile…")
 
     # -- Menu -------------------------------------------------------------- #
     def _build_menu(self) -> None:
@@ -168,6 +185,22 @@ class MainWindow(QMainWindow):
             md = self.controller.pd.mod_item(names[0])
             if md is not None:
                 self._show_details(md)
+                self._show_contents(md)
+        else:
+            self._contents.clear()
+
+    def _show_contents(self, md: ModData) -> None:
+        """Show the selected mod's installer files, grouped by folder."""
+        self._contents.clear()
+        by_folder: dict[str, list[str]] = {}
+        for fk in md.files:
+            by_folder.setdefault(fk.folder, []).append(fk.filename)
+        for folder in sorted(by_folder):
+            folder_item = QTreeWidgetItem([folder])
+            self._contents.addTopLevelItem(folder_item)
+            for filename in sorted(by_folder[folder]):
+                folder_item.addChild(QTreeWidgetItem([filename]))
+            folder_item.setExpanded(True)
 
     def _show_details(self, md: ModData) -> None:
         lines = [

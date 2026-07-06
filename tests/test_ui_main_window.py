@@ -125,3 +125,19 @@ def test_set_controller_repopulates(qtbot, tmp_path) -> None:
     )
     win.set_controller(controller)
     assert any("Gamma" in label for label in _all_mod_labels(win))
+
+
+def test_contents_pane_shows_mod_files(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Beta")  # ships override/b.2da
+    # The contents pane lists the file grouped under its folder.
+    contents = win._contents
+    folders = [contents.topLevelItem(i).text(0) for i in range(contents.topLevelItemCount())]
+    assert "override" in folders
+
+
+def test_empty_window_shows_guidance(qtbot) -> None:
+    win = MainWindow()  # no controller
+    qtbot.addWidget(win)
+    assert "Set Up Profile" in win._details.toPlainText()
