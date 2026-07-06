@@ -17,7 +17,6 @@ setters and Qt signals so the controller drives them exactly like the VB handler
 from __future__ import annotations
 
 from PySide6.QtCore import QSize, Qt, Signal
-from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QLabel,
     QStatusBar,
