@@ -39,20 +39,38 @@ Work in committed increments; update the checklist below + memory as you go.
       GetMappedFolder ladder + predicates + EE tweaks, name-level. 26 tests.
       Deferred: settings persistence/editors/import/migrations (Phase 8),
       folder-name->abs-path resolution (needs Paths).
-- [~] **`core/profile_data.py`** — IN PROGRESS.
-  - [x] In-memory engine slice (commit 2ce293c): container (4 dicts + originals/
-        groups/changes), accessors, graph ops (reset_mod_files, default_installer,
-        installer_conflicts, set_installer resolver, remove_mod_file/
-        remove_installed_file), state pipeline (set_mod_files/set_mod_state/
-        update_mod_states/update_file_states). + core/ci_dict.py (CIStrDict).
-        Conflict-winner resolution fully tested.
-  - [ ] Disk-scan slice: CreateModList/CreateFiles/CreateInstalledList (walk the
-        profile mods folder + game folder using Mapper + Paths), rebuild-from-disk,
-        checksum calc over real files. NEEDS the Paths layer wired to a real store.
-  - [ ] Native save/load slice: serialize the 4 dicts + mod properties to the
-        native JSON store (persistence/json_store) with FileKeyInfo round-trip.
-  - [ ] Also still deferred (attach here): ModData.rename/remove/create_installer/
-        update_file_keys/rebuild_file_list; GroupMemberData.rename/add_members.
+- [x] **`core/profile_data.py`** — DONE.
+  - [x] In-memory engine (commit 2ce293c): container, accessors, graph ops,
+        state pipeline + core/ci_dict.py. Conflict-winner resolution tested.
+  - [x] Disk-scan slice (commit 03f175b): scan_mods/scan_mod_files/scan_installed +
+        calculate_checksums + Mapper.nwn_folder_paths. End-to-end scan tested.
+  - [x] Native save/load slice (commit 2b2458b): persistence/profile_store.py
+        (to_dict/from_dict/save_profile/load_profile) + initialise_groups.
+
+## PHASE 1 COMPLETE
+
+7 commits (aa42108, 38f3494, ed805ad, fc3d0c9, 2ce293c, 03f175b, 2b2458b). The
+headless domain core is done and tested: FileKeyInfo/win_sort, State/Ratings/
+Weapon enums, FileData/InstalledFileData/ModData/GroupMemberData/ChangeData,
+Mapper, and ProfileData (load/scan/rebuild/save + state pipeline + checksums).
+219 tests, ruff clean, Python 3.13.
+
+## Still deferred to their consuming phases (NOT Phase 1)
+
+These VB methods are install-engine / UI operations and land where they're used:
+- ModData.rename/remove/create_installer/update_file_keys/rebuild_file_list and
+  GroupMemberData.rename/add_members -> Phase 2/3 (install engine / main window).
+- FileKeyInfo.FullName / FileData.FullName absolute-path resolution beyond the
+  scan/checksum helpers -> as needed with the Paths integration.
+- Mapper settings persistence / editors / import / version migrations -> Phase 8.
+- Legacy NRBF importer (read existing NIT Store) -> later, per hybrid strategy.
+
+## NEXT: Phase 2 — install engine
+
+HakPatchManager, ModInstallationManager (InstallFiles/UninstallFiles/Anneal with
+the invariants: <5121B always-copy CRC guard, winner=last by comparer, nwnpatch.ini
+rebuild each op, double UpdateProfileData + change-info save/merge/restore), a
+FileOperations-equivalent worker, CalculateCRCs. Golden tests vs a sample profile.
 
 ## Key VB constants captured (added to core/constants.py)
 
