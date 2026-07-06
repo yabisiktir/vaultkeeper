@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from vaultkeeper.core.file_data import InstalledFileData
@@ -163,6 +164,28 @@ class TestScanAndSaveName:
         gm.refresh(force=True)
         assert gm.is_save_name("Beorunna")
         assert gm.save_name_to_mod_name("Beorunna") == "My Adventure"
+
+    def test_symlinked_mod_file_maps_to_its_profile(self, tmp_path):
+        # A mod file symlinked into the tree (or a symlinked store) must still map to
+        # its profile/mod — path derivation must not follow symlinks out of Profiles.
+        external = tmp_path / "external"
+        external.mkdir()
+        (external / "adv.mod").write_bytes(b"\x00")
+        modules = self._make_profile_tree_dir(tmp_path, "Profile A", "My Adventure")
+        os.symlink(external / "adv.mod", modules / "adv.mod")
+        pd = ProfileData()
+        _installed_mod(pd, "Adventures", "My Adventure")
+        reader = FakeReader({"adv.mod": ModuleInfo("Beorunna", "d", "adv.mod")})
+        gm = _mapper(pd, _ctx(tmp_path), reader=reader)
+        gm.refresh(force=True)
+        assert gm.save_name_to_mod_name("Beorunna") == "My Adventure"
+
+    def _make_profile_tree_dir(self, tmp_path: Path, profile: str, mod: str):
+        modules = (
+            tmp_path / "Profiles" / profile / mod / ".Mod Installer" / "modules"
+        )
+        modules.mkdir(parents=True)
+        return modules
 
     def test_scan_demo_uses_module_filename(self, tmp_path):
         self._make_profile_tree(tmp_path, "Profile A", "Demo Mod", "demo.mod")

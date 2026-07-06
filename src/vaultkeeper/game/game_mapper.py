@@ -171,11 +171,19 @@ class SaveNameInfo:
         self, full_name: str, info: ModuleInfo, date_updated: datetime, profiles_dir: Path
     ) -> None:
         """Add a mod file, deriving profile/mod-name from its path under Profiles."""
+        # Match VB's plain prefix strip: do NOT follow symlinks (a symlinked store
+        # or a mod file symlinked into the tree must still map to its profile).
+        rel = None
         try:
-            rel = Path(full_name).resolve().relative_to(profiles_dir.resolve())
-            profile = rel.parts[0] if len(rel.parts) > 0 else ""
-            mod_name = rel.parts[1] if len(rel.parts) > 1 else ""
-        except (ValueError, IndexError):
+            rel = Path(full_name).relative_to(profiles_dir)
+        except ValueError:
+            try:
+                rel = Path(full_name).resolve().relative_to(profiles_dir.resolve())
+            except ValueError:
+                rel = None
+        if rel is not None and len(rel.parts) >= 2:
+            profile, mod_name = rel.parts[0], rel.parts[1]
+        else:
             profile, mod_name = "", ""
         self.mod_files[full_name] = ModFileInfo(
             save_name=info.save_name,
