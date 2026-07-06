@@ -110,3 +110,18 @@ def _select_mod(win: MainWindow, name: str) -> None:
                 child.setSelected(True)
                 win._on_selection_changed()
                 return
+
+
+def test_set_controller_repopulates(qtbot, tmp_path) -> None:
+    win = MainWindow()  # empty window, no controller
+    qtbot.addWidget(win)
+    assert win._tree.topLevelItemCount() == 0
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    game_root = tmp_path / "NWN"
+    _make_mod(profile_mods, "Gamma", {"hak/g.hak": b"GGG"})
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods, game_root=game_root
+    )
+    win.set_controller(controller)
+    assert any("Gamma" in label for label in _all_mod_labels(win))

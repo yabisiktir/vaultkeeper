@@ -43,3 +43,21 @@ def test_opens_configured_profile(tmp_path: Path) -> None:
     assert "Alpha" in controller.pd.mod_keys
     # Store path is under the resolved store's Data dir.
     assert controller.store_path == store_root / "Data" / "My Mods.json"
+
+
+def test_configure_profile_persists_and_opens(tmp_path: Path) -> None:
+    from vaultkeeper.config.settings import Settings, load_settings
+    from vaultkeeper.ui.session import configure_profile
+
+    settings_path = tmp_path / "settings.json"
+    settings = Settings(store_root=str(tmp_path / "Store"))
+    controller = configure_profile(
+        str(tmp_path / "NWN"), "Fresh", settings=settings, settings_path=settings_path
+    )
+    assert controller is not None
+    # The profile mods directory was created.
+    assert (tmp_path / "Store" / "Profiles" / "Fresh").is_dir()
+    # Settings were persisted with the game path + active profile.
+    reloaded = load_settings(settings_path)
+    assert reloaded.active_profile == "Fresh"
+    assert reloaded.nwn_path == str(tmp_path / "NWN")

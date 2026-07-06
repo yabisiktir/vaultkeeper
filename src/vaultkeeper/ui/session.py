@@ -13,7 +13,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
-from vaultkeeper.config.settings import Settings, load_settings
+from vaultkeeper.config.settings import Settings, load_settings, save_settings
 from vaultkeeper.game.locations import GameInstall, discover_installs
 from vaultkeeper.ui.controller import ProfileController
 
@@ -43,3 +43,31 @@ def bootstrap_controller(
         store_path=store.data / f"{profile}.json",
         is_ee=True,
     )
+
+
+def configure_profile(
+    nwn_path: str,
+    profile_name: str,
+    *,
+    settings: Settings | None = None,
+    settings_path: Path | None = None,
+) -> ProfileController:
+    """Persist a game path + profile choice, create the store tree, and open it.
+
+    Used by the first-run / "Set Up Profile" flow: records the selection in the
+    isolated settings file (never in the game folder), ensures the store and the
+    profile's mods directory exist, then returns a live controller.
+    """
+    settings = settings or load_settings(settings_path)
+    settings.nwn_path = nwn_path
+    settings.active_profile = profile_name
+
+    store = settings.resolved_store()
+    store.ensure()
+    store.profile_dir(profile_name).mkdir(parents=True, exist_ok=True)
+    save_settings(settings, settings_path)
+
+    controller = bootstrap_controller(settings, discover=lambda: [])
+    if controller is None:  # pragma: no cover - guaranteed configured above
+        raise RuntimeError("profile configuration did not yield a controller")
+    return controller

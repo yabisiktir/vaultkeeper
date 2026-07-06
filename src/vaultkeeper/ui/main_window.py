@@ -12,7 +12,10 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QBrush, QColor
 from PySide6.QtWidgets import (
+    QFileDialog,
+    QInputDialog,
     QMainWindow,
+    QMessageBox,
     QSplitter,
     QTextEdit,
     QTreeWidget,
@@ -63,6 +66,9 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
 
         file_menu = menubar.addMenu("&File")
+        self._act_setup = QAction("&Set Up Profile…", self)
+        self._act_setup.triggered.connect(self._on_setup)
+        file_menu.addAction(self._act_setup)
         self._act_refresh = QAction("&Refresh", self)
         self._act_refresh.triggered.connect(self.refresh)
         file_menu.addAction(self._act_refresh)
@@ -80,6 +86,29 @@ class MainWindow(QMainWindow):
         mods_menu.addAction(self._act_uninstall)
         self._act_install.setEnabled(False)
         self._act_uninstall.setEnabled(False)
+
+    def set_controller(self, controller: ProfileController) -> None:
+        """Swap in a new active profile controller and repopulate."""
+        self.controller = controller
+        self.refresh()
+
+    def _on_setup(self) -> None:
+        """First-run flow: locate the NWN folder, name a profile, open it."""
+        nwn_dir = QFileDialog.getExistingDirectory(self, "Locate your Neverwinter Nights folder")
+        if not nwn_dir:
+            return
+        name, ok = QInputDialog.getText(self, "Profile", "Profile name:", text="My Mods")
+        if not ok or not name.strip():
+            return
+        from vaultkeeper.ui.session import configure_profile
+
+        try:
+            controller = configure_profile(nwn_dir, name.strip())
+        except OSError as exc:
+            QMessageBox.warning(self, "Set Up Profile", f"Could not create the profile:\n{exc}")
+            return
+        self.set_controller(controller)
+        self.statusBar().showMessage(f"Profile '{name.strip()}' ready")
 
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:
