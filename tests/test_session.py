@@ -1,0 +1,45 @@
+"""Tests for the session bootstrap (settings + discovery -> controller)."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from vaultkeeper.config.settings import Settings
+from vaultkeeper.core import constants as C
+from vaultkeeper.ui.session import bootstrap_controller
+
+
+def _make_mod(profile_mods: Path, name: str, rel: str, data: bytes) -> None:
+    target = profile_mods / name / C.MOD_INSTALLER_DIR / rel
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+
+
+def test_returns_none_when_unconfigured() -> None:
+    # No game path and discovery finds nothing -> nothing to open.
+    settings = Settings()
+    assert bootstrap_controller(settings, discover=lambda: []) is None
+
+
+def test_returns_none_without_active_profile(tmp_path: Path) -> None:
+    settings = Settings(nwn_path=str(tmp_path / "NWN"))  # game set, no profile
+    assert bootstrap_controller(settings, discover=lambda: []) is None
+
+
+def test_opens_configured_profile(tmp_path: Path) -> None:
+    store_root = tmp_path / "Store"
+    game_root = tmp_path / "NWN"
+    settings = Settings(
+        store_root=str(store_root),
+        nwn_path=str(game_root),
+        active_profile="My Mods",
+    )
+    # Create a mod under the profile's mods directory.
+    profile_mods = store_root / "Profiles" / "My Mods"
+    _make_mod(profile_mods, "Alpha", "hak/a.hak", b"AAA")
+
+    controller = bootstrap_controller(settings, discover=lambda: [])
+    assert controller is not None
+    assert "Alpha" in controller.pd.mod_keys
+    # Store path is under the resolved store's Data dir.
+    assert controller.store_path == store_root / "Data" / "My Mods.json"
