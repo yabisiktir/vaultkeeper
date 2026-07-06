@@ -1,9 +1,8 @@
 """Vaultkeeper application entry point.
 
-Phase 0 stub: the GUI (PySide6 main window) arrives in Phase 3. For now this
-provides a runnable ``vaultkeeper`` command that reports discovered NWN installs
-and the resolved store layout — useful for verifying the cross-platform path
-layer on a real machine without any UI.
+``python -m vaultkeeper`` launches the GUI. ``python -m vaultkeeper --scan``
+prints the discovered NWN installs and resolved store layout (the headless probe,
+useful for verifying the cross-platform path layer without a display).
 """
 
 from __future__ import annotations
@@ -15,9 +14,7 @@ from vaultkeeper.app_paths import VaultStore, config_root
 from vaultkeeper.game.locations import discover_installs
 
 
-def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-
+def _scan() -> int:
     print(f"Vaultkeeper {__version__}")
     print(f"Config:   {config_root()}")
     store = VaultStore.default()
@@ -38,6 +35,17 @@ def main(argv: list[str] | None = None) -> int:
             tags.append("network")
         print(f"  - {install.root}  [{', '.join(tags)}]")
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if "--scan" in args:
+        return _scan()
+
+    # Launch the GUI. Imported lazily so --scan works without a Qt display.
+    from vaultkeeper.ui.app import run
+
+    return run()
 
 
 if __name__ == "__main__":
