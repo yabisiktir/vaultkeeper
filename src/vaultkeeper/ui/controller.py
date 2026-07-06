@@ -10,12 +10,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from vaultkeeper.app_paths import config_root
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.hak_patch import HakPatchManager
 from vaultkeeper.core.install_manager import InstallContext, ModInstallationManager
 from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
+from vaultkeeper.game.config_guard import ConfigChange, ConfigGuard
+from vaultkeeper.game.locations import HostOS, user_documents_dir
 from vaultkeeper.persistence.profile_store import load_profile, save_profile
 
 
@@ -51,6 +54,7 @@ class ProfileController:
         """Load a profile from ``store_path`` (or scan from disk if absent), wire it up."""
         mapper = Mapper(is_ee=is_ee)
         game_folders = mapper.nwn_folder_paths(game_root)
+        game_user_dir = user_documents_dir(HostOS.current())
 
         pd = load_profile(store_path) if store_path else None
         if pd is None:
@@ -70,6 +74,7 @@ class ProfileController:
             root_folder_name=game_root.name,
             mapper=mapper,
             is_ee=is_ee,
+            game_user_dir=game_user_dir,
         )
         return cls(pd, ctx, store_path=store_path)
 
@@ -128,3 +133,21 @@ class ProfileController:
             1 for n in self.pd.mod_keys if (m := self.pd.mod_item(n)) and m.installed
         )
         return total, installed
+
+    # -- Config-isolation guard ------------------------------------------- #
+    def _config_guard(self) -> ConfigGuard | None:
+        if self.ctx.game_user_dir is None:
+            return None
+        snapshot = config_root() / "game_config_snapshot.json"
+        return ConfigGuard(self.ctx.game_user_dir, snapshot_path=snapshot)
+
+    def game_config_changes(self) -> list[ConfigChange]:
+        """Game config files changed since the accepted baseline (read-only)."""
+        guard = self._config_guard()
+        return guard.check() if guard is not None else []
+
+    def accept_game_config(self) -> None:
+        """Record the current game config as the baseline (writes only VK's snapshot)."""
+        guard = self._config_guard()
+        if guard is not None:
+            guard.accept()

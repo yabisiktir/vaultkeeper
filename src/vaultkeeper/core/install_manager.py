@@ -53,6 +53,10 @@ class InstallContext:
     root_folder_name: str
     mapper: Mapper
     is_ee: bool = True
+    #: The game's per-user directory (Documents/Neverwinter Nights) — where
+    #: nwn.ini/settings.tml/saves live. Used for config-drift checks; never written
+    #: without user consent.
+    game_user_dir: Path | None = None
 
     def mod_path(self, fk: FileKeyInfo) -> Path:
         return ProfileData.mod_file_path(self.profile_mods_dir, fk)
