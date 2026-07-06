@@ -46,3 +46,26 @@ increment; update this checklist + memory.
 - CalculateCRCs is already covered by ProfileData.calculate_checksums (Phase 1).
 - FileData/InstalledFileData FullName resolution uses the Phase-1 path helpers
   (mod_file_path / installed_file_path) with profile_mods_dir + game_folders.
+
+## PHASE 2 COMPLETE
+
+Commits 162dcc0 (install engine + FileOps), 4a20a5c (HakPatchManager + integration).
+- core/file_ops.py, core/install_manager.py (install/uninstall/anneal, all
+  invariants), core/hak_patch.py, ProfileData.add_installed_file.
+- 231 tests, ruff clean. Golden install/uninstall/anneal verified end-to-end on a
+  real on-disk profile incl. conflict winner reassignment + small-file guard.
+- Key load-sequence lesson encoded in tests: scan -> checksums ->
+  update_file_states -> update_mod_states BEFORE reset (un-held files -> NotInstalled).
+
+## NEXT (autonomous run, plan deviation noted)
+
+Plan Phase 3 = UI MVP (PySide6). Working autonomously without visual feedback, the
+higher-confidence value is to first finish the testable-headless domain breadth
+that the UI will sit on, then scaffold UI. Order taken:
+1. Deferred Phase-1 mutators (ModData.rename/remove, GroupMemberData.rename/
+   add_members) — small, needed by UI, testable.
+2. Phase-4 domain managers that are testable headlessly: InstallationManager
+   (sets/checkpoints/apply), DependencyManager graph, InstallationAnalyser,
+   Conflicts. VB: InstallationManager*.vb, DependencyManager.vb (+ ProfileData
+   dependency graph :2840-2956), InstallationAnalyser.vb, FileConflictsViewer.vb.
+3. Then Phase 3 UI scaffold on the completed engine.
