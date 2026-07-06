@@ -40,17 +40,19 @@ the real `module.ifo` decode are the remaining wiring (see "Not yet" below).
   `record_completed_games`, `validate` (vs game-save backups), `record_deleted_games`,
   `FormatTime`/`FormatDays`. Settings/`to_mod_key`/save/refresh injected.
 
-Test count: **364 passed** (+87 this phase), ruff clean, py3.13 / PySide6 6.8.3.
+- **game/module_reader.py** — `ErfModuleReader` (the real `ModuleInfoReader`): self-
+  contained ERF + GFF/`module.ifo` struct decode (`ErfFileReader.vb` +
+  `ErfFileReader.IfoReader.vb`). Reads the English localized description and the
+  `Mod_Name` CExoLocString save name, strips illegal folder chars. **Validated against
+  the user's real `.mod`/`.nwm` library** and end-to-end through `GameMapper.refresh`
+  (a real module symlinked into a temp profile resolves save→mod correctly). This also
+  surfaced+fixed a `SaveNameInfo.add` bug (it followed symlinks out of the Profiles tree
+  when deriving the profile/mod; now a plain prefix strip like VB).
 
-## Not yet (wiring & one real decoder)
+Test count: **373 passed** (+96 this phase), ruff clean, py3.13 / PySide6 6.8.3.
 
-- **Real `ModuleInfoReader`** — the salvaged `core/formats/erf_reader.py` sources
-  `save_name` from an *empty placeholder table*, so it can't feed GameMapper's scan on
-  real data. Needs: locate the `module.ifo` resource in the ERF → GFF-parse its
-  `Mod_Name` (save name) and `Mod_Description`. VB refs: `ErfFileReader.vb:160-221`
-  (`ModDescription` from ERF localized strings, `ModSavName` from `IfoReader.GetFieldText
-  ("Mod_Name")`). Validate against the user's real `.mod`/`.nwm` files. Scoped follow-up;
-  the GameMapper ladder is fully functional via the installed-key path without it.
+## Not yet (UI wiring only — domain layer is complete)
+
 - **Qt prompter** — implement `GameMapperPrompter` with the choice dialog / name editor
   / profile picker; wire into the controller.
 - **Launch/exit loop** — `TimedExecution` equivalent (Play/Toolset launch with mac
