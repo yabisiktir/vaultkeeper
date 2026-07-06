@@ -113,6 +113,56 @@ class ProfileData:
         ifd = self.installed_list.get(FileKeyInfo.installed_from_key(file_key))
         return ifd.installer if ifd is not None else ""
 
+    # -- Dependencies (ProfileData.vb:2840-2939) --------------------------- #
+    def has_dependants(self, mod_name: str) -> bool:
+        """True if any mod declares ``mod_name`` as a dependency (case-insensitive)."""
+        low = mod_name.lower()
+        return any(
+            any(dep.lower() == low for dep in md.dependencies)
+            for md in self.mod_list.values()
+        )
+
+    def validate_dependencies(self) -> int:
+        """Remove dependencies pointing at non-existent mods; return the count removed."""
+        removed = 0
+        for md in self.mod_list.values():
+            for dep in list(md.dependencies):
+                if not self.mod_exists(dep):
+                    md.dependencies.remove(dep)
+                    removed += 1
+        return removed
+
+    def get_dependants(self) -> dict[str, list[str]]:
+        """Map each required mod -> sorted list of mods that depend on it."""
+        from vaultkeeper.core.win_sort import win_compare
+
+        acc: CIStrDict[list[str]] = CIStrDict()
+        for md in self.mod_list.values():
+            for dep in md.dependencies:
+                if dep not in acc:
+                    acc[dep] = [md.mod_name]
+                elif not any(x.lower() == md.mod_name.lower() for x in acc[dep]):
+                    acc[dep].append(md.mod_name)
+        for key in list(acc.keys()):
+            acc[key].sort(key=cmp_to_key(win_compare))
+        return {k: acc[k] for k in sorted(acc.keys(), key=cmp_to_key(win_compare))}
+
+    def get_installed_dependants(self) -> dict[str, list[str]]:
+        """Like :meth:`get_dependants` but limited to installed mods + installed deps."""
+        acc: CIStrDict[list[str]] = CIStrDict()
+        for md in self.mod_list.values():
+            if not md.installed:
+                continue
+            for dep in md.dependencies:
+                dep_mod = self.mod_item(dep)
+                if dep_mod is None or not dep_mod.installed:
+                    continue
+                if dep not in acc:
+                    acc[dep] = [md.mod_name]
+                elif not any(x.lower() == md.mod_name.lower() for x in acc[dep]):
+                    acc[dep].append(md.mod_name)
+        return dict(acc.items())
+
     # -- Graph operations (VB methods on InstalledFileData, moved to pfd) --- #
     def reset_mod_files(self, ifd: InstalledFileData) -> None:
         """Rebuild ifd.mod_file_conflicts (all mods with this file_key) + mod_files
