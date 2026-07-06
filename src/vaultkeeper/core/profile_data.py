@@ -145,6 +145,84 @@ class ProfileData:
         self.update_mod_states()
         return True
 
+    def rename_mod(
+        self,
+        old_name: str,
+        new_name: str,
+        profile_mods_dir: Path,
+        game_folders: dict[str, Path] | None = None,
+    ) -> bool:
+        """Rename a mod: its folder, all its file keys, and identifier files.
+
+        Ports ModData.Rename. Renames the mod directory on disk, rewrites every
+        FileList key to the new mod name, and renames identifier files
+        (``<mod>.nitins/.nitres``) both in the installer and, if ``game_folders``
+        is given, in the game folder. Group rows are ignored. Returns True on
+        success; False if the source is missing/a group or the target name exists.
+        """
+        md = self.mod_item(old_name)
+        if md is None or md.is_group_item or new_name in self.mod_list:
+            return False
+
+        old_dir = profile_mods_dir / old_name
+        new_dir = profile_mods_dir / new_name
+        if old_dir.is_dir():
+            old_dir.rename(new_dir)
+
+        new_md = md.clone()
+        new_md.mod_name = new_name
+        new_md.files.clear()
+
+        for fk in md.files:
+            is_identifier = md.is_mod_identifier_file(fk) and fk.filename.lower().startswith(
+                old_name.lower() + "."
+            )
+            new_filename = (new_name + fk.extension) if is_identifier else fk.filename
+            new_fk = FileKeyInfo(fk.group, new_name, fk.folder, new_filename)
+
+            if is_identifier:
+                base = new_dir / C.MOD_INSTALLER_DIR / fk.folder
+                old_path, new_path = base / fk.filename, base / new_filename
+                if old_path.exists():
+                    old_path.rename(new_path)
+
+            fd = self.file_list.pop(fk, None)
+            if fd is not None:
+                fd.key = new_fk
+                self.file_list[new_fk] = fd
+            self.changes.file.removed(fk)
+            self.changes.file.renamed(new_fk)
+
+            if is_identifier:
+                self._rename_installed_identifier(fk, new_fk, game_folders)
+
+            new_md.files.append(new_fk)
+
+        del self.mod_list[old_name]
+        self.mod_list[new_name] = new_md
+        self.changes.mods.affected(new_name)
+        self.update_file_states()
+        self.update_mod_states()
+        return True
+
+    def _rename_installed_identifier(
+        self, fk: FileKeyInfo, new_fk: FileKeyInfo, game_folders: dict[str, Path] | None
+    ) -> None:
+        old_ik, new_ik = fk.installed_key, new_fk.installed_key
+        ifd = self.installed_list.pop(old_ik, None)
+        if ifd is None:
+            return
+        if game_folders is not None:
+            base = game_folders.get(old_ik.folder)
+            if base is not None:
+                old_path, new_path = base / old_ik.filename, base / new_ik.filename
+                if old_path.exists():
+                    old_path.rename(new_path)
+        ifd.key = new_ik
+        self.installed_list[new_ik] = ifd
+        self.changes.installed.removed(old_ik)
+        self.changes.installed.renamed(new_ik)
+
     # -- Installation analysis (ProfileData.Properties.vb) ----------------- #
     def unknown_source_files(self, mapper) -> list[FileKeyInfo]:  # noqa: ANN001
         """Installed files from an unknown source with a mapped extension."""

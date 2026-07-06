@@ -102,11 +102,15 @@ class MainWindow(QMainWindow):
         self._act_uninstall.triggered.connect(self._on_uninstall)
         mods_menu.addAction(self._act_uninstall)
         mods_menu.addSeparator()
+        self._act_rename = QAction("Re&name…", self)
+        self._act_rename.triggered.connect(self._on_rename)
+        mods_menu.addAction(self._act_rename)
         self._act_remove = QAction("&Remove from Profile…", self)
         self._act_remove.triggered.connect(self._on_remove)
         mods_menu.addAction(self._act_remove)
         self._act_install.setEnabled(False)
         self._act_uninstall.setEnabled(False)
+        self._act_rename.setEnabled(False)
         self._act_remove.setEnabled(False)
 
     def set_controller(self, controller: ProfileController) -> None:
@@ -197,6 +201,7 @@ class MainWindow(QMainWindow):
         self._act_install.setEnabled(has_sel)
         self._act_uninstall.setEnabled(has_sel)
         self._act_remove.setEnabled(has_sel)
+        self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
         if self.controller is not None and len(names) == 1:
             md = self.controller.pd.mod_item(names[0])
             if md is not None:
@@ -244,6 +249,21 @@ class MainWindow(QMainWindow):
         message = self.controller.uninstall(names)
         self.refresh()
         self.statusBar().showMessage(message or "Uninstall complete")
+
+    def _on_rename(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            return
+        old = names[0]
+        new, ok = QInputDialog.getText(self, "Rename Mod", "New name:", text=old)
+        new = new.strip()
+        if not ok or not new or new == old:
+            return
+        if self.controller.rename_mod(old, new):
+            self.refresh()
+            self.statusBar().showMessage(f"Renamed '{old}' to '{new}'")
+        else:
+            QMessageBox.warning(self, "Rename Mod", f"Could not rename to '{new}'.")
 
     def _on_remove(self) -> None:
         names = self.selected_mod_names()

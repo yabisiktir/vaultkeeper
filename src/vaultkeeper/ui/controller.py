@@ -122,6 +122,15 @@ class ProfileController:
         self.save()
         return removed
 
+    def rename_mod(self, old_name: str, new_name: str) -> bool:
+        """Rename a mod (folder + keys + identifier files); persist on success."""
+        ok = self.pd.rename_mod(
+            old_name, new_name, self.ctx.profile_mods_dir, self.ctx.game_folders
+        )
+        if ok:
+            self.save()
+        return ok
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)

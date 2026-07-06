@@ -154,3 +154,13 @@ def test_remove_mod_via_controller(qtbot, controller) -> None:
     assert "Alpha" not in controller.pd.mod_keys
     labels = _all_mod_labels(win)
     assert not any("Alpha" in label for label in labels)
+
+
+def test_rename_mod_via_controller(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    assert controller.rename_mod("Alpha", "Alpha Renamed")
+    win.refresh()
+    assert "Alpha Renamed" in controller.pd.mod_keys
+    assert "Alpha" not in controller.pd.mod_keys
+    assert any("Alpha Renamed" in label for label in _all_mod_labels(win))
