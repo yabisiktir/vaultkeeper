@@ -141,3 +141,16 @@ def test_empty_window_shows_guidance(qtbot) -> None:
     win = MainWindow()  # no controller
     qtbot.addWidget(win)
     assert "Set Up Profile" in win._details.toPlainText()
+
+
+def test_remove_mod_via_controller(qtbot, controller) -> None:
+    # Exercise the controller path the UI action uses (dialog itself is interactive).
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    assert "Alpha" in controller.pd.mod_keys
+    removed = controller.remove_mods(["Alpha"])
+    win.refresh()
+    assert removed == 1
+    assert "Alpha" not in controller.pd.mod_keys
+    labels = _all_mod_labels(win)
+    assert not any("Alpha" in label for label in labels)

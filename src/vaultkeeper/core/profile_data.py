@@ -113,6 +113,38 @@ class ProfileData:
         ifd = self.installed_list.get(FileKeyInfo.installed_from_key(file_key))
         return ifd.installer if ifd is not None else ""
 
+    # -- Mutators (ModData.Remove / RemoveAllFiles) ------------------------ #
+    def remove_mod(self, name: str) -> bool:
+        """Remove a mod and its installer files from the database (ModData.Remove).
+
+        Removes the mod's FileList entries and detaches them from any installed
+        files (re-resolving ownership to a remaining mod, or Unknown). Installed
+        game files stay on disk — this removes the *mod definition*, not an
+        uninstall. Group rows are ignored here (see :meth:`remove_group`).
+        Returns True if a mod was removed.
+        """
+        md = self.mod_item(name)
+        if md is None or md.is_group_item:
+            return False
+
+        for fk in list(md.files):
+            self.changes.file.removed(fk)
+            self.file_list.pop(fk, None)
+            ifd = self.installed_item(fk.installed_key)
+            if ifd is not None:
+                if md.is_mod_identifier_file(fk):
+                    self.changes.installed.removed(ifd.key)
+                    self.remove_installed_file(ifd)
+                else:
+                    self.remove_mod_file(ifd, fk, True)
+            self.changes.mods.affected(name)
+
+        md.files.clear()
+        del self.mod_list[name]
+        self.update_file_states()
+        self.update_mod_states()
+        return True
+
     # -- Installation analysis (ProfileData.Properties.vb) ----------------- #
     def unknown_source_files(self, mapper) -> list[FileKeyInfo]:  # noqa: ANN001
         """Installed files from an unknown source with a mapped extension."""

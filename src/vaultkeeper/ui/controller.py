@@ -111,6 +111,12 @@ class ProfileController:
         self.engine.uninstall_files(self.mod_files(names), anneal_mods=names)
         return self.engine.result_message
 
+    def remove_mods(self, names: list[str]) -> int:
+        """Remove mod definitions from the profile; return how many were removed."""
+        removed = sum(1 for name in names if self.pd.remove_mod(name))
+        self.save()
+        return removed
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
