@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.nit_status)
 
         self._build_menu()
-        self.statusBar().showMessage("Ready")
+        self.nit_status.set_info("Ready")
 
         if controller is not None:
             self.refresh()
@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
             "<p>Use <b>File &rarr; Set Up Profile…</b> to locate your Neverwinter "
             "Nights folder and create a profile.</p>"
         )
-        self.statusBar().showMessage("No profile — use File ▸ Set Up Profile…")
+        self.nit_status.set_info("No profile — use File ▸ Set Up Profile…")
 
     # -- Menu -------------------------------------------------------------- #
     def _build_menu(self) -> None:
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         changes = self.controller.startup_config_check()
         if changes:
             names = ", ".join(sorted({c.path.name for c in changes}))
-            self.statusBar().showMessage(f"Note: game config changed ({names})")
+            self.nit_status.set_info(f"Note: game config changed ({names})")
 
     def _on_setup(self) -> None:
         """First-run flow: locate the NWN folder, name a profile, open it."""
@@ -170,7 +170,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Set Up Profile", f"Could not create the profile:\n{exc}")
             return
         self.set_controller(controller)
-        self.statusBar().showMessage(f"Profile '{name.strip()}' ready")
+        self.nit_status.set_info(f"Profile '{name.strip()}' ready")
 
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:
@@ -210,7 +210,8 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         total, installed = self.controller.counts()
-        self.statusBar().showMessage(f"Mods: {total:,}   Installed: {installed:,}")
+        # Real status segments (VB BtModCount) instead of an overlaying message.
+        self.nit_status.set_mod_count(installed, total)
 
     # -- Selection / actions ---------------------------------------------- #
     def selected_mod_names(self) -> list[str]:
@@ -281,7 +282,7 @@ class MainWindow(QMainWindow):
         handler()
 
     def _not_implemented(self) -> None:
-        self.statusBar().showMessage("That command is not available yet.")
+        self.nit_status.set_info("That command is not available yet.")
 
     def _on_install(self) -> None:
         names = self.selected_mod_names()
@@ -289,7 +290,7 @@ class MainWindow(QMainWindow):
             return
         message = self.controller.install(names)
         self.refresh()
-        self.statusBar().showMessage(message or "Install complete")
+        self.nit_status.set_info(message or "Install complete")
 
     def _on_uninstall(self) -> None:
         names = self.selected_mod_names()
@@ -297,7 +298,7 @@ class MainWindow(QMainWindow):
             return
         message = self.controller.uninstall(names)
         self.refresh()
-        self.statusBar().showMessage(message or "Uninstall complete")
+        self.nit_status.set_info(message or "Uninstall complete")
 
     def _on_rename(self) -> None:
         names = self.selected_mod_names()
@@ -310,7 +311,7 @@ class MainWindow(QMainWindow):
             return
         if self.controller.rename_mod(old, new):
             self.refresh()
-            self.statusBar().showMessage(f"Renamed '{old}' to '{new}'")
+            self.nit_status.set_info(f"Renamed '{old}' to '{new}'")
         else:
             QMessageBox.warning(self, "Rename Mod", f"Could not rename to '{new}'.")
 
@@ -327,4 +328,4 @@ class MainWindow(QMainWindow):
             return
         removed = self.controller.remove_mods(names)
         self.refresh()
-        self.statusBar().showMessage(f"Removed {removed} mod(s) from the profile")
+        self.nit_status.set_info(f"Removed {removed} mod(s) from the profile")

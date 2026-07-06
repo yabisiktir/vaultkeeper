@@ -49,7 +49,8 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     labels = _all_mod_labels(win)
     assert any("Alpha" in label for label in labels)
     assert any("Beta" in label for label in labels)
-    assert "Mods: 2" in win.statusBar().currentMessage()
+    # The status bar's mod-count segment shows installed/total.
+    assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
 def test_install_via_ui_updates_state_and_disk(qtbot, controller, tmp_path) -> None:
@@ -64,8 +65,9 @@ def test_install_via_ui_updates_state_and_disk(qtbot, controller, tmp_path) -> N
     assert (tmp_path / "NWN" / "hak" / "a.hak").is_file()
     assert controller.pd.mod_item("Alpha").installed
     assert controller.counts() == (2, 1)  # 2 mods, 1 installed
-    # The status bar reports the operation result.
-    assert "installed" in win.statusBar().currentMessage().lower()
+    # The status bar's info area reports the operation result, and the count updates.
+    assert "installed" in win.nit_status.mg_info.text().lower()
+    assert win.nit_status.bt_mod_count.text() == "1/2"
     # Store was saved (on_save wired through the controller).
     assert (tmp_path / "Data" / "P.json").exists()
 
@@ -189,7 +191,7 @@ def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
     win.quick_toolbar.actions_by_id["TsPlayNeverwinterNights"].trigger()
-    assert "not available" in win.statusBar().currentMessage().lower()
+    assert "not available" in win.nit_status.mg_info.text().lower()
 
 
 def _find_mod_item(win, name):
