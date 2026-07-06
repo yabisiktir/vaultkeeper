@@ -8,6 +8,7 @@ import pytest
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.file_key import FileKeyInfo
+from vaultkeeper.core.hak_patch import HakPatchManager
 from vaultkeeper.core.install_manager import InstallContext, IOResult, ModInstallationManager
 from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.core.profile_data import ProfileData
@@ -163,3 +164,17 @@ def test_small_file_always_copied(setup) -> None:
     )
     # It was copied again (guard forces copy for tiny files), restoring content.
     assert target.read_bytes() == b"data"
+
+
+def test_install_rebuilds_patch_ini_via_hook(setup) -> None:
+    # Wire the HakPatchManager as the engine's hak_patch hook and confirm the
+    # patch ini is (re)generated as part of an install (the per-op invariant).
+    pd, ctx, mgr, game_root = setup
+    patch_ini = game_root / C.PATCH_INI_FILE
+    hpm = HakPatchManager(pd, patch_ini)
+    mgr.hak_patch = hpm.create_nwn_patch_ini_file
+
+    _install(mgr, pd, "Mod A")
+
+    assert patch_ini.is_file()
+    assert patch_ini.read_text().startswith("[Patch]")
