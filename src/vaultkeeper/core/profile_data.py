@@ -377,6 +377,30 @@ class ProfileData:
                     existing.byte_size = stat.st_size
                     self.changes.installed.changed(ifk)
 
+    def add_installed_file(self, ifk: FileKeyInfo, path: Path) -> None:
+        """Add/update an installed-file entry from a file on disk (AddInstalledFile).
+
+        ``ifk`` must be an installed key; ``path`` is its resolved location. No-op
+        if the file does not exist. Adds the key to the Installed change list.
+        """
+        if not path.is_file():
+            return
+        self.changes.installed.added(ifk)
+        stat = path.stat()
+        ifd = self.installed_list.get(ifk)
+        if ifd is None:
+            self.installed_list[ifk] = InstalledFileData(
+                key=ifk,
+                file_state=State.INSTALLED,
+                extension=path.suffix,
+                modified=datetime.fromtimestamp(stat.st_mtime),
+                byte_size=stat.st_size,
+                file_crc=0,
+            )
+        else:
+            ifd.byte_size = stat.st_size
+            ifd.modified = datetime.fromtimestamp(stat.st_mtime)
+
     # -- Path resolution + checksums --------------------------------------- #
     @staticmethod
     def mod_file_path(profile_mods_dir: Path, fk: FileKeyInfo) -> Path:
