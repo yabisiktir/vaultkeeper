@@ -21,7 +21,9 @@ Work in committed increments; update the checklist below + memory as you go.
       (`Group\ModName\Folder\Filename`), case-insensitive equality+hash, `comparer`
       by (qualifier, file_key), predicates, installed_key, from_full_key. Tested
       incl. dict-key case-insensitivity + winner selection.
-- [~] **data records** — IN PROGRESS.
+- [x] **data records** — DONE (commits aa42108, 38f3494, ed805ad).
+  - group_member.py (view over ModList) + change_data.py (ChangeData/InfoFiles/
+    InfoMods with save/merge/restore) landed in ed805ad.
   - [x] `core/state.py` — State + Ratings IntEnums (data-contract values verified).
         Commit aa42108.
   - [x] `core/file_data.py` — FileData + InstalledFileData records (fields + pure
@@ -33,12 +35,12 @@ Work in committed increments; update the checklist below + memory as you go.
         GroupStatus enums. Commit 38f3494. Deferred to ProfileData: rename/remove/
         remove_file/remove_all_files/create_installer/update_file_keys/
         rebuild_file_list/path+notes resolution.
-  - [ ] `core/group_member.py` — GroupMemberData (GroupMemberData.vb, 246).
-  - [ ] `core/change_data.py` — ChangeData (ChangeData.vb, 813): Installed/File/Mods
-        sub-trackers; SaveInfo/RestoreSavedInfo/MergeSavedInfo (load-bearing for the
-        install→anneal choreography).
 - [ ] **`core/mapper.py`** — `Mapper.GetMappedFolder` ladder + tables/defaults.
       VB: `Mapper.vb` (3,124 lines; MapVersion 21). The engine the old port faked.
+      NEXT UP. Big single piece — read Mapper.vb (esp. Initialise ~516,
+      GetMappedFolder ~2153, DefineNwnFolders/DefineEeFolders ~1601/1643, the
+      exception/prefix/extension-map/demo-mod/ERF-exclusion ladder). Legacy version
+      migrations (UpdateFromVersion6..21) can be skipped — start at v21 defaults.
 - [ ] **`core/profile_data.py`** — unified `ProfileData`: load/scan/rebuild/save +
       state pipeline + checksums, headless. VB: `ProfileData*.vb`.
 
