@@ -27,7 +27,7 @@ and lookups lower-case their argument.
 
 from __future__ import annotations
 
-from pathlib import PurePath
+from pathlib import Path, PurePath
 
 from vaultkeeper.core import constants as C
 
@@ -426,3 +426,16 @@ class Mapper:
 
     def is_legal_folder(self, folder: str) -> bool:
         return folder.lower() in self.legal_folder_names()
+
+    def nwn_folder_paths(self, game_root: Path) -> dict[str, Path]:
+        """Resolve each legal folder name to an absolute path under ``game_root``.
+
+        The "nwn" root maps to ``game_root`` itself; every other folder to
+        ``game_root/<name>`` (VB ``DefineNwnFolders``). Note: on a real EE install
+        the ovr/mus/txpk folders live under a data subfolder — a refinement for the
+        Paths-integration slice; for a standard layout this is correct.
+        """
+        paths: dict[str, Path] = {}
+        for name in self.legal_folder_names():
+            paths[name] = game_root if name == FOLDER_ROOT else game_root / name
+        return paths

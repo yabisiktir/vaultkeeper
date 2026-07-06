@@ -39,8 +39,20 @@ Work in committed increments; update the checklist below + memory as you go.
       GetMappedFolder ladder + predicates + EE tweaks, name-level. 26 tests.
       Deferred: settings persistence/editors/import/migrations (Phase 8),
       folder-name->abs-path resolution (needs Paths).
-- [ ] **`core/profile_data.py`** — unified `ProfileData`: load/scan/rebuild/save +
-      state pipeline + checksums, headless. VB: `ProfileData*.vb`.
+- [~] **`core/profile_data.py`** — IN PROGRESS.
+  - [x] In-memory engine slice (commit 2ce293c): container (4 dicts + originals/
+        groups/changes), accessors, graph ops (reset_mod_files, default_installer,
+        installer_conflicts, set_installer resolver, remove_mod_file/
+        remove_installed_file), state pipeline (set_mod_files/set_mod_state/
+        update_mod_states/update_file_states). + core/ci_dict.py (CIStrDict).
+        Conflict-winner resolution fully tested.
+  - [ ] Disk-scan slice: CreateModList/CreateFiles/CreateInstalledList (walk the
+        profile mods folder + game folder using Mapper + Paths), rebuild-from-disk,
+        checksum calc over real files. NEEDS the Paths layer wired to a real store.
+  - [ ] Native save/load slice: serialize the 4 dicts + mod properties to the
+        native JSON store (persistence/json_store) with FileKeyInfo round-trip.
+  - [ ] Also still deferred (attach here): ModData.rename/remove/create_installer/
+        update_file_keys/rebuild_file_list; GroupMemberData.rename/add_members.
 
 ## Key VB constants captured (added to core/constants.py)
 

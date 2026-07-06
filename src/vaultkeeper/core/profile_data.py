@@ -20,11 +20,14 @@ layer and directory walking.
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import datetime
 from functools import cmp_to_key
+from pathlib import Path
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.change_data import ChangeData
 from vaultkeeper.core.ci_dict import CIStrDict
+from vaultkeeper.core.crc import crc32_file
 from vaultkeeper.core.file_data import FileData, InstalledFileData
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.group_member import GroupMemberData
@@ -287,3 +290,125 @@ class ProfileData:
 
     def add_installed(self, ifd: InstalledFileData) -> None:
         self.installed_list[ifd.key] = ifd
+
+    # -- Disk scan (CreateModList / CreateFiles / CreateInstalledList) ------ #
+    def scan_mods(self, profile_mods_dir: Path) -> None:
+        """Add every mod folder under ``profile_mods_dir`` and scan its files.
+
+        Ports CreateModList/CreateModListThread + AddMod + AddFiles. New mods join
+        the reserved GroupNone; their installer files populate FileList.
+        """
+        if not profile_mods_dir.is_dir():
+            return
+        for mod_dir in sorted(p for p in profile_mods_dir.iterdir() if p.is_dir()):
+            name = mod_dir.name
+            if name in self.mod_list or name in C.RESERVED_MOD_NAMES:
+                continue
+            md = ModData(group=C.GROUP_NONE, mod_name=name)
+            self.mod_list[name] = md
+            self.changes.mods.added(name)
+            self.scan_mod_files(md, profile_mods_dir)
+
+    def scan_mod_files(self, md: ModData, profile_mods_dir: Path) -> None:
+        """Populate FileList from a mod's ``.Mod Installer`` payload (AddFilesThread).
+
+        Files are taken from sub-folders of the installer directory (matching VB,
+        which enumerates sub-directories then their files); the recorded folder is
+        the file's immediate parent name.
+        """
+        installer_dir = profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR
+        if not installer_dir.is_dir():
+            return
+        for path in sorted(installer_dir.rglob("*")):
+            if not path.is_file() or path.parent == installer_dir:
+                continue
+            fk = FileKeyInfo(md.group, md.mod_name, path.parent.name, path.name)
+            if fk not in self.file_list:
+                stat = path.stat()
+                self.file_list[fk] = FileData(
+                    key=fk,
+                    file_state=State.UNKNOWN,
+                    extension=path.suffix,
+                    modified=datetime.fromtimestamp(stat.st_mtime),
+                    byte_size=stat.st_size,
+                    file_crc=0,
+                )
+                md.files.append(fk)
+                self.changes.file.added(fk)
+
+    def scan_installed(self, game_folders: dict[str, Path], root_folder_name: str) -> None:
+        """Populate InstalledList from the mapped game folders (AddInstalledFilesThread).
+
+        ``game_folders`` maps folder name -> absolute path (see
+        :meth:`Mapper.nwn_folder_paths`); ``root_folder_name`` is the game root's
+        directory name, used to normalise root-level files to the "nwn" marker.
+        """
+        for path in game_folders.values():
+            if not path.is_dir():
+                continue
+            for file in sorted(p for p in path.iterdir() if p.is_file()):
+                ifk = FileKeyInfo.installed(
+                    file.parent.name, file.name, root_folder_name=root_folder_name
+                )
+                stat = file.stat()
+                existing = self.installed_list.get(ifk)
+                if existing is None:
+                    self.installed_list[ifk] = InstalledFileData(
+                        key=ifk,
+                        file_state=State.INSTALLED,
+                        extension=file.suffix,
+                        modified=datetime.fromtimestamp(stat.st_mtime),
+                        byte_size=stat.st_size,
+                        file_crc=0,
+                    )
+                    self.changes.installed.added(ifk)
+                elif (
+                    existing.byte_size != stat.st_size
+                    or existing.modified != datetime.fromtimestamp(stat.st_mtime)
+                ):
+                    existing.modified = datetime.fromtimestamp(stat.st_mtime)
+                    existing.byte_size = stat.st_size
+                    self.changes.installed.changed(ifk)
+
+    # -- Path resolution + checksums --------------------------------------- #
+    @staticmethod
+    def mod_file_path(profile_mods_dir: Path, fk: FileKeyInfo) -> Path:
+        """Absolute path of a mod-installer file (FileData.FullName)."""
+        rel = fk.file_key.replace("\\", "/")
+        return profile_mods_dir / fk.mod_name / C.MOD_INSTALLER_DIR / rel
+
+    @staticmethod
+    def installed_file_path(game_folders: dict[str, Path], ifk: FileKeyInfo) -> Path | None:
+        """Absolute path of an installed file (InstalledFileData.FullName)."""
+        base = game_folders.get(ifk.folder)
+        return base / ifk.filename if base is not None else None
+
+    def calculate_checksums(
+        self, profile_mods_dir: Path, game_folders: dict[str, Path]
+    ) -> None:
+        """Compute CRC-32 for every pending file in the change update lists.
+
+        Mirrors CalculateChecksums headlessly (no dialog): walks
+        Changes.File.UpdateList and Changes.Installed.UpdateList, computes CRCs from
+        the real files, and stores them. Missing/unreadable files are left at 0.
+        """
+        for fk in self.changes.file.update_list:
+            fd = self.file_list.get(fk)
+            if fd is None:
+                continue
+            path = self.mod_file_path(profile_mods_dir, fk)
+            fd.file_crc = _safe_crc(path)
+
+        for ifk in self.changes.installed.update_list:
+            ifd = self.installed_list.get(ifk)
+            if ifd is None:
+                continue
+            path = self.installed_file_path(game_folders, ifk)
+            ifd.file_crc = _safe_crc(path) if path is not None else 0
+
+
+def _safe_crc(path: Path) -> int:
+    try:
+        return crc32_file(path)
+    except OSError:
+        return 0
