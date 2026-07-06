@@ -113,6 +113,62 @@ class ProfileData:
         ifd = self.installed_list.get(FileKeyInfo.installed_from_key(file_key))
         return ifd.installer if ifd is not None else ""
 
+    # -- Groups ------------------------------------------------------------ #
+    def ensure_mandatory_groups(self) -> None:
+        """Ensure the reserved group rows (None, Installed) exist (VB AddGroups)."""
+        for group in C.MANDATORY_GROUPS:
+            if group not in self.mod_list:
+                self.mod_list[group] = ModData(group=group)  # a group row
+        self.initialise_groups()
+
+    def _update_mod_group(self, md: ModData, new_group: str) -> None:
+        """Rewrite a mod's group and all its file keys (ModData.UpdateFileKeys)."""
+        old_files = list(md.files)
+        md.files.clear()
+        md.group = new_group
+        for fk in old_files:
+            new_fk = FileKeyInfo(new_group, md.mod_name, fk.folder, fk.filename)
+            fd = self.file_list.pop(fk, None)
+            if fd is not None:
+                fd.key = new_fk
+                self.file_list[new_fk] = fd
+            self.changes.file.removed(fk)
+            self.changes.file.renamed(new_fk)
+            md.files.append(new_fk)
+        self.changes.mods.affected(md.mod_name)
+
+    def move_mods_to_group(self, names: list[str], group: str) -> None:
+        """Move mods into ``group`` (creating the group row if new), rewrite keys."""
+        if group not in self.mod_list:
+            self.mod_list[group] = ModData(group=group)  # new group row
+            self.initialise_groups()
+        for name in names:
+            md = self.mod_item(name)
+            if md is not None and md.is_not_group_item:
+                self._update_mod_group(md, group)
+        self.update_file_states()
+        self.update_mod_states()
+
+    def rename_group(self, old: str, new: str) -> bool:
+        """Rename a (non-reserved) group, moving its members. Returns success."""
+        old_row = self.mod_list.get(old)
+        if old_row is None or not old_row.is_group_item or old in C.MANDATORY_GROUPS:
+            return False
+        if new in self.mod_list:
+            return False
+        members = [
+            name
+            for name, md in self.mod_list.items()
+            if md.is_not_group_item and md.group == old
+        ]
+        new_row = old_row.clone()
+        new_row.group = new
+        self.mod_list[new] = new_row
+        self.move_mods_to_group(members, new)
+        del self.mod_list[old]
+        self.initialise_groups()
+        return True
+
     # -- Mutators (ModData.Remove / RemoveAllFiles) ------------------------ #
     def remove_mod(self, name: str) -> bool:
         """Remove a mod and its installer files from the database (ModData.Remove).
@@ -488,6 +544,7 @@ class ProfileData:
         the reserved GroupNone; their installer files populate FileList.
         """
         if not profile_mods_dir.is_dir():
+            self.ensure_mandatory_groups()
             return
         for mod_dir in sorted(p for p in profile_mods_dir.iterdir() if p.is_dir()):
             name = mod_dir.name
@@ -497,6 +554,7 @@ class ProfileData:
             self.mod_list[name] = md
             self.changes.mods.added(name)
             self.scan_mod_files(md, profile_mods_dir)
+        self.ensure_mandatory_groups()
 
     def scan_mod_files(self, md: ModData, profile_mods_dir: Path) -> None:
         """Populate FileList from a mod's ``.Mod Installer`` payload (AddFilesThread).
