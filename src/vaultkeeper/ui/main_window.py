@@ -113,6 +113,16 @@ class MainWindow(QMainWindow):
         """Swap in a new active profile controller and repopulate."""
         self.controller = controller
         self.refresh()
+        self._notify_config_drift()
+
+    def _notify_config_drift(self) -> None:
+        """Non-modal notice if the game's config changed since we last saw it."""
+        if self.controller is None:
+            return
+        changes = self.controller.startup_config_check()
+        if changes:
+            names = ", ".join(sorted({c.path.name for c in changes}))
+            self.statusBar().showMessage(f"Note: game config changed ({names})")
 
     def _on_setup(self) -> None:
         """First-run flow: locate the NWN folder, name a profile, open it."""

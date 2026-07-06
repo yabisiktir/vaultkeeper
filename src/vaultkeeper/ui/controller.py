@@ -151,3 +151,13 @@ class ProfileController:
         guard = self._config_guard()
         if guard is not None:
             guard.accept()
+
+    def startup_config_check(self) -> list[ConfigChange]:
+        """First run establishes the baseline quietly; later runs report real drift."""
+        guard = self._config_guard()
+        if guard is None:
+            return []
+        if not guard.has_baseline():
+            guard.accept()
+            return []
+        return guard.check()

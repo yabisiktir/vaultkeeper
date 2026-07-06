@@ -57,3 +57,18 @@ def test_no_guard_without_user_dir(tmp_path) -> None:
     )
     ctrl = ProfileController(ProfileData(), ctx)
     assert ctrl.game_config_changes() == []
+
+
+def test_startup_check_establishes_baseline_then_reports(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("vaultkeeper.ui.controller.config_root", lambda: tmp_path / "cfg")
+    user_dir = tmp_path / "Documents" / "Neverwinter Nights"
+    user_dir.mkdir(parents=True)
+    (user_dir / "settings.tml").write_text("a=1\n")
+    ctrl = _controller(tmp_path, user_dir)
+
+    # First startup: baseline established quietly, no drift reported.
+    assert ctrl.startup_config_check() == []
+    # A subsequent change is reported on the next startup.
+    (user_dir / "settings.tml").write_text("a=2\n")
+    changes = ctrl.startup_config_check()
+    assert [c.kind.value for c in changes] == ["modified"]
