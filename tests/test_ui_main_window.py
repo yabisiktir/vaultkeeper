@@ -202,3 +202,39 @@ def _find_mod_item(win, name):
             if name in child.text(0):
                 return child
     return None
+
+
+def test_anneal_command_runs_via_dispatch(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_command("MsAnneal")
+    assert "anneal" in win.nit_status.mg_info.text().lower()
+
+
+def test_select_all_and_collapse_expand(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_command("MsSelectAll")
+    assert set(win.selected_mod_names()) == {"Alpha", "Beta"}
+    win._on_command("MsCollapseAllGroups")
+    assert not win._tree.topLevelItem(0).isExpanded()
+    win._on_command("MsExpandAllGroups")
+    assert win._tree.topLevelItem(0).isExpanded()
+
+
+def test_controller_group_operations(qtbot, controller) -> None:
+    assert controller.create_group("Campaigns")
+    assert not controller.create_group("Campaigns")  # duplicate
+    assert "Campaigns" in controller.group_names()
+    controller.move_to_group(["Alpha"], "Campaigns")
+    assert controller.pd.mod_item("Alpha").group == "Campaigns"
+    assert controller.rename_group("Campaigns", "Epics")
+    assert controller.pd.mod_item("Alpha").group == "Epics"
+    assert "Epics" in controller.group_names()
+
+
+def test_controller_anneal_persists(qtbot, controller, tmp_path) -> None:
+    controller.install(["Alpha"])
+    msg = controller.anneal()
+    assert "anneal" in msg.lower()
+    assert (tmp_path / "Data" / "P.json").exists()

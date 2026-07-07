@@ -131,6 +131,38 @@ class ProfileController:
             self.save()
         return ok
 
+    # -- Groups ------------------------------------------------------------ #
+    def create_group(self, name: str) -> bool:
+        """Create an (empty) group row. Returns False if the name already exists."""
+        if not name or name in self.pd.mod_list:
+            return False
+        self.pd.move_mods_to_group([], name)  # creates the group row
+        self.save()
+        return True
+
+    def move_to_group(self, names: list[str], group: str) -> None:
+        """Move the named mods into ``group`` (creating it if new); persist."""
+        self.pd.move_mods_to_group(names, group)
+        self.save()
+
+    def rename_group(self, old: str, new: str) -> bool:
+        """Rename a (non-reserved) group and its members; persist on success."""
+        ok = self.pd.rename_group(old, new)
+        if ok:
+            self.save()
+        return ok
+
+    def group_names(self) -> list[str]:
+        """Visible (non-reserved) group names."""
+        return self.pd.group_keys
+
+    # -- Engine maintenance ------------------------------------------------ #
+    def anneal(self) -> str:
+        """Repair conflict winners for all installed mods (VB Anneal); persist."""
+        self.engine.anneal(None)
+        self.save()
+        return "Anneal complete."
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)

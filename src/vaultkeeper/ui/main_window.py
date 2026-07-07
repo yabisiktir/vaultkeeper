@@ -241,6 +241,18 @@ class MainWindow(QMainWindow):
             "MsRename": self._on_rename,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
+            # Groups.
+            "MsNewGroup": self._on_new_group,
+            "TsNewGroup": self._on_new_group,
+            "MsMoveToGroup": self._on_move_to_group,
+            "TsMoveToGroup": self._on_move_to_group,
+            # Engine maintenance.
+            "MsAnneal": self._on_anneal,
+            # View / selection.
+            "MsSelectAll": self._on_select_all,
+            "TsSelectAll": self._on_select_all,
+            "MsCollapseAllGroups": self._tree.collapseAll,
+            "MsExpandAllGroups": self._tree.expandAll,
             # Profile lifecycle.
             "MsLoadProfile": self._on_setup,
             "MsOpen": self._on_setup,
@@ -249,6 +261,43 @@ class MainWindow(QMainWindow):
         }
         handler = handlers.get(action, self._not_implemented)
         handler()
+
+    # -- Group / maintenance handlers -------------------------------------- #
+    def _on_new_group(self) -> None:
+        if self.controller is None:
+            return
+        name, ok = QInputDialog.getText(self, "New Group", "Group name:")
+        if not ok or not name.strip():
+            return
+        if self.controller.create_group(name.strip()):
+            self.refresh()
+            self.nit_status.set_info(f"Created group '{name.strip()}'")
+        else:
+            self.nit_status.set_info(f"Group '{name.strip()}' already exists")
+
+    def _on_move_to_group(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            return
+        existing = self.controller.group_names()
+        group, ok = QInputDialog.getItem(
+            self, "Move to Group", "Target group:", existing, 0, editable=True
+        )
+        if not ok or not group.strip():
+            return
+        self.controller.move_to_group(names, group.strip())
+        self.refresh()
+        self.nit_status.set_info(f"Moved {len(names)} mod(s) to '{group.strip()}'")
+
+    def _on_anneal(self) -> None:
+        if self.controller is None:
+            return
+        message = self.controller.anneal()
+        self.refresh()
+        self.nit_status.set_info(message)
+
+    def _on_select_all(self) -> None:
+        self._tree.selectAll()
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")
