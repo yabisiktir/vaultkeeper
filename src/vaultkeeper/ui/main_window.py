@@ -379,6 +379,11 @@ class MainWindow(QMainWindow):
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
+            # Settings.
+            "MsSettings": self._on_settings,
+            "MsBasicSettings": self._on_settings,
+            "RbnAdvancedSettings": self._on_settings,
+            "RbnBasicSettings": self._on_settings,
             # View-menu file viewers.
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
             "MsNwnClientLogFile": lambda: self._on_view_file("MsNwnClientLogFile"),
@@ -478,6 +483,15 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
 
         self._mod_explorer = ModExplorer.show_for(self.controller, self)
+
+    def _on_settings(self) -> None:
+        from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+        settings = SettingsDialog.edit(parent=self)
+        if settings is not None:
+            # Reflect the recycle preference on the status bar toggle.
+            self.nit_status.set_recycle(settings.recycle_on_delete)
+            self.nit_status.set_info("Settings saved.")
 
     def _on_view_file(self, kind: str) -> None:
         if self.controller is None:
