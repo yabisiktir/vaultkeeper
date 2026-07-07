@@ -293,3 +293,28 @@ def test_game_exit_without_start_is_safe(qtbot, controller) -> None:
     win._game_process = object()
     win._on_game_exited()  # must not raise
     assert win._game_process is None
+
+
+def test_selection_populates_detail_panes(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Beta")
+    # Details list shows Property/Value rows.
+    props = [
+        win._details_list.topLevelItem(i).text(0)
+        for i in range(win._details_list.topLevelItemCount())
+    ]
+    assert "Group" in props and "State" in props and "Files" in props
+    # Mod-info summary and properties text reflect the selected mod.
+    assert "Beta" in win._mod_info.text()
+    assert "Beta" in win._details.toPlainText()
+
+
+def test_deselection_clears_detail_panes(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Beta")
+    win._tree.clearSelection()
+    win._on_selection_changed()
+    assert win._details_list.topLevelItemCount() == 0
+    assert win._mod_info.text() == ""

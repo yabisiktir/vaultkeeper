@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,
+    QLabel,
     QMainWindow,
     QMessageBox,
     QSplitter,
@@ -52,18 +53,40 @@ class MainWindow(QMainWindow):
 
         self._contents = QTreeWidget()
         self._contents.setHeaderLabels(["Contents"])
+        self._mod_info = QLabel("")
+        self._mod_info.setWordWrap(True)
+        self._mod_info.setMargin(6)
+        self._mod_info.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        self._details_list = QTreeWidget()
+        self._details_list.setHeaderLabels(["Property", "Value"])
+        self._details_list.setRootIsDecorated(False)
         self._details = QTextEdit()
         self._details.setReadOnly(True)
 
-        # Three panes: mods | contents | details (mirrors the VB NIT layout).
+        # Nested splitter layout, matching the VB ScProfile/ScMod/ScContents/ScDetails:
+        #   mods | (contents / mod-info) | (details list / properties+notes)
+        sc_contents = QSplitter(Qt.Orientation.Vertical)
+        sc_contents.addWidget(self._contents)
+        sc_contents.addWidget(self._mod_info)
+        sc_contents.setStretchFactor(0, 3)
+        sc_contents.setStretchFactor(1, 1)
+
+        sc_details = QSplitter(Qt.Orientation.Vertical)
+        sc_details.addWidget(self._details_list)
+        sc_details.addWidget(self._details)
+        sc_details.setStretchFactor(0, 2)
+        sc_details.setStretchFactor(1, 3)
+
+        sc_mod = QSplitter(Qt.Orientation.Horizontal)
+        sc_mod.addWidget(sc_contents)
+        sc_mod.addWidget(sc_details)
+
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self._tree)
-        splitter.addWidget(self._contents)
-        splitter.addWidget(self._details)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 3)
-        splitter.setStretchFactor(2, 2)
+        splitter.addWidget(sc_mod)
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 5)
 
         # Command chrome (faithful ports of the VB ribbon/toolbar/status bar).
         self.ribbon = Ribbon()
@@ -198,6 +221,9 @@ class MainWindow(QMainWindow):
                 self._show_contents(md)
         else:
             self._contents.clear()
+            self._details_list.clear()
+            self._details.clear()
+            self._mod_info.setText("")
 
     def _show_contents(self, md: ModData) -> None:
         """Show the selected mod's installer files, grouped by folder."""
@@ -213,14 +239,37 @@ class MainWindow(QMainWindow):
             folder_item.setExpanded(True)
 
     def _show_details(self, md: ModData) -> None:
-        lines = [
-            f"<h3>{md.mod_name}</h3>",
-            f"<b>Group:</b> {md.group}<br>",
-            f"<b>State:</b> {md.mod_state.name}<br>",
-            f"<b>Files:</b> {len(md.files):,}<br>",
+        # Details list (VB FvDetails): key properties as Property/Value rows.
+        rows: list[tuple[str, str]] = [
+            ("Group", md.group),
+            ("State", md.mod_state.name.replace("_", " ").title()),
+            ("Rating", md.rating.name.title()),
+            ("Files", f"{len(md.files):,}"),
+            ("Dependencies", f"{len(md.dependencies):,}"),
+            ("Completed", f"{md.completed_count:,} time(s)"),
         ]
+        if md.best_weapon.name != "NONE":
+            rows.append(("Best weapon", md.best_weapon.name.replace("_", " ").title()))
+        self._details_list.clear()
+        for prop, value in rows:
+            self._details_list.addTopLevelItem(QTreeWidgetItem([prop, value]))
+        self._details_list.resizeColumnToContents(0)
+
+        # Mod info (VB TlModInfoContainer): a short summary line.
+        state = md.mod_state.name.replace("_", " ").title()
+        play = ""
+        if self.controller is not None:
+            loop = self.controller.play_loop
+            if loop is not None:
+                played = loop.play_time(md.mod_name)
+                if played.total_seconds() > 0:
+                    play = f" · played {loop.play_data.format_time(played, '')}"
+        self._mod_info.setText(f"{md.mod_name} — {state}{play}")
+
+        # Properties / notes text (VB LpProperties / notes RTF).
+        lines = [f"<h3>{md.mod_name}</h3>", f"<b>State:</b> {state}<br>"]
         if md.web_link:
-            lines.append(f"<b>Web:</b> {md.web_link}<br>")
+            lines.append(f'<b>Web:</b> <a href="{md.web_link}">{md.web_link}</a><br>')
         self._details.setHtml("".join(lines))
 
     # -- Ribbon / toolbar dispatch ----------------------------------------- #
