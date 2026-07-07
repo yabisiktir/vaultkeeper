@@ -258,6 +258,32 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def installation_report(self) -> dict:
+        """Health/analysis of the installation (VB InstallationAnalyser).
+
+        Totals plus the flagged files: game originals whose CRC changed, and
+        installed files from an unknown source with a mapped extension.
+        """
+        total, installed = self.counts()
+        changed = self.pd.changed_original_files()
+        unknown = self.pd.unknown_source_files(self.ctx.mapper)
+        issues = [
+            {"category": "Changed original", "file": fk.file_key} for fk in changed
+        ]
+        issues += [
+            {"category": "Unknown source", "file": fk.file_key} for fk in unknown
+        ]
+        issues.sort(key=lambda r: (r["category"], r["file"].lower()))
+        return {
+            "total_mods": total,
+            "installed_mods": installed,
+            "installed_files": len(self.pd.installed_list),
+            "original_files": len(self.pd.original_file_keys()),
+            "changed_originals": len(changed),
+            "unknown_source": len(unknown),
+            "issues": issues,
+        }
+
     def dependencies_report(self) -> dict:
         """Each mod's declared dependencies and the mods that require it.
 
