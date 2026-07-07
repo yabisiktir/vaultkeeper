@@ -354,6 +354,15 @@ class MainWindow(QMainWindow):
             "MsRename": self._on_rename,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
+            # Mod creation.
+            "MsNewMod": self._on_new_mod,
+            "TsNewMod": self._on_new_mod,
+            "RbnNewMod": self._on_new_mod,
+            "MsCreateInstaller": self._on_create_installer,
+            "TsCreateInstaller": self._on_create_installer,
+            "RbnCreateInstaller": self._on_create_installer,
+            "RbnBuildInstaller": self._on_create_installer,
+            "RbnReCreateInstaller": self._on_create_installer,
             # Groups.
             "MsNewGroup": self._on_new_group,
             "TsNewGroup": self._on_new_group,
@@ -407,6 +416,28 @@ class MainWindow(QMainWindow):
         }
         handler = handlers.get(action, self._not_implemented)
         handler()
+
+    # -- Mod creation handlers --------------------------------------------- #
+    def _on_new_mod(self) -> None:
+        if self.controller is None:
+            return
+        name, ok = QInputDialog.getText(self, "New Mod", "Mod name:")
+        if not ok or not name.strip():
+            return
+        if self.controller.create_mod(name.strip()):
+            self.refresh()
+            self.nit_status.set_info(f"Created mod '{name.strip()}'")
+        else:
+            self.nit_status.set_info(f"Mod '{name.strip()}' already exists")
+
+    def _on_create_installer(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        made = sum(1 for n in names if self.controller.create_installer(n))
+        self.refresh()
+        self.nit_status.set_info(f"Created installer for {made} mod(s).")
 
     # -- Group / maintenance handlers -------------------------------------- #
     def _on_new_group(self) -> None:

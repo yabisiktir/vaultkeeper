@@ -138,6 +138,45 @@ class ProfileController:
             self.save()
         return ok
 
+    # -- Mod creation ------------------------------------------------------ #
+    def create_mod(self, name: str, group: str | None = None) -> bool:
+        """Create a new mod folder + database row (VB New Mod). False if it exists."""
+        from vaultkeeper.core import constants as C
+
+        if not name or name in self.pd.mod_list:
+            return False
+        group = group or C.GROUP_NONE
+        (self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR).mkdir(
+            parents=True, exist_ok=True
+        )
+        self.pd.add_mod(ModData(group=group, mod_name=name))
+        self.pd.initialise_groups()
+        self.save()
+        return True
+
+    def create_installer(self, mod_name: str) -> bool:
+        """Mark a mod as an installer (write its identifier file) and scan its files.
+
+        Ports the essence of VB Create Installer: drop the ``.nitins`` identifier into
+        the mod's ``nitconfig`` folder, (re)scan the ``.Mod Installer`` payload, and
+        recompute states. Returns True if the mod is now an installer.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return False
+        nit_dir = (
+            self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / C.MOD_NIT_DIR
+        )
+        nit_dir.mkdir(parents=True, exist_ok=True)
+        (nit_dir / f"{mod_name}{C.EXT_INSTALLER}").write_text("", encoding="utf-8")
+        self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return md.is_installer()
+
     # -- Groups ------------------------------------------------------------ #
     def create_group(self, name: str) -> bool:
         """Create an (empty) group row. Returns False if the name already exists."""
