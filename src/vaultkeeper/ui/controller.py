@@ -45,6 +45,8 @@ class ProfileController:
         self._play_loop: PlayLoop | None = None
         #: Optional GameMapper prompter (the app injects a Qt-backed one).
         self.play_prompter = None
+        #: HTTP client for Vault operations (tests inject a FakeHttpClient).
+        self._http = None
 
     # -- Construction ------------------------------------------------------ #
     @classmethod
@@ -223,6 +225,34 @@ class ProfileController:
             download_rules=self._load_download_rules(data_dir),
         )
         return self._play_loop
+
+    # -- Vault downloads (candidate #3) ----------------------------------- #
+    def _make_scraper(self):
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.vault.download_rules import DownloadRules
+        from vaultkeeper.vault.http import RequestsHttpClient
+        from vaultkeeper.vault.scraper import VaultScraper
+
+        if self._http is None:
+            self._http = RequestsHttpClient()
+        data_dir = self.store_path.parent if self.store_path else data_root()
+        rules = self._load_download_rules(data_dir) or DownloadRules()
+        return VaultScraper(rules, self._http)
+
+    def scrape_project(self, url: str) -> list:
+        """Scrape a Vault project page into a list of downloadable files."""
+        return self._make_scraper().fetch_project(url)
+
+    def download_project(self, files: list, mod_name: str, *, on_progress=None) -> list:
+        """Download the given files into ``mod_name``'s ``_Downloads`` folder."""
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.vault.downloader import Downloader
+
+        dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
+        downloader = Downloader(
+            self._http, scraper=self._make_scraper(), on_progress=on_progress
+        )
+        return downloader.download_all(files, dest)
 
     @staticmethod
     def _load_download_rules(data_dir: Path):

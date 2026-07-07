@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import html as html_lib
 import re
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
 
 from vaultkeeper.core.log import get_logger
 from vaultkeeper.vault.download_rules import DownloadRules
@@ -27,6 +27,12 @@ _HREF = re.compile(r"""href=["']?([^"'>\s]+)""", re.IGNORECASE)
 _LENGTH = re.compile(r"length=([0-9]+)", re.IGNORECASE)
 
 
+def _title_from_url(url: str) -> str:
+    """A readable project title from the URL's last path segment."""
+    slug = urlsplit(url).path.rstrip("/").rsplit("/", 1)[-1]
+    return unquote(slug).replace("-", " ").replace("_", " ").strip()
+
+
 class VaultScraper:
     """Resolves Vault download links using injected download rules + HTTP client."""
 
@@ -35,6 +41,23 @@ class VaultScraper:
     ) -> None:
         self.rules = rules or DownloadRules()
         self.http = http or RequestsHttpClient()
+
+    def fetch_project(
+        self, url: str, *, title: str = ""
+    ) -> list[VaultScraperInfo]:
+        """Fetch a project page and scrape its downloadable files."""
+        try:
+            resp = self.http.get(url, allow_redirects=True)
+        except OSError as ex:
+            log.warning("Vault project fetch failed for %s: %s", url, ex)
+            return []
+        if not resp.ok or not resp.text:
+            return []
+        split = urlsplit(resp.url or url)
+        base_url = f"{split.scheme}://{split.netloc}"
+        return self.scrape_files(
+            resp.text, title=title or _title_from_url(url), base_url=base_url
+        )
 
     def scrape_files(
         self, html: str, *, title: str = "", base_url: str = ""

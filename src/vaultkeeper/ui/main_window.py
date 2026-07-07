@@ -379,6 +379,10 @@ class MainWindow(QMainWindow):
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
+            # Downloads (Vault).
+            "MsDownloadProject": self._on_download_project,
+            "RbnDownloadProject": self._on_download_project,
+            "TsDownloadProject": self._on_download_project,
             # Settings.
             "MsSettings": self._on_settings,
             "MsBasicSettings": self._on_settings,
@@ -483,6 +487,18 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
 
         self._mod_explorer = ModExplorer.show_for(self.controller, self)
+
+    def _on_download_project(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.download_project import DownloadProjectDialog
+
+        names = self.controller.pd.sorted_mod_keys
+        selected = self.selected_mod_names()
+        self._download_dialog = DownloadProjectDialog(
+            self.controller, names, selected[0] if selected else "", self
+        )
+        self._download_dialog.show()
 
     def _on_settings(self) -> None:
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
