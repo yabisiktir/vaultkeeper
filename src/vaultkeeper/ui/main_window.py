@@ -104,6 +104,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
 
         self.nit_status = NitStatusBar()
+        self.nit_status.mods_clicked.connect(self._on_profile_menu)
         self.setStatusBar(self.nit_status)
 
         self._build_menu()
@@ -185,6 +186,36 @@ class MainWindow(QMainWindow):
             return
         self.set_controller(controller)
         self.nit_status.set_info(f"Profile '{name.strip()}' ready")
+
+    # -- Profile switching ------------------------------------------------- #
+    def _on_profile_menu(self) -> None:
+        """Show the profile selector (VB BtMods) and switch on choice."""
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QMenu
+
+        from vaultkeeper.config.settings import load_settings
+        from vaultkeeper.ui.session import list_profiles
+
+        profiles = list_profiles()
+        active = load_settings().active_profile
+        menu = QMenu(self)
+        for name in profiles:
+            act = menu.addAction(name)
+            act.setCheckable(True)
+            act.setChecked(name == active)
+            act.triggered.connect(lambda _=False, n=name: self._switch_profile(n))
+        if profiles:
+            menu.addSeparator()
+        menu.addAction("New Profile…", self._on_setup)
+        menu.exec(QCursor.pos())
+
+    def _switch_profile(self, name: str) -> None:
+        from vaultkeeper.ui.session import switch_profile
+
+        controller = switch_profile(name)
+        if controller is not None:
+            self.set_controller(controller)
+            self.nit_status.set_info(f"Switched to profile '{name}'")
 
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:

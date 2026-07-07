@@ -45,6 +45,30 @@ def bootstrap_controller(
     )
 
 
+def list_profiles(settings: Settings | None = None) -> list[str]:
+    """Names of the profiles that exist in the store (Profiles subdirectories)."""
+    settings = settings or load_settings()
+    profiles_dir = settings.resolved_store().profiles
+    if not profiles_dir.is_dir():
+        return []
+    return sorted(p.name for p in profiles_dir.iterdir() if p.is_dir())
+
+
+def switch_profile(
+    profile_name: str,
+    *,
+    settings: Settings | None = None,
+    settings_path: Path | None = None,
+) -> ProfileController | None:
+    """Make ``profile_name`` the active profile and open it (persisting the choice)."""
+    settings = settings or load_settings(settings_path)
+    store = settings.resolved_store()
+    store.profile_dir(profile_name).mkdir(parents=True, exist_ok=True)
+    settings.active_profile = profile_name
+    save_settings(settings, settings_path)
+    return bootstrap_controller(settings)
+
+
 def configure_profile(
     nwn_path: str,
     profile_name: str,
