@@ -12,7 +12,6 @@ implemented so far and reports "not available yet" for the rest.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,
@@ -27,17 +26,13 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.mod_data import ModData
-from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
+from vaultkeeper.ui.file_view import FileView
 from vaultkeeper.ui.menu_bar import NitMenuBar
 from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
 from vaultkeeper.ui.status_bar import NitStatusBar
-
-_INSTALLED_BRUSH = QBrush(QColor(0x2E, 0x7D, 0x32))  # green
-_OVERRIDDEN_BRUSH = QBrush(QColor(0xB2, 0x6A, 0x00))  # amber
-_ROLE_MOD_NAME = Qt.ItemDataRole.UserRole
 
 
 class MainWindow(QMainWindow):
@@ -50,10 +45,8 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(R.app_icon())
         self.resize(1000, 640)
 
-        self._tree = QTreeWidget()
-        self._tree.setHeaderLabels(["Mods"])
-        self._tree.setSelectionMode(QTreeWidget.SelectionMode.ExtendedSelection)
-        self._tree.itemSelectionChanged.connect(self._on_selection_changed)
+        self._tree = FileView("Mods")
+        self._tree.selection_changed.connect(self._on_selection_changed)
 
         self._contents = QTreeWidget()
         self._contents.setHeaderLabels(["Contents"])
@@ -171,36 +164,11 @@ class MainWindow(QMainWindow):
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:
         """Rebuild the mod tree from the controller's profile."""
-        self._tree.clear()
         if self.controller is None:
+            self._tree.clear()
             return
-        for group_name, members in self.controller.groups():
-            group_item = QTreeWidgetItem([group_name])
-            group_item.setFlags(group_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
-            self._tree.addTopLevelItem(group_item)
-            for md in members:
-                child = QTreeWidgetItem([self._mod_label(md)])
-                child.setData(0, _ROLE_MOD_NAME, md.mod_name)
-                brush = self._state_brush(md)
-                if brush is not None:
-                    child.setForeground(0, brush)
-                group_item.addChild(child)
-            group_item.setExpanded(True)
+        self._tree.populate(self.controller.groups())
         self._update_status()
-
-    @staticmethod
-    def _mod_label(md: ModData) -> str:
-        if md.installed:
-            return f"{md.mod_name}  ✓"
-        return md.mod_name
-
-    @staticmethod
-    def _state_brush(md: ModData) -> QBrush | None:
-        if md.mod_state in (State.OVERRIDDEN, State.INSTALLED_AND_OVERRIDDEN):
-            return _OVERRIDDEN_BRUSH
-        if md.installed:
-            return _INSTALLED_BRUSH
-        return None
 
     def _update_status(self) -> None:
         if self.controller is None:
@@ -211,15 +179,11 @@ class MainWindow(QMainWindow):
 
     # -- Selection / actions ---------------------------------------------- #
     def selected_mod_names(self) -> list[str]:
-        names: list[str] = []
-        for item in self._tree.selectedItems():
-            name = item.data(0, _ROLE_MOD_NAME)
-            if name:
-                names.append(name)
-        return names
+        return self._tree.selected_mod_names()
 
-    def _on_selection_changed(self) -> None:
-        names = self.selected_mod_names()
+    def _on_selection_changed(self, names: list[str] | None = None) -> None:
+        if names is None:
+            names = self.selected_mod_names()
         has_sel = bool(names)
         self._act_install.setEnabled(has_sel)
         self._act_uninstall.setEnabled(has_sel)
