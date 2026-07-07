@@ -12,7 +12,7 @@ implemented so far and reports "not available yet" for the rest.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QBrush, QColor
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,
@@ -30,6 +30,7 @@ from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
+from vaultkeeper.ui.menu_bar import NitMenuBar
 from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
 from vaultkeeper.ui.status_bar import NitStatusBar
@@ -106,38 +107,33 @@ class MainWindow(QMainWindow):
 
     # -- Menu -------------------------------------------------------------- #
     def _build_menu(self) -> None:
-        menubar = self.menuBar()
+        """Install the faithful VB menu bar and bind the selection-driven items."""
+        self.nit_menu = NitMenuBar()
+        self.setMenuBar(self.nit_menu)
+        self.nit_menu.action_triggered.connect(self._on_command)
+        self.nit_menu.action_toggled.connect(self._on_toggle)
 
-        file_menu = menubar.addMenu("&File")
-        self._act_setup = QAction("&Set Up Profile…", self)
-        self._act_setup.triggered.connect(self._on_setup)
-        file_menu.addAction(self._act_setup)
-        self._act_refresh = QAction("&Refresh", self)
-        self._act_refresh.triggered.connect(self.refresh)
-        file_menu.addAction(self._act_refresh)
-        file_menu.addSeparator()
-        act_quit = QAction("&Quit", self)
-        act_quit.triggered.connect(self.close)
-        file_menu.addAction(act_quit)
+        # Selection-driven items reused by the enable/disable logic.
+        self._act_install = self.nit_menu.action("MsInstall")
+        self._act_uninstall = self.nit_menu.action("MsUninstall")
+        self._act_rename = self.nit_menu.action("MsRename")
+        self._act_remove = self.nit_menu.action("MsDelete")
+        for act in (self._act_install, self._act_uninstall, self._act_rename, self._act_remove):
+            if act is not None:
+                act.setEnabled(False)
 
-        mods_menu = menubar.addMenu("&Mods")
-        self._act_install = QAction("&Install", self)
-        self._act_install.triggered.connect(self._on_install)
-        mods_menu.addAction(self._act_install)
-        self._act_uninstall = QAction("&Uninstall", self)
-        self._act_uninstall.triggered.connect(self._on_uninstall)
-        mods_menu.addAction(self._act_uninstall)
-        mods_menu.addSeparator()
-        self._act_rename = QAction("Re&name…", self)
-        self._act_rename.triggered.connect(self._on_rename)
-        mods_menu.addAction(self._act_rename)
-        self._act_remove = QAction("&Remove from Profile…", self)
-        self._act_remove.triggered.connect(self._on_remove)
-        mods_menu.addAction(self._act_remove)
-        self._act_install.setEnabled(False)
-        self._act_uninstall.setEnabled(False)
-        self._act_rename.setEnabled(False)
-        self._act_remove.setEnabled(False)
+        # The ribbon/toolbar visibility toggles start checked (both shown).
+        for item_id in ("MsShowRibbon", "MsShowToolbar"):
+            act = self.nit_menu.action(item_id)
+            if act is not None:
+                act.setChecked(True)
+
+    def _on_toggle(self, item_id: str, checked: bool) -> None:
+        """Handle checkable menu items (VB check-on-click toggles)."""
+        if item_id == "MsShowRibbon":
+            self.ribbon.setVisible(checked)
+        elif item_id == "MsShowToolbar":
+            self.quick_toolbar.setVisible(checked)
 
     def set_controller(self, controller: ProfileController) -> None:
         """Swap in a new active profile controller and repopulate."""
@@ -270,13 +266,22 @@ class MainWindow(QMainWindow):
         later phases fill in the remaining commands.
         """
         handlers = {
+            # Install / uninstall (ribbon, toolbar, menu).
             "TsInstall": self._on_install,
             "RbnInstallUninstall": self._on_install,
+            "MsInstall": self._on_install,
             "TsUninstall": self._on_uninstall,
+            "MsUninstall": self._on_uninstall,
+            # Rename / remove.
             "TsRename": self._on_rename,
+            "MsRename": self._on_rename,
             "TsDelete": self._on_remove,
-            "TsPlayNeverwinterNights": self._not_implemented,
-            "RbnPlay": self._not_implemented,
+            "MsDelete": self._on_remove,
+            # Profile lifecycle.
+            "MsLoadProfile": self._on_setup,
+            "MsOpen": self._on_setup,
+            "MsRestart": self.refresh,
+            "MsExit": self.close,
         }
         handler = handlers.get(action, self._not_implemented)
         handler()

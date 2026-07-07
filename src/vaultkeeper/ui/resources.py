@@ -126,6 +126,32 @@ def _candidate_names(name: str) -> list[str]:
     return list(seen)
 
 
+def _normalise(stem: str) -> str:
+    """Collapse a name to compare across space/underscore/dash variants."""
+    return "".join(ch for ch in stem.lower() if ch.isalnum())
+
+
+_normalised_index: dict[str, Path] | None = None
+
+
+def _index() -> dict[str, Path]:
+    """Lazy index of every asset by its normalised stem.
+
+    The VB ``My.Resources`` generator turns spaces *and* dashes into underscores, so
+    a code name like ``NIT_Icon_v5_006c`` can back a file called
+    ``NIT Icon v5-006c.png``. Matching on the normalised stem resolves every such
+    variant without a hand-maintained map entry.
+    """
+    global _normalised_index
+    if _normalised_index is None:
+        _normalised_index = {}
+        if RESOURCES_PATH.is_dir():
+            for path in sorted(RESOURCES_PATH.iterdir()):
+                if path.suffix.lower() in _EXTENSIONS:
+                    _normalised_index.setdefault(_normalise(path.stem), path)
+    return _normalised_index
+
+
 def resolve_path(name: str) -> Path | None:
     """Return the file backing ``name``, or ``None`` if no asset matches."""
     for candidate in _candidate_names(name):
@@ -133,7 +159,8 @@ def resolve_path(name: str) -> Path | None:
             path = RESOURCES_PATH / f"{candidate}{ext}"
             if path.exists():
                 return path
-    return None
+    # Final fallback: match ignoring spaces/underscores/dashes/case.
+    return _index().get(_normalise(ICON_NAME_MAP.get(name, name)))
 
 
 def get_icon(name: str) -> QIcon:
