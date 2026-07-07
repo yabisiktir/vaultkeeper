@@ -252,6 +252,11 @@ class MainWindow(QMainWindow):
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
             "RbnGameSaves": self._on_game_saves,
+            "MsPlayNeverwinterNights": self._on_play,
+            "TsPlayNeverwinterNights": self._on_play,
+            "RbnPlay": self._on_play,
+            "MsToolset": lambda: self._on_play(toolset=True),
+            "RbnToolset": lambda: self._on_play(toolset=True),
             # View / selection.
             "MsSelectAll": self._on_select_all,
             "TsSelectAll": self._on_select_all,
@@ -307,6 +312,23 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         self.nit_status.set_info(self.controller.current_game_summary())
+
+    def _on_play(self, toolset: bool = False) -> None:
+        """Launch NWN (or the toolset). Recording a finished session is exposed via
+        ``controller.process_play_session`` (wired to exit detection later)."""
+        if self.controller is None:
+            return
+        argv = self.controller.launch_argv(toolset=toolset)
+        if not argv:
+            self.nit_status.set_info("Neverwinter Nights install not found.")
+            return
+        from PySide6.QtCore import QProcess
+
+        what = "Toolset" if toolset else "Neverwinter Nights"
+        if QProcess.startDetached(argv[0], argv[1:]):
+            self.nit_status.set_info(f"Launched {what}.")
+        else:
+            self.nit_status.set_info(f"Could not launch {what}.")
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")

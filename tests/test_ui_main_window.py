@@ -190,7 +190,8 @@ def test_ribbon_install_action_drives_install(qtbot, controller) -> None:
 def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    win.quick_toolbar.actions_by_id["TsPlayNeverwinterNights"].trigger()
+    # A command not wired yet (e.g. the Wizard Builder) reports "not available".
+    win._on_command("RbnWizardBuilder")
     assert "not available" in win.nit_status.mg_info.text().lower()
 
 
@@ -238,3 +239,17 @@ def test_controller_anneal_persists(qtbot, controller, tmp_path) -> None:
     msg = controller.anneal()
     assert "anneal" in msg.lower()
     assert (tmp_path / "Data" / "P.json").exists()
+
+
+def test_controller_launch_argv_steam_fallback(qtbot, controller) -> None:
+    # The tmp game root has no binary, so EE falls back to the Steam URL.
+    argv = controller.launch_argv()
+    assert any("steam://run/704450" in part for part in argv)
+
+
+def test_play_command_reports_status(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # Game Saves summary is available and stringy.
+    win._on_command("MsGameSaves")
+    assert win.nit_status.mg_info.text() != ""

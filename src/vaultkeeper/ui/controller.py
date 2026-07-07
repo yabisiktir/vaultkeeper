@@ -8,6 +8,7 @@ the whole app flow testable without Qt.
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from vaultkeeper.app_paths import config_root
@@ -190,6 +191,24 @@ class ProfileController:
         """One-line description of the current game save (or a placeholder)."""
         loop = self.play_loop
         return loop.current_game_summary() if loop is not None else "No game saves"
+
+    def launch_argv(self, *, toolset: bool = False) -> list[str]:
+        """The command to launch NWN (or the toolset) for this install."""
+        from vaultkeeper.game.game_launch import launch_argv
+        from vaultkeeper.game.locations import HostOS
+
+        return launch_argv(
+            self.ctx.game_root,
+            host=HostOS.current(),
+            user_dir=self.ctx.game_user_dir,
+            steam_app_id="704450" if self.ctx.is_ee else None,
+            toolset=toolset,
+        )
+
+    def process_play_session(self, started: datetime, stopped: datetime) -> dict:
+        """Record a finished play session (log -> per-mod times -> persist)."""
+        loop = self.play_loop
+        return loop.process_session(started, stopped) if loop is not None else {}
 
     def save(self) -> None:
         if self.store_path is not None:
