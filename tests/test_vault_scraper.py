@@ -99,3 +99,55 @@ class TestFetchSize:
         vsi = VaultScraperInfo(direct_url=direct)
         assert VaultScraper(http=http).fetch_size(vsi) == 1048576
         assert vsi.byte_size == 1048576
+
+
+class TestScrapeFiles:
+    def test_extracts_file_row(self):
+        html = (
+            "<div>intro</div>\n"
+            '<span class="file-icon"></span> '
+            '<a href="http://cdn/mymod.zip" length=1048576>My Mod.zip</a>\n'
+            "<div>footer</div>\n"
+        )
+        files = VaultScraper().scrape_files(html, title="My Project")
+        assert len(files) == 1
+        vsi = files[0]
+        assert vsi.project_title == "My Project"
+        assert vsi.description == "My Mod.zip"
+        assert vsi.counter_url == "http://cdn/mymod.zip"
+        assert vsi.byte_size == 1048576
+
+    def test_relative_href_gets_base_url(self):
+        html = '<i class="file-icon"></i><a href="/files/x.hak">x.hak</a>\n'
+        files = VaultScraper().scrape_files(html, base_url="http://vault.example")
+        assert files[0].counter_url == "http://vault.example/files/x.hak"
+
+    def test_count_php_wrapper_unwrapped(self):
+        html = (
+            '<span class="file-icon"></span>'
+            '<a href="/downloads/count.php?fid=5&url=http://cdn/real.zip">real.zip</a>\n'
+        )
+        files = VaultScraper().scrape_files(html, base_url="http://vault.example")
+        assert files[0].counter_url == "http://cdn/real.zip"
+
+    def test_html_entities_decoded(self):
+        html = '<span class="file-icon"></span><a href="http://cdn/a.zip">A &amp; B.zip</a>\n'
+        assert VaultScraper().scrape_files(html)[0].description == "A & B.zip"
+
+    def test_non_file_lines_ignored(self):
+        html = "<a href='http://x'>not a file</a>\nplain text\n"
+        assert VaultScraper().scrape_files(html) == []
+
+    def test_multiple_files(self):
+        html = (
+            '<span class="file-icon"></span><a href="http://cdn/a.zip">a.zip</a>\n'
+            '<span class="file-icon"></span><a href="http://cdn/b.hak">b.hak</a>\n'
+        )
+        files = VaultScraper().scrape_files(html)
+        assert [f.description for f in files] == ["a.zip", "b.hak"]
+
+    def test_redirect_rule_applied_to_scraped_url(self):
+        rules = DownloadRules(redirects={"http://old/a.zip": "http://new/a.zip"})
+        html = '<span class="file-icon"></span><a href="http://old/a.zip">a.zip</a>\n'
+        files = VaultScraper(rules=rules).scrape_files(html)
+        assert files[0].counter_url == "http://new/a.zip"

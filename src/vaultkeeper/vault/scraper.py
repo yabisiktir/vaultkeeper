@@ -9,12 +9,22 @@ scraping (extracting the file list) builds on this next.
 
 from __future__ import annotations
 
+import html as html_lib
+import re
+from urllib.parse import unquote
+
 from vaultkeeper.core.log import get_logger
 from vaultkeeper.vault.download_rules import DownloadRules
 from vaultkeeper.vault.http import HttpClient, RequestsHttpClient
 from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo
 
 log = get_logger(__name__)
+
+#: Marker present on each downloadable-file row of a Vault project page.
+_FILE_MARKER = "file-icon"
+_ANCHOR_TEXT = re.compile(r"<a[^>]+>(.*?)</a>", re.IGNORECASE | re.DOTALL)
+_HREF = re.compile(r"""href=["']?([^"'>\s]+)""", re.IGNORECASE)
+_LENGTH = re.compile(r"length=([0-9]+)", re.IGNORECASE)
 
 
 class VaultScraper:
@@ -25,6 +35,49 @@ class VaultScraper:
     ) -> None:
         self.rules = rules or DownloadRules()
         self.http = http or RequestsHttpClient()
+
+    def scrape_files(
+        self, html: str, *, title: str = "", base_url: str = ""
+    ) -> list[VaultScraperInfo]:
+        """Extract the downloadable files from a project page (VB ``ExtractAttachments``).
+
+        Each file row (a line containing ``file-icon``) yields a record with the
+        display text, the (rule-resolved, absolute) counter URL and the byte size.
+        """
+        infos: list[VaultScraperInfo] = []
+        for line in html.splitlines():
+            if _FILE_MARKER in line:
+                info = self._extract_file(line, title, base_url)
+                if info is not None:
+                    infos.append(info)
+        return infos
+
+    def _extract_file(
+        self, line: str, title: str, base_url: str
+    ) -> VaultScraperInfo | None:
+        anchor = _ANCHOR_TEXT.search(line)
+        href = _HREF.search(line)
+        if anchor is None or href is None:
+            return None
+        vsi = VaultScraperInfo(project_title=title)
+        vsi.description = html_lib.unescape(anchor.group(1)).strip()
+
+        url = href.group(1).strip()
+        if not url.lower().startswith("http"):
+            url = base_url + url
+        # A "count.php?...=http..." wrapper unwraps to the inner URL.
+        idx = url.lower().find("=http")
+        if "count.php" in url.lower() and idx != -1:
+            url = url[idx + 1:]
+        vsi.counter_url = self.rules.get_final_url(unquote(url))
+
+        length = _LENGTH.search(line)
+        if length is not None:
+            try:
+                vsi.byte_size = int(length.group(1))
+            except ValueError:
+                vsi.byte_size = 0
+        return vsi
 
     def resolve_direct_url(self, vsi: VaultScraperInfo) -> str:
         """Set and return ``vsi.direct_url`` from its counter URL.
