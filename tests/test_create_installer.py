@@ -76,3 +76,16 @@ def test_new_mod_via_window(qtbot, tmp_path):
         for j in range(group.childCount()):
             labels.append(group.child(j).text(0))
     assert any("Windowed Mod" in label for label in labels)
+
+
+def test_create_restorer_writes_identifier(tmp_path):
+    controller = _controller(tmp_path)
+    controller.create_mod("A Restorer Mod")
+    assert controller.create_restorer("A Restorer Mod")
+    md = controller.pd.mod_item("A Restorer Mod")
+    assert md.is_restorer()
+    ident = (
+        tmp_path / "Profiles" / "P" / "A Restorer Mod" / C.MOD_INSTALLER_DIR
+        / C.MOD_NIT_DIR / f"A Restorer Mod{C.EXT_RESTORER}"
+    )
+    assert ident.is_file()

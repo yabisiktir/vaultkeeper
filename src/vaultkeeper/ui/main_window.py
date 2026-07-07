@@ -363,6 +363,9 @@ class MainWindow(QMainWindow):
             "RbnCreateInstaller": self._on_create_installer,
             "RbnBuildInstaller": self._on_create_installer,
             "RbnReCreateInstaller": self._on_create_installer,
+            "MsCreateRestorer": self._on_create_restorer,
+            "TsCreateRestorer": self._on_create_restorer,
+            "RbnCreateRestorer": self._on_create_restorer,
             # Groups.
             "MsNewGroup": self._on_new_group,
             "TsNewGroup": self._on_new_group,
@@ -438,6 +441,15 @@ class MainWindow(QMainWindow):
         made = sum(1 for n in names if self.controller.create_installer(n))
         self.refresh()
         self.nit_status.set_info(f"Created installer for {made} mod(s).")
+
+    def _on_create_restorer(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        made = sum(1 for n in names if self.controller.create_restorer(n))
+        self.refresh()
+        self.nit_status.set_info(f"Created restorer for {made} mod(s).")
 
     # -- Group / maintenance handlers -------------------------------------- #
     def _on_new_group(self) -> None:

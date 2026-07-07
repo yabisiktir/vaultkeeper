@@ -155,12 +155,23 @@ class ProfileController:
         return True
 
     def create_installer(self, mod_name: str) -> bool:
-        """Mark a mod as an installer (write its identifier file) and scan its files.
+        """Mark a mod as an installer (write its identifier) and scan its files.
 
         Ports the essence of VB Create Installer: drop the ``.nitins`` identifier into
         the mod's ``nitconfig`` folder, (re)scan the ``.Mod Installer`` payload, and
         recompute states. Returns True if the mod is now an installer.
         """
+        from vaultkeeper.core import constants as C
+
+        return self._create_identifier(mod_name, C.EXT_INSTALLER)
+
+    def create_restorer(self, mod_name: str) -> bool:
+        """Mark a mod as a restorer (``.nitres`` identifier); VB Create Restorer."""
+        from vaultkeeper.core import constants as C
+
+        return self._create_identifier(mod_name, C.EXT_RESTORER)
+
+    def _create_identifier(self, mod_name: str, extension: str) -> bool:
         from vaultkeeper.core import constants as C
 
         md = self.pd.mod_item(mod_name)
@@ -170,12 +181,12 @@ class ProfileController:
             self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / C.MOD_NIT_DIR
         )
         nit_dir.mkdir(parents=True, exist_ok=True)
-        (nit_dir / f"{mod_name}{C.EXT_INSTALLER}").write_text("", encoding="utf-8")
+        (nit_dir / f"{mod_name}{extension}").write_text("", encoding="utf-8")
         self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
         self.pd.update_file_states()
         self.pd.update_mod_states()
         self.save()
-        return md.is_installer()
+        return md.is_installer() if extension == C.EXT_INSTALLER else md.is_restorer()
 
     # -- Groups ------------------------------------------------------------ #
     def create_group(self, name: str) -> bool:
