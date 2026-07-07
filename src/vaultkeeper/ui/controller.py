@@ -275,16 +275,57 @@ class ProfileController:
         self.pd.update_mod_states()
         self.pd.changes.reset_changes()
         self.pd.initialise_groups()
-        # Rebuild the engine/hak-patch against the fresh profile; drop the play loop.
+        self._rebuild_engine()
+        self.save()
+        total, installed = self.counts()
+        return f"Database rebuilt: {total:,} mods, {installed:,} installed."
+
+    def _rebuild_engine(self) -> None:
+        """Rebuild the engine/hak-patch against ``self.pd`` and drop the play loop."""
         self._hpm = HakPatchManager(self.pd, self.ctx.game_root / "nwnpatch.ini")
         self.engine = ModInstallationManager(
             self.pd, self.ctx, hak_patch=self._hpm.create_nwn_patch_ini_file,
             on_save=self.save,
         )
         self._play_loop = None
-        self.save()
-        total, installed = self.counts()
-        return f"Database rebuilt: {total:,} mods, {installed:,} installed."
+
+    # -- Backup / restore (File menu) ------------------------------------- #
+    def data_dir(self) -> Path:
+        """The store's Data directory (where profile DBs / play data / notes live)."""
+        from vaultkeeper.app_paths import data_root
+
+        return self.store_path.parent if self.store_path else data_root()
+
+    def backup_data(self, dest_zip: Path) -> str:
+        """Zip the whole Data directory to ``dest_zip`` (VB Backup Data)."""
+        import zipfile
+
+        data = self.data_dir()
+        if not data.is_dir():
+            return "There is no data to back up yet."
+        count = 0
+        with zipfile.ZipFile(dest_zip, "w", zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(data.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(data))
+                    count += 1
+        return f"Backed up {count:,} file(s) to {dest_zip.name}."
+
+    def restore_data(self, src_zip: Path) -> str:
+        """Restore a backup zip into the Data directory and reload (VB Restore Data)."""
+        import zipfile
+
+        data = self.data_dir()
+        data.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(src_zip) as archive:
+            archive.extractall(data)
+        if self.store_path is not None and self.store_path.is_file():
+            restored = load_profile(self.store_path)
+            if restored is not None:
+                self.pd = restored
+                self.pd.initialise_groups()
+                self._rebuild_engine()
+        return f"Restored data from {src_zip.name}."
 
     # -- Engine maintenance ------------------------------------------------ #
     def anneal(self) -> str:

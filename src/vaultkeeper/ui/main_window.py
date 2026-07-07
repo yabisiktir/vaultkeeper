@@ -394,6 +394,11 @@ class MainWindow(QMainWindow):
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
+            # Backup / restore.
+            "MsBackupData": self._on_backup_data,
+            "RbnBackupData": self._on_backup_data,
+            "MsRestoreData": self._on_restore_data,
+            "RbnRestoreData": self._on_restore_data,
             # Downloads (Vault).
             "MsDownloadProject": self._on_download_project,
             "RbnDownloadProject": self._on_download_project,
@@ -541,6 +546,38 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
 
         self._mod_explorer = ModExplorer.show_for(self.controller, self)
+
+    def _on_backup_data(self) -> None:
+        if self.controller is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Backup Data", "vaultkeeper-backup.zip", "Zip archives (*.zip)"
+        )
+        if path:
+            from pathlib import Path
+
+            self.nit_status.set_info(self.controller.backup_data(Path(path)))
+
+    def _on_restore_data(self) -> None:
+        if self.controller is None:
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Restore Data", "", "Zip archives (*.zip)"
+        )
+        if not path:
+            return
+        confirm = QMessageBox.question(
+            self,
+            "Restore Data",
+            "Restoring will overwrite the current profile data. Continue?",
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        from pathlib import Path
+
+        message = self.controller.restore_data(Path(path))
+        self.refresh()
+        self.nit_status.set_info(message)
 
     def _on_download_project(self) -> None:
         if self.controller is None:
