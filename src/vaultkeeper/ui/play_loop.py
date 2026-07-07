@@ -44,12 +44,16 @@ class PlayLoop:
         settings: PlayDataSettings | None = None,
         on_save: Callable[[], None] = lambda: None,
         prompter=None,  # noqa: ANN001 - GameMapperPrompter (Qt or default)
+        download_rules=None,  # noqa: ANN001 - vault.DownloadRules for save-name rules
     ) -> None:
         self.pd = pd
         self.saves_dir = saves_dir
         self.log_path = log_path
         self.is_engine_log = is_engine_log
 
+        from vaultkeeper.vault.download_rules import DownloadRules
+
+        rules = download_rules or DownloadRules()
         self.game_mapper = GameMapper(
             pd,
             GameMapperContext(
@@ -59,6 +63,8 @@ class PlayLoop:
             ),
             module_reader=ErfModuleReader(),
             prompter=prompter,
+            save_name_rules=rules.save_name_rules,
+            save_name_removed_chars=rules.save_name_removed_chars,
             auto_scan=False,
         )
         self.play_data = PlayDataManager(

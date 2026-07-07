@@ -220,8 +220,24 @@ class ProfileController:
             log_path=self.ctx.game_user_dir / "logs" / "nwclientlog1.txt",
             on_save=self.save,
             prompter=self.play_prompter,
+            download_rules=self._load_download_rules(data_dir),
         )
         return self._play_loop
+
+    @staticmethod
+    def _load_download_rules(data_dir: Path):
+        """Load the cached Vault download rules (for GameMapper save-name rules)."""
+        from vaultkeeper.vault.download_rules import DownloadRules
+
+        rules_file = data_dir / "DownloadRules.txt"
+        if rules_file.is_file():
+            try:
+                return DownloadRules.from_text(
+                    rules_file.read_text(encoding="utf-8", errors="replace")
+                )
+            except OSError:
+                return None
+        return None
 
     def current_game_summary(self) -> str:
         """One-line description of the current game save (or a placeholder)."""
