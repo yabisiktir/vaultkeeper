@@ -258,6 +258,32 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def mod_explorer_report(self) -> dict:
+        """Every mod with its key properties, state and play time (VB ModExplorer)."""
+        loop = self.play_loop
+        rows = []
+        for name in self.pd.sorted_mod_keys:
+            md = self.pd.mod_item(name)
+            if md is None:
+                continue
+            played = ""
+            if loop is not None:
+                span = loop.play_time(name)
+                if span.total_seconds() > 0:
+                    played = loop.play_data.format_time(span, "")
+            rows.append(
+                {
+                    "mod": name,
+                    "group": md.group,
+                    "state": md.mod_state.name.replace("_", " ").title(),
+                    "rating": md.rating.name.title(),
+                    "files": len(md.files),
+                    "played": played,
+                    "completed": md.completed_count,
+                }
+            )
+        return {"rows": rows, "count": len(rows)}
+
     def installation_report(self) -> dict:
         """Health/analysis of the installation (VB InstallationAnalyser).
 

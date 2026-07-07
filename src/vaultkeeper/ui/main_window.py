@@ -376,6 +376,9 @@ class MainWindow(QMainWindow):
             "RbnDependencyManager": self._on_dependencies,
             "MsInstallationAnalyser": self._on_analyse,
             "RbnInstallationManager": self._on_analyse,
+            "MsModExplorer": self._on_mod_explorer,
+            "RbnModExplorer": self._on_mod_explorer,
+            "TsModExplorer": self._on_mod_explorer,
             # View-menu file viewers.
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
             "MsNwnClientLogFile": lambda: self._on_view_file("MsNwnClientLogFile"),
@@ -468,6 +471,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.installation_analyser import InstallationAnalyser
 
         self._analyser = InstallationAnalyser.show_for(self.controller, self)
+
+    def _on_mod_explorer(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
+
+        self._mod_explorer = ModExplorer.show_for(self.controller, self)
 
     def _on_view_file(self, kind: str) -> None:
         if self.controller is None:
