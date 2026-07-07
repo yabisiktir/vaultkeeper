@@ -258,6 +258,29 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def play_times_report(self) -> dict:
+        """Per-mod play times (formatted, longest first) plus the NWN totals."""
+        loop = self.play_loop
+        if loop is None:
+            return {"rows": [], "total_played": "", "most_in_one_day": "", "last_played": ""}
+        pdm = loop.play_data
+        rows = [
+            {
+                "mod": mod,
+                "time": pdm.format_time(span, ""),
+                "seconds": span.total_seconds(),
+                "started": _fmt_date(pdm.start_date(mod)),
+            }
+            for mod, span in pdm.pdi.play_times.items()
+        ]
+        rows.sort(key=lambda r: r["seconds"], reverse=True)
+        return {
+            "rows": rows,
+            "total_played": pdm.format_days(pdm.total_played, ""),
+            "most_in_one_day": pdm.format_time(pdm.most_in_one_day, ""),
+            "last_played": pdm.last_played,
+        }
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
@@ -297,3 +320,10 @@ class ProfileController:
             guard.accept()
             return []
         return guard.check()
+
+
+def _fmt_date(value: datetime | None) -> str:
+    """Format an optional start date as ``dd MMM yyyy`` (blank when unset)."""
+    from vaultkeeper.core.formatting import to_date_string
+
+    return to_date_string(value) if value is not None else ""

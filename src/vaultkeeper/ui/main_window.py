@@ -370,6 +370,7 @@ class MainWindow(QMainWindow):
             "RbnPlay": self._on_play,
             "MsToolset": lambda: self._on_play(toolset=True),
             "RbnToolset": lambda: self._on_play(toolset=True),
+            "MsModsPlayed": self._on_mods_played,
             # View / selection.
             "MsSelectAll": self._on_select_all,
             "TsSelectAll": self._on_select_all,
@@ -425,6 +426,13 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         self.nit_status.set_info(self.controller.current_game_summary())
+
+    def _on_mods_played(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+
+        self._play_viewer = PlayDataViewer.show_for(self.controller, self)
 
     def _on_play(self, toolset: bool = False) -> None:
         """Launch NWN (or the toolset).
