@@ -154,6 +154,38 @@ class ProfileController:
         self.save()
         return True
 
+    def add_files_to_mod(self, mod_name: str, file_paths: list[Path]) -> int:
+        """Copy files into a mod's ``.Mod Installer``, each in its mapped game folder.
+
+        Ports VB Add Files: each source file is placed under the folder the Mapper
+        assigns for it (``hak``/``override``/``tlk``/…), then the mod's file list is
+        rescanned. Returns the number of files added.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return 0
+        installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        added = 0
+        for source in file_paths:
+            source = Path(source)
+            if not source.is_file():
+                continue
+            folder = self.ctx.mapper.get_mapped_folder(source.name)
+            dest = installer / folder / source.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, dest)
+            added += 1
+        if added:
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+        return added
+
     def create_installer(self, mod_name: str) -> bool:
         """Mark a mod as an installer (write its identifier) and scan its files.
 

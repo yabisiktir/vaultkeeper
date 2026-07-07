@@ -354,6 +354,10 @@ class MainWindow(QMainWindow):
             "MsRename": self._on_rename,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
+            # Add files.
+            "MsAddFiles": self._on_add_files,
+            "TsAddFiles": self._on_add_files,
+            "RbnAddFiles": self._on_add_files,
             # Mod creation.
             "MsNewMod": self._on_new_mod,
             "TsNewMod": self._on_new_mod,
@@ -428,7 +432,21 @@ class MainWindow(QMainWindow):
         handler = handlers.get(action, self._not_implemented)
         handler()
 
-    # -- Mod creation handlers --------------------------------------------- #
+    # -- Add files / mod creation handlers --------------------------------- #
+    def _on_add_files(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        paths, _ = QFileDialog.getOpenFileNames(self, "Add Files to Mod")
+        if not paths:
+            return
+        from pathlib import Path
+
+        added = self.controller.add_files_to_mod(names[0], [Path(p) for p in paths])
+        self.refresh()
+        self.nit_status.set_info(f"Added {added} file(s) to {names[0]}.")
+
     def _on_new_mod(self) -> None:
         if self.controller is None:
             return
