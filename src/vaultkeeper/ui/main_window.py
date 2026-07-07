@@ -111,9 +111,17 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info("Ready")
 
         if controller is not None:
+            self._install_prompter()
             self.refresh()
         else:
             self._show_empty_state()
+
+    def _install_prompter(self) -> None:
+        """Give the controller a Qt-backed GameMapper prompter for the play loop."""
+        if self.controller is not None:
+            from vaultkeeper.ui.prompter import QtGameMapperPrompter
+
+            self.controller.play_prompter = QtGameMapperPrompter(self)
 
     def _show_empty_state(self) -> None:
         self._details.setHtml(
@@ -157,6 +165,7 @@ class MainWindow(QMainWindow):
     def set_controller(self, controller: ProfileController) -> None:
         """Swap in a new active profile controller and repopulate."""
         self.controller = controller
+        self._install_prompter()
         self.refresh()
         self._notify_config_drift()
 

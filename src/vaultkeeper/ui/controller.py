@@ -43,6 +43,8 @@ class ProfileController:
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
         )
         self._play_loop: PlayLoop | None = None
+        #: Optional GameMapper prompter (the app injects a Qt-backed one).
+        self.play_prompter = None
 
     # -- Construction ------------------------------------------------------ #
     @classmethod
@@ -184,6 +186,7 @@ class ProfileController:
             saves_dir=self.ctx.game_user_dir / "saves",
             log_path=self.ctx.game_user_dir / "logs" / "nwclientlog1.txt",
             on_save=self.save,
+            prompter=self.play_prompter,
         )
         return self._play_loop
 

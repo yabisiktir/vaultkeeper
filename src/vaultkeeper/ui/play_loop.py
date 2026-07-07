@@ -43,6 +43,7 @@ class PlayLoop:
         is_engine_log: bool = False,
         settings: PlayDataSettings | None = None,
         on_save: Callable[[], None] = lambda: None,
+        prompter=None,  # noqa: ANN001 - GameMapperPrompter (Qt or default)
     ) -> None:
         self.pd = pd
         self.saves_dir = saves_dir
@@ -57,6 +58,7 @@ class PlayLoop:
                 data_dir=data_dir,
             ),
             module_reader=ErfModuleReader(),
+            prompter=prompter,
             auto_scan=False,
         )
         self.play_data = PlayDataManager(
