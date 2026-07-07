@@ -372,6 +372,12 @@ class MainWindow(QMainWindow):
             "RbnToolset": lambda: self._on_play(toolset=True),
             "MsModsPlayed": self._on_mods_played,
             "MsConflicts": self._on_conflicts,
+            # View-menu file viewers.
+            "MsLogFile": lambda: self._on_view_file("MsLogFile"),
+            "MsNwnClientLogFile": lambda: self._on_view_file("MsNwnClientLogFile"),
+            "MsNwnEngineLogFile": lambda: self._on_view_file("MsNwnEngineLogFile"),
+            "MsNWNIniFile": lambda: self._on_view_file("MsNWNIniFile"),
+            "MsNwnSettingsFile": lambda: self._on_view_file("MsNwnSettingsFile"),
             # View / selection.
             "MsSelectAll": self._on_select_all,
             "TsSelectAll": self._on_select_all,
@@ -444,6 +450,31 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.conflicts_viewer import ConflictsViewer
 
         self._conflicts_viewer = ConflictsViewer.show_for(self.controller, self)
+
+    def _on_view_file(self, kind: str) -> None:
+        if self.controller is None:
+            return
+        specs = {
+            "MsLogFile": (self.controller.nit_log_path(), "NIT Log File"),
+            "MsNwnClientLogFile": (
+                self.controller.game_file_path("logs", "nwclientlog1.txt"),
+                "NWN Client Log File",
+            ),
+            "MsNwnEngineLogFile": (
+                self.controller.game_file_path("logs", "nwenginelog.txt"),
+                "NWN Engine Log File",
+            ),
+            "MsNWNIniFile": (
+                self.controller.game_file_path("nwn.ini"), "NWN Ini File"
+            ),
+            "MsNwnSettingsFile": (
+                self.controller.game_file_path("settings.tml"), "NWN Settings File"
+            ),
+        }
+        path, title = specs.get(kind, (None, "File"))
+        from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+        self._text_viewer = TextViewer.show_file(path, title, self)
 
     def _on_play(self, toolset: bool = False) -> None:
         """Launch NWN (or the toolset).

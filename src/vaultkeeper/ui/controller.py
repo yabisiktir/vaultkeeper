@@ -258,6 +258,19 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    # -- File viewers (View menu) ----------------------------------------- #
+    def nit_log_path(self) -> Path:
+        """The application's own log file (VB NIT Log File)."""
+        from vaultkeeper.core.log import log_file_path
+
+        return log_file_path()
+
+    def game_file_path(self, *parts: str) -> Path | None:
+        """A file under the game user directory (logs/ini/settings), if known."""
+        if self.ctx.game_user_dir is None:
+            return None
+        return self.ctx.game_user_dir.joinpath(*parts)
+
     def conflicts_report(self) -> dict:
         """Installed files claimed by more than one mod, with the winning installer.
 
