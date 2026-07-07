@@ -58,6 +58,8 @@ class DownloadRules:
     redirects: dict[str, str] = field(default_factory=dict)
     unsupported_urls: list[str] = field(default_factory=list)
     message_lines: list[str] = field(default_factory=list)
+    #: URL query key that marks a download counter link (VB ``FileIdPrefix``).
+    file_id_prefix: str = ""
 
     # -- Parsing ----------------------------------------------------------- #
     @classmethod
@@ -77,6 +79,9 @@ class DownloadRules:
                 continue
             if line.lower().startswith("savenameremovedchars"):
                 rules.save_name_removed_chars = _equals_param(line)
+                continue
+            if line.lower().startswith("fileidprefix"):
+                rules.file_id_prefix = _equals_param(line)
                 continue
 
             if section == "save_names":
@@ -130,3 +135,12 @@ class DownloadRules:
     def create_installer(self, project_title: str) -> bool:
         """False if the project is flagged as not-installer (VB ``CreateInstaller``)."""
         return project_title not in self.no_installer_projects
+
+    def formatted_url(self, url: str) -> str:
+        """Normalise a URL for comparison (VB ``FormattedUrl``)."""
+        return url.strip()
+
+    def get_final_url(self, url: str) -> str:
+        """Apply any configured redirect for ``url`` (VB ``GetFinalUrl``)."""
+        url = self.formatted_url(url)
+        return self.redirects.get(url, url)
