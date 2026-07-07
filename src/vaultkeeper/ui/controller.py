@@ -246,6 +246,46 @@ class ProfileController:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(write_rtf(text.split("\n")), encoding="utf-8")
 
+    # -- Maintenance (Tools menu) ----------------------------------------- #
+    def validate_profile_data(self) -> str:
+        """Remove dependencies on non-existent mods + recompute states (VB Validate)."""
+        removed = self.pd.validate_dependencies()
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return f"Validation complete. Removed {removed} invalid dependency(ies)."
+
+    def calculate_crcs(self) -> str:
+        """Recompute CRC-32 checksums for pending files and refresh states."""
+        self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return "CRC calculation complete."
+
+    def rebuild_database(self) -> str:
+        """Rebuild the profile database from disk (VB Rebuild Database)."""
+        self.pd = ProfileData()
+        self.pd.scan_mods(self.ctx.profile_mods_dir)
+        self.pd.scan_installed(
+            self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+        )
+        self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.pd.changes.reset_changes()
+        self.pd.initialise_groups()
+        # Rebuild the engine/hak-patch against the fresh profile; drop the play loop.
+        self._hpm = HakPatchManager(self.pd, self.ctx.game_root / "nwnpatch.ini")
+        self.engine = ModInstallationManager(
+            self.pd, self.ctx, hak_patch=self._hpm.create_nwn_patch_ini_file,
+            on_save=self.save,
+        )
+        self._play_loop = None
+        self.save()
+        total, installed = self.counts()
+        return f"Database rebuilt: {total:,} mods, {installed:,} installed."
+
     # -- Engine maintenance ------------------------------------------------ #
     def anneal(self) -> str:
         """Repair conflict winners for all installed mods (VB Anneal); persist."""

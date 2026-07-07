@@ -373,6 +373,9 @@ class MainWindow(QMainWindow):
             "TsMoveToGroup": self._on_move_to_group,
             # Engine maintenance.
             "MsAnneal": self._on_anneal,
+            "MsValidateProfileData": lambda: self._maintenance("validate_profile_data"),
+            "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
+            "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             # Play loop.
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
@@ -482,6 +485,14 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         message = self.controller.anneal()
+        self.refresh()
+        self.nit_status.set_info(message)
+
+    def _maintenance(self, method: str) -> None:
+        """Run a controller maintenance operation and report its result."""
+        if self.controller is None:
+            return
+        message = getattr(self.controller, method)()
         self.refresh()
         self.nit_status.set_info(message)
 
