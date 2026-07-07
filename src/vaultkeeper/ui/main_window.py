@@ -425,7 +425,10 @@ class MainWindow(QMainWindow):
     def _on_game_saves(self) -> None:
         if self.controller is None:
             return
+        from vaultkeeper.ui.dialogs.game_saves_manager import GameSavesManager
+
         self.nit_status.set_info(self.controller.current_game_summary())
+        self._saves_manager = GameSavesManager.show_for(self.controller, self)
 
     def _on_mods_played(self) -> None:
         if self.controller is None:

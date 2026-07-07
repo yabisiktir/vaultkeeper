@@ -258,6 +258,29 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def game_saves_report(self) -> dict:
+        """The current game saves as display rows plus totals (prompt-free)."""
+        loop = self.play_loop
+        if loop is None:
+            return {"rows": [], "count": 0, "current": "", "total_size": ""}
+        gs = loop.game_saves()
+        rows = [
+            {
+                "name": info.name,
+                "save": info.game_save_name,
+                "location": info.location,
+                "type": info.save_type.name.title(),
+                "size": _fmt_size(info.byte_size),
+            }
+            for info in gs.folders
+        ]
+        return {
+            "rows": rows,
+            "count": gs.count,
+            "current": gs.current_game_save,
+            "total_size": _fmt_size(gs.total_size),
+        }
+
     def play_times_report(self) -> dict:
         """Per-mod play times (formatted, longest first) plus the NWN totals."""
         loop = self.play_loop
@@ -327,3 +350,15 @@ def _fmt_date(value: datetime | None) -> str:
     from vaultkeeper.core.formatting import to_date_string
 
     return to_date_string(value) if value is not None else ""
+
+
+def _fmt_size(byte_size: int) -> str:
+    """Human-readable byte size (B / KB / MB / GB)."""
+    if byte_size < 0:
+        return ""
+    size = float(byte_size)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
+            return f"{size:,.0f} {unit}" if unit == "B" else f"{size:,.1f} {unit}"
+        size /= 1024
+    return f"{size:,.1f} GB"
