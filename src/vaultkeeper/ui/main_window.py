@@ -372,6 +372,8 @@ class MainWindow(QMainWindow):
             "RbnToolset": lambda: self._on_play(toolset=True),
             "MsModsPlayed": self._on_mods_played,
             "MsConflicts": self._on_conflicts,
+            "MsDependencyManager": self._on_dependencies,
+            "RbnDependencyManager": self._on_dependencies,
             # View-menu file viewers.
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
             "MsNwnClientLogFile": lambda: self._on_view_file("MsNwnClientLogFile"),
@@ -450,6 +452,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.conflicts_viewer import ConflictsViewer
 
         self._conflicts_viewer = ConflictsViewer.show_for(self.controller, self)
+
+    def _on_dependencies(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.dependency_manager import DependencyManager
+
+        self._dependency_manager = DependencyManager.show_for(self.controller, self)
 
     def _on_view_file(self, kind: str) -> None:
         if self.controller is None:

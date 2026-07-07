@@ -258,6 +258,30 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def dependencies_report(self) -> dict:
+        """Each mod's declared dependencies and the mods that require it.
+
+        Surfaces the ProfileData dependency graph (VB DependencyManager): a row per
+        mod that either depends on something or is depended upon.
+        """
+        dependants = self.pd.get_dependants()
+        rows = []
+        for name in self.pd.sorted_mod_keys:
+            md = self.pd.mod_item(name)
+            if md is None:
+                continue
+            depends_on = sorted(md.dependencies)
+            required_by = dependants.get(name, [])
+            if depends_on or required_by:
+                rows.append(
+                    {
+                        "mod": name,
+                        "depends_on": depends_on,
+                        "required_by": required_by,
+                    }
+                )
+        return {"rows": rows, "count": len(rows)}
+
     # -- File viewers (View menu) ----------------------------------------- #
     def nit_log_path(self) -> Path:
         """The application's own log file (VB NIT Log File)."""
