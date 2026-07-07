@@ -72,3 +72,33 @@ def test_toolset_resolution(tmp_path):
     _make_bin(tmp_path, "bin/macos/nwtoolset.app")
     exe = resolve_executable(tmp_path, HostOS.MACOS, toolset=True)
     assert exe is not None and exe.name == "nwtoolset.app"
+
+
+def test_run_binary_resolves_mac_bundle_inner(tmp_path):
+    from vaultkeeper.game.game_launch import run_binary
+
+    inner = tmp_path / "bin/macos/nwmain.app/Contents/MacOS/nwmain"
+    inner.parent.mkdir(parents=True)
+    inner.write_bytes(b"\x00")
+    got = run_binary(tmp_path, HostOS.MACOS)
+    assert got == inner
+
+
+def test_wait_argv_uses_inner_binary_on_mac(tmp_path):
+    inner = tmp_path / "bin/macos/nwmain.app/Contents/MacOS/nwmain"
+    inner.parent.mkdir(parents=True)
+    inner.write_bytes(b"\x00")
+    argv = launch_argv(
+        tmp_path, host=HostOS.MACOS, user_dir=Path("/u/nwn"), wait=True
+    )
+    # Direct binary (not "open"), so QProcess can await exit.
+    assert argv[0] == str(inner)
+    assert argv[0] != "open"
+    assert "-userDirectory" in argv
+
+
+def test_run_binary_none_when_bundle_missing_inner(tmp_path):
+    from vaultkeeper.game.game_launch import run_binary
+
+    (tmp_path / "bin/macos/nwmain.app").mkdir(parents=True)  # bundle without binary
+    assert run_binary(tmp_path, HostOS.MACOS) is None

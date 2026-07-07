@@ -253,3 +253,43 @@ def test_play_command_reports_status(qtbot, controller) -> None:
     # Game Saves summary is available and stringy.
     win._on_command("MsGameSaves")
     assert win.nit_status.mg_info.text() != ""
+
+
+def test_game_exit_records_play_session(qtbot, controller, tmp_path) -> None:
+    from datetime import datetime
+
+    # Isolate the game-user dir and drop a synthetic client log there.
+    user = tmp_path / "gameuser"
+    logs = user / "logs"
+    logs.mkdir(parents=True)
+    (logs / "nwclientlog1.txt").write_text(
+        "\n".join(
+            [
+                "[Mon Nov 02 17:00:00] Loading Module: Alpha",
+                "[Mon Nov 02 17:30:00] Loading Module: Beta",
+                "[Mon Nov 02 18:00:00] Server Shutting Down",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    controller.ctx.game_user_dir = user  # redirect the play loop at the fixture log
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._play_started = datetime(2020, 11, 2, 16, 59)
+    win._game_process = object()  # pretend a game was running
+    win._on_game_exited()
+
+    # The session was attributed and recorded, and the process state was cleared.
+    assert win._game_process is None
+    assert "Recorded play time" in win.nit_status.mg_info.text()
+    assert controller.play_loop.play_time("Alpha").total_seconds() > 0
+
+
+def test_game_exit_without_start_is_safe(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._play_started = None
+    win._game_process = object()
+    win._on_game_exited()  # must not raise
+    assert win._game_process is None

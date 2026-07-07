@@ -45,6 +45,24 @@ def resolve_executable(
     return None
 
 
+def bundle_binary(app_path: Path) -> Path:
+    """The runnable binary inside a macOS ``.app`` bundle (``…/Contents/MacOS/<name>``)."""
+    return app_path / "Contents" / "MacOS" / app_path.stem
+
+
+def run_binary(
+    game_root: Path, host: HostOS, *, toolset: bool = False
+) -> Path | None:
+    """The actual *waitable* executable (resolving a macOS bundle to its binary)."""
+    exe = resolve_executable(game_root, host, toolset=toolset)
+    if exe is None:
+        return None
+    if host is HostOS.MACOS and exe.suffix == ".app":
+        inner = bundle_binary(exe)
+        return inner if inner.exists() else None
+    return exe
+
+
 def launch_argv(
     game_root: Path,
     *,
@@ -53,12 +71,15 @@ def launch_argv(
     steam_app_id: str | None = None,
     prefer_steam: bool = False,
     toolset: bool = False,
+    wait: bool = False,
 ) -> list[str]:
     """Build the launch argv for the game (or toolset).
 
     Prefers a direct executable launch (so ``-userDirectory`` config isolation is
-    honoured). Falls back to the Steam URL protocol when the binary can't be found
-    (or ``prefer_steam`` is set) and a Steam app id is known.
+    honoured). With ``wait=True`` a macOS ``.app`` is launched via its inner binary
+    (not ``open``) so the caller can wait for the game to exit. Falls back to the
+    Steam URL protocol when the binary can't be found (or ``prefer_steam`` is set)
+    and a Steam app id is known.
     """
     exe = resolve_executable(game_root, host, toolset=toolset)
     if exe is None or prefer_steam:
@@ -72,7 +93,12 @@ def launch_argv(
         game_args += ["-userDirectory", str(user_dir)]
 
     if host is HostOS.MACOS and exe.suffix == ".app":
-        # Launch a macOS .app bundle, passing game args after --args.
+        if wait:
+            # Launch the bundle's binary directly so QProcess can await exit.
+            inner = bundle_binary(exe)
+            if inner.exists():
+                return [str(inner), *game_args]
+        # Otherwise let the OS open the bundle (detaches).
         argv = ["open", str(exe)]
         if game_args:
             argv += ["--args", *game_args]

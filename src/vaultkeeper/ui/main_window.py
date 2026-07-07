@@ -41,6 +41,8 @@ class MainWindow(QMainWindow):
     def __init__(self, controller: ProfileController | None = None) -> None:
         super().__init__()
         self.controller = controller
+        self._game_process = None  # a running NWN QProcess, when playing
+        self._play_started = None
         self.setWindowTitle("Vaultkeeper")
         self.setWindowIcon(R.app_icon())
         self.resize(1000, 640)
@@ -314,21 +316,60 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(self.controller.current_game_summary())
 
     def _on_play(self, toolset: bool = False) -> None:
-        """Launch NWN (or the toolset). Recording a finished session is exposed via
-        ``controller.process_play_session`` (wired to exit detection later)."""
+        """Launch NWN (or the toolset).
+
+        When the game can be run as an awaitable process (a resolvable binary), it is
+        launched non-detached and the finished signal drives play-session recording
+        (VB exit processing). Otherwise (Steam URL / no binary) it is started detached
+        with no exit detection.
+        """
         if self.controller is None:
             return
+        if getattr(self, "_game_process", None) is not None:
+            self.nit_status.set_info("A game is already running.")
+            return
+        from datetime import datetime
+
+        from PySide6.QtCore import QProcess
+
+        what = "Toolset" if toolset else "Neverwinter Nights"
+
+        # Awaitable launch: record the session on exit (only for the game, not toolset).
+        if not toolset and self.controller.can_await_exit():
+            argv = self.controller.launch_argv(wait=True)
+            proc = QProcess(self)
+            self._game_process = proc
+            self._play_started = datetime.now()
+            proc.finished.connect(lambda *_: self._on_game_exited())
+            proc.start(argv[0], argv[1:])
+            self.nit_status.set_info(f"Playing {what}…")
+            return
+
         argv = self.controller.launch_argv(toolset=toolset)
         if not argv:
             self.nit_status.set_info("Neverwinter Nights install not found.")
             return
-        from PySide6.QtCore import QProcess
-
-        what = "Toolset" if toolset else "Neverwinter Nights"
         if QProcess.startDetached(argv[0], argv[1:]):
             self.nit_status.set_info(f"Launched {what}.")
         else:
             self.nit_status.set_info(f"Could not launch {what}.")
+
+    def _on_game_exited(self) -> None:
+        """Process a finished play session (VB post-play exit processing)."""
+        from datetime import datetime
+
+        started = getattr(self, "_play_started", None)
+        self._game_process = None
+        if self.controller is None or started is None:
+            return
+        summary = self.controller.process_play_session(started, datetime.now())
+        self.refresh()
+        mods = summary.get("mods", {})
+        if mods:
+            names = ", ".join(sorted(mods))
+            self.nit_status.set_info(f"Recorded play time for: {names}")
+        else:
+            self.nit_status.set_info("Finished playing (no play time recorded).")
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")
