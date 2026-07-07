@@ -20,6 +20,7 @@ from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.game.config_guard import ConfigChange, ConfigGuard
 from vaultkeeper.game.locations import HostOS, user_documents_dir
 from vaultkeeper.persistence.profile_store import load_profile, save_profile
+from vaultkeeper.ui.play_loop import PlayLoop
 
 
 class ProfileController:
@@ -40,6 +41,7 @@ class ProfileController:
         self.engine = ModInstallationManager(
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
         )
+        self._play_loop: PlayLoop | None = None
 
     # -- Construction ------------------------------------------------------ #
     @classmethod
@@ -162,6 +164,32 @@ class ProfileController:
         self.engine.anneal(None)
         self.save()
         return "Anneal complete."
+
+    # -- Play loop (Phase 5) ---------------------------------------------- #
+    @property
+    def play_loop(self) -> PlayLoop | None:
+        """The play-tracking loop for this profile (None if no game-user dir)."""
+        if self._play_loop is not None:
+            return self._play_loop
+        if self.ctx.game_user_dir is None:
+            return None
+        from vaultkeeper.app_paths import data_root
+
+        data_dir = self.store_path.parent if self.store_path else data_root()
+        self._play_loop = PlayLoop(
+            self.pd,
+            profile_mods_dir=self.ctx.profile_mods_dir,
+            data_dir=data_dir,
+            saves_dir=self.ctx.game_user_dir / "saves",
+            log_path=self.ctx.game_user_dir / "logs" / "nwclientlog1.txt",
+            on_save=self.save,
+        )
+        return self._play_loop
+
+    def current_game_summary(self) -> str:
+        """One-line description of the current game save (or a placeholder)."""
+        loop = self.play_loop
+        return loop.current_game_summary() if loop is not None else "No game saves"
 
     def save(self) -> None:
         if self.store_path is not None:

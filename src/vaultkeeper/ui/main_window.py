@@ -248,6 +248,10 @@ class MainWindow(QMainWindow):
             "TsMoveToGroup": self._on_move_to_group,
             # Engine maintenance.
             "MsAnneal": self._on_anneal,
+            # Play loop.
+            "MsGameSaves": self._on_game_saves,
+            "TsGameSaves": self._on_game_saves,
+            "RbnGameSaves": self._on_game_saves,
             # View / selection.
             "MsSelectAll": self._on_select_all,
             "TsSelectAll": self._on_select_all,
@@ -298,6 +302,11 @@ class MainWindow(QMainWindow):
 
     def _on_select_all(self) -> None:
         self._tree.selectAll()
+
+    def _on_game_saves(self) -> None:
+        if self.controller is None:
+            return
+        self.nit_status.set_info(self.controller.current_game_summary())
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")
