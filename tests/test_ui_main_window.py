@@ -318,3 +318,25 @@ def test_deselection_clears_detail_panes(qtbot, controller) -> None:
     win._on_selection_changed()
     assert win._details_list.topLevelItemCount() == 0
     assert win._mod_info.text() == ""
+
+
+def test_notes_edit_and_persist(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    # Type a note and switch selection -> it is saved to the mod's RTF.
+    win._details.setPlainText("Great module. Finished chapter 3.")
+    _select_mod(win, "Beta")
+    assert controller.read_notes("Alpha") == "Great module. Finished chapter 3."
+    # Re-selecting reloads the saved note.
+    _select_mod(win, "Alpha")
+    assert win._details.toPlainText() == "Great module. Finished chapter 3."
+
+
+def test_notes_round_trip_via_controller(qtbot, controller) -> None:
+    controller.save_notes("Alpha", "Line one\nLine two")
+    assert controller.read_notes("Alpha") == "Line one\nLine two"
+    assert controller.mod_notes_path("Alpha").name == "Alpha.rtf"
+    # Clearing notes removes the file.
+    controller.save_notes("Alpha", "")
+    assert not controller.mod_notes_path("Alpha").exists()

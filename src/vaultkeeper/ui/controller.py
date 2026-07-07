@@ -161,6 +161,39 @@ class ProfileController:
         """Visible (non-reserved) group names."""
         return self.pd.group_keys
 
+    # -- Mod notes (per-mod RTF) ------------------------------------------- #
+    def mod_notes_path(self, mod_name: str) -> Path:
+        """The mod's notes file (VB ``ModData.NotesFile`` = ``…/Mod Notes/<mod>.rtf``)."""
+        from vaultkeeper.app_paths import data_root
+
+        base = self.store_path.parent if self.store_path else data_root()
+        return base / self.ctx.profile_mods_dir.name / "Mod Notes" / f"{mod_name}.rtf"
+
+    def read_notes(self, mod_name: str) -> str:
+        """The mod's notes as plain text (empty if none)."""
+        from vaultkeeper.core.rtf import read_rtf_text
+
+        path = self.mod_notes_path(mod_name)
+        if not path.is_file():
+            return ""
+        try:
+            return read_rtf_text(
+                path.read_text(encoding="utf-8", errors="replace")
+            ).strip("\n")
+        except OSError:
+            return ""
+
+    def save_notes(self, mod_name: str, text: str) -> None:
+        """Write the mod's notes as an RTF file (deleting it when empty)."""
+        from vaultkeeper.core.rtf import write_rtf
+
+        path = self.mod_notes_path(mod_name)
+        if text.strip() == "":
+            path.unlink(missing_ok=True)
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(write_rtf(text.split("\n")), encoding="utf-8")
+
     # -- Engine maintenance ------------------------------------------------ #
     def anneal(self) -> str:
         """Repair conflict winners for all installed mods (VB Anneal); persist."""

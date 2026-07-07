@@ -61,8 +61,10 @@ class MainWindow(QMainWindow):
         self._details_list = QTreeWidget()
         self._details_list.setHeaderLabels(["Property", "Value"])
         self._details_list.setRootIsDecorated(False)
+        # The properties list is read-only; the lower pane is the editable Mod Notes.
         self._details = QTextEdit()
-        self._details.setReadOnly(True)
+        self._details.setPlaceholderText("Mod notes…")
+        self._notes_mod: str | None = None  # the mod whose notes are loaded
 
         # Nested splitter layout, matching the VB ScProfile/ScMod/ScContents/ScDetails:
         #   mods | (contents / mod-info) | (details list / properties+notes)
@@ -260,10 +262,17 @@ class MainWindow(QMainWindow):
                 self._show_details(md)
                 self._show_contents(md)
         else:
+            self._save_current_notes()
+            self._notes_mod = None
             self._contents.clear()
             self._details_list.clear()
             self._details.clear()
             self._mod_info.setText("")
+
+    def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        """Persist any unsaved mod notes before closing."""
+        self._save_current_notes()
+        super().closeEvent(event)
 
     def _show_contents(self, md: ModData) -> None:
         """Show the selected mod's installer files, grouped by folder."""
@@ -304,13 +313,26 @@ class MainWindow(QMainWindow):
                 played = loop.play_time(md.mod_name)
                 if played.total_seconds() > 0:
                     play = f" · played {loop.play_data.format_time(played, '')}"
+        if md.web_link:
+            play = f"{play}  ·  {md.web_link}" if play else f"  ·  {md.web_link}"
         self._mod_info.setText(f"{md.mod_name} — {state}{play}")
 
-        # Properties / notes text (VB LpProperties / notes RTF).
-        lines = [f"<h3>{md.mod_name}</h3>", f"<b>State:</b> {state}<br>"]
-        if md.web_link:
-            lines.append(f'<b>Web:</b> <a href="{md.web_link}">{md.web_link}</a><br>')
-        self._details.setHtml("".join(lines))
+        # Editable Mod Notes (VB per-mod .rtf). Persist the previously-shown mod first.
+        self._save_current_notes()
+        self._notes_mod = md.mod_name
+        if self.controller is not None:
+            self._details.setPlainText(self.controller.read_notes(md.mod_name))
+        self._details.document().setModified(False)
+
+    def _save_current_notes(self) -> None:
+        """Persist the currently-loaded mod's notes if the user edited them."""
+        if (
+            self.controller is not None
+            and self._notes_mod is not None
+            and self._details.document().isModified()
+        ):
+            self.controller.save_notes(self._notes_mod, self._details.toPlainText())
+            self._details.document().setModified(False)
 
     # -- Ribbon / toolbar dispatch ----------------------------------------- #
     def _on_command(self, action: str) -> None:
