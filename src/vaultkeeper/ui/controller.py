@@ -258,6 +258,28 @@ class ProfileController:
         loop = self.play_loop
         return loop.process_session(started, stopped) if loop is not None else {}
 
+    def conflicts_report(self) -> dict:
+        """Installed files claimed by more than one mod, with the winning installer.
+
+        Surfaces the engine's last-by-``FileKeyInfo.Comparer`` winner selection (VB
+        FileConflictsViewer): each row is a game file, the mod that currently owns it,
+        and every mod whose installer maps onto it.
+        """
+        rows = []
+        for ifd in self.pd.installed_list.values():
+            if len(ifd.mod_file_conflicts) > 1:
+                mods = sorted({mfk.mod_name for mfk in ifd.mod_file_conflicts})
+                rows.append(
+                    {
+                        "file": ifd.key.file_key,
+                        "winner": ifd.installer,
+                        "mods": mods,
+                        "count": len(mods),
+                    }
+                )
+        rows.sort(key=lambda r: r["file"].lower())
+        return {"rows": rows, "count": len(rows)}
+
     def game_saves_report(self) -> dict:
         """The current game saves as display rows plus totals (prompt-free)."""
         loop = self.play_loop
