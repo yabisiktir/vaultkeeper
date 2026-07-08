@@ -400,6 +400,8 @@ class MainWindow(QMainWindow):
             "BtCharacter": self._on_characters,
             "MsPortraitManager": self._on_portraits,
             "RbnPortraitManager": self._on_portraits,
+            # Edit the GameMapper's remembered user responses.
+            "DbGameMapUserReport": self._on_user_responses,
             # Play loop.
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
@@ -600,6 +602,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
         self._portrait_manager = PortraitManager.show_for(self.controller, self)
+
+    def _on_user_responses(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.user_response_editor import UserResponseEditor
+
+        self._user_response_editor = UserResponseEditor.show_for(self.controller, self)
 
     def _on_game_saves(self) -> None:
         if self.controller is None:

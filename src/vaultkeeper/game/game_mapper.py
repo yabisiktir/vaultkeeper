@@ -776,6 +776,33 @@ class GameMapper:
         self.save_names = {}
         self._map_data_file.unlink(missing_ok=True)
 
+    def remove_user_response(self, category: str, key: str) -> bool:
+        """Forget a remembered user response so the mapper will ask again.
+
+        ``category`` is one of ``mod_choices`` / ``log`` / ``sav`` / ``profile``
+        (VB UserResponseEditor's four groups). ``key`` is the mod name for
+        ``mod_choices`` and the identifier (log/save name) for the others.
+        Persists on removal. Returns True if something was removed.
+        """
+        uc = self.user_choices
+        removed = False
+        if category == "mod_choices":
+            if key in uc.mod_choices:
+                uc.mod_choices = [n for n in uc.mod_choices if n != key]
+                removed = True
+        else:
+            table = {
+                "log": uc.log_to_mod_names,
+                "sav": uc.sav_to_mod_names,
+                "profile": uc.profile_choices,
+            }.get(category)
+            if table is not None and key in table:
+                del table[key]
+                removed = True
+        if removed:
+            self._save_user_choices()
+        return removed
+
     def rename_mod(self, old_name: str, new_name: str) -> None:
         """Rewrite cached mod-file paths and remembered answers for a renamed mod."""
         old_dir = (self.ctx.profiles_dir / self.ctx.active_profile / old_name)

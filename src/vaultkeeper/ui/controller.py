@@ -844,6 +844,54 @@ class ProfileController:
 
         return scan_portraits(self.portrait_search_dirs())
 
+    def user_responses_report(self) -> dict:
+        """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
+
+        Four groups mirroring ``PopulateUserResponses``. Each row carries the
+        ``key`` needed to delete it (mod name for Mod Choices, identifier else).
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"groups": []}
+        uc = loop.game_mapper.user_choices
+
+        def rows(mapping: dict) -> list[dict]:
+            return [
+                {"identifier": k, "mod_name": v, "key": k}
+                for k, v in mapping.items()
+            ]
+
+        return {
+            "groups": [
+                {
+                    "key": "mod_choices",
+                    "title": "Mod Choices",
+                    "rows": [
+                        {"identifier": "N/A", "mod_name": m, "key": m}
+                        for m in uc.mod_choices
+                    ],
+                },
+                {"key": "log", "title": "Log to Mod Names", "rows": rows(uc.log_to_mod_names)},
+                {
+                    "key": "sav",
+                    "title": "Game Save Name to Mod Names",
+                    "rows": rows(uc.sav_to_mod_names),
+                },
+                {
+                    "key": "profile",
+                    "title": "Game Save Name to Profile Mod Names",
+                    "rows": rows(uc.profile_choices),
+                },
+            ]
+        }
+
+    def delete_user_response(self, category: str, key: str) -> bool:
+        """Forget a remembered GameMapper response (VB UserResponseEditor delete)."""
+        loop = self.play_loop
+        if loop is None:
+            return False
+        return loop.game_mapper.remove_user_response(category, key)
+
     def play_times_report(self) -> dict:
         """Per-mod play times (formatted, longest first) plus the NWN totals."""
         loop = self.play_loop

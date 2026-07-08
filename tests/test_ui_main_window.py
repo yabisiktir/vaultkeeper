@@ -408,3 +408,12 @@ def test_publish_command_wired(qtbot, controller, tmp_path, monkeypatch) -> None
     win._on_command("MsPublishMod")
     assert (dest / "Alpha.7z").is_file()
     assert "Published Alpha" in win.nit_status.mg_info.text()
+
+
+def test_user_response_editor_command_wired(qtbot, controller, tmp_path) -> None:
+    controller.ctx.game_user_dir = tmp_path / "gameuser"
+    (controller.ctx.game_user_dir / "saves").mkdir(parents=True)
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_command("DbGameMapUserReport")  # must not raise
+    assert win._user_response_editor is not None

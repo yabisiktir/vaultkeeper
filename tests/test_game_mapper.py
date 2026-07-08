@@ -323,3 +323,30 @@ class TestUserResponses:
         assert ur.sav_to_mod_names["sav1"] == "New"
         assert ur.profile_choices["prof1"] == "New"
         assert "New" in ur.mod_choices
+
+
+class TestRemoveUserResponse:
+    def test_removes_from_each_table_and_persists(self, tmp_path):
+        ctx = _ctx(tmp_path)
+        gm = _mapper(ProfileData(), ctx)
+        gm.user_choices.add_choice("Chosen Mod")
+        gm.user_choices.log_to_mod_names["LogA"] = "Mod A"
+        gm.user_choices.sav_to_mod_names["SaveB"] = "Mod B"
+        gm.user_choices.profile_choices["SaveC"] = "Mod C"
+
+        assert gm.remove_user_response("mod_choices", "Chosen Mod")
+        assert "Chosen Mod" not in gm.user_choices.mod_choices
+        assert gm.remove_user_response("log", "LogA")
+        assert "LogA" not in gm.user_choices.log_to_mod_names
+        assert gm.remove_user_response("sav", "SaveB")
+        assert gm.remove_user_response("profile", "SaveC")
+
+        # Removal persisted: a fresh mapper reloads without them.
+        gm2 = _mapper(ProfileData(), ctx)
+        assert gm2.user_choices.mod_choices == []
+        assert gm2.user_choices.log_to_mod_names == {}
+
+    def test_remove_missing_returns_false(self, tmp_path):
+        gm = _mapper(ProfileData(), _ctx(tmp_path))
+        assert not gm.remove_user_response("log", "nope")
+        assert not gm.remove_user_response("bogus_category", "x")
