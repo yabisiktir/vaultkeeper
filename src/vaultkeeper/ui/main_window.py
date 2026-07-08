@@ -391,6 +391,11 @@ class MainWindow(QMainWindow):
             "MsValidateProfileData": lambda: self._maintenance("validate_profile_data"),
             "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
+            # Characters.
+            "MsCharacterExplorer": self._on_characters,
+            "RbnCharacterExplorer": self._on_characters,
+            "MsCharacterSummary": self._on_characters,
+            "BtCharacter": self._on_characters,
             # Play loop.
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
@@ -564,6 +569,13 @@ class MainWindow(QMainWindow):
 
     def _on_select_all(self) -> None:
         self._tree.selectAll()
+
+    def _on_characters(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+
+        self._character_viewer = CharacterViewer.show_for(self.controller, self)
 
     def _on_game_saves(self) -> None:
         if self.controller is None:

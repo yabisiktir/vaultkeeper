@@ -375,3 +375,10 @@ def test_compact_command_is_safe(qtbot, controller) -> None:
     _select_mod(win, "Alpha")
     win._on_command("MsCompact")  # must not raise; reports a status
     assert win.nit_status.mg_info.text() != ""
+
+
+def test_character_command_opens_viewer(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_command("MsCharacterExplorer")  # must not raise; opens the viewer
+    assert win._character_viewer is not None

@@ -737,6 +737,45 @@ class ProfileController:
             "total_size": _fmt_size(gs.total_size),
         }
 
+    # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #
+    def character_files(self) -> list:
+        """The player's characters, from the local vault and each game save.
+
+        VB's Character Explorer/Summary reads ``.bic`` files; the player's real
+        characters live in ``localvault`` and one ``player.bic`` per game save.
+        Returns a list of ``game.character.CharacterFile`` (each with decoded
+        info, possibly invalid), local vault first then saves, name-sorted.
+        """
+        from vaultkeeper.game.character import scan_character_files
+
+        user = self.ctx.game_user_dir
+        if user is None:
+            return []
+        found = list(scan_character_files(user / "localvault"))
+        saves = user / "saves"
+        if saves.is_dir():
+            for save_dir in sorted(saves.iterdir()):
+                if save_dir.is_dir():
+                    found.extend(scan_character_files(save_dir))
+        return found
+
+    def portrait_search_dirs(self) -> list[Path]:
+        """NWN portrait search folders in priority order (VB PortraitDirectories)."""
+        user = self.ctx.game_user_dir
+        dirs: list[Path] = []
+        if user is not None:
+            if self.ctx.is_ee:
+                dirs.append(user / "ovr")
+            dirs.append(user / "override")
+            dirs.append(user / "portraits")
+        return dirs
+
+    def portrait_path(self, resref: str, *, extra_dirs=()) -> Path | None:
+        """Resolve a character's portrait TGA (``extra_dirs`` searched first)."""
+        from vaultkeeper.game.character import resolve_portrait
+
+        return resolve_portrait(resref, [*extra_dirs, *self.portrait_search_dirs()])
+
     def play_times_report(self) -> dict:
         """Per-mod play times (formatted, longest first) plus the NWN totals."""
         loop = self.play_loop

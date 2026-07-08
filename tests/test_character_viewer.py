@@ -1,0 +1,123 @@
+"""Tests for the Character Viewer dialog + controller character/portrait methods."""
+
+from __future__ import annotations
+
+import os
+import struct
+from pathlib import Path
+
+import pytest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+pytest.importorskip("PySide6")
+
+from vaultkeeper.core.formats.bic_reader import (  # noqa: E402
+    CharacterClass,
+    CharacterInfo,
+    Gender,
+    Race,
+)
+from vaultkeeper.game.character import CharacterFile  # noqa: E402
+from vaultkeeper.ui.controller import ProfileController  # noqa: E402
+from vaultkeeper.ui.dialogs.character_viewer import (  # noqa: E402
+    CharacterViewer,
+    tga_to_pixmap,
+)
+
+
+def _char(name: str, path: Path, *, valid: bool = True, resref: str = "hero_") -> CharacterFile:
+    info = CharacterInfo(
+        name=name,
+        gender=Gender.MALE,
+        race=Race.HUMAN,
+        classes=[(CharacterClass.BARD, 5)],
+        level=5,
+        experience=10_000,
+        alignment_good_evil=50,
+        alignment_lawful_chaotic=50,
+        hit_points=40,
+        portrait_resref=resref,
+        is_valid=valid,
+    )
+    return CharacterFile(path=path, info=info)
+
+
+def _write_tga(path: Path, w: int = 2, h: int = 2) -> None:
+    """A tiny uncompressed 24-bit BGR TGA the reader can decode."""
+    header = struct.pack(
+        "<BBBHHBHHHHBB", 0, 0, 2, 0, 0, 0, 0, 0, w, h, 24, 0
+    )
+    pixels = bytes([0, 0, 255] * (w * h))  # BGR red
+    path.write_bytes(header + pixels)
+
+
+def test_viewer_populates_list_and_summary(qtbot, tmp_path):
+    chars = [
+        _char("Alpha Hero", tmp_path / "a.bic"),
+        _char("Beta Hero", tmp_path / "b.bic"),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 2
+    # First is auto-selected; its summary shows.
+    assert "Alpha Hero" in dlg._summary.toPlainText()
+    dlg._list.setCurrentRow(1)
+    assert "Beta Hero" in dlg._summary.toPlainText()
+
+
+def test_viewer_empty_state(qtbot):
+    dlg = CharacterViewer([], None)
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 0
+    assert "No character files" in dlg._summary.toPlainText()
+
+
+def test_viewer_shows_portrait_when_resolvable(qtbot, tmp_path):
+    portraits = tmp_path / "portraits"
+    portraits.mkdir()
+    _write_tga(portraits / "hero_m.tga")
+
+    def resolver(resref, own_folder):
+        from vaultkeeper.game.character import resolve_portrait
+
+        return resolve_portrait(resref, [portraits])
+
+    dlg = CharacterViewer([_char("Hero", tmp_path / "h.bic")], resolver)
+    qtbot.addWidget(dlg)
+    # A portrait pixmap was loaded and displayed.
+    assert dlg._portrait.pixmap() is not None
+    assert not dlg._portrait.pixmap().isNull()
+
+
+def test_tga_to_pixmap_reads_real_tga(tmp_path):
+    _write_tga(tmp_path / "p.tga", 4, 4)
+    pix = tga_to_pixmap(tmp_path / "p.tga")
+    assert pix is not None and not pix.isNull()
+
+
+def test_tga_to_pixmap_missing_file(tmp_path):
+    assert tga_to_pixmap(tmp_path / "nope.tga") is None
+
+
+# -- Controller character/portrait plumbing ------------------------------------ #
+def test_controller_character_files_scans_vault_and_saves(tmp_path, monkeypatch):
+    user = tmp_path / "gameuser"
+    (user / "localvault").mkdir(parents=True)
+    (user / "saves" / "000 - quicksave").mkdir(parents=True)
+    # Non-bic files are ignored; we only assert the scan wiring runs without error.
+    (user / "localvault" / "notes.txt").write_bytes(b"x")
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    controller.ctx.game_user_dir = user
+    assert controller.character_files() == []  # no .bic present, but no crash
+
+    dirs = controller.portrait_search_dirs()
+    assert user / "override" in dirs
+    assert user / "portraits" in dirs
