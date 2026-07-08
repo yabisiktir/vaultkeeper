@@ -226,6 +226,102 @@ class ProfileController:
             self.save()
         return added
 
+    def update_downloads(self, mod_names: list[str]) -> dict:
+        """Move loose compressed files into each mod's ``_Downloads`` folder.
+
+        Ports VB *Move Compressed Files to Mod's Downloads Folder*
+        (``NIT.ModView.UpdateDownloads``): for every selected mod, any file
+        sitting loose in the mod's folder whose extension is a recognised archive
+        (zip/rar/7z/…/exe) is moved into the mod's ``_Downloads`` subfolder. These
+        are downloaded archives, not tracked installer files, so the profile
+        database is left untouched — exactly as the VB app does. Returns
+        ``{"mods": processed, "files": moved, "errors": n}``.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.archive import is_zip_extension
+
+        mods = moved = errors = 0
+        for name in mod_names:
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                continue
+            mod_folder = self.ctx.profile_mods_dir / name
+            if not mod_folder.is_dir():
+                errors += 1
+                continue
+            downloads = mod_folder / C.DOWNLOADS_DIR
+            try:
+                downloads.mkdir(parents=True, exist_ok=True)
+            except OSError:
+                errors += 1
+                continue
+            mods += 1
+            for entry in mod_folder.iterdir():
+                if entry.is_file() and is_zip_extension(entry.suffix):
+                    try:
+                        shutil.move(str(entry), str(downloads / entry.name))
+                        moved += 1
+                    except OSError:
+                        errors += 1
+        return {"mods": mods, "files": moved, "errors": errors}
+
+    def compress_mod_folders(self, mod_names: list[str], *, compress: bool = True) -> dict:
+        """Toggle NTFS folder compression on each mod folder (VB Compress/Uncompress).
+
+        VB's *Compress Mod Folder* (``IOSystem.CompressionOperations``) sets or
+        clears the **NTFS Compressed attribute** on the folder via WMI — it is
+        transparent filesystem compression, not archiving. That is a Windows-only
+        feature with no macOS/Linux equivalent, so on those platforms we report it
+        as unavailable rather than inventing a divergent behaviour (e.g. producing
+        a 7-Zip archive the VB app would never create). On Windows we shell out to
+        the built-in ``compact`` tool (the CLI equivalent of the WMI call).
+
+        Returns ``{"applied": n, "available": bool, "message": str}``.
+        """
+        from vaultkeeper.game.locations import HostOS
+
+        if HostOS.current() is not HostOS.WINDOWS:
+            return {
+                "applied": 0,
+                "available": False,
+                "message": (
+                    "Folder compression is a Windows-only NTFS feature and is not "
+                    "available on this platform."
+                ),
+            }
+
+        import subprocess
+
+        flag = "/c" if compress else "/u"
+        applied = 0
+        for name in mod_names:
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                continue
+            folder = self.ctx.profile_mods_dir / name
+            if not folder.is_dir():
+                continue
+            try:
+                proc = subprocess.run(  # noqa: S603,S607 - fixed Windows system tool
+                    ["compact", flag, "/s", "/i", "/q"],
+                    cwd=str(folder),
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except OSError:
+                continue
+            if proc.returncode == 0:
+                applied += 1
+        verb = "Compressed" if compress else "Uncompressed"
+        return {
+            "applied": applied,
+            "available": True,
+            "message": f"{verb} {applied} mod folder(s).",
+        }
+
     def create_installer(self, mod_name: str) -> bool:
         """Mark a mod as an installer (write its identifier) and scan its files.
 

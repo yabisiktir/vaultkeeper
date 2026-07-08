@@ -363,6 +363,12 @@ class MainWindow(QMainWindow):
             "MsAddFiles": self._on_add_files,
             "TsAddFiles": self._on_add_files,
             "RbnAddFiles": self._on_add_files,
+            # Move compressed files to each mod's _Downloads folder.
+            "MsUpdateDownloads": self._on_update_downloads,
+            "TsUpdateDownloads": self._on_update_downloads,
+            "RbnUpdateDownloads": self._on_update_downloads,
+            # Compress / uncompress mod folder (NTFS; Windows-only).
+            "MsCompact": self._on_compact,
             # Mod creation.
             "MsNewMod": self._on_new_mod,
             "TsNewMod": self._on_new_mod,
@@ -461,6 +467,28 @@ class MainWindow(QMainWindow):
         added = self.controller.add_files_to_mod(names[0], [Path(p) for p in paths])
         self.refresh()
         self.nit_status.set_info(f"Added {added} file(s) to {names[0]}.")
+
+    def _on_update_downloads(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        result = self.controller.update_downloads(names)
+        self.refresh()
+        moved = result["files"] or "no"
+        msg = f"Mods processed: {result['mods']}. Files moved: {moved}."
+        if result["errors"]:
+            msg += f" Errors: {result['errors']}."
+        self.nit_status.set_info(msg)
+
+    def _on_compact(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        result = self.controller.compress_mod_folders(names)
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     def _on_new_mod(self) -> None:
         if self.controller is None:

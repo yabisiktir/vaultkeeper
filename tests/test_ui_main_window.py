@@ -353,3 +353,25 @@ def test_notes_round_trip_via_controller(qtbot, controller) -> None:
     # Clearing notes removes the file.
     controller.save_notes("Alpha", "")
     assert not controller.mod_notes_path("Alpha").exists()
+
+
+def test_update_downloads_command_moves_archives(qtbot, controller, tmp_path) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    mod_folder = tmp_path / "Profiles" / "P" / "Alpha"
+    (mod_folder / "download.zip").write_bytes(b"ZIP")
+
+    _select_mod(win, "Alpha")
+    win._on_command("MsUpdateDownloads")
+
+    assert (mod_folder / C.DOWNLOADS_DIR / "download.zip").is_file()
+    assert not (mod_folder / "download.zip").exists()
+    assert "moved: 1" in win.nit_status.mg_info.text().lower()
+
+
+def test_compact_command_is_safe(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    win._on_command("MsCompact")  # must not raise; reports a status
+    assert win.nit_status.mg_info.text() != ""
