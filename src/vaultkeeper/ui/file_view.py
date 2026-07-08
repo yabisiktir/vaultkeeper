@@ -34,6 +34,11 @@ _STATE_ICON = {
 _ROLE_MOD_NAME = 0x0100  # Qt.UserRole
 
 
+def icon_name_for_state(state: State) -> str:
+    """The bundled asset name for a mod state (a folder for un-tracked states)."""
+    return _STATE_ICON.get(state, "Folder_6221")
+
+
 class FileView(QTreeWidget):
     """A grouped, state-coloured mod list (echoes VB ``FvMods``)."""
 
@@ -74,7 +79,7 @@ class FileView(QTreeWidget):
     @staticmethod
     def state_icon_name(md: ModData) -> str:
         """The row's state icon name (a folder for un-tracked/no-state mods)."""
-        return _STATE_ICON.get(md.mod_state, "Folder_6221")
+        return icon_name_for_state(md.mod_state)
 
     @staticmethod
     def state_brush(md: ModData) -> QBrush | None:

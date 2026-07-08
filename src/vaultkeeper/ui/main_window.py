@@ -621,9 +621,9 @@ class MainWindow(QMainWindow):
     def _on_mods_played(self) -> None:
         if self.controller is None:
             return
-        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+        from vaultkeeper.ui.dialogs.mod_play_viewer import ModPlayViewer
 
-        self._play_viewer = PlayDataViewer.show_for(self.controller, self)
+        self._mod_play_viewer = ModPlayViewer.show_for(self.controller, self)
 
     def _on_conflicts(self) -> None:
         if self.controller is None:

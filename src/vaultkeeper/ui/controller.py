@@ -915,6 +915,96 @@ class ProfileController:
             "last_played": pdm.last_played,
         }
 
+    def mod_play_report(self) -> dict:
+        """Mods with a module file, oldest-completed first (VB ``ModPlayViewer``).
+
+        Each row carries the current user's last completed date + play time, the
+        mod's rating/levels/state, and its per-user play-time history, matching
+        the VB ``ModPlayedInfo``. Rows sort by ``<completed> <mod name>`` using the
+        Windows natural comparer (never-completed mods sort first, "from the
+        oldest"). The group/rating/end-level/only-completed *filter options* are a
+        deferred UI extension; this returns the full, unfiltered list.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.formatting import parse_date_string
+        from vaultkeeper.core.win_sort import win_compare
+        from vaultkeeper.game.play_data_manager import _current_user
+
+        loop = self.play_loop
+        pdm = loop.play_data if loop is not None else None
+        user = _current_user()
+
+        rows: list[dict] = []
+        installed_count = 0
+        for md in self.pd.mod_list.values():
+            if not (md.is_not_group_item and md.has_mod_file):
+                continue
+
+            play_times: list[dict] = []
+            completed = ""
+            play_time = "None Recorded"
+            if pdm is not None:
+                records: list = []
+                pdm.read_play_time_file(md.mod_name, records)
+                play_times = [
+                    {"completed": r.completed, "play_time": r.play_time, "user": r.user_name}
+                    for r in records
+                ]
+                # The current user's record drives the Completed column and sort.
+                for r in records:
+                    if r.user_name == user:
+                        completed = r.completed
+                        play_time = r.play_time
+                        break
+
+            play_time = play_time.replace("hours", "hrs").replace("hour", "hr")
+
+            sort_dt = parse_date_string(completed) or datetime.min
+            sort_key = f"{sort_dt.strftime('%Y%m%d%H%M%S')} {md.mod_name}"
+
+            if md.installed:
+                installed_count += 1
+
+            rows.append(
+                {
+                    "mod": md.mod_name,
+                    "completed": completed,
+                    "play_time": play_time,
+                    "rating": md.rating.name.title(),
+                    "start": _hyphen_if_negative(md.level_start),
+                    "end": _hyphen_if_negative(md.level_end),
+                    "state": int(md.mod_state),
+                    "installed": md.installed,
+                    "group": md.group,
+                    "web_link": md.web_link,
+                    "best_weapon": _to_weapon_text(md.best_weapon),
+                    "played_info": self._time_since_played(md),
+                    "notes": self.read_notes(md.mod_name),
+                    "play_times": play_times,
+                    "sort_key": sort_key,
+                }
+            )
+
+        rows.sort(key=cmp_to_key(lambda a, b: win_compare(a["sort_key"], b["sort_key"])))
+        total = len(rows)
+        return {
+            "rows": rows,
+            "installed": installed_count,
+            "total": total,
+            "summary": f"{installed_count:,}/{total:,}",
+        }
+
+    def _time_since_played(self, md: ModData) -> str:
+        """VB ``ModData.LastPlayed`` — time since last completed + play count."""
+        if md.date_completed is None:
+            return "No Play Time history recorded." if md.has_mod_file else ""
+        diff = _date_diff_text(md.date_completed, datetime.now())
+        nth = _ordinal(md.completed_count)
+        if diff:
+            return f"Played {diff} ago for the {nth} time."
+        return f"Finished playing today for the {nth} time."
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
@@ -961,6 +1051,49 @@ def _fmt_date(value: datetime | None) -> str:
     from vaultkeeper.core.formatting import to_date_string
 
     return to_date_string(value) if value is not None else ""
+
+
+def _hyphen_if_negative(value: int) -> str:
+    """VB ``ToHyphenIfNegative`` — a hyphen for unset (negative) level values."""
+    return "-" if value < 0 else str(value)
+
+
+def _to_weapon_text(weapon) -> str:
+    """VB ``ToWeaponText`` — ``Long_Sword`` -> ``Long Sword``, TwoBladed -> Two-Bladed."""
+    return weapon.name.replace("_", " ").title().replace("Twobladed", "Two-Bladed")
+
+
+def _ordinal(n: int) -> str:
+    """``1`` -> ``1st``, ``2`` -> ``2nd`` … (VB ``ToSuffixedNumber``)."""
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def _date_diff_text(start: datetime, end: datetime) -> str:
+    """Years/months/days between two dates (empty when same day; VB ToDateDiffText)."""
+    import calendar
+
+    if end.date() <= start.date():
+        return ""
+    years = end.year - start.year
+    months = end.month - start.month
+    days = end.day - start.day
+    if days < 0:
+        months -= 1
+        prev_month = end.month - 1 or 12
+        prev_year = end.year if end.month > 1 else end.year - 1
+        days += calendar.monthrange(prev_year, prev_month)[1]
+    if months < 0:
+        years -= 1
+        months += 12
+    parts = []
+    if years:
+        parts.append(f"{years} year{'s' if years != 1 else ''}")
+    if months:
+        parts.append(f"{months} month{'s' if months != 1 else ''}")
+    if days:
+        parts.append(f"{days} day{'s' if days != 1 else ''}")
+    return " ".join(parts)
 
 
 def _fmt_size(byte_size: int) -> str:
