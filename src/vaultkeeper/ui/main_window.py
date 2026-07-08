@@ -415,6 +415,8 @@ class MainWindow(QMainWindow):
             "MsWorkshopViewer": self._on_workshop,
             "MsDocOrganiser": self._on_doc_organiser,
             "RbnDocOrganise": self._on_doc_organiser,
+            "MsWizardBuilder": self._on_wizard_builder,
+            "RbnWizardBuilder": self._on_wizard_builder,
             "MsConflicts": self._on_conflicts,
             "MsDependencyManager": self._on_dependencies,
             "RbnDependencyManager": self._on_dependencies,
@@ -643,6 +645,16 @@ class MainWindow(QMainWindow):
         # Scan the selected mods, or all mods when nothing is selected.
         names = self.selected_mod_names() or None
         self._doc_organiser = DocOrganiser.show_for(self.controller, names, self)
+
+    def _on_wizard_builder(self) -> None:
+        # VB enables this only when exactly one mod is selected.
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            self.nit_status.set_info("Select a single mod first.")
+            return
+        from vaultkeeper.ui.dialogs.wizard_builder import WizardBuilder
+
+        self._wizard_builder = WizardBuilder.show_for(self.controller, names[0], self)
 
     def _on_conflicts(self) -> None:
         if self.controller is None:

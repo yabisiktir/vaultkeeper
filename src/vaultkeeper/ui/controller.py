@@ -1120,6 +1120,63 @@ class ProfileController:
             "summary": _doc_summary(scanned, len(downloads), len(contents)),
         }
 
+    def wizard_report(self, mod_name: str) -> dict:
+        """The installer wizard defined for a mod (VB ``WizardBuilder``/``WizardInfo``).
+
+        Reads the mod's ``.Installer Wizard.nitwiz`` into a data view: title, the
+        extract-archives flag, the SelectOne *choices*, the SelectMany *preferences*
+        (with default checked state) and the InstallerExcludes list. ``has_wizard``
+        is false when no wizard file exists. Read-only — the authoring/build action
+        (Save/Delete, validation against the mod's real files) is deferred.
+        """
+        from vaultkeeper.game.wizard import load_wizard
+
+        md = self.pd.mod_item(mod_name)
+        title = mod_name
+        info = None
+        if md is not None and not md.is_group_item:
+            mod_folder = self.ctx.profile_mods_dir / mod_name
+            info = load_wizard(mod_folder, mod_name)
+
+        if info is None:
+            return {
+                "mod": mod_name,
+                "has_wizard": False,
+                "title": f"{mod_name} Installer Wizard" if mod_name else "",
+                "extract_archives": False,
+                "select_one_text": "",
+                "select_many_text": "",
+                "choices": [],
+                "preferences": [],
+                "excludes": [],
+                "run_wizard": False,
+                "summary": f"No installer wizard defined for {title}.",
+            }
+
+        choices = [
+            {"key": key, "display": display}
+            for key, display in info.select_one.items()
+        ]
+        preferences = [
+            {"key": p.key, "display": p.display, "checked": p.checked}
+            for p in info.select_many
+        ]
+        return {
+            "mod": mod_name,
+            "has_wizard": True,
+            "title": info.title,
+            "extract_archives": info.extract_archives,
+            "select_one_text": info.select_one_text,
+            "select_many_text": info.select_many_text,
+            "choices": choices,
+            "preferences": preferences,
+            "excludes": list(info.installer_excludes),
+            "run_wizard": info.run_wizard,
+            "summary": _wizard_summary(
+                len(choices), len(preferences), len(info.installer_excludes)
+            ),
+        }
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
@@ -1195,6 +1252,16 @@ def _doc_summary(mods: int, downloads: int, contents: int) -> str:
         f"Scanned {mod_text}. Downloaded documents detected: {down}. "
         f"Documents in Contents: {cont}."
     )
+
+
+def _wizard_summary(choices: int, preferences: int, excludes: int) -> str:
+    """Status line describing a wizard's contents (VB WizardBuilder status)."""
+    parts = [
+        f"Choices: {choices}",
+        f"Preferences: {preferences}",
+        f"Installer excludes: {excludes}",
+    ]
+    return ". ".join(parts) + "."
 
 
 def _hyphen_if_negative(value: int) -> str:
