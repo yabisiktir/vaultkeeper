@@ -193,8 +193,8 @@ def test_ribbon_install_action_drives_install(qtbot, controller) -> None:
 def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    # A command not wired yet (e.g. Map Folders) reports "not available".
-    win._on_command("RbnMapFolders")
+    # A command not wired yet (e.g. Load Screens) reports "not available".
+    win._on_command("MsLoadscreens")
     assert "not available" in win.nit_status.mg_info.text().lower()
 
 

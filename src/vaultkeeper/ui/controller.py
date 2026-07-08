@@ -1177,6 +1177,42 @@ class ProfileController:
             ),
         }
 
+    def folder_mapping_report(self) -> dict:
+        """The Mapper's folder-mapping tables (VB Settings Map Extensions/Files/Folders).
+
+        Surfaces the read-only mapping rules that decide where a mod file installs:
+        the extension map (Extension / Default Folder / Secondary Folder), the
+        exception-file map (File Name / NWN Folder) and the directory map (Source
+        Folder / NWN Folder). Grounded on ``core/mapper.py`` (the tested v21 tables).
+        The Settings editing surface (add/rename/reset/import, persistence) is deferred.
+        """
+        mapper = self.ctx.mapper
+        extensions = [
+            {
+                "ext": ext,
+                "folder": folder,
+                "secondary": mapper.folder_moves.get(ext, ""),
+            }
+            for ext, folder in sorted(mapper.ext_mapping.items())
+        ]
+        files = [
+            {"file": name, "folder": folder}
+            for name, folder in sorted(mapper.exception_files.items())
+        ]
+        folders = [
+            {"source": source, "folder": folder}
+            for source, folder in sorted(mapper.dir_mapping.items())
+        ]
+        return {
+            "extensions": extensions,
+            "files": files,
+            "folders": folders,
+            "summary": (
+                f"Extensions: {len(extensions)}. Map files: {len(files)}. "
+                f"Map folders: {len(folders)}."
+            ),
+        }
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)

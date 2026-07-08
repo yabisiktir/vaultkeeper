@@ -417,6 +417,8 @@ class MainWindow(QMainWindow):
             "RbnDocOrganise": self._on_doc_organiser,
             "MsWizardBuilder": self._on_wizard_builder,
             "RbnWizardBuilder": self._on_wizard_builder,
+            "RbnMapFiles": lambda: self._on_folder_mapping("Map Files"),
+            "RbnMapFolders": lambda: self._on_folder_mapping("Map Folders"),
             "MsConflicts": self._on_conflicts,
             "MsDependencyManager": self._on_dependencies,
             "RbnDependencyManager": self._on_dependencies,
@@ -655,6 +657,15 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.wizard_builder import WizardBuilder
 
         self._wizard_builder = WizardBuilder.show_for(self.controller, names[0], self)
+
+    def _on_folder_mapping(self, start_tab: str = "Extensions") -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.folder_mapping import FolderMapping
+
+        self._folder_mapping = FolderMapping.show_for(
+            self.controller, start_tab, self
+        )
 
     def _on_conflicts(self) -> None:
         if self.controller is None:
