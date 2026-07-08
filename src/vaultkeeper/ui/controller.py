@@ -1058,6 +1058,68 @@ class ProfileController:
                 )
         return files
 
+    def doc_organiser_report(
+        self, mod_names: list[str] | None = None, *, use_archives: bool = True
+    ) -> dict:
+        """Documentation files in the given mods (VB ``DocOrganiser`` scan).
+
+        For each mod (``mod_names`` or, when ``None``, all non-group mods) scans the
+        mod root folder for documentation already present (**Contents**) and its
+        ``_Downloads`` tree for candidate docs (**Downloads**), grounded on the VB
+        doc-extension list. Returns rows (mod / file / folder / size / source) split
+        into ``contents``/``downloads`` lists plus a status summary.
+
+        This is the read-only report; the copy/organise action (name qualifiers,
+        CRC dedupe, version stripping) is deferred. When ``use_archives`` is true the
+        injected archive extractor is used to look inside ``_Downloads`` archives.
+        """
+        from vaultkeeper.game.documentation import scan_mod_docs
+
+        if mod_names is None:
+            mod_names = [
+                md.mod_name
+                for md in self.pd.mod_list.values()
+                if md.is_not_group_item
+            ]
+        extractor = None
+        if use_archives:
+            backend = self._archive_backend()
+            if getattr(backend, "available", False):
+                extractor = backend
+
+        rows: list[dict] = []
+        scanned = 0
+        for name in mod_names:
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                continue
+            mod_folder = self.ctx.profile_mods_dir / name
+            if not mod_folder.is_dir():
+                continue
+            scanned += 1
+            for entry in scan_mod_docs(name, mod_folder, extractor=extractor):
+                rows.append(
+                    {
+                        "mod": entry.mod,
+                        "file": entry.file_name,
+                        "folder": entry.folder,
+                        "size": _fmt_size(entry.size),
+                        "source": entry.source,
+                    }
+                )
+
+        rows.sort(key=lambda r: (r["mod"].lower(), r["file"].lower()))
+        contents = [r for r in rows if r["source"] == "Contents"]
+        downloads = [r for r in rows if r["source"] == "Downloads"]
+        return {
+            "rows": rows,
+            "contents": contents,
+            "downloads": downloads,
+            "mods": scanned,
+            "total": len(rows),
+            "summary": _doc_summary(scanned, len(downloads), len(contents)),
+        }
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
@@ -1116,6 +1178,23 @@ def _workshop_summary(total: int, managed: int, unmanaged: int) -> str:
     if unmanaged > 0:
         parts.append(" Unmanaged: " + ("All." if managed == 0 else f"{unmanaged:,}."))
     return "".join(parts)
+
+
+def _doc_summary(mods: int, downloads: int, contents: int) -> str:
+    """Status line for the Documentation Organiser (VB ``FilesToCopy`` display).
+
+    Mirrors the VB counts: how many downloadable documents were detected and how
+    many docs are already present in the Contents panel, across the mods scanned.
+    """
+    if mods == 0:
+        return "No eligible mods selected."
+    mod_text = "1 mod" if mods == 1 else f"{mods:,} mods"
+    down = "None" if downloads == 0 else f"{downloads:,}"
+    cont = "None" if contents == 0 else f"{contents:,}"
+    return (
+        f"Scanned {mod_text}. Downloaded documents detected: {down}. "
+        f"Documents in Contents: {cont}."
+    )
 
 
 def _hyphen_if_negative(value: int) -> str:

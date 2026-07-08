@@ -413,6 +413,8 @@ class MainWindow(QMainWindow):
             "RbnToolset": lambda: self._on_play(toolset=True),
             "MsModsPlayed": self._on_mods_played,
             "MsWorkshopViewer": self._on_workshop,
+            "MsDocOrganiser": self._on_doc_organiser,
+            "RbnDocOrganise": self._on_doc_organiser,
             "MsConflicts": self._on_conflicts,
             "MsDependencyManager": self._on_dependencies,
             "RbnDependencyManager": self._on_dependencies,
@@ -632,6 +634,15 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.workshop_viewer import WorkshopViewer
 
         self._workshop_viewer = WorkshopViewer.show_for(self.controller, self)
+
+    def _on_doc_organiser(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.doc_organiser import DocOrganiser
+
+        # Scan the selected mods, or all mods when nothing is selected.
+        names = self.selected_mod_names() or None
+        self._doc_organiser = DocOrganiser.show_for(self.controller, names, self)
 
     def _on_conflicts(self) -> None:
         if self.controller is None:
