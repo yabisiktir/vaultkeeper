@@ -412,6 +412,7 @@ class MainWindow(QMainWindow):
             "MsToolset": lambda: self._on_play(toolset=True),
             "RbnToolset": lambda: self._on_play(toolset=True),
             "MsModsPlayed": self._on_mods_played,
+            "MsWorkshopViewer": self._on_workshop,
             "MsConflicts": self._on_conflicts,
             "MsDependencyManager": self._on_dependencies,
             "RbnDependencyManager": self._on_dependencies,
@@ -624,6 +625,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.mod_play_viewer import ModPlayViewer
 
         self._mod_play_viewer = ModPlayViewer.show_for(self.controller, self)
+
+    def _on_workshop(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.workshop_viewer import WorkshopViewer
+
+        self._workshop_viewer = WorkshopViewer.show_for(self.controller, self)
 
     def _on_conflicts(self) -> None:
         if self.controller is None:

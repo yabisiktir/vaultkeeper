@@ -1005,6 +1005,59 @@ class ProfileController:
             return f"Played {diff} ago for the {nth} time."
         return f"Finished playing today for the {nth} time."
 
+    def workshop_report(self) -> dict:
+        """Steam Workshop subscriptions on disk, mapped to mods (VB ``WorkshopViewer``).
+
+        Scans the Steam Workshop content folder for subscription id folders and
+        marks each *managed* when a mod claims that workshop id. Returns rows
+        (id / Yes-No / mod name), the content path, managed/unmanaged counts and a
+        status line mirroring the VB summary. Empty when this isn't a Steam install.
+        """
+        from vaultkeeper.game.workshop import scan_workshop, workshop_content_path
+
+        content = workshop_content_path(self.ctx.game_root)
+        id_to_mod = {
+            md.workshop_id: md.mod_name
+            for md in self.pd.mod_list.values()
+            if md.is_not_group_item and md.workshop_id
+        }
+        items = scan_workshop(content, id_to_mod) if content is not None else []
+        rows = [
+            {
+                "id": it.id,
+                "managed": "Yes" if it.managed else "No",
+                "mod": it.mod_name,
+                "folder": str(it.folder),
+            }
+            for it in items
+        ]
+        managed = sum(1 for it in items if it.managed)
+        unmanaged = len(items) - managed
+        return {
+            "rows": rows,
+            "content_path": str(content) if content is not None else "",
+            "managed": managed,
+            "unmanaged": unmanaged,
+            "total": len(items),
+            "summary": _workshop_summary(len(items), managed, unmanaged),
+        }
+
+    def workshop_item_files(self, folder: str) -> list[dict]:
+        """The files inside a workshop item's folder (the contents pane)."""
+        base = Path(folder)
+        if not base.is_dir():
+            return []
+        files: list[dict] = []
+        for path in sorted(base.rglob("*")):
+            if path.is_file():
+                files.append(
+                    {
+                        "name": str(path.relative_to(base)),
+                        "size": _fmt_size(path.stat().st_size),
+                    }
+                )
+        return files
+
     def save(self) -> None:
         if self.store_path is not None:
             save_profile(self.pd, self.store_path)
@@ -1051,6 +1104,18 @@ def _fmt_date(value: datetime | None) -> str:
     from vaultkeeper.core.formatting import to_date_string
 
     return to_date_string(value) if value is not None else ""
+
+
+def _workshop_summary(total: int, managed: int, unmanaged: int) -> str:
+    """VB ``WorkshopViewer.PopulateWorkshop`` status line."""
+    if total == 0:
+        return "Steam Workshop Subscriptions detected: None."
+    parts = [f"Workshop Subscriptions: {total:,}."]
+    if managed > 0:
+        parts.append(" Managed: " + ("All." if unmanaged == 0 else f"{managed:,}."))
+    if unmanaged > 0:
+        parts.append(" Unmanaged: " + ("All." if managed == 0 else f"{unmanaged:,}."))
+    return "".join(parts)
 
 
 def _hyphen_if_negative(value: int) -> str:
