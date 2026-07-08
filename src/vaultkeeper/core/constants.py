@@ -75,6 +75,8 @@ NULL_VALUE: Final = -1
 #: Module file extension (Mapper.C.ModFile); ``.nwm`` is the other module type.
 EXT_MOD: Final = ".mod"
 EXT_NWM: Final = ".nwm"
+#: ERF archive extension (extracted on install, so leftover ``.erf`` files are removable).
+EXT_ERF: Final = ".erf"
 #: Installer identifier-file extension (Pdc.ExtInstaller).
 EXT_INSTALLER: Final = ".nitins"
 #: Restorer identifier-file extension (Pdc.ExtRestorer).

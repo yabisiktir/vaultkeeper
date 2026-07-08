@@ -154,6 +154,46 @@ class ProfileController:
         self.save()
         return True
 
+    def _remove_mod_files(self, mod_name: str, matches) -> int:  # noqa: ANN001
+        """Delete a mod's installer files matching ``matches(fk)``; rescan states."""
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return 0
+        installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        removed = 0
+        for fk in list(md.files):
+            if matches(fk):
+                (installer / fk.folder / fk.filename).unlink(missing_ok=True)
+                self.pd.file_list.pop(fk, None)
+                if fk in md.files:
+                    md.files.remove(fk)
+                self.pd.changes.file.removed(fk)
+                removed += 1
+        if removed:
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+        return removed
+
+    def remove_erf_files(self, mod_name: str) -> int:
+        """Remove leftover ``.erf`` archives from a mod's installer (VB Remove ERFs)."""
+        from vaultkeeper.core import constants as C
+
+        return self._remove_mod_files(
+            mod_name, lambda fk: fk.filename.lower().endswith(C.EXT_ERF)
+        )
+
+    def remove_leto_log_files(self, mod_name: str) -> int:
+        """Remove Leto log files from a mod's installer (VB Remove Leto Log Files)."""
+        from vaultkeeper.core import constants as C
+
+        target = C.LETO_LOG_FILENAME.lower()
+        return self._remove_mod_files(
+            mod_name, lambda fk: fk.filename.lower() == target
+        )
+
     def add_files_to_mod(self, mod_name: str, file_paths: list[Path]) -> int:
         """Copy files into a mod's ``.Mod Installer``, each in its mapped game folder.
 

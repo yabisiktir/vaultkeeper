@@ -354,6 +354,11 @@ class MainWindow(QMainWindow):
             "MsRename": self._on_rename,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
+            # Cleanup.
+            "MsRemoveErfs": lambda: self._remove_files("remove_erf_files", "ERF file"),
+            "MsRemoveLetoLogFiles": lambda: self._remove_files(
+                "remove_leto_log_files", "Leto log file"
+            ),
             # Add files.
             "MsAddFiles": self._on_add_files,
             "TsAddFiles": self._on_add_files,
@@ -431,6 +436,16 @@ class MainWindow(QMainWindow):
         }
         handler = handlers.get(action, self._not_implemented)
         handler()
+
+    def _remove_files(self, method: str, label: str) -> None:
+        """Run a per-mod file-removal cleanup on the selection and report the count."""
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        removed = sum(getattr(self.controller, method)(n) for n in names)
+        self.refresh()
+        self.nit_status.set_info(f"Removed {removed} {label}(s).")
 
     # -- Add files / mod creation handlers --------------------------------- #
     def _on_add_files(self) -> None:
