@@ -389,3 +389,22 @@ def test_portrait_command_opens_manager(qtbot, controller) -> None:
     qtbot.addWidget(win)
     win._on_command("MsPortraitManager")  # must not raise
     assert win._portrait_manager is not None
+
+
+def test_publish_command_wired(qtbot, controller, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QFileDialog
+
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller._extractor = FakeArchiveExtractor()
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    dest = tmp_path / "publish"
+    dest.mkdir()
+    monkeypatch.setattr(
+        QFileDialog, "getExistingDirectory", staticmethod(lambda *a, **k: str(dest))
+    )
+    _select_mod(win, "Alpha")
+    win._on_command("MsPublishMod")
+    assert (dest / "Alpha.7z").is_file()
+    assert "Published Alpha" in win.nit_status.mg_info.text()

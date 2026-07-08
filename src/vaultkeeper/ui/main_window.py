@@ -369,6 +369,8 @@ class MainWindow(QMainWindow):
             "RbnUpdateDownloads": self._on_update_downloads,
             # Compress / uncompress mod folder (NTFS; Windows-only).
             "MsCompact": self._on_compact,
+            # Publish a mod as a distributable archive.
+            "MsPublishMod": self._on_publish_mod,
             # Mod creation.
             "MsNewMod": self._on_new_mod,
             "TsNewMod": self._on_new_mod,
@@ -495,6 +497,19 @@ class MainWindow(QMainWindow):
             return
         result = self.controller.compress_mod_folders(names)
         self.refresh()
+        self.nit_status.set_info(result["message"])
+
+    def _on_publish_mod(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        from pathlib import Path
+
+        dest = QFileDialog.getExistingDirectory(self, "Publish Mod — choose a folder")
+        if not dest:
+            return
+        result = self.controller.publish_mod(names[0], Path(dest))
         self.nit_status.set_info(result["message"])
 
     def _on_new_mod(self) -> None:

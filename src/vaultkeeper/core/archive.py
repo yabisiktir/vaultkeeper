@@ -109,9 +109,14 @@ class ArchiveExtractor(Protocol):
         ...
 
     def create(
-        self, archive: Path, sources: list[Path], *, base_dir: Path | None = None
+        self,
+        archive: Path,
+        sources: list[Path],
+        *,
+        base_dir: Path | None = None,
+        exclude: list[str] | None = None,
     ) -> ExtractResult:  # pragma: no cover - protocol
-        """Create ``archive`` containing ``sources``."""
+        """Create ``archive`` containing ``sources`` (``exclude`` = name patterns)."""
         ...
 
 
@@ -163,15 +168,22 @@ class SevenZipExtractor:
         )
 
     def create(
-        self, archive: Path, sources: list[Path], *, base_dir: Path | None = None
+        self,
+        archive: Path,
+        sources: list[Path],
+        *,
+        base_dir: Path | None = None,
+        exclude: list[str] | None = None,
     ) -> ExtractResult:
         if not self.available:
             return ExtractResult(
                 ok=False, dest=archive, exit_code=-1, error="7-Zip is not available."
             )
         archive.parent.mkdir(parents=True, exist_ok=True)
-        # a <archive> <sources...>  — run from base_dir so stored paths are relative.
+        # a <archive> <sources...> [-x!<pattern> ...] — run from base_dir so stored
+        # paths are relative. -x! excludes by name/relative path (VB PublishMod).
         args = [self._exe, "a", str(archive), *(str(s) for s in sources)]
+        args += [f"-x!{pattern}" for pattern in (exclude or [])]
         code = self._run(args, cwd=base_dir)
         ok = code in _SUCCESS_CODES and archive.is_file()
         return ExtractResult(
@@ -220,6 +232,7 @@ class FakeArchiveExtractor:
         self._contents = contents or {}
         self.extract_calls: list[tuple[Path, Path]] = []
         self.create_calls: list[tuple[Path, list[Path]]] = []
+        self.last_exclude: list[str] = []
 
     @property
     def available(self) -> bool:
@@ -242,9 +255,15 @@ class FakeArchiveExtractor:
         return ExtractResult(ok=True, dest=dest, files=sorted(written), exit_code=0)
 
     def create(
-        self, archive: Path, sources: list[Path], *, base_dir: Path | None = None
+        self,
+        archive: Path,
+        sources: list[Path],
+        *,
+        base_dir: Path | None = None,
+        exclude: list[str] | None = None,
     ) -> ExtractResult:
         self.create_calls.append((archive, list(sources)))
+        self.last_exclude = list(exclude or [])
         if not self._available:
             return ExtractResult(
                 ok=False, dest=archive, exit_code=-1, error="7-Zip is not available."

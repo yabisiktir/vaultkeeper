@@ -92,3 +92,42 @@ def test_compress_mod_folder_reports_unavailable_off_windows(tmp_path):
         assert result["available"] is False
         assert result["applied"] == 0
         assert "windows" in result["message"].lower()
+
+
+def test_publish_mod_uses_archive_seam_with_excludes(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor()
+    dest = tmp_path / "out"
+    result = controller.publish_mod("My Mod", dest)
+
+    assert result["ok"]
+    assert result["path"].endswith("My Mod.7z")
+    # The private folders/files are excluded (VB PublishMod -x! list).
+    assert controller._extractor.last_exclude == [
+        ".Game Play Time.rtf",
+        "_Downloads",
+        "_History",
+        "_Published",
+    ]
+    assert controller._extractor.create_calls[0][0] == dest / "My Mod.7z"
+
+
+def test_publish_unknown_mod(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor()
+    result = controller.publish_mod("Ghost", tmp_path / "out")
+    assert not result["ok"]
+
+
+def test_publish_reports_when_backend_unavailable(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor(available=False)
+    result = controller.publish_mod("My Mod", tmp_path / "out")
+    assert not result["ok"]
+    assert "not available" in result["message"].lower()

@@ -132,3 +132,30 @@ class TestSevenZipReal:
         assert got.ok, got.error
         assert (dest / "top.txt").read_text() == "top"
         assert (dest / "sub" / "deep.txt").read_text() == "deep"
+
+
+class TestCreateExclude:
+    def test_fake_records_exclude(self, tmp_path):
+        fake = FakeArchiveExtractor()
+        fake.create(tmp_path / "m.7z", [Path("*")], base_dir=tmp_path,
+                    exclude=["_Downloads", "_History"])
+        assert fake.last_exclude == ["_Downloads", "_History"]
+
+    @pytest.mark.integration
+    @pytest.mark.skipif(not _HAVE_7Z, reason="No 7-Zip CLI on this machine")
+    def test_real_create_honours_exclude(self, tmp_path):
+        src = tmp_path / "mod"
+        (src / "_Downloads").mkdir(parents=True)
+        (src / "keep").mkdir()
+        (src / "keep" / "a.txt").write_text("keep me")
+        (src / "_Downloads" / "big.zip").write_text("skip me")
+
+        archive = tmp_path / "out" / "mod.7z"
+        ext = SevenZipExtractor()
+        made = ext.create(archive, [Path("*")], base_dir=src, exclude=["_Downloads"])
+        assert made.ok, made.error
+
+        back = tmp_path / "back"
+        ext.extract(archive, back)
+        assert (back / "keep" / "a.txt").read_text() == "keep me"
+        assert not (back / "_Downloads").exists()  # excluded

@@ -47,6 +47,8 @@ class ProfileController:
         self.play_prompter = None
         #: HTTP client for Vault operations (tests inject a FakeHttpClient).
         self._http = None
+        #: Archive backend for publish/extract (tests inject a FakeArchiveExtractor).
+        self._extractor = None
 
     # -- Construction ------------------------------------------------------ #
     @classmethod
@@ -320,6 +322,66 @@ class ProfileController:
             "applied": applied,
             "available": True,
             "message": f"{verb} {applied} mod folder(s).",
+        }
+
+    def _archive_backend(self):
+        """The archive extractor/creator (SevenZip by default, Fake in tests)."""
+        if self._extractor is None:
+            from vaultkeeper.core.archive import SevenZipExtractor
+
+            self._extractor = SevenZipExtractor()
+        return self._extractor
+
+    def publish_mod(self, mod_name: str, dest_dir: Path) -> dict:
+        """Archive a mod folder into a distributable ``.7z`` (VB PublishMod).
+
+        Ports the essential PublishMod operation: create ``<dest>/<mod>.7z`` from
+        the mod folder's contents, excluding the private ``_PlayTime``/``_Downloads``/
+        ``_History``/``_Published`` items (VB ``-x!`` list). Returns
+        ``{"ok": bool, "path": str, "message": str}``.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "path": "", "message": f"Unknown mod: {mod_name}"}
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        if not mod_folder.is_dir():
+            return {"ok": False, "path": "", "message": f"Mod folder missing: {mod_name}"}
+
+        backend = self._archive_backend()
+        if not backend.available:
+            return {
+                "ok": False,
+                "path": "",
+                "message": "7-Zip is not available; cannot publish.",
+            }
+
+        dest_dir = Path(dest_dir)
+        archive = dest_dir / f"{mod_name}.7z"
+        exclude = [
+            C.PLAY_TIME_FILE,
+            C.DOWNLOADS_DIR,
+            C.HISTORY_DIR,
+            C.PUBLISHED_DIR,
+        ]
+        # Archive the folder's contents (VB "<ModPath>\*"), paths relative to it.
+        result = backend.create(
+            archive,
+            [Path("*")],
+            base_dir=mod_folder,
+            exclude=exclude,
+        )
+        if result.ok:
+            return {
+                "ok": True,
+                "path": str(archive),
+                "message": f"Published {mod_name} to {archive.name}",
+            }
+        return {
+            "ok": False,
+            "path": "",
+            "message": result.error or f"Failed to publish {mod_name}",
         }
 
     def create_installer(self, mod_name: str) -> bool:
