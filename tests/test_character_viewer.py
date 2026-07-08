@@ -121,3 +121,27 @@ def test_controller_character_files_scans_vault_and_saves(tmp_path, monkeypatch)
     dirs = controller.portrait_search_dirs()
     assert user / "override" in dirs
     assert user / "portraits" in dirs
+
+
+# -- Portrait Manager ---------------------------------------------------------- #
+def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
+    from vaultkeeper.game.character import scan_portraits
+    from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
+
+    for size in ("m", "h"):
+        _write_tga(tmp_path / f"po_hero_{size}.tga", 8, 8)
+    entries = scan_portraits([tmp_path])
+    dlg = PortraitManager(entries)
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 1
+    # Both previews loaded for the selected portrait.
+    assert dlg._huge.pixmap() is not None and not dlg._huge.pixmap().isNull()
+    assert dlg._medium.pixmap() is not None and not dlg._medium.pixmap().isNull()
+
+
+def test_portrait_manager_empty(qtbot):
+    from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
+
+    dlg = PortraitManager([])
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 0

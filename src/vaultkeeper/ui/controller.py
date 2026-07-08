@@ -776,6 +776,12 @@ class ProfileController:
 
         return resolve_portrait(resref, [*extra_dirs, *self.portrait_search_dirs()])
 
+    def portrait_entries(self) -> list:
+        """Installed portraits grouped by resref (VB Portrait Manager list)."""
+        from vaultkeeper.game.character import scan_portraits
+
+        return scan_portraits(self.portrait_search_dirs())
+
     def play_times_report(self) -> dict:
         """Per-mod play times (formatted, longest first) plus the NWN totals."""
         loop = self.play_loop

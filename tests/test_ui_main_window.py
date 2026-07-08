@@ -382,3 +382,10 @@ def test_character_command_opens_viewer(qtbot, controller) -> None:
     qtbot.addWidget(win)
     win._on_command("MsCharacterExplorer")  # must not raise; opens the viewer
     assert win._character_viewer is not None
+
+
+def test_portrait_command_opens_manager(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_command("MsPortraitManager")  # must not raise
+    assert win._portrait_manager is not None

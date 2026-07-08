@@ -396,6 +396,8 @@ class MainWindow(QMainWindow):
             "RbnCharacterExplorer": self._on_characters,
             "MsCharacterSummary": self._on_characters,
             "BtCharacter": self._on_characters,
+            "MsPortraitManager": self._on_portraits,
+            "RbnPortraitManager": self._on_portraits,
             # Play loop.
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
@@ -576,6 +578,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
 
         self._character_viewer = CharacterViewer.show_for(self.controller, self)
+
+    def _on_portraits(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
+
+        self._portrait_manager = PortraitManager.show_for(self.controller, self)
 
     def _on_game_saves(self) -> None:
         if self.controller is None:
