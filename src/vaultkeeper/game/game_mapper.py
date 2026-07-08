@@ -605,8 +605,18 @@ class GameMapper:
         return result
 
     # -- Resolution: save-game name --------------------------------------- #
-    def save_name_to_mod_name(self, save_name: str) -> str:
-        """Resolve an NWN save-game name (no extension) to a NIT mod name."""
+    def save_name_to_mod_name(
+        self, save_name: str, *, interactive: bool = True
+    ) -> str:
+        """Resolve an NWN save-game name (no extension) to a NIT mod name.
+
+        Exit-time play attribution runs with ``interactive=True`` (the default),
+        which is where the VB app asks the user to disambiguate. Passive callers
+        — e.g. the status-bar "current game" summary — must pass
+        ``interactive=False`` so they never pop a blocking prompt; those fall
+        back to a remembered answer, the first sensible candidate, or the raw
+        save name, and they do not persist a guessed choice.
+        """
         if save_name == "" or save_name == NO_SAVES_TEXT:
             return save_name
 
@@ -615,6 +625,8 @@ class GameMapper:
         if info is None:
             if save_name in self.user_choices.sav_to_mod_names:
                 return self.user_choices.sav_to_mod_names[save_name]
+            if not interactive:
+                return save_name
             ok, name = self.prompter.specify_mod_name(
                 save_name,
                 "A saved game does not have a Mod Installer defined in any profile. "
@@ -639,7 +651,7 @@ class GameMapper:
         if len(mod_names) == 1:
             return mod_names[0]
         if len(mod_names) > 1:
-            return self._ask_user(mod_names)
+            return self._ask_user(mod_names, interactive=interactive)
 
         # No active-profile hit: consider all profiles.
         distinct_names = _distinct(mfi.mod_name for mfi in info.mod_files.values())
@@ -658,6 +670,11 @@ class GameMapper:
                 self._save_user_choices()
                 return result
             profile_names.append(f"{mfi.profile} ({mfi.mod_name})")
+
+        if not interactive:
+            # Best passive guess: the first defining profile's mod (matches the
+            # DefaultPrompter's "take the first candidate"), without persisting.
+            return list(info.mod_files.values())[0].mod_name
 
         idx = self.prompter.choose_profile(
             "The Mod you are playing is not in the current Profile, but is defined in "
@@ -739,13 +756,15 @@ class GameMapper:
         return mod_list
 
     # -- Prompts ----------------------------------------------------------- #
-    def _ask_user(self, mod_list: list[str]) -> str:
+    def _ask_user(self, mod_list: list[str], *, interactive: bool = True) -> str:
         mod_list = _distinct(mod_list)
         if len(mod_list) == 1:
             return mod_list[0]
         for name in mod_list:
             if name in self.user_choices.mod_choices:
                 return name
+        if not interactive:
+            return mod_list[0]
         selected = self.prompter.choose_mod(mod_list)
         self.user_choices.add_choice(selected)
         self._save_user_choices()

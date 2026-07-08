@@ -86,7 +86,8 @@ class PlayLoop:
         if gs.count == 0:
             return "No games have been saved"
         save = gs.current_game_save
-        mod = self.game_mapper.save_name_to_mod_name(save) or save
+        # A passive summary must never block on the interactive prompter.
+        mod = self.game_mapper.save_name_to_mod_name(save, interactive=False) or save
         location = gs.current_location
         parts = [f"Playing: {mod}"]
         if location:

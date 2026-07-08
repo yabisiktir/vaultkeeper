@@ -104,6 +104,9 @@ def _all_mod_labels(win: MainWindow) -> list[str]:
 
 
 def _select_mod(win: MainWindow, name: str) -> None:
+    # Emulate a single click: clear any prior selection first so exactly one
+    # mod is selected (otherwise the multi-select branch clears the panes).
+    win._tree.clearSelection()
     for i in range(win._tree.topLevelItemCount()):
         group = win._tree.topLevelItem(i)
         for j in range(group.childCount()):
@@ -276,6 +279,12 @@ def test_game_exit_records_play_session(qtbot, controller, tmp_path) -> None:
 
     win = MainWindow(controller)
     qtbot.addWidget(win)
+    # The window installs the modal Qt prompter; swap in the non-interactive
+    # default so headless exit-processing falls back to the raw log name
+    # (Alpha -> Alpha) instead of blocking on a dialog.
+    from vaultkeeper.game.game_mapper import DefaultPrompter
+
+    controller.play_prompter = DefaultPrompter()
     win._play_started = datetime(2020, 11, 2, 16, 59)
     win._game_process = object()  # pretend a game was running
     win._on_game_exited()
@@ -305,9 +314,10 @@ def test_selection_populates_detail_panes(qtbot, controller) -> None:
         for i in range(win._details_list.topLevelItemCount())
     ]
     assert "Group" in props and "State" in props and "Files" in props
-    # Mod-info summary and properties text reflect the selected mod.
+    # Mod-info summary reflects the selected mod.
     assert "Beta" in win._mod_info.text()
-    assert "Beta" in win._details.toPlainText()
+    # The _details pane is the editable notes editor; Beta has no notes yet.
+    assert win._details.toPlainText() == ""
 
 
 def test_deselection_clears_detail_panes(qtbot, controller) -> None:
@@ -325,7 +335,10 @@ def test_notes_edit_and_persist(qtbot, controller) -> None:
     qtbot.addWidget(win)
     _select_mod(win, "Alpha")
     # Type a note and switch selection -> it is saved to the mod's RTF.
+    # (setPlainText alone doesn't set the modified flag; a real keypress does,
+    # so mark it modified to emulate the user having typed.)
     win._details.setPlainText("Great module. Finished chapter 3.")
+    win._details.document().setModified(True)
     _select_mod(win, "Beta")
     assert controller.read_notes("Alpha") == "Great module. Finished chapter 3."
     # Re-selecting reloads the saved note.

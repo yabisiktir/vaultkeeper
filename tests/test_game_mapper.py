@@ -241,6 +241,29 @@ class TestScanAndSaveName:
             "No games have been saved"
         )
 
+    def test_non_interactive_never_prompts_or_persists(self, tmp_path):
+        """A passive summary must resolve without touching the prompter.
+
+        Regression: the status-bar "current game" summary called the interactive
+        (Qt) prompter, which pops a modal dialog and hangs a headless run.
+        """
+
+        class ExplodingPrompter:
+            def choose_mod(self, mod_list):
+                raise AssertionError("prompter must not be called")
+
+            def specify_mod_name(self, identifier, message):
+                raise AssertionError("prompter must not be called")
+
+            def choose_profile(self, message, options):
+                raise AssertionError("prompter must not be called")
+
+        gm = _mapper(ProfileData(), _ctx(tmp_path), prompter=ExplodingPrompter())
+        # Unknown save resolves to the raw save name, prompt-free...
+        assert gm.save_name_to_mod_name("Mystery", interactive=False) == "Mystery"
+        # ...and no guessed choice was persisted.
+        assert "Mystery" not in gm.user_choices.sav_to_mod_names
+
 
 class TestMapEntries:
     def test_trailing_dots_and_removed_chars(self, tmp_path):
