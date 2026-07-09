@@ -52,3 +52,13 @@ class TextViewer(QDialog):
         dlg = cls(path, title, parent)
         dlg.show()
         return dlg
+
+    @classmethod
+    def show_text(
+        cls, text: str, title: str, parent: QWidget | None = None
+    ) -> TextViewer:
+        """Show arbitrary report text (VB ``ShowText`` with an in-memory string)."""
+        dlg = cls(None, title, parent)
+        dlg.editor.setPlainText(text)
+        dlg.show()
+        return dlg

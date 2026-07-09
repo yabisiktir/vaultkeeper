@@ -414,6 +414,7 @@ class MainWindow(QMainWindow):
             "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
+            "MsValidateMovieFiles": self._on_validate_movie_files,
             # Characters.
             "MsCharacterExplorer": self._on_characters,
             "RbnCharacterExplorer": self._on_characters,
@@ -589,6 +590,19 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             self.refresh()
             self.nit_status.set_info("Missing installers processed.")
+
+    def _on_validate_movie_files(self) -> None:
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        report = self.controller.movie_files_report()
+        self.nit_status.set_info(report["summary"])
+        if report["count"] > 0:
+            from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+            self._movie_report = TextViewer.show_text(
+                report["text"], "Invalid Movie Files", self
+            )
 
     def _on_remove_illegal_files(self) -> None:
         if self.controller is None:

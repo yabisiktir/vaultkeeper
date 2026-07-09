@@ -885,6 +885,57 @@ class ProfileController:
             f"Patch INI created: {ini_created}, deleted: {ini_deleted}."
         )
 
+    def movie_files_report(self) -> dict:
+        """Installer files whose movie format is wrong for the edition (VB MsValidateMovieFiles).
+
+        EE uses ``.wbm`` movies, so ``.bik`` files are invalid; classic NWN is the
+        reverse. Returns ``{"count", "mods", "summary", "text"}`` — the report text
+        lists the affected files grouped by mod with a "Recreate the Mod Installers"
+        instruction (VB ``ShowText`` body). Read-only: NIT does not auto-fix; the
+        user re-creates the installer so the converter picks the right format.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+
+        invalid_ext = ".bik" if self.ctx.is_ee else ".wbm"
+        invalid = [
+            fk for fk in self.pd.file_list if fk.extension.lower() == invalid_ext
+        ]
+        invalid.sort(
+            key=cmp_to_key(
+                lambda a, b: win_compare(
+                    f"{a.mod_name}\\{a.file_key}", f"{b.mod_name}\\{b.file_key}"
+                )
+            )
+        )
+        mods: list[str] = []
+        for fk in invalid:
+            if fk.mod_name not in mods:
+                mods.append(fk.mod_name)
+
+        summary = f"Invalid movie files: {len(invalid) or 'None'}."
+        if mods:
+            summary += f" Mods affected: {len(mods)}."
+
+        lines = [
+            "",
+            "Recreate the Mod Installers for each Mod listed below to ensure the "
+            "correct movie file format is used.",
+        ]
+        current = ""
+        for fk in invalid:
+            if fk.mod_name != current:
+                current = fk.mod_name
+                lines += ["", fk.mod_name]
+            lines.append(f"    {fk.filename}")
+        return {
+            "count": len(invalid),
+            "mods": mods,
+            "summary": summary,
+            "text": "\n".join(lines),
+        }
+
     def calculate_crcs(self) -> str:
         """Recompute CRC-32 checksums for pending files and refresh states."""
         self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)
