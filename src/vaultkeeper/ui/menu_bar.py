@@ -321,6 +321,26 @@ class NitMenuBar(QMenuBar):
                 menu.addAction(act)
                 self.actions_by_id[item.action] = act
 
+    def populate_web_menu(self, links, on_open) -> None:
+        """Fill the Web menu with the user's links (VB ``SetWebMenu``).
+
+        ``links`` is a list of ``{"text", "url"}`` dicts; ``on_open`` is called with
+        a URL when its item is triggered. An empty list disables the menu.
+        """
+        menu = self.menus.get("MsWeb")
+        if menu is None:
+            return
+        menu.clear()
+        menu.menuAction().setVisible(bool(links))
+        menu.setEnabled(bool(links))
+        icon = R.get_icon("ASPNETWeb_16x")
+        for link in links:
+            url = link.get("url", "")
+            act = QAction(icon, link.get("text", url), self)
+            act.setToolTip(url)
+            act.triggered.connect(lambda _=False, u=url: on_open(u))
+            menu.addAction(act)
+
     def action(self, item_id: str) -> QAction | None:
         """The QAction for a VB control-name id, if present."""
         return self.actions_by_id.get(item_id)

@@ -23,6 +23,21 @@ from vaultkeeper.persistence.json_store import read_json, write_json
 SETTINGS_VERSION = 1
 
 
+def default_web_links() -> list[dict[str, str]]:
+    """The default Web-menu links (VB ``Defs.DefaultWebMenu``).
+
+    Text/URL pairs from the app's ``Application Definitions.txt``; ``&`` mnemonics
+    are preserved so Qt renders the same accelerators as the VB menu.
+    """
+    return [
+        {"text": "The Neverwinter &Vault", "url": "https://neverwintervault.org"},
+        {
+            "text": "&Nexus Neverwinter Nights",
+            "url": "https://www.nexusmods.com/neverwinter",
+        },
+    ]
+
+
 @dataclass
 class Settings:
     """The application settings model.
@@ -42,6 +57,8 @@ class Settings:
     #: On startup, check whether the game config diverged and prompt before syncing
     #: (config-isolation principle — never sync silently).
     validate_game_config_on_startup: bool = True
+    #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
+    web_links: list[dict[str, str]] = field(default_factory=default_web_links)
 
     #: Keys present in the file that this version doesn't model, kept for round-trip.
     _extra: dict[str, Any] = field(default_factory=dict, repr=False)

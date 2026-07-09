@@ -157,6 +157,21 @@ class MainWindow(QMainWindow):
             if act is not None:
                 act.setChecked(True)
 
+        # Populate the Web menu from the user's saved links (VB SetWebMenu).
+        from vaultkeeper.config.settings import load_settings
+
+        self.nit_menu.populate_web_menu(load_settings().web_links, self._open_url)
+
+    def _open_url(self, url: str) -> None:
+        """Open a Web-menu link in the default browser (VB WebMenu_Click)."""
+        if not url:
+            return
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        QDesktopServices.openUrl(QUrl(url))
+        self.nit_status.set_info(f"Opening {url}")
+
     def _on_toggle(self, item_id: str, checked: bool) -> None:
         """Handle checkable menu items (VB check-on-click toggles)."""
         if item_id == "MsShowRibbon":
