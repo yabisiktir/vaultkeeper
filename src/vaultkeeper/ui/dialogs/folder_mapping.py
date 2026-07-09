@@ -1,26 +1,31 @@
-"""FolderMapping — view the Mapper's folder-mapping rules (VB Settings map pages).
+"""FolderMapping — view *and edit* the Mapper's folder-mapping rules (VB Settings map pages).
 
-Read-only view of the rules that decide where each mod file installs, drawn from
-``core/mapper.py`` (the tested v21 default tables). Three tabs mirror the VB Settings
-list-views: **Extensions** (``LvMapExtensions``: Extension / Default Folder / Secondary
-Folder), **Map Files** (``LvMapFiles``: File Name / NWN Folder) and **Map Folders**
-(``LvMapFolders``: Source Folder / NWN Folder). Built on
-``ProfileController.folder_mapping_report``.
+Three tabs mirror the VB Settings list-views: **Extensions** (``LvMapExtensions``:
+Extension / Default Folder / Secondary Folder), **Map Files** (``LvMapFiles``: File
+Name / NWN Folder) and **Map Folders** (``LvMapFolders``: Source Folder / NWN Folder).
+Built on ``ProfileController.folder_mapping_report`` and the map-edit methods.
 
-The VB ribbon buttons open the Settings dialog on a start page: *Map Files*
-(``RbnMapFiles``) and *Map Folders* (``RbnMapFolders``); ``show_for`` accepts a
-``start_tab`` to match. The editing surface (add/rename/reset/import, persistence)
-is deferred with the rest of the Settings subsystem — see the handoff. Column
-captions come from ``Settings.Designer.vb``.
+Editing surface: an *Add / Update* row (key + NWN folder) applies a user override to
+the current tab's table, *Remove Selected* deletes a user override (built-in defaults
+are not removable — a persisted deletion of a default is deferred), and *Reset All*
+restores the default tables. Overrides are shown in bold and persist to the settings
+file. The VB per-list rename-in-place editor, import-from-game and secondary-folder
+editing are deferred with the rest of the Settings subsystem. Column captions come
+from ``Settings.Designer.vb``.
 """
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
+    QMessageBox,
     QPushButton,
     QTabWidget,
     QTreeWidget,
@@ -34,9 +39,23 @@ from vaultkeeper.ui import resources as R
 #: Tab-name -> index, so callers/tests can request a start page by name.
 TAB_INDEX = {"Extensions": 0, "Map Files": 1, "Map Folders": 2}
 
+#: Per-tab (override-table name, key-column label) used by the edit controls.
+_TAB_TABLES = [
+    ("ext_mapping", "Extension"),
+    ("exception_files", "File Name"),
+    ("dir_mapping", "Source Folder"),
+]
+
+#: Common NWN target folders offered in the folder combo (editable — any name allowed).
+_FOLDER_CHOICES = [
+    "override", "hak", "tlk", "modules", "nwm", "ambient", "music", "movies",
+    "portraits", "localvault", "dmvault", "patch", "database", "erf",
+    "texturepacks", "nwn",
+]
+
 
 class FolderMapping(QDialog):
-    """A read-only tabbed view of the Mapper's folder-mapping tables."""
+    """A tabbed view + editor of the Mapper's folder-mapping tables."""
 
     def __init__(
         self, controller, start_tab: str = "Extensions", parent: QWidget | None = None
@@ -45,7 +64,7 @@ class FolderMapping(QDialog):
         self._controller = controller
         self.setWindowTitle("Folder Mapping")
         self.setWindowIcon(R.get_icon("MapToFolder_32x"))
-        self.resize(560, 560)
+        self.resize(600, 600)
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
@@ -59,11 +78,36 @@ class FolderMapping(QDialog):
         self.tabs.addTab(self.extensions, "Extensions")
         self.tabs.addTab(self.files, "Map Files")
         self.tabs.addTab(self.folders, "Map Folders")
+        self.tabs.currentChanged.connect(self._on_tab_changed)
+        for tree in (self.extensions, self.files, self.folders):
+            tree.itemSelectionChanged.connect(self._update_buttons)
+
+        # -- Edit row ------------------------------------------------------- #
+        edit_row = QHBoxLayout()
+        self._key_label = QLabel("Extension:")
+        self._key_edit = QLineEdit()
+        self._folder_combo = QComboBox()
+        self._folder_combo.setEditable(True)
+        self._folder_combo.addItems(_FOLDER_CHOICES)
+        self._add_button = QPushButton("Add / Update")
+        self._add_button.clicked.connect(self._on_add)
+        self._remove_button = QPushButton("Remove Selected")
+        self._remove_button.clicked.connect(self._on_remove)
+        edit_row.addWidget(self._key_label)
+        edit_row.addWidget(self._key_edit, 1)
+        edit_row.addWidget(QLabel("→"))
+        edit_row.addWidget(self._folder_combo, 1)
+        edit_row.addWidget(self._add_button)
+        edit_row.addWidget(self._remove_button)
+        layout.addLayout(edit_row)
 
         self.summary = QLabel()
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        self._reset_button = QPushButton("Reset All to Defaults")
+        self._reset_button.clicked.connect(self._on_reset)
+        buttons.addWidget(self._reset_button)
         buttons.addStretch(1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
@@ -72,6 +116,7 @@ class FolderMapping(QDialog):
 
         self.refresh()
         self.tabs.setCurrentIndex(TAB_INDEX.get(start_tab, 0))
+        self._on_tab_changed(self.tabs.currentIndex())
 
     @staticmethod
     def _make_tab(headers: list[str]) -> QTreeWidget:
@@ -81,24 +126,92 @@ class FolderMapping(QDialog):
         tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         return tree
 
+    # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:
         """(Re)build all three tables from the report."""
         report = self._controller.folder_mapping_report()
         self.summary.setText(report["summary"])
         self._fill(
             self.extensions,
-            [(r["ext"], r["folder"], r["secondary"]) for r in report["extensions"]],
+            [
+                (r["ext"], (r["ext"], r["folder"], r["secondary"]), r["override"])
+                for r in report["extensions"]
+            ],
         )
-        self._fill(self.files, [(r["file"], r["folder"]) for r in report["files"]])
         self._fill(
-            self.folders, [(r["source"], r["folder"]) for r in report["folders"]]
+            self.files,
+            [(r["file"], (r["file"], r["folder"]), r["override"]) for r in report["files"]],
         )
+        self._fill(
+            self.folders,
+            [
+                (r["source"], (r["source"], r["folder"]), r["override"])
+                for r in report["folders"]
+            ],
+        )
+        self._update_buttons()
 
     @staticmethod
-    def _fill(tree: QTreeWidget, rows: list[tuple[str, ...]]) -> None:
+    def _fill(tree: QTreeWidget, rows: list[tuple[str, tuple[str, ...], bool]]) -> None:
         tree.clear()
-        for row in rows:
-            tree.addTopLevelItem(QTreeWidgetItem(list(row)))
+        for key, columns, is_override in rows:
+            item = QTreeWidgetItem(list(columns))
+            item.setData(0, Qt.ItemDataRole.UserRole, (key, is_override))
+            if is_override:
+                font = item.font(0)
+                font.setWeight(QFont.Weight.Bold)
+                for col in range(len(columns)):
+                    item.setFont(col, font)
+            tree.addTopLevelItem(item)
+
+    # -- Edit controls ----------------------------------------------------- #
+    def _current_tree(self) -> QTreeWidget:
+        return (self.extensions, self.files, self.folders)[self.tabs.currentIndex()]
+
+    def _on_tab_changed(self, index: int) -> None:
+        self._key_label.setText(f"{_TAB_TABLES[index][1]}:")
+        self._key_edit.clear()
+        self._update_buttons()
+
+    def _update_buttons(self) -> None:
+        item = self._current_tree().currentItem()
+        is_override = bool(item and item.data(0, Qt.ItemDataRole.UserRole)[1])
+        self._remove_button.setEnabled(is_override)
+
+    def _on_add(self) -> None:
+        key = self._key_edit.text().strip()
+        folder = self._folder_combo.currentText().strip()
+        if not key or not folder:
+            return
+        index = self.tabs.currentIndex()
+        if index == 0:
+            self._controller.set_map_extension(key, folder)
+        elif index == 1:
+            self._controller.set_map_file_exception(key, folder)
+        else:
+            self._controller.set_map_folder(key, folder)
+        self._key_edit.clear()
+        self.refresh()
+
+    def _on_remove(self) -> None:
+        item = self._current_tree().currentItem()
+        if item is None:
+            return
+        key, is_override = item.data(0, Qt.ItemDataRole.UserRole)
+        if not is_override:
+            return
+        self._controller.remove_map_override(_TAB_TABLES[self.tabs.currentIndex()][0], key)
+        self.refresh()
+
+    def _on_reset(self) -> None:
+        confirm = QMessageBox.question(
+            self,
+            "Reset Folder Mapping",
+            "Discard all your map customisations and restore the defaults?",
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            self._controller.reset_map_overrides()
+            self.refresh()
 
     @classmethod
     def show_for(

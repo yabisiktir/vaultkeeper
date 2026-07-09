@@ -1,8 +1,8 @@
 """Tests for the Folder Mapping viewer (controller report + tabbed dialog).
 
-Covers the bounded VB Settings map-pages slice: surface the Mapper's Extension /
-exception-File / Directory-Folder tables read-only. The Settings editing surface
-(add/rename/reset/import, persistence) is deferred.
+Covers the VB Settings map-pages slice: surface the Mapper's Extension /
+exception-File / Directory-Folder tables, plus the editing surface (add/update a
+user override, remove an override, reset to defaults; persisted via settings).
 """
 
 from __future__ import annotations
@@ -15,6 +15,8 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 pytest.importorskip("PySide6")
+
+from PySide6.QtCore import Qt  # noqa: E402
 
 from vaultkeeper.core.mapper import (  # noqa: E402
     default_dir_mapping,
@@ -97,3 +99,54 @@ def test_main_window_wires_map_ribbon_ids(qtbot, tmp_path):
     qtbot.addWidget(win)
     win._on_command("RbnMapFiles")
     assert win._folder_mapping.tabs.currentIndex() == TAB_INDEX["Map Files"]
+
+
+# -- Editing (Phase 8 map customisation) ---------------------------------- #
+
+
+def test_dialog_add_override_updates_table(tmp_path, qtbot) -> None:
+    controller = _controller(tmp_path)
+    controller._settings_path = tmp_path / "settings.json"
+    dialog = FolderMapping(controller)
+    qtbot.addWidget(dialog)
+
+    dialog.tabs.setCurrentIndex(TAB_INDEX["Map Files"])
+    dialog._key_edit.setText("special.hak")
+    dialog._folder_combo.setCurrentText("patch")
+    dialog._on_add()
+
+    assert controller.ctx.mapper.get_mapped_folder("special.hak") == "patch"
+    # The new override row appears and is bold-flagged.
+    rows = {
+        dialog.files.topLevelItem(i).text(0): dialog.files.topLevelItem(i)
+        for i in range(dialog.files.topLevelItemCount())
+    }
+    assert "special.hak" in rows
+    assert rows["special.hak"].data(0, Qt.ItemDataRole.UserRole)[1] is True
+
+
+def test_dialog_remove_enabled_only_for_overrides(tmp_path, qtbot) -> None:
+    controller = _controller(tmp_path)
+    controller._settings_path = tmp_path / "settings.json"
+    controller.set_map_file_exception("mine.hak", "hak")
+    dialog = FolderMapping(controller, start_tab="Map Files")
+    qtbot.addWidget(dialog)
+
+    files = dialog.files
+    default_item = next(
+        files.topLevelItem(i)
+        for i in range(files.topLevelItemCount())
+        if files.topLevelItem(i).text(0) == "dialog.tlk"
+    )
+    override_item = next(
+        files.topLevelItem(i)
+        for i in range(files.topLevelItemCount())
+        if files.topLevelItem(i).text(0) == "mine.hak"
+    )
+    files.setCurrentItem(default_item)
+    assert not dialog._remove_button.isEnabled()
+    files.setCurrentItem(override_item)
+    assert dialog._remove_button.isEnabled()
+
+    dialog._on_remove()
+    assert not controller.ctx.mapper.is_override("exception_files", "mine.hak")
