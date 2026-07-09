@@ -227,11 +227,30 @@ def default_exclude_files() -> dict[str, bool]:
 class Mapper:
     """The file-to-folder mapping engine, initialised from the default v21 tables."""
 
-    def __init__(self, *, is_ee: bool = True, exclude_erf: bool = True) -> None:
+    #: Override table names accepted by :meth:`apply_overrides` / persistence.
+    _OVERRIDE_TABLES = ("ext_mapping", "dir_mapping", "exception_files")
+
+    def __init__(
+        self,
+        *,
+        is_ee: bool = True,
+        exclude_erf: bool = True,
+        overrides: dict[str, dict[str, str]] | None = None,
+    ) -> None:
         self.is_ee = is_ee
         #: My.Settings.MapExcludeErf — whether stray ERFs are excluded on create.
         self.exclude_erf = exclude_erf
 
+        self._build_default_tables()
+
+        #: User map overrides (native-JSON, VB My.Settings map customisations):
+        #: ``{table: {key: folder}}`` merged on top of the default tables.
+        self.overrides: dict[str, dict[str, str]] = {t: {} for t in self._OVERRIDE_TABLES}
+        if overrides:
+            self.apply_overrides(overrides)
+
+    def _build_default_tables(self) -> None:
+        """(Re)initialise every mapping table from the default v21 definitions."""
         self.ext_mapping = default_ext_mapping()
         self.folder_moves = default_folder_moves()
         self.dir_mapping = default_dir_mapping()
@@ -253,8 +272,75 @@ class Mapper:
         #: Names that are never excluded (overrides); populated from app defs in VB.
         self.map_exclude_exceptions: list[str] = []
 
-        if is_ee:
+        if self.is_ee:
             self._apply_ee()
+
+    # -- User overrides (Settings map editors + persistence, Phase 8) ------ #
+    def _table(self, name: str) -> dict[str, str]:
+        return {
+            "ext_mapping": self.ext_mapping,
+            "dir_mapping": self.dir_mapping,
+            "exception_files": self.exception_files,
+        }[name]
+
+    def apply_overrides(self, overrides: dict[str, dict[str, str]]) -> None:
+        """Merge ``overrides`` (``{table: {key: folder}}``) onto the live tables.
+
+        Keys are lower-cased (case-insensitive lookup); the ``ext_mapping`` merge
+        also keeps ``nwn_extensions`` consistent so validity checks agree. Only the
+        three editable tables (extension / directory / exception-file maps) are
+        overridable; unknown tables/values are ignored.
+        """
+        for table_name in self._OVERRIDE_TABLES:
+            entries = overrides.get(table_name) or {}
+            table = self._table(table_name)
+            for key, folder in entries.items():
+                if not isinstance(key, str) or not isinstance(folder, str):
+                    continue
+                low = key.lower()
+                table[low] = folder
+                self.overrides[table_name][low] = folder
+                if table_name == "ext_mapping":
+                    self.nwn_extensions[low] = folder
+
+    def set_override(self, table: str, key: str, folder: str) -> None:
+        """Add/replace a single map entry and record it as a user override."""
+        if table not in self._OVERRIDE_TABLES:
+            raise ValueError(f"unknown map table: {table}")
+        self.apply_overrides({table: {key: folder}})
+
+    def remove_override(self, table: str, key: str) -> bool:
+        """Remove a *user-added* override entry (VB delete/reset item).
+
+        Returns True if an override was removed. Default (built-in) entries are not
+        removed — a persisted deletion of a default is a larger change (a deletions
+        list) and is deferred; the caller should only offer removal for overrides.
+        """
+        if table not in self._OVERRIDE_TABLES:
+            raise ValueError(f"unknown map table: {table}")
+        low = key.lower()
+        if low not in self.overrides[table]:
+            return False
+        del self.overrides[table][low]
+        # Rebuild from defaults + the remaining overrides so a shadowed default (if
+        # any) is restored cleanly.
+        remaining = {t: dict(v) for t, v in self.overrides.items()}
+        self.reset_overrides()
+        self.apply_overrides(remaining)
+        return True
+
+    def reset_overrides(self) -> None:
+        """Discard all user overrides, restoring the default v21 tables."""
+        self._build_default_tables()
+        self.overrides = {t: {} for t in self._OVERRIDE_TABLES}
+
+    def export_overrides(self) -> dict[str, dict[str, str]]:
+        """The current user overrides as a JSON-serialisable dict (for persistence)."""
+        return {t: dict(v) for t, v in self.overrides.items() if v}
+
+    def is_override(self, table: str, key: str) -> bool:
+        """True if ``key`` in ``table`` is a user override (vs a built-in default)."""
+        return key.lower() in self.overrides.get(table, {})
 
     def _apply_ee(self) -> None:
         """EE reclassifies .gui/.shd as ovr for NwnExtensions (DefineEeFolders)."""

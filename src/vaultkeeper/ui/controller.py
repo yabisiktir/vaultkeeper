@@ -33,10 +33,14 @@ class ProfileController:
         ctx: InstallContext,
         *,
         store_path: Path | None = None,
+        settings_path: Path | None = None,
     ) -> None:
         self.pd = pd
         self.ctx = ctx
         self.store_path = store_path
+        #: Settings file for persisting non-profile prefs (map overrides); None =
+        #: the platform default location.
+        self._settings_path = settings_path
         patch_ini = ctx.game_root / "nwnpatch.ini"
         self._hpm = HakPatchManager(pd, patch_ini)
         self.engine = ModInstallationManager(
@@ -59,9 +63,11 @@ class ProfileController:
         game_root: Path,
         store_path: Path | None = None,
         is_ee: bool = True,
+        map_overrides: dict[str, dict[str, str]] | None = None,
+        settings_path: Path | None = None,
     ) -> ProfileController:
         """Load a profile from ``store_path`` (or scan from disk if absent), wire it up."""
-        mapper = Mapper(is_ee=is_ee)
+        mapper = Mapper(is_ee=is_ee, overrides=map_overrides)
         game_folders = mapper.nwn_folder_paths(game_root)
         game_user_dir = user_documents_dir(HostOS.current())
 
@@ -85,7 +91,7 @@ class ProfileController:
             is_ee=is_ee,
             game_user_dir=game_user_dir,
         )
-        return cls(pd, ctx, store_path=store_path)
+        return cls(pd, ctx, store_path=store_path, settings_path=settings_path)
 
     # -- Queries ----------------------------------------------------------- #
     def groups(self) -> list[tuple[str, list[ModData]]]:
@@ -1862,15 +1868,24 @@ class ProfileController:
                 "ext": ext,
                 "folder": folder,
                 "secondary": mapper.folder_moves.get(ext, ""),
+                "override": mapper.is_override("ext_mapping", ext),
             }
             for ext, folder in sorted(mapper.ext_mapping.items())
         ]
         files = [
-            {"file": name, "folder": folder}
+            {
+                "file": name,
+                "folder": folder,
+                "override": mapper.is_override("exception_files", name),
+            }
             for name, folder in sorted(mapper.exception_files.items())
         ]
         folders = [
-            {"source": source, "folder": folder}
+            {
+                "source": source,
+                "folder": folder,
+                "override": mapper.is_override("dir_mapping", source),
+            }
             for source, folder in sorted(mapper.dir_mapping.items())
         ]
         return {
@@ -1882,6 +1897,42 @@ class ProfileController:
                 f"Map folders: {len(folders)}."
             ),
         }
+
+    # -- Map editing + persistence (VB Settings map editors, Phase 8) ------ #
+    def _persist_map_overrides(self) -> None:
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.map_overrides = self.ctx.mapper.export_overrides()
+        save_settings(settings, self._settings_path)
+
+    def set_map_extension(self, extension: str, folder: str) -> None:
+        """Override an extension's default install folder and persist it."""
+        ext = extension if extension.startswith(".") else f".{extension}"
+        self.ctx.mapper.set_override("ext_mapping", ext, folder)
+        self._persist_map_overrides()
+
+    def set_map_file_exception(self, filename: str, folder: str) -> None:
+        """Add/replace a file-name → folder exception and persist it."""
+        self.ctx.mapper.set_override("exception_files", filename, folder)
+        self._persist_map_overrides()
+
+    def set_map_folder(self, source: str, folder: str) -> None:
+        """Add/replace a source-folder → NWN-folder mapping and persist it."""
+        self.ctx.mapper.set_override("dir_mapping", source, folder)
+        self._persist_map_overrides()
+
+    def remove_map_override(self, table: str, key: str) -> bool:
+        """Remove a user-added map override (extension/file/folder) and persist."""
+        removed = self.ctx.mapper.remove_override(table, key)
+        if removed:
+            self._persist_map_overrides()
+        return removed
+
+    def reset_map_overrides(self) -> None:
+        """Discard all map customisations, restoring the default tables; persist."""
+        self.ctx.mapper.reset_overrides()
+        self._persist_map_overrides()
 
     def save(self) -> None:
         if self.store_path is not None:

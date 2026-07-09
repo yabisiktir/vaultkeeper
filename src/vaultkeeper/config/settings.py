@@ -59,6 +59,9 @@ class Settings:
     validate_game_config_on_startup: bool = True
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
+    #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default
+    #: tables (VB My.Settings map customisations); empty = pure v21 defaults.
+    map_overrides: dict[str, dict[str, str]] = field(default_factory=dict)
 
     #: Keys present in the file that this version doesn't model, kept for round-trip.
     _extra: dict[str, Any] = field(default_factory=dict, repr=False)
