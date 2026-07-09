@@ -1177,6 +1177,52 @@ class ProfileController:
             ),
         }
 
+    def locations_report(self) -> dict:
+        """The resolved file locations for this profile/install (VB Settings Locations).
+
+        Groups the real paths Vaultkeeper is using — the Neverwinter Nights install,
+        the game user folder and Steam Workshop content, plus the tool's own profile
+        mods folder and data store — as (group / location / path) rows for the
+        Settings *Locations* page (columns ``Location`` / ``Path``). Read-only.
+        """
+        from vaultkeeper.game.workshop import workshop_content_path
+
+        ctx = self.ctx
+        workshop = workshop_content_path(ctx.game_root)
+        store_root = self.store_path.parent if self.store_path else None
+        groups: list[tuple[str, list[tuple[str, Path | None]]]] = [
+            (
+                "Neverwinter Nights",
+                [
+                    ("Game Installation", ctx.game_root),
+                    ("Game User Folder", ctx.game_user_dir),
+                    ("Steam Workshop Content", workshop),
+                ],
+            ),
+            (
+                "Vaultkeeper",
+                [
+                    ("Profile Mods", ctx.profile_mods_dir),
+                    ("Data Store", store_root),
+                    ("Profile Store File", self.store_path),
+                ],
+            ),
+        ]
+        rows = [
+            {
+                "group": group,
+                "location": name,
+                "path": str(path) if path is not None else "",
+            }
+            for group, items in groups
+            for name, path in items
+        ]
+        set_count = sum(1 for r in rows if r["path"])
+        return {
+            "rows": rows,
+            "summary": f"Locations: {set_count} of {len(rows)} resolved.",
+        }
+
     def folder_mapping_report(self) -> dict:
         """The Mapper's folder-mapping tables (VB Settings Map Extensions/Files/Folders).
 

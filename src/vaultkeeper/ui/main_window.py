@@ -742,7 +742,7 @@ class MainWindow(QMainWindow):
     def _on_settings(self) -> None:
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
-        settings = SettingsDialog.edit(parent=self)
+        settings = SettingsDialog.edit(parent=self, controller=self.controller)
         if settings is not None:
             # Reflect the recycle preference on the status bar toggle.
             self.nit_status.set_recycle(settings.recycle_on_delete)
