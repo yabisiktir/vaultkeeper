@@ -196,6 +196,99 @@ class ProfileController:
             mod_name, lambda fk: fk.filename.lower() == target
         )
 
+    def remove_illegal_mod_files(self) -> dict:
+        """Relocate every mod file that maps to no legal folder / non-NWN extension.
+
+        Faithful port of ``ProfileData.RemoveIllegalModFiles``: a mod-installer file
+        is *illegal* when its folder is not a mapped NWN folder
+        (``not is_legal_folder``) or its extension is not an NWN extension
+        (``not is_nwn_extension``). Illegal whole folders are moved to the mod's
+        ``.Removed Items`` area (VB ``ModInstallerIllegal``); extension-illegal files
+        sitting in an otherwise-legal folder are moved individually. All illegal file
+        keys are dropped from the database, then states are recomputed and persisted.
+        Returns ``{"folders", "files", "message"}`` (VB status counts).
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        mapper = self.ctx.mapper
+        illegal = [
+            fk
+            for fk in list(self.pd.file_list)
+            if not mapper.is_legal_folder(fk.folder)
+            or not mapper.is_nwn_extension(fk.extension)
+        ]
+        if not illegal:
+            return {"folders": 0, "files": 0, "message": "Illegal Mod items removed: None."}
+
+        # Distinct (mod, folder) pairs whose folder itself is illegal.
+        illegal_folders: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        for fk in illegal:
+            if not mapper.is_legal_folder(fk.folder):
+                key = (fk.mod_name.lower(), fk.folder.lower())
+                if key not in seen:
+                    seen.add(key)
+                    illegal_folders.append((fk.mod_name, fk.folder))
+        illegal_folder_set = {(m.lower(), f.lower()) for m, f in illegal_folders}
+
+        # Files illegal only by extension (their folder is legal) move individually.
+        illegal_files = [
+            fk
+            for fk in illegal
+            if (fk.mod_name.lower(), fk.folder.lower()) not in illegal_folder_set
+        ]
+
+        for mod_name, folder in illegal_folders:
+            src = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / folder
+            if src.is_dir():
+                dest = self.ctx.profile_mods_dir / mod_name / C.REMOVED_ITEMS_DIR / folder
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                if dest.exists():
+                    shutil.rmtree(dest)
+                shutil.move(str(src), str(dest))
+
+        for fk in illegal_files:
+            src = (
+                self.ctx.profile_mods_dir
+                / fk.mod_name
+                / C.MOD_INSTALLER_DIR
+                / fk.folder
+                / fk.filename
+            )
+            if src.is_file():
+                dest = (
+                    self.ctx.profile_mods_dir
+                    / fk.mod_name
+                    / C.REMOVED_ITEMS_DIR
+                    / fk.folder
+                    / fk.filename
+                )
+                fs.move_file(src, dest, overwrite=True)
+
+        for fk in illegal:
+            md = self.pd.mod_item(fk.mod_name)
+            self.pd.file_list.pop(fk, None)
+            if md is not None and fk in md.files:
+                md.files.remove(fk)
+            self.pd.changes.file.removed(fk)
+
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        folders_n = len(illegal_folders)
+        files_n = len(illegal_files)
+        return {
+            "folders": folders_n,
+            "files": files_n,
+            "message": (
+                f"Illegal Mod items removed. Folders: {folders_n or 'None'}. "
+                f"Files: {files_n or 'None'}."
+            ),
+        }
+
     def add_files_to_mod(self, mod_name: str, file_paths: list[Path]) -> int:
         """Copy files into a mod's ``.Mod Installer``, each in its mapped game folder.
 

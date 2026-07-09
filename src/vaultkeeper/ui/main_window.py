@@ -396,6 +396,10 @@ class MainWindow(QMainWindow):
             "RbnBuildInstaller": self._on_create_installer,
             "RbnReCreateInstaller": self._on_create_installer,
             "MsCreateMissingInstallers": self._on_create_missing_installers,
+            # Change Installer just re-runs Create Installer (VB delegates to it).
+            "MsChangeInstaller": self._on_create_installer,
+            "RbnChangeInstaller": self._on_create_installer,
+            "MsRemoveIllegalModFiles": self._on_remove_illegal_files,
             "MsCreateRestorer": self._on_create_restorer,
             "TsCreateRestorer": self._on_create_restorer,
             "RbnCreateRestorer": self._on_create_restorer,
@@ -584,6 +588,14 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             self.refresh()
             self.nit_status.set_info("Missing installers processed.")
+
+    def _on_remove_illegal_files(self) -> None:
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        result = self.controller.remove_illegal_mod_files()
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     def _on_create_restorer(self) -> None:
         names = self.selected_mod_names()
