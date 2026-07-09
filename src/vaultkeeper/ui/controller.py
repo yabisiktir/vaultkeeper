@@ -1637,9 +1637,12 @@ class ProfileController:
             if not mod_folder.is_dir():
                 continue
             scanned += 1
+            from vaultkeeper.game.documentation import archive_source
+
             for entry in scan_mod_docs(
                 name, mod_folder, extractor=extractor, remove_version=remove_version
             ):
+                arc = archive_source(entry)
                 rows.append(
                     {
                         "mod": entry.mod,
@@ -1652,6 +1655,9 @@ class ProfileController:
                         "name_match": bool(entry.name_match),
                         "from_archive": entry.from_archive,
                         "source_path": str(entry.full_path),
+                        # Recover the re-extraction source for archive docs (copyable now).
+                        "archive": arc[0] if arc else "",
+                        "inner": arc[1] if arc else "",
                     }
                 )
 
@@ -1707,10 +1713,14 @@ class ProfileController:
         files, so the profile database is left untouched (VB only reloads the
         Contents view). Returns ``{"copied", "errors", "message"}``.
 
-        Only loose ``_Downloads`` files can be copied: a source that no longer exists
-        (e.g. an archive-extracted doc whose temp copy is gone) is counted as an
-        error. Copying docs back out of archives is deferred.
+        A selection for a doc *inside* a ``_Downloads`` archive carries
+        ``{"archive": <mod-relative archive>, "inner": <path in archive>, "doc_name"}``
+        instead of a loose ``source``; the archive is re-extracted (via the injected
+        extractor) and just that doc copied out (VB re-uses its persistent
+        ``ExtractedZips``). Missing sources are counted as errors.
         """
+        import contextlib
+
         from vaultkeeper.core import fs
 
         md = self.pd.mod_item(mod_name)
@@ -1725,23 +1735,65 @@ class ProfileController:
             }
 
         copied = errors = 0
-        for sel in selections:
-            source = Path(sel["source"])
-            doc_name = sel["doc_name"]
-            if not doc_name or not source.is_file():
-                errors += 1
-                continue
-            try:
-                fs.copy_file(source, target_folder / doc_name, overwrite=True)
-                copied += 1
-            except OSError:
-                errors += 1
+        # Re-extract each needed archive once, caching its temp dir for the batch.
+        extracted: dict[str, Path | None] = {}
+        stack = contextlib.ExitStack()
+        with stack:
+            for sel in selections:
+                doc_name = sel.get("doc_name")
+                if not doc_name:
+                    errors += 1
+                    continue
+                if sel.get("archive"):
+                    source = self._extracted_doc_source(
+                        target_folder, sel, extracted, stack
+                    )
+                else:
+                    source = Path(sel["source"])
+                if source is None or not source.is_file():
+                    errors += 1
+                    continue
+                try:
+                    fs.copy_file(source, target_folder / doc_name, overwrite=True)
+                    copied += 1
+                except OSError:
+                    errors += 1
 
         return {
             "copied": copied,
             "errors": errors,
             "message": _doc_copy_summary(copied, errors),
         }
+
+    def _extracted_doc_source(
+        self, mod_folder: Path, sel: dict, extracted: dict, stack
+    ) -> Path | None:
+        """Re-extract a ``_Downloads`` archive (once, cached) and locate a doc in it.
+
+        Returns the extracted file's path (``<temp>/<inner>``, falling back to a
+        recursive name match) or ``None`` if the archive can't be extracted / the
+        doc isn't found. ``extracted`` caches temp dirs per archive across the batch.
+        """
+        import tempfile
+
+        archive_rel = sel["archive"]
+        if archive_rel not in extracted:
+            archive_path = mod_folder / archive_rel
+            backend = self._archive_backend()
+            if not (archive_path.is_file() and getattr(backend, "available", False)):
+                extracted[archive_rel] = None
+            else:
+                tmp = Path(stack.enter_context(tempfile.TemporaryDirectory()))
+                result = backend.extract(archive_path, tmp)
+                extracted[archive_rel] = tmp if result.ok else None
+        temp_root = extracted[archive_rel]
+        if temp_root is None:
+            return None
+        candidate = temp_root / sel["inner"]
+        if candidate.is_file():
+            return candidate
+        name = Path(sel["inner"]).name
+        return next((p for p in temp_root.rglob(name) if p.is_file()), None)
 
     def wizard_report(self, mod_name: str) -> dict:
         """The installer wizard defined for a mod (VB ``WizardBuilder``/``WizardInfo``).

@@ -157,9 +157,10 @@ class DocOrganiser(QDialog):
         for row in rows:
             item = QTreeWidgetItem([row["doc_name"], row["folder"], row["size"]])
             item.setData(0, Qt.ItemDataRole.UserRole, row)
-            # Only loose, unmatched docs can be copied (archive sources do not
-            # survive the scan — deferred; matched docs already exist).
-            copyable = bool(row["copy"]) and not row["from_archive"]
+            # Unmatched docs are copyable — loose files directly, and archive docs
+            # by re-extraction (matched docs already exist in Contents).
+            archive_copyable = row["from_archive"] and bool(row.get("archive"))
+            copyable = bool(row["copy"]) and (not row["from_archive"] or archive_copyable)
             if copyable:
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                 item.setCheckState(0, Qt.CheckState.Checked)
@@ -212,9 +213,13 @@ class DocOrganiser(QDialog):
         """Copy the checked Downloads docs into their mods (VB ``BtCopy_Click``)."""
         by_mod: dict[str, list[dict]] = {}
         for row in self._checked_rows():
-            by_mod.setdefault(row["mod"], []).append(
-                {"source": row["source_path"], "doc_name": row["doc_name"]}
-            )
+            sel = {"doc_name": row["doc_name"]}
+            if row.get("archive"):
+                sel["archive"] = row["archive"]
+                sel["inner"] = row["inner"]
+            else:
+                sel["source"] = row["source_path"]
+            by_mod.setdefault(row["mod"], []).append(sel)
 
         copied = errors = 0
         for mod_name, selections in by_mod.items():

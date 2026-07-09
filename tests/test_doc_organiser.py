@@ -270,6 +270,47 @@ def test_copy_docs_overwrites_and_errors_on_missing_source(tmp_path):
     assert (root / "Alpha" / "Alpha Guide.pdf").read_bytes() == b"new"
 
 
+def test_copy_doc_from_archive_reextracts(tmp_path):
+    """A doc inside a _Downloads archive is copied out by re-extraction."""
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "pack.7z", b"archive")
+    controller._extractor = FakeArchiveExtractor(
+        contents={"pack.7z": {"docs/ReadMe.txt": b"archived-doc-body"}}
+    )
+
+    report = controller.doc_organiser_report(["Alpha"])
+    archive_rows = [r for r in report["downloads"] if r["from_archive"]]
+    assert archive_rows, "the archived ReadMe should be reported"
+    row = archive_rows[0]
+    assert row["archive"] == "_Downloads/pack.7z"
+    assert row["inner"].endswith("ReadMe.txt")
+
+    result = controller.copy_docs_to_mod(
+        "Alpha",
+        [{"archive": row["archive"], "inner": row["inner"], "doc_name": row["doc_name"]}],
+    )
+    assert result["copied"] == 1
+    copied = root / "Alpha" / row["doc_name"]
+    assert copied.is_file() and copied.read_bytes() == b"archived-doc-body"
+
+
+def test_archive_source_helper():
+    from vaultkeeper.game.documentation import DocEntry, archive_source
+
+    entry = DocEntry(
+        mod="M", file_name="ReadMe.txt", source="Downloads",
+        folder="pack.7z!docs", size=1, full_path=Path("/tmp/x"), from_archive=True,
+    )
+    assert archive_source(entry) == ("pack.7z", "docs/ReadMe.txt")
+    # A loose file has no archive source.
+    loose = DocEntry(
+        mod="M", file_name="a.txt", source="Downloads", folder="", size=1,
+        full_path=Path("/tmp/a"), from_archive=False,
+    )
+    assert archive_source(loose) is None
+
+
 # -- Dialog copy behaviour ------------------------------------------------ #
 
 

@@ -179,6 +179,27 @@ class DocEntry:
     from_archive: bool = False
 
 
+#: Separates a doc's ``_Downloads`` archive path from its path *inside* that archive
+#: in :attr:`DocEntry.folder` (e.g. ``pack.zip!docs``); used to recover the source
+#: for copy-from-archive.
+ARCHIVE_SEPARATOR = "!"
+
+
+def archive_source(entry: DocEntry) -> tuple[str, str] | None:
+    """(mod-relative archive path, inner file path) for an archive doc, else ``None``.
+
+    Recovers, from a ``from_archive`` entry's :attr:`~DocEntry.folder`
+    (``<archive>!<inner-parent>``) plus its file name, the info a copy needs to
+    re-extract that one doc: which ``_Downloads`` archive it came from and its path
+    within it.
+    """
+    if not entry.from_archive or ARCHIVE_SEPARATOR not in entry.folder:
+        return None
+    rel_archive, _, inner_parent = entry.folder.partition(ARCHIVE_SEPARATOR)
+    inner = f"{inner_parent}/{entry.file_name}" if inner_parent else entry.file_name
+    return rel_archive, inner
+
+
 def _rel_folder(path: Path, root: Path) -> str:
     """POSIX relative parent of ``path`` within ``root`` (``""`` when at root)."""
     rel = path.parent.relative_to(root)
@@ -397,7 +418,7 @@ def _scan_archives(
                 mod_name,
                 Path(tmp),
                 Path(tmp),
-                folder_prefix=f"{rel_archive}!",
+                folder_prefix=f"{rel_archive}{ARCHIVE_SEPARATOR}",
                 qualifier=qualifier,
                 from_archive=True,
                 remove_version=remove_version,
