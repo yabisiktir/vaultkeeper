@@ -37,9 +37,12 @@ from PySide6.QtWidgets import (
 from vaultkeeper.ui import resources as R
 
 #: Tab-name -> index, so callers/tests can request a start page by name.
-TAB_INDEX = {"Extensions": 0, "Map Files": 1, "Map Folders": 2}
+TAB_INDEX = {"Extensions": 0, "Map Files": 1, "Map Folders": 2, "Map Excludes": 3}
 
-#: Per-tab (override-table name, key-column label) used by the edit controls.
+#: The Excludes tab index (edit shape differs: name + File/Folder type).
+_EXCLUDES_TAB = 3
+
+#: Per-map-tab (override-table name, key-column label) used by the edit controls.
 _TAB_TABLES = [
     ("ext_mapping", "Extension"),
     ("exception_files", "File Name"),
@@ -75,11 +78,13 @@ class FolderMapping(QDialog):
         )
         self.files = self._make_tab(["File Name", "NWN Folder"])
         self.folders = self._make_tab(["Source Folder", "NWN Folder"])
+        self.excludes = self._make_tab(["Excluded Item", "Type"])
         self.tabs.addTab(self.extensions, "Extensions")
         self.tabs.addTab(self.files, "Map Files")
         self.tabs.addTab(self.folders, "Map Folders")
+        self.tabs.addTab(self.excludes, "Map Excludes")
         self.tabs.currentChanged.connect(self._on_tab_changed)
-        for tree in (self.extensions, self.files, self.folders):
+        for tree in (self.extensions, self.files, self.folders, self.excludes):
             tree.itemSelectionChanged.connect(self._update_buttons)
 
         # -- Edit row ------------------------------------------------------- #
@@ -128,9 +133,10 @@ class FolderMapping(QDialog):
 
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:
-        """(Re)build all three tables from the report."""
+        """(Re)build every table from the reports."""
         report = self._controller.folder_mapping_report()
-        self.summary.setText(report["summary"])
+        excludes = self._controller.map_excludes_report()
+        self.summary.setText(f"{report['summary']} {excludes['summary']}")
         self._fill(
             self.extensions,
             [
@@ -147,6 +153,14 @@ class FolderMapping(QDialog):
             [
                 (r["source"], (r["source"], r["folder"]), r["override"])
                 for r in report["folders"]
+            ],
+        )
+        self._fill(
+            self.excludes,
+            [(r["name"], (r["name"], "File"), r["override"]) for r in excludes["files"]]
+            + [
+                (r["name"], (r["name"], "Folder"), r["override"])
+                for r in excludes["folders"]
             ],
         )
         self._update_buttons()
@@ -166,11 +180,19 @@ class FolderMapping(QDialog):
 
     # -- Edit controls ----------------------------------------------------- #
     def _current_tree(self) -> QTreeWidget:
-        return (self.extensions, self.files, self.folders)[self.tabs.currentIndex()]
+        return (self.extensions, self.files, self.folders, self.excludes)[
+            self.tabs.currentIndex()
+        ]
 
     def _on_tab_changed(self, index: int) -> None:
-        self._key_label.setText(f"{_TAB_TABLES[index][1]}:")
         self._key_edit.clear()
+        self._folder_combo.clear()
+        if index == _EXCLUDES_TAB:
+            self._key_label.setText("Excluded Item:")
+            self._folder_combo.addItems(["File", "Folder"])
+        else:
+            self._key_label.setText(f"{_TAB_TABLES[index][1]}:")
+            self._folder_combo.addItems(_FOLDER_CHOICES)
         self._update_buttons()
 
     def _update_buttons(self) -> None:
@@ -180,16 +202,20 @@ class FolderMapping(QDialog):
 
     def _on_add(self) -> None:
         key = self._key_edit.text().strip()
-        folder = self._folder_combo.currentText().strip()
-        if not key or not folder:
+        choice = self._folder_combo.currentText().strip()
+        if not key or not choice:
             return
         index = self.tabs.currentIndex()
         if index == 0:
-            self._controller.set_map_extension(key, folder)
+            self._controller.set_map_extension(key, choice)
         elif index == 1:
-            self._controller.set_map_file_exception(key, folder)
+            self._controller.set_map_file_exception(key, choice)
+        elif index == 2:
+            self._controller.set_map_folder(key, choice)
         else:
-            self._controller.set_map_folder(key, folder)
+            self._controller.add_map_exclude(
+                "files" if choice == "File" else "folders", key
+            )
         self._key_edit.clear()
         self.refresh()
 
@@ -200,7 +226,12 @@ class FolderMapping(QDialog):
         key, is_override = item.data(0, Qt.ItemDataRole.UserRole)
         if not is_override:
             return
-        self._controller.remove_map_override(_TAB_TABLES[self.tabs.currentIndex()][0], key)
+        index = self.tabs.currentIndex()
+        if index == _EXCLUDES_TAB:
+            kind = "files" if item.text(1) == "File" else "folders"
+            self._controller.remove_map_exclude(kind, key)
+        else:
+            self._controller.remove_map_override(_TAB_TABLES[index][0], key)
         self.refresh()
 
     def _on_reset(self) -> None:

@@ -230,12 +230,16 @@ class Mapper:
     #: Override table names accepted by :meth:`apply_overrides` / persistence.
     _OVERRIDE_TABLES = ("ext_mapping", "dir_mapping", "exception_files")
 
+    #: Exclude-list kinds a user can add to (VB Settings "Excluded Items").
+    _EXCLUDE_KINDS = ("files", "folders")
+
     def __init__(
         self,
         *,
         is_ee: bool = True,
         exclude_erf: bool = True,
         overrides: dict[str, dict[str, str]] | None = None,
+        exclude_overrides: dict[str, list[str]] | None = None,
     ) -> None:
         self.is_ee = is_ee
         #: My.Settings.MapExcludeErf — whether stray ERFs are excluded on create.
@@ -246,8 +250,13 @@ class Mapper:
         #: User map overrides (native-JSON, VB My.Settings map customisations):
         #: ``{table: {key: folder}}`` merged on top of the default tables.
         self.overrides: dict[str, dict[str, str]] = {t: {} for t in self._OVERRIDE_TABLES}
+        #: User-added exclude entries ``{"files": [...], "folders": [...]}`` added to
+        #: the exclude tables so the installer scan skips them (VB LvMapExcludes).
+        self.exclude_overrides: dict[str, list[str]] = {k: [] for k in self._EXCLUDE_KINDS}
         if overrides:
             self.apply_overrides(overrides)
+        if exclude_overrides:
+            self.apply_exclude_overrides(exclude_overrides)
 
     def _build_default_tables(self) -> None:
         """(Re)initialise every mapping table from the default v21 definitions."""
@@ -322,17 +331,22 @@ class Mapper:
         if low not in self.overrides[table]:
             return False
         del self.overrides[table][low]
-        # Rebuild from defaults + the remaining overrides so a shadowed default (if
-        # any) is restored cleanly.
-        remaining = {t: dict(v) for t, v in self.overrides.items()}
-        self.reset_overrides()
-        self.apply_overrides(remaining)
+        self._reapply()  # restores a shadowed default cleanly, keeps other overrides
         return True
 
     def reset_overrides(self) -> None:
-        """Discard all user overrides, restoring the default v21 tables."""
+        """Discard all user overrides + excludes, restoring the default v21 tables."""
         self._build_default_tables()
         self.overrides = {t: {} for t in self._OVERRIDE_TABLES}
+        self.exclude_overrides = {k: [] for k in self._EXCLUDE_KINDS}
+
+    def _reapply(self) -> None:
+        """Rebuild defaults, then re-merge the tracked folder + exclude overrides."""
+        folder_ov = {t: dict(v) for t, v in self.overrides.items()}
+        excludes = {k: list(v) for k, v in self.exclude_overrides.items()}
+        self.reset_overrides()
+        self.apply_overrides(folder_ov)
+        self.apply_exclude_overrides(excludes)
 
     def export_overrides(self) -> dict[str, dict[str, str]]:
         """The current user overrides as a JSON-serialisable dict (for persistence)."""
@@ -341,6 +355,46 @@ class Mapper:
     def is_override(self, table: str, key: str) -> bool:
         """True if ``key`` in ``table`` is a user override (vs a built-in default)."""
         return key.lower() in self.overrides.get(table, {})
+
+    # -- Exclude overrides (VB Settings "Excluded Items" / LvMapExcludes) --- #
+    def _exclude_table(self, kind: str) -> dict[str, bool]:
+        return {"files": self.exclude_files, "folders": self.exclude_folders}[kind]
+
+    def apply_exclude_overrides(self, excludes: dict[str, list[str]]) -> None:
+        """Add user exclude entries (``{"files": [...], "folders": [...]}``)."""
+        for kind in self._EXCLUDE_KINDS:
+            for name in excludes.get(kind) or []:
+                if not isinstance(name, str) or not name:
+                    continue
+                low = name.lower()
+                self._exclude_table(kind)[low] = True
+                if low not in self.exclude_overrides[kind]:
+                    self.exclude_overrides[kind].append(low)
+
+    def add_exclude(self, kind: str, name: str) -> None:
+        """Add a single user exclude entry (file name or folder name)."""
+        if kind not in self._EXCLUDE_KINDS:
+            raise ValueError(f"unknown exclude kind: {kind}")
+        self.apply_exclude_overrides({kind: [name]})
+
+    def remove_exclude(self, kind: str, name: str) -> bool:
+        """Remove a *user-added* exclude entry (defaults are not removable)."""
+        if kind not in self._EXCLUDE_KINDS:
+            raise ValueError(f"unknown exclude kind: {kind}")
+        low = name.lower()
+        if low not in self.exclude_overrides[kind]:
+            return False
+        self.exclude_overrides[kind].remove(low)
+        self._reapply()
+        return True
+
+    def is_exclude_override(self, kind: str, name: str) -> bool:
+        """True if ``name`` is a user-added exclude (vs a built-in default)."""
+        return name.lower() in self.exclude_overrides.get(kind, [])
+
+    def export_exclude_overrides(self) -> dict[str, list[str]]:
+        """The current user exclude additions as a JSON-serialisable dict."""
+        return {k: list(v) for k, v in self.exclude_overrides.items() if v}
 
     def _apply_ee(self) -> None:
         """EE reclassifies .gui/.shd as ovr for NwnExtensions (DefineEeFolders)."""

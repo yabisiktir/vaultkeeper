@@ -62,6 +62,9 @@ class Settings:
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default
     #: tables (VB My.Settings map customisations); empty = pure v21 defaults.
     map_overrides: dict[str, dict[str, str]] = field(default_factory=dict)
+    #: User exclude additions ``{"files": [...], "folders": [...]}`` the installer
+    #: scan skips (VB Settings "Excluded Items"); empty = default excludes only.
+    map_exclude_overrides: dict[str, list[str]] = field(default_factory=dict)
 
     #: Keys present in the file that this version doesn't model, kept for round-trip.
     _extra: dict[str, Any] = field(default_factory=dict, repr=False)

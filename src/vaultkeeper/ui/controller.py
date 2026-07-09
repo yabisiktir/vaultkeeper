@@ -64,10 +64,15 @@ class ProfileController:
         store_path: Path | None = None,
         is_ee: bool = True,
         map_overrides: dict[str, dict[str, str]] | None = None,
+        map_exclude_overrides: dict[str, list[str]] | None = None,
         settings_path: Path | None = None,
     ) -> ProfileController:
         """Load a profile from ``store_path`` (or scan from disk if absent), wire it up."""
-        mapper = Mapper(is_ee=is_ee, overrides=map_overrides)
+        mapper = Mapper(
+            is_ee=is_ee,
+            overrides=map_overrides,
+            exclude_overrides=map_exclude_overrides,
+        )
         game_folders = mapper.nwn_folder_paths(game_root)
         game_user_dir = user_documents_dir(HostOS.current())
 
@@ -1904,7 +1909,42 @@ class ProfileController:
 
         settings = load_settings(self._settings_path)
         settings.map_overrides = self.ctx.mapper.export_overrides()
+        settings.map_exclude_overrides = self.ctx.mapper.export_exclude_overrides()
         save_settings(settings, self._settings_path)
+
+    def map_excludes_report(self) -> dict:
+        """The Mapper's exclude lists, flagging user additions (VB "Excluded Items").
+
+        ``files`` and ``folders`` are ``[{"name", "override"}, ...]`` — the file
+        names / folder names the installer scan skips (``is_excluded_file`` /
+        ``is_excluded_folder``); ``override`` marks a user addition (removable).
+        """
+        mapper = self.ctx.mapper
+        files = [
+            {"name": name, "override": mapper.is_exclude_override("files", name)}
+            for name in sorted(mapper.exclude_files)
+        ]
+        folders = [
+            {"name": name, "override": mapper.is_exclude_override("folders", name)}
+            for name in sorted(mapper.exclude_folders)
+        ]
+        return {
+            "files": files,
+            "folders": folders,
+            "summary": f"Excluded files: {len(files)}. Excluded folders: {len(folders)}.",
+        }
+
+    def add_map_exclude(self, kind: str, name: str) -> None:
+        """Add a user exclude (``kind`` = ``"files"``/``"folders"``) and persist."""
+        self.ctx.mapper.add_exclude(kind, name)
+        self._persist_map_overrides()
+
+    def remove_map_exclude(self, kind: str, name: str) -> bool:
+        """Remove a user-added exclude and persist. Defaults are not removable."""
+        removed = self.ctx.mapper.remove_exclude(kind, name)
+        if removed:
+            self._persist_map_overrides()
+        return removed
 
     def set_map_extension(self, extension: str, folder: str) -> None:
         """Override an extension's default install folder and persist it."""

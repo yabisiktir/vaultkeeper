@@ -125,3 +125,72 @@ def test_controller_remove_and_reset(tmp_path: Path) -> None:
     controller.set_map_extension(".abc", "hak")
     controller.reset_map_overrides()
     assert load_settings(tmp_path / "settings.json").map_overrides == {}
+
+
+# -- Exclude overrides (VB "Excluded Items") ------------------------------- #
+
+
+def test_exclude_file_override_skips_in_mapper() -> None:
+    mapper = Mapper()
+    assert mapper.is_excluded_file("mymod_broken.hak") is False
+    mapper.add_exclude("files", "mymod_broken.hak")
+    assert mapper.is_excluded_file("mymod_broken.hak") is True
+    assert mapper.is_exclude_override("files", "MYMOD_BROKEN.HAK")
+
+
+def test_exclude_folder_override() -> None:
+    mapper = Mapper()
+    mapper.add_exclude("folders", "junkstuff")
+    assert mapper.is_excluded_folder("junkstuff") is True
+    assert mapper.remove_exclude("folders", "junkstuff") is True
+    assert mapper.is_excluded_folder("junkstuff") is False
+
+
+def test_exclude_default_not_removable() -> None:
+    mapper = Mapper()
+    # __macosx is a default excluded folder, not a user override.
+    assert mapper.is_excluded_folder("__macosx") is True
+    assert mapper.remove_exclude("folders", "__macosx") is False
+
+
+def test_reset_clears_excludes_and_maps_together() -> None:
+    mapper = Mapper()
+    mapper.set_override("ext_mapping", ".txt", "override")
+    mapper.add_exclude("files", "bad.hak")
+    mapper.reset_overrides()
+    assert mapper.get_mapped_folder("a.txt") == ""
+    assert mapper.is_excluded_file("bad.hak") is False
+    assert mapper.export_exclude_overrides() == {}
+
+
+def test_map_and_exclude_overrides_survive_each_others_removal() -> None:
+    mapper = Mapper()
+    mapper.set_override("ext_mapping", ".txt", "override")
+    mapper.add_exclude("files", "bad.hak")
+    # Removing the map override must not wipe the exclude (shared _reapply).
+    mapper.remove_override("ext_mapping", ".txt")
+    assert mapper.is_excluded_file("bad.hak") is True
+
+
+def test_controller_exclude_persist_and_reload(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    controller.add_map_exclude("files", "mymod_broken.hak")
+    assert controller.ctx.mapper.is_excluded_file("mymod_broken.hak")
+    saved = load_settings(tmp_path / "settings.json").map_exclude_overrides
+    assert saved == {"files": ["mymod_broken.hak"]}
+    reloaded = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "Profiles" / "P",
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        map_exclude_overrides=saved,
+    )
+    assert reloaded.ctx.mapper.is_excluded_file("mymod_broken.hak")
+
+
+def test_controller_excludes_report_flags_override(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    controller.add_map_exclude("folders", "junk")
+    report = controller.map_excludes_report()
+    folders = {f["name"]: f for f in report["folders"]}
+    assert folders["junk"]["override"] is True
+    assert folders["__macosx"]["override"] is False

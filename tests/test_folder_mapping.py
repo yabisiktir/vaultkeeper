@@ -150,3 +150,28 @@ def test_dialog_remove_enabled_only_for_overrides(tmp_path, qtbot) -> None:
 
     dialog._on_remove()
     assert not controller.ctx.mapper.is_override("exception_files", "mine.hak")
+
+
+def test_dialog_excludes_tab_add_and_remove(tmp_path, qtbot) -> None:
+    controller = _controller(tmp_path)
+    controller._settings_path = tmp_path / "settings.json"
+    dialog = FolderMapping(controller, start_tab="Map Excludes")
+    qtbot.addWidget(dialog)
+    assert dialog.tabs.currentIndex() == TAB_INDEX["Map Excludes"]
+
+    dialog._key_edit.setText("mymod_bad.hak")
+    dialog._folder_combo.setCurrentText("File")
+    dialog._on_add()
+    assert controller.ctx.mapper.is_excluded_file("mymod_bad.hak")
+
+    rows = {
+        dialog.excludes.topLevelItem(i).text(0): dialog.excludes.topLevelItem(i)
+        for i in range(dialog.excludes.topLevelItemCount())
+    }
+    assert "mymod_bad.hak" in rows
+    item = rows["mymod_bad.hak"]
+    assert item.data(0, Qt.ItemDataRole.UserRole)[1] is True  # override → removable
+    dialog.excludes.setCurrentItem(item)
+    assert dialog._remove_button.isEnabled()
+    dialog._on_remove()
+    assert not controller.ctx.mapper.is_excluded_file("mymod_bad.hak")

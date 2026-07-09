@@ -43,6 +43,7 @@ def bootstrap_controller(
         store_path=store.data / f"{profile}.json",
         is_ee=True,
         map_overrides=settings.map_overrides or None,
+        map_exclude_overrides=settings.map_exclude_overrides or None,
         settings_path=store.settings_file,
     )
 
