@@ -551,9 +551,22 @@ class MainWindow(QMainWindow):
         if self.controller is None or not names:
             self.nit_status.set_info("Select a mod first.")
             return
-        made = sum(1 for n in names if self.controller.create_installer(n))
+        copied = 0
+        built = 0
+        last_message = ""
+        for name in names:
+            result = self.controller.build_installer_payload(name)
+            if result["ok"]:
+                built += 1
+                copied += result["copied"]
+            last_message = result["message"]
         self.refresh()
-        self.nit_status.set_info(f"Created installer for {made} mod(s).")
+        if len(names) == 1:
+            self.nit_status.set_info(last_message)
+        else:
+            self.nit_status.set_info(
+                f"Built installer for {built} mod(s); {copied} file(s) copied."
+            )
 
     def _on_create_restorer(self) -> None:
         names = self.selected_mod_names()

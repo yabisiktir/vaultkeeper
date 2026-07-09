@@ -371,6 +371,40 @@ class Mapper:
     def is_excluded_folder(self, folder_name: str) -> bool:
         return folder_name.lower() in self.exclude_folders
 
+    def is_excluded_erf_folder(self, folder_name: str) -> bool:
+        """True if a whole ``erf`` folder is excluded from installer creation.
+
+        VB ``Map.IsExcludedErfFolder``: the folder is literally named ``erf``,
+        ``MapExcludeErf`` is on, and ``erf`` is a mapped directory. When true, the
+        Scan step skips *every* file directly inside that folder.
+        """
+        return (
+            folder_name.lower() == FOLDER_ERF
+            and self.exclude_erf
+            and FOLDER_ERF in self.dir_mapping
+        )
+
+    def contains_excluded_folder(self, full_path: str) -> bool:
+        """True if any component of ``full_path`` is an excluded folder.
+
+        Faithful to VB ``ContainsExcludedFolder``.
+
+        VB substring-matches each excluded name against the whole path; we scope
+        the match to individual path components so a controlled temp/extract root
+        (whose name might incidentally contain an excluded word) cannot produce a
+        false positive. The special ``nitconfig`` case (VB excludes it inside the
+        extracted-zips area) is folded in — ``nitconfig`` folders hold only
+        identifier metadata and are never a copy source.
+        """
+        components = [c for c in full_path.replace("\\", "/").split("/") if c]
+        for component in components:
+            low = component.lower()
+            if low == C.MOD_NIT_DIR.lower():
+                return True
+            if any(excluded in low for excluded in self.exclude_folders):
+                return True
+        return False
+
     def is_excluded_file(self, filename: str) -> bool:
         low = filename.lower()
         if any(low == e.lower() for e in self.map_exclude_exceptions):

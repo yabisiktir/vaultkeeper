@@ -448,6 +448,81 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
+    def build_installer_payload(self, mod_name: str) -> dict:
+        """Populate a mod's ``.Mod Installer`` payload from its raw/downloaded files.
+
+        The faithful heart of VB Create Installer (``CreateInstaller``): scan the mod
+        folder, extract any downloaded archives (via the injected extractor seam),
+        analyse every file through the Mapper into the ``CopyList``, then copy each
+        winning file into ``.Mod Installer/<folder>/<filename>``. Afterwards the mod
+        is (re)marked an installer, its file list rescanned and states recomputed,
+        and the profile persisted — mirroring :meth:`add_files_to_mod`.
+
+        Bounded (see ``game/installer_build``): BIK→WBM conversion, the
+        ``nwnpatch.ini`` patch-hak reassignment and the wizard select-one/many modal
+        flow are deferred. Returns ``{"ok", "copied", "excluded", "archives",
+        "message"}``.
+        """
+        import tempfile
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+        from vaultkeeper.game.installer_build import build_copy_plan
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {
+                "ok": False,
+                "copied": 0,
+                "excluded": 0,
+                "archives": 0,
+                "message": f"Unknown mod: {mod_name}",
+            }
+
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        installer = mod_folder / C.MOD_INSTALLER_DIR
+        installer.mkdir(parents=True, exist_ok=True)
+
+        # Extract archives into a temp area that survives until the copy is done.
+        with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
+            plan = build_copy_plan(
+                mod_name,
+                mod_folder,
+                mapper=self.ctx.mapper,
+                extractor=self._archive_backend(),
+                extract_root=Path(extract_dir),
+            )
+            copied = 0
+            for item in plan.items:
+                dest = installer / item.folder / item.filename
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    fs.copy_file(item.source, dest, overwrite=True)
+                    copied += 1
+                except OSError:
+                    continue
+
+        # Mark as an installer; _create_identifier rescans the payload, recomputes
+        # file/mod states and persists (like add_files_to_mod's tail).
+        self._create_identifier(mod_name, C.EXT_INSTALLER)
+
+        return {
+            "ok": True,
+            "copied": copied,
+            "excluded": len(plan.excluded),
+            "archives": plan.archives_extracted,
+            "message": (
+                f"Built installer for {mod_name}: {copied} file(s) copied"
+                + (
+                    f", {plan.archives_extracted} archive(s) extracted"
+                    if plan.archives_extracted
+                    else ""
+                )
+                + (f", {len(plan.excluded)} excluded" if plan.excluded else "")
+                + "."
+            ),
+        }
+
     def _create_identifier(self, mod_name: str, extension: str) -> bool:
         from vaultkeeper.core import constants as C
 
