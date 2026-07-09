@@ -69,6 +69,46 @@ def switch_profile(
     return bootstrap_controller(settings)
 
 
+def list_legacy_profiles(legacy_store_root: str | Path) -> list[str]:
+    """Profile names found in a legacy NIT Store (its ``Data\\`` subfolders)."""
+    from vaultkeeper.persistence.nrbf.migrate import list_profiles as _legacy_profiles
+
+    return _legacy_profiles(Path(legacy_store_root))
+
+
+def import_legacy_profile(
+    legacy_store_root: str | Path,
+    profile_name: str,
+    *,
+    settings: Settings | None = None,
+    settings_path: Path | None = None,
+    make_active: bool = False,
+) -> Path:
+    """Migrate a legacy NIT Store profile into the native store; return its JSON path.
+
+    Reads the legacy profile's ModData (NRBF) into a native ``ProfileData`` and writes
+    it to the native store's ``Data/<profile>.json``, creating the profile's mods
+    directory. The file/install tables rebuild from disk when the profile is opened.
+    When ``make_active`` is set, the profile is recorded as active in settings.
+    """
+    from vaultkeeper.persistence.nrbf.migrate import migrate_profile
+    from vaultkeeper.persistence.profile_store import save_profile
+
+    settings = settings or load_settings(settings_path)
+    store = settings.resolved_store()
+    store.ensure()
+    store.profile_dir(profile_name).mkdir(parents=True, exist_ok=True)
+
+    pd = migrate_profile(Path(legacy_store_root), profile_name)
+    target = store.data / f"{profile_name}.json"
+    save_profile(pd, target)
+
+    if make_active:
+        settings.active_profile = profile_name
+        save_settings(settings, settings_path)
+    return target
+
+
 def configure_profile(
     nwn_path: str,
     profile_name: str,
