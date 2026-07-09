@@ -463,12 +463,21 @@ class MainWindow(QMainWindow):
             "MsBasicSettings": self._on_settings,
             "RbnAdvancedSettings": self._on_settings,
             "RbnBasicSettings": self._on_settings,
-            # View-menu file viewers.
+            # View-menu file viewers (+ Diagnose-ribbon Rbn* variants share handlers).
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
+            "RbnNitLog": lambda: self._on_view_file("MsLogFile"),
             "MsNwnClientLogFile": lambda: self._on_view_file("MsNwnClientLogFile"),
+            "RbnNwnLog": lambda: self._on_view_file("MsNwnClientLogFile"),
             "MsNwnEngineLogFile": lambda: self._on_view_file("MsNwnEngineLogFile"),
+            "RbnNwnEngineLog": lambda: self._on_view_file("MsNwnEngineLogFile"),
             "MsNWNIniFile": lambda: self._on_view_file("MsNWNIniFile"),
+            "RbnNwnIni": lambda: self._on_view_file("MsNWNIniFile"),
             "MsNwnSettingsFile": lambda: self._on_view_file("MsNwnSettingsFile"),
+            "RbnNwnSettingsFile": lambda: self._on_view_file("MsNwnSettingsFile"),
+            "MsNWNPlayerIniFile": lambda: self._on_view_file("MsNWNPlayerIniFile"),
+            "MsNwnPatchIniFile": lambda: self._on_view_file("MsNwnPatchIniFile"),
+            "MsNwnConfigIniFile": lambda: self._on_view_file("MsNwnConfigIniFile"),
+            "MsNwnToolsetIniFile": lambda: self._on_view_file("MsNwnToolsetIniFile"),
             # View / selection.
             "MsSelectAll": self._on_select_all,
             "TsSelectAll": self._on_select_all,
@@ -836,6 +845,18 @@ class MainWindow(QMainWindow):
             ),
             "MsNwnSettingsFile": (
                 self.controller.game_file_path("settings.tml"), "NWN Settings File"
+            ),
+            "MsNWNPlayerIniFile": (
+                self.controller.game_file_path("nwnplayer.ini"), "NWN Player Ini File"
+            ),
+            "MsNwnPatchIniFile": (
+                self.controller.game_file_path("nwnpatch.ini"), "NWN Patch Ini File"
+            ),
+            "MsNwnConfigIniFile": (
+                self.controller.game_file_path("nwconfig.ini"), "NWN Config Ini File"
+            ),
+            "MsNwnToolsetIniFile": (
+                self.controller.game_file_path("nwtoolset.ini"), "NWN Toolset Ini File"
             ),
         }
         path, title = specs.get(kind, (None, "File"))
