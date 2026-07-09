@@ -415,6 +415,8 @@ class MainWindow(QMainWindow):
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
+            "MsExtractPortraits": self._on_extract_portraits,
+            "MsClearHakPortraits": self._on_clear_hak_portraits,
             # Characters.
             "MsCharacterExplorer": self._on_characters,
             "RbnCharacterExplorer": self._on_characters,
@@ -599,6 +601,22 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             self.refresh()
             self.nit_status.set_info("Missing installers processed.")
+
+    def _on_extract_portraits(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        total = sum(
+            self.controller.extract_mod_hak_portraits(n)["count"] for n in names
+        )
+        self.refresh()
+        self.nit_status.set_info(f"Extracted {total} portrait(s) from hak files.")
+
+    def _on_clear_hak_portraits(self) -> None:
+        if self.controller is None:
+            return
+        self.nit_status.set_info(self.controller.clear_hak_portraits()["message"])
 
     def _on_validate_movie_files(self) -> None:
         if self.controller is None:

@@ -1283,6 +1283,10 @@ class ProfileController:
                     found.extend(scan_character_files(save_dir))
         return found
 
+    def hak_portraits_root(self) -> Path:
+        """NIT's folder for portraits extracted from haks (VB ``Paths.HakPortraits``)."""
+        return self.data_dir().parent / "Backups" / "Portraits Extracted from Hak Files"
+
     def portrait_search_dirs(self) -> list[Path]:
         """NWN portrait search folders in priority order (VB PortraitDirectories)."""
         user = self.ctx.game_user_dir
@@ -1292,7 +1296,73 @@ class ProfileController:
                 dirs.append(user / "ovr")
             dirs.append(user / "override")
             dirs.append(user / "portraits")
+        # Portraits extracted from haks (one subfolder per hak) are also searched.
+        root = self.hak_portraits_root()
+        if root.is_dir():
+            dirs.extend(sorted(p for p in root.iterdir() if p.is_dir()))
         return dirs
+
+    def extract_hak_portraits(self, hak_path: Path) -> dict:
+        """Extract complete portrait sets from a hak into NIT's store (VB ExtractHakPortraits).
+
+        Uses the native ERF reader (no external ERF utility). Extracted portraits
+        land in ``<HakPortraits>/<hakname>`` and become searchable by the Portrait
+        Manager. Returns ``{"count", "message"}``; a hak with no portraits leaves no
+        folder behind.
+        """
+        from vaultkeeper.core.formats.erf_reader import ErfReader
+        from vaultkeeper.game.character import extract_hak_portraits
+
+        hak_path = Path(hak_path)
+        dest = self.hak_portraits_root() / hak_path.name
+        count = extract_hak_portraits(hak_path, dest, erf_reader=ErfReader())
+        if count == 0:
+            import shutil
+
+            shutil.rmtree(dest, ignore_errors=True)
+            return {
+                "count": 0,
+                "message": f"{hak_path.name} contains no portrait files.",
+            }
+        return {
+            "count": count,
+            "message": f"Extracted {count} portrait(s) from {hak_path.name}.",
+        }
+
+    def extract_mod_hak_portraits(self, mod_name: str) -> dict:
+        """Extract portraits from every hak in a mod's installer (Portrait Manager helper).
+
+        Convenience over :meth:`extract_hak_portraits`: the VB command runs per
+        selected hak file; here we sweep the selected mod's installer ``hak`` folder.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"count": 0, "message": f"Unknown mod: {mod_name}"}
+        hak_dir = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / "hak"
+        total = 0
+        for hak in sorted(hak_dir.glob("*.hak")) if hak_dir.is_dir() else []:
+            total += self.extract_hak_portraits(hak)["count"]
+        return {
+            "count": total,
+            "message": f"Extracted {total} portrait(s) from {mod_name}'s haks.",
+        }
+
+    def clear_hak_portraits(self) -> dict:
+        """Delete all hak-extracted portraits (VB MsClearHakPortraits)."""
+        import shutil
+
+        root = self.hak_portraits_root()
+        existed = root.is_dir()
+        if existed:
+            shutil.rmtree(root, ignore_errors=True)
+        return {
+            "cleared": existed,
+            "message": "Cleared extracted hak portraits."
+            if existed
+            else "No extracted hak portraits to clear.",
+        }
 
     def portrait_path(self, resref: str, *, extra_dirs=()) -> Path | None:
         """Resolve a character's portrait TGA (``extra_dirs`` searched first)."""
