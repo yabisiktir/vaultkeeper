@@ -300,6 +300,20 @@ def test_dialog_downloads_checkable_and_copy_button(qtbot, tmp_path):
     assert not dlg.copy_button.isEnabled()
 
 
+def test_dialog_version_toggle_strips_version(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide_v2.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+    assert dlg.downloads.topLevelItem(0).text(0) == "Alpha Guide V2.pdf"
+
+    dlg.version_check.setChecked(True)  # VB CmVersion toggle
+    assert dlg.downloads.topLevelItem(0).text(0) == "Alpha Guide.pdf"
+
+
 def test_dialog_matched_download_is_disabled(qtbot, tmp_path):
     controller = _controller(tmp_path, "Alpha")
     root = tmp_path / "Profiles" / "P"

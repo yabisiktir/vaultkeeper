@@ -20,6 +20,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -77,6 +78,13 @@ class DocOrganiser(QDialog):
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        # VB CmVersion/TsVersion toggle — strip version numbers from doc names.
+        self.version_check = QCheckBox("Remove version numbers")
+        self.version_check.setToolTip(
+            "Remove version numbers from document names when copying."
+        )
+        self.version_check.toggled.connect(self.refresh)
+        buttons.addWidget(self.version_check)
         buttons.addStretch(1)
         self.copy_button = QPushButton("Copy")
         self.copy_button.clicked.connect(self._on_copy)
@@ -109,7 +117,9 @@ class DocOrganiser(QDialog):
 
     def refresh(self) -> None:
         """(Re)build both document lists from disk."""
-        report = self._controller.doc_organiser_report(self._mod_names)
+        report = self._controller.doc_organiser_report(
+            self._mod_names, remove_version=self.version_check.isChecked()
+        )
         self.summary.setText(report["summary"])
         self._fill_contents(report["contents"])
         self._fill_downloads(report["downloads"])
