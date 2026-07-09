@@ -1,9 +1,11 @@
 """Tests for the Installer Wizard viewer (parser + controller report + dialog).
 
-Covers the bounded VB ``WizardBuilder``/``WizardInfo`` slice: parse a mod's
+Covers the VB ``WizardBuilder``/``WizardInfo`` slice: parse a mod's
 ``.Installer Wizard.nitwiz`` definition into title / extract-archives / SelectOne
 choices / SelectMany preferences / InstallerExcludes, expose it via the controller
-and render it. The authoring (Save/Delete/validate) action is deferred.
+and render it; plus the authoring core — serialise back (``ConvertToText``),
+Save/Delete, and Validate against the mod's real files (``ScanFiles``/``Validate``).
+The add/remove-between-lists editing UI and archive-inner validation are deferred.
 """
 
 from __future__ import annotations
@@ -18,10 +20,16 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
 from vaultkeeper.core import constants as C  # noqa: E402
+from vaultkeeper.core.mapper import Mapper  # noqa: E402
 from vaultkeeper.game.wizard import (  # noqa: E402
     WIZARD_FILE,
+    convert_to_text,
+    delete_wizard,
     load_wizard,
     parse_wizard_text,
+    save_wizard,
+    scan_mod_files,
+    validate,
 )
 from vaultkeeper.ui.controller import ProfileController  # noqa: E402
 from vaultkeeper.ui.dialogs.wizard_builder import WizardBuilder  # noqa: E402
@@ -159,3 +167,191 @@ def test_dialog_populates_lists(qtbot, tmp_path):
     assert "on" in dlg.preferences.topLevelItem(0).text(0)
     assert dlg.excludes.topLevelItemCount() == 1
     assert "Choices: 2" in dlg.summary.text()
+
+
+# -- Serialisation (VB ConvertToText) ------------------------------------- #
+
+
+def test_convert_to_text_round_trips():
+    info = parse_wizard_text(_WIZARD_TEXT, "Grand Mod")
+    reparsed = parse_wizard_text(convert_to_text(info), "Grand Mod")
+    assert reparsed.title == info.title
+    assert reparsed.extract_archives == info.extract_archives
+    assert reparsed.select_one == info.select_one
+    assert [(p.key, p.display, p.checked) for p in reparsed.select_many] == [
+        (p.key, p.display, p.checked) for p in info.select_many
+    ]
+    assert reparsed.installer_excludes == info.installer_excludes
+
+
+def test_convert_to_text_omits_single_select_one():
+    # VB writes SelectOne only when it has more than one entry.
+    info = parse_wizard_text("SelectOne\n\tonly.hak\nEnd SelectOne", "M")
+    assert "SelectOne" not in convert_to_text(info)
+
+
+def test_save_and_load_round_trip(tmp_path):
+    info = parse_wizard_text(_WIZARD_TEXT, "Grand Mod")
+    assert save_wizard(tmp_path, info) is True
+    assert (tmp_path / WIZARD_FILE).is_file()
+    loaded = load_wizard(tmp_path, "Grand Mod")
+    assert loaded is not None
+    assert loaded.select_one == info.select_one
+
+
+def test_delete_wizard(tmp_path):
+    (tmp_path / WIZARD_FILE).write_text(_WIZARD_TEXT, encoding="utf-8")
+    assert delete_wizard(tmp_path) is True
+    assert not (tmp_path / WIZARD_FILE).exists()
+    assert delete_wizard(tmp_path) is False  # already gone
+
+
+# -- Scan + validate (VB ScanFiles / Validate) ---------------------------- #
+
+
+def _scan(mod: Path):
+    mapper = Mapper()
+    return scan_mod_files(
+        mod,
+        is_installable=lambda p: mapper.get_mapped_folder(p, erf_check=True) != "",
+        is_excluded_folder=mapper.is_excluded_folder,
+    )
+
+
+def _touch(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"x")
+
+
+def test_scan_collects_installable_files_and_archives(tmp_path):
+    mod = tmp_path / "Mod"
+    _touch(mod / "hak" / "music.hak")  # installable -> "hak\\music.hak"
+    _touch(mod / "pack.7z")  # archive -> keyed by name
+    _touch(mod / C.PLAY_TIME_FILE)  # reserved -> skipped
+    _touch(mod / C.MOD_INSTALLER_DIR / "payload.hak")  # excluded folder -> skipped
+
+    scan = _scan(mod)
+    assert scan.suppressed is False
+    assert "hak\\music.hak" in scan.source_files
+    assert "pack.7z" in scan.source_files
+    assert [a.name for a in scan.archives] == ["pack.7z"]
+    assert C.PLAY_TIME_FILE not in scan.source_files
+    assert "payload.hak" not in scan.source_files
+
+
+def test_scan_duplicate_name_suppresses(tmp_path):
+    mod = tmp_path / "Mod"
+    _touch(mod / "hak" / "dup.hak")
+    _touch(mod / "override" / "dup.hak")  # same bare name in a different folder
+    scan = _scan(mod)
+    # get_mapped_folder maps both by extension; keyed by "<folder>\\dup.hak" so the
+    # keys differ -> no suppression. Duplicate *archive* names are what suppress.
+    assert scan.suppressed is False
+
+    mod2 = tmp_path / "Mod2"
+    _touch(mod2 / "a" / "pack.7z")
+    _touch(mod2 / "b" / "pack.7z")  # archives keyed by bare name -> collision
+    scan2 = _scan(mod2)
+    assert scan2.suppressed is True
+    assert scan2.duplicate == "pack.7z"
+
+
+def test_validate_prunes_missing_entries():
+    info = parse_wizard_text(
+        "SelectOne\n\thak\\here.hak > Here\n\thak\\gone.hak > Gone\nEnd SelectOne\n"
+        "InstallerExcludes\n\tmissing.txt\nEnd InstallerExcludes",
+        "M",
+    )
+    source = {"hak\\here.hak": 0}
+    removed = validate(info, source)
+    assert removed == 2  # gone.hak + missing.txt
+    assert list(info.select_one) == ["hak\\here.hak"]
+    assert info.installer_excludes == []
+
+
+# -- Controller authoring ops --------------------------------------------- #
+
+
+def test_controller_validate_wizard(tmp_path):
+    controller = _controller(tmp_path, "Grand Mod")
+    mod = tmp_path / "Profiles" / "P" / "Grand Mod"
+    _touch(mod / "hak" / "here.hak")  # real file
+    (mod / WIZARD_FILE).write_text(
+        "SelectOne\n\thak\\here.hak > Here\n\thak\\gone.hak > Gone\nEnd SelectOne",
+        encoding="utf-8",
+    )
+
+    result = controller.validate_wizard("Grand Mod")
+    assert result["ok"] is True
+    assert result["removed"] == 1  # gone.hak
+    assert result["saved"] is False  # in-memory by default
+    # Wizard file unchanged (still lists both) because save was not requested.
+    assert "gone.hak" in (mod / WIZARD_FILE).read_text()
+
+    saved = controller.validate_wizard("Grand Mod", save=True)
+    assert saved["removed"] == 1
+    assert saved["saved"] is True
+    assert "gone.hak" not in (mod / WIZARD_FILE).read_text()
+
+
+def test_controller_delete_wizard(tmp_path):
+    controller = _controller(tmp_path, "Grand Mod")
+    mod = tmp_path / "Profiles" / "P" / "Grand Mod"
+    (mod / WIZARD_FILE).write_text(_WIZARD_TEXT, encoding="utf-8")
+
+    result = controller.delete_wizard("Grand Mod")
+    assert result["ok"] is True
+    assert not (mod / WIZARD_FILE).exists()
+    assert controller.delete_wizard("Grand Mod")["ok"] is False
+
+
+def test_controller_validate_no_wizard(tmp_path):
+    controller = _controller(tmp_path, "Bare Mod")
+    result = controller.validate_wizard("Bare Mod")
+    assert result["ok"] is True
+    assert result["has_wizard"] is False
+
+
+# -- Dialog authoring buttons --------------------------------------------- #
+
+
+def test_dialog_validate_button(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Grand Mod")
+    mod = tmp_path / "Profiles" / "P" / "Grand Mod"
+    _touch(mod / "hak" / "here.hak")
+    (mod / WIZARD_FILE).write_text(
+        "SelectOne\n\thak\\here.hak > Here\n\thak\\gone.hak > Gone\nEnd SelectOne",
+        encoding="utf-8",
+    )
+    dlg = WizardBuilder.show_for(controller, "Grand Mod")
+    qtbot.addWidget(dlg)
+
+    assert dlg.validate_button.isEnabled()
+    assert dlg.delete_button.isEnabled()
+    dlg._on_validate()
+    assert "Removed 1" in dlg.summary.text()
+
+
+def test_dialog_buttons_disabled_without_wizard(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Bare Mod")
+    dlg = WizardBuilder.show_for(controller, "Bare Mod")
+    qtbot.addWidget(dlg)
+    assert not dlg.validate_button.isEnabled()
+    assert not dlg.delete_button.isEnabled()
+
+
+def test_dialog_delete_button(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path, "Grand Mod")
+    mod = tmp_path / "Profiles" / "P" / "Grand Mod"
+    (mod / WIZARD_FILE).write_text(_WIZARD_TEXT, encoding="utf-8")
+    dlg = WizardBuilder.show_for(controller, "Grand Mod")
+    qtbot.addWidget(dlg)
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    dlg._on_delete()
+    assert not (mod / WIZARD_FILE).exists()
+    assert not dlg.delete_button.isEnabled()  # refresh disabled it

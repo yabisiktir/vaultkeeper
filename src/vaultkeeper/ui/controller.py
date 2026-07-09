@@ -1240,6 +1240,88 @@ class ProfileController:
             ),
         }
 
+    def _scan_wizard_sources(self, mod_folder: Path):
+        """Scan a mod's real files for wizard validation (VB ``ScanFiles`` wiring)."""
+        from vaultkeeper.game.wizard import scan_mod_files
+
+        mapper = self.ctx.mapper
+        return scan_mod_files(
+            mod_folder,
+            is_installable=lambda p: mapper.get_mapped_folder(p, erf_check=True) != "",
+            is_excluded_folder=mapper.is_excluded_folder,
+        )
+
+    def validate_wizard(self, mod_name: str, *, save: bool = False) -> dict:
+        """Prune a wizard's dead entries against the mod's real files (VB ``Validate``).
+
+        Loads the mod's wizard, scans its actual files, and removes SelectOne /
+        SelectMany / InstallerExcludes entries that no longer point at a real file.
+        By default this is in-memory only (VB ``Validate``); pass ``save=True`` to
+        persist the cleaned wizard. If a duplicate file/archive name is found the scan
+        is suppressed (VB ``SuppressWizardCreation``) and nothing is pruned. Returns
+        ``{ok, has_wizard, removed, saved, suppressed, duplicate, message}``.
+
+        Archives are listed but not extracted, so entries referencing files *inside*
+        an archive are treated as missing — see the module note (deferred).
+        """
+        from vaultkeeper.game.wizard import load_wizard, save_wizard, validate
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return _wizard_op_result(False, message=f"Unknown mod: {mod_name}")
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        info = load_wizard(mod_folder, mod_name)
+        if info is None:
+            return _wizard_op_result(
+                True,
+                has_wizard=False,
+                message=f"No installer wizard defined for {mod_name}.",
+            )
+
+        scan = self._scan_wizard_sources(mod_folder)
+        if scan.suppressed:
+            return _wizard_op_result(
+                False,
+                has_wizard=True,
+                suppressed=True,
+                duplicate=scan.duplicate,
+                message=(
+                    f"Duplicate file detected: {scan.duplicate}. "
+                    "Resolve it before validating the wizard."
+                ),
+            )
+
+        removed = validate(info, scan.source_files)
+        saved = save_wizard(mod_folder, info) if (save and removed) else False
+        return _wizard_op_result(
+            True,
+            has_wizard=True,
+            removed=removed,
+            saved=saved,
+            message=_wizard_validate_message(removed, saved),
+        )
+
+    def delete_wizard(self, mod_name: str, *, to_trash: bool = False) -> dict:
+        """Delete a mod's installer wizard file (VB ``Delete``).
+
+        Pass ``to_trash=True`` to honour the recycle-bin preference (the window holds
+        the ``recycle_on_delete`` setting; VB uses ``ui.Recycle``). Returns
+        ``{ok, message}``.
+        """
+        from vaultkeeper.game.wizard import delete_wizard
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"Unknown mod: {mod_name}"}
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        removed = delete_wizard(mod_folder, to_trash=to_trash)
+        if removed:
+            return {"ok": True, "message": f"Deleted the installer wizard for {mod_name}."}
+        return {
+            "ok": False,
+            "message": f"No installer wizard to delete for {mod_name}.",
+        }
+
     def locations_report(self) -> dict:
         """The resolved file locations for this profile/install (VB Settings Locations).
 
@@ -1405,6 +1487,37 @@ def _doc_copy_summary(copied: int, errors: int) -> str:
     if errors == 0:
         return f"Documents copied: {copied_text}."
     return f"Documents copied: {copied_text}. Errors: {errors:,}."
+
+
+def _wizard_op_result(
+    ok: bool,
+    *,
+    has_wizard: bool = False,
+    removed: int = 0,
+    saved: bool = False,
+    suppressed: bool = False,
+    duplicate: str = "",
+    message: str = "",
+) -> dict:
+    """Assemble a wizard authoring-op result dict (validate/delete)."""
+    return {
+        "ok": ok,
+        "has_wizard": has_wizard,
+        "removed": removed,
+        "saved": saved,
+        "suppressed": suppressed,
+        "duplicate": duplicate,
+        "message": message,
+    }
+
+
+def _wizard_validate_message(removed: int, saved: bool) -> str:
+    """Status line after validating a wizard (VB ``Validate`` outcome)."""
+    if removed == 0:
+        return "All installer wizard entries point to existing files."
+    entries = "entry" if removed == 1 else "entries"
+    tail = " Saved." if saved else ""
+    return f"Removed {removed:,} wizard {entries} with no matching file.{tail}"
 
 
 def _wizard_summary(choices: int, preferences: int, excludes: int) -> str:

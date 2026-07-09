@@ -5,9 +5,10 @@ mutually-exclusive **Choices** (SelectOne), the optional **Preferences** (Select
 with default checked state) and the files **excluded** from the installer. Built on
 ``ProfileController.wizard_report``.
 
-Read-only. The VB form is a full authoring tool (add/remove files between the mod's
-contents and each list, edit display names, Save/Delete the wizard, validate against
-the real files/archives); that editing surface is deferred — see the handoff. Window
+Shows the wizard and exposes two of the VB authoring actions: **Validate** (VB
+``Validate`` — report how many entries no longer point at a real mod file) and
+**Delete** (VB ``Delete`` — remove the wizard file). The add/remove-between-lists
+editing surface and Save-from-edits are still deferred — see the handoff. Window
 title, heading and column captions come from ``WizardBuilder.Designer.vb``.
 """
 
@@ -19,6 +20,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QMessageBox,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -62,8 +64,14 @@ class WizardBuilder(QDialog):
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
+        self.validate_button = QPushButton("Validate")
+        self.validate_button.clicked.connect(self._on_validate)
+        self.delete_button = QPushButton("Delete")
+        self.delete_button.clicked.connect(self._on_delete)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
+        buttons.addWidget(self.validate_button)
+        buttons.addWidget(self.delete_button)
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
@@ -98,6 +106,28 @@ class WizardBuilder(QDialog):
         self.excludes.clear()
         for name in report["excludes"]:
             self.excludes.addTopLevelItem(QTreeWidgetItem([name, name]))
+
+        has_wizard = report["has_wizard"]
+        self.validate_button.setEnabled(has_wizard)
+        self.delete_button.setEnabled(has_wizard)
+
+    def _on_validate(self) -> None:
+        """Report how many wizard entries no longer match a real file (VB Validate)."""
+        result = self._controller.validate_wizard(self._mod_name)
+        self.summary.setText(result["message"])
+
+    def _on_delete(self) -> None:
+        """Delete the wizard file after confirmation (VB Delete)."""
+        confirm = QMessageBox.question(
+            self,
+            "Delete Installer Wizard",
+            f"Delete the installer wizard for {self._mod_name}?",
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        result = self._controller.delete_wizard(self._mod_name)
+        self.refresh()
+        self.summary.setText(result["message"])
 
     @classmethod
     def show_for(
