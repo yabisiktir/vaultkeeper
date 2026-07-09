@@ -158,8 +158,8 @@ def test_report_empty_when_no_docs(tmp_path):
 def test_dialog_populates_both_panes(qtbot, tmp_path):
     controller = _controller(tmp_path, "Alpha")
     root = tmp_path / "Profiles" / "P"
-    _write(root / "Alpha" / "ReadMe.txt")
-    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf")
+    _write(root / "Alpha" / "ReadMe.txt", b"contents")
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"downloads")
     controller._extractor = FakeArchiveExtractor()
 
     dlg = DocOrganiser.show_for(controller, ["Alpha"])
@@ -168,5 +168,151 @@ def test_dialog_populates_both_panes(qtbot, tmp_path):
     assert dlg.contents.topLevelItemCount() == 1
     assert dlg.contents.topLevelItem(0).text(0) == "ReadMe.txt"
     assert dlg.downloads.topLevelItemCount() == 1
-    assert dlg.downloads.topLevelItem(0).text(0) == "guide.pdf"
+    # The Downloads pane shows the qualified DocName (VB LvDocs), not the raw name.
+    assert dlg.downloads.topLevelItem(0).text(0) == "Alpha Guide.pdf"
     assert "Downloaded documents detected: 1" in dlg.summary.text()
+
+
+# -- DocInfo naming (VB DocInfo) ------------------------------------------ #
+
+
+def _dl(entries, name):
+    return next(e for e in entries if e.file_name == name)
+
+
+def test_docname_qualifies_and_title_cases_loose_file(tmp_path):
+    mod = tmp_path / "Cool Mod"
+    _write(mod / C.DOWNLOADS_DIR / "readme_notes.txt")
+    entries = scan_mod_docs("Cool Mod", mod)
+    # Qualifier = mod name; stem title-cased ("_"→space); extension re-added.
+    assert _dl(entries, "readme_notes.txt").doc_name == "Cool Mod Readme Notes.txt"
+
+
+def test_docname_version_toggle(tmp_path):
+    mod = tmp_path / "Mod"
+    _write(mod / C.DOWNLOADS_DIR / "guide_v2.txt")
+
+    keep = _dl(scan_mod_docs("Mod", mod, remove_version=False), "guide_v2.txt")
+    assert keep.doc_name == "Mod Guide V2.txt"
+
+    strip = _dl(scan_mod_docs("Mod", mod, remove_version=True), "guide_v2.txt")
+    assert strip.doc_name == "Mod Guide.txt"
+
+
+# -- CRC dedup + numbering (VB ProcessDocs) ------------------------------- #
+
+
+def test_crc_match_marks_download_as_present(tmp_path):
+    mod = tmp_path / "Mod"
+    _write(mod / "ReadMe.txt", b"same-bytes")  # Contents
+    _write(mod / C.DOWNLOADS_DIR / "readme.txt", b"same-bytes")  # identical CRC
+
+    entries = scan_mod_docs("Mod", mod)
+    dl = _dl(entries, "readme.txt")
+    assert dl.copy is False  # already present -> not copied
+    assert dl.name_match  # linked to the Contents match
+    assert dl.doc_name == "ReadMe.txt"  # adopts the existing doc's name
+    ct = _dl(entries, "ReadMe.txt")
+    assert ct.name_match  # Contents doc linked back
+
+
+def test_duplicate_docnames_are_numbered(tmp_path):
+    mod = tmp_path / "Mod"
+    # Two distinct docs that qualify to the same DocName ("Mod Readme.txt").
+    _write(mod / C.DOWNLOADS_DIR / "a" / "readme.txt", b"one")
+    _write(mod / C.DOWNLOADS_DIR / "b" / "readme.txt", b"two")
+
+    entries = scan_mod_docs("Mod", mod)
+    names = sorted(e.doc_name for e in entries if e.source == "Downloads")
+    assert names == ["Mod Readme 1.txt", "Mod Readme 2.txt"]
+
+
+# -- Copy action (VB BtCopy_Click) ---------------------------------------- #
+
+
+def test_copy_docs_lands_under_docname_in_mod_root(tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+
+    report = controller.doc_organiser_report(["Alpha"])
+    row = report["downloads"][0]
+    result = controller.copy_docs_to_mod(
+        "Alpha", [{"source": row["source_path"], "doc_name": row["doc_name"]}]
+    )
+    assert result["copied"] == 1
+    assert result["errors"] == 0
+    # Copied into the mod ROOT (not .Mod Installer) under the qualified name.
+    landed = root / "Alpha" / "Alpha Guide.pdf"
+    assert landed.is_file()
+    assert landed.read_bytes() == b"pdf"
+
+
+def test_copy_docs_overwrites_and_errors_on_missing_source(tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"new")
+    _write(root / "Alpha" / "Alpha Guide.pdf", b"old")  # pre-existing target
+    controller._extractor = FakeArchiveExtractor()
+
+    report = controller.doc_organiser_report(["Alpha"])
+    src = report["downloads"][0]["source_path"]
+    result = controller.copy_docs_to_mod(
+        "Alpha",
+        [
+            {"source": src, "doc_name": "Alpha Guide.pdf"},  # overwrites
+            {"source": str(tmp_path / "gone.txt"), "doc_name": "x.txt"},  # missing
+        ],
+    )
+    assert result["copied"] == 1
+    assert result["errors"] == 1
+    assert (root / "Alpha" / "Alpha Guide.pdf").read_bytes() == b"new"
+
+
+# -- Dialog copy behaviour ------------------------------------------------ #
+
+
+def test_dialog_downloads_checkable_and_copy_button(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtCore import Qt
+
+    item = dlg.downloads.topLevelItem(0)
+    assert item.checkState(0) == Qt.CheckState.Checked  # default = copy
+    assert dlg.copy_button.isEnabled()
+
+    dlg._on_copy()
+
+    # The file landed in the mod root, and on refresh the download is now a CRC
+    # match (already present) -> disabled and unchecked.
+    assert (root / "Alpha" / "Alpha Guide.pdf").is_file()
+    assert dlg.contents.topLevelItemCount() == 1
+    refreshed = dlg.downloads.topLevelItem(0)
+    assert refreshed.checkState(0) == Qt.CheckState.Unchecked
+    assert refreshed.isDisabled()
+    assert not dlg.copy_button.isEnabled()
+
+
+def test_dialog_matched_download_is_disabled(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / "ReadMe.txt", b"dup")  # Contents
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "readme.txt", b"dup")  # identical
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtCore import Qt
+
+    item = dlg.downloads.topLevelItem(0)
+    assert item.isDisabled()
+    assert item.checkState(0) == Qt.CheckState.Unchecked
+    assert not dlg.copy_button.isEnabled()

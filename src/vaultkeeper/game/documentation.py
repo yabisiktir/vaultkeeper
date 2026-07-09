@@ -15,23 +15,42 @@ name is not in ``ExcludeFiles`` (``DocOrganiser.vb``); ``nwcontinst.exe`` is alw
 ignored, and the Contents scan additionally skips reserved names (so the mod's own
 ``.Game Play Time.rtf`` — which *would* match ``.rtf`` — is not mistaken for a doc).
 
-This module is the read-only *report* layer: it enumerates and describes the doc
-files. The copy/organise action (unique-name qualifiers, CRC dedupe against the
-Contents panel, version-number stripping, actually copying files) is deferred —
-see ``DocInfo``/``BtCopy_Click`` in the VB and the handoff note.
+Beyond enumeration this module ports the VB ``DocInfo``/``ProcessDocs`` naming and
+dedup logic that drives the copy action:
+
+* **Qualifier + ``DocName``** (``DocInfo``): a downloaded doc's target name is the
+  qualifier (the mod name for loose files, or the archive/zip folder name for
+  extracted files) plus a title-cased, optionally version-stripped file name —
+  unless the file name already starts with the qualifier.
+* **CRC dedup** (``ProcessDocs``): a downloaded doc whose CRC-32 matches a doc
+  already in Contents is marked *not to copy* (``copy=False``) and linked to the
+  match (``name_match``); the Contents doc is linked back.
+* **Unique numbering**: downloaded docs that would collide on ``DocName`` get a
+  trailing ``" 1"``/``" 2"`` etc.
+
+The LazWorks string helpers ``FilenameOnly``/``ToTitleCaseSentence("_")`` /
+``GetExtension`` and ``IsNumeric`` are **not** in the source tree, so they are
+reconstructed from usage (drop the folder+extension; ``_``→space + title-case
+word initials; ``IsNumeric`` ≈ parses as a number) — matching the reconstruction
+in ``game/wizard.py``. Note where exact casing / lenient-numeric parsing could
+diverge.
 
 The archive-extract path is injected via an ``ArchiveExtractor`` seam
-(``core/archive.py``); pass ``extractor=None`` to scan loose files only.
+(``core/archive.py``); pass ``extractor=None`` to scan loose files only. Archive
+docs are described and CRC-matched for the report, but the *copy* action currently
+handles only loose ``_Downloads`` files (their source survives the scan); copying
+docs back out of archives would need re-extraction and is deferred.
 """
 
 from __future__ import annotations
 
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.archive import is_extractable
+from vaultkeeper.core.crc import crc32_file
 
 #: Documentation file extensions (VB ``DocOrganiser.TextFiles``, verbatim).
 DOC_EXTENSIONS: frozenset[str] = frozenset(
@@ -59,7 +78,75 @@ def is_doc_file(name: str) -> bool:
     return Path(lower).suffix in DOC_EXTENSIONS and lower not in EXCLUDE_NAMES
 
 
-@dataclass(frozen=True)
+# -- LazWorks string helpers (reconstructed from usage) -------------------- #
+
+
+def _filename_only(name: str) -> str:
+    """Stem of the last path component (VB ``FilenameOnly``; ``\\`` or ``/`` paths)."""
+    return PurePosixPath(name.replace("\\", "/")).stem
+
+
+def _get_extension(name: str) -> str:
+    """Extension including the dot (VB ``GetExtension``; ``""`` when none)."""
+    return PurePosixPath(name.replace("\\", "/")).suffix
+
+
+def _to_title_case_sentence(text: str, sep: str = "_") -> str:
+    """VB ``ToTitleCaseSentence("_")`` — split on ``sep``, title-case each word.
+
+    Reconstructed (LazWorks helper absent): replace the separator with a space and
+    upper-case each word's initial, leaving the remainder as-is (matches
+    ``game/wizard._default_display``). Exact casing of all-caps words is unverified.
+    """
+    words = text.replace(sep, " ").split()
+    return " ".join(w[:1].upper() + w[1:] for w in words)
+
+
+def _is_numeric(value: str) -> bool:
+    """Approximation of VB ``IsNumeric`` — does ``value`` parse as a number?
+
+    VB's ``IsNumeric`` is more lenient (hex ``&H``, currency, etc.); for the version
+    tokens this is used on (``2``, ``2.0``, ``3``) a plain float parse suffices.
+    """
+    value = value.strip()
+    if value == "":
+        return False
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_version_number(value: str) -> bool:
+    """VB ``DocInfo.IsVersionNumber`` — numeric, or ``v``-prefixed numeric (``v2``)."""
+    if _is_numeric(value):
+        return True
+    return len(value) >= 1 and value[:1].lower() == "v" and _is_numeric(value[1:])
+
+
+def _remove_version_text(value: str) -> str:
+    """VB ``DocInfo.RemoveVersionText`` — strip trailing version-number words.
+
+    Repeatedly drops the final space-delimited token while it looks like a version
+    number. Guards the no-space case (VB would raise on a purely-version value; here
+    it is simply left unchanged).
+    """
+    while True:
+        last_space = value.rfind(" ")
+        if last_space < 0:
+            break
+        if _is_version_number(value[last_space + 1 :]):
+            value = value[:last_space]
+        else:
+            break
+    return value
+
+
+# -- Doc entry ------------------------------------------------------------- #
+
+
+@dataclass
 class DocEntry:
     """A documentation file found in a mod (one row of the organiser report)."""
 
@@ -72,14 +159,70 @@ class DocEntry:
     size: int
     #: Absolute path on disk. For files pulled out of an archive this points into
     #: a temporary directory that is removed after the scan (ephemeral — name/size
-    #: are captured, opening extracted docs is part of the deferred copy action).
+    #: are captured, opening/copying extracted docs is part of the deferred path).
     full_path: Path
+    #: Qualified target name for the copy action (VB ``DocInfo.DocName``). For a
+    #: Contents doc this is just the file name.
+    doc_name: str = ""
+    #: Whether the doc should be copied (VB ``DocInfo.Copy``); ``False`` once a CRC
+    #: match with an existing Contents doc is found.
+    copy: bool = True
+    #: Path of the matching doc when CRC-deduped, else ``""`` (VB ``NameMatch``).
+    name_match: str = ""
+    #: CRC-32 of the file (VB ``DocInfo.Checksum``).
+    checksum: int = 0
+    #: Qualifier used to build ``doc_name`` (VB ``DocInfo.Qualifier``).
+    qualifier: str = ""
+    #: Qualifier with version text removed, when different (VB ``VersionlessQualifier``).
+    versionless_qualifier: str = ""
+    #: True when the doc was pulled out of a ``_Downloads`` archive.
+    from_archive: bool = False
 
 
 def _rel_folder(path: Path, root: Path) -> str:
     """POSIX relative parent of ``path`` within ``root`` (``""`` when at root)."""
     rel = path.parent.relative_to(root)
     return "" if rel == Path(".") else rel.as_posix()
+
+
+def _checksum(path: Path) -> int:
+    """CRC-32 of ``path``; 0 if it cannot be read (VB flags rather than crashes)."""
+    try:
+        return crc32_file(path)
+    except OSError:
+        return 0
+
+
+def _doc_name_for(
+    file_name: str, qualifier: str, from_archive: bool, remove_version: bool
+) -> tuple[str, str, str]:
+    """Build (doc_name, qualifier, versionless_qualifier) — VB ``DocInfo`` (qualified).
+
+    Ports ``DocInfo.New(info, qualified:=True)``: the display file name is the stem
+    title-cased (optionally version-stripped) plus the original extension; the
+    qualifier is prepended unless the file name already starts with it.
+    """
+    ext = _get_extension(file_name)
+    disp = _to_title_case_sentence(_filename_only(file_name), "_")
+    if remove_version:
+        disp = _remove_version_text(disp)
+    disp += ext
+
+    if not from_archive:
+        # Loose file: qualifier is the mod display name (passed in), always prefixed.
+        return f"{qualifier} {disp}", qualifier, ""
+
+    # Extracted file: qualifier is the archive/zip folder name, title-cased.
+    versionless = ""
+    new_qualifier = _remove_version_text(qualifier)
+    if new_qualifier != qualifier:
+        versionless = new_qualifier
+    if remove_version and versionless != "":
+        qualifier = versionless
+
+    if disp.lower().startswith(qualifier.lower()):
+        return disp, qualifier, versionless
+    return f"{qualifier} {disp}", qualifier, versionless
 
 
 def _scan_contents(mod_name: str, mod_folder: Path) -> list[DocEntry]:
@@ -93,6 +236,7 @@ def _scan_contents(mod_name: str, mod_folder: Path) -> list[DocEntry]:
         if lower in IGNORE_NAMES or lower in _RESERVED_FILE_NAMES:
             continue
         if is_doc_file(name):
+            # VB DocInfo(qualified:=False): no name change, DocName = file name.
             entries.append(
                 DocEntry(
                     mod=mod_name,
@@ -101,18 +245,30 @@ def _scan_contents(mod_name: str, mod_folder: Path) -> list[DocEntry]:
                     folder="",
                     size=info.stat().st_size,
                     full_path=info,
+                    doc_name=name,
+                    checksum=_checksum(info),
+                    qualifier=mod_name,
                 )
             )
     return entries
 
 
 def _scan_download_tree(
-    mod_name: str, root: Path, tree: Path, folder_prefix: str
+    mod_name: str,
+    root: Path,
+    tree: Path,
+    *,
+    folder_prefix: str,
+    qualifier: str,
+    from_archive: bool,
+    remove_version: bool,
 ) -> tuple[list[DocEntry], list[Path]]:
     """Recursively collect docs (and extractable archives) under ``tree``.
 
     ``folder_prefix`` is prepended to the reported relative folder so files pulled
-    from an archive keep a readable location. Returns ``(doc entries, archives)``.
+    from an archive keep a readable location. ``qualifier`` seeds the ``DocName``
+    (mod name for loose files, archive/zip folder name for extracted files).
+    Returns ``(doc entries, archives)``.
     """
     entries: list[DocEntry] = []
     archives: list[Path] = []
@@ -124,6 +280,9 @@ def _scan_download_tree(
             folder = _rel_folder(info, root)
             if folder_prefix:
                 folder = f"{folder_prefix}/{folder}" if folder else folder_prefix
+            doc_name, qual, versionless = _doc_name_for(
+                name, qualifier, from_archive, remove_version
+            )
             entries.append(
                 DocEntry(
                     mod=mod_name,
@@ -132,6 +291,11 @@ def _scan_download_tree(
                     folder=folder,
                     size=info.stat().st_size,
                     full_path=info,
+                    doc_name=doc_name,
+                    checksum=_checksum(info),
+                    qualifier=qual,
+                    versionless_qualifier=versionless,
+                    from_archive=from_archive,
                 )
             )
         elif is_extractable(info.suffix):
@@ -139,38 +303,85 @@ def _scan_download_tree(
     return entries, archives
 
 
+def _process_docs(contents: list[DocEntry], downloads: list[DocEntry]) -> None:
+    """VB ``BgProcessDocs_DoWork`` post-passes: CRC dedup + unique numbering.
+
+    Mutates the entries in place. A downloaded doc whose CRC matches an existing
+    Contents doc is marked ``copy=False`` and linked both ways; remaining duplicate
+    ``DocName`` values are made unique with a trailing number.
+    """
+    # CRC dedup — link a download to the first Contents doc with the same checksum.
+    for dl in downloads:
+        for ct in contents:
+            if dl.checksum == ct.checksum:
+                dl.doc_name = ct.doc_name
+                dl.copy = False
+                dl.name_match = str(ct.full_path)
+                ct.name_match = str(dl.full_path)
+                break
+
+    # Ensure DocNames are unique by appending a numeric suffix (VB Option Compare
+    # Text → case-insensitive grouping).
+    for dl in downloads:
+        target = dl.doc_name.lower()
+        dupes = [d for d in downloads if d.doc_name.lower() == target]
+        if len(dupes) > 1:
+            for number, dup in enumerate(dupes, start=1):
+                stem = _filename_only(dup.doc_name)
+                ext = _get_extension(dup.doc_name)
+                dup.doc_name = f"{stem} {number}{ext}"
+
+
 def scan_mod_docs(
-    mod_name: str, mod_folder: Path, *, extractor=None
+    mod_name: str, mod_folder: Path, *, extractor=None, remove_version: bool = False
 ) -> list[DocEntry]:
     """All documentation files for one mod (VB ``BgProcessDocs_DoWork`` scan).
 
-    Scans the mod root (Contents) plus ``_Downloads`` recursively. When an
-    ``extractor`` (``core.archive.ArchiveExtractor``) is supplied, archives found
-    in ``_Downloads`` are extracted to a temporary folder and their loose docs are
-    included too; without one, only loose files are reported (nested archives are
-    not recursed — a bounded first version).
+    Scans the mod root (Contents) plus ``_Downloads`` recursively, computing each
+    doc's qualified ``DocName``, CRC-32, and copy/match state (VB ``DocInfo`` /
+    ``ProcessDocs``). When an ``extractor`` (``core.archive.ArchiveExtractor``) is
+    supplied, archives found in ``_Downloads`` are extracted to a temporary folder
+    and their loose docs are included too; without one, only loose files are
+    reported (nested archives are not recursed — a bounded first version).
+
+    ``remove_version`` mirrors the VB *Version* toggle (default off): strip trailing
+    version numbers from qualifiers/names when building ``DocName``.
     """
     if not mod_folder.is_dir():
         return []
 
-    entries = _scan_contents(mod_name, mod_folder)
+    contents = _scan_contents(mod_name, mod_folder)
+    downloads: list[DocEntry] = []
 
-    downloads = mod_folder / C.DOWNLOADS_DIR
-    if downloads.is_dir():
+    dl_folder = mod_folder / C.DOWNLOADS_DIR
+    if dl_folder.is_dir():
         loose, archives = _scan_download_tree(
-            mod_name, mod_folder, downloads, folder_prefix=""
+            mod_name,
+            mod_folder,
+            dl_folder,
+            folder_prefix="",
+            qualifier=mod_name,
+            from_archive=False,
+            remove_version=remove_version,
         )
-        entries.extend(loose)
+        downloads.extend(loose)
         if extractor is not None and getattr(extractor, "available", False):
-            entries.extend(
-                _scan_archives(mod_name, mod_folder, archives, extractor)
+            downloads.extend(
+                _scan_archives(
+                    mod_name, mod_folder, archives, extractor, remove_version
+                )
             )
 
-    return entries
+    _process_docs(contents, downloads)
+    return contents + downloads
 
 
 def _scan_archives(
-    mod_name: str, mod_folder: Path, archives: list[Path], extractor
+    mod_name: str,
+    mod_folder: Path,
+    archives: list[Path],
+    extractor,
+    remove_version: bool,
 ) -> list[DocEntry]:
     """Extract each archive to a temp dir and collect its loose docs."""
     entries: list[DocEntry] = []
@@ -180,8 +391,16 @@ def _scan_archives(
             if not result.ok:
                 continue
             rel_archive = archive.relative_to(mod_folder).as_posix()
+            # VB qualifier for extracted docs = the zip folder name, title-cased.
+            qualifier = _to_title_case_sentence(_filename_only(archive.name), "_")
             found, _ = _scan_download_tree(
-                mod_name, Path(tmp), Path(tmp), folder_prefix=f"{rel_archive}!"
+                mod_name,
+                Path(tmp),
+                Path(tmp),
+                folder_prefix=f"{rel_archive}!",
+                qualifier=qualifier,
+                from_archive=True,
+                remove_version=remove_version,
             )
             entries.extend(found)
     return entries

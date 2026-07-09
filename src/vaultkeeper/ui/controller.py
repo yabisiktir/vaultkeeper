@@ -1059,19 +1059,27 @@ class ProfileController:
         return files
 
     def doc_organiser_report(
-        self, mod_names: list[str] | None = None, *, use_archives: bool = True
+        self,
+        mod_names: list[str] | None = None,
+        *,
+        use_archives: bool = True,
+        remove_version: bool = False,
     ) -> dict:
         """Documentation files in the given mods (VB ``DocOrganiser`` scan).
 
         For each mod (``mod_names`` or, when ``None``, all non-group mods) scans the
         mod root folder for documentation already present (**Contents**) and its
         ``_Downloads`` tree for candidate docs (**Downloads**), grounded on the VB
-        doc-extension list. Returns rows (mod / file / folder / size / source) split
-        into ``contents``/``downloads`` lists plus a status summary.
+        doc-extension list. Each Downloads row carries its qualified ``doc_name``
+        (VB ``DocInfo``), whether it should be copied (``copy``) and whether it is a
+        CRC match of an existing Contents doc (``name_match``); Contents rows carry
+        ``name_match`` too. Returns rows split into ``contents``/``downloads`` lists
+        plus a status summary.
 
-        This is the read-only report; the copy/organise action (name qualifiers,
-        CRC dedupe, version stripping) is deferred. When ``use_archives`` is true the
-        injected archive extractor is used to look inside ``_Downloads`` archives.
+        The matching copy action is :meth:`copy_docs_to_mod`. When ``use_archives``
+        is true the injected archive extractor is used to look inside ``_Downloads``
+        archives (archive docs are described/matched but not copyable — see the
+        method). ``remove_version`` mirrors the VB *Version* toggle (default off).
         """
         from vaultkeeper.game.documentation import scan_mod_docs
 
@@ -1097,18 +1105,25 @@ class ProfileController:
             if not mod_folder.is_dir():
                 continue
             scanned += 1
-            for entry in scan_mod_docs(name, mod_folder, extractor=extractor):
+            for entry in scan_mod_docs(
+                name, mod_folder, extractor=extractor, remove_version=remove_version
+            ):
                 rows.append(
                     {
                         "mod": entry.mod,
                         "file": entry.file_name,
+                        "doc_name": entry.doc_name,
                         "folder": entry.folder,
                         "size": _fmt_size(entry.size),
                         "source": entry.source,
+                        "copy": entry.copy,
+                        "name_match": bool(entry.name_match),
+                        "from_archive": entry.from_archive,
+                        "source_path": str(entry.full_path),
                     }
                 )
 
-        rows.sort(key=lambda r: (r["mod"].lower(), r["file"].lower()))
+        rows.sort(key=lambda r: (r["mod"].lower(), r["doc_name"].lower()))
         contents = [r for r in rows if r["source"] == "Contents"]
         downloads = [r for r in rows if r["source"] == "Downloads"]
         return {
@@ -1118,6 +1133,54 @@ class ProfileController:
             "mods": scanned,
             "total": len(rows),
             "summary": _doc_summary(scanned, len(downloads), len(contents)),
+        }
+
+    def copy_docs_to_mod(self, mod_name: str, selections: list[dict]) -> dict:
+        """Copy chosen Downloads docs into the mod root (VB ``BtCopy_Click``).
+
+        ``selections`` is a list of ``{"source": <path>, "doc_name": <target name>}``
+        entries — typically the checked Downloads rows from
+        :meth:`doc_organiser_report`. Each source file is copied into the mod's
+        **root** folder (``ModData.ModPath`` — *not* ``.Mod Installer``) under its
+        qualified ``doc_name``, overwriting any existing file (VB
+        ``FS.CopyFile(..., IOAction.Overwrite)``). Docs are not tracked installer
+        files, so the profile database is left untouched (VB only reloads the
+        Contents view). Returns ``{"copied", "errors", "message"}``.
+
+        Only loose ``_Downloads`` files can be copied: a source that no longer exists
+        (e.g. an archive-extracted doc whose temp copy is gone) is counted as an
+        error. Copying docs back out of archives is deferred.
+        """
+        from vaultkeeper.core import fs
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"copied": 0, "errors": 0, "message": f"Unknown mod: {mod_name}"}
+        target_folder = self.ctx.profile_mods_dir / mod_name
+        if not target_folder.is_dir():
+            return {
+                "copied": 0,
+                "errors": 0,
+                "message": f"Mod folder missing: {mod_name}",
+            }
+
+        copied = errors = 0
+        for sel in selections:
+            source = Path(sel["source"])
+            doc_name = sel["doc_name"]
+            if not doc_name or not source.is_file():
+                errors += 1
+                continue
+            try:
+                fs.copy_file(source, target_folder / doc_name, overwrite=True)
+                copied += 1
+            except OSError:
+                errors += 1
+
+        return {
+            "copied": copied,
+            "errors": errors,
+            "message": _doc_copy_summary(copied, errors),
         }
 
     def wizard_report(self, mod_name: str) -> dict:
@@ -1334,6 +1397,14 @@ def _doc_summary(mods: int, downloads: int, contents: int) -> str:
         f"Scanned {mod_text}. Downloaded documents detected: {down}. "
         f"Documents in Contents: {cont}."
     )
+
+
+def _doc_copy_summary(copied: int, errors: int) -> str:
+    """Status line after a doc copy (VB ``DocOrganiser.InfoText``)."""
+    copied_text = "None" if copied == 0 else f"{copied:,}"
+    if errors == 0:
+        return f"Documents copied: {copied_text}."
+    return f"Documents copied: {copied_text}. Errors: {errors:,}."
 
 
 def _wizard_summary(choices: int, preferences: int, excludes: int) -> str:
