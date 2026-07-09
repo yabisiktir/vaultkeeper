@@ -57,3 +57,63 @@ def test_edit_cancel_returns_none(qtbot, tmp_path, monkeypatch):
         SettingsDialog, "exec", lambda self: SettingsDialog.DialogCode.Rejected
     )
     assert SettingsDialog.edit(settings_path) is None
+
+
+# -- Web Menu editor -------------------------------------------------------- #
+
+
+def test_web_menu_reflects_and_edits(qtbot):
+    settings = Settings(web_links=[{"text": "Vault", "url": "https://v.example"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    assert dlg.web_tree.topLevelItemCount() == 1
+    assert dlg.web_tree.topLevelItem(0).text(0) == "Vault"
+
+    # Add a link and write back.
+    dlg._add_web_row("Nexus", "https://n.example")
+    dlg.apply_to(settings)
+    assert settings.web_links == [
+        {"text": "Vault", "url": "https://v.example"},
+        {"text": "Nexus", "url": "https://n.example"},
+    ]
+
+
+def test_web_menu_remove_and_move(qtbot):
+    settings = Settings(
+        web_links=[
+            {"text": "A", "url": "a"},
+            {"text": "B", "url": "b"},
+            {"text": "C", "url": "c"},
+        ]
+    )
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    # Move B up (select index 1, move -1).
+    dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(1))
+    dlg._web_move(-1)
+    assert [dlg.web_tree.topLevelItem(i).text(0) for i in range(3)] == ["B", "A", "C"]
+
+    # Remove the currently selected (B).
+    dlg._web_remove()
+    assert [dlg.web_tree.topLevelItem(i).text(0) for i in range(2)] == ["A", "C"]
+
+
+def test_web_menu_reset_to_defaults(qtbot):
+    from vaultkeeper.config.settings import default_web_links
+
+    settings = Settings(web_links=[{"text": "Custom", "url": "x"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg._web_reset()
+    dlg.apply_to(settings)
+    assert settings.web_links == default_web_links()
+
+
+def test_web_menu_drops_blank_rows(qtbot):
+    settings = Settings(web_links=[])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg._add_web_row("", "")  # fully blank → dropped
+    dlg._add_web_row("Real", "https://r")
+    assert dlg.web_links() == [{"text": "Real", "url": "https://r"}]

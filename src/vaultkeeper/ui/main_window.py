@@ -843,6 +843,8 @@ class MainWindow(QMainWindow):
         if settings is not None:
             # Reflect the recycle preference on the status bar toggle.
             self.nit_status.set_recycle(settings.recycle_on_delete)
+            # Rebuild the Web menu in case its links were edited (VB SetWebMenu).
+            self.nit_menu.populate_web_menu(settings.web_links, self._open_url)
             self.nit_status.set_info("Settings saved.")
 
     def _on_view_file(self, kind: str) -> None:

@@ -10,13 +10,16 @@ theming come later.
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QPushButton,
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
@@ -24,7 +27,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.config.settings import Settings, load_settings, save_settings
+from vaultkeeper.config.settings import (
+    Settings,
+    default_web_links,
+    load_settings,
+    save_settings,
+)
 from vaultkeeper.ui import resources as R
 
 
@@ -48,6 +56,7 @@ class SettingsDialog(QDialog):
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_general(settings), "General")
+        self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
         self.locations = self._build_locations(controller)
         if self.locations is not None:
             self.tabs.addTab(self.locations, "Locations")
@@ -80,6 +89,80 @@ class SettingsDialog(QDialog):
         form.addRow("Vaultkeeper store:", QLabel(store))
         return page
 
+    def _build_web_menu(self, settings: Settings) -> QWidget:
+        """Editable Web-menu links (VB Settings WebMenu: Menu Text / Web Address)."""
+        page = QWidget()
+        outer = QVBoxLayout(page)
+        outer.addWidget(
+            QLabel("Links shown in the Web menu (double-click a cell to edit):")
+        )
+
+        row = QHBoxLayout()
+        self.web_tree = QTreeWidget()
+        self.web_tree.setHeaderLabels(["Menu Text", "Web Address"])
+        self.web_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.web_tree.setRootIsDecorated(False)
+        for link in settings.web_links:
+            self._add_web_row(link.get("text", ""), link.get("url", ""))
+        row.addWidget(self.web_tree, 1)
+
+        buttons = QVBoxLayout()
+        for label, slot in (
+            ("Add", self._web_add),
+            ("Remove", self._web_remove),
+            ("Move Up", lambda: self._web_move(-1)),
+            ("Move Down", lambda: self._web_move(1)),
+            ("Reset", self._web_reset),
+        ):
+            btn = QPushButton(label)
+            btn.clicked.connect(slot)
+            buttons.addWidget(btn)
+        buttons.addStretch(1)
+        row.addLayout(buttons)
+        outer.addLayout(row)
+        return page
+
+    def _add_web_row(self, text: str, url: str) -> QTreeWidgetItem:
+        item = QTreeWidgetItem([text, url])
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        self.web_tree.addTopLevelItem(item)
+        return item
+
+    def _web_add(self) -> None:
+        item = self._add_web_row("New Link", "https://")
+        self.web_tree.setCurrentItem(item)
+        self.web_tree.editItem(item, 0)
+
+    def _web_remove(self) -> None:
+        index = self.web_tree.indexOfTopLevelItem(self.web_tree.currentItem())
+        if index >= 0:
+            self.web_tree.takeTopLevelItem(index)
+
+    def _web_move(self, delta: int) -> None:
+        tree = self.web_tree
+        index = tree.indexOfTopLevelItem(tree.currentItem())
+        target = index + delta
+        if index < 0 or not 0 <= target < tree.topLevelItemCount():
+            return
+        item = tree.takeTopLevelItem(index)
+        tree.insertTopLevelItem(target, item)
+        tree.setCurrentItem(item)
+
+    def _web_reset(self) -> None:
+        self.web_tree.clear()
+        for link in default_web_links():
+            self._add_web_row(link["text"], link["url"])
+
+    def web_links(self) -> list[dict[str, str]]:
+        """The current Web-menu links from the tree (blank rows dropped)."""
+        links = []
+        for i in range(self.web_tree.topLevelItemCount()):
+            item = self.web_tree.topLevelItem(i)
+            text, url = item.text(0).strip(), item.text(1).strip()
+            if text or url:
+                links.append({"text": text, "url": url})
+        return links
+
     def _build_locations(self, controller) -> QTreeWidget | None:
         if controller is None:
             return None
@@ -102,6 +185,7 @@ class SettingsDialog(QDialog):
         """Write the editable fields back into ``settings``."""
         settings.recycle_on_delete = self.recycle.isChecked()
         settings.validate_game_config_on_startup = self.startup_check.isChecked()
+        settings.web_links = self.web_links()
 
     @classmethod
     def edit(

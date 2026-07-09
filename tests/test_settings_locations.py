@@ -74,7 +74,7 @@ def test_dialog_has_locations_tab_with_controller(qtbot, tmp_path):
     qtbot.addWidget(dlg)
 
     tab_titles = [dlg.tabs.tabText(i) for i in range(dlg.tabs.count())]
-    assert tab_titles == ["General", "Locations"]
+    assert tab_titles == ["General", "Web Menu", "Locations"]
     # Two group rows, each with three child locations.
     assert dlg.locations.topLevelItemCount() == 2
     assert dlg.locations.topLevelItem(0).childCount() == 3
@@ -86,4 +86,4 @@ def test_dialog_omits_locations_tab_without_controller(qtbot):
     qtbot.addWidget(dlg)
     assert dlg.locations is None
     tab_titles = [dlg.tabs.tabText(i) for i in range(dlg.tabs.count())]
-    assert tab_titles == ["General"]
+    assert tab_titles == ["General", "Web Menu"]
