@@ -778,6 +778,113 @@ class ProfileController:
         self.save()
         return f"Validation complete. Removed {removed} invalid dependency(ies)."
 
+    # -- Validate Mods (VB MsValidateMods / ValidateMods) ------------------ #
+    def validate_notes(self) -> int:
+        """Delete orphaned Mod Notes files (VB ``ProfileData.ValidateNotes``).
+
+        A notes file is orphaned when it is not an ``.rtf`` for a known mod *and* no
+        mod folder of that name exists (the latter guards a just-added mod whose DB
+        row is not yet present). Returns the number deleted.
+        """
+        notes_dir = self.mod_notes_path("_").parent
+        if not notes_dir.is_dir():
+            return 0
+        removed = 0
+        for path in sorted(p for p in notes_dir.iterdir() if p.is_file()):
+            orphan = path.suffix.lower() != ".rtf" or path.stem not in self.pd.mod_list
+            if orphan and not (self.ctx.profile_mods_dir / path.stem).is_dir():
+                try:
+                    path.unlink()
+                    removed += 1
+                except OSError:
+                    pass
+        return removed
+
+    def _validate_mod_patch_ini(self, md: ModData) -> str:
+        """Create/delete a mod's ``nwnpatch.ini`` from its patch-folder haks.
+
+        Faithful port of ``HakPatchManager.ValidateMod``: skip restorers, file-less
+        mods and mods with no haks (leaving INI-only installers alone). If the mod
+        has ``.hak`` files in the ``patch`` folder, write
+        ``.Mod Installer/nwn/nwnpatch.ini`` listing them and register the file; else
+        delete any existing mod ini and drop its key. Returns
+        ``"created"``/``"deleted"``/``"none"``.
+
+        The global patch-hak sequence file (VB ``PatchSequence`` ordering) is
+        deferred — entries are ordered by Windows sort, which is deterministic and
+        correct for a single mod's own haks.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.win_sort import win_compare
+
+        if md is None or md.is_group_item or md.is_restorer() or not md.files:
+            return "none"
+        hak_files = [fk for fk in md.files if fk.extension.lower() == ".hak"]
+        if not hak_files:
+            return "none"
+
+        patch_folder = self.ctx.mapper.get_secondary_folder(".hak")
+        patch_haks = [fk for fk in hak_files if fk.folder.lower() == patch_folder.lower()]
+        mod_ini = (
+            self.ctx.profile_mods_dir
+            / md.mod_name
+            / C.MOD_INSTALLER_DIR
+            / C.MOD_ROOT_FOLDER
+            / C.PATCH_INI_FILE
+        )
+
+        if patch_haks:
+            stems = sorted(
+                (Path(fk.filename).stem for fk in patch_haks),
+                key=cmp_to_key(win_compare),
+            )
+            lines = ["[Patch]"] + [f"PatchFile{i:03d}={s}" for i, s in enumerate(stems)]
+            existed = mod_ini.is_file()
+            mod_ini.parent.mkdir(parents=True, exist_ok=True)
+            mod_ini.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            # Register the ini file key (scan only adds files not already tracked).
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+            return "unchanged" if existed else "created"
+
+        if mod_ini.is_file():
+            mod_ini.unlink()
+            fk = FileKeyInfo(md.group, md.mod_name, C.MOD_ROOT_FOLDER, C.PATCH_INI_FILE)
+            self.pd.file_list.pop(fk, None)
+            if fk in md.files:
+                md.files.remove(fk)
+            self.pd.changes.file.removed(fk)
+            return "deleted"
+        return "none"
+
+    def validate_mods(self) -> str:
+        """Validate all mods and hak-patch information (VB ``ValidateMods``).
+
+        Runs the maintenance pass MsValidateMods performs: prune dependencies on
+        missing mods, delete orphaned Mod Notes, (re)build each mod's
+        ``nwnpatch.ini`` from its patch haks, and rebuild the game's ``nwnpatch.ini``
+        from the installed patch haks. Recomputes states and persists.
+        """
+        removed_deps = self.pd.validate_dependencies()
+        orphaned_notes = self.validate_notes()
+        ini_created = ini_deleted = 0
+        for md in list(self.pd.mod_list.values()):
+            result = self._validate_mod_patch_ini(md)
+            if result == "created":
+                ini_created += 1
+            elif result == "deleted":
+                ini_deleted += 1
+        self._hpm.create_nwn_patch_ini_file()
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return (
+            f"Validated mods. Dependencies removed: {removed_deps}. "
+            f"Orphaned notes: {orphaned_notes}. "
+            f"Patch INI created: {ini_created}, deleted: {ini_deleted}."
+        )
+
     def calculate_crcs(self) -> str:
         """Recompute CRC-32 checksums for pending files and refresh states."""
         self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)

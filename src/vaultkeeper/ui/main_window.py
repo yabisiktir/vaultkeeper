@@ -413,6 +413,7 @@ class MainWindow(QMainWindow):
             "MsValidateProfileData": lambda: self._maintenance("validate_profile_data"),
             "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
+            "MsValidateMods": lambda: self._maintenance("validate_mods"),
             # Characters.
             "MsCharacterExplorer": self._on_characters,
             "RbnCharacterExplorer": self._on_characters,
