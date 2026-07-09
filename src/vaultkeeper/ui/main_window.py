@@ -395,6 +395,7 @@ class MainWindow(QMainWindow):
             "RbnCreateInstaller": self._on_create_installer,
             "RbnBuildInstaller": self._on_create_installer,
             "RbnReCreateInstaller": self._on_create_installer,
+            "MsCreateMissingInstallers": self._on_create_missing_installers,
             "MsCreateRestorer": self._on_create_restorer,
             "TsCreateRestorer": self._on_create_restorer,
             "RbnCreateRestorer": self._on_create_restorer,
@@ -567,6 +568,22 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(
                 f"Built installer for {built} mod(s); {copied} file(s) copied."
             )
+
+    def _on_create_missing_installers(self) -> None:
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        if not self.controller.mods_missing_installer():
+            self.nit_status.set_info("Missing Mod Installers created: None.")
+            return
+        from vaultkeeper.ui.dialogs.create_missing_installers import (
+            CreateMissingInstallers,
+        )
+
+        dialog = CreateMissingInstallers(self.controller, self)
+        if dialog.exec():
+            self.refresh()
+            self.nit_status.set_info("Missing installers processed.")
 
     def _on_create_restorer(self) -> None:
         names = self.selected_mod_names()

@@ -523,6 +523,84 @@ class ProfileController:
             ),
         }
 
+    # -- Create Missing Installers (VB CreateMissingInstallers) ------------ #
+    def _profile_data_dir(self) -> Path:
+        """The per-profile data folder (VB ``Paths.ProfileData``)."""
+        return self.data_dir() / self.ctx.profile_mods_dir.name
+
+    def _missing_installer_exclude_file(self) -> Path:
+        """The persisted exclude list for Create Missing Installers (VB file name)."""
+        return self._profile_data_dir() / "Exclude from missing Installers.txt"
+
+    def mods_missing_installer(self) -> list[str]:
+        """Non-group mods whose ``.Mod Installer`` folder does not exist (VB filter).
+
+        VB ``MsCreateMissingInstallers``: ``Not IsGroupItem AndAlso Not
+        HasModInstaller`` (``HasModInstaller`` = the ``.Mod Installer`` directory
+        exists on disk), Windows-sorted.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.win_sort import win_compare
+
+        names = [
+            md.mod_name
+            for md in self.pd.mod_list.values()
+            if not md.is_group_item
+            and not (self.ctx.profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR).is_dir()
+        ]
+        return sorted(names, key=cmp_to_key(win_compare))
+
+    def missing_installer_report(self) -> dict:
+        """Mods lacking an installer plus the persisted exclusions (VB dialog load).
+
+        Returns ``{"mods": [...all missing...], "excluded": [...persisted, still
+        missing...]}``. Stale exclusions (mods that now have an installer) are
+        dropped, matching the VB load which prunes the exclude list to ``ModList``.
+        """
+        missing = self.mods_missing_installer()
+        lower = {m.lower() for m in missing}
+        excluded = [e for e in self._read_missing_installer_excludes() if e.lower() in lower]
+        return {"mods": missing, "excluded": excluded}
+
+    def _read_missing_installer_excludes(self) -> list[str]:
+        path = self._missing_installer_exclude_file()
+        if not path.is_file():
+            return []
+        try:
+            return [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        except OSError:
+            return []
+
+    def save_missing_installer_excludes(self, excludes: list[str]) -> None:
+        """Persist the Create-Missing-Installers exclude list (VB ``ExcludeListFile``)."""
+        path = self._missing_installer_exclude_file()
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("\n".join(excludes) + ("\n" if excludes else ""), encoding="utf-8")
+        except OSError:
+            pass
+
+    def create_missing_installers(self, mod_names: list[str]) -> dict:
+        """Build installers for the selected mods (VB ``ProcessCreateInstaller``).
+
+        Builds each mod's installer payload (:meth:`build_installer_payload`). The
+        exclude-list bookkeeping lives with the dialog (VB ``BtCreate``), which calls
+        :meth:`save_missing_installer_excludes`. Returns ``{"built","copied","message"}``.
+        """
+        built = copied = 0
+        for name in mod_names:
+            result = self.build_installer_payload(name)
+            if result["ok"]:
+                built += 1
+                copied += result["copied"]
+        return {
+            "built": built,
+            "copied": copied,
+            "message": f"Created {built} missing installer(s); {copied} file(s) copied.",
+        }
+
     def _create_identifier(self, mod_name: str, extension: str) -> bool:
         from vaultkeeper.core import constants as C
 
