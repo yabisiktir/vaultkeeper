@@ -95,7 +95,7 @@ class CharacterViewer(QDialog):
             self._portrait.clear()
             return
         cf = self._characters[row]
-        self._summary.setPlainText(cf.summary())
+        self._summary.setPlainText(cf.summary(show_stats=True))
         self._show_portrait(cf)
 
     def _show_portrait(self, cf) -> None:
