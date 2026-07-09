@@ -22,6 +22,9 @@ Pipeline (headless, Qt-free):
   the duplicate tie-break by ``LastWriteTime``, the placeholder-``.mod``-size guard
   (``PlaceholderModSize`` / ``Mapper.C.ModFile``), and the excluded-file / demo-mod
   skips (``Map.IsExcludedFile`` / ``Map.IsDemoMod``).
+* **ProcessPatchFiles** (``ProcessPatchFiles`` @1552): after Analyse, any hak a
+  mod's ``nwnpatch.ini`` sequences is relocated in the ``CopyList`` from the ``hak``
+  folder to the ``patch`` folder (:func:`process_patch_files`).
 * **Plan**: flatten ``CopyList`` into a list of :class:`CopyPlanItem` — one
   ``(source, target-folder, filename)`` per file to copy under
   ``.Mod Installer/<folder>/<filename>``. The plan is a pure data structure; the
@@ -32,12 +35,13 @@ Pipeline (headless, Qt-free):
 first): the ``BgConverter`` BIK→WBM conversion (needs ffmpeg) is not performed —
 with ``convert_bik=False`` (the port default) ``.bik`` files fall through to be
 analysed/copied as-is, exactly as VB does when ``ConvertBikFiles`` is off; ``True``
-(conversion) is deferred. ``ProcessPatchFiles`` (reassigning ``nwnpatch.ini`` haks
-to the ``patch`` folder) and the ``.Installer Wizard`` RunWizard modal flow
-(select-one/select-many file exclusion) are deferred — the wizard's *ignore list*
-would only ever *remove* files from the plan, so omitting it is a safe over-set.
-Self-extracting ``.exe`` archives are treated as non-extractable (VB probes them
-with 7-Zip; deferred), so they are simply skipped.
+(conversion) is deferred. The ``.Installer Wizard`` RunWizard modal flow
+(select-one/select-many file exclusion) is deferred — its *ignore list* would only
+ever *remove* files from the plan, so omitting it is a safe over-set. The
+``UpdateSequenceFile`` side effect of ProcessPatchFiles (persisting the patch-hak
+ordering file) is deferred — it affects only later ``nwnpatch.ini`` ordering, not
+what gets copied. Self-extracting ``.exe`` archives are treated as non-extractable
+(VB probes them with 7-Zip; deferred), so they are simply skipped.
 """
 
 from __future__ import annotations
@@ -49,6 +53,7 @@ from pathlib import Path, PurePath
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.archive import ArchiveExtractor, is_extractable
+from vaultkeeper.core.ci_dict import CIStrDict
 from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.game.wizard import WIZARD_FILE
 
@@ -56,6 +61,10 @@ from vaultkeeper.game.wizard import WIZARD_FILE
 #: ``PlaceholderModSize`` = 3 MiB); used to keep a larger older ``.mod`` over a
 #: newer but tiny placeholder duplicate.
 PLACEHOLDER_MOD_SIZE = 3 * 1024 * 1024
+
+#: Hak extension (VB ``HakPatchManager.HakExt``); its primary folder is ``hak`` and
+#: its secondary (move) folder is ``patch``.
+_HAK_EXT = ".hak"
 
 
 @dataclass
@@ -98,8 +107,11 @@ class CopyInfo:
     source: SourceFile
 
 
-#: ``CopyList[modname][targetFolder][filename] -> CopyInfo`` (VB nested dict).
-CopyList = dict[str, dict[str, dict[str, CopyInfo]]]
+#: ``CopyList[modname][targetFolder][filename] -> CopyInfo``. The VB structure
+#: nests three ``StringComparer.CurrentCultureIgnoreCase`` dictionaries, so every
+#: level here is a :class:`CIStrDict` — a mod/folder/filename differing only in
+#: case is the same slot (last-seen wins), matching the VB dedup.
+CopyList = CIStrDict  # CIStrDict[str, CIStrDict[str, CIStrDict[str, CopyInfo]]]
 
 
 @dataclass
@@ -121,7 +133,7 @@ class InstallerPlan:
     """The result of analysing a mod: its ``CopyList`` and a flat copy plan."""
 
     mod_name: str
-    copy_list: CopyList = field(default_factory=dict)
+    copy_list: CopyList = field(default_factory=CIStrDict)
     items: list[CopyPlanItem] = field(default_factory=list)
     #: Files skipped by MapExcludes / demo-mod rules (VB ``MapExcludesList``).
     excluded: list[str] = field(default_factory=list)
@@ -140,7 +152,7 @@ class _Analyser:
     def __init__(self, mapper: Mapper, *, paste_active: bool = False) -> None:
         self._map = mapper
         self._paste_active = paste_active
-        self.copy_list: CopyList = {}
+        self.copy_list: CopyList = CIStrDict()
         self.excluded: list[str] = []
 
     def _is_excluded_file(self, sf: SourceFile) -> bool:
@@ -167,8 +179,8 @@ class _Analyser:
         if target == "":
             return
 
-        mod = self.copy_list.setdefault(modname, {})
-        folder = mod.setdefault(target, {})
+        mod = self.copy_list.setdefault(modname, CIStrDict())
+        folder = mod.setdefault(target, CIStrDict())
         ci = CopyInfo(source=sf)
         secondary = self._map.get_secondary_folder(sf.extension)
 
@@ -266,9 +278,74 @@ def build_copy_plan(
                 plan.archives_extracted += 1
                 scan_queue.append(dest)
 
+    # Reassign patch haks (those a mod's nwnpatch.ini references) to the patch folder.
+    process_patch_files(analyser.copy_list, mapper)
+
     _build_items(analyser.copy_list, plan)
     plan.excluded = analyser.excluded
     return plan
+
+
+# --------------------------------------------------------------------------- #
+# ProcessPatchFiles (VB CreateInstaller.ProcessPatchFiles @1552)
+# --------------------------------------------------------------------------- #
+
+
+def parse_patch_haks(ini_text: str) -> list[str]:
+    """Hak file names (with ``.hak``) listed in an ``nwnpatch.ini`` (VB ``GetPatchHaks``).
+
+    Each line's value after ``=`` (when non-empty) names a patch hak *without* its
+    extension; ``.hak`` is appended. Lines without ``=`` or with an empty value are
+    ignored.
+    """
+    haks: list[str] = []
+    for line in ini_text.splitlines():
+        index = line.find("=")
+        if index != -1 and index < len(line) - 1:
+            value = line[index + 1 :].strip()
+            if value:
+                haks.append(f"{value}.hak")
+    return haks
+
+
+def process_patch_files(copy_list: CopyList, mapper: Mapper) -> None:
+    """Move a mod's patch haks from the ``hak`` folder to the ``patch`` folder.
+
+    Faithful port of ``ProcessPatchFiles``: for each mod whose ``CopyList`` has an
+    ``nwn`` folder containing ``nwnpatch.ini`` *and* a ``hak`` folder, parse that
+    ini's source file for the haks it sequences and relocate each of those haks
+    (case-insensitively) from the ``hak`` target folder to the ``patch`` target
+    folder. An emptied ``hak`` folder is dropped. Mutates ``copy_list`` in place.
+
+    The VB ``UpdateSequenceFile`` side effect (persisting the patch-hak ordering
+    file) is deferred — it affects only later ``nwnpatch.ini`` ordering, not which
+    files get copied.
+    """
+    hak_folder = mapper.get_primary_folder(_HAK_EXT)
+    patch_folder = mapper.get_secondary_folder(_HAK_EXT)
+
+    for folders in list(copy_list.values()):
+        root = folders.get(C.MOD_ROOT_FOLDER)
+        if root is None or C.PATCH_INI_FILE not in root or hak_folder not in folders:
+            continue
+        ini_info = root[C.PATCH_INI_FILE]
+        try:
+            ini_text = ini_info.source.path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        mod_haks = parse_patch_haks(ini_text)
+        if not mod_haks:
+            continue
+
+        haks = folders[hak_folder]
+        patches = folders.setdefault(patch_folder, CIStrDict())
+        for patch_file in mod_haks:
+            info = haks.get(patch_file)
+            if info is not None:
+                patches[patch_file] = CopyInfo(source=info.source)
+                del haks[patch_file]
+        if len(haks) == 0:
+            del folders[hak_folder]
 
 
 def _scan_folder(

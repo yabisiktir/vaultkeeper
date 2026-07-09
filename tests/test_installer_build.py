@@ -23,6 +23,8 @@ from vaultkeeper.game.installer_build import (
     SourceFile,
     _Analyser,
     build_copy_plan,
+    parse_patch_haks,
+    process_patch_files,
 )
 
 NIT_STORE = Path("/Users/example/Documents/NIT Store")
@@ -50,21 +52,21 @@ def test_simple_extension_mapping() -> None:
 def test_unsupported_extension_skipped() -> None:
     a = _Analyser(Mapper())
     a.analyse("Mod", sf("/mod/readme.xyz"))
-    assert a.copy_list == {}
+    assert not a.copy_list
 
 
 def test_excluded_file_recorded_and_skipped() -> None:
     a = _Analyser(Mapper())
     # gxpa_shld.tga is a default MapExcludes entry.
     a.analyse("Mod", sf("/mod/gxpa_shld.tga"))
-    assert a.copy_list == {}
+    assert not a.copy_list
     assert a.excluded == ["gxpa_shld.tga"]
 
 
 def test_demo_mod_skipped() -> None:
     a = _Analyser(Mapper())
     a.analyse("Mod", sf("/mod/demo.mod", size=PLACEHOLDER_MOD_SIZE + 1))
-    assert a.copy_list == {}
+    assert not a.copy_list
     assert a.excluded == ["demo.mod"]
 
 
@@ -127,6 +129,64 @@ def test_primary_and_secondary_reconcile_removes_primary() -> None:
     a.analyse("Mod", sf("/mod/override/po_hero.tga", size=10, mtime=3000.0))
     assert "po_hero.tga" not in a.copy_list["Mod"].get("portraits", {})
     assert "po_hero.tga" in a.copy_list["Mod"]["override"]
+
+
+def test_copy_list_is_case_insensitive() -> None:
+    """A file differing only in case is the same CopyList slot (VB CI dedup)."""
+    a = _Analyser(Mapper())
+    a.analyse("Mod", sf("/mod/A.hak", mtime=1000.0))
+    a.analyse("Mod", sf("/mod/a.hak", mtime=2000.0))  # newer, same slot
+    assert len(a.copy_list["mod"]["HAK"]) == 1  # folder + mod keys also CI
+    assert a.copy_list["Mod"]["hak"]["a.HAK"].source.mtime == 2000.0
+
+
+# --------------------------------------------------------------------------- #
+# ProcessPatchFiles (patch-hak reassignment)
+# --------------------------------------------------------------------------- #
+
+
+def test_parse_patch_haks() -> None:
+    text = "[Patch]\nPatchFile000=cep1patch\nPatchFile001=cep2patch\nEmpty=\nnoequals\n"
+    assert parse_patch_haks(text) == ["cep1patch.hak", "cep2patch.hak"]
+
+
+def test_process_patch_files_moves_haks_to_patch_folder(tmp_path: Path) -> None:
+    mapper = Mapper()
+    # A real nwnpatch.ini source referencing one of two haks.
+    ini = tmp_path / "nwnpatch.ini"
+    ini.write_text("[Patch]\nPatchFile000=cep1patch\n", encoding="utf-8")
+
+    a = _Analyser(mapper)
+    a.analyse("Mod", SourceFile(ini, size=10, mtime=1.0))  # → nwn/nwnpatch.ini
+    a.analyse("Mod", sf("/m/cep1patch.hak"))  # → hak, should move to patch
+    a.analyse("Mod", sf("/m/other.hak"))  # → hak, stays
+    process_patch_files(a.copy_list, mapper)
+
+    folders = a.copy_list["Mod"]
+    assert "cep1patch.hak" in folders["patch"]
+    assert "cep1patch.hak" not in folders["hak"]
+    assert "other.hak" in folders["hak"]
+
+
+def test_process_patch_files_drops_emptied_hak_folder(tmp_path: Path) -> None:
+    mapper = Mapper()
+    ini = tmp_path / "nwnpatch.ini"
+    ini.write_text("PatchFile000=only\n", encoding="utf-8")
+    a = _Analyser(mapper)
+    a.analyse("Mod", SourceFile(ini, size=10, mtime=1.0))
+    a.analyse("Mod", sf("/m/only.hak"))
+    process_patch_files(a.copy_list, mapper)
+    assert "hak" not in a.copy_list["Mod"]
+    assert "only.hak" in a.copy_list["Mod"]["patch"]
+
+
+def test_process_patch_files_noop_without_ini(tmp_path: Path) -> None:
+    mapper = Mapper()
+    a = _Analyser(mapper)
+    a.analyse("Mod", sf("/m/plain.hak"))
+    process_patch_files(a.copy_list, mapper)
+    assert "plain.hak" in a.copy_list["Mod"]["hak"]
+    assert "patch" not in a.copy_list["Mod"]
 
 
 # --------------------------------------------------------------------------- #
