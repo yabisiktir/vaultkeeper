@@ -42,6 +42,8 @@ def bootstrap_controller(
         game_root=Path(nwn_path),
         store_path=store.data / f"{profile}.json",
         is_ee=True,
+        map_overrides=settings.map_overrides or None,
+        settings_path=store.settings_file,
     )
 
 
