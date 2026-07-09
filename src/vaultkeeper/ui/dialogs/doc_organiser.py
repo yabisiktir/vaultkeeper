@@ -95,6 +95,9 @@ class DocOrganiser(QDialog):
         self.version_check.toggled.connect(self.refresh)
         buttons.addWidget(self.version_check)
         buttons.addStretch(1)
+        self.uncheck_button = QPushButton("Uncheck All")
+        self.uncheck_button.clicked.connect(self._on_uncheck_all)
+        buttons.addWidget(self.uncheck_button)
         self.copy_button = QPushButton("Copy")
         self.copy_button.clicked.connect(self._on_copy)
         self.refresh_button = QPushButton("Refresh")
@@ -196,6 +199,14 @@ class DocOrganiser(QDialog):
 
     def _update_copy_button(self) -> None:
         self.copy_button.setEnabled(len(self._checked_rows()) > 0)
+
+    def _on_uncheck_all(self) -> None:
+        """Uncheck every checkable Downloads doc (VB ``TsUncheck_Click``)."""
+        for i in range(self.downloads.topLevelItemCount()):
+            item = self.downloads.topLevelItem(i)
+            if item.flags() & Qt.ItemFlag.ItemIsUserCheckable:
+                item.setCheckState(0, Qt.CheckState.Unchecked)
+        self._update_copy_button()
 
     def _on_copy(self) -> None:
         """Copy the checked Downloads docs into their mods (VB ``BtCopy_Click``)."""

@@ -351,6 +351,25 @@ def test_dialog_version_toggle_strips_version(qtbot, tmp_path):
     assert dlg.downloads.topLevelItem(0).text(0) == "Alpha Guide.pdf"
 
 
+def test_dialog_uncheck_all(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "a.txt", b"a")
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "b.txt", b"b")
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+    assert dlg.copy_button.isEnabled()  # both checked by default
+
+    dlg._on_uncheck_all()
+    from PySide6.QtCore import Qt
+
+    for i in range(dlg.downloads.topLevelItemCount()):
+        assert dlg.downloads.topLevelItem(i).checkState(0) == Qt.CheckState.Unchecked
+    assert not dlg.copy_button.isEnabled()
+
+
 def test_dialog_matched_download_is_disabled(qtbot, tmp_path):
     controller = _controller(tmp_path, "Alpha")
     root = tmp_path / "Profiles" / "P"
