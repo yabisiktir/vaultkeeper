@@ -393,6 +393,73 @@ def _scan_dir(
             return
 
 
+# -- Publish rewrite (VB PublishMod wizard update) ------------------------- #
+
+#: Characters stripped from the archive-folder qualifier (VB AppDefs
+#: ``VaultArchiveRemoveChars`` = apostrophe + space; spaces are already replaced
+#: with ``_`` first, so in practice this removes apostrophes).
+_VAULT_ARCHIVE_REMOVE_CHARS = "' "
+
+
+def archive_folder_name(zip_file_name: str) -> str:
+    """Folder qualifier a published archive extracts to (VB ``archiveFolder``).
+
+    Lower-cases the ``.7z`` name, replaces spaces with ``_`` and strips the
+    ``VaultArchiveRemoveChars`` (apostrophes).
+    """
+    name = zip_file_name.lower().replace(" ", "_")
+    for ch in _VAULT_ARCHIVE_REMOVE_CHARS:
+        name = name.replace(ch, "")
+    return name
+
+
+def rewrite_for_publish(wizard_text: str, archive_folder: str) -> str:
+    """Rewrite a wizard's file references for a published archive (VB ``BtPublish``).
+
+    Every SelectOne/SelectMany/InstallerExcludes file entry is re-rooted under
+    ``archive_folder`` (the folder the published ``.7z`` extracts to), replacing any
+    existing archive prefix; ``ExtractArchives`` is forced on (inserted right after
+    ``WizardTitle``, any existing flag dropped). Block header/footer lines and the
+    title are preserved. The caller restores the original file afterwards.
+    """
+    start_block = {
+        _SELECT_ONE.lower(),
+        _SELECT_MANY.lower(),
+        _INSTALLER_EXCLUDES.lower(),
+    }
+    end_block = {
+        _END_SELECT_ONE.lower(),
+        _END_SELECT_MANY.lower(),
+        _END_INSTALLER_EXCLUDES.lower(),
+    }
+
+    out: list[str] = []
+    folder_prefix = False
+    for wizard_line in wizard_text.splitlines():
+        raw = wizard_line.replace("\t", "")
+        keyword = raw.split("=", 1)[0].strip().lower()
+
+        if keyword == _WIZARD_TITLE.lower():
+            out.append(wizard_line)  # keep the title
+            wizard_line = _EXTRACT_ARCHIVES  # then force ExtractArchives on
+        elif keyword == _EXTRACT_ARCHIVES.lower():
+            continue  # drop any existing flag (re-inserted after the title)
+        elif keyword in start_block:
+            folder_prefix = True
+        elif keyword in end_block:
+            folder_prefix = False
+        elif folder_prefix and raw != "":
+            slash = raw.find("\\")
+            tab_count = len(wizard_line) - len(raw)
+            if slash > 0 and is_zip_extension(PurePosixPath(raw[:slash]).suffix):
+                raw = raw[slash + 1 :]  # strip an existing archive prefix
+            wizard_line = "\t" * tab_count + f"{archive_folder}\\{raw}"
+
+        out.append(wizard_line)
+
+    return "\n".join(out) + "\n"
+
+
 def validate(info: WizardInfo, source_files: dict[str, ExtractType]) -> int:
     """Prune wizard entries whose file no longer exists (VB ``Validate``).
 

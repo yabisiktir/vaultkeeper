@@ -95,15 +95,19 @@ def test_compress_mod_folder_reports_unavailable_off_windows(tmp_path):
 
 
 def test_publish_mod_uses_archive_seam_with_excludes(tmp_path):
+    from vaultkeeper.core import constants as C
     from vaultkeeper.core.archive import FakeArchiveExtractor
 
     controller = _controller(tmp_path)
     controller._extractor = FakeArchiveExtractor()
-    dest = tmp_path / "out"
-    result = controller.publish_mod("My Mod", dest)
+    result = controller.publish_mod("My Mod")
 
     assert result["ok"]
-    assert result["path"].endswith("My Mod.7z")
+    assert result["zip_name"] == "My Mod.7z"
+    # VB publishes into the mod's own _Published folder (no destination picker).
+    published = controller.ctx.profile_mods_dir / "My Mod" / C.PUBLISHED_DIR
+    assert result["path"] == str(published / "My Mod.7z")
+    assert controller._extractor.create_calls[0][0] == published / "My Mod.7z"
     # The private folders/files are excluded (VB PublishMod -x! list).
     assert controller._extractor.last_exclude == [
         ".Game Play Time.rtf",
@@ -111,7 +115,18 @@ def test_publish_mod_uses_archive_seam_with_excludes(tmp_path):
         "_History",
         "_Published",
     ]
-    assert controller._extractor.create_calls[0][0] == dest / "My Mod.7z"
+
+
+def test_publish_mod_appends_version(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor()
+    # Trailing dots are trimmed; version is appended after a space.
+    assert controller.publish_zip_name("My Mod", "2.0.") == "My Mod 2.0.7z"
+    result = controller.publish_mod("My Mod", version="2.0")
+    assert result["ok"]
+    assert result["zip_name"] == "My Mod 2.0.7z"
 
 
 def test_publish_unknown_mod(tmp_path):
@@ -119,7 +134,7 @@ def test_publish_unknown_mod(tmp_path):
 
     controller = _controller(tmp_path)
     controller._extractor = FakeArchiveExtractor()
-    result = controller.publish_mod("Ghost", tmp_path / "out")
+    result = controller.publish_mod("Ghost")
     assert not result["ok"]
 
 
@@ -128,6 +143,6 @@ def test_publish_reports_when_backend_unavailable(tmp_path):
 
     controller = _controller(tmp_path)
     controller._extractor = FakeArchiveExtractor(available=False)
-    result = controller.publish_mod("My Mod", tmp_path / "out")
+    result = controller.publish_mod("My Mod")
     assert not result["ok"]
     assert "not available" in result["message"].lower()

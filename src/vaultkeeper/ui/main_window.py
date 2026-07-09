@@ -528,13 +528,11 @@ class MainWindow(QMainWindow):
         if self.controller is None or not names:
             self.nit_status.set_info("Select a mod first.")
             return
-        from pathlib import Path
+        from vaultkeeper.ui.dialogs.publish_mod import PublishMod
 
-        dest = QFileDialog.getExistingDirectory(self, "Publish Mod — choose a folder")
-        if not dest:
-            return
-        result = self.controller.publish_mod(names[0], Path(dest))
-        self.nit_status.set_info(result["message"])
+        dlg = PublishMod(self.controller, names[0], self)
+        dlg.exec()
+        self.refresh()
 
     def _on_new_mod(self) -> None:
         if self.controller is None:

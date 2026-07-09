@@ -391,23 +391,35 @@ def test_portrait_command_opens_manager(qtbot, controller) -> None:
     assert win._portrait_manager is not None
 
 
-def test_publish_command_wired(qtbot, controller, tmp_path, monkeypatch) -> None:
-    from PySide6.QtWidgets import QFileDialog
+def test_publish_command_wired(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QMessageBox
 
+    from vaultkeeper.core import constants as C
     from vaultkeeper.core.archive import FakeArchiveExtractor
+    from vaultkeeper.ui.dialogs.publish_mod import PublishMod
 
     controller._extractor = FakeArchiveExtractor()
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    dest = tmp_path / "publish"
-    dest.mkdir()
-    monkeypatch.setattr(
-        QFileDialog, "getExistingDirectory", staticmethod(lambda *a, **k: str(dest))
-    )
+
+    # The command opens the (modal) PublishMod dialog; drive the publish without
+    # actually blocking on exec(), and silence its result message box.
+    opened: dict[str, str] = {}
+
+    def fake_exec(self) -> int:
+        opened["mod"] = self._mod_name
+        self._on_publish()
+        return 0
+
+    monkeypatch.setattr(PublishMod, "exec", fake_exec)
+    monkeypatch.setattr(QMessageBox, "information", staticmethod(lambda *a, **k: None))
+
     _select_mod(win, "Alpha")
     win._on_command("MsPublishMod")
-    assert (dest / "Alpha.7z").is_file()
-    assert "Published Alpha" in win.nit_status.mg_info.text()
+
+    assert opened["mod"] == "Alpha"
+    published = controller.ctx.profile_mods_dir / "Alpha" / C.PUBLISHED_DIR / "Alpha.7z"
+    assert published.is_file()
 
 
 def test_user_response_editor_command_wired(qtbot, controller, tmp_path) -> None:

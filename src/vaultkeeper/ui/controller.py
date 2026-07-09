@@ -332,57 +332,104 @@ class ProfileController:
             self._extractor = SevenZipExtractor()
         return self._extractor
 
-    def publish_mod(self, mod_name: str, dest_dir: Path) -> dict:
-        """Archive a mod folder into a distributable ``.7z`` (VB PublishMod).
+    def publish_zip_name(self, mod_name: str, version: str = "") -> str:
+        """The ``.7z`` file name a publish will produce (VB ``ZipFileName``).
 
-        Ports the essential PublishMod operation: create ``<dest>/<mod>.7z`` from
-        the mod folder's contents, excluding the private ``_PlayTime``/``_Downloads``/
-        ``_History``/``_Published`` items (VB ``-x!`` list). Returns
-        ``{"ok": bool, "path": str, "message": str}``.
+        ``<mod>[ <version>].7z`` — the version text (trailing dots trimmed) is
+        appended after a space, or omitted when blank.
+        """
+        suffix = version.strip().rstrip(".")
+        return f"{mod_name} {suffix}.7z" if suffix else f"{mod_name}.7z"
+
+    def publish_mod(self, mod_name: str, *, version: str = "") -> dict:
+        """Archive a mod into a distributable ``.7z`` under ``_Published`` (VB PublishMod).
+
+        Ports the PublishMod operation faithfully: create
+        ``<mod>/_Published/<mod>[ <version>].7z`` from the mod folder's contents,
+        excluding the private ``_PlayTime``/``_Downloads``/``_History``/``_Published``
+        items (VB ``-x!`` list). If the mod has an installer wizard, its file
+        references are re-rooted under the archive folder for the duration of the
+        publish (``rewrite_for_publish``) and the original file is restored
+        afterwards. Returns ``{"ok", "path", "zip_name", "message"}``.
+
+        The optional *Generate Installation Guide* step is deferred (the VB RTF guide
+        templates are not bundled). The published folder is the mod's, not a chosen
+        destination — VB has no destination picker.
         """
         from vaultkeeper.core import constants as C
+        from vaultkeeper.game.wizard import (
+            WIZARD_FILE,
+            archive_folder_name,
+            rewrite_for_publish,
+        )
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
-            return {"ok": False, "path": "", "message": f"Unknown mod: {mod_name}"}
+            return _publish_result(False, message=f"Unknown mod: {mod_name}")
         mod_folder = self.ctx.profile_mods_dir / mod_name
         if not mod_folder.is_dir():
-            return {"ok": False, "path": "", "message": f"Mod folder missing: {mod_name}"}
+            return _publish_result(False, message=f"Mod folder missing: {mod_name}")
 
         backend = self._archive_backend()
         if not backend.available:
-            return {
-                "ok": False,
-                "path": "",
-                "message": "7-Zip is not available; cannot publish.",
-            }
+            return _publish_result(
+                False, message="7-Zip is not available; cannot publish."
+            )
 
-        dest_dir = Path(dest_dir)
-        archive = dest_dir / f"{mod_name}.7z"
+        zip_name = self.publish_zip_name(mod_name, version)
+        published_dir = mod_folder / C.PUBLISHED_DIR
+        archive = published_dir / zip_name
+        try:
+            published_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            return _publish_result(
+                False, message=f"Unable to create the {C.PUBLISHED_DIR} folder: {exc}"
+            )
+
+        # Re-root the wizard's file references under the archive folder, keeping the
+        # original text to restore after the archive is built (VB non-destructive).
+        wizard_file = mod_folder / WIZARD_FILE
+        original_wizard = None
+        if wizard_file.is_file():
+            try:
+                original_wizard = wizard_file.read_text(
+                    encoding="utf-8", errors="replace"
+                )
+                wizard_file.write_text(
+                    rewrite_for_publish(original_wizard, archive_folder_name(zip_name)),
+                    encoding="utf-8",
+                )
+            except OSError:
+                original_wizard = None
+
         exclude = [
             C.PLAY_TIME_FILE,
             C.DOWNLOADS_DIR,
             C.HISTORY_DIR,
             C.PUBLISHED_DIR,
         ]
-        # Archive the folder's contents (VB "<ModPath>\*"), paths relative to it.
-        result = backend.create(
-            archive,
-            [Path("*")],
-            base_dir=mod_folder,
-            exclude=exclude,
-        )
+        try:
+            # Archive the folder's contents (VB "<ModPath>\*"), paths relative to it.
+            result = backend.create(
+                archive, [Path("*")], base_dir=mod_folder, exclude=exclude
+            )
+        finally:
+            if original_wizard is not None:
+                import contextlib
+
+                with contextlib.suppress(OSError):
+                    wizard_file.write_text(original_wizard, encoding="utf-8")
+
         if result.ok:
-            return {
-                "ok": True,
-                "path": str(archive),
-                "message": f"Published {mod_name} to {archive.name}",
-            }
-        return {
-            "ok": False,
-            "path": "",
-            "message": result.error or f"Failed to publish {mod_name}",
-        }
+            return _publish_result(
+                True,
+                path=str(archive),
+                zip_name=zip_name,
+                message=f"Published {mod_name} to {zip_name}",
+            )
+        return _publish_result(
+            False, message=result.error or f"Failed to publish {mod_name}"
+        )
 
     def create_installer(self, mod_name: str) -> bool:
         """Mark a mod as an installer (write its identifier) and scan its files.
@@ -1487,6 +1534,13 @@ def _doc_copy_summary(copied: int, errors: int) -> str:
     if errors == 0:
         return f"Documents copied: {copied_text}."
     return f"Documents copied: {copied_text}. Errors: {errors:,}."
+
+
+def _publish_result(
+    ok: bool, *, path: str = "", zip_name: str = "", message: str = ""
+) -> dict:
+    """Assemble a publish-op result dict (VB PublishMod outcome)."""
+    return {"ok": ok, "path": path, "zip_name": zip_name, "message": message}
 
 
 def _wizard_op_result(

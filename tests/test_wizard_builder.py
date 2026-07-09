@@ -23,15 +23,18 @@ from vaultkeeper.core import constants as C  # noqa: E402
 from vaultkeeper.core.mapper import Mapper  # noqa: E402
 from vaultkeeper.game.wizard import (  # noqa: E402
     WIZARD_FILE,
+    archive_folder_name,
     convert_to_text,
     delete_wizard,
     load_wizard,
     parse_wizard_text,
+    rewrite_for_publish,
     save_wizard,
     scan_mod_files,
     validate,
 )
 from vaultkeeper.ui.controller import ProfileController  # noqa: E402
+from vaultkeeper.ui.dialogs.publish_mod import PublishMod  # noqa: E402
 from vaultkeeper.ui.dialogs.wizard_builder import WizardBuilder  # noqa: E402
 
 _WIZARD_TEXT = """\
@@ -338,6 +341,89 @@ def test_dialog_buttons_disabled_without_wizard(qtbot, tmp_path):
     qtbot.addWidget(dlg)
     assert not dlg.validate_button.isEnabled()
     assert not dlg.delete_button.isEnabled()
+
+
+# -- Publish rewrite (VB PublishMod wizard update) ------------------------ #
+
+
+def test_archive_folder_name():
+    # Lower-cased, spaces -> "_", apostrophes stripped (VaultArchiveRemoveChars).
+    assert archive_folder_name("Baldur's Gate 2.0.7z") == "baldurs_gate_2.0.7z"
+
+
+def test_rewrite_for_publish_reroots_entries():
+    text = (
+        "WizardTitle = My Wizard\n"
+        "ExtractArchives\n"
+        "\n"
+        "SelectOne = Pick\n"
+        "\thak\\music_hi.hak > High\n"
+        "\thak\\music_lo.hak > Low\n"
+        "End SelectOne\n"
+    )
+    out = rewrite_for_publish(text, "coolmod.7z")
+    lines = out.splitlines()
+    # Title kept; ExtractArchives forced on immediately after it (old one dropped).
+    assert lines[0] == "WizardTitle = My Wizard"
+    assert lines[1] == "ExtractArchives"
+    assert out.count("ExtractArchives") == 1
+    # File entries are re-rooted under the archive folder, tab preserved.
+    assert "\tcoolmod.7z\\hak\\music_hi.hak > High" in lines
+    assert "\tcoolmod.7z\\hak\\music_lo.hak > Low" in lines
+    # Block headers/footers untouched.
+    assert "SelectOne = Pick" in lines
+    assert "End SelectOne" in lines
+
+
+def test_rewrite_for_publish_strips_existing_archive_prefix():
+    text = "SelectOne = P\n\toldmod.7z\\hak\\x.hak > X\nEnd SelectOne\n"
+    out = rewrite_for_publish(text, "newmod.7z")
+    assert "\tnewmod.7z\\hak\\x.hak > X" in out.splitlines()
+    assert "oldmod.7z" not in out
+
+
+def test_publish_restores_wizard_after_publishing(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path, "My Mod")
+    mod = tmp_path / "Profiles" / "P" / "My Mod"
+    original = "SelectOne = P\n\thak\\a.hak > A\n\thak\\b.hak > B\nEnd SelectOne\n"
+    (mod / WIZARD_FILE).write_text(original, encoding="utf-8")
+    controller._extractor = FakeArchiveExtractor()
+
+    result = controller.publish_mod("My Mod")
+    assert result["ok"]
+    # The wizard file on disk is restored to its original content after publishing.
+    assert (mod / WIZARD_FILE).read_text() == original
+
+
+# -- Publish dialog ------------------------------------------------------- #
+
+
+def test_publish_dialog_live_name_and_publish(qtbot, tmp_path):
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.core import constants as C
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path, "My Mod")
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = PublishMod.show_for(controller, "My Mod")
+    qtbot.addWidget(dlg)
+    assert dlg.archive_label.text() == "My Mod.7z"
+    dlg.version_edit.setText("2.0")
+    assert dlg.archive_label.text() == "My Mod 2.0.7z"
+    assert not dlg.guide_check.isEnabled()  # deferred
+
+    import unittest.mock as mock
+
+    with mock.patch.object(QMessageBox, "information"):
+        dlg._on_publish()
+    published = (
+        controller.ctx.profile_mods_dir / "My Mod" / C.PUBLISHED_DIR / "My Mod 2.0.7z"
+    )
+    assert controller._extractor.create_calls[0][0] == published
 
 
 def test_dialog_delete_button(qtbot, tmp_path, monkeypatch):

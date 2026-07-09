@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from vaultkeeper.core import constants as C
 from vaultkeeper.ui.controller import ProfileController
 from vaultkeeper.ui.dialogs.text_viewer import TextViewer
 
