@@ -300,6 +300,43 @@ def test_dialog_downloads_checkable_and_copy_button(qtbot, tmp_path):
     assert not dlg.copy_button.isEnabled()
 
 
+# -- Document preview (VB DisplayFile) ------------------------------------ #
+
+
+def test_doc_preview_text_rtf_binary_and_missing(tmp_path):
+    from vaultkeeper.core.rtf import write_rtf
+
+    controller = _controller(tmp_path, "Alpha")
+
+    txt = tmp_path / "readme.txt"
+    txt.write_text("Hello docs", encoding="utf-8")
+    assert controller.doc_preview(str(txt)) == {"kind": "text", "text": "Hello docs"}
+
+    rtf = tmp_path / "notes.rtf"
+    rtf.write_text(write_rtf(["Line one"]), encoding="utf-8")
+    result = controller.doc_preview(str(rtf))
+    assert result["kind"] == "text"
+    assert "Line one" in result["text"]
+
+    pdf = tmp_path / "guide.pdf"
+    pdf.write_bytes(b"%PDF-1.4")
+    assert controller.doc_preview(str(pdf))["kind"] == "open_with"
+
+    assert controller.doc_preview(str(tmp_path / "gone.txt"))["kind"] == "missing"
+
+
+def test_dialog_selecting_doc_shows_preview(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / "ReadMe.txt", b"the readme body")
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+    # The Contents pane auto-selects its first item -> preview shows its content.
+    assert "the readme body" in dlg.preview.toPlainText()
+
+
 def test_dialog_version_toggle_strips_version(qtbot, tmp_path):
     controller = _controller(tmp_path, "Alpha")
     root = tmp_path / "Profiles" / "P"

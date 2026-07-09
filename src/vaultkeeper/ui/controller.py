@@ -1182,6 +1182,34 @@ class ProfileController:
             "summary": _doc_summary(scanned, len(downloads), len(contents)),
         }
 
+    def doc_preview(self, source_path: str) -> dict:
+        """Preview text for a documentation file (VB ``DocOrganiser.DisplayFile``).
+
+        Returns ``{"kind", "text"}``: ``kind="text"`` with the readable body for
+        ``.txt``/``.rtf``/``.htm``/``.html`` (RTF is stripped to plain text via
+        ``core/rtf``), ``kind="open_with"`` with a prompt for other formats (VB shows
+        an *Open with …* link for ``.pdf``/``.doc`` etc.), or ``kind="missing"`` when
+        the file is gone (e.g. an archive-extracted doc whose temp copy was removed).
+        """
+        from vaultkeeper.core.rtf import read_rtf_text
+
+        path = Path(source_path)
+        if not source_path or not path.is_file():
+            return {"kind": "missing", "text": ""}
+        ext = path.suffix.lower()
+        try:
+            raw = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return {"kind": "missing", "text": ""}
+        if ext == ".rtf":
+            return {"kind": "text", "text": read_rtf_text(raw)}
+        if ext in (".txt", ".htm", ".html"):
+            return {"kind": "text", "text": raw}
+        return {
+            "kind": "open_with",
+            "text": f"Open with the application associated with {ext} files.",
+        }
+
     def copy_docs_to_mod(self, mod_name: str, selections: list[dict]) -> dict:
         """Copy chosen Downloads docs into the mod root (VB ``BtCopy_Click``).
 

@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QPushButton,
+    QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -71,8 +72,16 @@ class DocOrganiser(QDialog):
         self.downloads = self._make_pane()
         self.contents = self._make_pane()
         self.downloads.itemChanged.connect(self._on_item_changed)
+        self.downloads.currentItemChanged.connect(self._on_selection)
+        self.contents.currentItemChanged.connect(self._on_selection)
         panes.addLayout(self._pane_column("Downloads Folder Documents", self.downloads))
         panes.addLayout(self._pane_column("Contents Panel Documents", self.contents))
+
+        # Read-only preview of the selected document (VB RtfDoc/RtfContents).
+        self.preview = QTextEdit()
+        self.preview.setReadOnly(True)
+        self.preview.setPlaceholderText("Select a document to preview it.")
+        layout.addWidget(self.preview, 1)
 
         self.summary = QLabel()
         layout.addWidget(self.summary)
@@ -130,6 +139,7 @@ class DocOrganiser(QDialog):
         tree.clear()
         for row in rows:
             item = QTreeWidgetItem([row["doc_name"], row["folder"], row["size"]])
+            item.setData(0, Qt.ItemDataRole.UserRole, row)
             if row["name_match"]:
                 # Matched by a downloaded doc — italicised (VB itemFont).
                 _italicise(item)
@@ -163,6 +173,18 @@ class DocOrganiser(QDialog):
 
     def _on_item_changed(self, _item: QTreeWidgetItem, _col: int) -> None:
         self._update_copy_button()
+
+    def _on_selection(
+        self, current: QTreeWidgetItem | None, _previous: QTreeWidgetItem | None
+    ) -> None:
+        """Preview the newly selected document (VB DisplayFile)."""
+        if current is None:
+            return
+        row = current.data(0, Qt.ItemDataRole.UserRole)
+        if not row:
+            return
+        result = self._controller.doc_preview(row["source_path"])
+        self.preview.setPlainText(result["text"])
 
     def _checked_rows(self) -> list[dict]:
         rows: list[dict] = []
