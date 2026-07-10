@@ -200,6 +200,26 @@ the details pane. The port additionally provides an aggregate **Conflicts** dial
 listing every conflicted file and its winner — a convenience view over the same data
 (the engine's last-by-comparer winner). Both are faithful to the conflict model.
 
+### Workshop / Publish / Folder Mapping / Download Project
+
+Assessed against the VB `*.Designer.vb` (their CHM topics only show column fragments):
+
+- **Steam Workshop Subscriptions — ✅ Verified.** Port matches the VB exactly: title
+  "Steam Workshop Subscriptions", heading "View information about your Steam Workshop
+  Subscriptions", columns Workshop Id / Managed / Mod Name + Subscription Contents. The
+  add/update/remove subscription-management actions are deferred (🔷).
+- **Publish Mod — ✅ Verified.** Heading "Package your Mod for publishing (Uploading)",
+  Version field (appended to the mod name), live archive-name label — all match VB
+  `LbHeading` / `LbVersion` / `LbArchiveName`. (Port title "Publish <mod>" improves on
+  the VB designer's placeholder `Text = "90"`.) Generate-Installation-Guide deferred.
+- **Folder Mapping — ✅ Verified.** Tabs Extensions / Map Files / Map Folders / Map
+  Excludes with the VB Settings column captions; the port is an editor (add / remove /
+  reset). The per-list rename / reset-item / import-from-game context menus are 🔷.
+- **Download Project — 🔷 Divergent.** Port implements the core slice (fetch a Vault
+  URL → checkable file list → download into a mod's `_Downloads`). The VB dialog is
+  richer (Required Projects list, per-project file metadata, "Open Project Page"); that
+  breadth is deferred.
+
 ### Recurring pattern (recorded once)
 
 Several port dialogs are faithful **read-only reports/viewers** of a subsystem whose VB
@@ -217,12 +237,12 @@ Each maps to its help topic; compare per the steps above.
 |---|---|---|
 | Main window (ribbon / menus / 3-pane) | `UserInterface` / `NewItem84.png` | ✅ verified (sentinel-header fix applied) |
 | Wizard Builder | `bhwizardbuilder.htm` | 🔷 assessed (viewer vs editor) |
-| Workshop Viewer | `bhworkshop.htm` | ⬜ |
+| Workshop Viewer | `bhworkshop.htm` | ✅ verified |
 | Dependency Manager | `bhdependencymanager.htm` | 🔷 assessed (report vs editor) |
 | Installation Analyser | `bhinstallationanalyser.htm` | 🔷 assessed (report vs browser) |
-| Download Project | `bhdownloadproject.htm` | ⬜ |
-| Publish Mod | `bhpublishmod.htm` | ⬜ |
-| Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ⬜ |
+| Download Project | `bhdownloadproject.htm` | 🔷 assessed (core slice) |
+| Publish Mod | `bhpublishmod.htm` | ✅ verified |
+| Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ✅ verified |
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | 🔷 assessed (wired subset) |
 | Portrait Manager | `rbportraitmanagerhelp.htm` | 🟡 assessed (title fixed) |
 | Start Screen Manager | `rbloadscreenhelp.htm` | 🔷 assessed (title fixed) |
@@ -231,14 +251,14 @@ Each maps to its help topic; compare per the steps above.
 
 ## Summary
 
-Compared so far: **the main window + 11 dialogs** (Character Explorer, Doc Organiser,
-Game Saves Manager, Wizard Builder, Dependency Manager, Installation Analyser, Mod Play
-Viewer, Portrait Manager, Start Screen Manager, Settings, Conflicts). Verified structural
-matches: main window, Character Explorer, Mod Play Viewer. The rest carry the correct
-data/content with the interactive editor/preference surface deferred. **Fixes applied:**
-sentinel group header, Character Explorer + Portrait Manager title counts, Mod Play
-heading, Start Screen title. Still ⬜: Workshop Viewer, Download Project, Publish Mod,
-Folder Mapping (the reference snippets show only column fragments, not full dialogs).
+Assessed: **the main window + every major dialog** (15 dialogs). Verified structural
+matches: main window, Character Explorer, Mod Play Viewer, Workshop Viewer, Publish Mod,
+Folder Mapping. The remainder are read-only reports/viewers or wired subsets whose VB
+originals carry a richer editor/browser/preference surface — recorded as intended
+bounded divergences (🔷). **Fixes applied this stage:** the sentinel group-header bug,
+Character Explorer + Portrait Manager title counts, the Mod Play heading, and the Start
+Screen title. The parity bar (structural, not pixel) is met across the board, with the
+deferred interactive surfaces tracked in the handoff for future work.
 The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred
