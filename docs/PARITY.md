@@ -89,22 +89,26 @@ All the core content (both lists, preview, copy, rename/rename-to, version toggl
 uncheck-all) is present; the layout arrangement and the Properties/Reset/queue
 extras differ.
 
-### Game Saves Manager — 🟡 Differing / 🔷 Divergent (bounded port)
+### Game Saves Manager — ✅ Verified (backup/activate ported)
 
 Reference: `bhgamemanager.htm` → `lib/NewItem1502.png`.
 
-The port implements only the **archive / reduce / restore** slice (this stage). The
-original is a full backup **manager** with a different layout:
+The port now carries the full backup manager: archive/reduce/restore **and** the
+deactivate/activate/delete-game backup flows with a two-list layout.
 
 | Element | Original | Port | Verdict |
 |---|---|---|---|
 | Reduce (keep-count) + Restore | ✓ | ✓ | ✅ |
-| Save list | mods grouped, left; current game's save folders as a 2nd list ("regions") | one flat table (Folder/Save/Location/Type/Size) | 🟡 layout |
-| Action toolbar Reduce/Restore/**Activate/Deactivate/Delete**/Finished | ✓ | Reduce/Restore only | 🔷 backup/activate flows deferred |
-| Space accounting (Backups / Archives / Total / Grand Total) | ✓ | totals line only | 🔷 |
+| Current game's saves list | ✓ | ✓ (Folder/Save/Location/Type/Size) | ✅ |
+| Second list of deactivated games (backups) | ✓ | ✓ | ✅ |
+| Action toolbar **Activate / Deactivate / Delete** | ✓ | ✓ | ✅ |
+| Space accounting (Total saves + Backups total) | ✓ | ✓ | ✅ |
 
-To reach parity the manager needs the deferred deactivate/activate/delete-game
-**backup** subsystem and the two-list (mods ↔ save folders) layout with space totals.
+`deactivate_current_game` (VB `DeactivateGame` — move the active game's folders to
+`Backups/Data Backups/Game Saves/<game>/`), `activate_game` (VB `ActivateGame` —
+deactivate the current game first, then restore the backup, removing the emptied
+folder) and `delete_game_backup` (VB `DeleteGame`) are all ported, with the Backups
+space total shown.
 
 ### Wizard Builder — ✅ Verified (authoring UI ported)
 

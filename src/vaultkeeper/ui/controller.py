@@ -1346,6 +1346,74 @@ class ProfileController:
             "message": result.message,
         }
 
+    # -- Deactivate / Activate / Delete games (VB GameManager backup flows) -- #
+    def game_backup_root(self) -> Path:
+        """The store's deactivated-game backup folder (VB ``Paths.GameSaves``)."""
+        from vaultkeeper.game.game_backup import GAME_SAVES_SUBPATH
+
+        return self.data_dir().parent.joinpath(*GAME_SAVES_SUBPATH)
+
+    def deactivated_games_report(self) -> dict:
+        """The deactivated games held in the backup area + space totals (VB backup list).
+
+        Returns ``{"games": [{name,count,size,size_bytes}], "backup_total",
+        "backup_total_bytes"}`` — the second list of the two-list Game Saves Manager
+        layout, plus the Backups space accounting (VB ``TotalBackupSize``).
+        """
+        from vaultkeeper.game.game_backup import scan_deactivated_games
+
+        games = scan_deactivated_games(self.game_backup_root())
+        rows = [
+            {
+                "name": g.name,
+                "count": g.count,
+                "size": _fmt_size(g.total_size),
+                "size_bytes": g.total_size,
+            }
+            for g in games
+        ]
+        total = sum(g.total_size for g in games)
+        return {
+            "games": rows,
+            "backup_total": _fmt_size(total),
+            "backup_total_bytes": total,
+        }
+
+    def deactivate_current_game(self) -> dict:
+        """Deactivate the active game into a backup (VB ``DeactivateGame``)."""
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "moved": 0, "message": "No game saves available."}
+        from vaultkeeper.game.game_backup import deactivate_game
+
+        result = deactivate_game(
+            loop.game_saves(), loop.saves_dir, self.game_backup_root()
+        )
+        return {"ok": result.ok, "moved": result.moved, "message": result.message}
+
+    def activate_game(self, name: str) -> dict:
+        """Activate a deactivated game, backing up the current one first (VB ``ActivateGame``)."""
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "moved": 0, "message": "No game saves available."}
+        from vaultkeeper.game.game_backup import activate_game
+
+        backup_folder = self.game_backup_root() / name
+        result = activate_game(
+            backup_folder,
+            loop.saves_dir,
+            current_saves=loop.game_saves(),
+            backup_root=self.game_backup_root(),
+        )
+        return {"ok": result.ok, "moved": result.moved, "message": result.message}
+
+    def delete_game_backup(self, name: str, *, to_trash: bool = False) -> dict:
+        """Delete a deactivated game's backup folder (VB ``DeleteGame``)."""
+        from vaultkeeper.game.game_backup import delete_game_backup
+
+        result = delete_game_backup(self.game_backup_root() / name, to_trash=to_trash)
+        return {"ok": result.ok, "message": result.message}
+
     # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #
     def character_files(self) -> list:
         """The player's characters, from the local vault and each game save.

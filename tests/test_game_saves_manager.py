@@ -159,3 +159,58 @@ def test_dialog_reduce_button_dispatch(qtbot, tmp_path, monkeypatch):
     dlg.keep_spin.setValue(30)
     dlg._on_reduce()
     assert calls == [30]
+
+
+# -- Deactivate / Activate / Delete (VB GameManager backup flows) ---------- #
+
+
+def test_deactivate_and_report(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    result = controller.deactivate_current_game()
+    assert result["ok"]
+    assert result["moved"] == 2
+    # Live saves are gone; the deactivated game shows up in the backup report.
+    assert controller.game_saves_report()["count"] == 0
+    dg = controller.deactivated_games_report()
+    assert dg["games"][0]["name"] == "Adventure"
+    assert dg["games"][0]["count"] == 2
+    assert dg["backup_total_bytes"] > 0
+
+
+def test_activate_restores_deactivated_game(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.deactivate_current_game()
+    assert controller.game_saves_report()["count"] == 0
+
+    result = controller.activate_game("Adventure")
+    assert result["ok"]
+    assert controller.game_saves_report()["count"] == 2
+    # The backup folder is gone after activation.
+    assert controller.deactivated_games_report()["games"] == []
+
+
+def test_delete_game_backup(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.deactivate_current_game()
+    result = controller.delete_game_backup("Adventure")
+    assert result["ok"]
+    assert controller.deactivated_games_report()["games"] == []
+
+
+def test_dialog_deactivate_button(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    assert dlg.deactivate_button.isEnabled()
+    dlg._on_deactivate()
+    # The second list now shows the deactivated game.
+    assert dlg.games.topLevelItemCount() == 1
+    assert dlg.games.topLevelItem(0).text(0) == "Adventure"
+    # Active list emptied.
+    assert dlg.table.topLevelItemCount() == 0
