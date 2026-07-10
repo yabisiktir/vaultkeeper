@@ -33,6 +33,27 @@ and WinForms-on-Windows never pixel-match (native widgets, fonts, chrome, DPI di
 
 ## Findings
 
+### Main window — ✅ Verified (1 fix applied this pass)
+
+Reference: `managemodfileconflicts.htm` → `lib/NewItem84.png` (shows the main window,
+with a file's conflicts inline in the details pane).
+
+| Element | Original | Port | Verdict |
+|---|---|---|---|
+| Menu bar (File Edit View Manage Tools Run Web Options Help) | ✓ | ✓ | ✅ |
+| Quick toolbar (icon cluster) | ✓ | ✓ | ✅ |
+| Ribbon (Play / Work with Mods / …) | ✓ | ✓ | ✅ |
+| 3-pane layout (mods / contents+info / details+notes) | ✓ | ✓ | ✅ |
+| Grouped, state-coloured mod list | ✓ | ✓ | ✅ |
+| Status bar (Mods count, Group, messages, icons) | ✓ | ✓ | ✅ |
+| Ungrouped-mod group header | no sentinel header | **was showing raw `......001`** | 🟢 **fixed** |
+| Right-aligned "Played for N mins" / "Mod Selector" | ✓ | — | 🔷 deferred (play-loop UI) |
+| File conflicts | inline in the details pane | separate Conflicts dialog | 🔷 |
+
+**Fix applied:** the mod list rendered the internal `......001` (GROUP_NONE) sentinel as
+a visible group header; it now flattens hidden (`......`) groups to the top level like
+the LazWorks FileView. The layout, chrome, ribbon and status bar otherwise match.
+
 ### Character Explorer — ✅ Verified (with minor divergences)
 
 Reference: `mscharacterviewer.htm` → `lib/NewItem 315.png`.
@@ -154,7 +175,7 @@ Each maps to its help topic; compare per the steps above.
 
 | Port dialog | Help topic | Status |
 |---|---|---|
-| Main window (ribbon / menus / 3-pane) | `MsViewHelp` / `UserInterface` | ✅ (verified in earlier sessions) |
+| Main window (ribbon / menus / 3-pane) | `UserInterface` / `NewItem84.png` | ✅ verified (sentinel-header fix applied) |
 | Wizard Builder | `bhwizardbuilder.htm` | 🔷 assessed (viewer vs editor) |
 | Workshop Viewer | `bhworkshop.htm` | ⬜ |
 | Dependency Manager | `bhdependencymanager.htm` | 🔷 assessed (report vs editor) |
