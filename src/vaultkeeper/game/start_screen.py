@@ -179,6 +179,30 @@ def read_start_screen_info(profile_data_dir: Path) -> StartScreenInfo | None:
     )
 
 
+def with_active_screen(
+    info: StartScreenInfo, name: str, *, prefixed: bool
+) -> StartScreenInfo:
+    """Return ``info`` with ``name`` set as the active screen (VB ``ActiveScreen`` setter).
+
+    Mirrors VB's on-close update (StartScreenManager.vb:866-873): set the active
+    *type* to Prefixed or Standard, then assign the active screen name into the
+    matching slot (the ``ActiveScreen`` setter writes ``Standard`` or ``Prefixed``
+    depending on which type is active).
+    """
+    from dataclasses import replace
+
+    if prefixed:
+        return replace(info, active_type=_TYPE_PREFIXED, prefixed=name)
+    return replace(info, active_type=_TYPE_STANDARD, standard=name)
+
+
+def cleared_active_screen(info: StartScreenInfo) -> StartScreenInfo:
+    """Return ``info`` with both screen names blanked and Standard active (VB delete-all)."""
+    from dataclasses import replace
+
+    return replace(info, active_type=_TYPE_STANDARD, standard="", prefixed="")
+
+
 def save_start_screen_info(profile_data_dir: Path, info: StartScreenInfo) -> None:
     """Persist ``StartscreenInfo.txt`` from ``info`` (VB ``StartScreenInfo.SaveInfo``).
 

@@ -1,0 +1,94 @@
+"""Tests for the loadscreen install engine (VB CreateLoadscreenInstaller/InstallLoadscreen)."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from vaultkeeper.game import start_screen as ss
+from vaultkeeper.ui.controller import ProfileController
+
+
+def _controller(tmp_path: Path) -> ProfileController:
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    return ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+
+def test_ensure_loadscreen_mod_creates_under_auto_group(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    assert md.mod_name == ss.LOADSCREEN_MOD
+    assert md.group == ss.AUTO_GROUP
+    assert c._loadscreen_image_folder(md).is_dir()
+
+
+def test_install_loadscreen_copies_to_game_override(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    (c._loadscreen_image_folder(md) / "Winter.tga").write_bytes(b"TGADATA")
+
+    res = c.install_loadscreen("Winter.tga")
+    assert res["ok"]
+    game_screen = c.ctx.game_folders["override"] / ss.NWN_START_SCREEN_NAME
+    assert game_screen.is_file()
+    assert game_screen.read_bytes() == b"TGADATA"
+    assert c.pd.mod_item(ss.LOADSCREEN_MOD).installed
+
+
+def test_install_loadscreen_records_active_screen(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    (c._loadscreen_image_folder(md) / "Winter.tga").write_bytes(b"x")
+
+    c.install_loadscreen("Winter.tga")
+    info = ss.read_start_screen_info(c._profile_data_dir())
+    assert info is not None
+    assert info.active_screen == "Winter.tga"
+    assert info.standard_active
+
+
+def test_install_loadscreen_missing_image(tmp_path):
+    c = _controller(tmp_path)
+    c.ensure_loadscreen_mod()
+    res = c.install_loadscreen("Nope.tga")
+    assert not res["ok"]
+    assert "not found" in res["message"]
+
+
+def test_install_loadscreen_no_managed_mod(tmp_path):
+    c = _controller(tmp_path)
+    res = c.install_loadscreen("Winter.tga")
+    assert not res["ok"]
+
+
+def test_reinstall_switches_active_image(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"WINTER")
+    (folder / "Summer.tga").write_bytes(b"SUMMER")
+
+    c.install_loadscreen("Winter.tga")
+    c.install_loadscreen("Summer.tga")
+    game_screen = c.ctx.game_folders["override"] / ss.NWN_START_SCREEN_NAME
+    assert game_screen.read_bytes() == b"SUMMER"
+    info = ss.read_start_screen_info(c._profile_data_dir())
+    assert info.active_screen == "Summer.tga"
+
+
+def test_uninstall_loadscreen_removes_from_game(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    (c._loadscreen_image_folder(md) / "Winter.tga").write_bytes(b"x")
+    c.install_loadscreen("Winter.tga")
+    game_screen = c.ctx.game_folders["override"] / ss.NWN_START_SCREEN_NAME
+    assert game_screen.is_file()
+
+    res = c.uninstall_loadscreen()
+    assert res["ok"]
+    assert not game_screen.is_file()
+    assert not c.pd.mod_item(ss.LOADSCREEN_MOD).installed

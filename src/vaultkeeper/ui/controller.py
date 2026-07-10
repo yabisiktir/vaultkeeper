@@ -1581,6 +1581,93 @@ class ProfileController:
 
         ss.save_auto_excludes(self._profile_data_dir(), [])
 
+    # -- Start Screen install engine (VB CreateLoadscreenInstaller/InstallLoadscreen) --
+    def _loadscreen_image_folder(self, md: ModData) -> Path:
+        """The managed mod's ``Loadscreen Images`` folder (VB ``ImageFolder``)."""
+        from vaultkeeper.game import start_screen as ss
+
+        return self.ctx.profile_mods_dir / md.mod_name / ss.SCREEN_FOLDER
+
+    def ensure_loadscreen_mod(self) -> ModData:
+        """Return the NIT-managed loadscreen mod, creating it if absent (VB AutoLoadscreen).
+
+        The mod is created under the auto group (``Pdc.AutoGroup``) and its
+        ``Loadscreen Images`` folder ensured, so images can be added to it.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            self.create_mod(ss.LOADSCREEN_MOD, ss.AUTO_GROUP)
+            md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        assert md is not None
+        self._loadscreen_image_folder(md).mkdir(parents=True, exist_ok=True)
+        return md
+
+    def install_loadscreen(self, display_name: str) -> dict:
+        """Install (or switch to) a loadscreen image as NWN's start screen.
+
+        Faithful composite of VB ``CreateLoadscreenInstaller`` +
+        ``InstallLoadscreen`` + the on-close active-screen update: copy the chosen
+        image into the loadscreen mod's installer as
+        ``override/gui_pre_bknd3.tga``, mark the mod an installer, install it (engine
+        install + anneal → the file reaches the game ``override`` folder), then record
+        it as the active start screen in ``StartscreenInfo.txt``. Returns
+        ``{"ok", "message"}``.
+        """
+        from dataclasses import replace
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+        image_file = self._loadscreen_image_folder(md) / display_name
+        if not image_file.is_file():
+            return {"ok": False, "message": f"Start screen image not found: {display_name}."}
+
+        installer = self.ctx.profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR
+        dest = installer / ss.OVERRIDE_FOLDER / ss.NWN_START_SCREEN_NAME
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            fs.copy_file(image_file, dest, overwrite=True)
+        except OSError:
+            return {"ok": False, "message": "Unable to update Mod Installer."}
+
+        # Register the override file + install the mod (copies it to the game override).
+        self._create_identifier(md.mod_name, C.EXT_INSTALLER)
+        self.install([md.mod_name])
+
+        # Record the newly-installed image as the active start screen (VB on-close).
+        data_dir = self._profile_data_dir()
+        info = ss.read_start_screen_info(data_dir) or ss.StartScreenInfo(
+            active_type="1", standard="", prefixed="", browse_folder=str(self.ctx.profile_mods_dir)
+        )
+        prefixes = ss.read_prefixes(data_dir)
+        info = ss.with_active_screen(
+            info, display_name, prefixed=ss.is_prefixed(display_name, prefixes)
+        )
+        info = replace(info, browse_folder=info.browse_folder or str(self.ctx.profile_mods_dir))
+        ss.save_start_screen_info(data_dir, info)
+        return {"ok": True, "message": f"Start Screen Installed: {display_name}."}
+
+    def uninstall_loadscreen(self) -> dict:
+        """Uninstall the loadscreen mod from the game (VB ``UninstallLoadscreenMod``).
+
+        Runs the engine uninstall + anneal so ``gui_pre_bknd3.tga`` is removed from
+        the game ``override`` folder. The active-screen name in ``StartscreenInfo.txt``
+        is left to the caller (the Delete flow reselects the next image).
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+        self.uninstall([md.mod_name])
+        return {"ok": True, "message": "Start Screen uninstalled."}
+
     def user_responses_report(self) -> dict:
         """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
 
