@@ -60,3 +60,102 @@ def test_report_empty_without_saves(qtbot, tmp_path):
     report = controller.game_saves_report()
     assert report["count"] == 0
     assert report["rows"] == []
+
+
+# -- Archive / reduce / restore (VB ArchiveGames / RestoreGames) ----------- #
+
+
+def _seed_archive(controller: ProfileController) -> Path:
+    """Create an archived range for the current game ("Adventure") on disk.
+
+    Uses a folder number that does not collide with the live saves so a restore can
+    move it back cleanly.
+    """
+    root = controller.archived_saves_root() / "Adventure" / "000005-000005"
+    save = root / "000005 - archived"
+    save.mkdir(parents=True)
+    (save / "Adventure.sav").write_bytes(b"\x00" * 16)
+    (save / "savenfo.txt").write_text("Aarin's Lodge", encoding="utf-8")
+    return root
+
+
+def test_report_lists_archived_ranges(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+    report = controller.game_saves_report()
+    assert report["archived"] == [
+        {"range": "000005-000005", "count": 1, "size": report["archived"][0]["size"]}
+    ]
+    assert report["archived"][0]["count"] == 1
+
+
+def test_reduce_game_saves_controller(tmp_path):
+    controller = _controller(tmp_path)
+    saves = controller.ctx.game_user_dir / "saves"
+    # Add enough standard saves that a keep=1 reduce archives some.
+    for n in (3, 4, 5):
+        d = saves / f"00000{n} - std"
+        d.mkdir(parents=True)
+        (d / "Adventure.sav").write_bytes(b"\x00" * 16)
+        (d / "savenfo.txt").write_text("Woods", encoding="utf-8")
+    result = controller.reduce_game_saves(1)
+    assert result["ok"] is True
+    assert result["moved"] >= 1
+    # The archive now exists and shows up in the report.
+    assert controller.game_saves_report()["archived"]
+
+
+def test_restore_archived_saves_controller(tmp_path):
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+    result = controller.restore_archived_saves("000005-000005")
+    assert result["ok"] is True
+    assert result["restored"] == 1
+    # The save came back and the archive folder is gone.
+    assert (controller.ctx.game_user_dir / "saves" / "000005 - archived").is_dir()
+    assert not controller.game_saves_report()["archived"]
+
+
+def test_dialog_restore_button(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    assert dlg.archives.topLevelItemCount() == 1
+    assert not dlg.restore_button.isEnabled()  # nothing selected yet
+    dlg.archives.setCurrentItem(dlg.archives.topLevelItem(0))
+    assert dlg.restore_button.isEnabled()
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    dlg._on_restore()
+    # After restore the archives list is empty and the save is back.
+    assert dlg.archives.topLevelItemCount() == 0
+    assert (controller.ctx.game_user_dir / "saves" / "000005 - archived").is_dir()
+
+
+def test_dialog_reduce_button_dispatch(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    calls = []
+    monkeypatch.setattr(
+        controller,
+        "reduce_game_saves",
+        lambda keep, **kw: calls.append(keep) or {"ok": True, "message": "done"},
+    )
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    dlg.keep_spin.setValue(30)
+    dlg._on_reduce()
+    assert calls == [30]

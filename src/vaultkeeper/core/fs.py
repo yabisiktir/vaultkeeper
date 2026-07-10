@@ -53,6 +53,30 @@ def move_file(src: str | Path, dst: str | Path, *, overwrite: bool = True) -> Pa
     return dst_p
 
 
+def move_dir(src: str | Path, dst: str | Path, *, overwrite: bool = False) -> Path:
+    """Move a directory tree (VB ``FS.MoveDir``).
+
+    ``overwrite=False`` (VB ``IOAction.Fail``) raises :class:`FsError` if ``dst``
+    already exists; ``overwrite=True`` (VB ``IOAction.Overwrite``) merges ``src`` into
+    an existing ``dst``, replacing matching files, and removes the emptied ``src``.
+    """
+    src_p, dst_p = Path(src), Path(dst)
+    if dst_p.exists():
+        if not overwrite:
+            raise FsError(f"destination exists: {dst_p}")
+        for child in src_p.iterdir():
+            target = dst_p / child.name
+            if child.is_dir() and not child.is_symlink():
+                move_dir(child, target, overwrite=True)
+            else:
+                move_file(child, target, overwrite=True)
+        src_p.rmdir()
+        return dst_p
+    ensure_dir(dst_p.parent)
+    shutil.move(os.fspath(src_p), os.fspath(dst_p))
+    return dst_p
+
+
 def delete(path: str | Path, *, to_trash: bool = False, missing_ok: bool = True) -> None:
     """Delete a file or directory tree.
 

@@ -1239,10 +1239,21 @@ class ProfileController:
         return {"rows": rows, "count": len(rows)}
 
     def game_saves_report(self) -> dict:
-        """The current game saves as display rows plus totals (prompt-free)."""
+        """The current game saves as display rows plus totals (prompt-free).
+
+        Also lists the current game's archived ranges (VB ``ArchivedFolder``) so the
+        manager can offer Restore, and reports whether a Reduce is possible.
+        """
         loop = self.play_loop
         if loop is None:
-            return {"rows": [], "count": 0, "current": "", "total_size": ""}
+            return {
+                "rows": [],
+                "count": 0,
+                "current": "",
+                "total_size": "",
+                "archived": [],
+                "can_reduce": False,
+            }
         gs = loop.game_saves()
         rows = [
             {
@@ -1254,11 +1265,85 @@ class ProfileController:
             }
             for info in gs.folders
         ]
+        archived = self._archived_saves_rows(gs.current_game_save)
+        # A Reduce needs at least one save beyond the newest one and the leading
+        # quick/auto saves — mirror ArchiveGames' range check with keep=1.
+        from vaultkeeper.game.save_archive import reduce_indices
+
+        can_reduce = reduce_indices(gs.folders, 1) is not None
         return {
             "rows": rows,
             "count": gs.count,
             "current": gs.current_game_save,
             "total_size": _fmt_size(gs.total_size),
+            "archived": archived,
+            "can_reduce": can_reduce,
+        }
+
+    def archived_saves_root(self) -> Path:
+        """The store's archived-game-saves folder (VB ``Paths.ArchivedSaves``)."""
+        from vaultkeeper.game.save_archive import ARCHIVED_SAVES_SUBPATH
+
+        return self.data_dir().parent.joinpath(*ARCHIVED_SAVES_SUBPATH)
+
+    def _archived_saves_rows(self, game_name: str) -> list[dict]:
+        """Display rows for the current game's archived ranges (VB ``ArchivedFolder``)."""
+        from vaultkeeper.game.save_archive import scan_archived_ranges
+
+        if not game_name:
+            return []
+        rows = []
+        for rng in scan_archived_ranges(self.archived_saves_root(), game_name):
+            rows.append(
+                {
+                    "range": rng.name,
+                    "count": rng.saves.count,
+                    "size": _fmt_size(rng.saves.total_size),
+                }
+            )
+        return rows
+
+    def reduce_game_saves(self, keep: int, *, on_existing: str = "overwrite") -> dict:
+        """Archive the oldest active game saves (VB ``ArchiveGames`` / *Reduce*).
+
+        Keeps the newest ``keep`` saves active and moves the rest into the archive.
+        Returns ``{ok, moved, errors, range_name, message}``.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "moved": 0, "message": "No game saves available."}
+        from vaultkeeper.game.save_archive import archive_game_saves
+
+        gs = loop.game_saves()
+        result = archive_game_saves(
+            gs, self.archived_saves_root(), keep=keep, on_existing=on_existing
+        )
+        return {
+            "ok": result.ok,
+            "moved": result.moved,
+            "errors": result.errors,
+            "range_name": result.range_name,
+            "message": result.message,
+        }
+
+    def restore_archived_saves(self, range_name: str) -> dict:
+        """Restore an archived range back to the live saves (VB ``RestoreGames``).
+
+        Returns ``{ok, restored, errors, message}``.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "restored": 0, "message": "No game saves available."}
+        from vaultkeeper.game.save_archive import restore_game_saves
+
+        game_name = loop.game_saves().current_game_save
+        range_folder = self.archived_saves_root() / game_name / range_name
+        result = restore_game_saves(range_folder, loop.saves_dir)
+        return {
+            "ok": result.ok,
+            "restored": result.restored,
+            "errors": result.errors,
+            "message": result.message,
         }
 
     # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #
