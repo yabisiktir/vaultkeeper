@@ -1339,6 +1339,114 @@ class ProfileController:
                 )
         return {"rows": rows, "count": len(rows)}
 
+    def _group_label(self, group: str) -> str:
+        """A display label for a group key (sentinel buckets get friendly names)."""
+        from vaultkeeper.core import constants as C
+
+        if group == C.GROUP_NONE:
+            return "No Group"
+        if group == C.GROUP_INSTALLED:
+            return "Installed by NWN"
+        return group
+
+    def dependency_editor_data(self, mod_name: str) -> dict:
+        """Groups → mods and the current dependencies for editing (VB DependencyManager).
+
+        Returns ``{"mod", "groups": [{"name", "mods": [...]}], "dependencies": [...]}``.
+        Groups mirror the VB LvGroups → LvMods → LvDependencies layout: every non-group
+        mod (except the edited mod itself and mods in restorer groups) bucketed by its
+        group's display label, plus the edited mod's current dependency list.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"mod": mod_name, "groups": [], "dependencies": []}
+
+        key = cmp_to_key(win_compare)
+        buckets: dict[str, list[str]] = {}
+        for name, other in self.pd.mod_list.items():
+            if other.is_group_item or name == mod_name:
+                continue
+            if "restorer" in other.group.lower():  # VB skips restorer/auto groups
+                continue
+            buckets.setdefault(self._group_label(other.group), []).append(name)
+
+        groups = [
+            {"name": label, "mods": sorted(mods, key=key)}
+            for label, mods in sorted(buckets.items(), key=lambda kv: key(kv[0]))
+        ]
+        return {
+            "mod": mod_name,
+            "groups": groups,
+            "dependencies": sorted(md.dependencies, key=key),
+        }
+
+    def set_mod_dependencies(self, mod_name: str, deps: list[str]) -> dict:
+        """Save a mod's dependency list + reconcile installs (VB ``BtSave_Click``).
+
+        Persists the new dependency set. When the mod is installed, dependencies that
+        were removed and are no longer required by any other installed mod are
+        uninstalled, and newly-added dependencies that are not yet installed are
+        installed (VB's automatic dependency reconciliation). Returns
+        ``{"ok", "installed", "uninstalled", "message"}``.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {
+                "ok": False,
+                "installed": 0,
+                "uninstalled": 0,
+                "message": f"Unknown mod: {mod_name}",
+            }
+
+        old = set(md.dependencies)
+        new = list(dict.fromkeys(deps))  # de-dupe, preserve order
+        removed = [d for d in old if d not in new]
+        md.dependencies = sorted(new, key=cmp_to_key(win_compare))
+        self.save()
+
+        uninstalled = installed = 0
+        if md.installed:
+            # Uninstall removed deps no longer needed by any other installed mod.
+            uninstall_list = [
+                d
+                for d in removed
+                if not any(
+                    other.installed and d in other.dependencies
+                    for oname, other in self.pd.mod_list.items()
+                    if oname != mod_name
+                )
+            ]
+            uninstall_list = [d for d in uninstall_list if self._mod_installed(d)]
+            if uninstall_list:
+                self.uninstall(uninstall_list)
+                uninstalled = len(uninstall_list)
+            # Install newly-added deps that are not installed.
+            install_list = [d for d in new if not self._mod_installed(d)]
+            if install_list:
+                self.install(install_list)
+                installed = len(install_list)
+
+        return {
+            "ok": True,
+            "installed": installed,
+            "uninstalled": uninstalled,
+            "message": (
+                f"Saved {len(new)} dependenc{'y' if len(new) == 1 else 'ies'} for {mod_name}."
+            ),
+        }
+
+    def _mod_installed(self, mod_name: str) -> bool:
+        md = self.pd.mod_item(mod_name)
+        return md is not None and md.installed
+
     # -- File viewers (View menu) ----------------------------------------- #
     def nit_log_path(self) -> Path:
         """The application's own log file (VB NIT Log File)."""

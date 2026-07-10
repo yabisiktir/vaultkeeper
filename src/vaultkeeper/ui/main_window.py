@@ -842,9 +842,20 @@ class MainWindow(QMainWindow):
     def _on_dependencies(self) -> None:
         if self.controller is None:
             return
-        from vaultkeeper.ui.dialogs.dependency_manager import DependencyManager
+        names = self.selected_mod_names()
+        if len(names) == 1:
+            # Edit the selected mod's dependencies (VB DependencyManager for a mod).
+            from vaultkeeper.ui.dialogs.dependency_editor import DependencyEditor
 
-        self._dependency_manager = DependencyManager.show_for(self.controller, self)
+            self._dependency_editor = DependencyEditor.show_for(
+                self.controller, names[0], self
+            )
+            self._dependency_editor.finished.connect(lambda _=0: self.refresh())
+        else:
+            # No single mod selected → show the whole-graph report.
+            from vaultkeeper.ui.dialogs.dependency_manager import DependencyManager
+
+            self._dependency_manager = DependencyManager.show_for(self.controller, self)
 
     def _on_analyse(self) -> None:
         if self.controller is None:
