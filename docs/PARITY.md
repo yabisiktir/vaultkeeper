@@ -182,6 +182,24 @@ summary + Toggle-Auto-Exclude / Clear-Exclusions; the original's Add-from-Folder
 Add-Image-Files / Rename / Remove toolbar is deferred (install-engine-blocked — see the
 handoff landmine note).
 
+### Settings — 🔷 Divergent (subset; config-isolation intended)
+
+Reference: `bhbasicsettings.htm` → `lib/NewItem 70.png`.
+
+The original **Basic Settings** has Behaviour + User Interface tabs with many grouped
+preferences (window position, start-up sound, install-after-create actions, start/close
+NWN actions, …) and Selection / Advanced buttons. The port's Settings has General /
+Web Menu / Locations tabs surfacing the subset that is actually wired (recycle-on-delete,
+startup config-drift check, web links, resolved paths). This is the intended
+config-isolation slice; the remaining behaviour/UI preferences are deferred.
+
+### Conflicts — 🔷 Divergent (aggregate dialog vs inline)
+
+Reference: the main window (`lib/NewItem84.png`) shows a file's conflicts **inline** in
+the details pane. The port additionally provides an aggregate **Conflicts** dialog
+listing every conflicted file and its winner — a convenience view over the same data
+(the engine's last-by-comparer winner). Both are faithful to the conflict model.
+
 ### Recurring pattern (recorded once)
 
 Several port dialogs are faithful **read-only reports/viewers** of a subsystem whose VB
@@ -205,20 +223,22 @@ Each maps to its help topic; compare per the steps above.
 | Download Project | `bhdownloadproject.htm` | ⬜ |
 | Publish Mod | `bhpublishmod.htm` | ⬜ |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ⬜ |
-| Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | ⬜ |
+| Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | 🔷 assessed (wired subset) |
 | Portrait Manager | `rbportraitmanagerhelp.htm` | 🟡 assessed (title fixed) |
 | Start Screen Manager | `rbloadscreenhelp.htm` | 🔷 assessed (title fixed) |
 | Mods Played (Mod Play Viewer) | `bhmodsplayed.htm` | ✅ verified (subtitle added) |
-| Conflicts Viewer | `managemodfileconflicts.htm` | ⬜ |
+| Conflicts Viewer | `managemodfileconflicts.htm` | 🔷 assessed (aggregate vs inline) |
 
 ## Summary
 
-Compared so far: **the main window + 9 dialogs** (Character Explorer, Doc Organiser,
+Compared so far: **the main window + 11 dialogs** (Character Explorer, Doc Organiser,
 Game Saves Manager, Wizard Builder, Dependency Manager, Installation Analyser, Mod Play
-Viewer, Portrait Manager, Start Screen Manager). Verified structural matches: main
-window, Character Explorer, Mod Play Viewer. The rest carry the correct data/content
-with the interactive editor surface deferred. **Fixes applied:** sentinel group header,
-Character Explorer + Portrait Manager title counts, Mod Play heading, Start Screen title.
+Viewer, Portrait Manager, Start Screen Manager, Settings, Conflicts). Verified structural
+matches: main window, Character Explorer, Mod Play Viewer. The rest carry the correct
+data/content with the interactive editor/preference surface deferred. **Fixes applied:**
+sentinel group header, Character Explorer + Portrait Manager title counts, Mod Play
+heading, Start Screen title. Still ⬜: Workshop Viewer, Download Project, Publish Mod,
+Folder Mapping (the reference snippets show only column fragments, not full dialogs).
 The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred
