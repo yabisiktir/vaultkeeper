@@ -26,7 +26,15 @@ from vaultkeeper.ui.dialogs.character_viewer import (  # noqa: E402
 )
 
 
-def _char(name: str, path: Path, *, valid: bool = True, resref: str = "hero_") -> CharacterFile:
+def _char(
+    name: str,
+    path: Path,
+    *,
+    valid: bool = True,
+    resref: str = "hero_",
+    feat_ids: list[int] | None = None,
+    skill_ranks: list[int] | None = None,
+) -> CharacterFile:
     info = CharacterInfo(
         name=name,
         gender=Gender.MALE,
@@ -38,6 +46,8 @@ def _char(name: str, path: Path, *, valid: bool = True, resref: str = "hero_") -
         alignment_lawful_chaotic=50,
         hit_points=40,
         portrait_resref=resref,
+        feat_ids=feat_ids or [],
+        skill_ranks=skill_ranks or [],
         is_valid=valid,
     )
     return CharacterFile(path=path, info=info)
@@ -71,6 +81,50 @@ def test_viewer_empty_state(qtbot):
     qtbot.addWidget(dlg)
     assert dlg._list.count() == 0
     assert "No character files" in dlg._summary.toPlainText()
+
+
+def test_viewer_populates_skills_and_feats(qtbot, tmp_path):
+    # feat 0 = Alertness, feat 1 = Ambidexterity (bundled table); skills by id.
+    chars = [
+        _char(
+            "Feat Hero",
+            tmp_path / "f.bic",
+            feat_ids=[1, 0],
+            skill_ranks=[0, 12],  # Animal Empathy 0, Concentration 12
+        )
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+
+    # Skills tab: name-sorted rows with ranks + description on selection.
+    assert dlg._skills.topLevelItemCount() == 2
+    skill_names = [
+        dlg._skills.topLevelItem(i).text(0)
+        for i in range(dlg._skills.topLevelItemCount())
+    ]
+    assert skill_names == ["Animal Empathy", "Concentration"]
+    dlg._skills.setCurrentItem(dlg._skills.topLevelItem(1))
+    assert dlg._skills.topLevelItem(1).text(1) == "12"
+    assert dlg._skill_desc.toPlainText()  # Concentration description shows
+
+    # Feats tab: named, deduped, sorted; description shows on selection.
+    feat_names = [dlg._feats.item(i).text() for i in range(dlg._feats.count())]
+    assert feat_names == ["Alertness", "Ambidexterity"]
+    dlg._feats.setCurrentRow(0)
+    assert dlg._feat_desc.toPlainText()
+
+
+def test_viewer_switches_character_clears_skills(qtbot, tmp_path):
+    chars = [
+        _char("With Feats", tmp_path / "a.bic", feat_ids=[0], skill_ranks=[3]),
+        _char("No Feats", tmp_path / "b.bic"),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    assert dlg._feats.count() == 1
+    dlg._list.setCurrentRow(1)
+    assert dlg._feats.count() == 0
+    assert dlg._skills.topLevelItemCount() == 0
 
 
 def test_viewer_shows_portrait_when_resolvable(qtbot, tmp_path):
