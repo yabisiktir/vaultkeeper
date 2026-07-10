@@ -94,27 +94,31 @@ def test_no_selection_disables_actions(qtbot, controller) -> None:
 
 
 # -- helpers --------------------------------------------------------------- #
+def _mod_items(win: MainWindow):
+    """Every mod row — top-level (hidden "No Group") or under a group header."""
+    tree = win._tree
+    for i in range(tree.topLevelItemCount()):
+        item = tree.topLevelItem(i)
+        if item.childCount() == 0:
+            yield item  # a top-level mod (ungrouped)
+        else:
+            for j in range(item.childCount()):
+                yield item.child(j)
+
+
 def _all_mod_labels(win: MainWindow) -> list[str]:
-    labels = []
-    for i in range(win._tree.topLevelItemCount()):
-        group = win._tree.topLevelItem(i)
-        for j in range(group.childCount()):
-            labels.append(group.child(j).text(0))
-    return labels
+    return [item.text(0) for item in _mod_items(win)]
 
 
 def _select_mod(win: MainWindow, name: str) -> None:
     # Emulate a single click: clear any prior selection first so exactly one
     # mod is selected (otherwise the multi-select branch clears the panes).
     win._tree.clearSelection()
-    for i in range(win._tree.topLevelItemCount()):
-        group = win._tree.topLevelItem(i)
-        for j in range(group.childCount()):
-            child = group.child(j)
-            if child.text(0).startswith(name):
-                child.setSelected(True)
-                win._on_selection_changed()
-                return
+    for item in _mod_items(win):
+        if item.text(0).startswith(name):
+            item.setSelected(True)
+            win._on_selection_changed()
+            return
 
 
 def test_set_controller_repopulates(qtbot, tmp_path) -> None:
@@ -215,12 +219,9 @@ def test_help_menu_opens_topic(qtbot, controller) -> None:
 
 
 def _find_mod_item(win, name):
-    for i in range(win._tree.topLevelItemCount()):
-        group = win._tree.topLevelItem(i)
-        for j in range(group.childCount()):
-            child = group.child(j)
-            if name in child.text(0):
-                return child
+    for item in _mod_items(win):
+        if name in item.text(0):
+            return item
     return None
 
 

@@ -25,6 +25,37 @@ def test_populate_groups_and_mods(qtbot):
     assert not (group.flags() & Qt.ItemFlag.ItemIsSelectable)
 
 
+def test_hidden_group_shows_mods_at_top_level(qtbot):
+    from vaultkeeper.core import constants as C
+
+    fv = FileView()
+    qtbot.addWidget(fv)
+    # The "No Group" bucket ("......001") has no header row; its mods are top-level.
+    fv.populate([(C.GROUP_NONE, [_mod("Loose 1"), _mod("Loose 2")])])
+    assert fv.topLevelItemCount() == 2
+    labels = {fv.topLevelItem(i).text(0) for i in range(2)}
+    assert labels == {"Loose 1", "Loose 2"}
+    # No raw "......001" sentinel is shown anywhere.
+    assert all(not fv.topLevelItem(i).text(0).startswith("......") for i in range(2))
+    # A top-level mod row is still selectable.
+    assert fv.topLevelItem(0).flags() & Qt.ItemFlag.ItemIsSelectable
+
+
+def test_mixed_hidden_and_named_groups(qtbot):
+    from vaultkeeper.core import constants as C
+
+    fv = FileView()
+    qtbot.addWidget(fv)
+    fv.populate(
+        [(C.GROUP_NONE, [_mod("Loose")]), ("Adventures", [_mod("Alpha")])]
+    )
+    # One top-level mod (ungrouped) + one group header (Adventures).
+    assert fv.topLevelItemCount() == 2
+    top_texts = [fv.topLevelItem(i).text(0) for i in range(2)]
+    assert "Loose" in top_texts
+    assert "Adventures" in top_texts
+
+
 def test_installed_mod_marked_and_coloured(qtbot):
     fv = FileView()
     qtbot.addWidget(fv)

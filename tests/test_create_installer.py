@@ -70,11 +70,14 @@ def test_new_mod_via_window(qtbot, tmp_path):
     qtbot.addWidget(win)
     assert controller.create_mod("Windowed Mod")
     win.refresh()
+    # A new mod has no group, so it appears at the top level (no "......" header).
     labels = []
     for i in range(win._tree.topLevelItemCount()):
-        group = win._tree.topLevelItem(i)
-        for j in range(group.childCount()):
-            labels.append(group.child(j).text(0))
+        item = win._tree.topLevelItem(i)
+        if item.childCount() == 0:
+            labels.append(item.text(0))
+        else:
+            labels.extend(item.child(j).text(0) for j in range(item.childCount()))
     assert any("Windowed Mod" in label for label in labels)
 
 

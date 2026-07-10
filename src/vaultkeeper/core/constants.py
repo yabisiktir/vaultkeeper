@@ -22,6 +22,10 @@ NIT_ACRONYM: Final = "NIT"
 # and Defs.vb (GroupInstalled=FileViewGroupHide, GroupNone=FileViewGroupNone).
 # They are persisted verbatim as ModList keys, so they MUST match exactly.
 _FILEVIEW_GROUP_HIDDEN: Final = "......"
+#: Public alias: group keys with this prefix are *hidden* groups — the FileView shows
+#: their mods at the top level with no group header (LazWorks FileView.GroupManager
+#: skips ``group.StartsWith(FileViewGroupHidden)`` when adding group rows).
+GROUP_HIDDEN_PREFIX: Final = _FILEVIEW_GROUP_HIDDEN
 #: The reserved "Installed" group key (Defs.GroupInstalled = FileViewGroupHide).
 GROUP_INSTALLED: Final = _FILEVIEW_GROUP_HIDDEN + "000"
 #: The "no group" bucket key (Defs.GroupNone = FileViewGroupNone).

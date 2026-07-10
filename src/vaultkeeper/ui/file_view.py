@@ -14,6 +14,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget
 
+from vaultkeeper.core import constants as C
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
@@ -54,10 +55,20 @@ class FileView(QTreeWidget):
 
     # -- Population -------------------------------------------------------- #
     def populate(self, groups: list[tuple[str, list[ModData]]]) -> None:
-        """Rebuild from ``(group_name, [ModData])`` rows (VB DisplayRoot)."""
+        """Rebuild from ``(group_name, [ModData])`` rows (VB DisplayRoot).
+
+        Groups whose key starts with the hidden-group prefix (``......`` — the
+        "No Group" / "Installed" buckets) are not shown as a header row; their mods
+        appear at the top level, matching the LazWorks FileView (GroupManager skips
+        ``group.StartsWith(FileViewGroupHidden)``).
+        """
         self.clear()
         group_icon = R.get_icon("Group")
         for group_name, members in groups:
+            if group_name.startswith(C.GROUP_HIDDEN_PREFIX):
+                for md in members:
+                    self.addTopLevelItem(self._mod_item(md))
+                continue
             group_item = QTreeWidgetItem([group_name])
             group_item.setIcon(0, group_icon)
             group_item.setFlags(group_item.flags() & ~self._selectable_flag())
