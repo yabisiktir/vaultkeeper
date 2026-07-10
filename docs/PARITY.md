@@ -106,24 +106,26 @@ original is a full backup **manager** with a different layout:
 To reach parity the manager needs the deferred deactivate/activate/delete-game
 **backup** subsystem and the two-list (mods ↔ save folders) layout with space totals.
 
-### Wizard Builder — 🔷 Divergent (bounded port: viewer, not editor)
+### Wizard Builder — ✅ Verified (authoring UI ported)
 
 Reference: `bhwizardbuilder.htm` → `lib/NewItem964.png`.
 
-The original is a full **editor**; the port is a read-only **viewer** + Validate/Delete
-(the add/remove-between-lists authoring UI is deferred — see the handoff).
+The port is now a full **editor** matching the original.
 
 | Element | Original | Port | Verdict |
 |---|---|---|---|
 | "Generate Mod Installer Wizard" heading | ✓ | ✓ | ✅ |
-| Wizard Title / Choices / Preferences text | editable | shown | 🔷 read-only |
-| "Items Processed by Installer" source list | ✓ | — | 🔷 editor-only |
-| Add ▸▸ / Add All ▸▸ / ◂◂ Remove transfer buttons | ✓ | — | 🔷 editor-only |
-| Choices / Preferences / Exclude lists | ✓ | ✓ (read-only) | ✅ content |
-| Display Name field + **Save** | ✓ | Validate / Delete | 🔷 |
+| Wizard Title / Choices / Preferences text | editable | editable | ✅ |
+| "Items Processed by Installer" source list | ✓ | ✓ | ✅ |
+| Add ▸▸ / Add All ▸▸ / ◂◂ Remove transfer buttons | ✓ | ✓ | ✅ |
+| Choices / Preferences / Exclude lists | ✓ | ✓ | ✅ |
+| Display Name field + **Save** | ✓ | ✓ (+ Validate / Delete) | ✅ |
 
-The wizard *content* (title, choices, preferences, excludes) is faithfully shown; the
-interactive authoring surface (source list, Add/Remove, Save) is the deferred piece.
+The source list, the three transfer button-columns, the per-item Display Name editor
+and Save are all ported (`save_wizard_authoring` = VB `BtSave_Click`: SelectOne/Many
+sorted by display name). Bounded: the source list is the loose-file view
+(`ExtractType.Files`); the archive-extraction Folders/FolderFiles views and the
+download-rules wizard source are deferred.
 
 ### Dependency Manager — 🔷 Divergent (report vs editor)
 
@@ -239,7 +241,7 @@ Each maps to its help topic; compare per the steps above.
 | Port dialog | Help topic | Status |
 |---|---|---|
 | Main window (ribbon / menus / 3-pane) | `UserInterface` / `NewItem84.png` | ✅ verified (sentinel-header fix applied) |
-| Wizard Builder | `bhwizardbuilder.htm` | 🔷 assessed (viewer vs editor) |
+| Wizard Builder | `bhwizardbuilder.htm` | ✅ verified (authoring UI ported) |
 | Workshop Viewer | `bhworkshop.htm` | ✅ verified |
 | Dependency Manager | `bhdependencymanager.htm` | 🔷 assessed (report vs editor) |
 | Installation Analyser | `bhinstallationanalyser.htm` | 🔷 assessed (report vs browser) |

@@ -2498,6 +2498,93 @@ class ProfileController:
             "message": f"No installer wizard to delete for {mod_name}.",
         }
 
+    def wizard_source_files(self, mod_name: str) -> list[str]:
+        """Eligible installer files for wizard authoring (VB ``PopulateFiles``/``RefreshFiles``).
+
+        Scans the mod's real files through the installer's mapping predicate and
+        returns the Windows-sorted relative-path keys — the *source list* the user
+        transfers into the Choices / Preferences / Exclude lists. Bounded: this is the
+        loose-file view (VB ``ExtractType.Files``); the archive-extraction views
+        (Folders / FolderFiles) are not surfaced.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return []
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        result = self._scan_wizard_sources(mod_folder)
+        return sorted(result.source_files.keys(), key=cmp_to_key(win_compare))
+
+    def save_wizard_authoring(
+        self,
+        mod_name: str,
+        *,
+        title: str,
+        select_one_text: str,
+        select_many_text: str,
+        choices: list[dict],
+        preferences: list[dict],
+        excludes: list[str],
+        extract_archives: bool = False,
+    ) -> dict:
+        """Build + save a wizard from the authoring UI (VB ``BtSave_Click``).
+
+        ``choices`` / ``preferences`` are ``{"key", "display"[, "checked"]}`` rows;
+        ``excludes`` is a list of relative-path keys. SelectOne/SelectMany are sorted
+        by display name (VB ``SortedDictionary(WindowsSorter)``). ``extract_archives``
+        carries the flag through (VB recomputes it from ``IsExtractedFile`` after the
+        extract pass; the bounded loose-file port carries the loaded value). Returns
+        ``{"ok", "message"}``.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+        from vaultkeeper.game.wizard import (
+            WizardInfo,
+            WizardPreference,
+            save_wizard,
+        )
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"Unknown mod: {mod_name}"}
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+
+        info = WizardInfo(
+            mod_name=mod_name,
+            title_value=title.strip(),
+            extract_archives=extract_archives,
+            select_one_text_value=select_one_text.strip(),
+            select_many_text_value=select_many_text.strip(),
+        )
+        by_display = cmp_to_key(lambda a, b: win_compare(a["display"], b["display"]))
+        for choice in sorted(choices, key=by_display):
+            info.select_one[choice["key"]] = choice["display"]
+        for pref in sorted(preferences, key=by_display):
+            info.select_many.append(
+                WizardPreference(
+                    key=pref["key"],
+                    display=pref["display"],
+                    checked=bool(pref.get("checked", True)),
+                )
+            )
+        info.installer_excludes = list(excludes)
+
+        if save_wizard(mod_folder, info):
+            self._create_identifier_refresh(mod_name)
+            return {"ok": True, "message": f"Installer wizard saved for {mod_name}."}
+        return {"ok": False, "message": "Unable to save the installer wizard."}
+
+    def _create_identifier_refresh(self, mod_name: str) -> None:
+        """Rescan a mod's files after writing the wizard (VB FvContents.Reload)."""
+        md = self.pd.mod_item(mod_name)
+        if md is not None and not md.is_group_item:
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+            self.save()
+
     def locations_report(self) -> dict:
         """The resolved file locations for this profile/install (VB Settings Locations).
 

@@ -158,6 +158,8 @@ def test_report_no_wizard(tmp_path):
 
 
 def test_dialog_populates_lists(qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+
     controller = _controller(tmp_path, "Grand Mod")
     (tmp_path / "Profiles" / "P" / "Grand Mod" / WIZARD_FILE).write_text(
         _WIZARD_TEXT, encoding="utf-8"
@@ -165,13 +167,12 @@ def test_dialog_populates_lists(qtbot, tmp_path):
     dlg = WizardBuilder.show_for(controller, "Grand Mod")
     qtbot.addWidget(dlg)
 
-    assert dlg.title_label.text() == "My Grand Wizard"
-    assert dlg.extract_label.text() == "Yes"
-    assert dlg.choices.topLevelItemCount() == 2
-    assert dlg.choices.topLevelItem(0).text(0) == "High Quality Music"
-    assert dlg.preferences.topLevelItemCount() == 2
-    assert "on" in dlg.preferences.topLevelItem(0).text(0)
-    assert dlg.excludes.topLevelItemCount() == 1
+    assert dlg.title_edit.text() == "My Grand Wizard"
+    assert dlg.choices.count() == 2
+    assert dlg.choices.item(0).text() == "High Quality Music"
+    assert dlg.preferences.count() == 2
+    assert dlg.preferences.item(0).checkState() == Qt.CheckState.Checked
+    assert dlg.excludes.count() == 1
     assert "Choices: 2" in dlg.summary.text()
 
 
@@ -536,3 +537,82 @@ def test_dialog_delete_button(qtbot, tmp_path, monkeypatch):
     dlg._on_delete()
     assert not (mod / WIZARD_FILE).exists()
     assert not dlg.delete_button.isEnabled()  # refresh disabled it
+
+
+# -- Authoring: source files + save (VB PopulateFiles + BtSave) ------------ #
+
+
+def test_wizard_source_files_lists_eligible(tmp_path):
+    controller = _controller(tmp_path, "Adv")
+    mod = tmp_path / "Profiles" / "P" / "Adv"
+    _touch(mod / "a.hak")
+    _touch(mod / "sub" / "b.tlk")
+    _touch(mod / C.MOD_INSTALLER_DIR / "payload.hak")  # excluded folder
+    sources = controller.wizard_source_files("Adv")
+    assert "a.hak" in sources
+    assert "sub\\b.tlk" in sources
+    assert "payload.hak" not in sources
+
+
+def test_save_wizard_authoring_builds_file(tmp_path):
+    controller = _controller(tmp_path, "Adv")
+    result = controller.save_wizard_authoring(
+        "Adv",
+        title="My Wizard",
+        select_one_text="Pick one",
+        select_many_text="Optional",
+        choices=[
+            {"key": "hak\\b.hak", "display": "Bravo"},
+            {"key": "hak\\a.hak", "display": "Alpha"},
+        ],
+        preferences=[{"key": "override\\c.tga", "display": "Fancy", "checked": False}],
+        excludes=["readme.txt"],
+    )
+    assert result["ok"]
+    info = load_wizard(tmp_path / "Profiles" / "P" / "Adv", "Adv")
+    assert info.title == "My Wizard"
+    # SelectOne sorted by display name (Alpha before Bravo).
+    assert list(info.select_one.values()) == ["Alpha", "Bravo"]
+    assert info.select_many[0].checked is False
+    assert info.installer_excludes == ["readme.txt"]
+
+
+def test_dialog_transfer_and_save(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Adv")
+    mod = tmp_path / "Profiles" / "P" / "Adv"
+    _touch(mod / "a.hak")
+    _touch(mod / "b.hak")
+    dlg = WizardBuilder.show_for(controller, "Adv")
+    qtbot.addWidget(dlg)
+
+    # Source list has both files; transfer both into Choices (SelectOne needs >=2).
+    assert dlg.source_list.count() == 2
+    dlg.source_list.selectAll()
+    dlg._add_selected(dlg.choices)
+    assert dlg.choices.count() == 2
+    assert dlg.source_list.count() == 0  # removed from source
+
+    dlg.title_edit.setText("Authored")
+    dlg._on_save()
+    info = load_wizard(mod, "Adv")
+    assert info is not None
+    assert info.title == "Authored"
+    assert len(info.select_one) == 2
+
+
+def test_dialog_add_all_and_remove(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Adv")
+    mod = tmp_path / "Profiles" / "P" / "Adv"
+    _touch(mod / "a.hak")
+    _touch(mod / "b.hak")
+    dlg = WizardBuilder.show_for(controller, "Adv")
+    qtbot.addWidget(dlg)
+
+    dlg._add_all(dlg.excludes)
+    assert dlg.excludes.count() == 2
+    assert dlg.source_list.count() == 0
+
+    dlg.excludes.selectAll()
+    dlg._remove_selected(dlg.excludes)
+    assert dlg.excludes.count() == 0
+    assert dlg.source_list.count() == 2  # back in source

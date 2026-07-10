@@ -133,10 +133,14 @@ def _filename_only(line: str) -> str:
     return PurePosixPath(line.replace("\\", "/")).stem
 
 
-def _default_display(line: str) -> str:
+def default_display(line: str) -> str:
     """Derive a display name from a path (VB ``FilenameOnly.ToSentence("_").ToTitleCase``)."""
     words = _filename_only(line).replace("_", " ").split()
     return " ".join(w[:1].upper() + w[1:] for w in words)
+
+
+#: Backwards-compatible private alias.
+_default_display = default_display
 
 
 def _item_info(line: str) -> tuple[str, str]:
