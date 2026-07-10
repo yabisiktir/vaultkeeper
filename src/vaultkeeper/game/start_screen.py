@@ -179,6 +179,142 @@ def read_start_screen_info(profile_data_dir: Path) -> StartScreenInfo | None:
     )
 
 
+def save_start_screen_info(profile_data_dir: Path, info: StartScreenInfo) -> None:
+    """Persist ``StartscreenInfo.txt`` from ``info`` (VB ``StartScreenInfo.SaveInfo``).
+
+    Writes the 4-line info file (active type / standard name / prefixed name / last
+    browse folder), matching the port's other text writers (trailing newline). The VB
+    ``InfoFile`` is a 4-element list written with ``ToTextLines``.
+    """
+    lines = [info.active_type, info.standard, info.prefixed, info.browse_folder]
+    profile_data_dir.mkdir(parents=True, exist_ok=True)
+    (profile_data_dir / INFO_FILENAME).write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
+def add_image_target_name(source_name: str, source_dir: Path) -> str:
+    """The target image filename for an added source file (VB ``ProcessFiles`` @2161).
+
+    Normally the target keeps the source file name. But a file literally named
+    ``gui_pre_bknd3.tga`` (NWN's own start-screen filename) can't be stored under
+    that reserved name, so VB derives a meaningful name from the folder it came out
+    of: it walks up past any ``override``/``ovr``/``.Mod Installer`` wrapper folders
+    and uses ``<folder>.tga`` (or ``<immediate parent>.tga`` if it walked to the
+    drive root).
+    """
+    if source_name.lower() != NWN_START_SCREEN_NAME.lower():
+        return source_name
+
+    bad_folders = {OVERRIDE_FOLDER.lower(), "ovr", ".mod installer"}
+    folder = source_dir
+    immediate = source_dir.name
+    # Walk up past wrapper folders (VB While badFolderNames.Contains(folder.Name)).
+    while folder.name and folder.name.lower() in bad_folders:
+        folder = folder.parent
+    # ``folder.name == ""`` means we reached the filesystem root (VB rootName match).
+    if not folder.name:
+        return f"{immediate}.tga"
+    return f"{folder.name}.tga"
+
+
+def validate_loadscreen_name(
+    name: str,
+    *,
+    initial: str,
+    existing: Iterable[str],
+) -> tuple[bool, str]:
+    """Validate a proposed loadscreen image name (VB ``ValidateName`` @2257).
+
+    Returns ``(ok, value)`` where ``value`` is the normalised name on success or the
+    exact VB status message on failure. Rules (in VB order): trim trailing dots;
+    reject blank; append ``.tga`` when no extension; reject the reserved
+    ``gui_pre_bknd3.tga`` / any :func:`is_reserved_name_or_prefix`; require the
+    ``.tga`` extension; reject an unchanged name (case-sensitive); reject a
+    case-sensitive clash with an existing display name.
+    """
+    from vaultkeeper.core.reserved import is_reserved_name_or_prefix
+
+    name = name.rstrip(".")
+    if name == "":
+        return False, "You have not specified a File name"
+
+    if "." not in name:
+        name += IMAGE_EXTENSION
+
+    if name.lower() == NWN_START_SCREEN_NAME.lower() or is_reserved_name_or_prefix(name):
+        return False, f'"{name}" is a reserved name'
+
+    if not name.lower().endswith(IMAGE_EXTENSION):
+        return False, f'You must specify "{IMAGE_EXTENSION}" as the file extension name'
+
+    if name == initial:  # case-sensitive: only a real change is allowed
+        return False, f'"{name}" has not been changed'
+
+    for other in existing:
+        if name == other:  # case-sensitive clash on display name
+            return False, f'"{name}" already exists'
+
+    return True, name
+
+
+def collect_tga_from_folders(
+    folders: Iterable[Path],
+    *,
+    extract: object = None,
+    is_archive: object = None,
+    exclusions: object = (),
+) -> list[Path]:
+    """Collect every ``.tga`` under ``folders``, extracting nested archives (VB ``ProcessFolders``).
+
+    Walks each folder recursively (``EnumerateFiles(*, AllDirectories)``): loose
+    ``.tga`` files are collected as-is; archive files are queued for extraction (via
+    the injected ``extract(archive) -> dest_dir | None`` seam) and their extracted
+    ``.tga`` files collected, minus any whose name is in ``exclusions`` (VB
+    ``TgaFileExclusions``). Nested archives inside an extraction are queued in turn.
+    ``is_archive(path) -> bool`` identifies archives (defaults to the core registry).
+    """
+    from vaultkeeper.core.archive import is_zip_extension
+
+    if is_archive is None:
+        def is_archive(path: Path) -> bool:  # noqa: ANN001
+            return is_zip_extension(path.suffix)
+
+    exclude = {str(name).lower() for name in exclusions}
+    files: list[Path] = []
+    extract_queue: list[Path] = []
+
+    for folder in folders:
+        folder = Path(folder)
+        if not folder.is_dir():
+            continue
+        for entry in sorted(folder.rglob("*")):
+            if not entry.is_file():
+                continue
+            if entry.suffix.lower() == IMAGE_EXTENSION:
+                files.append(entry)
+            elif is_archive(entry):
+                extract_queue.append(entry)
+
+    while extract_queue and extract is not None:
+        batch = list(extract_queue)
+        extract_queue.clear()
+        for archive in batch:
+            dest = extract(archive)
+            if dest is None:
+                continue
+            for entry in sorted(Path(dest).rglob("*")):
+                if not entry.is_file():
+                    continue
+                if entry.suffix.lower() == IMAGE_EXTENSION:
+                    if entry.name.lower() not in exclude:
+                        files.append(entry)
+                elif is_archive(entry):
+                    extract_queue.append(entry)
+
+    return files
+
+
 def read_auto_excludes(profile_data_dir: Path) -> list[str]:
     """Read the auto-exclusion display-name list (VB ``AutoExcludes``)."""
     excludes_file = profile_data_dir / AUTO_EXCLUDES_FILENAME

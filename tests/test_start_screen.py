@@ -193,3 +193,102 @@ def test_scan_marks_active_and_excluded_case_insensitive(tmp_path: Path) -> None
     assert images["Excluded.tga"].excluded is True
     assert images["Plain.tga"].active is False
     assert images["Plain.tga"].excluded is False
+
+
+# -- save_start_screen_info (VB SaveInfo) ---------------------------------- #
+
+
+def test_save_start_screen_info_round_trip(tmp_path: Path) -> None:
+    info = ss.StartScreenInfo(
+        active_type="2", standard="Std.tga", prefixed="Pfx image.tga", browse_folder="C:/x"
+    )
+    ss.save_start_screen_info(tmp_path, info)
+    back = ss.read_start_screen_info(tmp_path)
+    assert back == info
+    assert back.active_screen == "Pfx image.tga"
+
+
+# -- add_image_target_name (VB ProcessFiles rename @2161) ------------------ #
+
+
+def test_add_image_target_keeps_normal_name(tmp_path: Path) -> None:
+    assert ss.add_image_target_name("Winter.tga", tmp_path / "src") == "Winter.tga"
+
+
+def test_add_image_target_renames_reserved_from_folder(tmp_path: Path) -> None:
+    src = tmp_path / "My Cool Screen" / "override"
+    assert ss.add_image_target_name("gui_pre_bknd3.tga", src) == "My Cool Screen.tga"
+
+
+def test_add_image_target_renames_reserved_direct_parent(tmp_path: Path) -> None:
+    src = tmp_path / "My Cool Screen"
+    assert ss.add_image_target_name("gui_pre_bknd3.tga", src) == "My Cool Screen.tga"
+
+
+# -- validate_loadscreen_name (VB ValidateName @2257) --------------------- #
+
+
+def test_validate_name_blank() -> None:
+    # Trailing dots are trimmed, so a dots-only name becomes blank (VB TrimEnd(".")).
+    ok, msg = ss.validate_loadscreen_name("...", initial="x.tga", existing=[])
+    assert not ok and "not specified" in msg
+
+
+def test_validate_name_appends_extension() -> None:
+    ok, value = ss.validate_loadscreen_name("Winter", initial="x.tga", existing=[])
+    assert ok and value == "Winter.tga"
+
+
+def test_validate_name_rejects_reserved_startscreen() -> None:
+    ok, msg = ss.validate_loadscreen_name("gui_pre_bknd3.tga", initial="x.tga", existing=[])
+    assert not ok and "reserved" in msg
+
+
+def test_validate_name_rejects_wrong_extension() -> None:
+    ok, msg = ss.validate_loadscreen_name("Winter.png", initial="x.tga", existing=[])
+    assert not ok and ".tga" in msg
+
+
+def test_validate_name_rejects_unchanged() -> None:
+    ok, msg = ss.validate_loadscreen_name("Same.tga", initial="Same.tga", existing=[])
+    assert not ok and "not been changed" in msg
+
+
+def test_validate_name_rejects_existing() -> None:
+    ok, msg = ss.validate_loadscreen_name(
+        "New.tga", initial="Old.tga", existing=["New.tga"]
+    )
+    assert not ok and "already exists" in msg
+
+
+def test_validate_name_case_change_allowed() -> None:
+    ok, value = ss.validate_loadscreen_name("same.tga", initial="Same.tga", existing=[])
+    assert ok and value == "same.tga"
+
+
+# -- collect_tga_from_folders (VB ProcessFolders) -------------------------- #
+
+
+def test_collect_tga_loose_and_archive(tmp_path: Path) -> None:
+    root = tmp_path / "folder"
+    (root / "sub").mkdir(parents=True)
+    (root / "a.tga").write_bytes(b"x")
+    (root / "sub" / "b.tga").write_bytes(b"x")
+    (root / "readme.txt").write_bytes(b"x")
+    archive = root / "pack.zip"
+    archive.write_bytes(b"PK")
+
+    extracted_dir = tmp_path / "extracted"
+    extracted_dir.mkdir()
+    (extracted_dir / "c.tga").write_bytes(b"x")
+    (extracted_dir / "excluded.tga").write_bytes(b"x")
+
+    def fake_extract(a: Path) -> Path:
+        assert a == archive
+        return extracted_dir
+
+    found = ss.collect_tga_from_folders(
+        [root], extract=fake_extract, exclusions={"excluded.tga"}
+    )
+    names = sorted(p.name for p in found)
+    assert names == ["a.tga", "b.tga", "c.tga"]
