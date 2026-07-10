@@ -112,6 +112,32 @@ def test_exclusion_add_remove_clear_round_trip(tmp_path: Path) -> None:
     assert report["excluded_count"] == 0
 
 
+def test_report_surfaces_prefixes(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    _setup_loadscreen_mod(controller, ["Winter a.tga", "Summer b.tga", "plain.tga"])
+    data_dir = controller._profile_data_dir()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / ss.PREFIX_FILENAME).write_text("Winter\n!Summer\n", encoding="utf-8")
+
+    report = controller.loadscreens_report()
+    assert report["prefix_enabled"] is True
+    assert report["prefixed_count"] == 2  # Winter + Summer both defined
+    by_name = {r["name"]: r for r in report["images"]}
+    assert by_name["Winter a.tga"]["prefixed"] is True
+    assert by_name["Winter a.tga"]["filter_prefixed"] is True
+    assert by_name["Summer b.tga"]["filter_prefixed"] is False
+    assert by_name["plain.tga"]["prefixed"] is False
+    assert "2 prefixed" in report["summary"]
+
+
+def test_report_no_prefixes_omits_from_summary(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    _setup_loadscreen_mod(controller, ["a.tga"])
+    report = controller.loadscreens_report()
+    assert report["prefix_enabled"] is False
+    assert "prefixed" not in report["summary"]
+
+
 def test_add_exclusion_dedups_on_persist(tmp_path: Path) -> None:
     controller = _controller(tmp_path)
     _setup_loadscreen_mod(controller, ["a.tga"])

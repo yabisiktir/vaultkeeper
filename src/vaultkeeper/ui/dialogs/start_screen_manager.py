@@ -105,12 +105,21 @@ class StartScreenManager(QDialog):
             if row["active"]:
                 label = f"★ {label}"  # ★ active image
             item = QListWidgetItem(label)
+            tips: list[str] = []
             if row["excluded"]:
                 item.setForeground(_EXCLUDED_COLOUR)
                 font = item.font()
                 font.setItalic(True)
                 item.setFont(font)
-                item.setToolTip("Auto-excluded (skipped by the slideshow)")
+                tips.append("Auto-excluded (skipped by the slideshow)")
+            if row.get("prefixed"):
+                tips.append(
+                    "Prefixed (enabled)"
+                    if row.get("filter_prefixed")
+                    else "Prefixed (disabled)"
+                )
+            if tips:
+                item.setToolTip(" · ".join(tips))
             self._list.addItem(item)
         self._list.blockSignals(False)
 
@@ -151,6 +160,10 @@ class StartScreenManager(QDialog):
             flags.append("active")
         if entry["excluded"]:
             flags.append("auto-excluded")
+        if entry.get("prefixed"):
+            flags.append(
+                "prefixed" if entry.get("filter_prefixed") else "prefixed (disabled)"
+            )
         suffix = f"  — {', '.join(flags)}" if flags else ""
         self._detail.setText(f"{entry['name']}  ({entry['size_text']}){suffix}")
 

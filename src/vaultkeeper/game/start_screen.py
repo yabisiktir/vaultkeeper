@@ -57,6 +57,10 @@ IMAGE_EXTENSION = ".tga"
 INFO_FILENAME = "StartscreenInfo.txt"
 AUTO_EXCLUDES_FILENAME = "LoadscreenAutoExcludes.txt"
 SCREEN_LIST_FILENAME = "LoadscreenFiles.txt"
+PREFIX_FILENAME = "LoadscreenPrefixes.txt"
+
+#: A prefix line beginning with this char is defined-but-disabled (VB InactivePrefix).
+_INACTIVE_PREFIX = "!"
 
 # ``StartScreenInfo.ScreenType`` index values written to line 0 of the info file.
 _TYPE_STANDARD = "1"
@@ -97,6 +101,54 @@ class LoadscreenImage:
     size: int
     excluded: bool
     active: bool
+    prefixed: bool = False
+    filter_prefixed: bool = False
+
+
+# -- Prefix subsystem (VB StartScreenInfo prefix methods) ------------------ #
+
+
+def read_prefixes(profile_data_dir: Path) -> dict[str, bool]:
+    """Read the defined start-screen prefixes (VB ``GetStartScreenPrefixes``).
+
+    Each line of ``LoadscreenPrefixes.txt`` is a prefix; a leading ``!`` marks it
+    defined-but-disabled. Returns a case-insensitive map ``prefix (lowercased) ->
+    enabled``. Blank lines are skipped (VB would throw on one and end up with no
+    prefixes; skipping yields the sensible result and matches the port's readers).
+    """
+    prefix_file = profile_data_dir / PREFIX_FILENAME
+    if not prefix_file.is_file():
+        return {}
+    try:
+        lines = prefix_file.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return {}
+
+    prefixes: dict[str, bool] = {}
+    for line in lines:
+        if not line.strip():
+            continue
+        enabled = line[0] != _INACTIVE_PREFIX
+        key = line.lstrip(_INACTIVE_PREFIX)
+        prefixes[key.lower()] = enabled
+    return prefixes
+
+
+def file_prefix(name: str) -> str:
+    """The characters before the first space in ``name`` (VB ``FilePrefix``)."""
+    idx = name.find(" ")
+    return name[:idx] if idx != -1 else name
+
+
+def is_prefixed(name: str, prefixes: dict[str, bool]) -> bool:
+    """True when ``name``'s prefix is one of the defined prefixes (VB ``IsPrefixed``)."""
+    return file_prefix(name).lower() in prefixes
+
+
+def is_filter_prefixed(name: str, prefixes: dict[str, bool]) -> bool:
+    """True when ``name``'s prefix is defined AND enabled (VB ``IsFilterPrefixed``)."""
+    key = file_prefix(name).lower()
+    return prefixes.get(key, False)
 
 
 def read_start_screen_info(profile_data_dir: Path) -> StartScreenInfo | None:
@@ -167,19 +219,23 @@ def scan_loadscreens(
     *,
     active: str = "",
     excludes: object = (),
+    prefixes: dict[str, bool] | None = None,
 ) -> list[LoadscreenImage]:
     """List the ``.tga`` images in ``image_folder``, Windows-sorted by name.
 
     The display name is the file name including the ``.tga`` extension (VB's
     ``FvImages`` combines the display name directly onto ``ImageFolder``). ``active``
-    marks the currently-active image; ``excludes`` marks auto-excluded images. Both
-    comparisons are case-insensitive, matching VB's ``Option Compare Text``.
+    marks the currently-active image; ``excludes`` marks auto-excluded images;
+    ``prefixes`` (from :func:`read_prefixes`) marks prefixed / enabled-prefixed
+    images. All comparisons are case-insensitive, matching VB's ``Option Compare
+    Text``.
     """
     if not image_folder.is_dir():
         return []
 
     exclude_set = {str(name).lower() for name in excludes}
     active_lower = active.lower()
+    prefix_map = prefixes or {}
 
     entries: list[LoadscreenImage] = []
     for entry in image_folder.iterdir():
@@ -199,6 +255,8 @@ def scan_loadscreens(
                 size=size,
                 excluded=name.lower() in exclude_set,
                 active=name.lower() == active_lower,
+                prefixed=is_prefixed(name, prefix_map),
+                filter_prefixed=is_filter_prefixed(name, prefix_map),
             )
         )
 

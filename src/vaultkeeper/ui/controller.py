@@ -1400,14 +1400,20 @@ class ProfileController:
                 "images": [],
                 "count": 0,
                 "excluded_count": 0,
+                "prefix_enabled": False,
+                "prefixed_count": 0,
                 "summary": "NIT does not yet manage your NWN Start Screen.",
             }
 
+        data_dir = self._profile_data_dir()
         image_folder = self.ctx.profile_mods_dir / md.mod_name / ss.SCREEN_FOLDER
-        info = ss.read_start_screen_info(self._profile_data_dir())
+        info = ss.read_start_screen_info(data_dir)
         active = info.active_screen if info is not None else ""
-        excludes = ss.read_auto_excludes(self._profile_data_dir())
-        images = ss.scan_loadscreens(image_folder, active=active, excludes=excludes)
+        excludes = ss.read_auto_excludes(data_dir)
+        prefixes = ss.read_prefixes(data_dir)
+        images = ss.scan_loadscreens(
+            image_folder, active=active, excludes=excludes, prefixes=prefixes
+        )
         installed = md.installed
 
         rows = [
@@ -1418,10 +1424,13 @@ class ProfileController:
                 "size_text": _fmt_size(im.size),
                 "excluded": im.excluded,
                 "active": im.active,
+                "prefixed": im.prefixed,
+                "filter_prefixed": im.filter_prefixed,
             }
             for im in images
         ]
         excluded_count = sum(1 for im in images if im.excluded)
+        prefixed_count = sum(1 for im in images if im.prefixed)
 
         # Summary line (VB InstalledStatusText tone): only an *installed* mod means
         # an image is actually the game's start screen right now.
@@ -1433,6 +1442,8 @@ class ProfileController:
             parts.append("NWN's Start Screen installed")
         if excluded_count:
             parts.append(f"{excluded_count} auto-excluded")
+        if prefixes:  # VB SummaryInfo appends the prefixed count when PrefixEnabled.
+            parts.append(f"{prefixed_count} prefixed")
         summary = " · ".join(parts) + "."
 
         return {
@@ -1444,6 +1455,8 @@ class ProfileController:
             "images": rows,
             "count": len(rows),
             "excluded_count": excluded_count,
+            "prefix_enabled": bool(prefixes),
+            "prefixed_count": prefixed_count,
             "summary": summary,
         }
 

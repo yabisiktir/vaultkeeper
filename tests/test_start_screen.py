@@ -134,6 +134,49 @@ def test_scan_windows_numeric_sort(tmp_path: Path) -> None:
     assert names == ["screen1.tga", "screen2.tga", "screen10.tga"]
 
 
+# -- Prefix subsystem ------------------------------------------------------ #
+
+
+def test_read_prefixes_missing(tmp_path: Path) -> None:
+    assert ss.read_prefixes(tmp_path) == {}
+
+
+def test_read_prefixes_enabled_and_disabled(tmp_path: Path) -> None:
+    _write(tmp_path / ss.PREFIX_FILENAME, "Winter\n!Summer\n\nSpring\n")
+    prefixes = ss.read_prefixes(tmp_path)
+    assert prefixes == {"winter": True, "summer": False, "spring": True}
+
+
+def test_file_prefix() -> None:
+    assert ss.file_prefix("Winter castle.tga") == "Winter"
+    assert ss.file_prefix("noSpace.tga") == "noSpace.tga"
+
+
+def test_is_prefixed_and_filter_prefixed() -> None:
+    prefixes = {"winter": True, "summer": False}
+    assert ss.is_prefixed("Winter scene.tga", prefixes) is True
+    assert ss.is_prefixed("Summer scene.tga", prefixes) is True  # defined but disabled
+    assert ss.is_prefixed("Autumn scene.tga", prefixes) is False
+    # Filter-prefixed requires the prefix to be enabled.
+    assert ss.is_filter_prefixed("Winter scene.tga", prefixes) is True
+    assert ss.is_filter_prefixed("Summer scene.tga", prefixes) is False
+    assert ss.is_filter_prefixed("Autumn scene.tga", prefixes) is False
+
+
+def test_scan_marks_prefixed(tmp_path: Path) -> None:
+    folder = tmp_path / "imgs"
+    folder.mkdir()
+    for name in ("Winter a.tga", "Summer b.tga", "plain.tga"):
+        (folder / name).write_bytes(b"x")
+    prefixes = {"winter": True, "summer": False}
+    images = {im.name: im for im in ss.scan_loadscreens(folder, prefixes=prefixes)}
+    assert images["Winter a.tga"].prefixed is True
+    assert images["Winter a.tga"].filter_prefixed is True
+    assert images["Summer b.tga"].prefixed is True
+    assert images["Summer b.tga"].filter_prefixed is False
+    assert images["plain.tga"].prefixed is False
+
+
 def test_scan_marks_active_and_excluded_case_insensitive(tmp_path: Path) -> None:
     folder = tmp_path / "imgs"
     folder.mkdir()
