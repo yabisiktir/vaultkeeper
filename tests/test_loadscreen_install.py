@@ -164,3 +164,53 @@ def test_delete_loadscreen_prunes_exclusions(tmp_path):
 
     c.delete_loadscreen_images(["Winter.tga"])
     assert ss.read_auto_excludes(c._profile_data_dir()) == []
+
+
+# -- Rename (VB RbRename @1243) — LANDMINE, bug replicated ------------------ #
+
+
+def test_rename_loadscreen_basic(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Old.tga").write_bytes(b"x")
+
+    res = c.rename_loadscreen_image("Old.tga", "New.tga")
+    assert res["ok"]
+    assert not (folder / "Old.tga").is_file()
+    assert (folder / "New.tga").is_file()
+
+
+def test_rename_loadscreen_rejects_invalid(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    (c._loadscreen_image_folder(md) / "Old.tga").write_bytes(b"x")
+    res = c.rename_loadscreen_image("Old.tga", "gui_pre_bknd3.tga")
+    assert not res["ok"] and "reserved" in res["message"]
+
+
+def test_rename_installed_replicates_vb_bug(tmp_path):
+    """VB @1271 writes a display name into the active-TYPE slot — corruption."""
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"x")
+    c.install_loadscreen("Winter.tga")  # Winter is the active/installed image
+
+    c.rename_loadscreen_image("Winter.tga", "Spring.tga", replicate_vb_bug=True)
+    # The bug: line 0 of StartscreenInfo.txt is the renamed display name, not "1"/"2".
+    raw = (c._profile_data_dir() / ss.INFO_FILENAME).read_text().splitlines()
+    assert raw[0] == "Spring.tga"  # corrupted active-type slot (faithful to VB)
+
+
+def test_rename_installed_corrected_behaviour(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"x")
+    c.install_loadscreen("Winter.tga")
+
+    c.rename_loadscreen_image("Winter.tga", "Spring.tga", replicate_vb_bug=False)
+    info = ss.read_start_screen_info(c._profile_data_dir())
+    assert info.active_type in ("1", "2")  # not corrupted
+    assert info.active_screen == "Spring.tga"

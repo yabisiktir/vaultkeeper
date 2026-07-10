@@ -292,3 +292,17 @@ def test_collect_tga_loose_and_archive(tmp_path: Path) -> None:
     )
     names = sorted(p.name for p in found)
     assert names == ["a.tga", "b.tga", "c.tga"]
+
+
+# -- get_next_name (VB GetNextName) --------------------------------------- #
+
+
+def test_get_next_name_wraps() -> None:
+    avail = ["a.tga", "b.tga", "c.tga"]
+    assert ss.get_next_name(avail, "b.tga") == "c.tga"
+    assert ss.get_next_name(avail, "c.tga") == "a.tga"  # wrap to front
+
+
+def test_get_next_name_single_or_missing() -> None:
+    assert ss.get_next_name(["only.tga"], "only.tga") == ""
+    assert ss.get_next_name(["a.tga", "b.tga"], "x.tga") == ""

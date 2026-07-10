@@ -99,6 +99,10 @@ class StartScreenManager(QDialog):
         self._delete_btn.setToolTip("Delete the selected image(s)")
         self._delete_btn.clicked.connect(self._on_delete)
         buttons.addWidget(self._delete_btn)
+        self._rename_btn = QPushButton("Rename…")
+        self._rename_btn.setToolTip("Rename the selected image")
+        self._rename_btn.clicked.connect(self._on_rename)
+        buttons.addWidget(self._rename_btn)
         self._exclude_btn = QPushButton("Toggle Auto-Exclude")
         self._exclude_btn.setToolTip(
             "Exclude/include the selected image from the slideshow and auto-select"
@@ -291,6 +295,23 @@ class StartScreenManager(QDialog):
         self._status(result.get("message", ""))
         self._refresh()
 
+    def _on_rename(self) -> None:
+        """Rename the selected image (VB RbRename — validation in the controller)."""
+        if self._controller is None:
+            return
+        entry = self._current_entry()
+        if entry is None:
+            return
+        from PySide6.QtWidgets import QInputDialog
+
+        old = entry["name"]
+        new, ok = QInputDialog.getText(self, "Rename Image File", "New name:", text=old)
+        if not ok or not new:
+            return
+        result = self._controller.rename_loadscreen_image(old, new)
+        self._status(result.get("message", ""))
+        self._refresh(select=result.get("name", old))
+
     def _status(self, text: str) -> None:
         if text:
             self._summary.setText(text)
@@ -300,6 +321,7 @@ class StartScreenManager(QDialog):
         has_selection = self._current_entry() is not None
         self._install_btn.setEnabled(has_controller and has_selection)
         self._delete_btn.setEnabled(has_controller and has_selection)
+        self._rename_btn.setEnabled(has_controller and has_selection)
         self._add_folder_btn.setEnabled(has_controller)
         self._add_hak_btn.setEnabled(has_controller)
 

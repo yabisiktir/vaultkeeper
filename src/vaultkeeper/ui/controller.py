@@ -1813,6 +1813,116 @@ class ProfileController:
             "message": f"Start Screen images deleted: {deleted}.",
         }
 
+    def rename_loadscreen_image(
+        self, old_name: str, new_name: str, *, replicate_vb_bug: bool = True
+    ) -> dict:
+        """Rename a loadscreen image (VB ``RbRename`` @1243) — **LANDMINE, see below**.
+
+        Validates the new name (:func:`start_screen.validate_loadscreen_name`), renames
+        the file in the ``Loadscreen Images`` folder, renames any matching
+        auto-exclusion, and updates the active-screen slots in ``StartscreenInfo.txt``
+        following VB's Standard/Prefixed reassignment branches.
+
+        .. warning::
+            VB has a genuine bug at StartScreenManager.vb:1271. When the *installed*
+            image is renamed and its prefix-state is unchanged, VB executes
+            ``SsInfo.Active = InstalledLoadScreen`` — writing the **display name** into
+            the active-**type** slot (line 0 of the info file, which must hold ``"1"``
+            or ``"2"``), corrupting ``StartscreenInfo.txt``. The clearly-intended code
+            was ``SsInfo.ActiveScreen = InstalledLoadScreen`` (which writes the Standard
+            or Prefixed name slot). We port the bug **faithfully by default**
+            (``replicate_vb_bug=True``) so behaviour matches the original; pass
+            ``replicate_vb_bug=False`` for the corrected behaviour. There is no real
+            loadscreen data on this machine to validate against — flagged for review.
+
+        Returns ``{"ok", "message"}``.
+        """
+        from dataclasses import replace
+
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+        image_folder = self._loadscreen_image_folder(md)
+
+        # Validate against the current display names (VB ValidateName existence check).
+        pre = ss.scan_loadscreens(image_folder)
+        existing = [im.name for im in pre]
+        ok, value = ss.validate_loadscreen_name(
+            new_name, initial=old_name, existing=existing
+        )
+        if not ok:
+            return {"ok": False, "message": value}
+        new_name = value
+
+        src = image_folder / old_name
+        if not src.is_file():
+            return {"ok": False, "message": f"Rename of {old_name} failed."}
+
+        data_dir = self._profile_data_dir()
+        prefixes = ss.read_prefixes(data_dir)
+        excludes = ss.read_auto_excludes(data_dir)
+
+        # Available lists computed from the PRE-rename state (VB: RefreshScreenFiles
+        # runs after the GetNextName calls, so ScreenFilenames still holds old names).
+        exclude_lower = {e.lower() for e in excludes}
+        standard_available = [n for n in existing if n.lower() not in exclude_lower]
+        prefixed_available = [n for n in existing if ss.is_filter_prefixed(n, prefixes)]
+
+        # Perform the file rename.
+        try:
+            src.rename(image_folder / new_name)
+        except OSError:
+            return {"ok": False, "message": f"Rename of {old_name} failed."}
+
+        info = ss.read_start_screen_info(data_dir)
+        if info is not None:
+            new_prefixed = ss.is_prefixed(new_name, prefixes)
+            old_prefixed = ss.is_prefixed(old_name, prefixes)
+            installed = info.active_screen  # ~ VB InstalledLoadScreen
+
+            if old_name == installed:  # case-sensitive (VB String.Compare CaseSensitive)
+                if new_prefixed and not old_prefixed:
+                    info = replace(
+                        info,
+                        standard=ss.get_next_name(standard_available, old_name),
+                        prefixed=new_name,
+                    )
+                elif not new_prefixed and old_prefixed:
+                    info = replace(
+                        info,
+                        prefixed=ss.get_next_name(prefixed_available, old_name),
+                        standard=new_name,
+                    )
+                elif replicate_vb_bug:
+                    # VB BUG @1271: writes a display name into the active-TYPE slot.
+                    info = replace(info, active_type=new_name)
+                else:
+                    # Corrected: assign into the active screen name slot.
+                    info = ss.with_active_screen(info, new_name, prefixed=new_prefixed)
+            elif old_name == info.prefixed:
+                if not new_prefixed and old_prefixed:
+                    info = replace(
+                        info, prefixed=ss.get_next_name(prefixed_available, old_name)
+                    )
+                else:
+                    info = replace(info, prefixed=new_name)
+
+            ss.save_start_screen_info(data_dir, info)
+
+        # Rename the auto-exclusion entry (VB @1289: remove old, add new when neither
+        # old nor new is prefixed — a prefixed image is auto-excluded elsewhere).
+        if any(e.lower() == old_name.lower() for e in excludes):
+            excludes = [e for e in excludes if e.lower() != old_name.lower()]
+            if not ss.is_prefixed(new_name, prefixes) and not ss.is_prefixed(
+                old_name, prefixes
+            ):
+                excludes.append(new_name)
+            ss.save_auto_excludes(data_dir, excludes)
+
+        return {"ok": True, "name": new_name, "message": f"Renamed to {new_name}"}
+
     def user_responses_report(self) -> dict:
         """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
 

@@ -134,6 +134,23 @@ def read_prefixes(profile_data_dir: Path) -> dict[str, bool]:
     return prefixes
 
 
+def get_next_name(available: list[str], active_name: str) -> str:
+    """The next available screen name after removing ``active_name`` (VB ``GetNextName``).
+
+    ``available`` is the eligible-screen list (standard or prefixed, already filtered).
+    Returns ``""`` when ``active_name`` isn't in the list or it's the only entry
+    (VB ``index = -1 Or count = 1``); otherwise the name at the same index after
+    removal, wrapping to the front when that index falls off the end.
+    """
+    if active_name not in available or len(available) == 1:
+        return ""
+    idx = available.index(active_name)
+    rest = available[:idx] + available[idx + 1 :]
+    if idx >= len(rest):
+        idx = 0
+    return rest[idx]
+
+
 def file_prefix(name: str) -> str:
     """The characters before the first space in ``name`` (VB ``FilePrefix``)."""
     idx = name.find(" ")
