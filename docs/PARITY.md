@@ -85,6 +85,25 @@ original is a full backup **manager** with a different layout:
 To reach parity the manager needs the deferred deactivate/activate/delete-game
 **backup** subsystem and the two-list (mods ↔ save folders) layout with space totals.
 
+### Wizard Builder — 🔷 Divergent (bounded port: viewer, not editor)
+
+Reference: `bhwizardbuilder.htm` → `lib/NewItem964.png`.
+
+The original is a full **editor**; the port is a read-only **viewer** + Validate/Delete
+(the add/remove-between-lists authoring UI is deferred — see the handoff).
+
+| Element | Original | Port | Verdict |
+|---|---|---|---|
+| "Generate Mod Installer Wizard" heading | ✓ | ✓ | ✅ |
+| Wizard Title / Choices / Preferences text | editable | shown | 🔷 read-only |
+| "Items Processed by Installer" source list | ✓ | — | 🔷 editor-only |
+| Add ▸▸ / Add All ▸▸ / ◂◂ Remove transfer buttons | ✓ | — | 🔷 editor-only |
+| Choices / Preferences / Exclude lists | ✓ | ✓ (read-only) | ✅ content |
+| Display Name field + **Save** | ✓ | Validate / Delete | 🔷 |
+
+The wizard *content* (title, choices, preferences, excludes) is faithfully shown; the
+interactive authoring surface (source list, Add/Remove, Save) is the deferred piece.
+
 ## Checklist — remaining dialogs (pending this pass)
 
 Each maps to its help topic; compare per the steps above.
@@ -92,7 +111,7 @@ Each maps to its help topic; compare per the steps above.
 | Port dialog | Help topic | Status |
 |---|---|---|
 | Main window (ribbon / menus / 3-pane) | `MsViewHelp` / `UserInterface` | ✅ (verified in earlier sessions) |
-| Wizard Builder | `bhwizardbuilder.htm` | ⬜ |
+| Wizard Builder | `bhwizardbuilder.htm` | 🔷 assessed (viewer vs editor) |
 | Workshop Viewer | `bhworkshop.htm` | ⬜ |
 | Dependency Manager | `bhdependencymanager.htm` | ⬜ |
 | Installation Analyser | `bhinstallationanalyser.htm` | ⬜ |
@@ -107,11 +126,20 @@ Each maps to its help topic; compare per the steps above.
 
 ## Summary
 
-Compared this pass: **3** dialogs. The ported **Character Explorer** now matches the
+Compared this pass: **4** dialogs. The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred
-extras. The **Game Saves Manager** is deliberately the archive-only slice and diverges
-most (the full backup/activate manager is deferred).
+extras. The **Game Saves Manager** is deliberately the archive-only slice and the
+**Wizard Builder** is a read-only viewer of the wizard content — both diverge because
+their fuller VB subsystems (backup/activate; wizard authoring) are deferred.
 
 Common cross-platform divergences recorded as **expected**: native Qt vs WinForms
 widget chrome, push buttons vs icon toolbars, and macOS vs Windows fonts/spacing.
+
+## Per-dialog Help buttons (Phase A coverage)
+
+Help buttons (`help_button(control_name)`) are wired into: Game Saves Manager, Doc
+Organiser, Wizard Builder, Start Screen Manager, Workshop Viewer, Folder Mapping,
+Create Missing Installers and the User Response Editor, plus the Help menu. The
+remaining table-only viewers (Dependency Manager, Conflicts, Play Data, Mods Played,
+Installation Analyser) have no button row yet — add one with the same one-liner.
