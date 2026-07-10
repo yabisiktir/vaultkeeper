@@ -1376,6 +1376,77 @@ class ProfileController:
 
         return scan_portraits(self.portrait_search_dirs())
 
+    # -- Start Screen / Loadscreens (VB StartScreenManager) ---------------- #
+    def loadscreens_report(self) -> dict:
+        """The managed NWN start-screen (loadscreen) images + which is active.
+
+        Read-only view of VB ``StartScreenManager``: locates the NIT-managed
+        loadscreen mod, lists its ``Loadscreen Images/*.tga`` files, and marks the
+        active image (from ``StartscreenInfo.txt``) and any auto-excluded images.
+        When the manager has never been set up (the mod does not exist) the report
+        says so rather than inventing it. The add/install/slideshow actions are
+        deferred.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {
+                "exists": False,
+                "mod_name": ss.LOADSCREEN_MOD,
+                "installed": False,
+                "active": "",
+                "image_folder": "",
+                "images": [],
+                "count": 0,
+                "excluded_count": 0,
+                "summary": "NIT does not yet manage your NWN Start Screen.",
+            }
+
+        image_folder = self.ctx.profile_mods_dir / md.mod_name / ss.SCREEN_FOLDER
+        info = ss.read_start_screen_info(self._profile_data_dir())
+        active = info.active_screen if info is not None else ""
+        excludes = ss.read_auto_excludes(self._profile_data_dir())
+        images = ss.scan_loadscreens(image_folder, active=active, excludes=excludes)
+        installed = md.installed
+
+        rows = [
+            {
+                "name": im.name,
+                "path": str(im.path),
+                "size": im.size,
+                "size_text": _fmt_size(im.size),
+                "excluded": im.excluded,
+                "active": im.active,
+            }
+            for im in images
+        ]
+        excluded_count = sum(1 for im in images if im.excluded)
+
+        # Summary line (VB InstalledStatusText tone): only an *installed* mod means
+        # an image is actually the game's start screen right now.
+        parts = [f"{len(rows)} loadscreen image{'' if len(rows) == 1 else 's'}"]
+        if active:
+            state = "installed" if installed else "selected (mod not installed)"
+            parts.append(f"'{active}' {state}")
+        elif installed:
+            parts.append("NWN's Start Screen installed")
+        if excluded_count:
+            parts.append(f"{excluded_count} auto-excluded")
+        summary = " · ".join(parts) + "."
+
+        return {
+            "exists": True,
+            "mod_name": md.mod_name,
+            "installed": installed,
+            "active": active,
+            "image_folder": str(image_folder),
+            "images": rows,
+            "count": len(rows),
+            "excluded_count": excluded_count,
+            "summary": summary,
+        }
+
     def user_responses_report(self) -> dict:
         """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
 

@@ -1,0 +1,134 @@
+"""Tests for the headless Start Screen (loadscreen) model."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from vaultkeeper.game import start_screen as ss
+
+
+def _write(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+# -- Constants ------------------------------------------------------------- #
+
+
+def test_constants_match_vb() -> None:
+    assert ss.LOADSCREEN_MOD == "NWN Loadscreens (NIT Managed)"
+    assert ss.AUTO_GROUP == "ZZZ.  NIT Managed Restorers (Auto)"
+    assert ss.SCREEN_FOLDER == "Loadscreen Images"
+    assert ss.NWN_START_SCREEN_NAME == "gui_pre_bknd3.tga"
+    assert ss.OVERRIDE_FOLDER == "override"
+
+
+# -- StartScreenInfo parse ------------------------------------------------- #
+
+
+def test_read_info_missing_returns_none(tmp_path: Path) -> None:
+    assert ss.read_start_screen_info(tmp_path) is None
+
+
+def test_read_info_standard_active(tmp_path: Path) -> None:
+    _write(
+        tmp_path / ss.INFO_FILENAME,
+        "1\nsunset.tga\ncastle.tga\n/some/browse/folder\n",
+    )
+    info = ss.read_start_screen_info(tmp_path)
+    assert info is not None
+    assert info.standard_active is True
+    assert info.prefix_active is False
+    assert info.standard == "sunset.tga"
+    assert info.prefixed == "castle.tga"
+    assert info.browse_folder == "/some/browse/folder"
+    assert info.active_screen == "sunset.tga"
+
+
+def test_read_info_prefixed_active(tmp_path: Path) -> None:
+    _write(tmp_path / ss.INFO_FILENAME, "2\nsunset.tga\ncastle.tga\n/browse\n")
+    info = ss.read_start_screen_info(tmp_path)
+    assert info is not None
+    assert info.prefix_active is True
+    assert info.active_screen == "castle.tga"
+
+
+def test_read_info_truncated_pads(tmp_path: Path) -> None:
+    # A short file must not raise; missing slots default to "".
+    _write(tmp_path / ss.INFO_FILENAME, "1\nonly.tga\n")
+    info = ss.read_start_screen_info(tmp_path)
+    assert info is not None
+    assert info.standard == "only.tga"
+    assert info.prefixed == ""
+    assert info.browse_folder == ""
+    assert info.active_screen == "only.tga"
+
+
+def test_read_info_blank_type_defaults_standard(tmp_path: Path) -> None:
+    _write(tmp_path / ss.INFO_FILENAME, "\na.tga\nb.tga\n/x\n")
+    info = ss.read_start_screen_info(tmp_path)
+    assert info is not None
+    assert info.standard_active is True
+    assert info.active_screen == "a.tga"
+
+
+# -- Auto excludes --------------------------------------------------------- #
+
+
+def test_read_auto_excludes(tmp_path: Path) -> None:
+    _write(tmp_path / ss.AUTO_EXCLUDES_FILENAME, "skip1.tga\n\nskip2.tga\n")
+    assert ss.read_auto_excludes(tmp_path) == ["skip1.tga", "skip2.tga"]
+
+
+def test_read_auto_excludes_missing(tmp_path: Path) -> None:
+    assert ss.read_auto_excludes(tmp_path) == []
+
+
+# -- Scanning -------------------------------------------------------------- #
+
+
+def test_scan_missing_folder(tmp_path: Path) -> None:
+    assert ss.scan_loadscreens(tmp_path / "nope") == []
+
+
+def test_scan_filters_and_sorts(tmp_path: Path) -> None:
+    folder = tmp_path / "Loadscreen Images"
+    folder.mkdir()
+    (folder / "b_screen.tga").write_bytes(b"x" * 10)
+    (folder / "a_screen.tga").write_bytes(b"x" * 20)
+    (folder / "notes.txt").write_text("ignore me")  # non-tga skipped
+    (folder / "sub").mkdir()  # directory skipped
+
+    images = ss.scan_loadscreens(folder)
+    names = [im.name for im in images]
+    assert names == ["a_screen.tga", "b_screen.tga"]  # win_compare order
+    assert images[0].size == 20
+    assert all(not im.excluded and not im.active for im in images)
+
+
+def test_scan_windows_numeric_sort(tmp_path: Path) -> None:
+    folder = tmp_path / "imgs"
+    folder.mkdir()
+    for name in ("screen10.tga", "screen2.tga", "screen1.tga"):
+        (folder / name).write_bytes(b"x")
+    names = [im.name for im in ss.scan_loadscreens(folder)]
+    # Natural (StrCmpLogicalW) order: 1, 2, 10 — not lexical 1, 10, 2.
+    assert names == ["screen1.tga", "screen2.tga", "screen10.tga"]
+
+
+def test_scan_marks_active_and_excluded_case_insensitive(tmp_path: Path) -> None:
+    folder = tmp_path / "imgs"
+    folder.mkdir()
+    for name in ("Active.tga", "Excluded.tga", "Plain.tga"):
+        (folder / name).write_bytes(b"x")
+
+    images = {
+        im.name: im
+        for im in ss.scan_loadscreens(
+            folder, active="active.tga", excludes=["EXCLUDED.TGA"]
+        )
+    }
+    assert images["Active.tga"].active is True
+    assert images["Excluded.tga"].excluded is True
+    assert images["Plain.tga"].active is False
+    assert images["Plain.tga"].excluded is False
