@@ -150,3 +150,19 @@ class HelpViewer(QDialog):
         dlg = cls(None, parent)
         dlg.show()
         return dlg
+
+
+def help_button(control_name: str, parent: QWidget) -> QPushButton:
+    """A dialog Help button opening the help topic for ``control_name`` (VB help button).
+
+    Clicking it opens :class:`HelpViewer` at ``<control_name>.htm``, mirroring how each
+    VB dialog's Help button calls ``HelpFileManager.Open(sender.Name)``. The opened
+    viewer is stored on ``parent._help_viewer`` so it isn't garbage-collected.
+    """
+    button = QPushButton("Help")
+
+    def _open() -> None:
+        parent._help_viewer = HelpViewer.show_for_control(control_name, parent)
+
+    button.clicked.connect(_open)
+    return button

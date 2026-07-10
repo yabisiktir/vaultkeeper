@@ -46,6 +46,21 @@ def test_viewer_shows_message_when_topic_missing(qtbot):
     assert "unavailable" in dlg.browser.toPlainText().lower()
 
 
+def test_help_button_opens_topic(qtbot):
+    from PySide6.QtWidgets import QWidget
+
+    from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    button = help_button("BhGameManager", parent)
+    assert button.text() == "Help"
+    button.click()
+    viewer = parent._help_viewer
+    qtbot.addWidget(viewer)
+    assert "bhgamemanager.htm" in viewer.browser.source().toString().lower()
+
+
 def test_viewer_toc_selection_loads_topic(qtbot):
     from PySide6.QtCore import Qt
 

@@ -78,6 +78,9 @@ class GameSavesManager(QDialog):
         layout.addWidget(self.archives)
 
         button_row = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        button_row.addWidget(help_button("BhGameManager", self))
         button_row.addStretch(1)
         self.restore_button = QPushButton("Restore")
         self.restore_button.clicked.connect(self._on_restore)

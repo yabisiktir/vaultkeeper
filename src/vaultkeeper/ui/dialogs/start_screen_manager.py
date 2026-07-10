@@ -78,6 +78,9 @@ class StartScreenManager(QDialog):
 
         # Action buttons (only useful with a controller to act through).
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("RbLoadscreenHelp", self))
         self._exclude_btn = QPushButton("Toggle Auto-Exclude")
         self._exclude_btn.setToolTip(
             "Exclude/include the selected image from the slideshow and auto-select"

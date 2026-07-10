@@ -99,6 +99,9 @@ class DocOrganiser(QDialog):
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("BhDocManager", self))
         # VB CmVersion/TsVersion toggle — strip version numbers from doc names.
         self.version_check = QCheckBox("Remove version numbers")
         self.version_check.setToolTip(

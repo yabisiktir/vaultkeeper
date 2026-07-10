@@ -63,6 +63,9 @@ class WizardBuilder(QDialog):
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("BhWizardBuilder", self))
         buttons.addStretch(1)
         self.validate_button = QPushButton("Validate")
         self.validate_button.clicked.connect(self._on_validate)
