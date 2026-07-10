@@ -124,3 +124,53 @@ def test_clear_exclusions_action(qtbot, tmp_path: Path) -> None:
     dlg._on_clear_exclusions()
     assert ss.read_auto_excludes(controller._profile_data_dir()) == []
     assert dlg._clear_btn.isEnabled() is False
+
+
+# -- Action buttons drive the controller (VB RbInstall/RbDeleteFile/etc.) --- #
+
+
+def test_dialog_install_button(qtbot, tmp_path):
+    controller = _controller_with_images(tmp_path, ["Winter.tga", "Summer.tga"])
+    dlg = StartScreenManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    # Select the first image and install it.
+    dlg._list.setCurrentRow(0)
+    name = dlg._current_entry()["name"]
+    dlg._on_install()
+    game_screen = controller.ctx.game_folders["override"] / ss.NWN_START_SCREEN_NAME
+    assert game_screen.is_file()
+    info = ss.read_start_screen_info(controller._profile_data_dir())
+    assert info.active_screen == name
+
+
+def test_dialog_delete_button(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller_with_images(tmp_path, ["Winter.tga", "Summer.tga"])
+    dlg = StartScreenManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    dlg._list.setCurrentRow(0)
+    target = dlg._current_entry()["name"]
+    dlg._on_delete()
+    folder = controller._loadscreen_image_folder(controller.pd.mod_item(ss.LOADSCREEN_MOD))
+    assert not (folder / target).is_file()
+
+
+def test_dialog_add_folder_button(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+
+    controller = _controller_with_images(tmp_path, [])
+    src = tmp_path / "browse"
+    src.mkdir()
+    (src / "new.tga").write_bytes(b"x")
+    monkeypatch.setattr(
+        QFileDialog, "getExistingDirectory", staticmethod(lambda *a, **k: str(src))
+    )
+    dlg = StartScreenManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    dlg._on_add_folder()
+    folder = controller._loadscreen_image_folder(controller.pd.mod_item(ss.LOADSCREEN_MOD))
+    assert (folder / "new.tga").is_file()

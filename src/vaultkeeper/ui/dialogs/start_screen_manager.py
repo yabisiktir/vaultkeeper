@@ -1,15 +1,16 @@
 """StartScreenManager — browse NWN start-screen (loadscreen) images (VB StartScreenManager).
 
 VB's Start Screen Manager lets the user manage the image NWN shows on its main
-menu. This version is the gallery plus the auto-exclusion action: the NIT-managed
-loadscreen images in a list (the active one marked, auto-excluded ones dimmed)
-beside a preview of the selected image, with a status summary, and buttons to
-toggle an image's auto-exclusion (VB RbAddAutoExclusion/RbRemoveAutoExclusion) or
-clear all exclusions (VB RbInfoReport "Remove Exclusions").
+menu. The NIT-managed loadscreen images are shown in a list (the active one marked,
+auto-excluded ones dimmed) beside a preview of the selected image, with a status
+summary. Actions: **Install** the selected image as NWN's start screen (VB
+RbInstall), **Add Folder…**/**Add Hak…** to import TGA images (VB
+ProcessFolders/add-from-hak), **Delete** selected images (VB RbDeleteFile), and
+toggle an image's auto-exclusion / clear all exclusions (VB
+RbAddAutoExclusion/RbRemoveAutoExclusion/RbInfoReport).
 
-The remaining actions — add-from-folder, add-from-hak (the extract-from-hak seam
-is ready), install/uninstall/anneal, the slideshow and the prefix system — are
-deferred.
+Deferred: the slideshow, the prefix editor, and Rename (a VB bug landmine — see the
+handoff).
 """
 
 from __future__ import annotations
@@ -60,6 +61,7 @@ class StartScreenManager(QDialog):
 
         self._list = QListWidget()
         self._list.setMinimumWidth(240)
+        self._list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self._list.currentRowChanged.connect(self._on_row)
         panes.addWidget(self._list)
 
@@ -81,6 +83,22 @@ class StartScreenManager(QDialog):
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
         buttons.addWidget(help_button("RbLoadscreenHelp", self))
+        self._install_btn = QPushButton("Install")
+        self._install_btn.setToolTip("Install the selected image as NWN's start screen")
+        self._install_btn.clicked.connect(self._on_install)
+        buttons.addWidget(self._install_btn)
+        self._add_folder_btn = QPushButton("Add Folder…")
+        self._add_folder_btn.setToolTip("Add all TGA images found under a folder")
+        self._add_folder_btn.clicked.connect(self._on_add_folder)
+        buttons.addWidget(self._add_folder_btn)
+        self._add_hak_btn = QPushButton("Add Hak…")
+        self._add_hak_btn.setToolTip("Add TGA images extracted from a .hak file")
+        self._add_hak_btn.clicked.connect(self._on_add_hak)
+        buttons.addWidget(self._add_hak_btn)
+        self._delete_btn = QPushButton("Delete")
+        self._delete_btn.setToolTip("Delete the selected image(s)")
+        self._delete_btn.clicked.connect(self._on_delete)
+        buttons.addWidget(self._delete_btn)
         self._exclude_btn = QPushButton("Toggle Auto-Exclude")
         self._exclude_btn.setToolTip(
             "Exclude/include the selected image from the slideshow and auto-select"
@@ -143,15 +161,18 @@ class StartScreenManager(QDialog):
         else:
             self._preview.setText("No loadscreen images to display.")
             self._exclude_btn.setEnabled(False)
+        self._update_action_state()
 
     def _on_row(self, row: int) -> None:
         self._preview.clear()
         self._detail.clear()
         if row < 0 or row >= len(self._images):
             self._exclude_btn.setEnabled(False)
+            self._update_action_state()
             return
         entry = self._images[row]
         self._exclude_btn.setEnabled(self._controller is not None)
+        self._update_action_state()
         pixmap = tga_to_pixmap(Path(entry["path"]), box=_PREVIEW_BOX)
         if pixmap is not None:
             self._preview.setPixmap(pixmap)
@@ -202,6 +223,85 @@ class StartScreenManager(QDialog):
         select = entry["name"] if entry else None
         self._controller.clear_loadscreen_exclusions()
         self._refresh(select=select)
+
+    def _on_install(self) -> None:
+        """Install the selected image as NWN's start screen (VB RbInstall)."""
+        if self._controller is None:
+            return
+        entry = self._current_entry()
+        if entry is None:
+            return
+        name = entry["name"]
+        result = self._controller.install_loadscreen(name)
+        self._status(result.get("message", ""))
+        self._refresh(select=name)
+
+    def _on_add_folder(self) -> None:
+        """Add TGA images found under a chosen folder (VB Add-from-Folders)."""
+        if self._controller is None:
+            return
+        from PySide6.QtWidgets import QFileDialog
+
+        folder = QFileDialog.getExistingDirectory(self, "Select a folder of TGA images")
+        if not folder:
+            return
+        result = self._controller.add_loadscreen_folders([Path(folder)])
+        self._status(result.get("message", ""))
+        self._refresh()
+
+    def _on_add_hak(self) -> None:
+        """Add TGA images extracted from a chosen .hak file (VB Add-from-Hak)."""
+        if self._controller is None:
+            return
+        from PySide6.QtWidgets import QFileDialog
+
+        hak, _ = QFileDialog.getOpenFileName(
+            self, "Select a hak file", "", "Hak files (*.hak);;All files (*)"
+        )
+        if not hak:
+            return
+        result = self._controller.add_loadscreen_from_hak(Path(hak))
+        self._status(result.get("message", ""))
+        self._refresh()
+
+    def _on_delete(self) -> None:
+        """Delete the selected image(s) (VB RbDeleteFile)."""
+        if self._controller is None:
+            return
+        entries = [self._images[i.row()] for i in self._list.selectedIndexes()]
+        if not entries:
+            entry = self._current_entry()
+            entries = [entry] if entry else []
+        if not entries:
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        names = [e["name"] for e in entries]
+        plural = "image" if len(names) == 1 else "images"
+        if (
+            QMessageBox.question(
+                self,
+                "Delete Start Screen Images",
+                f"Delete {len(names)} start screen {plural}?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        result = self._controller.delete_loadscreen_images(names)
+        self._status(result.get("message", ""))
+        self._refresh()
+
+    def _status(self, text: str) -> None:
+        if text:
+            self._summary.setText(text)
+
+    def _update_action_state(self) -> None:
+        has_controller = self._controller is not None
+        has_selection = self._current_entry() is not None
+        self._install_btn.setEnabled(has_controller and has_selection)
+        self._delete_btn.setEnabled(has_controller and has_selection)
+        self._add_folder_btn.setEnabled(has_controller)
+        self._add_hak_btn.setEnabled(has_controller)
 
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> StartScreenManager:

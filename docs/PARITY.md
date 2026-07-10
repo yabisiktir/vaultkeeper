@@ -173,14 +173,17 @@ Reference: `rbportraitmanagerhelp.htm` → `lib/NewItem 201.png`.
 
 The preview + list are present; the exclude/edit/create-installer toolbar is deferred.
 
-### Start Screen Manager — 🔷 Divergent (bounded), title fixed
+### Start Screen Manager — ✅ Verified (actions ported)
 
 Reference: `rbloadscreenhelp.htm` → `lib/NewItem 234.png`.
 
-Title corrected to "NWN's Start Screen Manager". The port shows the gallery + preview +
-summary + Toggle-Auto-Exclude / Clear-Exclusions; the original's Add-from-Folders /
-Add-Image-Files / Rename / Remove toolbar is deferred (install-engine-blocked — see the
-handoff landmine note).
+Title "NWN's Start Screen Manager". The port shows the gallery + preview + summary and
+now carries the real actions: **Install** (VB RbInstall — copy the active image to the
+game `override/gui_pre_bknd3.tga` via a real loadscreen mod install + anneal), **Add
+Folder…** / **Add Hak…** (VB ProcessFolders / add-from-hak, using the archive + ERF
+seams), **Delete** (VB RbDeleteFile — uninstall-if-installed + auto-select-next), plus
+Toggle-Auto-Exclude / Clear-Exclusions. Deferred: the slideshow, the prefix editor, and
+**Rename** (a VB bug landmine — StartScreenManager.vb:1271 — see the handoff).
 
 ### Settings — 🔷 Divergent (subset; config-isolation intended)
 
@@ -245,7 +248,7 @@ Each maps to its help topic; compare per the steps above.
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ✅ verified |
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | 🔷 assessed (wired subset) |
 | Portrait Manager | `rbportraitmanagerhelp.htm` | 🟡 assessed (title fixed) |
-| Start Screen Manager | `rbloadscreenhelp.htm` | 🔷 assessed (title fixed) |
+| Start Screen Manager | `rbloadscreenhelp.htm` | ✅ verified (install/add/delete ported) |
 | Mods Played (Mod Play Viewer) | `bhmodsplayed.htm` | ✅ verified (subtitle added) |
 | Conflicts Viewer | `managemodfileconflicts.htm` | 🔷 assessed (aggregate vs inline) |
 
