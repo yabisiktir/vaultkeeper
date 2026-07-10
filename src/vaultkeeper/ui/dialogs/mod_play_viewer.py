@@ -13,8 +13,10 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QPushButton,
     QSplitter,
     QTreeWidget,
     QTreeWidgetItem,
@@ -24,6 +26,7 @@ from PySide6.QtWidgets import (
 
 from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.file_view import icon_name_for_state
 
 
@@ -94,6 +97,14 @@ class ModPlayViewer(QDialog):
         # -- Summary -------------------------------------------------------- #
         summary = QLabel(f"Mods (installed/total): {report.get('summary', '0/0')}")
         layout.addWidget(summary)
+
+        buttons = QHBoxLayout()
+        buttons.addWidget(help_button("BhModsPlayed", self))
+        buttons.addStretch(1)
+        close = QPushButton("Close")
+        close.clicked.connect(self.reject)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
 
         if self.mods.topLevelItemCount() > 0:
             self.mods.setCurrentItem(self.mods.topLevelItem(0))

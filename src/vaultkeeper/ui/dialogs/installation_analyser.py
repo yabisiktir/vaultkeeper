@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import (
     QDialog,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -17,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 
 
 class InstallationAnalyser(QDialog):
@@ -55,6 +58,14 @@ class InstallationAnalyser(QDialog):
 
         if not report.get("issues"):
             layout.addWidget(QLabel("No issues detected."))
+
+        buttons = QHBoxLayout()
+        buttons.addWidget(help_button("BhInstallationAnalyser", self))
+        buttons.addStretch(1)
+        close = QPushButton("Close")
+        close.clicked.connect(self.reject)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
 
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> InstallationAnalyser:

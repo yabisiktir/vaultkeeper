@@ -9,8 +9,10 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import (
     QDialog,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -18,6 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 
 
 class PlayDataViewer(QDialog):
@@ -48,6 +51,14 @@ class PlayDataViewer(QDialog):
             f"Total played: {total}    Most in one day: {most}    Last played: {last}"
         )
         layout.addWidget(summary)
+
+        buttons = QHBoxLayout()
+        buttons.addWidget(help_button("BhModsPlayed", self))
+        buttons.addStretch(1)
+        close = QPushButton("Close")
+        close.clicked.connect(self.reject)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
 
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> PlayDataViewer:
