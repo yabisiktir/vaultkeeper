@@ -1,0 +1,609 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Application Definitions File</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Application Definitions File</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="Reference.htm">Reference</a> &rsaquo;&rsaquo; <a href="Newtopic54.htm">Technical Information</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="Newtopic54.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="Newtopic54.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="Newtopic80.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<h1 class="rvps56"><span class="rvts0"><span class="rvts11">Overview</span></span></h1>
+<p class="rvps2"><span class="rvts6">The Application Definitions File provides a mechanism for maintaining hard-coded values without having to update and release applications when values are changed.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">The file uses an INI file format and is best viewed with Notepad++'s Language set to "INI file".</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Format</span></span></h2>
+<p class="rvps2"><span class="rvts101">[Section Name]</span></p>
+<p class="rvps2"><span class="rvts101">Keyword=Value</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts17">Note</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside; list-style-type: '− ';">
+ <li class="rvps2 noindent"><span class="rvts6">Section Names, Keywords and Values are </span><span class="rvts19">case sensitive</span><span class="rvts6">.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Leading spaces are taken as part of the Value.</span></li>
+</ul>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Revision Keyword</span></span></h2>
+<p class="rvps2"><span class="rvts6">Any section that contains the </span><span class="rvts104">Revision</span><span class="rvts6"> keyword will be written to a local file when the online Revision number is greater than the local one supplied with the application.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Changing the location of the Applications Definitions File</span></span></h2>
+<p class="rvps2"><span class="rvts6">This procedure should only be used for experimental purposes or in the event that Surazal is no longer available and you need to take over the maintenance of the Download Rules file or other keyword values.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Applications released by Surazal include an Applications Definitions File as part of the installation package. This file (</span><span class="rvts18">Application Definitions.txt</span><span class="rvts6">) is read first and used to read to the online version of the file.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Newer versions of the file are automatically written to a local copy that is held in the NIT Store's Data folder. If NIT detects this file, then it will be read instead of the one installed by the </span><span class="rvts19">Setup and Run</span><span class="rvts6"> program.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can copy the packaged Applications Definitions File to </span><span class="rvts19">\NIT Store\Data</span><span class="rvts6"> and edit the </span><span class="rvts104">Location1</span><span class="rvts6"> and </span><span class="rvts104">Location2</span><span class="rvts6"> keyword values in the </span><span class="rvts17">[LazWorks Library]</span><span class="rvts6"> section to point to a new location. The next time NIT is launched, it will use the new locations you defined.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You will need to upload the changed file to make it available to other users.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">When a new version of NIT is installed, the local copy in the NIT Store's Data folder is deleted. This action is taken because the packaged version of the file is always copied from the online Application Definitions File.</span></p>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[Application Version Information]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines the latest version of an application and is used to determine when an update is available.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts101">Assembly Name=major.minor.build.revision</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">NWN Installer Tool=6.3.0.14</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">Version information is always read from the online file and is not copied to the local disk when other changes are detected.</span></p>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[Application General Information]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines hard-coded values that are accessed by a number of different applications.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<div class="rvps55">
+<table width="100%" style="border-width: 0px; border-collapse: collapse;">
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Revision</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 583px;">
+   <p class="rvps2"><span class="rvts6">This a numeric value that must be incremented each time a change is made.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">SupportEmailAddress</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 583px;">
+   <p class="rvps2"><span class="rvts6">The recipient email address that will be used to send diagnostic information, support requests and feedback.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts101">User Name; Second Level Domain, Top Level Domain</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">surazal; lazweb, net</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NwnBaseClases</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 583px;">
+   <p class="rvps2"><span class="rvts6">A list of valid base classes for Neverwinter Nights.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts101">class1,class2,...,classN</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Classes should be listed in alphabetical order.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NwnPrestigeClasses</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 583px;">
+   <p class="rvps2"><span class="rvts6">A list of prestige classes for Neverwinter Nights.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts101">class1,class2,...,classN</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Classes should be listed in alphabetical order.</span></p>
+  </td>
+ </tr>
+</table>
+</div>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[Application Web Page Links]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines links to specific web pages.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<div class="rvps55">
+<table width="100%" style="border-width: 0px; border-collapse: collapse;">
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Revision</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">This a numeric value that must be incremented each time a change is made.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">ConsoleCommandsVaultUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWN Console Command project page on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">ConsoleCommandsNexusUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWN Console Command page on Nexus Mods.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">FFmpegPage</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">FFmpeg home page.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">ImageExplorerVaultUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">Image Explorer project page on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">MetadataViewerNexusUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWVault Metadata Viewer page on Nexus Mods.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">MetadataViewerVaultUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWVault Metadata Viewer project on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NitNexusPageUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWN Installer Tool page on Nexus Mods.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NitVaultPageUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">NWN Installer Tool project page on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NotepadPlusPlusPage</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">Notepad++ home page.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">SetFileEditorVaultUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">Set File Editor project page on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">SevenZipPage</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 579px;">
+   <p class="rvps2"><span class="rvts6">7-Zip home page.</span></p>
+  </td>
+ </tr>
+</table>
+</div>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[LazWorks Library]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines hard-coded values that are referenced by LazWorks Library.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<div class="rvps55">
+<table width="100%" style="border-width: 0px; border-collapse: collapse;">
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Revision</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">This a numeric value that must be incremented each time a change is made.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">CountPhp</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">PHP statement that is prefixed to file URLs to ensure the download count is incremented.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">This value must be copied from NWN Installer Tool's Download Rules File.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">FileIdPrefix</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">Prefix added to file name identifiers when using the download count PHP statement.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">This value must be copied from NWN Installer Tool's Download Rules File.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">GoogleFavIcons</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">Used to build the URL to access Google's S2 service, which returns the icon associated with the specified web address.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">HelpFolderNames</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">A list of sub-folder names used by programs to store HTML files.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Format: </span><span class="rvts101">Foldername1,Foldername2,...</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">There must be no leading or trailing space characters.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">LocationN</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">Specifies the base URL that is used to host the Application Definitions file.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">A numeric value is appended to the keyword "Location" and specifies the order in which attempts are made to read the file.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts101">Location1</span><span class="rvts6"> is the primary source, </span><span class="rvts101">Location2</span><span class="rvts6"> is the secondary source, etc.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">The </span><span class="rvts55">Location</span><span class="rvts24"> keywords must be specified in ascending order.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">VaultDomain</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">Vault domain used for URL validation.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">This value must be copied from NWN Installer Tool's Download Rules File.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">VaultFavIcon</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">The URL for The Neverwinter Vault's FavIcon image.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">VaultForumNew</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">The URL for "Topics with new and updated posts" on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">The type (http or https) must be omitted from the URL.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">://neverwintervault.org/forum/new</span></p>
+   <p class="rvps2"><span class="rvts101"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">VaultTitleId</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 572px;">
+   <p class="rvps2"><span class="rvts6">The string appended to Project Title on The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">This value must be copied from NWN Installer Tool's Download Rules File.</span></p>
+  </td>
+ </tr>
+</table>
+</div>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[NWN Installer Tool]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines hard-coded values used by the NWN Installer Tool.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<div class="rvps55">
+<table width="100%" style="border-width: 0px; border-collapse: collapse;">
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Revision</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">This a numeric value that must be incremented each time a change is made.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">BaseLazWorksUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Specifies the base URL that is used to host the Download Rules file (</span><span class="rvts18">DownloadRulesV3.txt</span><span class="rvts6">). This is the primary location.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">BaseNexusRulesUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Specifies the base URL that is used to host the Download Rules file. This is the secondary location and is only used if the Installer Tool is unable to read the file hosted on the </span><span class="rvts101">BaseLazWorksUrl</span><span class="rvts6">.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">BeamdogSupportPage</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Link to Beamdog's support page.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">MapExcludeExceptions</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Map Exclude Exceptions.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">This is a list filenames that are omitted from NIT's Create Installer exclude processing.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Format: </span><span class="rvts101">FileName1.ext*FileName2.ext*...</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Filenames must include the file extension.</span><br/><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Use an asterisk (*) to separate file name entries.</span><br/><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">There must be no leading or trailing space characters.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">MapExcludeExceptions=Test of the Sun.mod*My Test.mod</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Cep2xPrefix</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">This the case sensitive prefix used to identify CEP v2.x files (eg "cep2_2_").</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">CepFull</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">This is the case sensitive string included in the CEP download filename denoting the complete CEP installation file (eg "full").&nbsp;</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">CepPartialNames</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">This is a list of partial name prefixes used to detect CEP v2.65 download file names. Each prefix is delineated by a comma (eg "cep_2_65,cep2_2_65")</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">CepWizardTitle</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">This is the CEP Installation Wizard Title defined in the Download Rules files (eg "CEP v2.x Installer Wizard").</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NexusNeverwinterNights</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Link to Neverwinter Nights on Nexus Mods.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">NitForumPageUrl</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Link to the Installer Tool's forum page.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">TheNeverwinterVault</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">Link to The Neverwinter Vault.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">ValidInstalledExtensions</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">A list of file extension names that are normally excluded from Mod Installers, but are included as part of the Neverwinter Nights installation.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Format: </span><span class="rvts101">.Extension1,Folder1,Folder2,...;.Extension2,Folder1,Folder2,...</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Extension names must start with a period (.).</span><br/><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Use an asterisk (*) to denote that any folder is valid.</span><br/><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Use a semi-colon (;) to separate extension name entries.</span><br/><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">There must be no leading or trailing space characters.</span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Exe must not be defined (included by NIT).</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">ValidInstalledExtensions=.log,*;.gif,ovr;.json,mod,nwm</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">ValidInstalledFilenames</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">A list of file names that are normally excluded from Mod Installers, but are included as part of the Neverwinter Nights installation.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Format: </span><span class="rvts101">Filename1,Filename2,...</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">There must be no leading or trailing space characters.</span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">Patch.ini.bak and UserPatch.ini.bak must not be defined (included by NIT).</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">ValidInstalledFilenames=2dasource.zip,cryptographic_secret</span></p>
+   <p class="rvps2"><span class="rvts101"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">VaultArchiveRemoveChars</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 576px;">
+   <p class="rvps2"><span class="rvts6">A list of characters that are removed by The Neverwinter Vault when generating the filename for uploaded files. For example, </span><span class="rvts19">TheCapulet's Verdant Wilderness Pack Rev 1.7z</span><span class="rvts6"> is changed to </span><span class="rvts19">thecapulets_verdant_wilderness_pack_rev_1.7z</span><span class="rvts6">.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Format: Character1[Character2]</span><span class="rvts101">...</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts106">►</span><span class="rvts105"> </span><span class="rvts6">There must be no leading or trailing space characters.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">VaultArchiveRemoveChars='’</span></p>
+  </td>
+ </tr>
+</table>
+</div>
+<h1 class="rvps4"><span class="rvts0"><span class="rvts11">[NWN File Type Descriptions]</span></span></h1>
+<p class="rvps2"><span class="rvts6">This section defines the descriptions for the various types of files used by Neverwinter Nights. The installer tool uses these descriptions as the content for Additional Information displayed in the Properties panel when files are selected in the Mod Installer folder's Details panel.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<div class="rvps55">
+<table width="100%" style="border-width: 0px; border-collapse: collapse;">
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">Revision</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 580px;">
+   <p class="rvps2"><span class="rvts6">This a numeric value that must be incremented each time a change is made.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 208px;">
+   <p class="rvps2"><span class="rvts19">.File Extension Name</span></p>
+  </td>
+  <td style="border-width : 1px; border-color: #ffffff; border-style: solid; padding: 0px 7px; vertical-align: top; width: 580px;">
+   <p class="rvps2"><span class="rvts6">This is the file's extension name and must be prefixed by a period character (</span><span class="rvts77">.</span><span class="rvts6">). Descriptions are terminated by a new line.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts101">.Extension=Description</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">Example: </span><span class="rvts101">.bic=Neverwinter Nights character file.</span></p>
+   <p class="rvps2"><span class="rvts101"><br/></span></p>
+   <p class="rvps16"><span class="rvts24">Setting the description text to nothing (</span><span class="rvts55">.ext=</span><span class="rvts24">) indicates that the text will be retrieved from the selected file. This is only applicable for .MOD and .NWM file types.</span></p>
+  </td>
+ </tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

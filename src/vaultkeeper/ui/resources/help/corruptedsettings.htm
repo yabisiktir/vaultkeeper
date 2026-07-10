@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Corrupted Settings</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Corrupted Settings</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="MsViewHelp.htm">Neverwinter Nights Installer Tool</a> &rsaquo;&rsaquo; <a href="MsFAQ.htm">Frequently asked questions (FAQ)</a> &rsaquo;&rsaquo; <a href="FaqNitCrashes.htm">The Installer Tool crashes every time I start it</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="FaqNitCrashes.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="FaqNitCrashes.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="CorruptedProfileData.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Restore or fix your Settings</span></span></h2>
+<p class="rvps2"><span class="rvts6">Click </span><span class="rvts17">NWN Installer Tool -Commands</span><span class="rvts6"> from the </span><span class="rvts17">Windows Start Menu</span><span class="rvts6">, select </span><span class="rvts19">Settings</span><span class="rvts6"> and click </span><span class="rvts17">Continue</span><span class="rvts6">.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem606.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">This displays your Settings information before the Installer Tool performs most of its start-up processing.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">If you have saved your Settings using Export, then you can use </span><span class="rvts17">Import</span><span class="rvts6"> to restore them.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can also review the information on the </span><span class="rvts17">Locations</span><span class="rvts6"> and </span><span class="rvts17">Profiles</span><span class="rvts6"> pages to check that the information is still valid.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">Remember to click </span><span class="rvts35">Save</span><span class="rvts24"> when you Import or update your Settings to ensure they are applied.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Delete the User.Config file</span></span></h2>
+<p class="rvps2"><span class="rvts6">If you are unable to restore or fix your Settings, use this procedure to delete your </span><span class="rvts17">user.config</span><span class="rvts6"> file for the current version.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside;">
+ <li class="rvps20 noindent"><span class="rvts29">Open Windows File Explorer.</span></li>
+ <li class="rvps20 noindent"><span class="rvts29">Ensure that hidden files are visible by clicking </span><span class="rvts31">Options</span><span class="rvts29"> from the </span><span class="rvts31">View</span><span class="rvts29"> tab.</span><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem607.png"></li>
+ <li class="rvps20 noindent"><span class="rvts29">Open the </span><span class="rvts32">Surazal</span><span class="rvts29"> folder in your </span><span class="rvts32">AppData</span><span class="rvts29"> directory (you can paste </span><span class="rvts40">C:\users\%USERNAME%\AppData\Local\Surazal</span><span class="rvts29"> into the File Explorer's address bar).</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem608.png"><br/><span class="rvts29">Locate the folder containing the version 5.0's configuration (it starts with </span><span class="rvts32">NWN_Installer_Tool</span><span class="rvts29"> and not </span><span class="rvts32">NWN_</span><span class="rvts46">Mod</span><span class="rvts32">_Installer_Tool</span><span class="rvts29">, which is for version 4 and should not be changed).</span></li>
+ <li class="rvps20 noindent"><span class="rvts29">Open the folder and delete the last sub-folder in the list. If there is only one sub-folder, you should delete it.</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem609.png"></li>
+ <li class="rvps20 noindent"><span class="rvts29">Try and start the Installer Tool and see if the problem has been resolved.</span></li>
+ <li class="rvps20 noindent"><span class="rvts29">You may need to re-apply your preferences once the Installer Tool has started successfully.</span></li>
+</ol>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="CustomisetheInstallerTool.htm">Customise the Installer Tool</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

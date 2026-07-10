@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Create Installer did not include all the files from the downloaded archives</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Create Installer did not include all the files from the downloaded archives</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="MsViewHelp.htm">Neverwinter Nights Installer Tool</a> &rsaquo;&rsaquo; <a href="MsFAQ.htm">Frequently asked questions (FAQ)</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="MsFAQ.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="Newtopic.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="Newtopic57.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<p class="rvps2"><span class="rvts6">You used </span><span class="rvts17">Create Installer</span><span class="rvts6"> to define the files that will be installed from a Mod you downloaded, but files you expected to be included are not present.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">The most common cause of this is information defined on the </span><span class="rvts17">Map Excludes</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6">. You can confirm this by selecting </span><span class="rvts17">NIT Log File</span><span class="rvts6"> from the </span><span class="rvts17">View</span><span class="rvts6"> menu. Scroll down to the </span><span class="rvts19">Installer Created</span><span class="rvts6"> entry, which lists the files excluded from the Installer as a result of </span><span class="rvts19">Map Excludes</span><span class="rvts6"> definitions.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Here is an example of the Log File entry after creating an Installer for CEP v2.x...</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts42">10:01:45.765 — CEP v2.x Installer created. Files: 73. Duration: 00:00:37.173. Map excluded files: 6.</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP - Starter 270 - Added Tilesets.mod</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP - Starter 270 - All the Optional Haks.mod</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP - Starter 270 - Extended + Added Tilesets.mod</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP - Starter 270.mod</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP 1 Open Day.mod</span></p>
+<p class="rvps2"><span class="rvts42">&nbsp; &nbsp; CEP 1 Starter Module.mod</span></p>
+<p class="rvps2"><span class="rvts41"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can resolve this issue by amending your </span><span class="rvts19">Map Excludes</span><span class="rvts6"> definitions or manually coping the files you need from the downloaded archive to the Mod Installer.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">You can </span><a class="rvts26" href="mailto:surazal@lazweb.net?subject=NWN%20Installer%20Tool%20Map%20Excludes%20Exception">submit a file name as an exception</a><span class="rvts24">, if you think the Map Excludes definition should be retained. I will then update the Application Definitions file so that the file is not subject to Map Excludes processing.</span></p>
+<p class="rvps16"><span class="rvts24">An example of this is </span><span class="rvts25">Lone Wolf 01 - Test of the Sun.mod</span><span class="rvts24">, which is normally excluded by the "Test" definition on the Map Excludes page.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="CreateModInstallers.htm">Create Mod Installers</a></p>
+<p class="rvps8"><a class="rvts14" href="BhMapExcludes.htm">Work with the Excludes map</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

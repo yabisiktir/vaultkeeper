@@ -1,0 +1,957 @@
+﻿/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Normal text */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+span.rvts7
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts8
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts9
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+ color: #800000;
+}
+a.rvts10, span.rvts10
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts11
+{
+ font-size: 20pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+span.rvts12
+{
+ font-size: 13pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+span.rvts13
+{
+ font-size: 14pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+a.rvts14, span.rvts14
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+ text-decoration: underline;
+}
+span.rvts15 /* Font Style */
+{
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-style: italic;
+ color: #c0c0c0;
+}
+a.rvts16, span.rvts16 /* Font Style */
+{
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-style: italic;
+ color: #6666ff;
+ text-decoration: underline;
+}
+span.rvts17
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+}
+span.rvts18
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+}
+span.rvts19
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts20
+{
+ font-size: 13pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+a.rvts21, span.rvts21
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+ text-decoration: underline;
+}
+span.rvts22
+{
+ font-size: 13pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts23
+{
+ font-size: 13pt;
+ font-family: 'Segoe UI Semibold';
+ color: #190000;
+}
+span.rvts24
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+span.rvts25
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+a.rvts26, span.rvts26
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+ text-decoration: underline;
+}
+span.rvts27
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+}
+span.rvts28
+{
+ font-size: 14pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+}
+span.rvts29
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+a.rvts30, span.rvts30
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+ text-decoration: underline;
+}
+span.rvts31
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+}
+span.rvts32
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts33
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts34
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts35
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+}
+span.rvts36
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+span.rvts37
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts38
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+}
+span.rvts39
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #800000;
+}
+span.rvts40
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+ font-weight: bold;
+}
+span.rvts41
+{
+ font-size: 11.5pt;
+ font-family: 'Consolas';
+}
+span.rvts42
+{
+ font-family: 'Consolas';
+}
+span.rvts43
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts44
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-style: italic;
+}
+span.rvts45
+{
+ font-size: 12pt;
+ font-family: 'Consolas';
+ font-weight: bold;
+}
+span.rvts46
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts47
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #000000;
+}
+span.rvts48
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts49
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts50
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-style: italic;
+}
+a.rvts51, span.rvts51
+{
+ font-size: 13pt;
+ font-family: 'Segoe UI Semibold';
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts52, span.rvts52
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts53
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+}
+span.rvts54
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-style: italic;
+}
+span.rvts55
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+}
+span.rvts56
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+ color: #202122;
+ background-color: #ffffff;
+}
+span.rvts57
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+span.rvts58
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #0070c0;
+}
+span.rvts59
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+}
+span.rvts60
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-style: italic;
+}
+span.rvts61
+{
+ font-size: 12pt;
+ font-family: 'Segoe UI Semibold';
+ color: #0070c0;
+}
+span.rvts62
+{
+ font-size: 9pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #7f0000;
+}
+span.rvts63
+{
+ font-size: 9pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #8b0000;
+}
+span.rvts64
+{
+ font-size: 9pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #7f0000;
+}
+span.rvts65
+{
+ font-size: 14pt;
+ font-family: 'Segoe UI Semilight';
+}
+span.rvts66
+{
+ font-size: 14pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts67
+{
+ font-size: 14pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts68
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #800000;
+}
+span.rvts69
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #a23333;
+}
+span.rvts70
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+}
+span.rvts71
+{
+ font-size: 4pt;
+ font-family: 'Segoe UI';
+}
+span.rvts72
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-weight: bold;
+ color: #3366ff;
+}
+span.rvts73
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #7f0000;
+}
+span.rvts74
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts75
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts76
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts77
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts78
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts79
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #000000;
+}
+span.rvts80
+{
+ font-size: 4pt;
+ font-family: 'Segoe UI';
+}
+span.rvts81
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+}
+span.rvts82
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-style: italic;
+ font-weight: bold;
+}
+a.rvts83, span.rvts83
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+ text-decoration: underline;
+}
+span.rvts84
+{
+ font-size: 9pt;
+ font-family: 'Segoe UI Semibold';
+}
+span.rvts85
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #3f3f3f;
+}
+span.rvts86
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #7f7f7f;
+}
+span.rvts87
+{
+ font-size: 1pt;
+ font-family: 'Segoe UI';
+}
+span.rvts88
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+span.rvts89
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ font-style: italic;
+}
+span.rvts90
+{
+ font-size: 8pt;
+ font-family: 'Segoe UI';
+}
+span.rvts91
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #0070c0;
+}
+span.rvts92
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ text-decoration: underline;
+}
+span.rvts93
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+span.rvts94
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+}
+span.rvts95
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+ font-style: italic;
+}
+span.rvts96
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+}
+span.rvts97
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: transparent;
+}
+span.rvts98
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ color: #0000ff;
+}
+span.rvts99
+{
+ font-size: 3pt;
+ font-family: 'Segoe UI';
+}
+span.rvts100
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ text-decoration: underline;
+}
+span.rvts101
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+}
+span.rvts102
+{
+ font-size: 9pt;
+ font-family: 'Segoe UI';
+}
+span.rvts103
+{
+ font-size: 12pt;
+ font-family: 'Segoe UI Light';
+ font-weight: bold;
+ color: #3366ff;
+}
+span.rvts104
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+ font-weight: bold;
+}
+span.rvts105
+{
+ font-size: 11pt;
+}
+span.rvts106
+{
+ font-size: 11pt;
+ font-family: 'Consolas';
+ color: #0070c0;
+}
+span.rvts107
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI Semibold';
+ color: #3366ff;
+}
+span.rvts108
+{
+ font-size: 11pt;
+ font-family: 'Segoe UI';
+ font-weight: bold;
+ color: #0080ff;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2
+{
+}
+.rvps3
+{
+ text-align: center;
+}
+.rvps4
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 16px 0px 4px 0px;
+}
+.rvps5
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 16px 0px 4px 0px;
+}
+.rvps6
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 16px 0px 4px 0px;
+}
+.rvps7
+{
+ margin: 0px 0px 9px 0px;
+}
+.rvps8
+{
+ margin: 0px 0px 9px 24px;
+}
+.rvps9
+{
+ margin: 0px 0px 9px 48px;
+}
+.rvps10 /* Paragraph Style */
+{
+ text-align: center;
+ border-color: #c0c0c0;
+ border-style: solid;
+ border-width: 1px;
+ border-right: none;
+ border-left: none;
+ padding: 2px 0px 2px 0px;
+ margin: 7px 0px 7px 0px;
+}
+.rvps11
+{
+ margin: 0px 0px 6px 0px;
+}
+.rvps12
+{
+ margin: 0px 0px 3px 0px;
+}
+.rvps13
+{
+ margin: 0px 0px 6px 18px;
+}
+.rvps14
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 16px 0px 4px 18px;
+}
+.rvps15
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 16px 0px 6px 0px;
+}
+.rvps16
+{
+ border-color: #3366ff;
+ border-style: solid;
+ border-width: 5px;
+ border-top: none;
+ border-right: none;
+ border-bottom: none;
+ padding: 3px 5px 7px 5px;
+}
+.rvps17
+{
+ margin: 6px 0px 0px 0px;
+}
+.rvps18
+{
+}
+.rvps19
+{
+ margin: 0px 0px 3px 40px;
+}
+.rvps20
+{
+ margin: 3px 0px 3px 0px;
+}
+.rvps21
+{
+ margin: 0px 0px 0px 24px;
+}
+.rvps22
+{
+ margin: 0px 0px 4px 0px;
+}
+.rvps23
+{
+ margin: 2px 0px 4px 0px;
+}
+.rvps24
+{
+ text-align: right;
+ margin: 2px 0px 4px 0px;
+}
+.rvps25
+{
+ text-align: right;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps26
+{
+ margin: 2px 0px 4px 24px;
+}
+.rvps27
+{
+ margin: 2px 0px 0px 0px;
+}
+.rvps28
+{
+ margin: 0px 0px 6px 24px;
+}
+.rvps29
+{
+ margin: 0px 0px 6px 24px;
+}
+.rvps30
+{
+}
+.rvps31
+{
+ text-align: right;
+}
+.rvps32
+{
+ margin: 2px 0px 4px 24px;
+}
+.rvps33
+{
+ margin: 2px 0px 4px 0px;
+}
+.rvps34
+{
+ margin: 2px 0px 4px 12px;
+}
+.rvps35
+{
+ margin: 2px 0px 4px 12px;
+}
+.rvps36
+{
+ margin: 0px 0px 12px 0px;
+}
+.rvps37
+{
+ margin: 0px 0px 9px 0px;
+}
+.rvps38
+{
+ background: #ffffff;
+ margin: 0px 0px 3px 0px;
+}
+.rvps39
+{
+ white-space: nowrap;
+ background: #ffffff;
+ margin: 0px 0px 3px 0px;
+}
+.rvps40
+{
+ margin: 6px 0px 9px 24px;
+}
+.rvps41
+{
+ border-color: #3366ff;
+ border-style: solid;
+ border-width: 5px;
+ border-top: none;
+ border-right: none;
+ border-bottom: none;
+ padding: 3px 5px 7px 5px;
+}
+.rvps42
+{
+ margin: 3px 0px 3px 24px;
+}
+.rvps43
+{
+ margin: 0px 0px 0px 48px;
+}
+.rvps44
+{
+ border-color: #3366ff;
+ border-style: solid;
+ border-width: 5px;
+ border-top: none;
+ border-right: none;
+ border-bottom: none;
+ padding: 3px 5px 7px 5px;
+ margin: 0px 0px 0px 24px;
+}
+.rvps45
+{
+ margin: 15px 0px 9px 24px;
+}
+.rvps46
+{
+ margin: 3px 0px 9px 0px;
+}
+.rvps47
+{
+ text-align: center;
+ margin: 2px 0px 4px 0px;
+}
+.rvps48
+{
+ margin: 4px 0px 4px 0px;
+}
+.rvps49
+{
+ text-align: center;
+ margin: 8px 0px 4px 0px;
+}
+.rvps50
+{
+ margin: 9px 0px 9px 24px;
+}
+.rvps51
+{
+ margin: 3px 0px 0px 24px;
+}
+.rvps52
+{
+ margin: 3px 0px 3px 0px;
+}
+.rvps53
+{
+}
+.rvps54
+{
+}
+.rvps55
+{
+ margin: 0px 0px 0px 1px;
+}
+.rvps56
+{
+ text-align: left;
+ text-indent: 0px;
+ break-after: avoid;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 4px 0px;
+}
+.rvps57
+{
+ text-align: center;
+ margin: 0px 0px 9px 0px;
+}
+/* ========== Lists ========== */
+.list0 {text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside;}
+.list1 {text-indent: 0px; padding: 0; margin: 0 0 0 30px; list-style-position: outside;}
+.list2 {text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;}
+.list3 {text-indent: 0px; padding: 0; margin: 0 0 0 30px; list-style-position: outside; list-style-type: square;}
+.list4 {text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;}
+.list5 {text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;}
+.list6 {text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: square;}
+.list7 {text-indent: 0px; padding: 0; margin: 0 0 0 36px; list-style-position: outside;}
+.list8 {text-indent: 0px; padding: 0; margin: 0 0 0 36px; list-style-position: outside; list-style-type: circle;}
+.list9 {text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside;}
+.list10 {text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside; list-style-type: '− ';}
+.list11 {text-indent: 0px; padding: 0; margin: 0 0 0 30px; list-style-position: outside; list-style-type: circle;}
+li.noindent { margin-left: 0; padding-left: 0; }

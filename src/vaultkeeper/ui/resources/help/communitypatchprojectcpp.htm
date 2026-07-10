@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Community Patch Project (CPP)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Community Patch Project (CPP)</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="WorkwithMods.htm">Work with Mods</a> &rsaquo;&rsaquo; <a href="SurazalsModnotes.htm">Surazal's Mod notes</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="SurazalsModnotes.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="NeverwinterNightsClientExtenderN.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="Newtopic44.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Community Patch Installer</span></span></h2>
+<p class="rvps2"><span class="rvts6">Do not use the installer version of CPP with NIT, because an incorrect Mod Installer is generated when you use CPP's executable file.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Neverwinter Nights Client Extender Extensions (NWNX)</span></span></h2>
+<p class="rvps2"><span class="rvts6">If you want to use NWNX, ensure the DLL extension is included in your Map Extensions page. If you don't want to use it, remove the DLL extension or delete the DLL files from the Mod Installer.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem107.png"></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Vanilla Icons</span></span></h2>
+<p class="rvps2"><span class="rvts6">The </span><span class="rvts44">restore vanilla icons</span><span class="rvts6"> entry in the </span><span class="rvts17">Map Exclusions</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6"> controls whether CPP's </span><span class="rvts33">Vanilla Icons</span><span class="rvts6"> option is included or excluded from the Mod Installer.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem108.png"></p>
+<p class="rvps21"><span class="rvts17">Remove</span><span class="rvts6"> </span><span class="rvts44">restore vanilla icons</span><span class="rvts6"> to use CPP's Vanilla Icons.</span></p>
+<p class="rvps21"><span class="rvts17">Include</span><span class="rvts6"> </span><span class="rvts44">restore vanilla icons</span><span class="rvts6"> to use CPP's standard icons.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Builder Resources</span></span></h2>
+<p class="rvps2"><span class="rvts6">The </span><span class="rvts44">1.72 builder resources</span><span class="rvts6"> entry in the Map Exclusions page controls whether CPP's Builder Resources are included or excluded from the Mod Installer.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem112.png"></p>
+<p class="rvps21"><span class="rvts17">Remove</span><span class="rvts6"> </span><span class="rvts44">1.72 builder resources</span><span class="rvts6"> to include CPP's Builder Resources in the Mod Installer.</span></p>
+<p class="rvps21"><span class="rvts17">Include</span><span class="rvts6"> </span><span class="rvts44">1.72 builder resources</span><span class="rvts6"> to exclude CPP's Builder Resources from the Mod Installer.</span></p>
+<h2 class="rvps6"><a name="CampaignPatches"></a><span class="rvts0"><span class="rvts13">Campaign Patches</span></span></h2>
+<p class="rvps2"><span class="rvts6">Ideally, CPP should be placed before most other Mods in the Mod list (ie low priority) so that other Mods take precedence. However, this means that CPP's campaign modules are overwritten by the Installer's generated original Mods.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can resolve this issue by creating a Mod containing CPP's campaign files and placing it lower down in the Mod list (ie higher priority) so that CPP's campaign patches are not overwritten.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem111.png"></p>
+<p class="rvps21"><span class="rvts6"><br/></span></p>
+<p class="rvps21"><span class="rvts6">See </span><a class="rvts21" href="Newtopic2.htm">Create NIT Mods from Restorers</a><span class="rvts6"> for information on how to use files from other Installers or Restorers to create a new Mod.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="CommunityExpansionPackCEP.htm">Community Expansion Pack (CEP)</a></p>
+<p class="rvps8"><a class="rvts14" href="NeverwinterNightsClientExtenderN.htm">Neverwinter Nights Client Extender (NWNCX)</a></p>
+<p class="rvps8"><span class="rvts47">Community Patch Project (CPP)</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Module Data IFO File</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Module Data IFO File</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="Reference.htm">Reference</a> &rsaquo;&rsaquo; <a href="Newtopic54.htm">Technical Information</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="Newtopic54.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="Newtopic53.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="Glossary.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<h1 class="rvps56"><span class="rvts0"><span class="rvts11">Overview</span></span></h1>
+<p class="rvps2"><span class="rvts6">The </span><span class="rvts17">Module Data IFO File</span><span class="rvts6"> contains information used to determine the Mod's </span><span class="rvts19">Game Save Name</span><span class="rvts6"> for modules that do not define the Game Save Name or Description.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">The Module Data IFO.txt file is downloaded from the URL specified for </span><span class="rvts17">BaseLazWorksUrl</span><span class="rvts6"> in the Application Definitions File's </span><span class="rvts107">[NWN Installer Tool]</span><span class="rvts6"> section. If the download fails, the file is read from the Installer Tool's installation directory.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">The file is refreshed asynchronously when NIT is started.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Format</span></span></h2>
+<p class="rvps2"><span class="rvts101">#Module:Mod_File_Name</span></p>
+<p class="rvps2"><span class="rvts101">ModSavName=Name to use as the Game Save Name</span></p>
+<p class="rvps2"><span class="rvts101">Module description text</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts17">Note</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside; list-style-type: '− ';">
+ <li class="rvps2 noindent"><span class="rvts6">Keywords and Values are </span><span class="rvts19">case sensitive</span><span class="rvts6">.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Leading spaces are taken as part of the Value.</span></li>
+</ul>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">#Module</span></span></h2>
+<p class="rvps2"><span class="rvts6">Specifies the name of the module.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">ModSavName</span></span></h2>
+<p class="rvps2"><span class="rvts6">The name of the file that will be used by NWN to save a game. The best way to determine this, is to look at the Mod's saved game (.sav) in the Games Saves folder.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Module description text</span></span></h2>
+<p class="rvps2"><span class="rvts6">The description for the Mod. You can usually get this using NWN' Toolset or, if not defined, the Project Page.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">When does the file need updating</span></span></h2>
+<p class="rvps2"><span class="rvts6">NIT's Log File will contain an entry that you lets you know when the file needs to be updated. It will look something like this...</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps21"><span class="rvts101">12:16:27.381 ― Mod_Name value not found: E:\NIT Store\Profiles\Enhanced Edition Mods\Music Player\.Mod Installer\modules\DEMO-Music-Playerv2.mod</span></p>
+<p class="rvps21"><span class="rvts101">12:16:27.381 ― Update NIT's Module Data IFO.txt for: DEMO-Music-Playerv2.mod</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">After updating Module Data IFO.txt, it should be uploaded to the online location specified in the Application Definitions File. You should also update the file in NIT's Visual Studio's Project (...\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\bin\Debug\Module Data IFO Rev 1.txt).</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts35">Note</span><br/><span class="rvts24">The Rev only needs to be incremented when you change the file's format. Previous revisions should be retained for backward compatibility.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Example</span></span></h2>
+<p class="rvps2"><span class="rvts6">Here is what the file entries look like...</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts101">#Module:The_Lord_of_Terror_2_0_5.mod</span></p>
+<p class="rvps2"><span class="rvts101">ModSavName=The Lord of Terror 2.0.5</span></p>
+<p class="rvps2"><span class="rvts101">The Lord of Terror - The Diablo Campaign (v2.0.5)</span></p>
+<p class="rvps2"><span class="rvts101"><br/></span></p>
+<p class="rvps2"><span class="rvts101">This is a remake of the original Diablo game published by Blizzard Entertainment, along with its expansion, Hellfire, published by Sierra Online. &nbsp;This reimagining of the Diablo saga features all the original quests, plus additional story-related side quests that will further enhance the engrossing story of the Diablo saga.</span></p>
+<p class="rvps2"><span class="rvts101"><br/></span></p>
+<p class="rvps2"><span class="rvts101">This module was created by Tolitz Rosel. &nbsp;Version 1.06 last updated November 27, 2004. &nbsp;For game hints and walkthrough, visit http://nwn.tolitz.com/lordofterror/</span></p>
+<p class="rvps2"><span class="rvts101"><br/></span></p>
+<p class="rvps2"><span class="rvts101">Version 2.0.0 and beyond updated and enhanced by Jeff McClure in 2024, https://github.com/jeffmcclure/lot https://github.com/jeffmcclure/lot</span></p>
+<p class="rvps2"><span class="rvts101">#Module:DEMO-Music-Playerv2.mod</span></p>
+<p class="rvps2"><span class="rvts101">ModSavName=DEMO Music Player</span></p>
+<p class="rvps2"><span class="rvts101">NUI - Music Player</span></p>
+<p class="rvps2"><span class="rvts101"><br/></span></p>
+<p class="rvps2"><span class="rvts101">Music Player adds a bard-inspired music selection system.</span></p>
+<p class="rvps2"><span class="rvts101">Players can open a custom NUI window, browse available tracks, and play them using a handcrafted Play button.</span></p>
+<p class="rvps2"><span class="rvts101">Music can be shared across the area (e.g., in taverns) or played locally for the player — this mode requires NWNX.</span></p>
+<p class="rvps2"><span class="rvts101"><br/></span></p>
+<p class="rvps2"><span class="rvts101">The demo focuses on MP3 CBR files (required for reliable seeking/looping — see the tutorial). There are a few minor quirks, but the core functions work as intended.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

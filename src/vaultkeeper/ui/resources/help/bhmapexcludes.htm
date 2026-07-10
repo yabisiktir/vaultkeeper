@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Work with the Excludes map</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Work with the Excludes map</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="RefineModInstallercreation.htm">Refine Mod Installer creation</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="RefineModInstallercreation.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="BhMapFiles.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="ManageMenu.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<p class="rvps2"><span class="rvts6">This map defines the </span><span class="rvts33">Demo Mod</span><span class="rvts6"> text, </span><span class="rvts33">File Names</span><span class="rvts6"> and </span><span class="rvts33">Folder Names</span><span class="rvts6"> that are </span><span class="rvts43">excluded</span><span class="rvts6"> from the source folders and files used to create Mod Installers.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem308.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">You can use Cut &amp; Paste to copy excluded Mods, files and folders to a Mod Installer. In other words, the exclusions only apply when you use </span><span class="rvts35">Create Installer</span><span class="rvts24"> from the </span><span class="rvts35">Manage</span><span class="rvts24"> menu.</span></p>
+<p class="rvps16"><span class="rvts24">You can also use the </span><a class="rvts26" href="BhWizardBuilder.htm">Installer Wizard Builder</a><span class="rvts24"> to exclude selected Folders and Files for individual Mods.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Click the </span><img alt="" style="padding : 1px;" src="lib/Edit_13x.png"><span class="rvts6">Edit Icon, Right-Click, Double-Click or press the Space Bar to access the Map Excludes menu.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem310.png"></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Exclusion Types</span></span></h3>
+<div class="rvps2">
+<table width="100%" style="border-width: 0px; border-spacing: 2px;">
+ <tr style="vertical-align: top;">
+  <td style="padding: 3px 1px; width: 96px;">
+   <p class="rvps23"><span class="rvts37">Demo Mod</span></p>
+  </td>
+  <td style="padding: 3px 1px; width: 711px;">
+   <p class="rvps23"><span class="rvts36">Specifies text match criteria used to identify demonstration modules. This means that any file name, with an extension of .mod </span><span class="rvts75">containing</span><span class="rvts36"> the text you specify, is excluded from the Mod Installer.</span></p>
+   <p class="rvps23"><span class="rvts36">For example, specifying </span><span class="rvts37">CEP - Starter</span><span class="rvts36"> as the Demo Mod text, excludes all files containing the text from the Mod Installer.</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem311.png"></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="padding: 3px 1px; width: 96px;">
+   <p class="rvps23"><span class="rvts37">File Name</span></p>
+  </td>
+  <td style="padding: 3px 1px; width: 711px;">
+   <p class="rvps23"><span class="rvts36">Specifies file names and text match criteria to identify files that must be excluded from Mod Installer. File text match criteria is defined as any file name you specify that does not have an extension name. The Installer Tool excludes any file that </span><span class="rvts76">starts with</span><span class="rvts36"> the file text match criteria or </span><span class="rvts76">matches</span><span class="rvts36"> the Exclude file name.</span><br/><span class="rvts36"></span><br/><span class="rvts36">You can exclude an archive's sub-folders by prefixing the folder name with the archive's file name (eg </span><span class="rvts37">TH2_hakpaks.rar</span><span class="rvts78">\</span><span class="rvts38">cep</span><span class="rvts36"> to exclude all files in the </span><span class="rvts59">TH2_hakpaks.rar</span><span class="rvts36"> archive that start with </span><span class="rvts59">CEP</span><span class="rvts36">).</span></p>
+  </td>
+ </tr>
+ <tr style="vertical-align: top;">
+  <td style="padding: 3px 1px; width: 96px;">
+   <p class="rvps23"><span class="rvts37">Folder Name</span></p>
+  </td>
+  <td style="padding: 3px 1px; width: 711px;">
+   <p class="rvps23"><span class="rvts36">Defines specific folder names to exclude from Mod Installers.</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">You can exclude an archive's sub-folders by prefixing the folder name with the archive's file name (eg </span><span class="rvts19">LunaC_H20rat1046659907790Drider_v1.5.zip</span><span class="rvts77">\</span><span class="rvts17">Alternate Animation Sets</span><span class="rvts6">).</span></p>
+   <p class="rvps2"><span class="rvts6"><br/></span></p>
+   <p class="rvps2"><span class="rvts6">For example, the </span><span class="rvts33">1.72 builder resources</span><span class="rvts6"> and </span><span class="rvts33">restore vanilla icons</span><span class="rvts6"> folders are excluded from the Mod Installer.</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem312.png"></p>
+  </td>
+ </tr>
+</table>
+</div>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="BhMapExtensions.htm">Work with the Extensions map</a></p>
+<p class="rvps8"><a class="rvts14" href="BhMapFolders.htm">Work with the Folders map</a></p>
+<p class="rvps8"><a class="rvts14" href="BhMapFiles.htm">Work with the Files map</a></p>
+<p class="rvps8"><span class="rvts47">Work with the Excludes map</span></p>
+<p class="rvps8"><a class="rvts14" href="BhWizardBuilder.htm">Use the Installer Wizard Builder</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

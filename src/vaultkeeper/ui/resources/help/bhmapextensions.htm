@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Work with the Extensions map</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Work with the Extensions map</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="RefineModInstallercreation.htm">Refine Mod Installer creation</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="RefineModInstallercreation.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="RefineModInstallercreation.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="DefineExtension.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<p class="rvps2"><span class="rvts6">This table is at the heart of how the Installer Tool determines where files are placed in the Neverwinter Nights Installation or User Files directory. The default configuration should accommodate almost all of your requirements, however, you can add, remove or change how file extension names are handled.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem288.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Click the </span><img alt="" style="padding : 1px;" src="lib/Edit_13x.png"><span class="rvts6">Edit Icon, Right-Click, Double-Click or press the Space Bar to access the Map Extensions or Exceptions menu.</span></p>
+<p class="rvps21"><img alt="" style="vertical-align: top; padding : 1px; margin : 3px 0px;" src="lib/NewItem292.png"><img alt="" style="vertical-align: top; padding : 1px; margin : 3px 9px;" src="lib/NewItem294.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><a class="rvts21" href="DefineExtension.htm">Define an extension map</a><span class="rvts6"> explains how to specify the file name extension attributes listed in the following sections.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Extension</span></span></h3>
+<p class="rvps2"><span class="rvts6">Defines which file extension names are processed when creating Mod Installers. The Installer Tool ignores any file that has an extension name which is not specified in the Extensions map.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Default Folder</span></span></h3>
+<p class="rvps2"><span class="rvts6">Specifies the Installation or User Files folder to use as the target directory when installing files.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Secondary Folder</span></span></h3>
+<p class="rvps2"><span class="rvts6">Specifies an alternative Installation or User Files folder to use as the target directory when installing files.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">When a Secondary Folder is defined, you can use the </span><span class="rvts17">Move to Folder</span><span class="rvts6"> from the </span><span class="rvts17">File</span><span class="rvts6"> menu to change the location within an existing Mod Installer. For example, you can move </span><span class="rvts19">2da</span><span class="rvts6"> files from </span><span class="rvts19">Portraits</span><span class="rvts6"> to </span><span class="rvts19">Override</span><span class="rvts6"> and from </span><span class="rvts19">Override</span><span class="rvts6"> to </span><span class="rvts19">Portraits</span><span class="rvts6">.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Exceptions</span></span></h3>
+<p class="rvps2"><span class="rvts6">Specifies conditions for using the Secondary instead of the Default Folder. When the Secondary Folder is </span><span class="rvts19">None</span><span class="rvts6">, Exceptions are disabled.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Exceptions are specified as a </span><span class="rvts19">Prefix</span><span class="rvts6"> (</span><span class="rvts18">does not end with a period</span><span class="rvts6">) or </span><span class="rvts19">Suffix</span><span class="rvts6"> (</span><span class="rvts18">ends with a period</span><span class="rvts6">). Any file that starts with a defined </span><span class="rvts19">Prefix</span><span class="rvts6"> or ends with a defined </span><span class="rvts19">Suffix</span><span class="rvts6"> is placed in the Secondary Folder instead of the Default Folder.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps12"><span class="rvts6">For example, </span><span class="rvts19">fnt_dialog16x16.tga</span><span class="rvts6"> and </span><span class="rvts19">ttu01__ref.tga</span><span class="rvts6"> are placed in the Override folder instead of Portraits because </span><span class="rvts19">fnt_dialog16x16.tga</span><span class="rvts6"> starts with the </span><span class="rvts17">fnt_</span><span class="rvts6"> Prefix and </span><span class="rvts19">ttu01__ref.tga</span><span class="rvts6"> ends with the </span><span class="rvts17">__ref.</span><span class="rvts6"> Suffix.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem299.png"></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><span class="rvts47">Work with the Extensions map</span></p>
+<p class="rvps8"><a class="rvts14" href="BhMapFolders.htm">Work with the Folders map</a></p>
+<p class="rvps8"><a class="rvts14" href="BhMapFiles.htm">Work with the Files map</a></p>
+<p class="rvps8"><a class="rvts14" href="BhMapExcludes.htm">Work with the Excludes map</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

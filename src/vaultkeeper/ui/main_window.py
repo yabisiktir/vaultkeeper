@@ -486,6 +486,12 @@ class MainWindow(QMainWindow):
             "TsSelectAll": self._on_select_all,
             "MsCollapseAllGroups": self._tree.collapseAll,
             "MsExpandAllGroups": self._tree.expandAll,
+            # Help (VB HelpFileManager — control name -> <name>.htm topic).
+            "MsViewHelp": self._on_help_contents,
+            "MsGetStarted": lambda: self._on_help_topic("MsGetStarted"),
+            "MsFAQ": lambda: self._on_help_topic("MsFAQ"),
+            "MsWhatsNew": lambda: self._on_help_topic("MsWhatsNew"),
+            "MsHistory": lambda: self._on_help_topic("MsHistory"),
             # Profile lifecycle.
             "MsLoadProfile": self._on_setup,
             "MsOpen": self._on_setup,
@@ -494,6 +500,19 @@ class MainWindow(QMainWindow):
         }
         handler = handlers.get(action, self._not_implemented)
         handler()
+
+    # -- Help (VB HelpFileManager) ----------------------------------------- #
+    def _on_help_contents(self) -> None:
+        """Open the help window at its contents root (VB Help menu / TOC)."""
+        from vaultkeeper.ui.dialogs.help_viewer import HelpViewer
+
+        self._help_viewer = HelpViewer.show_contents(self)
+
+    def _on_help_topic(self, control_name: str) -> None:
+        """Open the help window at the topic for a control name (VB per-control help)."""
+        from vaultkeeper.ui.dialogs.help_viewer import HelpViewer
+
+        self._help_viewer = HelpViewer.show_for_control(control_name, self)
 
     def _remove_files(self, method: str, label: str) -> None:
         """Run a per-mod file-removal cleanup on the selection and report the count."""

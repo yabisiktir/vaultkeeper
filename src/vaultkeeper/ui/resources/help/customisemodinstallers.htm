@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Customise Mod Installers</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Customise Mod Installers</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="WorkwithMods.htm">Work with Mods</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="WorkwithMods.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="CreateModInstallers.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="ManageModfileconflicts.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<p class="rvps2"><span class="rvts6">Although the Installer Tool usually creates accurate Installers, it is good practice to review the results after creating a Mod Installer so you can deal with unwanted files, files in the wrong folder and missing files.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can also use the </span><a class="rvts21" href="BhWizardBuilder.htm">Installer Wizard Builder</a><span class="rvts6"> to provide more control over which files are used when a </span><span class="rvts33">Mod Installer</span><span class="rvts6"> is created.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">If you correct the problem using Advanced Settings, then you need to redo the </span><span class="rvts35">Create Installer</span><span class="rvts24"> and check the results to ensure that the issue has been addressed.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Unwanted files</span></span></h2>
+<p class="rvps2"><span class="rvts6">You can delete the files you don't want or use the </span><span class="rvts17">Map Excludes</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6"> to prevent files or folders being included in Mod Installers. Alternatively, you can use the </span><a class="rvts21" href="BhWizardBuilder.htm">Installer Wizard Builder</a><span class="rvts6"> to exclude unwanted files.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can also extract compressed files before you create the Mod Installer and </span><span class="rvts33">delete folders and files</span><span class="rvts6"> you don't want included </span><span class="rvts33">prior</span><span class="rvts6"> to clicking </span><span class="rvts17">Create Installer</span><span class="rvts6"> from the </span><span class="rvts17">Manage</span><span class="rvts6"> menu.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Files in the wrong folder</span></span></h2>
+<p class="rvps2"><span class="rvts6">The Installer Tool uses the file's extension name to determine which Installation or User Files folder to use. Some extension names are associated with more than one folder. For example, files that have a TGA extension can be assigned to the Portraits or Override folders.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">You can correct erroneous folder assignments by clicking the </span><span class="rvts17">Move to </span><span class="rvts43">Folder</span><span class="rvts6"> from the </span><span class="rvts17">File</span><span class="rvts6"> menu or add an </span><span class="rvts17">Exception</span><span class="rvts6"> on the </span><span class="rvts17">Map Extensions</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6">.</span></p>
+<h2 class="rvps6"><a name="ConvertHakfilestoPatches"></a><span class="rvts0"><span class="rvts13">Convert Hak files to Patches</span></span></h2>
+<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside;">
+ <li class="rvps20 noindent"><span class="rvts29">Select the Hak files you want define as Hak Patches.</span></li>
+ <li class="rvps20 noindent"><span class="rvts29">Click </span><span class="rvts31">Move to Patch</span><span class="rvts29"> from the </span><span class="rvts31">File</span><span class="rvts29"> menu or right-click and select </span><span class="rvts31">Move to Patch</span><span class="rvts29"> to change the Hak files into Hak patches.</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem511.png"></li>
+ <li class="rvps20 noindent"><span class="rvts29">The file is moved to the Patch folder and patch ini file created. Use </span><a class="rvts30" href="BhHelp.htm">Hak Patch Priority</a><span class="rvts29"> from the </span><span class="rvts31">Manage</span><span class="rvts29"> menu to deal with patch file conflicts.</span><br/><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem512.png"></li>
+</ol>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">If you move the file back to the Hak folder, the patch ini file will be removed.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Missing files</span></span></h2>
+<p class="rvps2"><span class="rvts6">You may find that files you expected to be included in the Mod Installer have not been added. This is caused by the file's extension name not being defined in the </span><span class="rvts17">Map Extensions</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6"> or as a result of the file meeting one of the criteria defined in the </span><span class="rvts17">Map Excludes</span><span class="rvts6"> page in </span><span class="rvts17">Advanced Settings</span><span class="rvts6">.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Use </span><a class="rvts21" href="BhMapExtensions.htm">Map Extensions</a><span class="rvts6"> to define the missing extension.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Change </span><a class="rvts21" href="BhMapExcludes.htm">Map Excludes</a><span class="rvts6"> to ensure the missing file is included or, if this is an exception, copy the missing file from the downloaded files to the Mod Installer.</span></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="RefineModInstallercreation.htm">Refine Mod Installer creation</a></p>
+<p class="rvps8"><a class="rvts14" href="BhWizardBuilder.htm">Use the Installer Wizard Builder</a></p>
+<p class="rvps8"><a class="rvts14" href="BhDownloadProject.htm">Download and install Neverwinter Vault Projects</a></p>
+<p class="rvps8"><a class="rvts14" href="DownloadAndInstallMods.htm">Download and install Mods from other sites</a></p>
+<p class="rvps8"><a class="rvts14" href="AddanewMod.htm">Add a new Mod</a></p>
+<p class="rvps8"><a class="rvts14" href="RecordaModsWebPageLink.htm">Record a Mod's Web Page Link</a></p>
+<p class="rvps8"><a class="rvts14" href="AdddownloadedfilestoaMod.htm">Add downloaded files to a Mod</a></p>
+<p class="rvps8"><a class="rvts14" href="Reducefileclutter.htm">Reduce file clutter</a></p>
+<p class="rvps8"><a class="rvts14" href="ReviewModinformationinaddedfiles.htm">Review Mod information in added files</a></p>
+<p class="rvps8"><a class="rvts14" href="CreateModInstallers.htm">Create Mod Installers</a></p>
+<p class="rvps8"><span class="rvts47">Customise Mod Installers</span></p>
+<p class="rvps8"><a class="rvts14" href="ManageModfileconflicts.htm">Manage Mod file conflicts</a></p>
+<p class="rvps8"><a class="rvts14" href="InstallMods.htm">Install Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="UninstallMods.htm">Uninstall Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="DealwithModupdates.htm">Deal with Mod updates</a></p>
+<p class="rvps8"><a class="rvts14" href="MakeModnotesandrecordinformation.htm">Make Mod notes and record information</a></p>
+<p class="rvps8"><a class="rvts14" href="BhPublishMod.htm">Publish Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="AddModsfromdownloadedfiles.htm">Add Mods from downloaded files</a></p>
+<p class="rvps8"><a class="rvts14" href="SurazalsModnotes.htm">Surazal's Mod notes</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+

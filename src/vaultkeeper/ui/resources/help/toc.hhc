@@ -1,0 +1,2123 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+	<meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232">
+</head>
+
+<body>
+
+	<object type="text/site properties">
+		<param name="Font" value="Segoe UI,10,0">
+		<param name="Window Styles" value="0x800025">
+	</object>
+    
+	<ul>
+
+	
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Neverwinter Nights Installer Tool">
+				
+					<param name="Local" value="MsViewHelp.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Overview">
+				
+					<param name="Local" value="Overview.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="What's new">
+				
+					<param name="Local" value="MsWhatsNew.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Version History">
+				
+					<param name="Local" value="MsHistory.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Frequently asked questions (FAQ)">
+				
+					<param name="Local" value="MsFAQ.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Why are the default Groups numbered?">
+				
+					<param name="Local" value="FaqGroupNumbers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Why doesn't the Installer Tool show Steam's Workshop Mods?">
+				
+					<param name="Local" value="FaqWorkshopMods.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Does the Installer Tool handle folders inside zip files?">
+				
+					<param name="Local" value="Newtopic37.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="What are the best practices for using the Installer Tool to manage Mods?">
+				
+					<param name="Local" value="Newtopic72.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Why does the Installer Tool access the Internet?">
+				
+					<param name="Local" value="Newtopic77.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I move files to the Development folder?">
+				
+					<param name="Local" value="Newtopic55.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I create and use a custom colour?">
+				
+					<param name="Local" value="Newtopic43.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I handle Mods installed with other tools?">
+				
+					<param name="Local" value="FaqOtherTools.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I switch from Beamdog's to Steam's Enhanced Edition?">
+				
+					<param name="Local" value="SwitchExtendedEdition.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I use my Neverwinter Nights Mods in the Enhanced Edition?">
+				
+					<param name="Local" value="FaqNwnModsToEe.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I use the Installer Tool to run a batch file?">
+				
+					<param name="Local" value="Newtopic70.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I create a Download Rule for my Project?">
+				
+					<param name="Local" value="Newtopic38.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I look at file conflict information for Mods?">
+				
+					<param name="Local" value="MsConflicts.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How can I see which Mods I have not played for a long time?">
+				
+					<param name="Local" value="BhModsPlayed.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How can I open Official and Premium Mods in the Neverwinter Nights Toolset?">
+				
+					<param name="Local" value="Newtopic59.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How can I see portraits from a Mod's hak file?">
+				
+					<param name="Local" value="Newtopic75.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How do I uninstall the Neverwinter Nights Installer Tool?">
+				
+					<param name="Local" value="Newtopic.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Installer did not include all the files from the downloaded archives">
+				
+					<param name="Local" value="Newtopic71.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="The Installer Tool has messed up my INI file">
+				
+					<param name="Local" value="Newtopic57.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="The Installer Tool removes my nwnpatch or userpatch ini file changes">
+				
+					<param name="Local" value="Newtopic74.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="The Windows close button is missing and I can't close NIT">
+				
+					<param name="Local" value="Newtopic42.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Missing Windows Start Menu items and icons for Installer Tool">
+				
+					<param name="Local" value="FaqMissingStartMenu.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="How can I view NWN information about classes, skills and feats?">
+				
+					<param name="Local" value="Newtopic81.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Windows Management Instrumentation error detected">
+				
+					<param name="Local" value="WmiError.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="The Installer Tool crashes every time I start it">
+				
+					<param name="Local" value="FaqNitCrashes.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Corrupted Settings">
+				
+					<param name="Local" value="CorruptedSettings.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Corrupted Profile Data">
+				
+					<param name="Local" value="CorruptedProfileData.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Program Error">
+				
+					<param name="Local" value="ProgramError.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Send diagnostic information to Surazal">
+				
+					<param name="Local" value="Newtopic51.htm">
+				
+			</object>
+
+	</li></ul></li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Get Started">
+				
+					<param name="Local" value="MsGetStarted.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Key concepts and terminology">
+				
+					<param name="Local" value="Essentials.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="User Interface">
+				
+					<param name="Local" value="UserInterface.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Windows Title Bar">
+				
+					<param name="Local" value="Newtopic25.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Menu Bar">
+				
+					<param name="Local" value="Newtopic26.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Ribbon">
+				
+					<param name="Local" value="Newtopic10.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Quick Access Toolbar">
+				
+					<param name="Local" value="Newtopic35.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Profile Name">
+				
+					<param name="Local" value="Newtopic27.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Mod List">
+				
+					<param name="Local" value="Newtopic28.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Mod Properties">
+				
+					<param name="Local" value="Newtopic29.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Mod Notes">
+				
+					<param name="Local" value="Newtopic30.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Contents Panel">
+				
+					<param name="Local" value="Newtopic31.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Details Panel">
+				
+					<param name="Local" value="Newtopic32.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Properties Panel">
+				
+					<param name="Local" value="Newtopic33.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Status Bar">
+				
+					<param name="Local" value="Newtopic34.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Run the Installer Tool for the first time">
+				
+					<param name="Local" value="FirstTimeExecution.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Play Neverwinter Nights">
+				
+					<param name="Local" value="Newtopic36.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Review Settings you may want to change">
+				
+					<param name="Local" value="BhBasicSettings.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Review options with Advanced Settings">
+				
+					<param name="Local" value="Newtopic9.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Deal with existing installed Mods">
+				
+					<param name="Local" value="DealWithExisting.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Save your customised INI files">
+				
+					<param name="Local" value="SaveIniFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Move non-NIT Mod folders to the Installer Tool">
+				
+					<param name="Local" value="MoveNonNitFolders.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Restorers to backup installed Files">
+				
+					<param name="Local" value="Newtopic1.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create NIT Mods from Restorers">
+				
+					<param name="Local" value="Newtopic2.htm">
+				
+			</object>
+
+	</li></ul></li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Profiles">
+				
+					<param name="Local" value="BhProfiles.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Define new Profiles">
+				
+					<param name="Local" value="DefinenewProfiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create a Neverwinter Nights folder">
+				
+					<param name="Local" value="CreateaNeverwinterNightsfolder.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Specify a Neverwinter Nights folder">
+				
+					<param name="Local" value="SpecifyaNeverwinterNightsfolder.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rename a Profile">
+				
+					<param name="Local" value="RenameaProfile.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove a Profile">
+				
+					<param name="Local" value="RemoveaProfile.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Groups">
+				
+					<param name="Local" value="WorkwithGroups.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Default Group Sets">
+				
+					<param name="Local" value="DefaultGroupSets.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add a new Group">
+				
+					<param name="Local" value="AddanewGroup.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rename a Group">
+				
+					<param name="Local" value="RenameaGroup.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove Groups">
+				
+					<param name="Local" value="RemoveGroups.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Moving Mods from one Group to another">
+				
+					<param name="Local" value="MovingModsfromoneGrouptoanother.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Mods">
+				
+					<param name="Local" value="WorkwithMods.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Download and install Neverwinter Vault Projects">
+				
+					<param name="Local" value="BhDownloadProject.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Specify the Neverwinter Vault Project page">
+				
+					<param name="Local" value="Newtopic3.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Download Rules">
+				
+					<param name="Local" value="Newtopic5.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Contribute to Download Rules">
+				
+					<param name="Local" value="Newtopic11.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="View Download Rules">
+				
+					<param name="Local" value="Newtopic12.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add Download Rule">
+				
+					<param name="Local" value="Newtopic13.htm">
+				
+			</object>
+
+	</li></ul></li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Review and customise download information">
+				
+					<param name="Local" value="Newtopic4.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Download and Install files">
+				
+					<param name="Local" value="Newtopic6.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Update existing Mods">
+				
+					<param name="Local" value="Newtopic24.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Download and install Mods from other sites">
+				
+					<param name="Local" value="DownloadAndInstallMods.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add a new Mod">
+				
+					<param name="Local" value="AddanewMod.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Record a Mod's Web Page Link">
+				
+					<param name="Local" value="RecordaModsWebPageLink.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add downloaded files to a Mod">
+				
+					<param name="Local" value="AdddownloadedfilestoaMod.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reduce file clutter">
+				
+					<param name="Local" value="Reducefileclutter.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Review Mod information in added files">
+				
+					<param name="Local" value="ReviewModinformationinaddedfiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Mod Installers">
+				
+					<param name="Local" value="CreateModInstallers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise Mod Installers">
+				
+					<param name="Local" value="CustomiseModInstallers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Manage Mod file conflicts">
+				
+					<param name="Local" value="ManageModfileconflicts.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Install Mods">
+				
+					<param name="Local" value="InstallMods.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Uninstall Mods">
+				
+					<param name="Local" value="UninstallMods.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Deal with Mod updates">
+				
+					<param name="Local" value="DealwithModupdates.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Make Mod notes and record information">
+				
+					<param name="Local" value="MakeModnotesandrecordinformation.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Publish Mods">
+				
+					<param name="Local" value="BhPublishMod.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add Mods from downloaded files">
+				
+					<param name="Local" value="AddModsfromdownloadedfiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Surazal's Mod notes">
+				
+					<param name="Local" value="SurazalsModnotes.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Community Expansion Pack (CEP)">
+				
+					<param name="Local" value="CommunityExpansionPackCEP.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Neverwinter Nights Client Extender (NWNCX)">
+				
+					<param name="Local" value="NeverwinterNightsClientExtenderN.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Community Patch Project (CPP)">
+				
+					<param name="Local" value="CommunityPatchProjectCPP.htm">
+				
+			</object>
+
+	</li></ul></li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with the Mod List">
+				
+					<param name="Local" value="Newtopic44.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Navigate to a Group">
+				
+					<param name="Local" value="Newtopic45.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Mod Selector to navigate to a Mod">
+				
+					<param name="Local" value="Newtopic46.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Recent Mods to navigate to a Mod">
+				
+					<param name="Local" value="Newtopic47.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Restorers">
+				
+					<param name="Local" value="WorkWithRestorers.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Restorers">
+				
+					<param name="Local" value="CreateRestorers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Update Restorers">
+				
+					<param name="Local" value="UpdateRestorers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Character Restorers">
+				
+					<param name="Local" value="CreateCharRestorers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove installed files">
+				
+					<param name="Local" value="RemoveRestorerFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Original Restorers">
+				
+					<param name="Local" value="OriginalRestorers.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Game Saves">
+				
+					<param name="Local" value="BhGameManager.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Automatic backup of Game Saves">
+				
+					<param name="Local" value="AutomaticbackupofGameSaves.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Display Character Summary Information">
+				
+					<param name="Local" value="Newtopic60.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Open a game save folder with Windows File Explorer">
+				
+					<param name="Local" value="OpenagamesavefolderwithWindowsFi.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Start a new game">
+				
+					<param name="Local" value="Startanewgame.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Restore Game Saves from Backup">
+				
+					<param name="Local" value="RestoreGameSavesfromBackup.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Switching Game Saves">
+				
+					<param name="Local" value="SwitchingGameSaves.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reduce the number of NWN Game Saves">
+				
+					<param name="Local" value="ReducethenumberofNWNGameSaves.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Restore archived Game Saves">
+				
+					<param name="Local" value="RestorearchivedGameSaves.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Delete archived Game Saves">
+				
+					<param name="Local" value="DeleteArchives.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Delete Game Saves">
+				
+					<param name="Local" value="DeletingGameSaves.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Restoring deleted saves from the Recycle Bin">
+				
+					<param name="Local" value="RestoringdeletedsavesfromtheRecy.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Link Game Save to Mod name">
+				
+					<param name="Local" value="BhGameMapper.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Manage Steam Workshop Subscriptions">
+				
+					<param name="Local" value="BhWorkshop.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Enable Steam Workshop Subscription Management">
+				
+					<param name="Local" value="Newtopic19.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Detect Steam Workshop Subscriptions">
+				
+					<param name="Local" value="Newtopic20.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Manage Workshop Mods">
+				
+					<param name="Local" value="Newtopic23.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Disable Steam Workshop Subscription Management">
+				
+					<param name="Local" value="Newtopic22.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Mod Explorer">
+				
+					<param name="Local" value="TsHelpExplorer.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Filter Boxes to specify filtering criteria">
+				
+					<param name="Local" value="UseFilterBoxestospecifyfiltering.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Mod State">
+				
+					<param name="Local" value="FilterbyModState.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Mod Name">
+				
+					<param name="Local" value="FilterbyModName.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Rating">
+				
+					<param name="Local" value="FilterbyRating.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Weapon">
+				
+					<param name="Local" value="FilterbyWeapon.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Start, End or Henchman">
+				
+					<param name="Local" value="FilterbyStartEndorHenchman.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Filter by Notes">
+				
+					<param name="Local" value="FilterbyNotes.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Attribute Filters">
+				
+					<param name="Local" value="UseAttributeFilters.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Group Filters">
+				
+					<param name="Local" value="UseGroupFilters.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Mod Prefix Filters">
+				
+					<param name="Local" value="UseModPrefixFilters.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Installation Manager">
+				
+					<param name="Local" value="BhInstallationManager.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Checkpoints">
+				
+					<param name="Local" value="CreateCheckpoints.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create Mod Installation Sets">
+				
+					<param name="Local" value="CreateModInstallationSets.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Installation Sets">
+				
+					<param name="Local" value="WorkwithInstallationSets.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rename Installation Sets">
+				
+					<param name="Local" value="RenameInstallationSets.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Add or Remove Groups">
+				
+					<param name="Local" value="AddorRemoveGroups.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Prune Installation Sets">
+				
+					<param name="Local" value="PruneInstallationSets.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Delete Installation Sets">
+				
+					<param name="Local" value="DeleteInstallationSets.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Uninstall Installation Set defined Mods">
+				
+					<param name="Local" value="UninstallInstallationSetdefinedM.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Install Installation Set defined Mods">
+				
+					<param name="Local" value="InstallInstallationSetdefinedMod.htm">
+				
+			</object>
+
+	</li></ul></li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Refine Mod Installer creation">
+				
+					<param name="Local" value="RefineModInstallercreation.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with the Extensions map">
+				
+					<param name="Local" value="BhMapExtensions.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Define an extension map">
+				
+					<param name="Local" value="DefineExtension.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with the Folders map">
+				
+					<param name="Local" value="BhMapFolders.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with the Files map">
+				
+					<param name="Local" value="BhMapFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with the Excludes map">
+				
+					<param name="Local" value="BhMapExcludes.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Manage menu">
+				
+					<param name="Local" value="ManageMenu.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Create missing Mod Installers">
+				
+					<param name="Local" value="CreateMissingInstallers.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Change Installer Options">
+				
+					<param name="Local" value="Newtopic69.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use NWN's Start Screen Manager">
+				
+					<param name="Local" value="RbLoadscreenHelp.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Change the Hak Patch sequence">
+				
+					<param name="Local" value="BhHelp.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Alias Section Editor">
+				
+					<param name="Local" value="BhAliasEditor.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Validate conflicting files (Anneal)">
+				
+					<param name="Local" value="Anneal.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove illegal Mod files">
+				
+					<param name="Local" value="RemoveIllegalModFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove ERF Files">
+				
+					<param name="Local" value="RemoveErfFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Synchronise networked PC Mods">
+				
+					<param name="Local" value="SyncMods.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Compress or Uncompress Mod folders">
+				
+					<param name="Local" value="CompressModFolders.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Tools menu">
+				
+					<param name="Local" value="UsetheToolsmenu.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Character Explorer">
+				
+					<param name="Local" value="MsCharacterViewer.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Organise Mod Documentation">
+				
+					<param name="Local" value="BhDocManager.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Remove version number from document names">
+				
+					<param name="Local" value="Newtopic39.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rename a document">
+				
+					<param name="Local" value="Newtopic40.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rename a document using a Contents Panel name">
+				
+					<param name="Local" value="Newtopic41.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with backups and exports">
+				
+					<param name="Local" value="BhBackupManager.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Backup and Restore the Installer Tool's data">
+				
+					<param name="Local" value="DataBackups.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Export and Import Settings">
+				
+					<param name="Local" value="ExportedSettings.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Export and Import Mods">
+				
+					<param name="Local" value="ExportedMods.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Installation Analyser">
+				
+					<param name="Local" value="BhInstallationAnalyser.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Installer Wizard Builder">
+				
+					<param name="Local" value="BhWizardBuilder.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Build a Wizard for the Custom Menus Mod">
+				
+					<param name="Local" value="Newtopic14.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Build a Wizard that uses File Preferences">
+				
+					<param name="Local" value="Newtopic15.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Build a Wizard using Archive Folders">
+				
+					<param name="Local" value="Newtopic21.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="View Create Installer Wizards results">
+				
+					<param name="Local" value="Newtopic16.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Dependency Manager">
+				
+					<param name="Local" value="BhDependencyManager.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Download Project to define dependencies">
+				
+					<param name="Local" value="Newtopic17.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Automate Mod dependency definition">
+				
+					<param name="Local" value="Newtopic18.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Portrait Manager">
+				
+					<param name="Local" value="RbPortraitManagerHelp.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Update Enhanced Edition Files">
+				
+					<param name="Local" value="UpdatedEEFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Perform validation tasks">
+				
+					<param name="Local" value="ValidateDatabase.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Recover Group information">
+				
+					<param name="Local" value="RecoverGroup.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Recover Mod Property information">
+				
+					<param name="Local" value="RecoverModProperties.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Calculate checksum values">
+				
+					<param name="Local" value="CalculateCRCs.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Rebuild Database">
+				
+					<param name="Local" value="RebuildDatabase.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Perform Find Operations">
+				
+					<param name="Local" value="FindOperations.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Find files in your Profile">
+				
+					<param name="Local" value="FindInProfile.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Find files in Contents or Details">
+				
+					<param name="Local" value="FindFiles.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Find text within a file">
+				
+					<param name="Local" value="FindText.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Find and rename Mods">
+				
+					<param name="Local" value="TsHelpFindAndRename.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use the Options menu">
+				
+					<param name="Local" value="Newtopic61.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Show BioWare's Portrait Images">
+				
+					<param name="Local" value="Newtopic73.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Number Recent Mods">
+				
+					<param name="Local" value="Newtopic62.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Automatic Properties Panel Height">
+				
+					<param name="Local" value="Newtopic64.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reset Window Layout">
+				
+					<param name="Local" value="Newtopic65.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reset Web Menu Icons">
+				
+					<param name="Local" value="Newtopic78.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reset Taskbar Icon">
+				
+					<param name="Local" value="Newtopic79.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Clear Wait Cursors">
+				
+					<param name="Local" value="Newtopic66.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Clear Text Position Information">
+				
+					<param name="Local" value="Newtopic67.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Clear Selection History">
+				
+					<param name="Local" value="Newtopic63.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Clear Extracted Hak Portraits">
+				
+					<param name="Local" value="Newtopic76.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Debug Options Menu">
+				
+					<param name="Local" value="Newtopic68.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise the Installer Tool">
+				
+					<param name="Local" value="CustomisetheInstallerTool.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Specify your Preferences">
+				
+					<param name="Local" value="BhPreferences.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Full list of Preferences">
+				
+					<param name="Local" value="Newtopic56.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Specify program and file Locations">
+				
+					<param name="Local" value="BhLocations.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Specify Configuration Settings">
+				
+					<param name="Local" value="BhAdvanced.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise the Run menu">
+				
+					<param name="Local" value="BhRunMenu.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise the Web menu">
+				
+					<param name="Local" value="BhWebMenu.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Work with Fonts and Colours">
+				
+					<param name="Local" value="MsFontAndColourHelp.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Change text size">
+				
+					<param name="Local" value="Newtopic7.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Change Theme Colours">
+				
+					<param name="Local" value="Newtopic8.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise Fonts">
+				
+					<param name="Local" value="CustomiseFonts.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise Colours">
+				
+					<param name="Local" value="CustomiseColours.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise Theme colours">
+				
+					<param name="Local" value="Newtopic52.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Customise the Quick Access Toolbar">
+				
+					<param name="Local" value="MsToolbarEditorHelp.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Import Map Settings">
+				
+					<param name="Local" value="Newtopic58.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Update the Installer Tool">
+				
+					<param name="Local" value="BhNitDownload.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Reference">
+				
+					<param name="Local" value="Reference.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Use Alt-Key shortcuts">
+				
+					<param name="Local" value="UseAltKey.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Keyboard Shortcuts">
+				
+					<param name="Local" value="KeyboardShortcuts.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Command Line Options">
+				
+					<param name="Local" value="CommandLine.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Mod and File Status Icons">
+				
+					<param name="Local" value="StatusIcons.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Technical Information">
+				
+					<param name="Local" value="Newtopic54.htm">
+				
+			</object>
+
+	<ul>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Application Definitions File">
+				
+					<param name="Local" value="Newtopic53.htm">
+				
+			</object>
+
+	</li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Module Data IFO File">
+				
+					<param name="Local" value="Newtopic80.htm">
+				
+			</object>
+
+	</li></ul></li>
+
+			<li> <object type="text/sitemap">
+				<param name="Name" value="Glossary">
+				
+					<param name="Local" value="Glossary.htm">
+				
+			</object>
+
+	</li></ul></li>
+	
+	</ul>
+    
+</body>
+
+</html>
+

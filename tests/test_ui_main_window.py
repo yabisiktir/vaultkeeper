@@ -198,6 +198,22 @@ def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     assert "not available" in win.nit_status.mg_info.text().lower()
 
 
+def test_help_menu_opens_topic(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # A Help-menu topic id opens the help viewer at the matching <name>.htm.
+    win._on_command("MsGetStarted")
+    viewer = win._help_viewer
+    qtbot.addWidget(viewer)
+    assert viewer.contents.topLevelItemCount() > 0
+    assert "msgetstarted.htm" in viewer.browser.source().toString().lower()
+
+    # View Help opens the contents root.
+    win._on_command("MsViewHelp")
+    qtbot.addWidget(win._help_viewer)
+    assert win._help_viewer.contents.topLevelItemCount() > 0
+
+
 def _find_mod_item(win, name):
     for i in range(win._tree.topLevelItemCount()):
         group = win._tree.topLevelItem(i)

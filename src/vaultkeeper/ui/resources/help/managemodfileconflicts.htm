@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+
+<html>
+	
+<head>
+	<title>Manage Mod file conflicts</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Neverwinter Nights Installer Tool Help" />
+    <meta name="generator" content="HelpNDoc Standard Edition 10.3.0.232" />
+	
+	
+	
+	<link type="text/css" rel="stylesheet" media="all" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/base.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/hnd.css" />
+	<!--[if lte IE 8]>
+		<link type="text/css" rel="stylesheet" media="all" href="css/ielte8.css" />
+	<![endif]-->
+
+	<style type="text/css">
+		#topic_header
+		{
+			background-color: #EFEFEF;
+		}
+	</style>
+
+	
+
+	<script type="text/javascript" src="js/chmRelative.js"></script>
+	
+	
+</head>
+
+<body>
+
+
+
+	
+		<div id="topic_header">
+			<div id="topic_header_content">
+				<h1>Manage Mod file conflicts</h1>
+				
+				
+				<div id="topic_breadcrumb">
+					<a href="WorkwithMods.htm">Work with Mods</a> &rsaquo;&rsaquo; 
+				</div>
+				
+			</div>
+			
+			<div id="topic_header_nav">
+				
+				
+				<a href="WorkwithMods.htm"><img src="img/arrow_up.png" alt="Parent"/></a>
+				
+				
+				
+				<a href="CustomiseModInstallers.htm"><img src="img/arrow_left.png" alt="Previous"/></a>
+				
+				
+				
+				<a href="InstallMods.htm"><img src="img/arrow_right.png" alt="Next"/></a>
+				
+				
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+	
+	
+	<div id="topic_content">
+		
+<p class="rvps2"><span class="rvts6">Many Neverwinter Nights mods are self contained and do not have files that conflict with other mods or files installed by Neverwinter Nights. However, there are some file conflicts that occur.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">The Installer Tool uses the order in which mods are listed to control which files will be installed. So if different versions of </span><span class="rvts19">File-A</span><span class="rvts6"> are present in three different Mods, then the order in which they appear dictates which version of File-A is installed. If this is how the mods are listed in the Mod list...</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps21"><span class="rvts6">Mod 1</span></p>
+<p class="rvps21"><span class="rvts6">Mod 2</span></p>
+<p class="rvps21"><span class="rvts6">Mod 3</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">...then </span><span class="rvts19">File-A</span><span class="rvts6"> from Mod 3 will be installed.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem83.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">If you uninstall Mod 3, then </span><span class="rvts19">File-A</span><span class="rvts6"> from Mod 2 is automatically copied to your installation folders.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem84.png"></p>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Strategies for dealing with file conflicts</span></span></h2>
+<p class="rvps2"><span class="rvts6">The Installer Tool sorts Mods alphabetically within their Groups, which are also sorted alphabetically. This means you can use the sort order to determine which of the conflicting Mod files will be installed.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Renaming Mods</span></span></h3>
+<p class="rvps2"><span class="rvts6">You can rename Mod 2 so that it comes after Mod 3 in order to ensure that Mod 2's </span><span class="rvts19">File-A</span><span class="rvts6"> is installed.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem85.png"></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Using Groups</span></span></h3>
+<p class="rvps2"><span class="rvts6">You can move Mod 2 to another Group that is listed after </span><span class="rvts69">810. &nbsp;Evaluating</span><span class="rvts6">.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem86.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">This approach allows you to retain the Mod names and still control which files you want installed.</span></p>
+<h3 class="rvps5"><span class="rvts0"><span class="rvts12">Create an additional Mod</span></span></h3>
+<p class="rvps2"><span class="rvts6">You can create a Mod that contains the conflicting file and use the name or Group to ensure that the file you want is installed.</span></p>
+<p class="rvps21"><img alt="" style="padding : 1px; margin : 3px 0px;" src="lib/NewItem88.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps16"><span class="rvts24">This approach allows you to retain the Mod names and still control which files you want installed.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6">Follow these steps to create the Mod for </span><span class="rvts19">File-A</span><span class="rvts6"> (see </span><a class="rvts21" href="Newtopic2.htm">Create NIT Mods from Restorers</a><span class="rvts6"> for an illustration of this approach).</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 42px; list-style-position: outside;">
+ <li class="rvps2 noindent"><span class="rvts6">Press </span><span class="rvts17">Ctrl+M</span><span class="rvts6"> or click </span><span class="rvts17">New Mod</span><span class="rvts6"> from the </span><span class="rvts17">Manage</span><span class="rvts6"> menu.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Type the name of your Mod and click </span><span class="rvts17">Create</span><span class="rvts6">.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Press </span><span class="rvts17">Ctrl+L</span><span class="rvts6"> or click </span><span class="rvts17">Create Installer</span><span class="rvts6"> from the </span><span class="rvts17">Manage</span><span class="rvts6"> menu to create an empty Mod Installer.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Select </span><span class="rvts19">File-A.tlk</span><span class="rvts6"> in Mod 2 and press </span><span class="rvts17">Ctrl+C</span><span class="rvts6"> or click </span><span class="rvts17">Copy</span><span class="rvts6"> from the </span><span class="rvts17">Edit</span><span class="rvts6"> menu.</span></li>
+ <li class="rvps2 noindent"><span class="rvts6">Select the Mod you created in step 2, click in the Details panel and press </span><span class="rvts17">Ctrl+V</span><span class="rvts6"> or click </span><span class="rvts17">Paste</span><span class="rvts6"> from the </span><span class="rvts17">Edit</span><span class="rvts6"> menu.</span></li>
+</ol>
+<h2 class="rvps6"><span class="rvts0"><span class="rvts13">Related Topics</span></span></h2>
+<p class="rvps8"><a class="rvts14" href="Anneal.htm">Validate conflicting files (Anneal)</a></p>
+<p class="rvps8"><a class="rvts14" href="BhDownloadProject.htm">Download and install Neverwinter Vault Projects</a></p>
+<p class="rvps8"><a class="rvts14" href="DownloadAndInstallMods.htm">Download and install Mods from other sites</a></p>
+<p class="rvps8"><a class="rvts14" href="AddanewMod.htm">Add a new Mod</a></p>
+<p class="rvps8"><a class="rvts14" href="RecordaModsWebPageLink.htm">Record a Mod's Web Page Link</a></p>
+<p class="rvps8"><a class="rvts14" href="AdddownloadedfilestoaMod.htm">Add downloaded files to a Mod</a></p>
+<p class="rvps8"><a class="rvts14" href="Reducefileclutter.htm">Reduce file clutter</a></p>
+<p class="rvps8"><a class="rvts14" href="ReviewModinformationinaddedfiles.htm">Review Mod information in added files</a></p>
+<p class="rvps8"><a class="rvts14" href="CreateModInstallers.htm">Create Mod Installers</a></p>
+<p class="rvps8"><a class="rvts14" href="CustomiseModInstallers.htm">Customise Mod Installers</a></p>
+<p class="rvps8"><span class="rvts47">Manage Mod file conflicts</span></p>
+<p class="rvps8"><a class="rvts14" href="InstallMods.htm">Install Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="UninstallMods.htm">Uninstall Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="DealwithModupdates.htm">Deal with Mod updates</a></p>
+<p class="rvps8"><a class="rvts14" href="MakeModnotesandrecordinformation.htm">Make Mod notes and record information</a></p>
+<p class="rvps8"><a class="rvts14" href="BhPublishMod.htm">Publish Mods</a></p>
+<p class="rvps8"><a class="rvts14" href="AddModsfromdownloadedfiles.htm">Add Mods from downloaded files</a></p>
+<p class="rvps8"><a class="rvts14" href="SurazalsModnotes.htm">Surazal's Mod notes</a></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"></span><span class="rvts6"></span></p>
+
+	</div>
+	
+	
+
+	<div id="custom_footer"></div>
+
+	
+	
+
+	
+</body>
+	
+</html>
+
