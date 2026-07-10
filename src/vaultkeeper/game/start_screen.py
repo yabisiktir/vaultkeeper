@@ -282,6 +282,28 @@ def validate_loadscreen_name(
     return True, name
 
 
+#: Bundled app-data file listing NWN's own GUI TGAs to skip when adding from archives.
+_DATA_DIR = Path(__file__).resolve().parent / "data"
+_EXCLUSIONS_FILE = _DATA_DIR / "LoadscreenExclusions.txt"
+
+
+def tga_file_exclusions() -> set[str]:
+    """NWN GUI TGA names to skip when extracting archives (VB ``TgaFileExclusions``).
+
+    Read from the bundled ``LoadscreenExclusions.txt`` (verbatim from the original
+    app's install dir). These are NWN's own interface images (logos, load/save
+    screens) that would otherwise be mistaken for user loadscreens. Returns a
+    lower-cased set; matching is case-insensitive (VB ``CurrentCultureIgnoreCase``).
+    """
+    if not _EXCLUSIONS_FILE.is_file():
+        return set()
+    try:
+        text = _EXCLUSIONS_FILE.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return set()
+    return {line.strip().lower() for line in text.splitlines() if line.strip()}
+
+
 def collect_tga_from_folders(
     folders: Iterable[Path],
     *,

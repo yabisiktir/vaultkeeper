@@ -1668,6 +1668,151 @@ class ProfileController:
         self.uninstall([md.mod_name])
         return {"ok": True, "message": "Start Screen uninstalled."}
 
+    # -- Start Screen add / delete images (VB ProcessFiles/ProcessFolders/RbDeleteFile) --
+    def add_loadscreen_images(self, sources: list[Path], *, overwrite: bool = False) -> dict:
+        """Copy image files into the managed mod's ``Loadscreen Images`` folder.
+
+        Faithful port of VB ``ProcessFiles``: for each source the target name keeps
+        the file name unless it is the reserved ``gui_pre_bknd3.tga`` (renamed from
+        its folder, :func:`start_screen.add_image_target_name`). Files already present
+        (or duplicated within the batch) are skipped unless ``overwrite`` is set. The
+        managed mod is created if needed. Returns ``{"added", "skipped", "message"}``.
+        """
+        from vaultkeeper.core import fs
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.ensure_loadscreen_mod()
+        image_folder = self._loadscreen_image_folder(md)
+        existing = {p.name.lower() for p in image_folder.glob("*") if p.is_file()}
+        added = skipped = 0
+        seen: set[str] = set()
+        for source in sources:
+            source = Path(source)
+            if not source.is_file():
+                continue
+            target_name = ss.add_image_target_name(source.name, source.parent)
+            lower = target_name.lower()
+            if not overwrite and (lower in existing or lower in seen):
+                skipped += 1
+                continue
+            seen.add(lower)
+            try:
+                fs.copy_file(source, image_folder / target_name, overwrite=True)
+                added += 1
+            except OSError:
+                skipped += 1
+        return {
+            "added": added,
+            "skipped": skipped,
+            "message": f"Files added: {added or 'None'}. Skipped: {skipped or 'None'}.",
+        }
+
+    def add_loadscreen_folders(self, folders: list[Path], *, overwrite: bool = False) -> dict:
+        """Add every ``.tga`` under the given folders (VB ``ProcessFolders`` + ``ProcessFiles``).
+
+        Recurses each folder for loose ``.tga`` files and extracts nested archives
+        (via the archive seam), filtering NWN's own GUI TGAs out of extracted content
+        (:func:`start_screen.tga_file_exclusions`), then copies the result into the
+        managed image folder.
+        """
+        import tempfile
+
+        from vaultkeeper.game import start_screen as ss
+
+        backend = self._archive_backend()
+        with tempfile.TemporaryDirectory(prefix="vk-ls-folder-") as tmp:
+            tmp_root = Path(tmp)
+            counter = {"n": 0}
+
+            def extract(archive: Path) -> Path | None:
+                counter["n"] += 1
+                dest = tmp_root / f"a{counter['n']}"
+                result = backend.extract(archive, dest)
+                return dest if result.ok else None
+
+            files = ss.collect_tga_from_folders(
+                folders, extract=extract, exclusions=ss.tga_file_exclusions()
+            )
+            return self.add_loadscreen_images(files, overwrite=overwrite)
+
+    def add_loadscreen_from_hak(self, hak_path: Path, *, overwrite: bool = False) -> dict:
+        """Extract the TGA resources from a ``.hak`` and add them (VB add-from-hak).
+
+        Uses the ERF seam (``ErfReader.extract_all(hak, dest, res_type=3)``) to pull
+        every TGA resource out of the hak, filters NWN's own GUI TGAs, then copies the
+        result into the managed image folder.
+        """
+        import tempfile
+
+        from vaultkeeper.core.formats.erf_reader import ErfReader
+        from vaultkeeper.game import start_screen as ss
+
+        hak_path = Path(hak_path)
+        if not hak_path.is_file():
+            return {"added": 0, "skipped": 0, "message": f"Hak not found: {hak_path.name}."}
+        exclusions = ss.tga_file_exclusions()
+        with tempfile.TemporaryDirectory(prefix="vk-ls-hak-") as tmp:
+            extracted = ErfReader().extract_all(hak_path, Path(tmp), res_type=3)
+            keep = [p for p in extracted if p.name.lower() not in exclusions]
+            return self.add_loadscreen_images(keep, overwrite=overwrite)
+
+    def delete_loadscreen_images(self, names: list[str]) -> dict:
+        """Delete image files from the managed mod (VB ``RbDeleteFile`` @1340).
+
+        Removes each named ``.tga`` from the ``Loadscreen Images`` folder, prunes any
+        matching auto-exclusions, and — if the currently-active/installed image was
+        deleted — uninstalls the loadscreen from the game and reselects the next
+        available image as active (VB auto-select-next). Returns
+        ``{"deleted", "message"}``.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {"deleted": 0, "message": "NIT does not yet manage your NWN Start Screen."}
+        image_folder = self._loadscreen_image_folder(md)
+        data_dir = self._profile_data_dir()
+        info = ss.read_start_screen_info(data_dir)
+        active = info.active_screen if info is not None else ""
+
+        deleted = 0
+        active_deleted = False
+        for name in names:
+            path = image_folder / name
+            if path.is_file():
+                path.unlink()
+                deleted += 1
+                if active and name.lower() == active.lower():
+                    active_deleted = True
+
+        if not deleted:
+            return {"deleted": 0, "message": "No Start Screen images deleted."}
+
+        # Prune auto-exclusions that no longer exist (VB ValidateAutoExcludes).
+        remaining = {p.name.lower() for p in image_folder.glob("*.tga") if p.is_file()}
+        excludes = [e for e in ss.read_auto_excludes(data_dir) if e.lower() in remaining]
+        ss.save_auto_excludes(data_dir, excludes)
+
+        # If the installed image was deleted it must be uninstalled; reselect the next.
+        if active_deleted:
+            self.uninstall_loadscreen()
+            if info is not None:
+                images = ss.scan_loadscreens(image_folder)
+                next_name = images[0].name if images else ""
+                if next_name:
+                    prefixes = ss.read_prefixes(data_dir)
+                    info = ss.with_active_screen(
+                        info, next_name, prefixed=ss.is_prefixed(next_name, prefixes)
+                    )
+                else:
+                    info = ss.cleared_active_screen(info)
+                ss.save_start_screen_info(data_dir, info)
+
+        return {
+            "deleted": deleted,
+            "message": f"Start Screen images deleted: {deleted}.",
+        }
+
     def user_responses_report(self) -> dict:
         """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
 

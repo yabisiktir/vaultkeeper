@@ -92,3 +92,75 @@ def test_uninstall_loadscreen_removes_from_game(tmp_path):
     assert res["ok"]
     assert not game_screen.is_file()
     assert not c.pd.mod_item(ss.LOADSCREEN_MOD).installed
+
+
+# -- Add / delete images (VB ProcessFiles/ProcessFolders/RbDeleteFile) ------ #
+
+
+def test_add_loadscreen_images_copies_and_dedups(tmp_path):
+    c = _controller(tmp_path)
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "Winter.tga").write_bytes(b"a")
+    (src / "Summer.tga").write_bytes(b"b")
+
+    res = c.add_loadscreen_images([src / "Winter.tga", src / "Summer.tga"])
+    assert res["added"] == 2
+    md = c.pd.mod_item(ss.LOADSCREEN_MOD)
+    folder = c._loadscreen_image_folder(md)
+    assert (folder / "Winter.tga").is_file()
+    # Re-adding is skipped (no overwrite).
+    res2 = c.add_loadscreen_images([src / "Winter.tga"])
+    assert res2["added"] == 0 and res2["skipped"] == 1
+
+
+def test_add_loadscreen_renames_reserved_name(tmp_path):
+    c = _controller(tmp_path)
+    src = tmp_path / "My Screen" / "override"
+    src.mkdir(parents=True)
+    (src / "gui_pre_bknd3.tga").write_bytes(b"x")
+
+    c.add_loadscreen_images([src / "gui_pre_bknd3.tga"])
+    md = c.pd.mod_item(ss.LOADSCREEN_MOD)
+    assert (c._loadscreen_image_folder(md) / "My Screen.tga").is_file()
+
+
+def test_add_loadscreen_folders_recurses(tmp_path):
+    c = _controller(tmp_path)
+    root = tmp_path / "browse"
+    (root / "sub").mkdir(parents=True)
+    (root / "a.tga").write_bytes(b"x")
+    (root / "sub" / "b.tga").write_bytes(b"x")
+
+    res = c.add_loadscreen_folders([root])
+    assert res["added"] == 2
+
+
+def test_delete_loadscreen_image_uninstalls_active(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"W")
+    (folder / "Summer.tga").write_bytes(b"S")
+    c.install_loadscreen("Winter.tga")
+    game_screen = c.ctx.game_folders["override"] / ss.NWN_START_SCREEN_NAME
+    assert game_screen.is_file()
+
+    res = c.delete_loadscreen_images(["Winter.tga"])
+    assert res["deleted"] == 1
+    assert not (folder / "Winter.tga").is_file()
+    # Active image deleted → uninstalled from game + next reselected as active.
+    assert not game_screen.is_file()
+    info = ss.read_start_screen_info(c._profile_data_dir())
+    assert info.active_screen == "Summer.tga"
+
+
+def test_delete_loadscreen_prunes_exclusions(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"x")
+    c.add_loadscreen_exclusion("Winter.tga")
+
+    c.delete_loadscreen_images(["Winter.tga"])
+    assert ss.read_auto_excludes(c._profile_data_dir()) == []
