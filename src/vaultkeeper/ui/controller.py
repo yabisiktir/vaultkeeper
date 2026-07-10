@@ -53,6 +53,8 @@ class ProfileController:
         self._http = None
         #: Archive backend for publish/extract (tests inject a FakeArchiveExtractor).
         self._extractor = None
+        #: BIK→WBM converter (tests inject a FakeBikConverter).
+        self._bik_backend = None
 
     # -- Construction ------------------------------------------------------ #
     @classmethod
@@ -552,20 +554,23 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
-    def build_installer_payload(self, mod_name: str) -> dict:
+    def build_installer_payload(
+        self, mod_name: str, *, convert_bik: bool | None = None
+    ) -> dict:
         """Populate a mod's ``.Mod Installer`` payload from its raw/downloaded files.
 
         The faithful heart of VB Create Installer (``CreateInstaller``): scan the mod
         folder, extract any downloaded archives (via the injected extractor seam),
         analyse every file through the Mapper into the ``CopyList``, then copy each
-        winning file into ``.Mod Installer/<folder>/<filename>``. Afterwards the mod
-        is (re)marked an installer, its file list rescanned and states recomputed,
-        and the profile persisted — mirroring :meth:`add_files_to_mod`.
+        winning file into ``.Mod Installer/<folder>/<filename>``. When ``convert_bik``
+        is on (defaults to the profile's ``convert_bik_files`` setting), ``.bik``
+        movies are converted to ``.wbm`` via ffmpeg and the ``.wbm`` copied instead
+        (VB ``BgConverter``). Afterwards the mod is (re)marked an installer, its file
+        list rescanned and states recomputed, and the profile persisted.
 
-        Bounded (see ``game/installer_build``): BIK→WBM conversion, the
-        ``nwnpatch.ini`` patch-hak reassignment and the wizard select-one/many modal
-        flow are deferred. Returns ``{"ok", "copied", "excluded", "archives",
-        "message"}``.
+        Bounded (see ``game/installer_build``): the ``nwnpatch.ini`` patch-hak
+        reassignment and the wizard select-one/many modal flow are deferred. Returns
+        ``{"ok", "copied", "excluded", "archives", "converted", "message"}``.
         """
         import tempfile
 
@@ -580,13 +585,18 @@ class ProfileController:
                 "copied": 0,
                 "excluded": 0,
                 "archives": 0,
+                "converted": 0,
                 "message": f"Unknown mod: {mod_name}",
             }
+
+        if convert_bik is None:
+            convert_bik = self._convert_bik_files()
 
         mod_folder = self.ctx.profile_mods_dir / mod_name
         installer = mod_folder / C.MOD_INSTALLER_DIR
         installer.mkdir(parents=True, exist_ok=True)
 
+        converted = 0
         # Extract archives into a temp area that survives until the copy is done.
         with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
             plan = build_copy_plan(
@@ -595,6 +605,7 @@ class ProfileController:
                 mapper=self.ctx.mapper,
                 extractor=self._archive_backend(),
                 extract_root=Path(extract_dir),
+                convert_bik=convert_bik,
             )
             copied = 0
             for item in plan.items:
@@ -606,6 +617,11 @@ class ProfileController:
                 except OSError:
                     continue
 
+            # BIK→WBM: convert each collected .bik and copy the .wbm into the movies
+            # folder the Mapper assigns for it (VB BgConverter → WbmFiles copy).
+            if convert_bik and plan.bik_files:
+                converted = self._convert_bik_movies(plan.bik_files, installer, Path(extract_dir))
+
         # Mark as an installer; _create_identifier rescans the payload, recomputes
         # file/mod states and persists (like add_files_to_mod's tail).
         self._create_identifier(mod_name, C.EXT_INSTALLER)
@@ -615,6 +631,7 @@ class ProfileController:
             "copied": copied,
             "excluded": len(plan.excluded),
             "archives": plan.archives_extracted,
+            "converted": converted,
             "message": (
                 f"Built installer for {mod_name}: {copied} file(s) copied"
                 + (
@@ -622,10 +639,53 @@ class ProfileController:
                     if plan.archives_extracted
                     else ""
                 )
+                + (f", {converted} movie(s) converted" if converted else "")
                 + (f", {len(plan.excluded)} excluded" if plan.excluded else "")
                 + "."
             ),
         }
+
+    def _convert_bik_files(self) -> bool:
+        """The profile's BIK→WBM preference (VB ``ProfileInfo.ConvertBikFiles``)."""
+        from vaultkeeper.config.settings import load_settings
+
+        settings = load_settings(self._settings_path)
+        return bool(getattr(settings, "convert_bik_files", False))
+
+    def _bik_converter(self):
+        """The BIK→WBM converter (ffmpeg by default, Fake in tests)."""
+        if self._bik_backend is None:
+            from vaultkeeper.game.bik_convert import BikConverter
+
+            self._bik_backend = BikConverter()
+        return self._bik_backend
+
+    def _convert_bik_movies(
+        self, bik_files: list[Path], installer: Path, work_dir: Path
+    ) -> int:
+        """Convert each ``.bik`` to ``.wbm`` and copy it into the installer (VB BgConverter)."""
+        from vaultkeeper.core import fs
+
+        converter = self._bik_converter()
+        if not converter.available:
+            return 0
+        converted = 0
+        for bik in bik_files:
+            wbm_name = f"{bik.stem}.wbm"
+            wbm_tmp = work_dir / "wbm" / wbm_name
+            if not converter.convert(bik, wbm_tmp):
+                continue
+            folder = self.ctx.mapper.get_mapped_folder(wbm_name)
+            if not folder:
+                continue
+            dest = installer / folder / wbm_name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                fs.copy_file(wbm_tmp, dest, overwrite=True)
+                converted += 1
+            except OSError:
+                continue
+        return converted
 
     # -- Create Missing Installers (VB CreateMissingInstallers) ------------ #
     def _profile_data_dir(self) -> Path:

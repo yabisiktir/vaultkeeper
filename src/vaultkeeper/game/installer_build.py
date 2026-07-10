@@ -137,6 +137,9 @@ class InstallerPlan:
     items: list[CopyPlanItem] = field(default_factory=list)
     #: Files skipped by MapExcludes / demo-mod rules (VB ``MapExcludesList``).
     excluded: list[str] = field(default_factory=list)
+    #: ``.bik`` movies awaiting BIK→WBM conversion (VB ``BikFiles``; only populated
+    #: when ``convert_bik`` is on). The caller converts these and copies the ``.wbm``.
+    bik_files: list[Path] = field(default_factory=list)
     files_scanned: int = 0
     archives_extracted: int = 0
 
@@ -380,9 +383,11 @@ def _scan_folder(
                 archives.append(fi)
             continue
 
-        # BIK conversion is deferred; with convert_bik off, .bik falls through to
-        # be analysed as-is (faithful to VB when ConvertBikFiles is False).
+        # BIK→WBM: with convert_bik on, collect the .bik for conversion (VB adds it
+        # to BikFiles and copies the resulting .wbm instead). With it off, .bik falls
+        # through to be analysed as-is (faithful to VB when ConvertBikFiles is False).
         if fi.suffix.lower() == ".bik" and convert_bik:
+            plan.bik_files.append(fi)
             continue
         # The downloaded-wizard copy path is part of the deferred wizard flow.
         if name == WIZARD_FILE:

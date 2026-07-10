@@ -57,6 +57,9 @@ class Settings:
     #: On startup, check whether the game config diverged and prompt before syncing
     #: (config-isolation principle — never sync silently).
     validate_game_config_on_startup: bool = True
+    #: Convert ``.bik`` movies to ``.wbm`` when building an installer (VB
+    #: ``ProfileInfo.ConvertBikFiles``; NWN:EE plays WebM, not Bink).
+    convert_bik_files: bool = False
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default
