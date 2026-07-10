@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 
 _MEDIUM_BOX = 128
 _HUGE_BOX = 256
@@ -59,6 +60,11 @@ class PortraitManager(QDialog):
         right.addWidget(self._medium)
         self._caption = QLabel(f"Installed portraits: {len(entries):,}")
         right.addWidget(self._caption)
+        right.addStretch(1)
+        help_row = QHBoxLayout()
+        help_row.addWidget(help_button("RbPortraitManagerHelp", self))
+        help_row.addStretch(1)
+        right.addLayout(help_row)
         layout.addLayout(right, 1)
 
         if entries:

@@ -67,11 +67,16 @@ class PublishMod(QDialog):
 
         layout.addStretch(1)
 
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
         buttons = QDialogButtonBox()
         self.publish_button = buttons.addButton(
             "Publish", QDialogButtonBox.ButtonRole.AcceptRole
         )
         buttons.addButton("Cancel", QDialogButtonBox.ButtonRole.RejectRole)
+        buttons.addButton(
+            help_button("BhPublishMod", self), QDialogButtonBox.ButtonRole.HelpRole
+        )
         self.publish_button.clicked.connect(self._on_publish)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)

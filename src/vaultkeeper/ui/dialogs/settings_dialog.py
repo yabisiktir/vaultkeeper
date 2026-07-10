@@ -62,8 +62,13 @@ class SettingsDialog(QDialog):
             self.tabs.addTab(self.locations, "Locations")
         layout.addWidget(self.tabs, 1)
 
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.addButton(
+            help_button("BhBasicSettings", self), QDialogButtonBox.ButtonRole.HelpRole
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
