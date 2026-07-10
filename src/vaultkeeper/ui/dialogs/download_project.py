@@ -75,6 +75,9 @@ class DownloadProjectDialog(QDialog):
         self.download_button = QPushButton("Download")
         self.download_button.clicked.connect(self._on_download)
         bottom.addWidget(self.download_button)
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        bottom.addWidget(help_button("BhDownloadProject", self))
         layout.addLayout(bottom)
 
         self.progress = QProgressBar()
