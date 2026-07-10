@@ -136,10 +136,11 @@ their fuller VB subsystems (backup/activate; wizard authoring) are deferred.
 Common cross-platform divergences recorded as **expected**: native Qt vs WinForms
 widget chrome, push buttons vs icon toolbars, and macOS vs Windows fonts/spacing.
 
-## Per-dialog Help buttons (Phase A coverage)
+## Per-dialog Help buttons (Phase A coverage) — complete
 
-Help buttons (`help_button(control_name)`) are wired into: Game Saves Manager, Doc
-Organiser, Wizard Builder, Start Screen Manager, Workshop Viewer, Folder Mapping,
-Create Missing Installers and the User Response Editor, plus the Help menu. The
-remaining table-only viewers (Dependency Manager, Conflicts, Play Data, Mods Played,
-Installation Analyser) have no button row yet — add one with the same one-liner.
+Help buttons (`help_button(control_name)`) are wired into **every major dialog**: Game
+Saves Manager, Doc Organiser, Wizard Builder, Start Screen Manager, Workshop Viewer,
+Folder Mapping, Create Missing Installers, User Response Editor, Dependency Manager,
+Conflicts Viewer, Installation Analyser, Play Data Viewer, Mod Play Viewer, Publish
+Mod, Settings and Portrait Manager — plus the Help menu (View Help / Get Started /
+FAQ / What's New / Version History). Each opens its `<ControlName>.htm` topic.
