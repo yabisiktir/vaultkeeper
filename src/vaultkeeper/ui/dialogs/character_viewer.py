@@ -62,7 +62,10 @@ class CharacterViewer(QDialog):
         self, characters: list, portrait_resolver=None, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Character Explorer")
+        # VB title shows the file count (e.g. "Character Explorer — 751 files shown").
+        count = len(characters)
+        suffix = f" — {count:,} file{'s' if count != 1 else ''} shown" if count else ""
+        self.setWindowTitle(f"Character Explorer{suffix}")
         self.setWindowIcon(R.get_icon("LookupUser_16x"))
         self.resize(680, 460)
         self._characters = characters

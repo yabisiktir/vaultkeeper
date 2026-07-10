@@ -70,6 +70,8 @@ def test_viewer_populates_list_and_summary(qtbot, tmp_path):
     dlg = CharacterViewer(chars, None)
     qtbot.addWidget(dlg)
     assert dlg._list.count() == 2
+    # Title carries the file count (VB "Character Explorer — N files shown").
+    assert dlg.windowTitle() == "Character Explorer — 2 files shown"
     # First is auto-selected; its summary shows.
     assert "Alpha Hero" in dlg._summary.toPlainText()
     dlg._list.setCurrentRow(1)
