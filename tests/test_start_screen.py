@@ -84,6 +84,24 @@ def test_read_auto_excludes_missing(tmp_path: Path) -> None:
     assert ss.read_auto_excludes(tmp_path) == []
 
 
+def test_save_auto_excludes_sorts_and_dedups(tmp_path: Path) -> None:
+    ss.save_auto_excludes(tmp_path, ["screen10.tga", "screen2.tga", "screen2.tga"])
+    # Windows natural sort + dedup.
+    assert ss.read_auto_excludes(tmp_path) == ["screen2.tga", "screen10.tga"]
+
+
+def test_save_auto_excludes_empty_writes_empty(tmp_path: Path) -> None:
+    ss.save_auto_excludes(tmp_path, ["x.tga"])
+    ss.save_auto_excludes(tmp_path, [])
+    assert ss.read_auto_excludes(tmp_path) == []
+
+
+def test_save_auto_excludes_creates_dir(tmp_path: Path) -> None:
+    target = tmp_path / "Data" / "P"  # does not exist yet
+    ss.save_auto_excludes(target, ["a.tga"])
+    assert ss.read_auto_excludes(target) == ["a.tga"]
+
+
 # -- Scanning -------------------------------------------------------------- #
 
 

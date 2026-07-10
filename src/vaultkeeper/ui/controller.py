@@ -1447,6 +1447,42 @@ class ProfileController:
             "summary": summary,
         }
 
+    def add_loadscreen_exclusion(self, name: str) -> None:
+        """Auto-exclude a loadscreen image from the slideshow (VB RbAddAutoExclusion).
+
+        Appends the display name to the auto-exclusion list and persists it
+        (VB ``SsInfo.AutoExcludes.Add`` + ``SaveAutoExcludes``).
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        data_dir = self._profile_data_dir()
+        excludes = ss.read_auto_excludes(data_dir)
+        excludes.append(name)
+        ss.save_auto_excludes(data_dir, excludes)
+
+    def remove_loadscreen_exclusion(self, name: str) -> None:
+        """Un-exclude a loadscreen image (VB RbRemoveAutoExclusion).
+
+        Removes the first case-insensitive match (VB ``FindItemIndex`` +
+        ``RemoveAt``) and persists.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        data_dir = self._profile_data_dir()
+        excludes = ss.read_auto_excludes(data_dir)
+        lower = name.lower()
+        for i, existing in enumerate(excludes):
+            if existing.lower() == lower:
+                del excludes[i]
+                break
+        ss.save_auto_excludes(data_dir, excludes)
+
+    def clear_loadscreen_exclusions(self) -> None:
+        """Remove all auto-exclusions (VB RbInfoReport 'Remove Exclusions')."""
+        from vaultkeeper.game import start_screen as ss
+
+        ss.save_auto_excludes(self._profile_data_dir(), [])
+
     def user_responses_report(self) -> dict:
         """The GameMapper's remembered user answers, grouped (VB UserResponseEditor).
 

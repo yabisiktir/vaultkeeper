@@ -89,3 +89,33 @@ def test_report_installed_and_excluded(tmp_path: Path) -> None:
     assert excluded == ["bad.tga"]
     assert "installed" in report["summary"].lower()
     assert "auto-excluded" in report["summary"].lower()
+
+
+def test_exclusion_add_remove_clear_round_trip(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    _setup_loadscreen_mod(controller, ["a.tga", "b.tga", "c.tga"])
+
+    controller.add_loadscreen_exclusion("b.tga")
+    controller.add_loadscreen_exclusion("a.tga")
+    report = controller.loadscreens_report()
+    excluded = {r["name"] for r in report["images"] if r["excluded"]}
+    assert excluded == {"a.tga", "b.tga"}
+    assert report["excluded_count"] == 2
+
+    controller.remove_loadscreen_exclusion("A.TGA")  # case-insensitive
+    report = controller.loadscreens_report()
+    excluded = {r["name"] for r in report["images"] if r["excluded"]}
+    assert excluded == {"b.tga"}
+
+    controller.clear_loadscreen_exclusions()
+    report = controller.loadscreens_report()
+    assert report["excluded_count"] == 0
+
+
+def test_add_exclusion_dedups_on_persist(tmp_path: Path) -> None:
+    controller = _controller(tmp_path)
+    _setup_loadscreen_mod(controller, ["a.tga"])
+    controller.add_loadscreen_exclusion("a.tga")
+    controller.add_loadscreen_exclusion("a.tga")  # duplicate
+    report = controller.loadscreens_report()
+    assert report["excluded_count"] == 1

@@ -31,6 +31,7 @@ Data contract verified against the VB source:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import cmp_to_key
 from pathlib import Path
@@ -136,6 +137,29 @@ def read_auto_excludes(profile_data_dir: Path) -> list[str]:
     except OSError:
         return []
     return [line for line in text.splitlines() if line.strip()]
+
+
+def save_auto_excludes(profile_data_dir: Path, excludes: Iterable[str]) -> None:
+    """Persist the auto-exclusion display-name list (VB ``SaveAutoExcludes``).
+
+    VB sorts with ``WindowsSorter`` then writes ``Distinct`` names. We reproduce
+    both: Windows natural sort (``win_compare``) followed by an order-preserving
+    dedup (ordinal, matching .NET ``String`` equality).
+    """
+    names = [str(name) for name in excludes]
+    names.sort(key=cmp_to_key(win_compare))
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for name in names:
+        if name not in seen:
+            seen.add(name)
+            deduped.append(name)
+
+    profile_data_dir.mkdir(parents=True, exist_ok=True)
+    (profile_data_dir / AUTO_EXCLUDES_FILENAME).write_text(
+        "\n".join(deduped) + ("\n" if deduped else ""),
+        encoding="utf-8",
+    )
 
 
 def scan_loadscreens(
