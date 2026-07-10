@@ -63,6 +63,9 @@ class WorkshopViewer(QDialog):
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("BhWorkshop", self))
         buttons.addStretch(1)
         self.refresh_button = QPushButton("Refresh")
         self.refresh_button.clicked.connect(self.refresh)

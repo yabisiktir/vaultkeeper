@@ -110,6 +110,9 @@ class FolderMapping(QDialog):
         layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("BhMapFiles", self))
         self._reset_button = QPushButton("Reset All to Defaults")
         self._reset_button.clicked.connect(self._on_reset)
         buttons.addWidget(self._reset_button)
