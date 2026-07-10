@@ -48,6 +48,8 @@ WORKSHOP_DIR: Final = "_Workshop"
 REMOVED_ITEMS_DIR: Final = ".Removed Items"
 #: Per-mod durable play-time record (RTF).
 PLAY_TIME_FILE: Final = ".Game Play Time.rtf"
+#: Installer wizard definition file (Paths.C.WizardFile = ".Installer Wizard" + ".nitwiz").
+WIZARD_FILE: Final = ".Installer Wizard.nitwiz"
 #: The nit config subfolder holding a mod's identifier files (Pdc.ModNit).
 MOD_NIT_DIR: Final = "nitconfig"
 #: Normalised name the game-root folder maps to inside a FileKey (Mapper.C.ModRoot).

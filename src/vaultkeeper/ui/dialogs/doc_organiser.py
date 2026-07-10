@@ -13,9 +13,16 @@ match / ``name_match``) is shown disabled + italic and cannot be copied (VB
 ``DisabledItemColour`` + ``ItemCheck``), and archive-extracted docs are likewise
 disabled — copying those is deferred (their source does not survive the scan).
 Window title, headings and column come from ``DocOrganiser.Designer.vb``.
+
+**Rename** / **Rename To** (VB ``CmRename`` / ``CmRenameTo``) change the name a
+download will be copied as: Rename opens a name editor validated by
+:func:`vaultkeeper.core.name_edit.validate_name`, and Rename To offers the matching
+Contents doc names to reuse. A renamed doc is marked to copy.
 """
 
 from __future__ import annotations
+
+from pathlib import PurePosixPath
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor
@@ -24,15 +31,20 @@ from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
+    QMenu,
+    QMessageBox,
     QPushButton,
     QTextEdit,
+    QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
+from vaultkeeper.core.name_edit import validate_name
 from vaultkeeper.ui import resources as R
 
 #: VB ``LbHeading.Text``.
@@ -94,6 +106,18 @@ class DocOrganiser(QDialog):
         )
         self.version_check.toggled.connect(self.refresh)
         buttons.addWidget(self.version_check)
+        # VB CmRename / CmRenameTo — rename a download doc's copy target.
+        self.rename_button = QPushButton("Rename…")
+        self.rename_button.clicked.connect(self._on_rename)
+        buttons.addWidget(self.rename_button)
+        self.rename_to_button = QToolButton()
+        self.rename_to_button.setText("Rename To")
+        self.rename_to_button.setPopupMode(
+            QToolButton.ToolButtonPopupMode.InstantPopup
+        )
+        self.rename_to_menu = QMenu(self.rename_to_button)
+        self.rename_to_button.setMenu(self.rename_to_menu)
+        buttons.addWidget(self.rename_to_button)
         buttons.addStretch(1)
         self.uncheck_button = QPushButton("Uncheck All")
         self.uncheck_button.clicked.connect(self._on_uncheck_all)
@@ -133,9 +157,11 @@ class DocOrganiser(QDialog):
             self._mod_names, remove_version=self.version_check.isChecked()
         )
         self.summary.setText(report["summary"])
+        self._contents_rows = report["contents"]
         self._fill_contents(report["contents"])
         self._fill_downloads(report["downloads"])
         self._update_copy_button()
+        self._sync_rename_buttons()
 
     def _fill_contents(self, rows: list[dict]) -> None:
         tree = self.contents
@@ -182,6 +208,7 @@ class DocOrganiser(QDialog):
         self, current: QTreeWidgetItem | None, _previous: QTreeWidgetItem | None
     ) -> None:
         """Preview the newly selected document (VB DisplayFile)."""
+        self._sync_rename_buttons()
         if current is None:
             return
         row = current.data(0, Qt.ItemDataRole.UserRole)
@@ -189,6 +216,88 @@ class DocOrganiser(QDialog):
             return
         result = self._controller.doc_preview(row["source_path"])
         self.preview.setPlainText(result["text"])
+
+    # -- Rename (VB CmRename / CmRenameTo) -------------------------------- #
+    def _download_names(self) -> list[str]:
+        """Every current Downloads doc name (for duplicate detection)."""
+        return [
+            self.downloads.topLevelItem(i)
+            .data(0, Qt.ItemDataRole.UserRole)["doc_name"]
+            for i in range(self.downloads.topLevelItemCount())
+        ]
+
+    def _sync_rename_buttons(self) -> None:
+        item = self.downloads.currentItem()
+        self.rename_button.setEnabled(item is not None)
+        suggestions = self._rename_suggestions(item) if item is not None else []
+        self.rename_to_menu.clear()
+        for name in suggestions:
+            self.rename_to_menu.addAction(name, lambda n=name: self._rename_to(n))
+        self.rename_to_button.setEnabled(bool(suggestions))
+
+    def _rename_suggestions(self, item: QTreeWidgetItem) -> list[str]:
+        """Content doc names a download can be renamed to (VB ``SetRenameTo``).
+
+        Existing Contents docs with no download match and the same extension, whose
+        name isn't already used by a Downloads item.
+        """
+        row = item.data(0, Qt.ItemDataRole.UserRole)
+        ext = PurePosixPath(row["doc_name"]).suffix.lower()
+        used = {name.lower() for name in self._download_names()}
+        suggestions: list[str] = []
+        for content in getattr(self, "_contents_rows", []):
+            if content.get("name_match"):
+                continue
+            doc_name = content["doc_name"]
+            if PurePosixPath(doc_name).suffix.lower() != ext:
+                continue
+            if doc_name.lower() in used:
+                continue
+            suggestions.append(doc_name)
+        return suggestions
+
+    def _apply_rename(self, item: QTreeWidgetItem, new_name: str):
+        """Validate + apply a new copy-target name (VB ``ValidateName`` + rename)."""
+        row = item.data(0, Qt.ItemDataRole.UserRole)
+        result = validate_name(
+            new_name,
+            initial=row["doc_name"],
+            existing=self._download_names(),
+            name_type="Document",
+        )
+        if not result.ok:
+            return result
+        new_row = dict(row)
+        new_row["doc_name"] = new_name
+        item.setData(0, Qt.ItemDataRole.UserRole, new_row)
+        item.setText(0, new_name)
+        # A renamed doc is marked for copying (VB checks the item).
+        if (item.flags() & Qt.ItemFlag.ItemIsUserCheckable) and item.checkState(
+            0
+        ) != Qt.CheckState.Checked:
+            item.setCheckState(0, Qt.CheckState.Checked)
+        self._update_copy_button()
+        self._sync_rename_buttons()
+        return result
+
+    def _on_rename(self) -> None:
+        item = self.downloads.currentItem()
+        if item is None:
+            return
+        row = item.data(0, Qt.ItemDataRole.UserRole)
+        new_name, ok = QInputDialog.getText(
+            self, "Rename Document", "Document name:", text=row["doc_name"]
+        )
+        if not ok:
+            return
+        result = self._apply_rename(item, new_name)
+        if not result.ok:
+            QMessageBox.warning(self, "Rename Document", result.message)
+
+    def _rename_to(self, name: str) -> None:
+        item = self.downloads.currentItem()
+        if item is not None:
+            self._apply_rename(item, name)
 
     def _checked_rows(self) -> list[dict]:
         rows: list[dict] = []

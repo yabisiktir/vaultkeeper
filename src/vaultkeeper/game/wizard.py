@@ -41,8 +41,9 @@ from vaultkeeper.core import constants as C
 from vaultkeeper.core.archive import is_zip_extension
 
 #: Wizard definition file name (VB ``Paths.C.WizardFile`` = ``.Installer Wizard`` +
-#: ``.nitwiz``), stored in the mod root folder.
-WIZARD_FILE = ".Installer Wizard.nitwiz"
+#: ``.nitwiz``), stored in the mod root folder. Re-exported from ``constants`` so
+#: existing ``from vaultkeeper.game.wizard import WIZARD_FILE`` imports keep working.
+WIZARD_FILE = C.WIZARD_FILE
 
 # Wizard rule keywords (VB ``WizardInfo.C``).
 _WIZARD_TITLE = "WizardTitle"

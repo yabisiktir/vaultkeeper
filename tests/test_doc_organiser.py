@@ -427,3 +427,84 @@ def test_dialog_matched_download_is_disabled(qtbot, tmp_path):
     assert item.isDisabled()
     assert item.checkState(0) == Qt.CheckState.Unchecked
     assert not dlg.copy_button.isEnabled()
+
+
+# -- Rename / Rename To (VB CmRename / CmRenameTo) ------------------------- #
+
+
+def test_dialog_rename_download_updates_target(qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    item = dlg.downloads.topLevelItem(0)
+    assert item.text(0) == "Alpha Guide.pdf"
+    result = dlg._apply_rename(item, "Alpha Manual.pdf")
+    assert result.ok
+    assert item.text(0) == "Alpha Manual.pdf"
+    assert item.data(0, Qt.ItemDataRole.UserRole)["doc_name"] == "Alpha Manual.pdf"
+    assert item.checkState(0) == Qt.CheckState.Checked
+
+    # A copy now lands under the renamed target.
+    dlg._on_copy()
+    assert (root / "Alpha" / "Alpha Manual.pdf").is_file()
+
+
+def test_dialog_on_rename_prompts_and_applies(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QInputDialog
+
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+    dlg.downloads.setCurrentItem(dlg.downloads.topLevelItem(0))
+
+    monkeypatch.setattr(
+        QInputDialog, "getText", lambda *a, **k: ("Alpha Renamed.pdf", True)
+    )
+    dlg._on_rename()
+    assert dlg.downloads.topLevelItem(0).text(0) == "Alpha Renamed.pdf"
+
+
+def test_dialog_rename_rejects_wrong_extension(qtbot, tmp_path):
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "guide.pdf", b"pdf")
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    item = dlg.downloads.topLevelItem(0)
+    result = dlg._apply_rename(item, "Alpha Manual.txt")
+    assert not result.ok
+    assert 'must use ".pdf"' in result.message
+    assert item.text(0) == "Alpha Guide.pdf"  # unchanged
+
+
+def test_dialog_rename_to_offers_contents_names(qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+
+    controller = _controller(tmp_path, "Alpha")
+    root = tmp_path / "Profiles" / "P"
+    _write(root / "Alpha" / "Handbook.pdf", b"content-pdf")  # Contents doc
+    _write(root / "Alpha" / C.DOWNLOADS_DIR / "extra.pdf", b"download-pdf")  # Download
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    item = dlg.downloads.topLevelItem(0)
+    dlg.downloads.setCurrentItem(item)
+    # Rename To offers the existing Contents doc name (VB suggests info.DocName).
+    actions = [a.text() for a in dlg.rename_to_menu.actions()]
+    assert "Handbook.pdf" in actions
+
+    dlg._rename_to("Handbook.pdf")
+    assert item.text(0) == "Handbook.pdf"
+    assert item.checkState(0) == Qt.CheckState.Checked
