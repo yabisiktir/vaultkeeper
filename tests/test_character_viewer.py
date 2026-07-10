@@ -190,6 +190,8 @@ def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
     dlg = PortraitManager(entries)
     qtbot.addWidget(dlg)
     assert dlg._list.count() == 1
+    # Title carries the count (VB "Portrait Manager — Installed Portraits: N").
+    assert dlg.windowTitle() == "Portrait Manager — Installed Portraits: 1"
     # Both previews loaded for the selected portrait.
     assert dlg._huge.pixmap() is not None and not dlg._huge.pixmap().isNull()
     assert dlg._medium.pixmap() is not None and not dlg._medium.pixmap().isNull()

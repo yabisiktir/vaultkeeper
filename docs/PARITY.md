@@ -160,6 +160,28 @@ Reference: `bhmodsplayed.htm` → `lib/NewItem 289.png`.
 Strong structural match — the columns, detail pane and play-history sub-table all line
 up. Only the filter toolbar and Recent/Select actions are deferred.
 
+### Portrait Manager — 🟡 Differing (title fixed)
+
+Reference: `rbportraitmanagerhelp.htm` → `lib/NewItem 201.png`.
+
+| Element | Original | Port | Verdict |
+|---|---|---|---|
+| Title "Portrait Manager — Installed Portraits: N" | ✓ | ✓ (count added this pass) | ✅ |
+| Portrait Name / Installation Source columns | 2 cols | 1 col (resref [sizes]) | 🟡 |
+| Five size thumbnails (t/s/m/l/h) | ✓ | huge + medium preview | 🟡 |
+| Toolbar: Exclude / Apply Excludes / Edit / Create Installer / Select Source / Find | ✓ | — | 🔷 deferred |
+
+The preview + list are present; the exclude/edit/create-installer toolbar is deferred.
+
+### Start Screen Manager — 🔷 Divergent (bounded), title fixed
+
+Reference: `rbloadscreenhelp.htm` → `lib/NewItem 234.png`.
+
+Title corrected to "NWN's Start Screen Manager". The port shows the gallery + preview +
+summary + Toggle-Auto-Exclude / Clear-Exclusions; the original's Add-from-Folders /
+Add-Image-Files / Rename / Remove toolbar is deferred (install-engine-blocked — see the
+handoff landmine note).
+
 ### Recurring pattern (recorded once)
 
 Several port dialogs are faithful **read-only reports/viewers** of a subsystem whose VB
@@ -184,17 +206,19 @@ Each maps to its help topic; compare per the steps above.
 | Publish Mod | `bhpublishmod.htm` | ⬜ |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ⬜ |
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | ⬜ |
-| Portrait Manager | `rbportraitmanagerhelp.htm` | ⬜ |
-| Start Screen Manager | `rbloadscreenhelp.htm` | ⬜ |
+| Portrait Manager | `rbportraitmanagerhelp.htm` | 🟡 assessed (title fixed) |
+| Start Screen Manager | `rbloadscreenhelp.htm` | 🔷 assessed (title fixed) |
 | Mods Played (Mod Play Viewer) | `bhmodsplayed.htm` | ✅ verified (subtitle added) |
 | Conflicts Viewer | `managemodfileconflicts.htm` | ⬜ |
 
 ## Summary
 
-Compared so far: **7** dialogs (Character Explorer, Doc Organiser, Game Saves Manager,
-Wizard Builder, Dependency Manager, Installation Analyser, Mod Play Viewer). Two are
-verified structural matches (Character Explorer, Mod Play Viewer); the rest carry the
-correct data/content with the interactive editor surface deferred.
+Compared so far: **the main window + 9 dialogs** (Character Explorer, Doc Organiser,
+Game Saves Manager, Wizard Builder, Dependency Manager, Installation Analyser, Mod Play
+Viewer, Portrait Manager, Start Screen Manager). Verified structural matches: main
+window, Character Explorer, Mod Play Viewer. The rest carry the correct data/content
+with the interactive editor surface deferred. **Fixes applied:** sentinel group header,
+Character Explorer + Portrait Manager title counts, Mod Play heading, Start Screen title.
 The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred

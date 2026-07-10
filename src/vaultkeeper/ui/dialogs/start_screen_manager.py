@@ -46,7 +46,7 @@ class StartScreenManager(QDialog):
         self, report: dict, controller=None, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
-        self.setWindowTitle("NWN Start Screen Manager")
+        self.setWindowTitle("NWN's Start Screen Manager")
         self.setWindowIcon(R.get_icon("Image"))
         self.resize(760, 520)
         self._controller = controller

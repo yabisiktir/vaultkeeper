@@ -33,7 +33,9 @@ class PortraitManager(QDialog):
 
     def __init__(self, entries: list, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Portrait Manager")
+        # VB title carries the count ("Portrait Manager — Installed Portraits: N").
+        suffix = f" — Installed Portraits: {len(entries):,}" if entries else ""
+        self.setWindowTitle(f"Portrait Manager{suffix}")
         self.setWindowIcon(R.get_icon("user"))
         self.resize(620, 440)
         self._entries = entries
