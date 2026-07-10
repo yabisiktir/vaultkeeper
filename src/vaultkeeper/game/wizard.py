@@ -15,12 +15,14 @@ its statements against the mod's real files with :func:`scan_mod_files` /
 :func:`validate` (``ScanFiles`` / ``Validate``). ``Option Compare Text`` makes
 keyword matching and file-name comparisons case-insensitive.
 
-Bounded: :func:`scan_mod_files` scans loose mod files (and lists archives by name,
-matching VB's initial ``ScanFiles`` pass), but *does not* extract archives to
-enumerate their contents — the recursive ``ProcessArchive`` path (validating files
-referenced *inside* archives) needs the extract seam and is deferred, as is the
-add/remove editing UI. Entries that point inside an un-extracted archive therefore
-validate as missing; note this before wiring the extract pass.
+:func:`scan_mod_files` scans loose mod files (and lists archives by name, matching
+VB's initial ``ScanFiles`` pass); :func:`extract_archives` then extends the scan by
+extracting each archive and enumerating its contents (faithful port of the recursive
+``ProcessArchive`` / ``ProcessArchiveFolder`` / ``ProcessSubFolder`` path), so wizard
+entries that reference files *inside* an archive validate correctly when the wizard's
+``ExtractArchives`` flag is set. Extraction goes through the injected
+``core.archive`` seam; VB only runs it when ``ExtractArchives`` is on (or forced).
+Still deferred: the add/remove editing UI.
 
 The LazWorks string helpers ``FilenameOnly``/``ToSentence("_")``/``ToTitleCase`` used
 to derive a default display name are not present in the source tree; their behaviour
@@ -29,6 +31,8 @@ is reconstructed from usage (drop the folder+extension, ``_``→space, title-cas
 
 from __future__ import annotations
 
+import contextlib
+import tempfile
 from dataclasses import dataclass, field
 from enum import IntEnum
 from pathlib import Path, PurePosixPath
@@ -77,6 +81,23 @@ class WizardInfo:
     select_many: list[WizardPreference] = field(default_factory=list)
     #: Files excluded from the Create-Installer step.
     installer_excludes: list[str] = field(default_factory=list)
+    #: Base names of archives extracted during the last validate (VB
+    #: ``ExtractedArchives``); powers :meth:`is_extracted_file`.
+    extracted_archives: list[str] = field(default_factory=list)
+
+    def is_extracted_file(self, filename: str) -> bool:
+        """True if ``filename``'s parent folder is an extracted archive (VB ``IsExtractedFile``).
+
+        A wizard key of the form ``<archive>\\<inner>`` refers to a file *inside*
+        an extracted archive when its first path component matches one of
+        :attr:`extracted_archives` (case-insensitive). Keys with no ``\\`` are
+        always loose files, so this returns ``False``.
+        """
+        idx = filename.find("\\")
+        if idx == -1:
+            return False
+        head = filename[:idx].lower()
+        return any(a.lower() == head for a in self.extracted_archives)
 
     @property
     def title(self) -> str:
@@ -327,8 +348,9 @@ def scan_mod_files(
     folders (``is_excluded_folder(name)``) and does not append ``_Downloads`` /
     ``_Published`` to the relative path (matching VB). A duplicate file/archive name
     sets :attr:`ScanResult.suppressed` and stops the scan (VB
-    ``SuppressWizardCreation``). Archives are **not** extracted — their contents are
-    validated only once the extract pass (``ProcessArchive``) is ported.
+    ``SuppressWizardCreation``). Archives are collected but not extracted here — call
+    :func:`extract_archives` afterwards (VB's ``ProcessArchive`` pass) to enumerate
+    their contents.
     """
     result = ScanResult()
     _scan_dir(
@@ -391,6 +413,128 @@ def _scan_dir(
         )
         if result.suppressed:
             return
+
+
+# -- Archive extraction pass (VB ProcessArchive) --------------------------- #
+
+
+def extract_archives(
+    result: ScanResult,
+    *,
+    extractor,
+    is_installable,
+) -> list[str]:
+    """Extract a scan's archives and record their contents (VB ``ProcessArchive``).
+
+    For every archive collected by :func:`scan_mod_files`, extract it through the
+    ``core.archive`` ``extractor`` seam and add its extracted files/folders to
+    ``result.source_files`` keyed ``<archive>\\<inner path>`` (VB uses the archive's
+    *file name* as the folder qualifier, matching how ``WizardBuilder`` presents
+    archive contents). Nested archives are extracted recursively. Mutates ``result``
+    in place and returns the base names of the archives that extracted successfully
+    (VB ``ExtractedArchives``). Temp extractions are cleaned up before returning.
+
+    If the ``extractor`` is unavailable or an archive fails to extract it is skipped
+    (VB ``ProcessArchive`` returns early when ``ZipManager.Extract`` yields ""), so
+    entries inside it stay unresolved rather than being wrongly pruned.
+    """
+    if not getattr(extractor, "available", False):
+        return []
+    extracted_names: list[str] = []
+    with contextlib.ExitStack() as stack:
+        for archive in result.archives:
+            _process_archive(
+                archive,
+                result,
+                "",
+                extractor=extractor,
+                is_installable=is_installable,
+                stack=stack,
+                extracted_names=extracted_names,
+            )
+    return extracted_names
+
+
+def _process_archive(
+    archive: Path,
+    result: ScanResult,
+    archive_name: str,
+    *,
+    extractor,
+    is_installable,
+    stack: contextlib.ExitStack,
+    extracted_names: list[str],
+) -> None:
+    """Port of VB ``ProcessArchive``: extract ``archive`` and walk its top folder."""
+    tmp = Path(stack.enter_context(tempfile.TemporaryDirectory()))
+    outcome = extractor.extract(archive, tmp)
+    if not getattr(outcome, "ok", False):
+        return
+    extracted_names.append(archive.name)
+    if archive_name == "":
+        archive_name = archive.name
+
+    # Top-level files of the extracted archive.
+    for fi in sorted(p for p in tmp.iterdir() if p.is_file()):
+        if is_zip_extension(fi.suffix):
+            key = f"{archive_name}\\{fi.name}"
+            result.source_files[key] = ExtractType.FOLDERS
+            _process_archive(
+                fi,
+                result,
+                key,
+                extractor=extractor,
+                is_installable=is_installable,
+                stack=stack,
+                extracted_names=extracted_names,
+            )
+        elif _is_hidden(fi.name) or _is_reserved_file(fi.name):
+            continue
+        elif is_installable(fi):
+            # VB keys the first installable top-level file under the bare archive
+            # name only when that name isn't already registered; in practice the
+            # archive name is (ScanFiles added it / the parent added it), so files
+            # land under ``<archive>\<file>``.
+            if archive_name in result.source_files:
+                result.source_files[f"{archive_name}\\{fi.name}"] = (
+                    ExtractType.FOLDER_FILES
+                )
+            else:
+                result.source_files[archive_name] = ExtractType.FOLDER_FILES
+
+    _process_archive_folder(tmp, result, archive_name, is_installable=is_installable)
+
+
+def _process_archive_folder(
+    folder: Path,
+    result: ScanResult,
+    archive_name: str,
+    *,
+    is_installable,
+) -> None:
+    """Port of VB ``ProcessArchiveFolder``: record sub-folders and recurse."""
+    for sub in sorted(p for p in folder.iterdir() if p.is_dir()):
+        key = f"{archive_name}\\{sub.name}"
+        result.source_files[key] = ExtractType.FOLDERS
+        _process_sub_folder(sub, result, key, is_installable=is_installable)
+        _process_archive_folder(sub, result, key, is_installable=is_installable)
+
+
+def _process_sub_folder(
+    folder: Path,
+    result: ScanResult,
+    archive_name: str,
+    *,
+    is_installable,
+) -> None:
+    """Port of VB ``ProcessSubFolder``: record installable files in a sub-folder."""
+    for fi in sorted(p for p in folder.iterdir() if p.is_file()):
+        if _is_hidden(fi.name) or _is_reserved_file(fi.name):
+            continue
+        if is_installable(fi):
+            result.source_files[f"{archive_name}\\{fi.name}"] = (
+                ExtractType.FOLDER_FILES
+            )
 
 
 # -- Publish rewrite (VB PublishMod wizard update) ------------------------- #

@@ -23,9 +23,12 @@ from vaultkeeper.core import constants as C  # noqa: E402
 from vaultkeeper.core.mapper import Mapper  # noqa: E402
 from vaultkeeper.game.wizard import (  # noqa: E402
     WIZARD_FILE,
+    ExtractType,
+    WizardInfo,
     archive_folder_name,
     convert_to_text,
     delete_wizard,
+    extract_archives,
     load_wizard,
     parse_wizard_text,
     rewrite_for_publish,
@@ -270,6 +273,98 @@ def test_validate_prunes_missing_entries():
     assert removed == 2  # gone.hak + missing.txt
     assert list(info.select_one) == ["hak\\here.hak"]
     assert info.installer_excludes == []
+
+
+# -- Archive extraction pass (VB ProcessArchive) -------------------------- #
+
+
+def test_extract_archives_enumerates_contents(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    mod = tmp_path / "Mod"
+    _touch(mod / "pack.7z")  # loose archive -> scanned into result.archives
+    scan = _scan(mod)
+    assert [a.name for a in scan.archives] == ["pack.7z"]
+
+    extractor = FakeArchiveExtractor(
+        contents={
+            "pack.7z": {
+                "loose.hak": b"x",  # installable top-level file
+                "hak/inner.hak": b"x",  # installable file in a sub-folder
+                "nested.7z": b"x",  # nested archive -> recursed
+                "notes.xyz": b"x",  # unmapped -> skipped
+            },
+            "nested.7z": {"deep.hak": b"x"},
+        }
+    )
+    mapper = Mapper()
+    names = extract_archives(
+        scan,
+        extractor=extractor,
+        is_installable=lambda p: mapper.get_mapped_folder(p, erf_check=True) != "",
+    )
+
+    assert set(names) == {"pack.7z", "nested.7z"}
+    sf = scan.source_files
+    # Top-level installable file, keyed under the archive name.
+    assert sf["pack.7z\\loose.hak"] == ExtractType.FOLDER_FILES
+    # Sub-folder recorded, and its installable file enumerated.
+    assert sf["pack.7z\\hak"] == ExtractType.FOLDERS
+    assert sf["pack.7z\\hak\\inner.hak"] == ExtractType.FOLDER_FILES
+    # Nested archive recorded as a folder and its contents recursed.
+    assert sf["pack.7z\\nested.7z"] == ExtractType.FOLDERS
+    assert sf["pack.7z\\nested.7z\\deep.hak"] == ExtractType.FOLDER_FILES
+    # Unmapped files are not added.
+    assert "pack.7z\\notes.xyz" not in sf
+
+
+def test_extract_archives_unavailable_backend_is_noop(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    mod = tmp_path / "Mod"
+    _touch(mod / "pack.7z")
+    scan = _scan(mod)
+    before = dict(scan.source_files)
+    names = extract_archives(
+        scan,
+        extractor=FakeArchiveExtractor(available=False),
+        is_installable=lambda p: True,
+    )
+    assert names == []
+    assert scan.source_files == before  # nothing added
+
+
+def test_is_extracted_file():
+    info = WizardInfo(extracted_archives=["pack.7z"])
+    assert info.is_extracted_file("pack.7z\\loose.hak") is True
+    assert info.is_extracted_file("PACK.7Z\\x") is True  # case-insensitive
+    assert info.is_extracted_file("loose.hak") is False  # no parent folder
+    assert info.is_extracted_file("other.7z\\x") is False
+
+
+def test_controller_validate_wizard_extracts_archives(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path, "Grand Mod")
+    mod = tmp_path / "Profiles" / "P" / "Grand Mod"
+    _touch(mod / "pack.7z")
+    (mod / WIZARD_FILE).write_text(
+        "ExtractArchives\n"
+        "SelectMany = P\n"
+        "\tpack.7z\\hak\\inner.hak > Inner = Checked\n"
+        "\tpack.7z\\hak\\gone.hak > Gone = Checked\n"
+        "End SelectMany",
+        encoding="utf-8",
+    )
+    controller._extractor = FakeArchiveExtractor(
+        contents={"pack.7z": {"hak/inner.hak": b"x"}}
+    )
+
+    result = controller.validate_wizard("Grand Mod")
+    assert result["ok"] is True
+    # Only the missing archive-inner entry is pruned; the present one survives
+    # because the archive was extracted and its contents enumerated.
+    assert result["removed"] == 1
 
 
 # -- Controller authoring ops --------------------------------------------- #

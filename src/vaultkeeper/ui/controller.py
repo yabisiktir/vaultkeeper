@@ -1983,7 +1983,9 @@ class ProfileController:
             is_excluded_folder=mapper.is_excluded_folder,
         )
 
-    def validate_wizard(self, mod_name: str, *, save: bool = False) -> dict:
+    def validate_wizard(
+        self, mod_name: str, *, save: bool = False, extract: bool | None = None
+    ) -> dict:
         """Prune a wizard's dead entries against the mod's real files (VB ``Validate``).
 
         Loads the mod's wizard, scans its actual files, and removes SelectOne /
@@ -1993,8 +1995,11 @@ class ProfileController:
         is suppressed (VB ``SuppressWizardCreation``) and nothing is pruned. Returns
         ``{ok, has_wizard, removed, saved, suppressed, duplicate, message}``.
 
-        Archives are listed but not extracted, so entries referencing files *inside*
-        an archive are treated as missing — see the module note (deferred).
+        Archives are extracted (VB ``ProcessArchive``) so entries referencing files
+        *inside* an archive resolve correctly, matching VB's rule of extracting when
+        the wizard's ``ExtractArchives`` flag is on. Pass ``extract=True``/``False`` to
+        force the extract pass on/off (VB ``Validate``'s ``extract`` argument);
+        ``None`` (default) follows the wizard's ``ExtractArchives`` flag.
         """
         from vaultkeeper.game.wizard import load_wizard, save_wizard, validate
 
@@ -2021,6 +2026,18 @@ class ProfileController:
                     f"Duplicate file detected: {scan.duplicate}. "
                     "Resolve it before validating the wizard."
                 ),
+            )
+
+        do_extract = info.extract_archives if extract is None else extract
+        if do_extract and scan.archives:
+            from vaultkeeper.game.wizard import extract_archives
+
+            mapper = self.ctx.mapper
+            info.extracted_archives = extract_archives(
+                scan,
+                extractor=self._archive_backend(),
+                is_installable=lambda p: mapper.get_mapped_folder(p, erf_check=True)
+                != "",
             )
 
         removed = validate(info, scan.source_files)
