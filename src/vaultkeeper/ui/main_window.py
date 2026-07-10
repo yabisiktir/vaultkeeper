@@ -423,6 +423,7 @@ class MainWindow(QMainWindow):
             "MsCharacterSummary": self._on_characters,
             "BtCharacter": self._on_characters,
             "MsPortraitManager": self._on_portraits,
+            "MsLoadscreens": self._on_loadscreens,
             "RbnPortraitManager": self._on_portraits,
             # Edit the GameMapper's remembered user responses.
             "DbGameMapUserReport": self._on_user_responses,
@@ -706,6 +707,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
         self._portrait_manager = PortraitManager.show_for(self.controller, self)
+
+    def _on_loadscreens(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.start_screen_manager import StartScreenManager
+
+        self._start_screen_manager = StartScreenManager.show_for(self.controller, self)
 
     def _on_user_responses(self) -> None:
         if self.controller is None:
