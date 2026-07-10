@@ -70,6 +70,9 @@ class CreateMissingInstallers(QDialog):
         layout.addWidget(self._summary)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("CreateMissingInstallers", self))
         buttons.addStretch(1)
         self._create_btn = QPushButton("Create")
         self._create_btn.clicked.connect(self._on_create)

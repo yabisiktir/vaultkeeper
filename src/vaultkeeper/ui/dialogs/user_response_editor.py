@@ -44,6 +44,9 @@ class UserResponseEditor(QDialog):
         layout.addWidget(self._tree)
 
         buttons = QHBoxLayout()
+        from vaultkeeper.ui.dialogs.help_viewer import help_button
+
+        buttons.addWidget(help_button("BhGameMapper", self))
         buttons.addStretch(1)
         self._delete = QPushButton("Delete")
         self._delete.setEnabled(False)
