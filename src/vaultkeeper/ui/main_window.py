@@ -593,7 +593,11 @@ class MainWindow(QMainWindow):
         built = 0
         last_message = ""
         for name in names:
-            result = self.controller.build_installer_payload(name)
+            # RunWizard: present the installer wizard's choices before building.
+            choice, checked = self._run_installer_wizard(name)
+            result = self.controller.build_installer_payload(
+                name, wizard_choice=choice, wizard_checked=checked
+            )
             if result["ok"]:
                 built += 1
                 copied += result["copied"]
@@ -605,6 +609,43 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(
                 f"Built installer for {built} mod(s); {copied} file(s) copied."
             )
+
+    def _run_installer_wizard(
+        self, mod_name: str
+    ) -> tuple[str | None, set[str] | None]:
+        """Present the installer wizard's choices, if any (VB ``RunWizard`` modals).
+
+        Returns ``(chosen_one, checked_many)`` — the SelectOne key the user picked
+        (when there is more than one choice) and the set of SelectMany keys they kept.
+        A mod with no run-wizard returns ``(None, None)`` (build everything).
+        """
+        prompt = self.controller.wizard_install_prompt(mod_name)
+        if not prompt.get("run_wizard"):
+            return None, None
+
+        choice: str | None = None
+        checked: set[str] | None = None
+        choices = prompt.get("choices", [])
+        if len(choices) > 1:
+            from PySide6.QtWidgets import QInputDialog
+
+            labels = [c["display"] for c in choices]
+            picked, ok = QInputDialog.getItem(
+                self, prompt["title"], prompt["select_one_text"], labels, 0, False
+            )
+            if ok:
+                choice = next(c["key"] for c in choices if c["display"] == picked)
+            else:
+                choice = choices[0]["key"]
+
+        prefs = prompt.get("preferences", [])
+        if prefs:
+            from vaultkeeper.ui.dialogs.wizard_prefs import WizardPreferencesDialog
+
+            checked = WizardPreferencesDialog.ask(
+                self, prompt["title"], prompt["select_many_text"], prefs
+            )
+        return choice, checked
 
     def _on_create_missing_installers(self) -> None:
         if self.controller is None:

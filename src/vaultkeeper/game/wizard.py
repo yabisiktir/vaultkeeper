@@ -297,6 +297,65 @@ def delete_wizard(mod_folder: Path, *, to_trash: bool = False) -> bool:
     return True
 
 
+# -- RunWizard install-time exclusion flow (VB CreateInstaller.RunWizard) --- #
+
+
+def resolve_wizard_ignores(
+    info: WizardInfo,
+    *,
+    chosen_one: str | None = None,
+    checked_many: set[str] | None = None,
+) -> list[str]:
+    """The wizard keys to *ignore* when building the installer (VB ``RunWizard``).
+
+    Given the user's decisions — ``chosen_one`` (the selected SelectOne key, when
+    there is more than one choice) and ``checked_many`` (the set of SelectMany keys
+    the user kept) — return the relative-path keys that must be excluded from the
+    installer scan:
+
+    * **SelectOne**: with more than one choice, every non-chosen key is ignored.
+    * **SelectMany**: every un-checked key is ignored (``checked_many=None`` means the
+      user cancelled → all are ignored, VB's *None* button).
+    * **InstallerExcludes**: always ignored.
+    """
+    ignore: list[str] = []
+
+    if len(info.select_one) > 1 and chosen_one is not None:
+        ignore.extend(key for key in info.select_one if key != chosen_one)
+
+    if info.select_many:
+        kept = checked_many if checked_many is not None else set()
+        ignore.extend(pref.key for pref in info.select_many if pref.key not in kept)
+
+    ignore.extend(info.installer_excludes)
+    return ignore
+
+
+def wizard_ignore_paths(mod_folder: Path, keys: list[str]) -> set[Path]:
+    """Resolve wizard ignore ``keys`` to real files under a mod (VB fullnameList).
+
+    Each key is looked for under ``_Downloads/<key>``, ``<key>`` and
+    ``_Published/<key>`` (VB order) and the first that exists is returned. Keys that
+    match nothing are dropped.
+    """
+    from vaultkeeper.core import constants as C
+
+    resolved: set[Path] = set()
+    for key in keys:
+        # Wizard keys use "\" separators; split into OS path parts.
+        parts = key.replace("\\", "/").split("/")
+        for base in (
+            mod_folder / C.DOWNLOADS_DIR,
+            mod_folder,
+            mod_folder / C.PUBLISHED_DIR,
+        ):
+            candidate = base.joinpath(*parts)
+            if candidate.exists():
+                resolved.add(candidate.resolve())
+                break
+    return resolved
+
+
 # -- File scan + validation (VB ScanFiles / Validate) ---------------------- #
 
 

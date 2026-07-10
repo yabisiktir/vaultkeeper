@@ -249,6 +249,7 @@ def build_copy_plan(
     extractor: ArchiveExtractor | None = None,
     extract_root: Path | None = None,
     convert_bik: bool = False,
+    ignore: set[Path] | None = None,
 ) -> InstallerPlan:
     """Scan ``mod_folder`` and return the installer :class:`InstallerPlan`.
 
@@ -257,9 +258,13 @@ def build_copy_plan(
     paths therefore point either under ``mod_folder`` or under ``extract_root``, so
     the caller must keep ``extract_root`` alive until the copy step runs. Pass
     ``extractor=None`` to scan loose files only (archives are then ignored).
+
+    ``ignore`` is a set of resolved file paths to skip (VB ``RunWizard``'s ignore
+    list — files the installer wizard's SelectOne/SelectMany/exclude decisions drop).
     """
     plan = InstallerPlan(mod_name=mod_name)
     analyser = _Analyser(mapper)
+    ignore = ignore or set()
 
     if extract_root is None:
         extract_root = Path(tempfile.mkdtemp(prefix="vk-installer-"))
@@ -270,7 +275,9 @@ def build_copy_plan(
 
     while scan_queue:
         folder = scan_queue.popleft()
-        archives = _scan_folder(folder, mapper, analyser, plan, convert_bik=convert_bik)
+        archives = _scan_folder(
+            folder, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
+        )
         for archive in archives:
             if extractor is None or not is_extractable(archive.suffix):
                 continue
@@ -358,6 +365,7 @@ def _scan_folder(
     plan: InstallerPlan,
     *,
     convert_bik: bool,
+    ignore: set[Path] | None = None,
 ) -> list[Path]:
     """Scan one directory (VB ``ScanFolders``); return archives found for extraction."""
     if not folder.is_dir():
@@ -365,6 +373,7 @@ def _scan_folder(
 
     archives: list[Path] = []
     erf_excluded = mapper.is_excluded_erf_folder(folder.name)
+    ignore = ignore or set()
 
     for fi in sorted(p for p in folder.iterdir() if p.is_file()):
         name = fi.name
@@ -372,6 +381,9 @@ def _scan_folder(
             continue
         # A whole excluded ERF folder suppresses every file directly inside it.
         if erf_excluded:
+            continue
+        # Skip files the installer wizard's decisions dropped (VB RunWizard ignores).
+        if ignore and fi.resolve() in ignore:
             continue
 
         if is_extractable(fi.suffix):
@@ -401,7 +413,9 @@ def _scan_folder(
         if mapper.contains_excluded_folder(str(sub)):
             continue
         archives.extend(
-            _scan_folder(sub, mapper, analyser, plan, convert_bik=convert_bik)
+            _scan_folder(
+                sub, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
+            )
         )
 
     return archives

@@ -554,8 +554,41 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
+    def wizard_install_prompt(self, mod_name: str) -> dict:
+        """The install-time wizard choices to present, if any (VB ``RunWizard``).
+
+        Returns ``{"run_wizard", "title", "select_one_text", "select_many_text",
+        "choices": [{key,display}], "preferences": [{key,display,checked}]}``. The
+        dialog presents these (SelectOne → pick one; SelectMany → check any) and feeds
+        the decisions back into :meth:`build_installer_payload`.
+        """
+        from vaultkeeper.game.wizard import load_wizard
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"run_wizard": False}
+        info = load_wizard(self.ctx.profile_mods_dir / mod_name, mod_name)
+        if info is None or not info.run_wizard:
+            return {"run_wizard": False}
+        return {
+            "run_wizard": True,
+            "title": info.title,
+            "select_one_text": info.select_one_text,
+            "select_many_text": info.select_many_text,
+            "choices": [{"key": k, "display": v} for k, v in info.select_one.items()],
+            "preferences": [
+                {"key": p.key, "display": p.display, "checked": p.checked}
+                for p in info.select_many
+            ],
+        }
+
     def build_installer_payload(
-        self, mod_name: str, *, convert_bik: bool | None = None
+        self,
+        mod_name: str,
+        *,
+        convert_bik: bool | None = None,
+        wizard_choice: str | None = None,
+        wizard_checked: set[str] | None = None,
     ) -> dict:
         """Populate a mod's ``.Mod Installer`` payload from its raw/downloaded files.
 
@@ -596,6 +629,9 @@ class ProfileController:
         installer = mod_folder / C.MOD_INSTALLER_DIR
         installer.mkdir(parents=True, exist_ok=True)
 
+        # RunWizard: resolve the installer wizard's ignore list from the decisions.
+        ignore = self._wizard_ignore_paths(mod_folder, mod_name, wizard_choice, wizard_checked)
+
         converted = 0
         # Extract archives into a temp area that survives until the copy is done.
         with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
@@ -606,6 +642,7 @@ class ProfileController:
                 extractor=self._archive_backend(),
                 extract_root=Path(extract_dir),
                 convert_bik=convert_bik,
+                ignore=ignore,
             )
             copied = 0
             for item in plan.items:
@@ -621,6 +658,10 @@ class ProfileController:
             # folder the Mapper assigns for it (VB BgConverter → WbmFiles copy).
             if convert_bik and plan.bik_files:
                 converted = self._convert_bik_movies(plan.bik_files, installer, Path(extract_dir))
+
+        # Persist the patch-hak ordering (VB UpdateSequenceFile): add this mod's
+        # patch-folder haks to the global PatchFileSequence.txt.
+        self._update_patch_sequence(plan)
 
         # Mark as an installer; _create_identifier rescans the payload, recomputes
         # file/mod states and persists (like add_files_to_mod's tail).
@@ -651,6 +692,41 @@ class ProfileController:
 
         settings = load_settings(self._settings_path)
         return bool(getattr(settings, "convert_bik_files", False))
+
+    def _wizard_ignore_paths(
+        self,
+        mod_folder: Path,
+        mod_name: str,
+        wizard_choice: str | None,
+        wizard_checked: set[str] | None,
+    ) -> set[Path]:
+        """Resolve the installer wizard's ignore list for a build (VB ``RunWizard``)."""
+        from vaultkeeper.game.wizard import (
+            load_wizard,
+            resolve_wizard_ignores,
+            wizard_ignore_paths,
+        )
+
+        info = load_wizard(mod_folder, mod_name)
+        if info is None or not info.run_wizard:
+            return set()
+        keys = resolve_wizard_ignores(
+            info, chosen_one=wizard_choice, checked_many=wizard_checked
+        )
+        return wizard_ignore_paths(mod_folder, keys)
+
+    def _update_patch_sequence(self, plan) -> None:  # noqa: ANN001
+        """Add a plan's patch-folder haks to the persisted sequence (VB UpdateSequenceFile)."""
+        from vaultkeeper.core.hak_patch import PATCH_FOLDER, update_patch_sequence
+
+        stems = [
+            Path(item.filename).stem
+            for item in plan.items
+            if item.folder.lower() == PATCH_FOLDER
+            and item.filename.lower().endswith(".hak")
+        ]
+        if stems:
+            update_patch_sequence(self._profile_data_dir(), stems)
 
     def _bik_converter(self):
         """The BIK→WBM converter (ffmpeg by default, Fake in tests)."""

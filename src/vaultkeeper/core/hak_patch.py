@@ -26,6 +26,45 @@ PATCH_KEY = "PatchFile"
 PATCH_FOLDER = "patch"
 HAK_EXT = ".hak"
 
+#: Persistent patch-hak ordering file in a profile's data folder (VB
+#: ``HakPatchManager.PatchFileSequence``).
+PATCH_SEQUENCE_FILE = "PatchFileSequence.txt"
+
+
+def read_patch_sequence(profile_data_dir: Path) -> list[str]:
+    """Read the persisted patch-hak ordering (VB ``PatchSequence`` load)."""
+    path = profile_data_dir / PATCH_SEQUENCE_FILE
+    if not path.is_file():
+        return []
+    try:
+        return [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    except OSError:
+        return []
+
+
+def save_patch_sequence(profile_data_dir: Path, sequence: list[str]) -> None:
+    """Persist the patch-hak ordering (VB ``SaveSequenceFile``)."""
+    profile_data_dir.mkdir(parents=True, exist_ok=True)
+    (profile_data_dir / PATCH_SEQUENCE_FILE).write_text(
+        "\n".join(sequence) + ("\n" if sequence else ""), encoding="utf-8"
+    )
+
+
+def update_patch_sequence(profile_data_dir: Path, hak_stems: list[str]) -> list[str]:
+    """Append new patch-hak stems to the sequence, preserving order (VB ``UpdateSequenceFile``).
+
+    Each stem (a ``.hak`` name without its extension) not already present
+    (case-insensitive) is appended, then the file is saved. Returns the new sequence.
+    """
+    sequence = read_patch_sequence(profile_data_dir)
+    lower = {s.lower() for s in sequence}
+    for stem in hak_stems:
+        if stem.lower() not in lower:
+            sequence.append(stem)
+            lower.add(stem.lower())
+    save_patch_sequence(profile_data_dir, sequence)
+    return sequence
+
 
 class HakPatchManager:
     """Rebuilds ``nwnpatch.ini`` from the installed patch-haks."""

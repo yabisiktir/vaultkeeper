@@ -616,3 +616,68 @@ def test_dialog_add_all_and_remove(qtbot, tmp_path):
     dlg._remove_selected(dlg.excludes)
     assert dlg.excludes.count() == 0
     assert dlg.source_list.count() == 2  # back in source
+
+
+# -- RunWizard install-time exclusion (VB CreateInstaller.RunWizard) -------- #
+
+
+def test_resolve_wizard_ignores_select_one():
+    from vaultkeeper.game.wizard import resolve_wizard_ignores
+
+    info = parse_wizard_text(
+        "SelectOne = Pick\n\thak\\a.hak > A\n\thak\\b.hak > B\nEnd SelectOne", "M"
+    )
+    # Choosing a.hak ignores the other choice.
+    assert resolve_wizard_ignores(info, chosen_one="hak\\a.hak") == ["hak\\b.hak"]
+
+
+def test_resolve_wizard_ignores_select_many_and_excludes():
+    from vaultkeeper.game.wizard import resolve_wizard_ignores
+
+    info = parse_wizard_text(
+        "SelectMany = P\n\thak\\x.hak > X = Checked\n\thak\\y.hak > Y = Checked\n"
+        "End SelectMany\nInstallerExcludes\n\treadme.txt\nEnd InstallerExcludes",
+        "M",
+    )
+    # Keep only x.hak → y.hak ignored; excludes always ignored.
+    ignores = resolve_wizard_ignores(info, checked_many={"hak\\x.hak"})
+    assert "hak\\y.hak" in ignores
+    assert "readme.txt" in ignores
+    assert "hak\\x.hak" not in ignores
+    # Cancelling SelectMany (None) ignores every preference.
+    all_ignored = resolve_wizard_ignores(info, checked_many=None)
+    assert "hak\\x.hak" in all_ignored and "hak\\y.hak" in all_ignored
+
+
+def test_build_installer_honours_wizard_choice(tmp_path):
+    controller = _controller(tmp_path, "Choicey")
+    mod = tmp_path / "Profiles" / "P" / "Choicey"
+    _touch(mod / "hak" / "music_hi.hak")
+    _touch(mod / "hak" / "music_lo.hak")
+    (mod / WIZARD_FILE).write_text(
+        "SelectOne = Pick\n\thak\\music_hi.hak > Hi\n\thak\\music_lo.hak > Lo\n"
+        "End SelectOne",
+        encoding="utf-8",
+    )
+    result = controller.build_installer_payload(
+        "Choicey", wizard_choice="hak\\music_hi.hak"
+    )
+    assert result["ok"]
+    installer = mod / C.MOD_INSTALLER_DIR
+    # Only the chosen hak is copied; the other is ignored.
+    assert list(installer.rglob("music_hi.hak"))
+    assert not list(installer.rglob("music_lo.hak"))
+
+
+def test_wizard_install_prompt(tmp_path):
+    controller = _controller(tmp_path, "Choicey", "Plain")
+    mod = tmp_path / "Profiles" / "P" / "Choicey"
+    (mod / WIZARD_FILE).write_text(
+        "SelectOne = Pick\n\ta.hak > A\n\tb.hak > B\nEnd SelectOne", encoding="utf-8"
+    )
+    prompt = controller.wizard_install_prompt("Choicey")
+    assert prompt["run_wizard"] is True
+    assert [c["display"] for c in prompt["choices"]] == ["A", "B"]
+
+    # A mod with no wizard reports run_wizard False.
+    assert controller.wizard_install_prompt("Plain")["run_wizard"] is False
