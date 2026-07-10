@@ -104,6 +104,34 @@ The original is a full **editor**; the port is a read-only **viewer** + Validate
 The wizard *content* (title, choices, preferences, excludes) is faithfully shown; the
 interactive authoring surface (source list, Add/Remove, Save) is the deferred piece.
 
+### Dependency Manager — 🔷 Divergent (report vs editor)
+
+Reference: `bhdependencymanager.htm` → `lib/NewItem967.png`.
+
+The original is a per-mod dependency **editor** (three columns: **Groups** ▸ mods in
+the group [checkable] ▸ the selected mod's dependencies, with **Auto** / **Save**).
+The port is a read-only **report** of the whole dependency graph (Mod / Depends On /
+Required By). Same underlying data (the ProfileData dependency graph); the port
+surfaces it, the original edits it. The editor is deferred.
+
+### Installation Analyser — 🔷 Divergent (flagged report vs folder browser)
+
+Reference: `bhinstallationanalyser.htm` → `lib/NewItem283.png`.
+
+The original is a full **folder browser**: an `NWN Folders` list filtering a
+`File Name` / `Installation Source` table, with space/size/modified accounting at the
+foot. The port surfaces a focused **issues report** (changed-originals / unknown-source
+files). Both read the installed-file model; the browser breadth is deferred.
+
+### Recurring pattern (recorded once)
+
+Several port dialogs are faithful **read-only reports/viewers** of a subsystem whose VB
+original is a richer **editor/browser** (Wizard Builder, Dependency Manager,
+Installation Analyser, Game Saves Manager). This is the intended bounded-port strategy:
+the correctness core and the data are ported and surfaced; the interactive
+editing/authoring surface is deferred and tracked in the handoff. These are recorded as
+🔷 **Divergent (intended)**, not defects.
+
 ## Checklist — remaining dialogs (pending this pass)
 
 Each maps to its help topic; compare per the steps above.
@@ -113,8 +141,8 @@ Each maps to its help topic; compare per the steps above.
 | Main window (ribbon / menus / 3-pane) | `MsViewHelp` / `UserInterface` | ✅ (verified in earlier sessions) |
 | Wizard Builder | `bhwizardbuilder.htm` | 🔷 assessed (viewer vs editor) |
 | Workshop Viewer | `bhworkshop.htm` | ⬜ |
-| Dependency Manager | `bhdependencymanager.htm` | ⬜ |
-| Installation Analyser | `bhinstallationanalyser.htm` | ⬜ |
+| Dependency Manager | `bhdependencymanager.htm` | 🔷 assessed (report vs editor) |
+| Installation Analyser | `bhinstallationanalyser.htm` | 🔷 assessed (report vs browser) |
 | Download Project | `bhdownloadproject.htm` | ⬜ |
 | Publish Mod | `bhpublishmod.htm` | ⬜ |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ⬜ |
@@ -126,7 +154,9 @@ Each maps to its help topic; compare per the steps above.
 
 ## Summary
 
-Compared this pass: **4** dialogs. The ported **Character Explorer** now matches the
+Compared so far: **6** dialogs (Character Explorer, Doc Organiser, Game Saves Manager,
+Wizard Builder, Dependency Manager, Installation Analyser).
+The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred
 extras. The **Game Saves Manager** is deliberately the archive-only slice and the
