@@ -42,6 +42,14 @@ class ModPlayViewer(QDialog):
         self._rows = report.get("rows", [])
 
         layout = QVBoxLayout(self)
+        # VB heading (ModPlayViewer.Designer LbHeading).
+        heading = QLabel(
+            "List of Mods sorted by the last date the Mod was completed and ordered "
+            "from the oldest to the most recent. You may find this list useful when "
+            "choosing which Mod you want to replay."
+        )
+        heading.setWordWrap(True)
+        layout.addWidget(heading)
         splitter = QSplitter(Qt.Orientation.Vertical)
         layout.addWidget(splitter, 1)
 

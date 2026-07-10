@@ -123,6 +123,22 @@ The original is a full **folder browser**: an `NWN Folders` list filtering a
 foot. The port surfaces a focused **issues report** (changed-originals / unknown-source
 files). Both read the installed-file model; the browser breadth is deferred.
 
+### Mods Sorted by Date Completed (Mod Play Viewer) — ✅ Verified
+
+Reference: `bhmodsplayed.htm` → `lib/NewItem 289.png`.
+
+| Element | Original | Port | Verdict |
+|---|---|---|---|
+| Title "Mods Sorted by Date Completed" | ✓ | ✓ | ✅ |
+| Descriptive heading | ✓ | ✓ (added this pass) | ✅ |
+| Columns: Mod Name / Completed / Time Played / Rating / Start / End (+ state icons) | ✓ | ✓ | ✅ |
+| Detail pane: mod (web link), Best Weapon, Notes | ✓ | ✓ | ✅ |
+| Play-history sub-table (Completed / Time Played / User) | ✓ | ✓ | ✅ |
+| Bottom: Filtered/Group counts, Filter Options ▾, Recent, Select | ✓ | summary only | 🔷 filters/Recent/Select deferred |
+
+Strong structural match — the columns, detail pane and play-history sub-table all line
+up. Only the filter toolbar and Recent/Select actions are deferred.
+
 ### Recurring pattern (recorded once)
 
 Several port dialogs are faithful **read-only reports/viewers** of a subsystem whose VB
@@ -149,13 +165,15 @@ Each maps to its help topic; compare per the steps above.
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | ⬜ |
 | Portrait Manager | `rbportraitmanagerhelp.htm` | ⬜ |
 | Start Screen Manager | `rbloadscreenhelp.htm` | ⬜ |
-| Mods Played / Play Data | `bhmodsplayed.htm` | ⬜ |
+| Mods Played (Mod Play Viewer) | `bhmodsplayed.htm` | ✅ verified (subtitle added) |
 | Conflicts Viewer | `managemodfileconflicts.htm` | ⬜ |
 
 ## Summary
 
-Compared so far: **6** dialogs (Character Explorer, Doc Organiser, Game Saves Manager,
-Wizard Builder, Dependency Manager, Installation Analyser).
+Compared so far: **7** dialogs (Character Explorer, Doc Organiser, Game Saves Manager,
+Wizard Builder, Dependency Manager, Installation Analyser, Mod Play Viewer). Two are
+verified structural matches (Character Explorer, Mod Play Viewer); the rest carry the
+correct data/content with the interactive editor surface deferred.
 The ported **Character Explorer** now matches the
 original's list / portrait / **Summary·Skills·Feats** structure. The **Doc Organiser**
 carries all the core content with a different layout arrangement and a few deferred
