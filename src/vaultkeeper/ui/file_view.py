@@ -34,6 +34,7 @@ _STATE_ICON = {
 
 _ROLE_MOD_NAME = 0x0100  # Qt.UserRole
 _ROLE_GROUP_NAME = 0x0101  # Qt.UserRole + 1 (the row's group, for drag-to-group)
+_ROLE_FILE_KEY = 0x0102  # Qt.UserRole + 2 (a Contents file's (folder, filename))
 
 
 def icon_name_for_state(state: State) -> str:
@@ -85,11 +86,20 @@ class ContentsView(QTreeWidget):
                 item = QTreeWidgetItem([file["name"], file["size_text"]])
                 item.setIcon(0, R.get_icon(icon_name_for_state(file["state"])))
                 item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight)
+                # Carry the file's (folder, filename) so the pane can view/delete it.
+                item.setData(0, _ROLE_FILE_KEY, (group["folder"], file["name"]))
                 brush = file_state_brush(file["state"])
                 if brush is not None:
                     item.setForeground(0, brush)
                 folder_item.addChild(item)
             folder_item.setExpanded(True)
+
+    def selected_file(self) -> tuple[str, str] | None:
+        """The selected file's ``(folder, filename)``, or ``None`` for a group row."""
+        item = self.currentItem()
+        if item is None:
+            return None
+        return item.data(0, _ROLE_FILE_KEY)
 
 
 class FileView(QTreeWidget):

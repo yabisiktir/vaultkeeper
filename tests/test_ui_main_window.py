@@ -446,3 +446,70 @@ def test_user_response_editor_command_wired(qtbot, controller, tmp_path) -> None
     qtbot.addWidget(win)
     win._on_command("DbGameMapUserReport")  # must not raise
     assert win._user_response_editor is not None
+
+
+# -- Contents pane: view + delete a file (VB CmContents) ------------------- #
+def _select_contents_file(win: MainWindow, folder_name: str, file_name: str):
+    tree = win._contents
+    for i in range(tree.topLevelItemCount()):
+        folder = tree.topLevelItem(i)
+        if folder.text(0) == folder_name:
+            for j in range(folder.childCount()):
+                child = folder.child(j)
+                if child.text(0) == file_name:
+                    tree.setCurrentItem(child)
+                    return child
+    return None
+
+
+def test_controller_mod_file_path_and_delete(controller, tmp_path) -> None:
+    path = controller.mod_file_path("Alpha", "hak", "a.hak")
+    assert path is not None and path.is_file()
+    assert controller.mod_file_path("Alpha", "hak", "missing.hak") is None
+    # Delete drops the file and its FileKey; a second delete is a no-op.
+    assert controller.delete_mod_file("Alpha", "hak", "a.hak")
+    assert controller.mod_file_path("Alpha", "hak", "a.hak") is None
+    assert not any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Alpha").files)
+    assert not controller.delete_mod_file("Alpha", "hak", "a.hak")
+
+
+def test_contents_view_carries_file_key(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    item = _select_contents_file(win, "hak", "a.hak")
+    assert item is not None
+    assert win._contents.selected_file() == ("hak", "a.hak")
+
+
+def test_contents_double_click_opens_viewer(qtbot, controller, monkeypatch) -> None:
+    from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    _select_contents_file(win, "hak", "a.hak")
+
+    calls: dict = {}
+    monkeypatch.setattr(
+        TextViewer, "show_file", lambda path, title, parent: calls.setdefault("path", path)
+    )
+    win._on_view_contents_file()
+    assert str(calls["path"]).endswith("a.hak")
+
+
+def test_contents_delete_file_via_ui(qtbot, controller, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QMessageBox
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    _select_contents_file(win, "hak", "a.hak")
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    win._on_delete_contents_file()
+    installer = tmp_path / "Profiles" / "P" / "Alpha" / C.MOD_INSTALLER_DIR
+    assert not (installer / "hak" / "a.hak").is_file()
+    assert not any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Alpha").files)

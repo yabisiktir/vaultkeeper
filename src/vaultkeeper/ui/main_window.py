@@ -56,6 +56,14 @@ class MainWindow(QMainWindow):
         self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
 
         self._contents = ContentsView()
+        # Contents-pane file actions (VB CmContents): double-click views a file,
+        # right-click offers View / Delete.
+        self._contents_mod: str | None = None
+        self._contents.itemDoubleClicked.connect(self._on_view_contents_file)
+        self._contents.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._contents.customContextMenuRequested.connect(
+            self._show_contents_context_menu
+        )
         self._mod_info = QLabel("")
         self._mod_info.setWordWrap(True)
         self._mod_info.setMargin(6)
@@ -442,6 +450,7 @@ class MainWindow(QMainWindow):
             self._save_current_notes()
             self._notes_mod = None
             self._contents.clear()
+            self._contents_mod = None
             self._details_list.clear()
             self._details.clear()
             self._mod_info.setText("")
@@ -457,8 +466,65 @@ class MainWindow(QMainWindow):
         """Show the selected mod's files, grouped by folder, with install state."""
         if self.controller is None:
             self._contents.clear()
+            self._contents_mod = None
             return
+        self._contents_mod = md.mod_name
         self._contents.populate(self.controller.mod_contents_report(md.mod_name))
+
+    def _show_contents_context_menu(self, pos) -> None:
+        """Right-click a Contents file to View or Delete it (VB CmContents)."""
+        if self.controller is None or self._contents_mod is None:
+            return
+        if self._contents.selected_file() is None:  # a folder row / nothing selected
+            return
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        menu.addAction("View File", self._on_view_contents_file)
+        menu.addSeparator()
+        menu.addAction("Delete File", self._on_delete_contents_file)
+        menu.exec(self._contents.viewport().mapToGlobal(pos))
+
+    def _on_view_contents_file(self, *_args) -> None:
+        """Open the selected Contents file in the read-only viewer (VB CmContents Open)."""
+        if self.controller is None or self._contents_mod is None:
+            return
+        selected = self._contents.selected_file()
+        if selected is None:
+            return
+        folder, filename = selected
+        path = self.controller.mod_file_path(self._contents_mod, folder, filename)
+        if path is None:
+            self.nit_status.set_info(f"{filename} is not on disk.")
+            return
+        from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+        self._text_viewer = TextViewer.show_file(path, filename, self)
+
+    def _on_delete_contents_file(self) -> None:
+        """Delete the selected Contents file from the mod (VB CmContents Delete)."""
+        if self.controller is None or self._contents_mod is None:
+            return
+        selected = self._contents.selected_file()
+        if selected is None:
+            return
+        folder, filename = selected
+        from PySide6.QtWidgets import QMessageBox
+
+        confirm = QMessageBox.question(
+            self,
+            "Delete File",
+            f"Delete '{filename}' from {self._contents_mod}?",
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        if self.controller.delete_mod_file(self._contents_mod, folder, filename):
+            md = self.controller.pd.mod_item(self._contents_mod)
+            if md is not None:
+                self._show_contents(md)
+                self._show_details(md)
+            self.refresh()
+            self.nit_status.set_info(f"Deleted {filename}.")
 
     def _show_details(self, md: ModData) -> None:
         # Details list (VB FvDetails): key properties as Property/Value rows.

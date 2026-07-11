@@ -203,6 +203,38 @@ class ProfileController:
         total = sum(len(f["files"]) for f in folders)
         return {"folders": folders, "count": total, "installed": installed}
 
+    def mod_file_path(self, mod_name: str, folder: str, filename: str) -> Path | None:
+        """The absolute path of one of a mod's installer files, or ``None``.
+
+        The Contents pane files live under ``<mod>/.Mod Installer/<folder>/<file>``
+        (VB ``FvContents`` file paths); returns the path when it exists on disk.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None:
+            return None
+        path = (
+            self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / folder / filename
+        )
+        return path if path.is_file() else None
+
+    def delete_mod_file(self, mod_name: str, folder: str, filename: str) -> bool:
+        """Delete one installer file from a mod (VB ``CmContents`` Delete).
+
+        Removes the file from the mod's ``.Mod Installer`` payload, drops its FileKey
+        from the database and recomputes states (the same safe path as Remove ERF
+        Files). Returns True when a file was removed.
+        """
+        target_folder = folder.lower()
+        target_name = filename.lower()
+        removed = self._remove_mod_files(
+            mod_name,
+            lambda fk: fk.folder.lower() == target_folder
+            and fk.filename.lower() == target_name,
+        )
+        return removed > 0
+
     def mod_properties(self, mod_name: str) -> dict | None:
         """Current editable metadata for a mod (VB TlModProperties), or None."""
         md = self.pd.mod_item(mod_name)
