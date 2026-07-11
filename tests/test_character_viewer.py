@@ -238,3 +238,23 @@ def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
     dlg._on_extract()
     assert str(calls["extracted"]) == "/haks/faces.hak"
+
+
+def test_viewer_name_search_filters(qtbot, tmp_path):
+    chars = [
+        _char("Alpha Hero", tmp_path / "a.bic"),
+        _char("Beta Knight", tmp_path / "b.bic"),
+        _char("Gamma Hero", tmp_path / "c.bic"),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 3
+    # Typing filters the list case-insensitively by name.
+    dlg._search.setText("hero")
+    assert dlg._list.count() == 2
+    names = [dlg._list.item(i).text() for i in range(dlg._list.count())]
+    assert all("Hero" in n for n in names)
+    assert "2 of 3 shown" in dlg._count_label.text()
+    # Clearing restores the full list.
+    dlg._search.setText("")
+    assert dlg._list.count() == 3

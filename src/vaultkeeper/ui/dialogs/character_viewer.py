@@ -17,8 +17,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QSplitter,
     QTabWidget,
     QTextEdit,
@@ -31,6 +33,7 @@ from PySide6.QtWidgets import (
 from vaultkeeper.core.formats.tga_reader import TGAReader
 from vaultkeeper.ui import resources as R
 
+_CHAR_ROLE = Qt.ItemDataRole.UserRole
 _PORTRAIT_BOX = 128  # px — the portrait preview is a square this size.
 
 
@@ -71,16 +74,21 @@ class CharacterViewer(QDialog):
         self._characters = characters
         self._resolve_portrait = portrait_resolver
 
-        layout = QHBoxLayout(self)
+        outer = QVBoxLayout(self)
+        layout = QHBoxLayout()
+        outer.addLayout(layout, 1)
 
+        # Left column: a name-search box (VB "Search Names") above the character list.
+        left = QVBoxLayout()
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("Search names…")
+        self._search.textChanged.connect(self._populate_list)
+        left.addWidget(self._search)
         self._list = QListWidget()
         self._list.setMinimumWidth(220)
-        for cf in characters:
-            level = cf.info.level if cf.info.is_valid else "?"
-            item = QListWidgetItem(f"{cf.display_name}  (L{level})")
-            self._list.addItem(item)
         self._list.currentRowChanged.connect(self._on_row)
-        layout.addWidget(self._list)
+        left.addWidget(self._list, 1)
+        layout.addLayout(left)
 
         right = QVBoxLayout()
         self._portrait = QLabel()
@@ -97,10 +105,43 @@ class CharacterViewer(QDialog):
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
 
-        if characters:
+        # Bottom bar: match count + Close (VB bottom bar Search/Select/Close).
+        bar = QHBoxLayout()
+        self._count_label = QLabel()
+        bar.addWidget(self._count_label)
+        bar.addStretch(1)
+        close = QPushButton("Close")
+        close.clicked.connect(self.reject)
+        bar.addWidget(close)
+        outer.addLayout(bar)
+
+        self._populate_list("")
+        if not characters:
+            self._summary.setPlainText("No character files detected.")
+
+    def _populate_list(self, filter_text: str) -> None:
+        """(Re)fill the list, filtered by a case-insensitive name substring."""
+        needle = filter_text.strip().lower()
+        self._list.blockSignals(True)
+        self._list.clear()
+        shown = 0
+        for cf in self._characters:
+            if needle and needle not in cf.display_name.lower():
+                continue
+            level = cf.info.level if cf.info.is_valid else "?"
+            item = QListWidgetItem(f"{cf.display_name}  (L{level})")
+            item.setData(_CHAR_ROLE, cf)
+            self._list.addItem(item)
+            shown += 1
+        self._list.blockSignals(False)
+        total = len(self._characters)
+        self._count_label.setText(
+            f"{shown:,} of {total:,} shown" if needle else f"{total:,} character(s)"
+        )
+        if shown:
             self._list.setCurrentRow(0)
         else:
-            self._summary.setPlainText("No character files detected.")
+            self._on_row(-1)
 
     def _build_skills_tab(self) -> QWidget:
         splitter = QSplitter(Qt.Orientation.Vertical)
@@ -128,7 +169,9 @@ class CharacterViewer(QDialog):
         return splitter
 
     def _on_row(self, row: int) -> None:
-        if row < 0 or row >= len(self._characters):
+        item = self._list.item(row) if row >= 0 else None
+        cf = item.data(_CHAR_ROLE) if item is not None else None
+        if cf is None:
             self._summary.clear()
             self._portrait.clear()
             self._skills.clear()
@@ -136,7 +179,6 @@ class CharacterViewer(QDialog):
             self._skill_desc.clear()
             self._feat_desc.clear()
             return
-        cf = self._characters[row]
         self._summary.setPlainText(cf.summary(show_stats=True))
         self._show_portrait(cf)
         self._populate_skills_and_feats(cf)

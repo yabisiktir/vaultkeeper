@@ -65,11 +65,13 @@ Reference: `mscharacterviewer.htm` → `lib/NewItem 315.png`.
 | Right pane tabs **Summary / Skills / Feats** | ✓ | ✓ (added this stage) | ✅ |
 | Summary fields (race/class/alignment, XP, HP, Gold, ability scores, portrait, updated) | ✓ | ✓ | ✅ |
 | List label | `.bic` filenames | character display name + level | 🟡 |
-| Bottom bar: Search Names, Show all Levels, Select, Close | ✓ | — | 🟡 missing |
+| Bottom bar: Search Names, Show all Levels, Select, Close | ✓ | Search + count + Close | 🟡 partial |
 
 The key structure — the three-pane list / portrait / **Summary·Skills·Feats tabs** —
-now matches the original. Remaining gaps: portrait column position, the search /
-"Show all Levels" / Select bottom bar, and showing the `.bic` filename in the list.
+matches the original, and the **Search Names** filter (with an "N of M shown" count) +
+Close bar are now present. Remaining gaps: the "Show all Levels" level/class filter
+dialog (VB `CharacterFilter` — level comparers + class filter), the Select-associated-mod
+action, portrait column position, and showing the `.bic` filename in the list.
 
 ### Mod Documentation Organiser — 🟡 Differing / 🔷 partly Divergent
 
