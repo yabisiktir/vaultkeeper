@@ -61,3 +61,50 @@ def test_configure_profile_persists_and_opens(tmp_path: Path) -> None:
     reloaded = load_settings(settings_path)
     assert reloaded.active_profile == "Fresh"
     assert reloaded.nwn_path == str(tmp_path / "NWN")
+
+
+def test_configure_profile_auto_populates_game_user_path(tmp_path, monkeypatch):
+    from vaultkeeper.config.settings import Settings, load_settings
+    from vaultkeeper.ui import session
+    from vaultkeeper.ui.session import configure_profile
+
+    user_dir = tmp_path / "Neverwinter Nights"
+    user_dir.mkdir()
+    monkeypatch.setattr(session, "default_game_user_path", lambda: user_dir)
+
+    settings_path = tmp_path / "settings.json"
+    settings = Settings(store_root=str(tmp_path / "Store"))
+    configure_profile(
+        str(tmp_path / "NWN"), "Fresh", settings=settings, settings_path=settings_path
+    )
+    # The EE user folder was recorded so the folder split engages.
+    assert load_settings(settings_path).game_user_path == str(user_dir)
+
+
+def test_configure_profile_keeps_explicit_game_user_path(tmp_path, monkeypatch):
+    from vaultkeeper.config.settings import Settings, load_settings
+    from vaultkeeper.ui import session
+    from vaultkeeper.ui.session import configure_profile
+
+    # Auto-detection must never override a user's explicit choice.
+    monkeypatch.setattr(session, "default_game_user_path", lambda: tmp_path / "auto")
+    settings_path = tmp_path / "settings.json"
+    settings = Settings(
+        store_root=str(tmp_path / "Store"),
+        game_user_path=str(tmp_path / "chosen"),
+    )
+    configure_profile(
+        str(tmp_path / "NWN"), "Fresh", settings=settings, settings_path=settings_path
+    )
+    assert load_settings(settings_path).game_user_path == str(tmp_path / "chosen")
+
+
+def test_default_game_user_path_none_when_absent(tmp_path, monkeypatch):
+    from vaultkeeper.game import locations
+    from vaultkeeper.ui import session
+
+    # Point the resolver at a non-existent folder -> no auto-config.
+    monkeypatch.setattr(
+        locations, "user_documents_dir", lambda *a, **k: tmp_path / "missing"
+    )
+    assert session.default_game_user_path() is None

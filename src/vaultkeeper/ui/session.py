@@ -134,6 +134,22 @@ def import_legacy_profile(
     return target
 
 
+def default_game_user_path() -> Path | None:
+    """The NWN:EE user-files folder if it exists on disk (for first-run auto-config).
+
+    NWN:EE keeps the *installed* haks/override/tlk plus saves/localvault in a
+    per-user folder (``Documents/Neverwinter Nights``), separate from the game
+    install. Recording it in settings engages the Mapper's EE folder split so
+    already-installed mods are detected (see the installed-mods fix). Returns
+    ``None`` when the standard folder isn't present — the user can still set it
+    later via the Locations page, and scans fall back to the single-root layout.
+    """
+    from vaultkeeper.game.locations import HostOS, user_documents_dir
+
+    candidate = user_documents_dir(HostOS.current())
+    return candidate if candidate.is_dir() else None
+
+
 def configure_profile(
     nwn_path: str,
     profile_name: str,
@@ -145,11 +161,18 @@ def configure_profile(
 
     Used by the first-run / "Set Up Profile" flow: records the selection in the
     isolated settings file (never in the game folder), ensures the store and the
-    profile's mods directory exist, then returns a live controller.
+    profile's mods directory exist, then returns a live controller. When the game
+    user folder hasn't been configured yet, the standard NWN:EE user folder is
+    auto-detected (:func:`default_game_user_path`) so the EE folder split engages
+    and installed mods are recognised out of the box.
     """
     settings = settings or load_settings(settings_path)
     settings.nwn_path = nwn_path
     settings.active_profile = profile_name
+    if not settings.game_user_path:
+        user_dir = default_game_user_path()
+        if user_dir is not None:
+            settings.game_user_path = str(user_dir)
 
     store = settings.resolved_store()
     store.ensure()
