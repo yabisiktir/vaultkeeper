@@ -50,6 +50,7 @@ class MainWindow(QMainWindow):
 
         self._tree = FileView("Mods")
         self._tree.selection_changed.connect(self._on_selection_changed)
+        self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
 
         self._contents = ContentsView()
         self._mod_info = QLabel("")
@@ -355,6 +356,23 @@ class MainWindow(QMainWindow):
     # -- Selection / actions ---------------------------------------------- #
     def selected_mod_names(self) -> list[str]:
         return self._tree.selected_mod_names()
+
+    def _on_mods_dropped_on_group(self, names: list[str], group: str) -> None:
+        """Move dragged mods into the group they were dropped on (VB drag-drop)."""
+        if self.controller is None or not names:
+            return
+        # No-op if every dragged mod is already in the target group.
+        current = {
+            self.controller.pd.mod_item(n).group
+            for n in names
+            if self.controller.pd.mod_item(n) is not None
+        }
+        if current == {group}:
+            return
+        self.controller.move_to_group(names, group)
+        self.refresh()
+        label = group if not group.startswith("......") else "No Group"
+        self.nit_status.set_info(f"Moved {len(names)} mod(s) to '{label}'")
 
     def _on_selection_changed(self, names: list[str] | None = None) -> None:
         if names is None:

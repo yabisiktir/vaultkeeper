@@ -33,6 +33,7 @@ _STATE_ICON = {
 }
 
 _ROLE_MOD_NAME = 0x0100  # Qt.UserRole
+_ROLE_GROUP_NAME = 0x0101  # Qt.UserRole + 1 (the row's group, for drag-to-group)
 
 
 def icon_name_for_state(state: State) -> str:
@@ -96,6 +97,8 @@ class FileView(QTreeWidget):
 
     #: Emitted with the list of currently selected mod names.
     selection_changed = Signal(list)
+    #: Emitted (mod_names, target_group) when mods are dragged onto a group.
+    mods_dropped_on_group = Signal(list, str)
 
     def __init__(self, header: str = "Mods", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -103,6 +106,33 @@ class FileView(QTreeWidget):
         self.setSelectionMode(QTreeWidget.SelectionMode.ExtendedSelection)
         self.setRootIsDecorated(True)
         self.itemSelectionChanged.connect(self._on_selection_changed)
+        # Drag mods onto a group to move them (VB FileView drag-drop). The drop is
+        # applied through the model (move_to_group) rather than Qt's default
+        # re-parent, so the profile stays authoritative.
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
+        self.setDropIndicatorShown(True)
+
+    def dropEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        from PySide6.QtCore import Qt
+
+        names = self.selected_mod_names()
+        target = self._group_at(event)
+        if names and target is not None:
+            self.mods_dropped_on_group.emit(names, target)
+        # Applied through the model; suppress Qt's default re-parent (no super()).
+        event.setDropAction(Qt.DropAction.IgnoreAction)
+        event.accept()
+
+    def _group_at(self, event) -> str | None:
+        """The group a drop lands in: the target row's group, else No Group."""
+        pos = event.position().toPoint() if hasattr(event, "position") else event.pos()
+        item = self.itemAt(pos)
+        if item is None:
+            return C.GROUP_NONE
+        group = item.data(0, _ROLE_GROUP_NAME)
+        return group if group is not None else C.GROUP_NONE
 
     # -- Population -------------------------------------------------------- #
     def populate(self, groups: list[tuple[str, list[ModData]]]) -> None:
@@ -122,6 +152,7 @@ class FileView(QTreeWidget):
                 continue
             group_item = QTreeWidgetItem([group_name])
             group_item.setIcon(0, group_icon)
+            group_item.setData(0, _ROLE_GROUP_NAME, group_name)
             group_item.setFlags(group_item.flags() & ~self._selectable_flag())
             self.addTopLevelItem(group_item)
             for md in members:
@@ -132,6 +163,7 @@ class FileView(QTreeWidget):
         label = f"{md.mod_name}  ✓" if md.installed else md.mod_name
         item = QTreeWidgetItem([label])
         item.setData(0, _ROLE_MOD_NAME, md.mod_name)
+        item.setData(0, _ROLE_GROUP_NAME, md.group)
         item.setIcon(0, R.get_icon(self.state_icon_name(md)))
         brush = self.state_brush(md)
         if brush is not None:
