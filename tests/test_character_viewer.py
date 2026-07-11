@@ -258,3 +258,132 @@ def test_viewer_name_search_filters(qtbot, tmp_path):
     # Clearing restores the full list.
     dlg._search.setText("")
     assert dlg._list.count() == 3
+
+
+# -- Level/class filter (VB CharacterFilter) ----------------------------------- #
+def _leveled_char(name, path, level, classes=None):
+    info = CharacterInfo(
+        name=name,
+        gender=Gender.MALE,
+        race=Race.HUMAN,
+        classes=classes or [(CharacterClass.BARD, level)],
+        level=level,
+        experience=10_000,
+        alignment_good_evil=50,
+        alignment_lawful_chaotic=50,
+        hit_points=40,
+        portrait_resref="hero_",
+        feat_ids=[],
+        skill_ranks=[],
+        is_valid=True,
+    )
+    return CharacterFile(path=path, info=info)
+
+
+def test_viewer_level_filter_applies(qtbot, tmp_path):
+    from vaultkeeper.game.character_filter import CharacterLevelFilter
+
+    chars = [
+        _leveled_char("Low", tmp_path / "a.bic", 5),
+        _leveled_char("Mid", tmp_path / "b.bic", 20),
+        _leveled_char("High", tmp_path / "c.bic", 40),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    assert dlg._list.count() == 3
+    # "=20" keeps only the level-20 character; title + count reflect the filter.
+    dlg._filter = CharacterLevelFilter.parse("=20")
+    dlg._populate_list()
+    assert dlg._list.count() == 1
+    assert "Mid" in dlg._list.item(0).text()
+    assert "1 of 3 shown" in dlg._count_label.text()
+    assert "1 of 3 files shown" in dlg.windowTitle()
+
+
+def test_viewer_class_filter_applies(qtbot, tmp_path):
+    from vaultkeeper.game.character_filter import CharacterLevelFilter
+
+    chars = [
+        _leveled_char("Barder", tmp_path / "a.bic", 10, [(CharacterClass.BARD, 10)]),
+        _leveled_char("Wizzy", tmp_path / "b.bic", 10, [(CharacterClass.WIZARD, 10)]),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    dlg._filter = CharacterLevelFilter.parse("1", ["Bard"])
+    dlg._populate_list()
+    assert dlg._list.count() == 1
+    assert "Barder" in dlg._list.item(0).text()
+
+
+def test_viewer_filter_button_opens_dialog_and_applies(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QDialog
+
+    from vaultkeeper.ui.dialogs import character_filter as cf_mod
+
+    chars = [
+        _leveled_char("Low", tmp_path / "a.bic", 5),
+        _leveled_char("High", tmp_path / "b.bic", 30),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+    assert dlg._filter_btn.text() == "Show all Levels"
+
+    # Simulate the modal filter dialog returning ">=25".
+    def fake_exec(self):
+        self._level.setText("25")
+        return QDialog.DialogCode.Accepted
+
+    monkeypatch.setattr(cf_mod.CharacterFilter, "exec", fake_exec)
+    dlg._on_filter()
+    assert dlg._list.count() == 1
+    assert "High" in dlg._list.item(0).text()
+    assert dlg._filter_btn.text() == "Show Level 25 and higher"
+
+
+# -- CharacterFilter dialog (VB CharacterFilter) ------------------------------- #
+def test_character_filter_dialog_validation_blocks_accept(qtbot):
+    from PySide6.QtWidgets import QDialog
+
+    from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
+
+    accepted = QDialog.DialogCode.Accepted
+    dlg = CharacterFilter(["Bard", "Cleric", "Wizard"], level_text="99")
+    qtbot.addWidget(dlg)
+    dlg._on_apply()  # 99 is out of range -> stays open, shows the error
+    assert dlg.result() != accepted
+    assert "between 1 and 40" in dlg._status.text()
+    dlg._level.setText("=20")
+    dlg._on_apply()
+    assert dlg.result() == accepted
+    assert dlg.level_text == "=20"
+
+
+def test_character_filter_dialog_caps_three_classes(qtbot):
+    from PySide6.QtCore import Qt
+
+    from vaultkeeper.game.character_filter import CLASS_NAME_ERROR
+    from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
+
+    names = ["Bard", "Cleric", "Druid", "Fighter"]
+    dlg = CharacterFilter(names)
+    qtbot.addWidget(dlg)
+    for row in range(4):
+        dlg._classes.item(row).setCheckState(Qt.CheckState.Checked)
+    # Only the first three ticks are honoured; the fourth is refused.
+    assert dlg.class_names == ("Bard", "Cleric", "Druid")
+    assert dlg._status.text() == CLASS_NAME_ERROR
+    assert dlg._classes.item(3).checkState() == Qt.CheckState.Unchecked
+
+
+def test_character_filter_dialog_reset(qtbot):
+    from PySide6.QtCore import Qt
+
+    from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
+
+    dlg = CharacterFilter(["Bard", "Cleric"], level_text="20", checked_classes=("Bard",))
+    qtbot.addWidget(dlg)
+    assert dlg.class_names == ("Bard",)
+    dlg._on_reset()
+    assert dlg._level.text() == "1"
+    assert dlg.class_names == ()
+    assert dlg._classes.item(0).checkState() == Qt.CheckState.Unchecked

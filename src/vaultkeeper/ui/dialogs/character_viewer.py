@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.tga_reader import TGAReader
+from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 
 _CHAR_ROLE = Qt.ItemDataRole.UserRole
@@ -65,24 +66,29 @@ class CharacterViewer(QDialog):
         self, characters: list, portrait_resolver=None, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
-        # VB title shows the file count (e.g. "Character Explorer — 751 files shown").
-        count = len(characters)
-        suffix = f" — {count:,} file{'s' if count != 1 else ''} shown" if count else ""
-        self.setWindowTitle(f"Character Explorer{suffix}")
         self.setWindowIcon(R.get_icon("LookupUser_16x"))
         self.resize(680, 460)
         self._characters = characters
         self._resolve_portrait = portrait_resolver
+        # Level/class filter (VB LcbFilter -> CharacterFilter); default shows all.
+        self._filter = CharacterLevelFilter()
+        self._filter_text = "1"
+        self._descriptions: dict[int, str] = {}
 
         outer = QVBoxLayout(self)
         layout = QHBoxLayout()
         outer.addLayout(layout, 1)
 
-        # Left column: a name-search box (VB "Search Names") above the character list.
+        # Left column: the level/class filter button (VB "Show all Levels") + a
+        # name-search box (VB "Search Names") above the character list.
         left = QVBoxLayout()
+        self._filter_btn = QPushButton(self._filter.label())
+        self._filter_btn.setToolTip("Filter characters by level and/or class.")
+        self._filter_btn.clicked.connect(self._on_filter)
+        left.addWidget(self._filter_btn)
         self._search = QLineEdit()
         self._search.setPlaceholderText("Search names…")
-        self._search.textChanged.connect(self._populate_list)
+        self._search.textChanged.connect(lambda _=None: self._populate_list())
         left.addWidget(self._search)
         self._list = QListWidget()
         self._list.setMinimumWidth(220)
@@ -115,18 +121,20 @@ class CharacterViewer(QDialog):
         bar.addWidget(close)
         outer.addLayout(bar)
 
-        self._populate_list("")
+        self._populate_list()
         if not characters:
             self._summary.setPlainText("No character files detected.")
 
-    def _populate_list(self, filter_text: str) -> None:
-        """(Re)fill the list, filtered by a case-insensitive name substring."""
-        needle = filter_text.strip().lower()
+    def _populate_list(self) -> None:
+        """(Re)fill the list, applying the name search and level/class filter."""
+        needle = self._search.text().strip().lower()
         self._list.blockSignals(True)
         self._list.clear()
         shown = 0
         for cf in self._characters:
             if needle and needle not in cf.display_name.lower():
+                continue
+            if not self._passes_filter(cf):
                 continue
             level = cf.info.level if cf.info.is_valid else "?"
             item = QListWidgetItem(f"{cf.display_name}  (L{level})")
@@ -135,13 +143,60 @@ class CharacterViewer(QDialog):
             shown += 1
         self._list.blockSignals(False)
         total = len(self._characters)
+        filtered = bool(needle) or not self._filter.is_default
         self._count_label.setText(
-            f"{shown:,} of {total:,} shown" if needle else f"{total:,} character(s)"
+            f"{shown:,} of {total:,} shown" if filtered else f"{total:,} character(s)"
         )
+        self._update_title(shown, total, filtered)
         if shown:
             self._list.setCurrentRow(0)
         else:
             self._on_row(-1)
+
+    def _update_title(self, shown: int, total: int, filtered: bool) -> None:
+        """Window title with the (filtered) file count (VB ``TitleText``)."""
+        files = "file" if total == 1 else "files"
+        if not total:
+            self.setWindowTitle("Character Explorer")
+        elif filtered:
+            self.setWindowTitle(f"Character Explorer — {shown:,} of {total:,} {files} shown")
+        else:
+            self.setWindowTitle(f"Character Explorer — {total:,} {files} shown")
+
+    def _passes_filter(self, cf) -> bool:
+        """True if ``cf`` satisfies the current level/class filter (VB ApplyClassFilter)."""
+        if self._filter.is_default:
+            return True
+        level = cf.info.level if cf.info.is_valid else 1
+        # The class filter needs the summary text; only build it when classes are set.
+        description = self._description(cf) if self._filter.class_names else ""
+        return self._filter.matches(level, description)
+
+    def _description(self, cf) -> str:
+        """Cached character summary text used for class-name matching."""
+        key = id(cf)
+        if key not in self._descriptions:
+            self._descriptions[key] = cf.summary() if cf.info.is_valid else ""
+        return self._descriptions[key]
+
+    def _on_filter(self) -> None:
+        """Open the level/class filter dialog and apply the result (VB LbcFilter_Click)."""
+        from vaultkeeper.game.character import pc_class_names
+        from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
+
+        dlg = CharacterFilter(
+            pc_class_names(),
+            level_text=self._filter_text,
+            checked_classes=self._filter.class_names,
+            parent=self,
+        )
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        # VB persists the stripped filter text and re-seeds the dialog with it.
+        self._filter_text = dlg.level_text.replace(" ", "").replace(">", "")
+        self._filter = CharacterLevelFilter.parse(dlg.level_text, dlg.class_names)
+        self._filter_btn.setText(self._filter.label())
+        self._populate_list()
 
     def _build_skills_tab(self) -> QWidget:
         splitter = QSplitter(Qt.Orientation.Vertical)
