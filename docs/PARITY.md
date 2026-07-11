@@ -131,24 +131,26 @@ sorted by display name). Bounded: the source list is the loose-file view
 (`ExtractType.Files`); the archive-extraction Folders/FolderFiles views and the
 download-rules wizard source are deferred.
 
-### Dependency Manager — 🔷 Divergent (report vs editor)
+### Dependency Manager — ✅ Verified (editor ported)
 
 Reference: `bhdependencymanager.htm` → `lib/NewItem967.png`.
 
-The original is a per-mod dependency **editor** (three columns: **Groups** ▸ mods in
-the group [checkable] ▸ the selected mod's dependencies, with **Auto** / **Save**).
-The port is a read-only **report** of the whole dependency graph (Mod / Depends On /
-Required By). Same underlying data (the ProfileData dependency graph); the port
-surfaces it, the original edits it. The editor is deferred.
+The port now carries the per-mod dependency **editor**: three columns **Groups** ▸ mods
+in the group (checkable — ticked = a dependency) ▸ the edited mod's **Dependencies**,
+with **Save** (`set_mod_dependencies` = VB `BtSave_Click`, incl. the installed-mod
+dependency install/uninstall reconciliation). Opened for the single selected mod; with
+no single selection the whole-graph report is shown instead. Bounded: the **Auto**
+(Vault-project auto-detect) button is deferred.
 
-### Installation Analyser — 🔷 Divergent (flagged report vs folder browser)
+### Installation Analyser — ✅ Verified (folder browser ported)
 
 Reference: `bhinstallationanalyser.htm` → `lib/NewItem283.png`.
 
-The original is a full **folder browser**: an `NWN Folders` list filtering a
-`File Name` / `Installation Source` table, with space/size/modified accounting at the
-foot. The port surfaces a focused **issues report** (changed-originals / unknown-source
-files). Both read the installed-file model; the browser breadth is deferred.
+The port now has the full **folder browser** on a Browser tab: an `NWN Folders` list
+(folder + file count) filtering a `File Name` / `Installation Source` / `Size` /
+`Modified` table, with the total installed size at the foot (`installation_browser_
+report`). The focused **issues report** (changed-originals / unknown-source) remains on
+an Issues tab.
 
 ### Mods Sorted by Date Completed (Mod Play Viewer) — ✅ Verified
 
@@ -247,8 +249,8 @@ Each maps to its help topic; compare per the steps above.
 | Main window (ribbon / menus / 3-pane) | `UserInterface` / `NewItem84.png` | ✅ verified (sentinel-header fix applied) |
 | Wizard Builder | `bhwizardbuilder.htm` | ✅ verified (authoring UI ported) |
 | Workshop Viewer | `bhworkshop.htm` | ✅ verified |
-| Dependency Manager | `bhdependencymanager.htm` | 🔷 assessed (report vs editor) |
-| Installation Analyser | `bhinstallationanalyser.htm` | 🔷 assessed (report vs browser) |
+| Dependency Manager | `bhdependencymanager.htm` | ✅ verified (editor ported) |
+| Installation Analyser | `bhinstallationanalyser.htm` | ✅ verified (browser ported) |
 | Download Project | `bhdownloadproject.htm` | 🔷 assessed (core slice) |
 | Publish Mod | `bhpublishmod.htm` | ✅ verified |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ✅ verified |

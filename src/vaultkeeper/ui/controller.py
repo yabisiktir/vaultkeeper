@@ -1315,6 +1315,56 @@ class ProfileController:
             "issues": issues,
         }
 
+    def installation_browser_report(self) -> dict:
+        """Installed files grouped by NWN folder (VB InstallationAnalyser browser).
+
+        Returns ``{"folders": [{"name", "count", "size", "size_bytes", "files":
+        [{"filename", "source", "size", "modified"}]}], "total_size", "total_bytes"}``
+        — the NWN-Folders list filtering a File-Name / Installation-Source table, with
+        the total installed-file size. Built from the installed-file model.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+
+        key = cmp_to_key(win_compare)
+        buckets: dict[str, list] = {}
+        for fk, ifd in self.pd.installed_list.items():
+            buckets.setdefault(fk.folder, []).append((fk, ifd))
+
+        folders = []
+        total = 0
+        for folder in sorted(buckets, key=key):
+            entries = sorted(buckets[folder], key=lambda pair: key(pair[0].filename))
+            files = []
+            folder_size = 0
+            for fk, ifd in entries:
+                files.append(
+                    {
+                        "filename": fk.filename,
+                        "source": ifd.installer,
+                        "size": _fmt_size(ifd.byte_size),
+                        "size_bytes": ifd.byte_size,
+                        "modified": _fmt_date(ifd.modified),
+                    }
+                )
+                folder_size += ifd.byte_size
+            total += folder_size
+            folders.append(
+                {
+                    "name": folder,
+                    "count": len(files),
+                    "size": _fmt_size(folder_size),
+                    "size_bytes": folder_size,
+                    "files": files,
+                }
+            )
+        return {
+            "folders": folders,
+            "total_size": _fmt_size(total),
+            "total_bytes": total,
+        }
+
     def dependencies_report(self) -> dict:
         """Each mod's declared dependencies and the mods that require it.
 

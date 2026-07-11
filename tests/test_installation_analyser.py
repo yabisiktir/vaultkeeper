@@ -60,3 +60,61 @@ def test_clean_installation_no_issues(qtbot, tmp_path):
     report = _controller(tmp_path).installation_report()
     assert report["issues"] == []
     assert report["changed_originals"] == 0
+
+
+# -- Installation browser (VB LvFolders → LvFiles) ------------------------- #
+
+
+def test_browser_report_groups_by_folder(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("hak", "a.hak"),
+            installer="CEP",
+            byte_size=100,
+            extension=".hak",
+        )
+    )
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("hak", "b.hak"),
+            installer="Music",
+            byte_size=50,
+            extension=".hak",
+        )
+    )
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("tlk", "c.tlk"),
+            installer="CEP",
+            byte_size=25,
+            extension=".tlk",
+        )
+    )
+    report = controller.installation_browser_report()
+    by_name = {f["name"]: f for f in report["folders"]}
+    assert by_name["hak"]["count"] == 2
+    assert by_name["tlk"]["count"] == 1
+    assert report["total_bytes"] == 175
+    # Sources are surfaced per file.
+    sources = {f["source"] for f in by_name["hak"]["files"]}
+    assert sources == {"CEP", "Music"}
+
+
+def test_browser_dialog_populates(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("hak", "a.hak"),
+            installer="CEP",
+            byte_size=100,
+            extension=".hak",
+        )
+    )
+    dlg = InstallationAnalyser.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert dlg.folders.count() == 1
+    # Selecting the folder shows its files.
+    assert dlg.files.topLevelItemCount() == 1
+    assert dlg.files.topLevelItem(0).text(1) == "CEP"
+    assert "Total installed size" in dlg.total.text()
