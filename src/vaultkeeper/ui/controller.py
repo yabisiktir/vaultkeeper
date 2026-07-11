@@ -203,6 +203,50 @@ class ProfileController:
         total = sum(len(f["files"]) for f in folders)
         return {"folders": folders, "count": total, "installed": installed}
 
+    def mod_properties(self, mod_name: str) -> dict | None:
+        """Current editable metadata for a mod (VB TlModProperties), or None."""
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return None
+        return {
+            "rating": md.rating,
+            "best_weapon": md.best_weapon,
+            "level_start": md.level_start,
+            "level_end": md.level_end,
+            "hench_count": md.hench_count,
+        }
+
+    def set_mod_properties(
+        self,
+        mod_name: str,
+        *,
+        rating=None,
+        best_weapon=None,
+        level_start: int | None = None,
+        level_end: int | None = None,
+        hench_count: int | None = None,
+    ) -> bool:
+        """Update a mod's editable metadata (Rating/Weapon/Levels/Henchmen); persist.
+
+        Only the supplied fields change. ``level_start``/``level_end`` coerce 0 to the
+        "not specified" sentinel via ``ModData`` (VB TxLevel behaviour).
+        """
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return False
+        if rating is not None:
+            md.rating = rating
+        if best_weapon is not None:
+            md.best_weapon = best_weapon
+        if level_start is not None:
+            md.level_start = level_start
+        if level_end is not None:
+            md.level_end = level_end
+        if hench_count is not None:
+            md.hench_count = hench_count
+        self.save()
+        return True
+
     # -- Operations -------------------------------------------------------- #
     def install(self, names: list[str]) -> str:
         self.engine.install_files(self.mod_files(names), anneal_mods=names)

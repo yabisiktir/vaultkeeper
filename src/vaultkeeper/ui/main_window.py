@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QDialog,
     QFileDialog,
     QInputDialog,
     QLabel,
@@ -162,7 +163,14 @@ class MainWindow(QMainWindow):
         self._act_uninstall = self.nit_menu.action("MsUninstall")
         self._act_rename = self.nit_menu.action("MsRename")
         self._act_remove = self.nit_menu.action("MsDelete")
-        for act in (self._act_install, self._act_uninstall, self._act_rename, self._act_remove):
+        self._act_properties = self.nit_menu.action("MsProperties")
+        for act in (
+            self._act_install,
+            self._act_uninstall,
+            self._act_rename,
+            self._act_remove,
+            self._act_properties,
+        ):
             if act is not None:
                 act.setEnabled(False)
 
@@ -422,6 +430,8 @@ class MainWindow(QMainWindow):
         self._act_uninstall.setEnabled(has_sel)
         self._act_remove.setEnabled(has_sel)
         self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
+        if self._act_properties is not None:
+            self._act_properties.setEnabled(len(names) == 1)
         if self.controller is not None and len(names) == 1:
             md = self.controller.pd.mod_item(names[0])
             if md is not None:
@@ -515,6 +525,8 @@ class MainWindow(QMainWindow):
             # Rename / remove.
             "TsRename": self._on_rename,
             "MsRename": self._on_rename,
+            # Edit mod metadata (rating / weapon / levels / henchmen).
+            "MsProperties": self._on_properties,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
             # Cleanup.
@@ -1228,6 +1240,26 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(f"Renamed '{old}' to '{new}'")
         else:
             QMessageBox.warning(self, "Rename Mod", f"Could not rename to '{new}'.")
+
+    def _on_properties(self) -> None:
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            return
+        props = self.controller.mod_properties(names[0])
+        if props is None:
+            return
+        from vaultkeeper.ui.dialogs.mod_properties import ModPropertiesDialog
+
+        dlg = ModPropertiesDialog(names[0], props, self)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        self.controller.set_mod_properties(names[0], **dlg.values())
+        self.refresh()
+        # Re-show the details for the (still-selected) mod.
+        md = self.controller.pd.mod_item(names[0])
+        if md is not None:
+            self._show_details(md)
+        self.nit_status.set_info(f"Updated properties for '{names[0]}'")
 
     def _on_remove(self) -> None:
         names = self.selected_mod_names()
