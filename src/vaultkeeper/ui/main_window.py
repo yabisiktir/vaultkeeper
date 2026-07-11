@@ -176,8 +176,19 @@ class MainWindow(QMainWindow):
         self._restore_geometry()
 
     def _on_played_info(self) -> None:
-        """Open the play-data view (VB MsPlayedInfo.Click → PlayDataManager.View)."""
+        """Open the play-data view (VB MsPlayedInfo.Click → PlayDataManager.View).
+
+        Shows the pending-play-data view when there are unattributed sessions
+        (VB PlayDataViewPending), otherwise the per-mod play-times report.
+        """
         if self.controller is None:
+            return
+        if self.controller.pending_play_report()["count"] > 0:
+            from vaultkeeper.ui.dialogs.play_data_view_pending import (
+                PlayDataViewPending,
+            )
+
+            self._play_data_pending = PlayDataViewPending.show_for(self.controller, self)
             return
         from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
 

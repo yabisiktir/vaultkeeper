@@ -2356,6 +2356,30 @@ class ProfileController:
             "last_played": pdm.last_played,
         }
 
+    def pending_play_report(self) -> dict:
+        """Play-time records awaiting attribution to a mod (VB ``PlayDataViewPending``).
+
+        The play loop records a completed session that GameMapper could not confirm
+        against a mod as *pending* (``pending_play_times``); this surfaces those as
+        rows ``{mod, completed, play_time, user}`` so the user can review them.
+        Returns ``{"rows", "count"}``.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"rows": [], "count": 0}
+        rows = []
+        for mod, records in loop.play_data.pending_play_times.items():
+            for pti in records:
+                rows.append(
+                    {
+                        "mod": mod,
+                        "completed": pti.completed,
+                        "play_time": pti.play_time,
+                        "user": pti.user_name,
+                    }
+                )
+        return {"rows": rows, "count": len(rows)}
+
     def mod_played_info(self, mod_name: str) -> str:
         """A short play-time summary for a mod (VB right-aligned ``MsPlayedInfo``).
 
