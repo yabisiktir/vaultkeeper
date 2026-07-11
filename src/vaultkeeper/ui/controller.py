@@ -2356,6 +2356,21 @@ class ProfileController:
             "last_played": pdm.last_played,
         }
 
+    def mod_played_info(self, mod_name: str) -> str:
+        """A short play-time summary for a mod (VB right-aligned ``MsPlayedInfo``).
+
+        Returns e.g. ``"My Mod played for 3 hours 20 mins"`` or ``""`` when there is
+        no play data / no selection. Read from the mod's total tracked play time.
+        """
+        loop = self.play_loop
+        if loop is None or not mod_name:
+            return ""
+        pdm = loop.play_data
+        span = pdm.pdi.play_times.get(mod_name)
+        if span is None or span.total_seconds() <= 0:
+            return ""
+        return f"{mod_name} played for {pdm.format_time(span, '')}"
+
     def mod_play_report(self) -> dict:
         """Mods with a module file, oldest-completed first (VB ``ModPlayViewer``).
 

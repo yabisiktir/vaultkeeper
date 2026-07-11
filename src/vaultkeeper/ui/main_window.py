@@ -162,8 +162,33 @@ class MainWindow(QMainWindow):
 
         self.nit_menu.populate_web_menu(load_settings().web_links, self._open_url)
 
+        # Right-aligned "Mod played for …" menubar item (VB MsPlayedInfo): shows the
+        # selected mod's play time and opens the play-data view when clicked.
+        from PySide6.QtWidgets import QToolButton
+
+        self._played_info = QToolButton()
+        self._played_info.setAutoRaise(True)
+        self._played_info.setText("")
+        self._played_info.clicked.connect(self._on_played_info)
+        self.nit_menu.setCornerWidget(self._played_info)
+
         # Restore the saved window geometry (VB window-position preference).
         self._restore_geometry()
+
+    def _on_played_info(self) -> None:
+        """Open the play-data view (VB MsPlayedInfo.Click → PlayDataManager.View)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+
+        self._play_data_viewer = PlayDataViewer.show_for(self.controller, self)
+
+    def _update_played_info(self, mod_name: str | None) -> None:
+        """Refresh the right-aligned play-time menubar item for the selected mod."""
+        if self.controller is None or not mod_name:
+            self._played_info.setText("")
+            return
+        self._played_info.setText(self.controller.mod_played_info(mod_name))
 
     def _restore_geometry(self) -> None:
         """Restore the saved window size/position if the preference is on."""
@@ -305,6 +330,7 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_details(md)
                 self._show_contents(md)
+            self._update_played_info(names[0])
         else:
             self._save_current_notes()
             self._notes_mod = None
@@ -312,6 +338,7 @@ class MainWindow(QMainWindow):
             self._details_list.clear()
             self._details.clear()
             self._mod_info.setText("")
+            self._update_played_info(None)
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Persist any unsaved mod notes + the window geometry before closing."""
