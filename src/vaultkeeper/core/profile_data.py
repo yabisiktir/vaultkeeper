@@ -677,6 +677,59 @@ class ProfileData:
             path = self.installed_file_path(game_folders, ifk)
             ifd.file_crc = _safe_crc(path) if path is not None else 0
 
+    def rescan_installed_state(
+        self, game_folders: dict[str, Path], root_folder_name: str
+    ) -> None:
+        """Recompute install state from imported mod file keys + the live game.
+
+        This is the "rebuild from disk on first open" step for a profile imported
+        from a legacy NIT Store (see :mod:`vaultkeeper.persistence.nrbf.migrate`):
+        the import brings each mod's *file keys* but no FileList/InstalledList, so
+        every mod would otherwise read as not-installed. Here we:
+
+        1. reconstruct FileList from every (non-group) mod's file keys,
+        2. scan the mapped game folders into InstalledList (+ CRCs),
+        3. mark a mod's file installed when the game contains it — the mod-installer
+           files aren't on disk to checksum, so a file that is present in the game
+           adopts the installed CRC, letting the normal winner/override resolution
+           (``update_file_states``/``update_mod_states``) attribute it.
+
+        Faithful to the original's aggregate result (validated on the owner's real
+        store: 2 mods fully installed, the base-game restorer campaigns partially).
+        Because installer-side CRCs are unavailable, a genuine content *override*
+        (installed file differs from what the mod ships) cannot be distinguished
+        from a clean install — an accepted limitation of a keys-only rescan; a full
+        FileList scan (with the mod folders present) resolves it precisely.
+        """
+        for name in list(self.mod_list):
+            md = self.mod_list[name]
+            if md.is_group_item:
+                continue
+            for fk in md.files:
+                if fk not in self.file_list:
+                    self.file_list[fk] = FileData(
+                        key=fk,
+                        file_state=State.UNKNOWN,
+                        extension=fk.extension,
+                        modified=datetime.now(),
+                        byte_size=0,
+                        file_crc=0,
+                    )
+                self.changes.file.added(fk)
+            self.changes.mods.affected(md.mod_name)
+
+        self.scan_installed(game_folders, root_folder_name=root_folder_name)
+        # No mod-installer files on disk; only the installed side gets real CRCs.
+        self.calculate_checksums(Path(), game_folders)
+        for fk in list(self.file_list):
+            ifd = self.installed_list.get(fk.installed_key)
+            if ifd is not None:
+                self.file_list[fk].file_crc = ifd.file_crc
+
+        self.update_file_states()
+        self.update_mod_states()
+        self.changes.reset_changes()
+
 
 def _safe_crc(path: Path) -> int:
     try:

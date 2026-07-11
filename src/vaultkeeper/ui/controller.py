@@ -25,6 +25,18 @@ from vaultkeeper.persistence.profile_store import load_profile, save_profile
 from vaultkeeper.ui.play_loop import PlayLoop
 
 
+def _has_unscanned_mods(pd: ProfileData) -> bool:
+    """True if the profile has mods with file keys but no scanned FileList.
+
+    Signature of a legacy import (ModData only) that needs its install state
+    rebuilt from disk on first open.
+    """
+    return any(
+        (md := pd.mod_item(name)) is not None and bool(md.files)
+        for name in pd.mod_keys
+    )
+
+
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
 
@@ -106,6 +118,11 @@ class ProfileController:
             pd.update_mod_states()
             pd.changes.reset_changes()
             pd.initialise_groups()
+        elif not pd.file_list and _has_unscanned_mods(pd):
+            # A profile imported from a legacy NIT Store carries mod definitions +
+            # file keys but no FileList/InstalledList — rebuild install state from
+            # the live game so already-installed mods show correctly (first open).
+            pd.rescan_installed_state(game_folders, root_folder_name=game_root.name)
 
         ctx = InstallContext(
             profile_mods_dir=profile_mods_dir,
@@ -1108,6 +1125,21 @@ class ProfileController:
         self.pd.update_mod_states()
         self.save()
         return "CRC calculation complete."
+
+    def rescan_installed_state(self) -> str:
+        """Recompute install state for imported mods from the live game, and persist.
+
+        For a profile whose mods came from a legacy import (definitions + file keys,
+        no on-disk installer files), this scans the mapped game folders and marks
+        each mod's files installed when the game contains them — the manual form of
+        the automatic first-open rebuild. Use it to refresh after the game changes.
+        """
+        self.pd.rescan_installed_state(
+            self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+        )
+        self.save()
+        total, installed = self.counts()
+        return f"Rescan complete: {installed:,} of {total:,} mods installed."
 
     def rebuild_database(self) -> str:
         """Rebuild the profile database from disk (VB Rebuild Database)."""
