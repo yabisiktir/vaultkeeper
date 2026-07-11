@@ -107,3 +107,37 @@ def test_object_null_members() -> None:
     )
     obj = read_nrbf(stream)
     assert obj.members["Note"] is None
+
+
+def test_read_binary_array_of_strings() -> None:
+    # BinaryArray (record 7): Single type, rank 1, len 2, element BinaryType String(1).
+    stream = (
+        _header(1)
+        + bytes([7])                       # BinaryArray
+        + struct.pack("<i", 1)             # object id
+        + bytes([0])                       # BinaryArrayTypeEnum = Single
+        + struct.pack("<i", 1)             # rank = 1
+        + struct.pack("<i", 2)             # lengths = [2]
+        + bytes([1])                       # element BinaryType = String
+        + bytes([6]) + struct.pack("<i", 5) + _lps("alpha")   # element 0 (id 5)
+        + bytes([6]) + struct.pack("<i", 6) + _lps("beta")    # element 1 (id 6)
+        + bytes([11])                      # MessageEnd
+    )
+    assert read_nrbf(stream) == ["alpha", "beta"]
+
+
+def test_read_binary_array_of_primitives() -> None:
+    # BinaryArray with a primitive element type (Int32) reads raw values, no tags.
+    stream = (
+        _header(1)
+        + bytes([7])
+        + struct.pack("<i", 1)             # object id
+        + bytes([0])                       # Single
+        + struct.pack("<i", 1)             # rank 1
+        + struct.pack("<i", 3)             # length 3
+        + bytes([0])                       # element BinaryType = Primitive
+        + bytes([8])                       # PrimitiveType = Int32
+        + struct.pack("<iii", 7, 8, 9)
+        + bytes([11])
+    )
+    assert read_nrbf(stream) == [7, 8, 9]

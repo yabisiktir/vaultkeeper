@@ -271,7 +271,55 @@ class _Reader:
             return self._read_object_array()  # elements are strings/refs/nulls
         if rec == _ARRAY_SINGLE_PRIMITIVE:
             return self._read_primitive_array()
+        if rec == _BINARY_ARRAY:
+            return self._read_binary_array()
         raise NrbfError(f"unsupported record type {rec} at offset {self._p - 1}")
+
+    def _read_one_type_info(self, bt: int) -> Any:
+        """Additional type info for a single binary type (VB BinaryArray/one member)."""
+        if bt in (_BT_PRIMITIVE, _BT_PRIMITIVE_ARRAY):
+            return self._byte()  # primitive type
+        if bt == _BT_SYSTEM_CLASS:
+            return self._string()  # class name
+        if bt == _BT_CLASS:
+            return (self._string(), self._int32())  # (type name, library id)
+        return None
+
+    def _read_value_records(self, count: int) -> list[Any]:
+        """Read ``count`` array member values (records, incl. null-run compaction)."""
+        items: list[Any] = []
+        while len(items) < count:
+            rec = self._d[self._p]
+            if rec == _OBJECT_NULL_MULTIPLE_256:
+                self._p += 1
+                items.extend([None] * self._byte())
+            elif rec == _OBJECT_NULL_MULTIPLE:
+                self._p += 1
+                items.extend([None] * self._int32())
+            else:
+                items.append(self._read_record())
+        return items
+
+    def _read_binary_array(self) -> list[Any]:
+        """Read a BinaryArray record (MS-NRBF §2.4.3.1)."""
+        object_id = self._int32()
+        array_type = self._byte()  # BinaryArrayTypeEnum
+        rank = self._int32()
+        lengths = [self._int32() for _ in range(rank)]
+        if array_type in (3, 4, 5):  # *Offset variants carry lower bounds
+            for _ in range(rank):
+                self._int32()
+        bt = self._byte()  # element BinaryType
+        info = self._read_one_type_info(bt)
+        total = 1
+        for length in lengths:
+            total *= length
+        if bt == _BT_PRIMITIVE:
+            items = [self._primitive(info) for _ in range(total)]
+        else:
+            items = self._read_value_records(total)
+        self.objects[object_id] = items
+        return items
 
     def _read_class_with_types(self, *, with_library: bool) -> NrbfClass:
         object_id, name, member_names = self._read_class_info()
@@ -291,17 +339,7 @@ class _Reader:
 
     def _read_object_array(self) -> list[Any]:
         object_id, length = self._read_array_info()
-        items: list[Any] = []
-        while len(items) < length:
-            rec = self._d[self._p]
-            if rec == _OBJECT_NULL_MULTIPLE_256:
-                self._p += 1
-                items.extend([None] * self._byte())
-            elif rec == _OBJECT_NULL_MULTIPLE:
-                self._p += 1
-                items.extend([None] * self._int32())
-            else:
-                items.append(self._read_record())
+        items = self._read_value_records(length)
         self.objects[object_id] = items
         return items
 

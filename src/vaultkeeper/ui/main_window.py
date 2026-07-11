@@ -298,7 +298,16 @@ class MainWindow(QMainWindow):
         if profiles:
             menu.addSeparator()
         menu.addAction("New Profile…", self._on_setup)
+        menu.addAction("Import Legacy NIT Store…", self._on_import_legacy)
         menu.exec(QCursor.pos())
+
+    def _on_import_legacy(self) -> None:
+        """Migrate a legacy NIT Store profile into Vaultkeeper (port addition)."""
+        from vaultkeeper.ui.dialogs.import_legacy import ImportLegacyStore
+
+        self._import_legacy = ImportLegacyStore.show_for(
+            self, on_imported=self._switch_profile
+        )
 
     def _switch_profile(self, name: str) -> None:
         from vaultkeeper.ui.session import switch_profile
