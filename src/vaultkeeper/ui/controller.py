@@ -1143,6 +1143,14 @@ class ProfileController:
 
     def rebuild_database(self) -> str:
         """Rebuild the profile database from disk (VB Rebuild Database)."""
+        # An imported profile has mod definitions + file keys but no on-disk
+        # installer folders — a full rescan would find nothing and wipe it. Refresh
+        # install state from the live game instead (keep the imported mods).
+        mods_dir = self.ctx.profile_mods_dir
+        has_mod_folders = mods_dir.is_dir() and any(p.is_dir() for p in mods_dir.iterdir())
+        if not has_mod_folders and _has_unscanned_mods(self.pd):
+            return self.rescan_installed_state()
+
         self.pd = ProfileData()
         self.pd.scan_mods(self.ctx.profile_mods_dir)
         self.pd.scan_installed(

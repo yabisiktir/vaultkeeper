@@ -82,6 +82,30 @@ def test_open_profile_auto_rescans_imported_profile(tmp_path: Path) -> None:
     assert controller.pd.mod_item("CEP").installed is True
 
 
+def test_rebuild_database_preserves_imported_mods(tmp_path: Path) -> None:
+    """Rebuild Database must not wipe an imported profile with no mod folders."""
+    pd = ProfileData()
+    pd.add_mod(_mod("G", "CEP", "hak\\cep.hak"))
+    pd.ensure_mandatory_groups()
+    store = tmp_path / "Data" / "P.json"
+    save_profile(pd, store)
+
+    user = tmp_path / "user"
+    (user / "hak").mkdir(parents=True)
+    (user / "hak" / "cep.hak").write_bytes(b"payload")
+
+    controller = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "mods",  # empty: no mod folders on disk
+        game_root=tmp_path / "NWN",
+        store_path=store,
+        game_user_dir=user,
+        is_ee=True,
+    )
+    controller.rebuild_database()
+    assert controller.counts() == (1, 1)  # not wiped
+    assert controller.pd.mod_item("CEP") is not None
+
+
 # --- Real-data golden (skipif absent) ------------------------------------- #
 _NIT_STORE = Path("/Users/example/Documents/NIT Store")
 _USER_DIR = Path("/Users/example/Documents/Neverwinter Nights")
