@@ -54,6 +54,19 @@ with a file's conflicts inline in the details pane).
 a visible group header; it now flattens hidden (`......`) groups to the top level like
 the LazWorks FileView. The layout, chrome, ribbon and status bar otherwise match.
 
+**Installed-mods + grouping fix (2026-07-11).** The owner reported the port didn't show
+already-installed mods or the original project's grouping. Root cause was *not* the
+grouping engine (it renders imported custom groups correctly) but: (a) the active profile
+was empty (never imported), and (b) on NWN:EE installed content lives in the user files
+folder (`Documents/Neverwinter Nights`), while `nwn_folder_paths` resolved every folder
+under the install dir — so a scan found nothing. Fixed by making folder resolution
+EE-aware (user-dir folders via `nwn.ini [Alias]`; `mod`/`nwm`/`mus`/`txpk` →
+`install/data/<f>`), rescanning install state from the imported file keys on first open,
+and detecting/pre-filling the legacy NIT Store for one-click import. Verified against the
+owner's real store: all 21 mods show under their custom groups (`000. Restorers`,
+`100. Community Packs`, `799. Mods Installed by NWN`, `ZZZ. NIT Managed Restorers`),
+status bar "Mods: 2/21", CEP + NIT Config green ✓ — matching a real-folder scan.
+
 ### Character Explorer — ✅ Verified (with minor divergences)
 
 Reference: `mscharacterviewer.htm` → `lib/NewItem 315.png`.
