@@ -20,6 +20,7 @@ from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.game.config_guard import ConfigChange, ConfigGuard
 from vaultkeeper.game.locations import HostOS, user_documents_dir
+from vaultkeeper.game.nwn_folders import read_alias_locations
 from vaultkeeper.persistence.profile_store import load_profile, save_profile
 from vaultkeeper.ui.play_loop import PlayLoop
 
@@ -80,9 +81,20 @@ class ProfileController:
             overrides=map_overrides,
             exclude_overrides=map_exclude_overrides,
         )
-        game_folders = mapper.nwn_folder_paths(game_root)
+        # The EE user-dir folder split only applies when the caller knows the real
+        # NWN user-files folder (the app passes settings.game_user_path). Without it
+        # we keep the standard single-root layout, so scans/installs stay inside the
+        # given game_root (tests, and fresh setups before Locations is configured).
+        folder_user_dir = game_user_dir
         if game_user_dir is None:
             game_user_dir = user_documents_dir(HostOS.current())
+        game_folders = mapper.nwn_folder_paths(
+            game_root,
+            user_dir=folder_user_dir,
+            alias_locations=(
+                read_alias_locations(folder_user_dir) if folder_user_dir else None
+            ),
+        )
 
         pd = load_profile(store_path) if store_path else None
         if pd is None:

@@ -601,15 +601,64 @@ class Mapper:
     def is_legal_folder(self, folder: str) -> bool:
         return folder.lower() in self.legal_folder_names()
 
-    def nwn_folder_paths(self, game_root: Path) -> dict[str, Path]:
-        """Resolve each legal folder name to an absolute path under ``game_root``.
+    #: Folders that live under the EE install's ``data`` sub-folder rather than
+    #: the user dir (VB ``DefineEeFolders`` via ``Paths.ExtendedDataPath``): the
+    #: base-game module/movie/music/texture packs, whose physical dir names equal
+    #: these identifiers so installed-file keys line up with mod file keys.
+    _EE_DATA_SUBFOLDERS = frozenset(
+        {FOLDER_MOD_EE, FOLDER_NWM, FOLDER_EE_MUS, FOLDER_EE_TEXTUREPACKS}
+    )
 
-        The "nwn" root maps to ``game_root`` itself; every other folder to
-        ``game_root/<name>`` (VB ``DefineNwnFolders``). Note: on a real EE install
-        the ovr/mus/txpk folders live under a data subfolder — a refinement for the
-        Paths-integration slice; for a standard layout this is correct.
+    def nwn_folder_paths(
+        self,
+        game_root: Path,
+        *,
+        user_dir: Path | None = None,
+        ee_library: Path | None = None,
+        alias_locations: dict[str, Path] | None = None,
+    ) -> dict[str, Path]:
+        """Resolve each legal folder name to its absolute on-disk path.
+
+        Standard (non-EE, or ``user_dir`` unset) — the "nwn" root maps to
+        ``game_root`` and every other folder to ``game_root/<name>``
+        (VB ``DefineNwnFolders``).
+
+        EE (``is_ee`` and ``user_dir`` given) — mods install into the *user files*
+        folder, not the install dir (VB ``DefineEeFolders`` + ``NwnFolderInfo``):
+
+        * the ``data`` sub-folders ``mod``/``nwm``/``mus``/``txpk`` →
+          ``<ee_library>/data/<name>`` (``Paths.ExtendedDataPath``),
+        * ``ovr`` → ``<ee_library>/ovr`` (``Paths.ExtendedOvrPath``),
+        * the "nwn" root → ``game_root``,
+        * any folder named in ``alias_locations`` (from ``nwn.ini`` ``[Alias]``,
+          see :func:`vaultkeeper.game.nwn_folders.read_alias_locations`) → that path,
+        * everything else (hak/tlk/override/ambient/movies/music/portraits/…) →
+          ``user_dir/<name>``.
+
+        ``ee_library`` defaults to ``game_root`` (the install dir holds the EE base
+        data). The default (no ``user_dir``) keeps the standard layout, so callers
+        that only know a single game root are unaffected.
         """
+        ee = self.is_ee and user_dir is not None
+        aliases = {k.lower(): Path(v) for k, v in (alias_locations or {}).items()}
+        library = ee_library or game_root
+        ee_data = library / FOLDER_DATA
+        ee_ovr = library / FOLDER_OVR
+
         paths: dict[str, Path] = {}
         for name in self.legal_folder_names():
-            paths[name] = game_root if name == FOLDER_ROOT else game_root / name
+            low = name.lower()
+            if not ee:
+                paths[name] = game_root if low == FOLDER_ROOT else game_root / name
+                continue
+            if low == FOLDER_ROOT:
+                paths[name] = game_root
+            elif low in self._EE_DATA_SUBFOLDERS:
+                paths[name] = ee_data / name
+            elif low == FOLDER_OVR:
+                paths[name] = ee_ovr
+            elif low in aliases:
+                paths[name] = aliases[low]
+            else:
+                paths[name] = Path(user_dir) / name
         return paths
