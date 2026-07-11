@@ -4,10 +4,11 @@ Lists the Steam Workshop item folders NIT can see, whether each is *managed* by 
 mod, and the mod it maps to; selecting an item shows that folder's contents.
 Built on ``ProfileController.workshop_report`` / ``workshop_item_files``.
 
-Read-only. The VB Refresh re-scans Steam's folders (here it just rebuilds from disk)
-and the "Copy MapId Rule" context action are a thin layer over the same report.
-The persistent WorkshopContents database, network title fetch and name editor are
-deferred (see the SteamWorkshop domain slice).
+**Refresh** runs the real diff (VB ``ValidateSteamContent``): it compares Steam's
+folders against the persisted ``WorkshopContents`` database and reports newly-added
+subscriptions, subscriptions whose files changed, and unsubscribed items, persisting
+the updated database. **Rename** edits a subscription's stored mod name (VB
+``RenameMod``). The network title fetch and the "Copy MapId Rule" action are deferred.
 """
 
 from __future__ import annotations
@@ -68,17 +69,44 @@ class WorkshopViewer(QDialog):
         buttons.addWidget(help_button("BhWorkshop", self))
         buttons.addStretch(1)
         self.refresh_button = QPushButton("Refresh")
-        self.refresh_button.clicked.connect(self.refresh)
+        self.refresh_button.clicked.connect(self._on_refresh)
+        self.rename_button = QPushButton("Rename…")
+        self.rename_button.clicked.connect(self._on_rename)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         buttons.addWidget(self.refresh_button)
+        buttons.addWidget(self.rename_button)
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
-        self.refresh()
+        self._scan()
+
+    def _on_refresh(self) -> None:
+        """Diff Steam's content against the stored database (VB ``ValidateSteamContent``)."""
+        diff = self._controller.workshop_refresh()
+        self._scan()
+        self.summary.setText(diff["summary"])
+
+    def _on_rename(self) -> None:
+        """Rename the selected subscription's stored mod name (VB ``RenameMod``)."""
+        current = self.items.currentItem()
+        if current is None:
+            return
+        from PySide6.QtWidgets import QInputDialog
+
+        workshop_id = current.text(0)
+        new, ok = QInputDialog.getText(
+            self, "Rename Workshop Mod", "New mod name:", text=current.text(2)
+        )
+        if ok and new:
+            self._controller.rename_workshop_mod(workshop_id, new)
+            self._scan()
 
     def refresh(self) -> None:
         """(Re)build the subscription list from disk (VB ``BtRefresh``)."""
+        self._scan()
+
+    def _scan(self) -> None:
         report = self._controller.workshop_report()
         self._rows = report["rows"]
         path = report["content_path"] or "not configured"

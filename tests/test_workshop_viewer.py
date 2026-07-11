@@ -146,3 +146,52 @@ def test_dialog_populates_and_shows_contents(qtbot, tmp_path):
     # First item selected on open -> its contents shown.
     assert dlg.contents.topLevelItemCount() == 1
     assert dlg.contents.topLevelItem(0).text(0) == "readme.txt"
+
+
+# -- Refresh diff + rename (VB ValidateSteamContent / RenameMod) ----------- #
+
+
+def test_workshop_refresh_persists_and_diffs(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_item(content, "111", "override/a.tga")
+    _make_item(content, "222", "override/b.tga")
+    controller = _controller(tmp_path, content, game_root)
+
+    # First refresh: both subscriptions are new; the DB is persisted.
+    first = controller.workshop_refresh()
+    assert sorted(first["added"]) == ["111", "222"]
+    assert controller._workshop_contents_file().is_file()
+
+    # No changes on a second refresh.
+    second = controller.workshop_refresh()
+    assert not second["added"] and not second["updated"] and not second["unsubscribed"]
+
+    # Unsubscribe 222; refresh detects it.
+    import shutil
+
+    shutil.rmtree(content / "222")
+    third = controller.workshop_refresh()
+    assert third["unsubscribed"] == ["222"]
+
+
+def test_workshop_rename(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_item(content, "111", "override/a.tga")
+    controller = _controller(tmp_path, content, game_root)
+    controller.workshop_refresh()
+
+    result = controller.rename_workshop_mod("111", "My Renamed Mod")
+    assert result["ok"]
+    stored = controller._read_workshop_contents()
+    assert stored["111"].mod_name == "My Renamed Mod"
+
+
+def test_dialog_refresh_runs_diff(qtbot, tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_item(content, "111", "override/a.tga")
+    controller = _controller(tmp_path, content, game_root)
+    dlg = WorkshopViewer.show_for(controller)
+    qtbot.addWidget(dlg)
+    dlg._on_refresh()
+    assert "Workshop Subscriptions: 1" in dlg.summary.text()
+    assert controller._workshop_contents_file().is_file()

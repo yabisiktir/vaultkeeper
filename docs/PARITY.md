@@ -221,10 +221,14 @@ listing every conflicted file and its winner — a convenience view over the sam
 
 Assessed against the VB `*.Designer.vb` (their CHM topics only show column fragments):
 
-- **Steam Workshop Subscriptions — ✅ Verified.** Port matches the VB exactly: title
-  "Steam Workshop Subscriptions", heading "View information about your Steam Workshop
-  Subscriptions", columns Workshop Id / Managed / Mod Name + Subscription Contents. The
-  add/update/remove subscription-management actions are deferred (🔷).
+- **Steam Workshop Subscriptions — ✅ Verified (diff + rename added).** Port matches the
+  VB: title "Steam Workshop Subscriptions", columns Workshop Id / Managed / Mod Name +
+  Subscription Contents. **Refresh** now runs the real diff (VB `ValidateSteamContent`):
+  it compares Steam's folders against a persisted `WorkshopContents` database and reports
+  added / updated / unsubscribed with a status summary; **Rename** edits a subscription's
+  stored mod name (VB `RenameMod`). Validated against a real 15-subscription / ~6000-file
+  Workshop content folder (stable re-diff). The network title fetch + Copy-MapId-Rule are
+  deferred.
 - **Publish Mod — ✅ Verified.** Heading "Package your Mod for publishing (Uploading)",
   Version field (appended to the mod name), live archive-name label — all match VB
   `LbHeading` / `LbVersion` / `LbArchiveName`. (Port title "Publish <mod>" improves on

@@ -2537,6 +2537,69 @@ class ProfileController:
             "summary": _workshop_summary(len(items), managed, unmanaged),
         }
 
+    # -- Workshop contents diff/persistence (VB SteamWorkshop) ------------- #
+    def _workshop_contents_file(self) -> Path:
+        """The persisted WorkshopContents database (VB ``pd.SaveWorkshopContent``)."""
+        return self._profile_data_dir() / "WorkshopContents.json"
+
+    def _read_workshop_contents(self) -> dict:
+        from vaultkeeper.game.workshop import contents_from_json
+        from vaultkeeper.persistence.json_store import read_json
+
+        return contents_from_json(read_json(self._workshop_contents_file(), default={}))
+
+    def _save_workshop_contents(self, contents: dict) -> None:
+        from vaultkeeper.game.workshop import contents_to_json
+        from vaultkeeper.persistence.json_store import write_json
+
+        path = self._workshop_contents_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(path, contents_to_json(contents))
+
+    def workshop_refresh(self) -> dict:
+        """Diff Steam's content against the stored database (VB ``ValidateSteamContent``).
+
+        Detects newly-subscribed items, subscriptions whose files changed, and
+        unsubscribed items (folders gone from Steam), persists the updated database,
+        and returns ``{"added", "updated", "unsubscribed", "added_files",
+        "updated_files", "removed_files", "summary"}`` (ids in the lists).
+        """
+        from vaultkeeper.game.workshop import diff_workshop, workshop_content_path
+
+        content = workshop_content_path(self.ctx.game_root)
+        stored = self._read_workshop_contents()
+        if content is None:
+            return {
+                "added": [],
+                "updated": [],
+                "unsubscribed": list(stored),
+                "added_files": 0,
+                "updated_files": 0,
+                "removed_files": 0,
+                "summary": "This is not a Steam install.",
+            }
+        diff = diff_workshop(content, stored)
+        self._save_workshop_contents(diff.contents)
+        return {
+            "added": diff.added,
+            "updated": diff.updated,
+            "unsubscribed": diff.unsubscribed,
+            "added_files": diff.added_files,
+            "updated_files": diff.updated_files,
+            "removed_files": diff.removed_files,
+            "summary": diff.summary,
+        }
+
+    def rename_workshop_mod(self, workshop_id: str, new_name: str) -> dict:
+        """Rename a stored workshop subscription's mod name (VB ``RenameMod``)."""
+        contents = self._read_workshop_contents()
+        info = contents.get(workshop_id)
+        if info is None:
+            return {"ok": False, "message": f"Unknown workshop id: {workshop_id}"}
+        info.mod_name = new_name
+        self._save_workshop_contents(contents)
+        return {"ok": True, "message": f"Renamed {workshop_id} to {new_name}."}
+
     def workshop_item_files(self, folder: str) -> list[dict]:
         """The files inside a workshop item's folder (the contents pane)."""
         base = Path(folder)
