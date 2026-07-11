@@ -180,26 +180,61 @@ def test_controller_character_files_scans_vault_and_saves(tmp_path, monkeypatch)
 
 
 # -- Portrait Manager ---------------------------------------------------------- #
+class _FakePortraitController:
+    def __init__(self, entries):
+        self._entries = entries
+
+    def portrait_entries(self):
+        return self._entries
+
+
 def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
-    from vaultkeeper.game.character import scan_portraits
+    from vaultkeeper.game.character import PORTRAIT_SIZES, scan_portraits
     from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
-    for size in ("m", "h"):
+    for size in PORTRAIT_SIZES:  # a full five-size set
         _write_tga(tmp_path / f"po_hero_{size}.tga", 8, 8)
     entries = scan_portraits([tmp_path])
-    dlg = PortraitManager(entries)
+    dlg = PortraitManager(_FakePortraitController(entries))
     qtbot.addWidget(dlg)
     assert dlg._list.count() == 1
     # Title carries the count (VB "Portrait Manager — Installed Portraits: N").
     assert dlg.windowTitle() == "Portrait Manager — Installed Portraits: 1"
-    # Both previews loaded for the selected portrait.
-    assert dlg._huge.pixmap() is not None and not dlg._huge.pixmap().isNull()
-    assert dlg._medium.pixmap() is not None and not dlg._medium.pixmap().isNull()
+    # All five size thumbnails loaded for the selected portrait.
+    for size in PORTRAIT_SIZES:
+        pixmap = dlg._thumbs[size].pixmap()
+        assert pixmap is not None and not pixmap.isNull()
 
 
 def test_portrait_manager_empty(qtbot):
     from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
-    dlg = PortraitManager([])
+    dlg = PortraitManager(_FakePortraitController([]))
     qtbot.addWidget(dlg)
     assert dlg._list.count() == 0
+
+
+def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
+
+    calls = {"extracted": None}
+
+    class _Ctl:
+        def portrait_entries(self):
+            return []
+
+        def extract_hak_portraits(self, hak):
+            calls["extracted"] = hak
+            return {"count": 5, "message": "Extracted 5 portrait(s)."}
+
+    dlg = PortraitManager(_Ctl())
+    qtbot.addWidget(dlg)
+    assert dlg._extract_button.isEnabled()
+    monkeypatch.setattr(
+        QFileDialog, "getOpenFileName", lambda *a, **k: ("/haks/faces.hak", "")
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    dlg._on_extract()
+    assert str(calls["extracted"]) == "/haks/faces.hak"
