@@ -117,3 +117,39 @@ def test_web_menu_drops_blank_rows(qtbot):
     dlg._add_web_row("", "")  # fully blank → dropped
     dlg._add_web_row("Real", "https://r")
     assert dlg.web_links() == [{"text": "Real", "url": "https://r"}]
+
+
+# -- Behaviour preferences (VB Settings Behaviour group) ------------------- #
+
+
+def test_behaviour_tab_reflects_and_applies(qtbot):
+    settings = Settings(
+        convert_bik_files=True,
+        install_after_create=True,
+        remember_window_position=False,
+        startup_sound=True,
+    )
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    assert dlg.convert_bik.isChecked()
+    assert dlg.install_after_create.isChecked()
+    assert not dlg.remember_window.isChecked()
+    assert dlg.startup_sound.isChecked()
+
+    dlg.convert_bik.setChecked(False)
+    dlg.install_after_create.setChecked(False)
+    dlg.remember_window.setChecked(True)
+    dlg.apply_to(settings)
+    assert settings.convert_bik_files is False
+    assert settings.install_after_create is False
+    assert settings.remember_window_position is True
+
+
+def test_behaviour_prefs_round_trip_through_store(tmp_path):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    path = tmp_path / "settings.json"
+    save_settings(Settings(convert_bik_files=True, install_after_create=True), path)
+    loaded = load_settings(path)
+    assert loaded.convert_bik_files is True
+    assert loaded.install_after_create is True

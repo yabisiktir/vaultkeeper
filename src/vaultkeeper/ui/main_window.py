@@ -162,6 +162,35 @@ class MainWindow(QMainWindow):
 
         self.nit_menu.populate_web_menu(load_settings().web_links, self._open_url)
 
+        # Restore the saved window geometry (VB window-position preference).
+        self._restore_geometry()
+
+    def _restore_geometry(self) -> None:
+        """Restore the saved window size/position if the preference is on."""
+        from vaultkeeper.config.settings import load_settings
+
+        settings = load_settings()
+        if settings.remember_window_position and settings.window_geometry:
+            from PySide6.QtCore import QByteArray
+
+            try:
+                data = QByteArray.fromBase64(settings.window_geometry.encode("ascii"))
+                self.restoreGeometry(data)
+            except (ValueError, TypeError):
+                pass
+
+    def _save_geometry(self) -> None:
+        """Persist the current window geometry if the preference is on."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        if not settings.remember_window_position:
+            return
+        geometry = bytes(self.saveGeometry().toBase64()).decode("ascii")
+        if geometry != settings.window_geometry:
+            settings.window_geometry = geometry
+            save_settings(settings)
+
     def _open_url(self, url: str) -> None:
         """Open a Web-menu link in the default browser (VB WebMenu_Click)."""
         if not url:
@@ -285,8 +314,9 @@ class MainWindow(QMainWindow):
             self._mod_info.setText("")
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
-        """Persist any unsaved mod notes before closing."""
+        """Persist any unsaved mod notes + the window geometry before closing."""
         self._save_current_notes()
+        self._save_geometry()
         super().closeEvent(event)
 
     def _show_contents(self, md: ModData) -> None:
@@ -601,6 +631,9 @@ class MainWindow(QMainWindow):
             if result["ok"]:
                 built += 1
                 copied += result["copied"]
+                # Install-after-create preference (VB): auto-install the built mod.
+                if self._install_after_create() and not self.controller._mod_installed(name):
+                    self.controller.install([name])
             last_message = result["message"]
         self.refresh()
         if len(names) == 1:
@@ -609,6 +642,12 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(
                 f"Built installer for {built} mod(s); {copied} file(s) copied."
             )
+
+    def _install_after_create(self) -> bool:
+        """The install-after-create preference (VB Settings behaviour)."""
+        from vaultkeeper.config.settings import load_settings
+
+        return load_settings().install_after_create
 
     def _run_installer_wizard(
         self, mod_name: str

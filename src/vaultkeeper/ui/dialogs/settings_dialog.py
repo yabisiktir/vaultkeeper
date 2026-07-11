@@ -56,6 +56,7 @@ class SettingsDialog(QDialog):
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_general(settings), "General")
+        self.tabs.addTab(self._build_behaviour(settings), "Behaviour")
         self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
         self.locations = self._build_locations(controller)
         if self.locations is not None:
@@ -92,6 +93,34 @@ class SettingsDialog(QDialog):
         form.addRow("Active profile:", QLabel(settings.active_profile or "—"))
         store = settings.store_root or str(settings.resolved_store().root)
         form.addRow("Vaultkeeper store:", QLabel(store))
+        return page
+
+    def _build_behaviour(self, settings: Settings) -> QWidget:
+        """Behaviour / User-Interface preferences (VB Settings Behaviour group)."""
+        page = QWidget()
+        form = QFormLayout(page)
+
+        self.convert_bik = QCheckBox(
+            "Convert .bik movies to .wbm when building an installer (NWN:EE)"
+        )
+        self.convert_bik.setChecked(settings.convert_bik_files)
+        form.addRow(self.convert_bik)
+
+        self.install_after_create = QCheckBox(
+            "Install a mod automatically after creating its installer"
+        )
+        self.install_after_create.setChecked(settings.install_after_create)
+        form.addRow(self.install_after_create)
+
+        self.remember_window = QCheckBox(
+            "Remember the window size and position between runs"
+        )
+        self.remember_window.setChecked(settings.remember_window_position)
+        form.addRow(self.remember_window)
+
+        self.startup_sound = QCheckBox("Play a sound when the application starts")
+        self.startup_sound.setChecked(settings.startup_sound)
+        form.addRow(self.startup_sound)
         return page
 
     def _build_web_menu(self, settings: Settings) -> QWidget:
@@ -190,6 +219,10 @@ class SettingsDialog(QDialog):
         """Write the editable fields back into ``settings``."""
         settings.recycle_on_delete = self.recycle.isChecked()
         settings.validate_game_config_on_startup = self.startup_check.isChecked()
+        settings.convert_bik_files = self.convert_bik.isChecked()
+        settings.install_after_create = self.install_after_create.isChecked()
+        settings.remember_window_position = self.remember_window.isChecked()
+        settings.startup_sound = self.startup_sound.isChecked()
         settings.web_links = self.web_links()
 
     @classmethod

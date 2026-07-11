@@ -60,6 +60,16 @@ class Settings:
     #: Convert ``.bik`` movies to ``.wbm`` when building an installer (VB
     #: ``ProfileInfo.ConvertBikFiles``; NWN:EE plays WebM, not Bink).
     convert_bik_files: bool = False
+    #: Automatically install a mod right after building its installer (VB
+    #: install-after-create behaviour).
+    install_after_create: bool = False
+    #: Remember and restore the main window's size/position across runs (VB
+    #: FormsManager window-position preference).
+    remember_window_position: bool = True
+    #: Saved main-window geometry (Qt ``saveGeometry`` bytes, base64); internal.
+    window_geometry: str = ""
+    #: Play a sound when the application starts (VB start-up sound preference).
+    startup_sound: bool = False
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default

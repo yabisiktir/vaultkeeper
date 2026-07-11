@@ -198,11 +198,13 @@ Toggle-Auto-Exclude / Clear-Exclusions. Deferred: the slideshow, the prefix edit
 Reference: `bhbasicsettings.htm` → `lib/NewItem 70.png`.
 
 The original **Basic Settings** has Behaviour + User Interface tabs with many grouped
-preferences (window position, start-up sound, install-after-create actions, start/close
-NWN actions, …) and Selection / Advanced buttons. The port's Settings has General /
-Web Menu / Locations tabs surfacing the subset that is actually wired (recycle-on-delete,
-startup config-drift check, web links, resolved paths). This is the intended
-config-isolation slice; the remaining behaviour/UI preferences are deferred.
+preferences. The port's Settings now has General / **Behaviour** / Web Menu / Locations
+tabs. The Behaviour tab surfaces the preferences that are wired to real effects:
+convert-.bik-to-.wbm (build installer), install-after-create (auto-install after Create
+Installer), remember-window-position (save/restore window geometry), and a start-up
+sound toggle. Deferred: the start/close-NWN play-loop actions, the start-up sound
+effect (cross-platform), and the raw Profiles / RunMenu / Config / Preferences pages
+(low value — VB's per-preference ListView framework with undo/reset/import).
 
 ### Conflicts — 🔷 Divergent (aggregate dialog vs inline)
 
