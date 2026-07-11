@@ -62,7 +62,22 @@ class DownloadProjectDialog(QDialog):
         self.file_tree.setHeaderLabels(["File", "Size"])
         self.file_tree.setRootIsDecorated(False)
         self.file_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        layout.addWidget(self.file_tree)
+        layout.addWidget(self.file_tree, 1)
+
+        # Required projects (prerequisites listed on the Vault page).
+        self.required_label = QLabel("Required projects:")
+        self.required_label.setVisible(False)
+        layout.addWidget(self.required_label)
+        self.required_list = QTreeWidget()
+        self.required_list.setHeaderLabels(["Required Project", "URL"])
+        self.required_list.setRootIsDecorated(False)
+        self.required_list.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.required_list.setMaximumHeight(110)
+        self.required_list.setVisible(False)
+        self.required_list.itemDoubleClicked.connect(self._on_required_double_clicked)
+        self.required_list.setToolTip("Double-click to load a required project's URL")
+        layout.addWidget(self.required_list)
+        self._required: list[dict] = []
 
         # Target mod + download.
         bottom = QHBoxLayout()
@@ -108,6 +123,22 @@ class DownloadProjectDialog(QDialog):
                 result.append(self._files[index])
         return result
 
+    def populate_required(self, projects: list) -> None:
+        """Show the project's required prerequisites (VB Required-Projects field)."""
+        self._required = projects
+        self.required_list.clear()
+        for proj in projects:
+            self.required_list.addTopLevelItem(
+                QTreeWidgetItem([proj["title"], proj["url"]])
+            )
+        has = bool(projects)
+        self.required_label.setVisible(has)
+        self.required_list.setVisible(has)
+
+    def _on_required_double_clicked(self, item: QTreeWidgetItem) -> None:
+        """Load a required project's URL into the fetch box (so it can be fetched)."""
+        self.url_edit.setText(item.text(1))
+
     # -- Actions ----------------------------------------------------------- #
     def _on_fetch(self) -> None:
         url = self.url_edit.text().strip()
@@ -115,6 +146,7 @@ class DownloadProjectDialog(QDialog):
             return
         self.status.setText("Fetching…")
         self.populate_files(self.controller.scrape_project(url))
+        self.populate_required(self.controller.project_required_projects(url))
 
     def _on_download(self) -> None:
         files = self.checked_files()

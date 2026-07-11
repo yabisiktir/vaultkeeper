@@ -1208,6 +1208,15 @@ class ProfileController:
         """Scrape a Vault project page into a list of downloadable files."""
         return self._make_scraper().fetch_project(url)
 
+    def project_required_projects(self, url: str) -> list[dict]:
+        """The projects a Vault page lists as required (VB Required-Projects field).
+
+        Each is a ``{"title", "url"}`` — the mods this project depends on (e.g.
+        "CEP 2.6"). Surfaced by the Download Project dialog so the user can fetch the
+        prerequisites too.
+        """
+        return self._make_scraper().fetch_required_projects(url)
+
     def download_project(self, files: list, mod_name: str, *, on_progress=None) -> list:
         """Download the given files into ``mod_name``'s ``_Downloads`` folder."""
         from vaultkeeper.core import constants as C

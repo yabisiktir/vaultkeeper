@@ -232,10 +232,11 @@ Assessed against the VB `*.Designer.vb` (their CHM topics only show column fragm
 - **Folder Mapping — ✅ Verified.** Tabs Extensions / Map Files / Map Folders / Map
   Excludes with the VB Settings column captions; the port is an editor (add / remove /
   reset). The per-list rename / reset-item / import-from-game context menus are 🔷.
-- **Download Project — 🔷 Divergent.** Port implements the core slice (fetch a Vault
-  URL → checkable file list → download into a mod's `_Downloads`). The VB dialog is
-  richer (Required Projects list, per-project file metadata, "Open Project Page"); that
-  breadth is deferred.
+- **Download Project — ✅ Verified (Required Projects added).** Port fetches a Vault URL
+  → checkable file list → download into a mod's `_Downloads`, **and now shows the page's
+  Required Projects** (title + URL, double-click to load a prerequisite's URL) —
+  extracted from the real Vault `field-name-field-required-projects` block. Per-project
+  file metadata / "Open Project Page" extras remain deferred.
 
 ### Recurring pattern (recorded once)
 
@@ -257,7 +258,7 @@ Each maps to its help topic; compare per the steps above.
 | Workshop Viewer | `bhworkshop.htm` | ✅ verified |
 | Dependency Manager | `bhdependencymanager.htm` | ✅ verified (editor ported) |
 | Installation Analyser | `bhinstallationanalyser.htm` | ✅ verified (browser ported) |
-| Download Project | `bhdownloadproject.htm` | 🔷 assessed (core slice) |
+| Download Project | `bhdownloadproject.htm` | ✅ verified (Required Projects added) |
 | Publish Mod | `bhpublishmod.htm` | ✅ verified |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ✅ verified |
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | 🔷 assessed (wired subset) |

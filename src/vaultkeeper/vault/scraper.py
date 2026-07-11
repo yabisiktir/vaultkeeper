@@ -26,6 +26,37 @@ _ANCHOR_TEXT = re.compile(r"<a[^>]+>(.*?)</a>", re.IGNORECASE | re.DOTALL)
 _HREF = re.compile(r"""href=["']?([^"'>\s]+)""", re.IGNORECASE)
 _LENGTH = re.compile(r"length=([0-9]+)", re.IGNORECASE)
 
+#: The Vault "Required projects" field block + an anchor (title + link) within it.
+_REQUIRED_MARKER = "field-name-field-required-projects"
+_NEXT_FIELD = re.compile(r"field field-name-field-", re.IGNORECASE)
+_LINK = re.compile(
+    r"""<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)</a>""", re.IGNORECASE | re.DOTALL
+)
+
+
+def extract_required_projects(html: str) -> list[dict[str, str]]:
+    """The projects a Vault page lists as *required* (VB Required-Projects field).
+
+    Parses the ``field-name-field-required-projects`` block — each ``field-item``
+    anchor gives a required project's title and URL (e.g. "CEP 2.6"). Returns
+    ``[{"title", "url"}, ...]`` (empty when the page lists none).
+    """
+    start = html.lower().find(_REQUIRED_MARKER)
+    if start == -1:
+        return []
+    rest = html[start + len(_REQUIRED_MARKER):]
+    nxt = _NEXT_FIELD.search(rest)  # bounded by the next field block
+    block = rest[: nxt.start()] if nxt else rest
+
+    projects: list[dict[str, str]] = []
+    for match in _LINK.finditer(block):
+        url = html_lib.unescape(match.group(1)).strip()
+        title = re.sub(r"<[^>]+>", "", match.group(2))  # strip <br> etc.
+        title = html_lib.unescape(title).strip()
+        if title:
+            projects.append({"title": title, "url": url})
+    return projects
+
 
 def _title_from_url(url: str) -> str:
     """A readable project title from the URL's last path segment."""
@@ -58,6 +89,17 @@ class VaultScraper:
         return self.scrape_files(
             resp.text, title=title or _title_from_url(url), base_url=base_url
         )
+
+    def fetch_required_projects(self, url: str) -> list[dict[str, str]]:
+        """Fetch a project page and return its *required projects* (title + URL)."""
+        try:
+            resp = self.http.get(url, allow_redirects=True)
+        except OSError as ex:
+            log.warning("Vault required-projects fetch failed for %s: %s", url, ex)
+            return []
+        if not resp.ok or not resp.text:
+            return []
+        return extract_required_projects(resp.text)
 
     def scrape_files(
         self, html: str, *, title: str = "", base_url: str = ""

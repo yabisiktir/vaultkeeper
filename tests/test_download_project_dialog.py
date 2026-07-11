@@ -100,3 +100,32 @@ def test_dialog_download_writes_files(qtbot, tmp_path):
     downloads = tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR
     assert (downloads / "a.zip").read_bytes() == b"DATA"
     assert "Downloaded 1 of 1" in dlg.status.text()
+
+
+_REQUIRED_PAGE = (
+    "<h1>My Project</h1>\n"
+    '<span class="file-icon"></span><a href="http://cdn/a.zip" length=100>a.zip</a>\n'
+    '<div class="field field-name-field-required-projects">'
+    '<div class="field-items"><div class="field-item">'
+    '<a href="http://vault/cep">CEP 2.6 <br></a></div></div></div>'
+    '<div class="field field-name-field-related-projects"></div>'
+)
+
+
+def test_dialog_shows_required_projects(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://vault/project/needs-cep": HttpResponse(
+            "http://vault/project/needs-cep", 200, text=_REQUIRED_PAGE
+        )}
+    )
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("http://vault/project/needs-cep")
+    dlg._on_fetch()
+    assert not dlg.required_list.isHidden()  # made visible on fetch
+    assert dlg.required_list.topLevelItemCount() == 1
+    assert dlg.required_list.topLevelItem(0).text(0) == "CEP 2.6"
+    # Double-clicking loads the required project's URL into the fetch box.
+    dlg._on_required_double_clicked(dlg.required_list.topLevelItem(0))
+    assert dlg.url_edit.text() == "http://vault/cep"

@@ -151,3 +151,34 @@ class TestScrapeFiles:
         html = '<span class="file-icon"></span><a href="http://old/a.zip">a.zip</a>\n'
         files = VaultScraper(rules=rules).scrape_files(html)
         assert files[0].counter_url == "http://new/a.zip"
+
+
+# -- Required projects (VB Required-Projects field, real Vault HTML) -------- #
+
+# Verbatim structure from a real Vault page (aribeths-redemption-chapter-three).
+_REQUIRED_HTML = (
+    '<div class="field field-name-field-required-projects field-type-link-field '
+    'field-label-above"><div class="field-label">Required projects:&nbsp;</div>'
+    '<div class="field-items"><div class="field-item even">'
+    '<a href="https://neverwintervault.org/cep" target="_blank" rel="nofollow">'
+    'CEP 2.6 <br></a></div></div></div>'
+    '<div class="field field-name-field-related-projects field-type-link-field '
+    'field-label-above"><div class="field-label">Related projects:&nbsp;</div>'
+    '<div class="field-items"><div class="field-item even">'
+    '<a href="https://neverwintervault.org/project/nwn1/module/chapter-one">'
+    'Chapter One <br></a></div></div></div>'
+)
+
+
+def test_extract_required_projects_real_structure():
+    from vaultkeeper.vault.scraper import extract_required_projects
+
+    reqs = extract_required_projects(_REQUIRED_HTML)
+    # Only the required-projects block is parsed (related projects excluded).
+    assert reqs == [{"title": "CEP 2.6", "url": "https://neverwintervault.org/cep"}]
+
+
+def test_extract_required_projects_none():
+    from vaultkeeper.vault.scraper import extract_required_projects
+
+    assert extract_required_projects("<html>no fields here</html>") == []
