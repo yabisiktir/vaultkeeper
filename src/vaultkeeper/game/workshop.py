@@ -25,6 +25,14 @@ STEAM_EE_APPID = "704450"
 _MODULES_FOLDER = "modules"
 _MOD_EXT = ".mod"
 
+#: The mod group NIT files newly-created workshop mods under (VB ``Pdc.WorkshopGroup``).
+WORKSHOP_GROUP = "820.  Steam Workshop"
+
+
+def workshop_url(id_: str) -> str:
+    """A Steam Workshop item's web page URL (VB ``Defs.SteamWorkshopUrl``)."""
+    return f"https://steamcommunity.com/sharedfiles/filedetails/?id={id_}"
+
 
 @dataclass
 class WorkshopItem:

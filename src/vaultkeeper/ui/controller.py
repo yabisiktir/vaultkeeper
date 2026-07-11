@@ -2751,6 +2751,106 @@ class ProfileController:
                 )
         return files
 
+    def add_workshop_mod(
+        self, workshop_id: str, *, build_installer: bool = True
+    ) -> dict:
+        """Add a Steam Workshop subscription as a NIT-managed mod (VB ``CreateModFolder``).
+
+        Creates a mod folder under the Workshop group, links it to the Steam id +
+        web page, and archives the subscription's content into the mod's
+        ``_Workshop`` folder so the item survives an unsubscribe (VB
+        ``UpdateWorkshopFile``). When ``build_installer`` is set (VB
+        ``CreateInstallers``) the installer payload is built from that archive so the
+        mod becomes installable. If a mod of the same name already exists, an existing
+        *workshop* mod (one with a ``_Workshop`` folder) is re-linked to the id (VB
+        ``CheckResubscribed``); an unrelated name clash is refused. Returns
+        ``{"ok", "mod_name", "created", "archived", "installer", "message"}``.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.workshop import (
+            WORKSHOP_GROUP,
+            resolve_mod_name,
+            workshop_content_path,
+            workshop_url,
+        )
+
+        def result(ok, mod_name, message, *, created=False, archived=False, installer=False):
+            return {
+                "ok": ok,
+                "mod_name": mod_name,
+                "created": created,
+                "archived": archived,
+                "installer": installer,
+                "message": message,
+            }
+
+        content = workshop_content_path(self.ctx.game_root)
+        if content is None:
+            return result(False, "", "This is not a Steam install.")
+        id_folder = content / workshop_id
+        if not id_folder.is_dir():
+            return result(False, "", f"Workshop item {workshop_id} is not subscribed.")
+
+        mod_name = resolve_mod_name(id_folder, workshop_id)
+        existing = self.pd.mod_item(mod_name)
+        if existing is not None:
+            if existing.workshop_id == workshop_id:
+                return result(True, mod_name, f"{mod_name} is already managed.")
+            mod_folder = self.ctx.profile_mods_dir / existing.mod_name
+            if (mod_folder / C.WORKSHOP_DIR).is_dir():
+                existing.workshop_id = workshop_id
+                existing.web_link = workshop_url(workshop_id)
+                self.save()
+                return result(True, mod_name, f"Re-linked {mod_name} to Steam Workshop.")
+            return result(False, mod_name, f"A mod named {mod_name} already exists.")
+
+        # Create the mod under the Workshop group and link it to Steam.
+        self.create_mod(mod_name, group=WORKSHOP_GROUP)
+        md = self.pd.mod_item(mod_name)
+        md.workshop_id = workshop_id
+        md.web_link = workshop_url(workshop_id)
+        self.save()
+
+        # Archive the subscription content into the mod's _Workshop folder.
+        archived = self._archive_workshop_item(mod_name, workshop_id, id_folder)
+
+        installer = False
+        if build_installer and archived:
+            installer = self.build_installer_payload(mod_name).get("ok", False)
+
+        return result(
+            True,
+            mod_name,
+            f"Added {mod_name} from Steam Workshop.",
+            created=True,
+            archived=archived,
+            installer=installer,
+        )
+
+    def _archive_workshop_item(
+        self, mod_name: str, workshop_id: str, id_folder: Path
+    ) -> bool:
+        """Archive a subscription's files into the mod's ``_Workshop`` folder.
+
+        Faithful to VB ``UpdateWorkshopFile`` — the archive is named after the
+        subscription's display name and holds the id folder's contents at its root.
+        Returns True when the archive was written (an empty subscription is skipped).
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.workshop import WorkshopIdInfo
+
+        workshop_folder = self.ctx.profile_mods_dir / mod_name / C.WORKSHOP_DIR
+        workshop_folder.mkdir(parents=True, exist_ok=True)
+        display = WorkshopIdInfo(workshop_id, mod_name).display_name
+        archive_path = workshop_folder / f"{display}.7z"
+        # Store the id folder's contents at the archive root (VB "<IdFolder>\*").
+        sources = [Path(p.name) for p in sorted(id_folder.iterdir())]
+        if not sources:
+            return False
+        return self._archive_backend().create(
+            archive_path, sources, base_dir=id_folder
+        ).ok
+
     def doc_organiser_report(
         self,
         mod_names: list[str] | None = None,

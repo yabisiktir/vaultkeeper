@@ -195,3 +195,124 @@ def test_dialog_refresh_runs_diff(qtbot, tmp_path):
     dlg._on_refresh()
     assert "Workshop Subscriptions: 1" in dlg.summary.text()
     assert controller._workshop_contents_file().is_file()
+
+
+# -- Add as managed mod (VB SteamWorkshop.CreateModFolder) ----------------- #
+
+
+def _make_named_item(content: Path, item_id: str, mod_stem: str) -> None:
+    """A subscription whose ``modules/<stem>.mod`` names it (VB GetModFolderName)."""
+    _make_item(content, item_id, f"modules/{mod_stem}.mod", "override/tex.tga")
+
+
+def test_workshop_url_format():
+    from vaultkeeper.game.workshop import workshop_url
+
+    assert (
+        workshop_url("12345")
+        == "https://steamcommunity.com/sharedfiles/filedetails/?id=12345"
+    )
+
+
+def test_add_workshop_mod_creates_managed_mod(tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+    from vaultkeeper.game.workshop import WORKSHOP_GROUP, workshop_url
+
+    game_root, content = _steam_layout(tmp_path)
+    _make_named_item(content, "999", "Cool Adventure")
+    controller = _controller(tmp_path, content, game_root)
+    controller._extractor = FakeArchiveExtractor()
+
+    result = controller.add_workshop_mod("999", build_installer=False)
+    assert result["ok"] and result["created"] and result["archived"]
+    assert result["mod_name"] == "Cool Adventure"
+
+    md = controller.pd.mod_item("Cool Adventure")
+    assert md is not None
+    assert md.group == WORKSHOP_GROUP
+    assert md.workshop_id == "999"
+    assert md.web_link == workshop_url("999")
+
+    # The subscription content was archived into the mod's _Workshop folder.
+    archive = (
+        tmp_path / "Profiles" / "P" / "Cool Adventure" / C.WORKSHOP_DIR
+        / "Cool Adventure (999).7z"
+    )
+    assert archive.is_file()
+    assert len(controller._extractor.create_calls) == 1
+
+
+def test_add_workshop_mod_already_managed_is_noop(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_named_item(content, "111", "Alpha Mod")  # id 111 already claimed by Alpha Mod
+    controller = _controller(tmp_path, content, game_root)
+
+    result = controller.add_workshop_mod("111", build_installer=False)
+    assert result["ok"] and not result["created"]
+    assert "already managed" in result["message"]
+
+
+def test_add_workshop_mod_name_clash_refused(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_named_item(content, "999", "Beta Mod")  # Beta Mod exists, not a workshop mod
+    controller = _controller(tmp_path, content, game_root)
+
+    result = controller.add_workshop_mod("999", build_installer=False)
+    assert not result["ok"]
+    assert "already exists" in result["message"]
+
+
+def test_add_workshop_mod_non_steam_and_unsubscribed(tmp_path):
+    # Non-Steam install.
+    game_root = tmp_path / "GOG" / "Neverwinter Nights"
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    game_root.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods, game_root=game_root
+    )
+    assert "not a Steam install" in controller.add_workshop_mod("1")["message"]
+
+    # Steam install but the id isn't subscribed.
+    game_root2, content = _steam_layout(tmp_path / "steam")
+    controller2 = _controller(tmp_path / "steam", content, game_root2)
+    assert "not subscribed" in controller2.add_workshop_mod("nope")["message"]
+
+
+def test_dialog_add_button_enabled_only_for_unmanaged(qtbot, tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    _make_item(content, "111", "readme.txt")  # managed by Alpha Mod
+    _make_named_item(content, "999", "Cool Adventure")  # unmanaged
+    controller = _controller(tmp_path, content, game_root)
+    dlg = WorkshopViewer.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    by_id = {
+        dlg.items.topLevelItem(i).text(0): i
+        for i in range(dlg.items.topLevelItemCount())
+    }
+    dlg.items.setCurrentItem(dlg.items.topLevelItem(by_id["111"]))
+    assert not dlg.add_button.isEnabled()  # managed -> can't add
+    dlg.items.setCurrentItem(dlg.items.topLevelItem(by_id["999"]))
+    assert dlg.add_button.isEnabled()  # unmanaged -> can add
+
+
+def test_dialog_add_invokes_controller(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    game_root, content = _steam_layout(tmp_path)
+    _make_named_item(content, "999", "Cool Adventure")
+    controller = _controller(tmp_path, content, game_root)
+    controller._extractor = FakeArchiveExtractor()
+
+    dlg = WorkshopViewer.show_for(controller)
+    qtbot.addWidget(dlg)
+    dlg.items.setCurrentItem(dlg.items.topLevelItem(0))
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    dlg._on_add()
+    assert controller.pd.mod_item("Cool Adventure") is not None
