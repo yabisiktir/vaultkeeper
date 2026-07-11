@@ -165,10 +165,11 @@ Reference: `bhmodsplayed.htm` → `lib/NewItem 289.png`.
 | Columns: Mod Name / Completed / Time Played / Rating / Start / End (+ state icons) | ✓ | ✓ | ✅ |
 | Detail pane: mod (web link), Best Weapon, Notes | ✓ | ✓ | ✅ |
 | Play-history sub-table (Completed / Time Played / User) | ✓ | ✓ | ✅ |
-| Bottom: Filtered/Group counts, Filter Options ▾, Recent, Select | ✓ | summary only | 🔷 filters/Recent/Select deferred |
+| Bottom: Filtered/Group counts, Filter Options ▾, Recent, Select | ✓ | Group + Only-completed filters + shown count | 🟡 partial |
 
 Strong structural match — the columns, detail pane and play-history sub-table all line
-up. Only the filter toolbar and Recent/Select actions are deferred.
+up, and the **Group** + **Only-completed** filter options (with a shown count) are now
+present. The rating/end-level filters and the Recent/Select actions are deferred.
 
 ### Portrait Manager — ✅ Verified (five thumbnails + extract-from-hak)
 

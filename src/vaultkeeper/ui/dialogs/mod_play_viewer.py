@@ -4,14 +4,17 @@ A tabular view of every mod that has a module file, ordered from the oldest last
 date completed. Selecting a mod reveals its group, best weapon, web link, notes
 and per-user play-time history. Built on ``ProfileController.mod_play_report``.
 
-Read-only for now. The VB *filter options* (group/rating/end-level/only-completed
-toolbar) and the Select/Recent actions that drive the main window are deferred.
+Carries the VB *filter options* toolbar (Group + Only-completed) that filter the
+displayed list. The rating/end-level filters and the Select/Recent actions that drive
+the main window are deferred.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -28,6 +31,9 @@ from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.file_view import icon_name_for_state
+
+_ROW_ROLE = Qt.ItemDataRole.UserRole
+_ALL_GROUPS = "All Groups"
 
 
 class ModPlayViewer(QDialog):
@@ -50,6 +56,22 @@ class ModPlayViewer(QDialog):
         )
         heading.setWordWrap(True)
         layout.addWidget(heading)
+
+        # -- Filter options (VB group / only-completed toolbar) ------------- #
+        filters = QHBoxLayout()
+        filters.addWidget(QLabel("Group:"))
+        self.group_filter = QComboBox()
+        self.group_filter.addItem(_ALL_GROUPS)
+        for group in sorted({r["group"] for r in self._rows if r.get("group")}):
+            self.group_filter.addItem(group)
+        self.group_filter.currentIndexChanged.connect(self._populate_mods)
+        filters.addWidget(self.group_filter)
+        self.only_completed = QCheckBox("Only completed")
+        self.only_completed.stateChanged.connect(self._populate_mods)
+        filters.addWidget(self.only_completed)
+        filters.addStretch(1)
+        layout.addLayout(filters)
+
         splitter = QSplitter(Qt.Orientation.Vertical)
         layout.addWidget(splitter, 1)
 
@@ -60,20 +82,6 @@ class ModPlayViewer(QDialog):
         )
         self.mods.setRootIsDecorated(False)
         self.mods.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        for row in self._rows:
-            item = QTreeWidgetItem(
-                [
-                    row["mod"],
-                    row["completed"],
-                    row["play_time"],
-                    row["rating"],
-                    row["start"],
-                    row["end"],
-                ]
-            )
-            item.setIcon(0, R.get_icon(icon_name_for_state(State(row["state"]))))
-            item.setToolTip(0, row["played_info"])
-            self.mods.addTopLevelItem(item)
         self.mods.currentItemChanged.connect(self._on_selection)
         splitter.addWidget(self.mods)
 
@@ -103,8 +111,9 @@ class ModPlayViewer(QDialog):
         splitter.setSizes([340, 220])
 
         # -- Summary -------------------------------------------------------- #
-        summary = QLabel(f"Mods (installed/total): {report.get('summary', '0/0')}")
-        layout.addWidget(summary)
+        self._summary_prefix = report.get("summary", "0/0")
+        self.summary = QLabel()
+        layout.addWidget(self.summary)
 
         buttons = QHBoxLayout()
         buttons.addWidget(help_button("BhModsPlayed", self))
@@ -114,13 +123,46 @@ class ModPlayViewer(QDialog):
         buttons.addWidget(close)
         layout.addLayout(buttons)
 
-        if self.mods.topLevelItemCount() > 0:
+        self._populate_mods()
+
+    def _populate_mods(self, *_args) -> None:
+        """Fill the mod list, applying the group / only-completed filters."""
+        group = self.group_filter.currentText()
+        only_completed = self.only_completed.isChecked()
+        self.mods.clear()
+        shown = 0
+        for row in self._rows:
+            if group != _ALL_GROUPS and row.get("group") != group:
+                continue
+            if only_completed and not row.get("completed"):
+                continue
+            item = QTreeWidgetItem(
+                [
+                    row["mod"],
+                    row["completed"],
+                    row["play_time"],
+                    row["rating"],
+                    row["start"],
+                    row["end"],
+                ]
+            )
+            item.setIcon(0, R.get_icon(icon_name_for_state(State(row["state"]))))
+            item.setToolTip(0, row["played_info"])
+            item.setData(0, _ROW_ROLE, row)
+            self.mods.addTopLevelItem(item)
+            shown += 1
+        self.summary.setText(
+            f"Shown: {shown:,}    Mods (installed/total): {self._summary_prefix}"
+        )
+        if shown:
             self.mods.setCurrentItem(self.mods.topLevelItem(0))
 
     def _on_selection(self, current: QTreeWidgetItem | None, _previous=None) -> None:
         if current is None:
             return
-        row = self._rows[self.mods.indexOfTopLevelItem(current)]
+        row = current.data(0, _ROW_ROLE)
+        if row is None:
+            return
         self.group_label.setText(f"Group: {row['group']}")
         self.weapon_label.setText(f"Best Weapon: {row['best_weapon']}")
         if row["web_link"]:

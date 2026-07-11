@@ -104,3 +104,34 @@ def test_dialog_populates_and_selects_first(qtbot, tmp_path):
     assert dlg.times.topLevelItemCount() == 1
     assert dlg.times.topLevelItem(0).text(0) == "05 Jan 2020"
     assert dlg.times.topLevelItem(0).text(2) == _current_user()
+
+
+# -- Filter toolbar (VB group / only-completed options) -------------------- #
+
+
+def test_dialog_group_filter(qtbot):
+    report = {
+        "rows": [
+            {"mod": "A", "completed": "01 Jan 2024", "play_time": "1h", "rating": "",
+             "start": "", "end": "", "state": -2, "group": "RPG",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+            {"mod": "B", "completed": "", "play_time": "", "rating": "",
+             "start": "", "end": "", "state": -2, "group": "Puzzle",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+        ],
+        "summary": "0/2",
+    }
+    dlg = ModPlayViewer(report)
+    qtbot.addWidget(dlg)
+    assert dlg.mods.topLevelItemCount() == 2
+    # Filter to the RPG group.
+    dlg.group_filter.setCurrentText("RPG")
+    assert dlg.mods.topLevelItemCount() == 1
+    assert dlg.mods.topLevelItem(0).text(0) == "A"
+    # Only-completed filter (back to All Groups first).
+    dlg.group_filter.setCurrentText("All Groups")
+    dlg.only_completed.setChecked(True)
+    assert dlg.mods.topLevelItemCount() == 1  # only A has a completed date
+    assert dlg.mods.topLevelItem(0).text(0) == "A"
