@@ -51,6 +51,8 @@ class MainWindow(QMainWindow):
         self._tree = FileView("Mods")
         self._tree.selection_changed.connect(self._on_selection_changed)
         self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
+        self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
 
         self._contents = ContentsView()
         self._mod_info = QLabel("")
@@ -356,6 +358,44 @@ class MainWindow(QMainWindow):
     # -- Selection / actions ---------------------------------------------- #
     def selected_mod_names(self) -> list[str]:
         return self._tree.selected_mod_names()
+
+    #: The mod list's right-click menu (VB CmMods, NIT.Menu.vb DefineContextMenus);
+    #: None is a separator. Items reuse the menu-bar actions of the same id.
+    _MODS_CONTEXT_ITEMS = (
+        "MsRecentMods", "MsSelectAll", None,
+        "MsCut", "MsCopy", "MsCopyName", "MsPaste", "MsRename", None,
+        "MsDelete", None,
+        "MsNewGroup", "MsNewMod", "MsAddFiles", None,
+        "MsCreateInstaller", "MsCreateRestorer", None,
+        "MsInstall", "MsUninstall", "MsPublishMod", "MsExportMods", None,
+        "MsGoToGroup", "MsMoveToGroup", None,
+        "MsProperties",
+    )
+
+    def _build_mods_context_menu(self):
+        """Build the mod-list context menu, reusing the menu-bar actions (CmMods)."""
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        pending_separator = False
+        for item in self._MODS_CONTEXT_ITEMS:
+            if item is None:
+                pending_separator = menu.actions() != []
+                continue
+            action = self.nit_menu.action(item)
+            if action is None:
+                continue
+            if pending_separator:
+                menu.addSeparator()
+                pending_separator = False
+            menu.addAction(action)
+        return menu
+
+    def _show_mods_context_menu(self, pos) -> None:
+        if self.controller is None:
+            return
+        menu = self._build_mods_context_menu()
+        menu.exec(self._tree.viewport().mapToGlobal(pos))
 
     def _on_mods_dropped_on_group(self, names: list[str], group: str) -> None:
         """Move dragged mods into the group they were dropped on (VB drag-drop)."""
