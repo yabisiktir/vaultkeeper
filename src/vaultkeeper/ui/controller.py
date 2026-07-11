@@ -68,15 +68,21 @@ class ProfileController:
         map_overrides: dict[str, dict[str, str]] | None = None,
         map_exclude_overrides: dict[str, list[str]] | None = None,
         settings_path: Path | None = None,
+        game_user_dir: Path | None = None,
     ) -> ProfileController:
-        """Load a profile from ``store_path`` (or scan from disk if absent), wire it up."""
+        """Load a profile from ``store_path`` (or scan from disk if absent), wire it up.
+
+        ``game_user_dir`` overrides the auto-resolved game user-data folder (the
+        Settings *Locations* page lets the user set it); ``None`` = auto-resolve.
+        """
         mapper = Mapper(
             is_ee=is_ee,
             overrides=map_overrides,
             exclude_overrides=map_exclude_overrides,
         )
         game_folders = mapper.nwn_folder_paths(game_root)
-        game_user_dir = user_documents_dir(HostOS.current())
+        if game_user_dir is None:
+            game_user_dir = user_documents_dir(HostOS.current())
 
         pd = load_profile(store_path) if store_path else None
         if pd is None:

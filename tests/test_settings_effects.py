@@ -67,3 +67,18 @@ def test_install_after_create_effect(qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(win, "_run_installer_wizard", lambda name: (None, None))
     win._on_create_installer()
     assert controller.pd.mod_item("Solo").installed
+
+
+def test_open_profile_honours_game_user_dir_override(tmp_path):
+    from vaultkeeper.ui.controller import ProfileController
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    custom = tmp_path / "MyGameUser"
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        game_user_dir=custom,
+    )
+    assert controller.ctx.game_user_dir == custom

@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QPushButton,
     QTabWidget,
     QTreeWidget,
@@ -197,13 +198,34 @@ class SettingsDialog(QDialog):
                 links.append({"text": text, "url": url})
         return links
 
-    def _build_locations(self, controller) -> QTreeWidget | None:
+    def _build_locations(self, controller) -> QWidget | None:
         if controller is None:
+            self.game_install_edit = None
+            self.game_user_edit = None
             return None
+        report = controller.locations_report()
+        by_location = {r["location"]: r["path"] for r in report["rows"]}
+
+        page = QWidget()
+        outer = QVBoxLayout(page)
+        outer.addWidget(
+            QLabel("Edit the game paths (Browse to a folder); other rows are resolved:")
+        )
+
+        form = QFormLayout()
+        self.game_install_edit, install_row = self._path_editor(
+            by_location.get("Game Installation", "")
+        )
+        form.addRow("Game Installation:", install_row)
+        self.game_user_edit, user_row = self._path_editor(
+            by_location.get("Game User Folder", "")
+        )
+        form.addRow("Game User Folder:", user_row)
+        outer.addLayout(form)
+
         tree = QTreeWidget()
         tree.setHeaderLabels(["Location", "Path"])
         tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        report = controller.locations_report()
         groups: dict[str, QTreeWidgetItem] = {}
         for row in report["rows"]:
             parent = groups.get(row["group"])
@@ -213,7 +235,27 @@ class SettingsDialog(QDialog):
                 groups[row["group"]] = parent
             parent.addChild(QTreeWidgetItem([row["location"], row["path"]]))
         tree.expandAll()
-        return tree
+        outer.addWidget(tree, 1)
+        return page
+
+    def _path_editor(self, value: str):
+        """A read/edit path field + Browse button; returns (QLineEdit, row widget)."""
+        edit = QLineEdit(value)
+        browse = QPushButton("Browse…")
+        browse.clicked.connect(lambda: self._browse_into(edit))
+        row = QWidget()
+        rl = QHBoxLayout(row)
+        rl.setContentsMargins(0, 0, 0, 0)
+        rl.addWidget(edit, 1)
+        rl.addWidget(browse)
+        return edit, row
+
+    def _browse_into(self, edit: QLineEdit) -> None:
+        from PySide6.QtWidgets import QFileDialog
+
+        folder = QFileDialog.getExistingDirectory(self, "Select folder", edit.text())
+        if folder:
+            edit.setText(folder)
 
     def apply_to(self, settings: Settings) -> None:
         """Write the editable fields back into ``settings``."""
@@ -224,6 +266,10 @@ class SettingsDialog(QDialog):
         settings.remember_window_position = self.remember_window.isChecked()
         settings.startup_sound = self.startup_sound.isChecked()
         settings.web_links = self.web_links()
+        if self.game_install_edit is not None:
+            settings.nwn_path = self.game_install_edit.text().strip() or None
+        if self.game_user_edit is not None:
+            settings.game_user_path = self.game_user_edit.text().strip() or None
 
     @classmethod
     def edit(

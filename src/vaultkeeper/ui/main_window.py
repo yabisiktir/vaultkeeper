@@ -995,13 +995,32 @@ class MainWindow(QMainWindow):
     def _on_settings(self) -> None:
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
+        before = self._current_game_paths()
         settings = SettingsDialog.edit(parent=self, controller=self.controller)
         if settings is not None:
             # Reflect the recycle preference on the status bar toggle.
             self.nit_status.set_recycle(settings.recycle_on_delete)
             # Rebuild the Web menu in case its links were edited (VB SetWebMenu).
             self.nit_menu.populate_web_menu(settings.web_links, self._open_url)
+            # If the game paths changed, reopen the profile so they take effect now.
+            if (settings.nwn_path, settings.game_user_path) != before:
+                self._reopen_with_new_paths()
             self.nit_status.set_info("Settings saved.")
+
+    def _current_game_paths(self) -> tuple:
+        from vaultkeeper.config.settings import load_settings
+
+        s = load_settings()
+        return (s.nwn_path, s.game_user_path)
+
+    def _reopen_with_new_paths(self) -> None:
+        """Re-open the active profile with the freshly-edited game paths."""
+        from vaultkeeper.ui.session import bootstrap_controller
+
+        controller = bootstrap_controller()
+        if controller is not None:
+            self.set_controller(controller)
+            self.nit_status.set_info("Game paths updated.")
 
     def _on_view_file(self, kind: str) -> None:
         if self.controller is None:

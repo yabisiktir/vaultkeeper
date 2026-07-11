@@ -50,6 +50,9 @@ class Settings:
     store_root: str | None = None
     #: Last used / active NWN install root.
     nwn_path: str | None = None
+    #: Override for the game user-data folder (Documents/Neverwinter Nights); ``None``
+    #: = auto-resolve from the platform.
+    game_user_path: str | None = None
     #: Name of the active profile.
     active_profile: str | None = None
     #: Send user-initiated deletes to the OS trash rather than deleting permanently.

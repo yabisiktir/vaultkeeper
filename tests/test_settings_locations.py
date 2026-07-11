@@ -75,10 +75,21 @@ def test_dialog_has_locations_tab_with_controller(qtbot, tmp_path):
 
     tab_titles = [dlg.tabs.tabText(i) for i in range(dlg.tabs.count())]
     assert tab_titles == ["General", "Behaviour", "Web Menu", "Locations"]
-    # Two group rows, each with three child locations.
-    assert dlg.locations.topLevelItemCount() == 2
-    assert dlg.locations.topLevelItem(0).childCount() == 3
-    assert dlg.locations.headerItem().text(1) == "Path"
+    # The Locations tab now has editable game-path fields.
+    assert dlg.game_install_edit is not None
+    assert dlg.game_user_edit is not None
+
+
+def test_locations_edit_persists_paths(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    settings = Settings()
+    dlg = SettingsDialog(settings, controller=controller)
+    qtbot.addWidget(dlg)
+    dlg.game_install_edit.setText("/games/NWN-EE")
+    dlg.game_user_edit.setText("/home/me/Documents/Neverwinter Nights")
+    dlg.apply_to(settings)
+    assert settings.nwn_path == "/games/NWN-EE"
+    assert settings.game_user_path == "/home/me/Documents/Neverwinter Nights"
 
 
 def test_dialog_omits_locations_tab_without_controller(qtbot):
