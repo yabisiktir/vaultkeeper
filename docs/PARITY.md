@@ -168,18 +168,19 @@ Reference: `bhmodsplayed.htm` → `lib/NewItem 289.png`.
 Strong structural match — the columns, detail pane and play-history sub-table all line
 up. Only the filter toolbar and Recent/Select actions are deferred.
 
-### Portrait Manager — 🟡 Differing (title fixed)
+### Portrait Manager — ✅ Verified (five thumbnails + extract-from-hak)
 
 Reference: `rbportraitmanagerhelp.htm` → `lib/NewItem 201.png`.
 
 | Element | Original | Port | Verdict |
 |---|---|---|---|
-| Title "Portrait Manager — Installed Portraits: N" | ✓ | ✓ (count added this pass) | ✅ |
-| Portrait Name / Installation Source columns | 2 cols | 1 col (resref [sizes]) | 🟡 |
-| Five size thumbnails (t/s/m/l/h) | ✓ | huge + medium preview | 🟡 |
+| Title "Portrait Manager — Installed Portraits: N" | ✓ | ✓ | ✅ |
+| Five size thumbnails (t/s/m/l/h) | ✓ | ✓ (Tiny/Small/Medium/Large/Huge) | ✅ |
+| Extract-from-Hak action | ✓ | ✓ (Extract from Hak…) | ✅ |
 | Toolbar: Exclude / Apply Excludes / Edit / Create Installer / Select Source / Find | ✓ | — | 🔷 deferred |
 
-The preview + list are present; the exclude/edit/create-installer toolbar is deferred.
+The five-size thumbnails and the extract-from-hak action are ported; the
+exclude/edit/create-installer toolbar extras remain deferred.
 
 ### Start Screen Manager — ✅ Verified (actions ported)
 
@@ -257,7 +258,7 @@ Each maps to its help topic; compare per the steps above.
 | Publish Mod | `bhpublishmod.htm` | ✅ verified |
 | Folder Mapping (Map Files/Folders/Excludes) | `bhmapfiles.htm` / `bhmapfolders.htm` | ✅ verified |
 | Settings (General/Locations/Web) | `bhbasicsettings.htm` / `bhlocations.htm` | 🔷 assessed (wired subset) |
-| Portrait Manager | `rbportraitmanagerhelp.htm` | 🟡 assessed (title fixed) |
+| Portrait Manager | `rbportraitmanagerhelp.htm` | ✅ verified (5 thumbs + extract-from-hak) |
 | Start Screen Manager | `rbloadscreenhelp.htm` | ✅ verified (install/add/delete ported) |
 | Mods Played (Mod Play Viewer) | `bhmodsplayed.htm` | ✅ verified (subtitle added) |
 | Conflicts Viewer | `managemodfileconflicts.htm` | 🔷 assessed (aggregate vs inline) |
