@@ -79,6 +79,14 @@ class ImportLegacyStore(QDialog):
             lambda r: self.import_button.setEnabled(r >= 0)
         )
 
+        # Pre-fill a detected NIT Store so existing users can import in one click
+        # (setting the text triggers _refresh_profiles, which lists its profiles).
+        from vaultkeeper.ui.session import detect_legacy_store
+
+        detected = detect_legacy_store()
+        if detected is not None:
+            self.path_edit.setText(str(detected))
+
     def _browse(self) -> None:
         from PySide6.QtWidgets import QFileDialog
 

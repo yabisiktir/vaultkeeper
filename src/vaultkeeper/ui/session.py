@@ -80,6 +80,27 @@ def list_legacy_profiles(legacy_store_root: str | Path) -> list[str]:
     return _legacy_profiles(Path(legacy_store_root))
 
 
+def detect_legacy_store() -> Path | None:
+    """Best-guess location of an existing legacy NIT Store, or ``None``.
+
+    The original tool keeps its store at ``Documents/NIT Store``. Returns the
+    first candidate that looks like a store (has a ``Data`` subfolder) so the
+    import dialog can pre-fill it — a one-click migration for existing users.
+    """
+    from vaultkeeper.game.locations import HostOS, user_documents_dir
+
+    documents = user_documents_dir(HostOS.current()).parent
+    candidates = [documents / "NIT Store", Path.home() / "Documents" / "NIT Store"]
+    seen: set[Path] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if (candidate / "Data").is_dir():
+            return candidate
+    return None
+
+
 def import_legacy_profile(
     legacy_store_root: str | Path,
     profile_name: str,

@@ -130,9 +130,22 @@ class MainWindow(QMainWindow):
             "<h3>Welcome to Vaultkeeper</h3>"
             "<p>No profile is open yet.</p>"
             "<p>Use <b>File &rarr; Set Up Profile…</b> to locate your Neverwinter "
-            "Nights folder and create a profile.</p>"
+            "Nights folder and create a profile.</p>" + self._import_hint()
         )
         self.nit_status.set_info("No profile — use File ▸ Set Up Profile…")
+
+    @staticmethod
+    def _import_hint() -> str:
+        """A prompt to import an existing NIT Store, when one is detected on disk."""
+        from vaultkeeper.ui.session import detect_legacy_store
+
+        if detect_legacy_store() is None:
+            return ""
+        return (
+            "<p>An existing <b>NIT Store</b> was found on this machine. "
+            "Use <b>File &rarr; Import Legacy NIT Store…</b> to bring in your "
+            "mods and their groups.</p>"
+        )
 
     # -- Menu -------------------------------------------------------------- #
     def _build_menu(self) -> None:
@@ -325,6 +338,13 @@ class MainWindow(QMainWindow):
             return
         self._tree.populate(self.controller.groups())
         self._update_status()
+        total, _ = self.controller.counts()
+        if total == 0:
+            self._details.setHtml(
+                "<h3>This profile has no mods yet</h3>"
+                "<p>Add mods with <b>Mods &rarr; New Mod</b>, or import an existing "
+                "collection.</p>" + self._import_hint()
+            )
 
     def _update_status(self) -> None:
         if self.controller is None:
