@@ -164,6 +164,45 @@ class ProfileController:
                 keys.extend(md.files)
         return keys
 
+    def mod_contents_report(self, mod_name: str) -> dict:
+        """The selected mod's files grouped by folder, with per-file install state.
+
+        Feeds the Contents pane (VB FvContents): each file carries its install
+        state (from FileList) and size so the pane can icon/colour it like the mod
+        list. Folders and files are Windows natural-sorted.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.state import State
+        from vaultkeeper.core.win_sort import win_compare
+
+        md = self.pd.mod_item(mod_name)
+        by_folder: dict[str, list[dict]] = {}
+        if md is not None:
+            for fk in md.files:
+                fd = self.pd.file_list.get(fk)
+                state = fd.file_state if fd is not None else State.UNKNOWN
+                size = fd.byte_size if fd is not None else 0
+                by_folder.setdefault(fk.folder, []).append(
+                    {
+                        "name": fk.filename,
+                        "state": state,
+                        "size": size,
+                        "size_text": _fmt_size(size),
+                    }
+                )
+        folders = []
+        installed = 0
+        def by_name(a: dict, b: dict) -> int:
+            return win_compare(a["name"], b["name"])
+
+        for folder in sorted(by_folder, key=cmp_to_key(win_compare)):
+            files = sorted(by_folder[folder], key=cmp_to_key(by_name))
+            installed += sum(1 for f in files if f["state"] > State.NOT_INSTALLED)
+            folders.append({"folder": folder, "files": files})
+        total = sum(len(f["files"]) for f in folders)
+        return {"folders": folders, "count": total, "installed": installed}
+
     # -- Operations -------------------------------------------------------- #
     def install(self, names: list[str]) -> str:
         self.engine.install_files(self.mod_files(names), anneal_mods=names)

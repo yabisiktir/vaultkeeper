@@ -40,6 +40,57 @@ def icon_name_for_state(state: State) -> str:
     return _STATE_ICON.get(state, "Folder_6221")
 
 
+def file_state_brush(state: State) -> QBrush | None:
+    """Row colour for a file's install state (green installed / amber overridden)."""
+    if state in (State.OVERRIDDEN, State.INSTALLED_AND_OVERRIDDEN):
+        return _OVERRIDDEN_BRUSH
+    if state > State.NOT_INSTALLED:  # installed or match-override
+        return _INSTALLED_BRUSH
+    return None
+
+
+class ContentsView(QTreeWidget):
+    """The selected mod's files grouped by folder, with per-file install state.
+
+    The VB Contents pane is another ``FileView`` (``FvContents``); this mirrors its
+    visible identity — folder group rows, a per-file state icon and green/amber
+    state colour — so the user can see which of a mod's files are installed.
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setHeaderLabels(["Contents", "Size"])
+        self.setRootIsDecorated(True)
+        self.setColumnCount(2)
+        header = self.header()
+        header.setStretchLastSection(False)
+        from PySide6.QtWidgets import QHeaderView
+
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+
+    def populate(self, report: dict) -> None:
+        """Rebuild from a ``controller.mod_contents_report`` result."""
+        from PySide6.QtCore import Qt
+
+        self.clear()
+        folder_icon = R.get_icon("Folder_6221")
+        for group in report.get("folders", []):
+            folder_item = QTreeWidgetItem([group["folder"], ""])
+            folder_item.setIcon(0, folder_icon)
+            folder_item.setFlags(folder_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            self.addTopLevelItem(folder_item)
+            for file in group["files"]:
+                item = QTreeWidgetItem([file["name"], file["size_text"]])
+                item.setIcon(0, R.get_icon(icon_name_for_state(file["state"])))
+                item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight)
+                brush = file_state_brush(file["state"])
+                if brush is not None:
+                    item.setForeground(0, brush)
+                folder_item.addChild(item)
+            folder_item.setExpanded(True)
+
+
 class FileView(QTreeWidget):
     """A grouped, state-coloured mod list (echoes VB ``FvMods``)."""
 

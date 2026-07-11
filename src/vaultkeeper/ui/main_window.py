@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
-from vaultkeeper.ui.file_view import FileView
+from vaultkeeper.ui.file_view import ContentsView, FileView
 from vaultkeeper.ui.menu_bar import NitMenuBar
 from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
@@ -51,8 +51,7 @@ class MainWindow(QMainWindow):
         self._tree = FileView("Mods")
         self._tree.selection_changed.connect(self._on_selection_changed)
 
-        self._contents = QTreeWidget()
-        self._contents.setHeaderLabels(["Contents"])
+        self._contents = ContentsView()
         self._mod_info = QLabel("")
         self._mod_info.setWordWrap(True)
         self._mod_info.setMargin(6)
@@ -387,17 +386,11 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _show_contents(self, md: ModData) -> None:
-        """Show the selected mod's installer files, grouped by folder."""
-        self._contents.clear()
-        by_folder: dict[str, list[str]] = {}
-        for fk in md.files:
-            by_folder.setdefault(fk.folder, []).append(fk.filename)
-        for folder in sorted(by_folder):
-            folder_item = QTreeWidgetItem([folder])
-            self._contents.addTopLevelItem(folder_item)
-            for filename in sorted(by_folder[folder]):
-                folder_item.addChild(QTreeWidgetItem([filename]))
-            folder_item.setExpanded(True)
+        """Show the selected mod's files, grouped by folder, with install state."""
+        if self.controller is None:
+            self._contents.clear()
+            return
+        self._contents.populate(self.controller.mod_contents_report(md.mod_name))
 
     def _show_details(self, md: ModData) -> None:
         # Details list (VB FvDetails): key properties as Property/Value rows.

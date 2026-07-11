@@ -724,7 +724,12 @@ class ProfileData:
         for fk in list(self.file_list):
             ifd = self.installed_list.get(fk.installed_key)
             if ifd is not None:
-                self.file_list[fk].file_crc = ifd.file_crc
+                # A present file is this mod's file: adopt the installed CRC/size
+                # (the installer copy isn't on disk) so it matches + shows its size.
+                fd = self.file_list[fk]
+                fd.file_crc = ifd.file_crc
+                fd.byte_size = ifd.byte_size
+                fd.modified = ifd.modified
 
         self.update_file_states()
         self.update_mod_states()
