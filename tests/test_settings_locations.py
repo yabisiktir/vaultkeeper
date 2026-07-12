@@ -98,3 +98,16 @@ def test_dialog_omits_locations_tab_without_controller(qtbot):
     assert dlg.locations is None
     tab_titles = [dlg.tabs.tabText(i) for i in range(dlg.tabs.count())]
     assert tab_titles == ["General", "Behaviour", "Web Menu"]
+
+
+def test_settings_dialog_start_tab(qtbot):
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+    dlg = SettingsDialog(Settings(), start_tab="Behaviour")
+    qtbot.addWidget(dlg)
+    assert dlg.tabs.tabText(dlg.tabs.currentIndex()) == "Behaviour"
+    # Unknown/blank tab names leave the default (first) tab selected.
+    dlg2 = SettingsDialog(Settings(), start_tab="Nope")
+    qtbot.addWidget(dlg2)
+    assert dlg2.tabs.currentIndex() == 0

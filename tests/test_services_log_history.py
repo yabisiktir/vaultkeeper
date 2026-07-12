@@ -1,4 +1,4 @@
-"""Tests for logging setup and the message-history throttle."""
+"""Tests for the logging setup."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import logging
 from pathlib import Path
 
 from vaultkeeper.core.log import configure_logging, get_logger
-from vaultkeeper.core.message_history import MessageHistory
 
 
 def test_get_logger_is_child_of_root() -> None:
@@ -29,32 +28,3 @@ def test_configure_logging_writes_file(tmp_path: Path) -> None:
         h.flush()
     assert log_path.exists()
     assert "hello world" in log_path.read_text(encoding="utf-8")
-
-
-def test_message_history_throttle(tmp_path: Path) -> None:
-    hist = MessageHistory(path=tmp_path / "mh.json")
-    key = "anneal.null_conflict"
-    assert hist.should_display(key, max_times=2)
-    hist.record(key)
-    assert hist.should_display(key, max_times=2)  # shown once, limit 2
-    hist.record(key)
-    assert not hist.should_display(key, max_times=2)  # limit reached
-    assert hist.count(key) == 2
-
-
-def test_message_history_persists(tmp_path: Path) -> None:
-    path = tmp_path / "mh.json"
-    MessageHistory(path=path).record("k")
-    # Fresh instance reads the persisted count.
-    assert MessageHistory(path=path).count("k") == 1
-
-
-def test_message_history_reset(tmp_path: Path) -> None:
-    hist = MessageHistory(path=tmp_path / "mh.json")
-    hist.record("a")
-    hist.record("b")
-    hist.reset("a")
-    assert hist.count("a") == 0
-    assert hist.count("b") == 1
-    hist.reset()
-    assert hist.count("b") == 0

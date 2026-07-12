@@ -46,6 +46,7 @@ class SettingsDialog(QDialog):
         parent: QWidget | None = None,
         *,
         controller=None,
+        start_tab: str = "",
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Settings")
@@ -63,6 +64,13 @@ class SettingsDialog(QDialog):
         if self.locations is not None:
             self.tabs.addTab(self.locations, "Locations")
         layout.addWidget(self.tabs, 1)
+        # Open on a named tab (VB SettingsStartPage — e.g. Basic Settings opens the
+        # behaviour/UI preferences, Advanced opens the full settings).
+        if start_tab:
+            for index in range(self.tabs.count()):
+                if self.tabs.tabText(index) == start_tab:
+                    self.tabs.setCurrentIndex(index)
+                    break
 
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -278,10 +286,11 @@ class SettingsDialog(QDialog):
         parent: QWidget | None = None,
         *,
         controller=None,
+        start_tab: str = "",
     ) -> Settings | None:
         """Load settings, show the dialog modally, and persist on OK."""
         settings = load_settings(settings_path)
-        dlg = cls(settings, parent, controller=controller)
+        dlg = cls(settings, parent, controller=controller, start_tab=start_tab)
         if dlg.exec() == QDialog.DialogCode.Accepted:
             dlg.apply_to(settings)
             save_settings(settings, settings_path)

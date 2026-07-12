@@ -513,3 +513,58 @@ def test_contents_delete_file_via_ui(qtbot, controller, tmp_path, monkeypatch) -
     installer = tmp_path / "Profiles" / "P" / "Alpha" / C.MOD_INSTALLER_DIR
     assert not (installer / "hak" / "a.hak").is_file()
     assert not any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Alpha").files)
+
+
+# -- Command availability: unimplemented chrome is greyed out -------------- #
+def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    implemented = win.implemented_commands()
+
+    # Faithful-but-unwired items exist (parity) but are disabled everywhere.
+    for dead_id in ("MsCut", "MsAbout", "MsBackupManager"):
+        act = win.nit_menu.action(dead_id)
+        assert act is not None and not act.isEnabled()
+        assert dead_id not in implemented
+    for dead_id in ("RbnFontAndColour", "RbnManageWorkshop"):
+        button = win.ribbon.button(dead_id)
+        assert button is not None and not button.isEnabled()
+    for dead_id in ("TsCut", "TsFind"):
+        act = win.quick_toolbar.actions_by_id[dead_id]
+        assert not act.isEnabled()
+
+    # Implemented items are untouched by the pass (still governed by selection
+    # logic or enabled by default).
+    assert win.nit_menu.action("MsNewMod").isEnabled()
+    assert win.ribbon.button("RbnPlay").isEnabled()
+    assert win.quick_toolbar.actions_by_id["TsNewMod"].isEnabled()
+    # The handled visibility toggles stay live.
+    assert win.nit_menu.action("MsShowRibbon").isEnabled()
+    # Unhandled checkable toggles are disabled like any other dead item.
+    assert not win.nit_menu.action("MsShowText").isEnabled()
+
+
+def test_implemented_commands_match_dispatch(qtbot, controller) -> None:
+    # Every dispatchable id is reported implemented (single source of truth).
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    implemented = win.implemented_commands()
+    assert set(win._command_handlers()) <= implemented
+
+
+def test_basic_settings_opens_behaviour_tab(qtbot, controller, monkeypatch) -> None:
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    seen = {}
+
+    def fake_edit(settings_path=None, parent=None, *, controller=None, start_tab=""):
+        seen["start_tab"] = start_tab
+        return None  # cancelled
+
+    monkeypatch.setattr(SettingsDialog, "edit", staticmethod(fake_edit))
+    win._on_command("MsBasicSettings")
+    assert seen["start_tab"] == "Behaviour"
+    win._on_command("MsSettings")
+    assert seen["start_tab"] == ""

@@ -121,6 +121,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.nit_status)
 
         self._build_menu()
+        self._apply_command_availability()
         self.nit_status.set_info("Ready")
 
         if controller is not None:
@@ -575,13 +576,45 @@ class MainWindow(QMainWindow):
 
     # -- Ribbon / toolbar dispatch ----------------------------------------- #
     def _on_command(self, action: str) -> None:
-        """Route a ribbon/toolbar action id to its handler (VB Handles subs).
+        """Route a ribbon/toolbar action id to its handler (VB Handles subs)."""
+        handler = self._command_handlers().get(action, self._not_implemented)
+        handler()
 
-        Actions already implemented in this phase are wired to their handlers;
-        the rest report "not yet available" so the chrome is fully clickable while
-        later phases fill in the remaining commands.
+    def implemented_commands(self) -> set[str]:
+        """Every command id with a real handler (dispatch + checkable toggles).
+
+        The single source of truth for the availability pass: menu/ribbon/toolbar
+        items whose id is not in this set are shown disabled instead of raising
+        "not available yet" when clicked.
         """
-        handlers = {
+        return set(self._command_handlers()) | {"MsShowRibbon", "MsShowToolbar"}
+
+    def _apply_command_availability(self) -> None:
+        """Grey out chrome items whose command isn't implemented yet.
+
+        The menu/ribbon/toolbar structure is a faithful mirror of the VB designer,
+        so unported items stay visible for parity — but disabled, so the user can
+        see at a glance what Vaultkeeper doesn't do yet. Implemented ids are left
+        untouched (selection-driven enabling owns those).
+        """
+        implemented = self.implemented_commands()
+        note = "Not yet available in Vaultkeeper."
+        for item_id, act in self.nit_menu.actions_by_id.items():
+            if item_id not in implemented:
+                act.setEnabled(False)
+                act.setToolTip(note)
+        for item_id, button in self.ribbon.buttons.items():
+            if item_id not in implemented:
+                button.setEnabled(False)
+                button.setToolTip(note)
+        for item_id, act in self.quick_toolbar.actions_by_id.items():
+            if item_id not in implemented:
+                act.setEnabled(False)
+                act.setToolTip(note)
+
+    def _command_handlers(self) -> dict:
+        """The command-id -> handler map (VB Handles subs), built per dispatch."""
+        return {
             # Install / uninstall (ribbon, toolbar, menu).
             "TsInstall": self._on_install,
             "RbnInstallUninstall": self._on_install,
@@ -687,11 +720,14 @@ class MainWindow(QMainWindow):
             "MsDownloadProject": self._on_download_project,
             "RbnDownloadProject": self._on_download_project,
             "TsDownloadProject": self._on_download_project,
-            # Settings.
+            # Settings. VB has two surfaces: BasicSettings (a curated behaviour/UI
+            # preferences dialog, whose Advanced button chains into the full
+            # Settings) and the full Settings browser. The port's tabbed dialog
+            # covers both, so Basic opens on the Behaviour tab, Advanced on General.
             "MsSettings": self._on_settings,
-            "MsBasicSettings": self._on_settings,
+            "MsBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
             "RbnAdvancedSettings": self._on_settings,
-            "RbnBasicSettings": self._on_settings,
+            "RbnBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
             # View-menu file viewers (+ Diagnose-ribbon Rbn* variants share handlers).
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
             "RbnNitLog": lambda: self._on_view_file("MsLogFile"),
@@ -724,8 +760,6 @@ class MainWindow(QMainWindow):
             "MsRestart": self.refresh,
             "MsExit": self.close,
         }
-        handler = handlers.get(action, self._not_implemented)
-        handler()
 
     # -- Help (VB HelpFileManager) ----------------------------------------- #
     def _on_help_contents(self) -> None:
@@ -1150,11 +1184,14 @@ class MainWindow(QMainWindow):
         )
         self._download_dialog.show()
 
-    def _on_settings(self) -> None:
+    def _on_settings(self, start_tab: str = "") -> None:
+        """Open Settings; Basic Settings starts on the Behaviour tab (VB BasicSettings)."""
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
         before = self._current_game_paths()
-        settings = SettingsDialog.edit(parent=self, controller=self.controller)
+        settings = SettingsDialog.edit(
+            parent=self, controller=self.controller, start_tab=start_tab
+        )
         if settings is not None:
             # Reflect the recycle preference on the status bar toggle.
             self.nit_status.set_recycle(settings.recycle_on_delete)
