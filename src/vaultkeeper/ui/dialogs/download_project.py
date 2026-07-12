@@ -1,9 +1,14 @@
-"""DownloadProjectDialog — download a Vault project's files (VB ``DownloadProject``).
+"""DownloadProjectDialog — download a Vault project to create/update a mod.
 
-Paste a Neverwinter Vault project URL, fetch its file list, tick the files to keep,
-choose the target mod, and download them into that mod's ``_Downloads`` folder. The
-scrape/download go through the controller (injected HTTP client), so the network is
-mockable; the population and selection logic here is directly testable.
+Mirrors the VB ``DownloadProject`` experience: "Download a project from the
+Neverwinter Vault to create or update a Mod". You paste the project's page address
+(URL) and click **Retrieve**; the dialog derives an editable **Mod folder name** and
+**Group**, lists the project's files (ticked to keep), and **Download** creates the
+mod (if new) and pulls the files into its ``_Downloads`` folder, ready for Create
+Installer. Required prerequisite projects are surfaced so they can be fetched too.
+
+The scrape/download go through the controller (injected HTTP client), so the network
+is mockable and the population/selection logic is directly testable.
 """
 
 from __future__ import annotations
@@ -12,6 +17,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -29,80 +36,127 @@ from vaultkeeper.ui.controller import _fmt_size
 
 
 class DownloadProjectDialog(QDialog):
-    """Fetch + download a Vault project into a mod's downloads folder."""
+    """Retrieve a Vault project and download it into a new/updated mod."""
 
     def __init__(
         self,
         controller,
-        mod_names: list[str],
+        mod_names: list[str] | None = None,
         default_mod: str = "",
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.controller = controller
         self._files: list = []
+        self._required: list[dict] = []
+        self._name_touched = False
         self.setWindowTitle("Download Project")
         self.setWindowIcon(R.get_icon("DownloadProject_16x"))
-        self.resize(640, 480)
+        self.resize(640, 560)
 
         layout = QVBoxLayout(self)
 
-        # URL + fetch.
+        # Purpose + instructions (VB LbDownloadProject / LbDownloadHelp).
+        heading = QLabel(
+            "Download a project from the Neverwinter Vault to create or update a mod."
+        )
+        heading.setStyleSheet("font-weight: bold;")
+        heading.setWordWrap(True)
+        layout.addWidget(heading)
+        hint = QLabel(
+            "Enter the project's page address (URL) below and click Retrieve."
+        )
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+
+        # URL + Retrieve (VB LbUrl "Project Web Address (URL)" / BtRetrieve).
+        layout.addWidget(QLabel("Project web address (URL):"))
         url_row = QHBoxLayout()
         self.url_edit = QLineEdit()
-        self.url_edit.setPlaceholderText("Neverwinter Vault project URL…")
-        self.fetch_button = QPushButton("Fetch")
-        self.fetch_button.clicked.connect(self._on_fetch)
+        self.url_edit.setPlaceholderText("https://neverwintervault.org/project/…")
+        self.url_edit.returnPressed.connect(self._on_fetch)
+        self.retrieve_button = QPushButton("Retrieve")
+        self.retrieve_button.clicked.connect(self._on_fetch)
         url_row.addWidget(self.url_edit, 1)
-        url_row.addWidget(self.fetch_button)
+        url_row.addWidget(self.retrieve_button)
         layout.addLayout(url_row)
 
-        # File list.
+        # Project configuration: what mod the download becomes (VB "Project
+        # Configuration": Mod Folder Name + Group + Project Files). Hidden until a
+        # project is retrieved so the empty dialog isn't cluttered with blank fields.
+        self.config_box = QGroupBox("Project configuration")
+        config = QVBoxLayout(self.config_box)
+        form = QFormLayout()
+        self.project_label = QLabel("—")
+        self.project_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        form.addRow("Project:", self.project_label)
+        self.mod_name_edit = QLineEdit(default_mod)
+        self.mod_name_edit.setPlaceholderText("New mod folder name")
+        self.mod_name_edit.textEdited.connect(self._on_name_edited)
+        form.addRow("Mod folder name:", self.mod_name_edit)
+        self.group_combo = QComboBox()
+        self.group_combo.setEditable(True)
+        self.group_combo.addItems(self._group_names())
+        form.addRow("Group:", self.group_combo)
+        config.addLayout(form)
+
+        config.addWidget(QLabel("Project files (tick the ones to download):"))
         self.file_tree = QTreeWidget()
         self.file_tree.setHeaderLabels(["File", "Size"])
         self.file_tree.setRootIsDecorated(False)
         self.file_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        layout.addWidget(self.file_tree, 1)
+        config.addWidget(self.file_tree, 1)
+        self.config_box.setVisible(False)
+        layout.addWidget(self.config_box, 4)
 
-        # Required projects (prerequisites listed on the Vault page).
-        self.required_label = QLabel("Required projects:")
+        # Required prerequisite projects (VB Required Projects).
+        self.required_label = QLabel("Required projects (double-click to load a URL):")
         self.required_label.setVisible(False)
         layout.addWidget(self.required_label)
         self.required_list = QTreeWidget()
         self.required_list.setHeaderLabels(["Required Project", "URL"])
         self.required_list.setRootIsDecorated(False)
         self.required_list.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.required_list.setMaximumHeight(110)
+        self.required_list.setMaximumHeight(96)
         self.required_list.setVisible(False)
         self.required_list.itemDoubleClicked.connect(self._on_required_double_clicked)
-        self.required_list.setToolTip("Double-click to load a required project's URL")
         layout.addWidget(self.required_list)
-        self._required: list[dict] = []
 
-        # Target mod + download.
-        bottom = QHBoxLayout()
-        bottom.addWidget(QLabel("Download into:"))
-        self.mod_combo = QComboBox()
-        self.mod_combo.addItems(mod_names)
-        if default_mod and default_mod in mod_names:
-            self.mod_combo.setCurrentText(default_mod)
-        bottom.addWidget(self.mod_combo, 1)
+        # Keep content top-aligned and the button bar at the bottom when the
+        # configuration area is hidden (empty state).
+        layout.addStretch(1)
+
+        # Actions.
+        buttons = QHBoxLayout()
+        buttons.addStretch(1)
         self.download_button = QPushButton("Download")
         self.download_button.clicked.connect(self._on_download)
-        bottom.addWidget(self.download_button)
+        self.download_button.setEnabled(False)
+        buttons.addWidget(self.download_button)
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
-        bottom.addWidget(help_button("BhDownloadProject", self))
-        layout.addLayout(bottom)
+        buttons.addWidget(help_button("BhDownloadProject", self))
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.reject)
+        buttons.addWidget(close_button)
+        layout.addLayout(buttons)
 
         self.progress = QProgressBar()
+        self.progress.setVisible(False)
         layout.addWidget(self.progress)
         self.status = QLabel("")
+        self.status.setWordWrap(True)
         layout.addWidget(self.status)
+
+    def _group_names(self) -> list[str]:
+        try:
+            return self.controller.group_names()
+        except Exception:
+            return []
 
     # -- Population -------------------------------------------------------- #
     def populate_files(self, files: list) -> None:
-        """Show the scraped files as checked rows."""
+        """Show the scraped files as checked rows + reveal the configuration."""
         self._files = files
         self.file_tree.clear()
         for vsi in files:
@@ -112,7 +166,20 @@ class DownloadProjectDialog(QDialog):
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(0, Qt.CheckState.Checked)
             self.file_tree.addTopLevelItem(item)
-        self.status.setText(f"{len(files)} file(s) found." if files else "No files found.")
+        has_files = bool(files)
+        self.config_box.setVisible(has_files)
+        self.download_button.setEnabled(has_files)
+        # Pre-fill the mod name + project label from the project title (VB derives
+        # the Mod Folder Name from the project); respect a name the user has typed.
+        title = files[0].project_title if files else ""
+        if title:
+            nice = self.controller.suggested_mod_name(title)
+            self.project_label.setText(nice or title)
+            if not self._name_touched and not self.mod_name_edit.text().strip():
+                self.mod_name_edit.setText(nice)
+        self.status.setText(
+            f"{len(files)} file(s) found." if files else "No files found."
+        )
 
     def checked_files(self) -> list:
         """The files the user has ticked."""
@@ -136,31 +203,45 @@ class DownloadProjectDialog(QDialog):
         self.required_list.setVisible(has)
 
     def _on_required_double_clicked(self, item: QTreeWidgetItem) -> None:
-        """Load a required project's URL into the fetch box (so it can be fetched)."""
+        """Load a required project's URL into the retrieve box (so it can be fetched)."""
         self.url_edit.setText(item.text(1))
+
+    def _on_name_edited(self, _text: str) -> None:
+        self._name_touched = True
 
     # -- Actions ----------------------------------------------------------- #
     def _on_fetch(self) -> None:
         url = self.url_edit.text().strip()
         if not url:
             return
-        self.status.setText("Fetching…")
+        self.status.setText("Retrieving…")
         self.populate_files(self.controller.scrape_project(url))
         self.populate_required(self.controller.project_required_projects(url))
 
     def _on_download(self) -> None:
         files = self.checked_files()
-        mod = self.mod_combo.currentText()
-        if not files or not mod:
-            self.status.setText("Select a mod and at least one file.")
+        mod = self.mod_name_edit.text().strip()
+        if not files:
+            self.status.setText("Tick at least one file to download.")
             return
+        if not mod:
+            self.status.setText("Enter a mod folder name to download into.")
+            self.mod_name_edit.setFocus()
+            return
+        group = self.group_combo.currentText().strip() or None
+        self.progress.setVisible(True)
         self.progress.setMaximum(len(files))
 
         def on_progress(index: int, total: int, vsi) -> None:
             self.progress.setValue(index)
             self.status.setText(f"Downloading {vsi.description or vsi.filename}…")
 
-        results = self.controller.download_project(files, mod, on_progress=on_progress)
+        results = self.controller.download_project(
+            files, mod, group=group, on_progress=on_progress
+        )
         self.progress.setValue(len(files))
         ok = sum(1 for r in results if r.ok)
-        self.status.setText(f"Downloaded {ok} of {len(results)} file(s) into {mod}.")
+        verb = "Updated" if ok else "No files downloaded to"
+        self.status.setText(
+            f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
+        )

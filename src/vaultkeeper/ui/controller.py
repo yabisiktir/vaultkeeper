@@ -1740,16 +1740,41 @@ class ProfileController:
         """
         return self._make_scraper().fetch_required_projects(url)
 
-    def download_project(self, files: list, mod_name: str, *, on_progress=None) -> list:
-        """Download the given files into ``mod_name``'s ``_Downloads`` folder."""
+    def download_project(
+        self, files: list, mod_name: str, *, group: str | None = None, on_progress=None
+    ) -> list:
+        """Download files into ``mod_name``'s ``_Downloads``, creating the mod if new.
+
+        Faithful to VB "Download a Project … to create or update a Mod": when
+        ``mod_name`` isn't yet a managed mod it is created (under ``group``) so the
+        Vault download lands in a real, ready-to-build mod; an existing mod is just
+        updated. Returns the per-file download results.
+        """
         from vaultkeeper.core import constants as C
         from vaultkeeper.vault.downloader import Downloader
 
+        if mod_name and self.pd.mod_item(mod_name) is None:
+            self.create_mod(mod_name, group)
         dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
+        dest.mkdir(parents=True, exist_ok=True)
         downloader = Downloader(
             self._http, scraper=self._make_scraper(), on_progress=on_progress
         )
         return downloader.download_all(files, dest)
+
+    def suggested_mod_name(self, project_title: str) -> str:
+        """A presentable mod folder name derived from a Vault project title.
+
+        Strips characters illegal in a folder name, collapses whitespace, and
+        capitalises each word so a de-slugged project title (``my project``) becomes a
+        tidy default (``My Project``). It is only a convenience default — the Download
+        Project dialog lets the user edit it before creating the mod.
+        """
+        import re
+
+        cleaned = re.sub(r'[\\/:*?"<>|]+', " ", project_title or "")
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return " ".join(w[:1].upper() + w[1:] for w in cleaned.split(" ") if w)
 
     @staticmethod
     def _load_download_rules(data_dir: Path):

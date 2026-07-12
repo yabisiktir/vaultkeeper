@@ -102,6 +102,59 @@ def test_dialog_download_writes_files(qtbot, tmp_path):
     assert "Downloaded 1 of 1" in dlg.status.text()
 
 
+def test_download_creates_new_mod(qtbot, tmp_path):
+    # The key UX: Download a Vault project to CREATE a mod (VB "create or update").
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/a.zip": HttpResponse("http://cdn/a.zip", 200, content=b"NEW")}
+    )
+    assert controller.pd.mod_item("Fresh Project") is None
+    files = [VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")]
+    results = controller.download_project(
+        files, "Fresh Project", group="100. Packs"
+    )
+    assert all(r.ok for r in results)
+    # A new managed mod was created under the chosen group.
+    md = controller.pd.mod_item("Fresh Project")
+    assert md is not None and md.group == "100. Packs"
+    dl = tmp_path / "Profiles" / "P" / "Fresh Project" / C.DOWNLOADS_DIR / "a.zip"
+    assert dl.read_bytes() == b"NEW"
+
+
+def test_suggested_mod_name_sanitises_title(tmp_path):
+    controller = _controller(tmp_path)
+    assert controller.suggested_mod_name("Aribeth's Redemption: Ch. 3?") == (
+        "Aribeth's Redemption Ch. 3"
+    )
+
+
+def test_dialog_prefills_mod_name_from_project_title(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    url = "http://vault/project/my-project"
+    controller._http = FakeHttpClient(
+        {url: HttpResponse(url, 200, text=_PROJECT_HTML)}
+    )
+    dlg = DownloadProjectDialog(controller)  # no default mod
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    # The mod folder name is derived from the project (URL slug -> "My Project").
+    assert dlg.mod_name_edit.text() == "My Project"
+    assert dlg.project_label.text() == "My Project"
+    assert not dlg.config_box.isHidden()  # revealed on retrieve
+    assert dlg.download_button.isEnabled()
+
+
+def test_dialog_download_needs_a_mod_name(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(description="a.zip")])
+    dlg.mod_name_edit.clear()
+    dlg._on_download()
+    assert "mod folder name" in dlg.status.text().lower()
+
+
 _REQUIRED_PAGE = (
     "<h1>My Project</h1>\n"
     '<span class="file-icon"></span><a href="http://cdn/a.zip" length=100>a.zip</a>\n'

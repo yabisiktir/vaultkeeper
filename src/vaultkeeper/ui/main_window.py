@@ -1598,11 +1598,12 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.download_project import DownloadProjectDialog
 
-        names = self.controller.pd.sorted_mod_keys
         selected = self.selected_mod_names()
         self._download_dialog = DownloadProjectDialog(
-            self.controller, names, selected[0] if selected else "", self
+            self.controller, default_mod=selected[0] if selected else "", parent=self
         )
+        # Refresh the mod list when the dialog closes (a download can create a mod).
+        self._download_dialog.finished.connect(self.refresh)
         self._download_dialog.show()
 
     def _on_settings(self, start_tab: str = "") -> None:
