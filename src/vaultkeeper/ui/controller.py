@@ -219,6 +219,45 @@ class ProfileController:
         )
         return path if path.is_file() else None
 
+    def copy_mod_file(
+        self,
+        src_mod: str,
+        folder: str,
+        filename: str,
+        dest_mod: str,
+        *,
+        move: bool = False,
+    ) -> bool:
+        """Copy (or move) one installer file between mods (VB CmContents Copy/Cut+Paste).
+
+        The file is placed in ``dest_mod``'s ``.Mod Installer`` under the same folder,
+        and the destination's file list is rescanned. With ``move`` the source file is
+        deleted afterward (Cut+Paste). Returns True on success; a no-op paste onto the
+        same file is rejected.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        src = self.mod_file_path(src_mod, folder, filename)
+        dest_md = self.pd.mod_item(dest_mod)
+        if src is None or dest_md is None or dest_md.is_group_item:
+            return False
+        dest = (
+            self.ctx.profile_mods_dir / dest_mod / C.MOD_INSTALLER_DIR / folder / filename
+        )
+        if src.resolve() == dest.resolve():
+            return False  # pasting a file onto itself
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
+        self.pd.scan_mod_files(dest_md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        if move:
+            self.delete_mod_file(src_mod, folder, filename)
+        return True
+
     def delete_mod_file(self, mod_name: str, folder: str, filename: str) -> bool:
         """Delete one installer file from a mod (VB ``CmContents`` Delete).
 

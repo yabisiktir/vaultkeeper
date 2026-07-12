@@ -763,3 +763,54 @@ def test_add_mods_via_ui(qtbot, controller, tmp_path, monkeypatch) -> None:
     md = controller.pd.mod_item("newmod")
     assert md is not None and md.group == group
     assert win.nit_menu.action("MsAddMods").isEnabled()
+
+
+# -- Contents file Cut/Copy/Paste between mods (VB CmContents) -------------- #
+def test_controller_copy_mod_file(controller, tmp_path) -> None:
+    # Copy Alpha's hak/a.hak into Beta.
+    ok = controller.copy_mod_file("Alpha", "hak", "a.hak", "Beta")
+    assert ok
+    beta_file = (
+        tmp_path / "Profiles" / "P" / "Beta" / C.MOD_INSTALLER_DIR / "hak" / "a.hak"
+    )
+    assert beta_file.is_file()
+    assert any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Beta").files)
+    # Source is untouched by a copy.
+    assert controller.mod_file_path("Alpha", "hak", "a.hak") is not None
+    # Pasting onto the same file is rejected.
+    assert not controller.copy_mod_file("Beta", "hak", "a.hak", "Beta")
+
+
+def test_controller_move_mod_file(controller) -> None:
+    ok = controller.copy_mod_file("Alpha", "hak", "a.hak", "Beta", move=True)
+    assert ok
+    assert any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Beta").files)
+    # Move deletes the source.
+    assert controller.mod_file_path("Alpha", "hak", "a.hak") is None
+
+
+def test_contents_copy_paste_via_ui(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    _select_contents_file(win, "hak", "a.hak")
+    win._on_copy_contents_file(cut=False)
+    assert win._file_clipboard[0] == "Alpha" and win._file_clipboard[3] is False
+    # Switch to Beta and paste.
+    _select_mod(win, "Beta")
+    win._on_paste_contents_file()
+    assert any(fk.filename == "a.hak" for fk in controller.pd.mod_item("Beta").files)
+    # A copy keeps the clipboard for repeated pastes.
+    assert win._file_clipboard is not None
+
+
+def test_contents_cut_paste_clears_clipboard(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    _select_contents_file(win, "hak", "a.hak")
+    win._on_copy_contents_file(cut=True)
+    _select_mod(win, "Beta")
+    win._on_paste_contents_file()
+    assert controller.mod_file_path("Alpha", "hak", "a.hak") is None  # moved
+    assert win._file_clipboard is None  # cut consumed

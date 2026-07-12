@@ -59,6 +59,8 @@ class MainWindow(QMainWindow):
         # Contents-pane file actions (VB CmContents): double-click views a file,
         # right-click offers View / Delete.
         self._contents_mod: str | None = None
+        # Cut/Copy/Paste clipboard for Contents files: (mod, folder, filename, is_cut).
+        self._file_clipboard: tuple | None = None
         self._contents.itemDoubleClicked.connect(self._on_view_contents_file)
         self._contents.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._contents.customContextMenuRequested.connect(
@@ -485,8 +487,44 @@ class MainWindow(QMainWindow):
         menu.addAction("Display Info", self._on_display_contents_info)
         menu.addAction("Copy Name", self._on_copy_contents_name)
         menu.addSeparator()
+        menu.addAction("Cut", lambda: self._on_copy_contents_file(cut=True))
+        menu.addAction("Copy", lambda: self._on_copy_contents_file(cut=False))
+        paste = menu.addAction("Paste", self._on_paste_contents_file)
+        paste.setEnabled(self._file_clipboard is not None)
+        menu.addSeparator()
         menu.addAction("Delete File", self._on_delete_contents_file)
         menu.exec(self._contents.viewport().mapToGlobal(pos))
+
+    def _on_copy_contents_file(self, *, cut: bool) -> None:
+        """Put the selected Contents file on the clipboard (VB CmContents Cut/Copy)."""
+        selected = self._contents.selected_file()
+        if selected is None or self._contents_mod is None:
+            return
+        folder, filename = selected
+        self._file_clipboard = (self._contents_mod, folder, filename, cut)
+        self.nit_status.set_info(f"{'Cut' if cut else 'Copied'} {filename}.")
+
+    def _on_paste_contents_file(self) -> None:
+        """Paste the clipboard file into the selected mod (VB CmContents Paste)."""
+        if (
+            self.controller is None
+            or self._contents_mod is None
+            or self._file_clipboard is None
+        ):
+            return
+        dest_mod = self._contents_mod  # refresh() clears the selection, so capture it
+        src_mod, folder, filename, cut = self._file_clipboard
+        ok = self.controller.copy_mod_file(src_mod, folder, filename, dest_mod, move=cut)
+        if not ok:
+            self.nit_status.set_info(f"Could not paste {filename}.")
+            return
+        if cut:
+            self._file_clipboard = None  # a cut file is consumed by the paste
+        self.refresh()
+        md = self.controller.pd.mod_item(dest_mod)
+        if md is not None:
+            self._show_contents(md)
+        self.nit_status.set_info(f"Pasted {filename} into {dest_mod}.")
 
     def _on_display_contents_info(self, *_args) -> None:
         """Preview the selected Contents file (VB ``MsDisplayInfo``).
