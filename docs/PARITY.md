@@ -312,3 +312,30 @@ Folder Mapping, Create Missing Installers, User Response Editor, Dependency Mana
 Conflicts Viewer, Installation Analyser, Play Data Viewer, Mod Play Viewer, Publish
 Mod, Settings and Portrait Manager — plus the Help menu (View Help / Get Started /
 FAQ / What's New / Version History). Each opens its `<ControlName>.htm` topic.
+
+## Command-wiring status (2026-07-12, final feature push)
+
+The menu/ribbon/toolbar mirror the VB designer 1:1; a command becomes live when its
+handler is added to `MainWindow._command_handlers()` (the availability pass greys out
+the rest). Current coverage: **142 / 185 chrome ids wired.** The 43 still-disabled ids
+are all accounted for — nothing is an accidental gap:
+
+- **FileView current-folder navigation (6): DEFERRED.** `MsNewFolder`, `MsNewTextFile`,
+  `MsNewRtfFile`, `MsMoveToFolder`, `MsMoveToHistory`, `MsMoveToDev`. All depend on the
+  LazWorks FileView `Navigator`/`CurrentFolder` model (`FileView.Properties.vb:484`) and
+  the FvDetails *file list*. The port renders the Contents pane as a flat folder-grouped
+  read view and Details as a Property/Value list (a deliberate structural divergence —
+  the long-deferred "true LazWorks FileView rewrite"); empty folders aren't tracked in
+  the file-key model. A partial navigator would invent non-VB behaviour, so these stay
+  deferred rather than approximated.
+- **Shared-store / backup-manager (6): low value, deferred.** `MsExportMods`,
+  `MsImportMods`, `MsSynchroniseMods`, `MsOpenSharedStore`, `MsBackupManager`,
+  `RbnExportSettings` — VB `SharedNit`/`BackupManager` network-share sync (single-machine
+  use case; consistent with the read-only-NRBF data strategy).
+- **Other deferred features (14):** e.g. `MsClassesSkillsAndFeats` (reference viewer —
+  bundled data ready, cleanest next win), `MsCreateOriginalRestorers`,
+  `MsEditStartScreenPrefixes`, `MsHakPatchEditor`, `MsAliasSection`, `MsFindAndRename`,
+  workshop enable/refresh, `MsValidate*`.
+- **Intentional cross-platform divergences (17): NOT gaps.** Windows taskbar/shell,
+  clipboard viewer, debug menu, online update / diagnostics, NTFS/Notepad++-specific
+  items — left visible-but-disabled by design.
