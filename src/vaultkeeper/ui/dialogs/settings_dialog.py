@@ -1,11 +1,13 @@
 """SettingsDialog — the application preferences dialog (VB ``Settings``/``BasicSettings``).
 
 Edits the persisted Vaultkeeper settings model (recycle-vs-permanent delete, the
-startup config-drift check) on a **General** tab, and — when a controller is
-supplied — shows the resolved file paths on a **Locations** tab (VB Settings
-*Locations* page: ``Location`` / ``Path``). A modest but real slice of the full VB
-Settings form; the Mapper editors (see the FolderMapping viewer), run/web menus and
-theming come later.
+startup config-drift check) on a **General** tab, an **Appearance** tab (VB
+``MsFontAndColour``/``RbnFontAndColour`` — see ``ui/theme.py`` for the BOUNDED
+PORT this represents: a global font size + light/dark/system theme, not the full
+per-element VB font/colour editor), and — when a controller is supplied — shows
+the resolved file paths on a **Locations** tab (VB Settings *Locations* page:
+``Location`` / ``Path``). A modest but real slice of the full VB Settings form;
+the Mapper editors (see the FolderMapping viewer) and run/web menus come later.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
@@ -21,6 +24,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QSpinBox,
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
@@ -59,6 +63,7 @@ class SettingsDialog(QDialog):
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_general(settings), "General")
         self.tabs.addTab(self._build_behaviour(settings), "Behaviour")
+        self.tabs.addTab(self._build_appearance(settings), "Appearance")
         self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
         self.locations = self._build_locations(controller)
         if self.locations is not None:
@@ -130,6 +135,39 @@ class SettingsDialog(QDialog):
         self.startup_sound = QCheckBox("Play a sound when the application starts")
         self.startup_sound.setChecked(settings.startup_sound)
         form.addRow(self.startup_sound)
+        return page
+
+    #: QComboBox item labels for ``self.theme``, in display order, mapped to the
+    #: ``Settings.theme`` values in ``vaultkeeper.ui.theme.THEMES``.
+    _THEME_LABELS = ("System", "Light", "Dark")
+
+    def _build_appearance(self, settings: Settings) -> QWidget:
+        """Appearance preferences: BOUNDED PORT of the VB font/colour editor.
+
+        VB opens a full ``BasicFontAndColourEditor`` (per-element Font page +
+        Colour page). This ports only the high-value accessibility subset: one
+        application-wide font point size and one light/dark/system theme. See
+        ``vaultkeeper.ui.theme`` for the palette/font application logic.
+        """
+        from vaultkeeper.ui.theme import THEMES
+
+        page = QWidget()
+        form = QFormLayout(page)
+
+        self.font_size = QSpinBox()
+        self.font_size.setRange(0, 24)
+        self.font_size.setSpecialValueText("System default")
+        self.font_size.setValue(settings.font_point_size)
+        form.addRow("Application font size:", self.font_size)
+
+        self.theme = QComboBox()
+        self.theme.addItems(self._THEME_LABELS)
+        try:
+            index = THEMES.index(settings.theme)
+        except ValueError:
+            index = 0
+        self.theme.setCurrentIndex(index)
+        form.addRow("Theme:", self.theme)
         return page
 
     def _build_web_menu(self, settings: Settings) -> QWidget:
@@ -273,6 +311,10 @@ class SettingsDialog(QDialog):
         settings.install_after_create = self.install_after_create.isChecked()
         settings.remember_window_position = self.remember_window.isChecked()
         settings.startup_sound = self.startup_sound.isChecked()
+        settings.font_point_size = self.font_size.value()
+        from vaultkeeper.ui.theme import THEMES
+
+        settings.theme = THEMES[self.theme.currentIndex()]
         settings.web_links = self.web_links()
         if self.game_install_edit is not None:
             settings.nwn_path = self.game_install_edit.text().strip() or None

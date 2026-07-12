@@ -81,6 +81,17 @@ class Settings:
     #: User exclude additions ``{"files": [...], "folders": [...]}`` the installer
     #: scan skips (VB Settings "Excluded Items"); empty = default excludes only.
     map_exclude_overrides: dict[str, list[str]] = field(default_factory=dict)
+    #: Global application font point size; ``0`` = platform default (VB
+    #: ``My.Settings.Fonts`` via the BasicFontAndColourEditor's Font page). BOUNDED
+    #: PORT: the VB editor sets a font per-element/control; here it is a single
+    #: app-wide override, which is the high-value accessibility subset.
+    font_point_size: int = 0
+    #: UI colour theme: ``"system"`` | ``"light"`` | ``"dark"`` (VB
+    #: BasicFontAndColourEditor's Colour page / colour settings, applied via
+    #: ``SaveColourSettings``/``ApplyThemeToRichTextFiles``). BOUNDED PORT: the VB
+    #: editor lets the user recolour individual UI elements; here it is a single
+    #: light/dark/system palette choice.
+    theme: str = "system"
 
     #: Keys present in the file that this version doesn't model, kept for round-trip.
     _extra: dict[str, Any] = field(default_factory=dict, repr=False)
