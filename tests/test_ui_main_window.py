@@ -529,7 +529,7 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     for dead_id in ("RbnFontAndColour", "RbnManageWorkshop"):
         button = win.ribbon.button(dead_id)
         assert button is not None and not button.isEnabled()
-    for dead_id in ("TsCut", "TsFind"):
+    for dead_id in ("TsCut", "TsGoToGroup"):
         act = win.quick_toolbar.actions_by_id[dead_id]
         assert not act.isEnabled()
 
@@ -814,3 +814,46 @@ def test_contents_cut_paste_clears_clipboard(qtbot, controller) -> None:
     win._on_paste_contents_file()
     assert controller.mod_file_path("Alpha", "hak", "a.hak") is None  # moved
     assert win._file_clipboard is None  # cut consumed
+
+
+# -- Find Files in Profile (VB FindProfileFilesDialogue) ------------------- #
+def test_find_profile_files(controller) -> None:
+    # Fixture mods: Alpha has hak/a.hak, Beta has override/b.2da.
+    assert controller.find_profile_files("")["count"] == 0  # empty query -> nothing
+    hak = controller.find_profile_files("a.hak")
+    assert hak["count"] == 1
+    assert hak["rows"][0] == {"mod": "Alpha", "filename": "a.hak", "folder": "hak"}
+    # Substring across mods, sorted by mod then file.
+    dot = controller.find_profile_files(".")
+    mods = [r["mod"] for r in dot["rows"]]
+    assert mods == ["Alpha", "Beta"]
+    # Match-case + whole-word.
+    assert controller.find_profile_files("A.HAK")["count"] == 1  # default insensitive
+    assert controller.find_profile_files("A.HAK", match_case=True)["count"] == 0
+    assert controller.find_profile_files("ha")["count"] == 1
+    assert controller.find_profile_files("ha", whole_word=True)["count"] == 0
+
+
+def test_find_dialog_and_select(qtbot, controller) -> None:
+    from vaultkeeper.ui.dialogs.find_files import FindFilesDialog
+
+    picked = {}
+    dlg = FindFilesDialog(controller, on_select=lambda m: picked.setdefault("mod", m))
+    qtbot.addWidget(dlg)
+    dlg._find.setText("b.2da")
+    assert dlg._results.topLevelItemCount() == 1
+    assert dlg._results.topLevelItem(0).text(0) == "Beta"
+    assert "Files Found: 1" in dlg._count.text()
+    assert dlg._select_btn.isEnabled()
+    dlg._select()
+    assert picked["mod"] == "Beta"
+
+
+def test_find_selects_mod_in_tree(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._tree.clearSelection()
+    win._select_mod_by_name("Beta")
+    assert win.selected_mod_names() == ["Beta"]
+    # Wired -> the command is enabled.
+    assert win.nit_menu.action("MsFind").isEnabled()

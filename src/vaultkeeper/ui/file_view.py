@@ -202,6 +202,25 @@ class FileView(QTreeWidget):
                 names.append(name)
         return names
 
+    def _mod_items(self):
+        """Every mod row (top-level ungrouped rows + rows under group headers)."""
+        for i in range(self.topLevelItemCount()):
+            top = self.topLevelItem(i)
+            if top.childCount() == 0:
+                yield top
+            else:
+                for j in range(top.childCount()):
+                    yield top.child(j)
+
+    def select_mod(self, mod_name: str) -> bool:
+        """Select + scroll to a mod row by name (VB ``SelectMod``). True if found."""
+        for item in self._mod_items():
+            if item.data(0, _ROLE_MOD_NAME) == mod_name:
+                self.setCurrentItem(item)
+                self.scrollToItem(item)
+                return True
+        return False
+
     def _on_selection_changed(self) -> None:
         self.selection_changed.emit(self.selected_mod_names())
 

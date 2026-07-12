@@ -727,6 +727,9 @@ class MainWindow(QMainWindow):
             # Copy the selected mod name(s) to the clipboard.
             "MsCopyName": self._on_copy_name,
             "TsCopyName": self._on_copy_name,
+            # Find files across the profile.
+            "MsFind": self._on_find,
+            "TsFind": self._on_find,
             # Display info for the selected Contents file (character / image).
             "MsDisplayInfo": self._on_display_contents_info,
             "TsDelete": self._on_remove,
@@ -1512,6 +1515,21 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_details(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_find(self) -> None:
+        """Open the profile file-search dialog (VB ``MsFind`` on the mod list)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.find_files import FindFilesDialog
+
+        self._find_dialog = FindFilesDialog.show_for(
+            self.controller, self._select_mod_by_name, self
+        )
+
+    def _select_mod_by_name(self, mod_name: str) -> None:
+        """Select a mod in the list by name (VB ``SelectMod``)."""
+        if self._tree.select_mod(mod_name):
+            self._on_selection_changed()
 
     def _on_copy_name(self) -> None:
         """Copy the selected mod name(s) to the clipboard (VB ``MsCopyName``).

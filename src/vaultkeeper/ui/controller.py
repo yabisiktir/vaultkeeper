@@ -203,6 +203,54 @@ class ProfileController:
         total = sum(len(f["files"]) for f in folders)
         return {"folders": folders, "count": total, "installed": installed}
 
+    def find_profile_files(
+        self,
+        query: str,
+        *,
+        match_case: bool = False,
+        whole_word: bool = False,
+    ) -> dict:
+        """Search every mod's installer files by name (VB ``FindProfileFilesDialogue``).
+
+        Filters the profile's file list by a substring (optionally case-sensitive /
+        whole-word) match on the file name, excluding the game's installed-files
+        pseudo-mod. An empty query returns no rows (VB behaviour). Rows carry the
+        owning ``mod`` / ``filename`` / ``folder``, Windows-sorted by mod then file.
+        Returns ``{"rows", "count"}``.
+        """
+        import re
+        from functools import cmp_to_key
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.win_sort import win_compare
+
+        rows: list[dict] = []
+        if query:
+            needle = query if match_case else query.lower()
+            word_re = (
+                re.compile(rf"\b{re.escape(needle)}\b") if whole_word else None
+            )
+            for fk in self.pd.file_list:
+                if fk.mod_name == C.INSTALLED_FILES_LABEL:
+                    continue  # skip the game's installed files
+                hay = fk.filename if match_case else fk.filename.lower()
+                if word_re is not None:
+                    if word_re.search(hay) is None:
+                        continue
+                elif needle not in hay:
+                    continue
+                rows.append(
+                    {"mod": fk.mod_name, "filename": fk.filename, "folder": fk.folder}
+                )
+
+        rows.sort(
+            key=cmp_to_key(
+                lambda a, b: win_compare(a["mod"], b["mod"])
+                or win_compare(a["filename"], b["filename"])
+            )
+        )
+        return {"rows": rows, "count": len(rows)}
+
     def mod_file_path(self, mod_name: str, folder: str, filename: str) -> Path | None:
         """The absolute path of one of a mod's installer files, or ``None``.
 
