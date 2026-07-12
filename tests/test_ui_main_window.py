@@ -522,11 +522,11 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsCut", "MsAbout", "MsBackupManager"):
+    for dead_id in ("MsCut", "MsViewClipboard", "MsBackupManager"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented
-    for dead_id in ("RbnFontAndColour", "RbnManageWorkshop"):
+    for dead_id in ("RbnExportSettings", "RbnManageWorkshop"):
         button = win.ribbon.button(dead_id)
         assert button is not None and not button.isEnabled()
     for dead_id in ("TsCut", "TsPaste"):
@@ -550,6 +550,24 @@ def test_implemented_commands_match_dispatch(qtbot, controller) -> None:
     qtbot.addWidget(win)
     implemented = win.implemented_commands()
     assert set(win._command_handlers()) <= implemented
+
+
+def test_newly_wired_commands_are_enabled(qtbot, controller) -> None:
+    # Font/theme, About, Send Feedback, Convert Restorer, Recover Groups/Properties
+    # are now wired (the availability pass enables anything with a handler).
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    for command_id in (
+        "MsFontAndColour",
+        "MsAbout",
+        "MsSendFeedback",
+        "MsConvertRestorer",
+        "MsRecoverGroups",
+        "MsRecoverModProperties",
+    ):
+        act = win.nit_menu.action(command_id)
+        assert act is not None and act.isEnabled(), command_id
+    assert win.ribbon.button("RbnFontAndColour").isEnabled()
 
 
 def test_basic_settings_opens_behaviour_tab(qtbot, controller, monkeypatch) -> None:

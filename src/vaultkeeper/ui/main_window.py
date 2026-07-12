@@ -773,6 +773,8 @@ class MainWindow(QMainWindow):
             "MsCreateRestorer": self._on_create_restorer,
             "TsCreateRestorer": self._on_create_restorer,
             "RbnCreateRestorer": self._on_create_restorer,
+            # Convert a Restorer back into an installable Mod.
+            "MsConvertRestorer": self._on_convert_restorer,
             # Groups.
             "MsNewGroup": self._on_new_group,
             "TsNewGroup": self._on_new_group,
@@ -787,6 +789,9 @@ class MainWindow(QMainWindow):
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsExtractPortraits": self._on_extract_portraits,
             "MsClearHakPortraits": self._on_clear_hak_portraits,
+            # Recover group / mod-property data from another profile or backup.
+            "MsRecoverGroups": self._on_recover_groups,
+            "MsRecoverModProperties": self._on_recover_properties,
             # Characters.
             "MsCharacterExplorer": self._on_characters,
             "RbnCharacterExplorer": self._on_characters,
@@ -839,6 +844,10 @@ class MainWindow(QMainWindow):
             "MsBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
             "RbnAdvancedSettings": self._on_settings,
             "RbnBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
+            # Appearance (font size + light/dark theme) opens Settings on that tab
+            # (VB Font & Colour editor; bounded port).
+            "MsFontAndColour": lambda: self._on_settings(start_tab="Appearance"),
+            "RbnFontAndColour": lambda: self._on_settings(start_tab="Appearance"),
             # View-menu file viewers (+ Diagnose-ribbon Rbn* variants share handlers).
             "MsLogFile": lambda: self._on_view_file("MsLogFile"),
             "RbnNitLog": lambda: self._on_view_file("MsLogFile"),
@@ -865,6 +874,9 @@ class MainWindow(QMainWindow):
             "MsFAQ": lambda: self._on_help_topic("MsFAQ"),
             "MsWhatsNew": lambda: self._on_help_topic("MsWhatsNew"),
             "MsHistory": lambda: self._on_help_topic("MsHistory"),
+            # About + Send Feedback (VB MsAbout / MsSendFeedback).
+            "MsAbout": self._on_about,
+            "MsSendFeedback": self._on_send_feedback,
             # Profile lifecycle.
             "MsLoadProfile": self._on_setup,
             "MsOpen": self._on_setup,
@@ -884,6 +896,32 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.help_viewer import HelpViewer
 
         self._help_viewer = HelpViewer.show_for_control(control_name, self)
+
+    def _on_about(self) -> None:
+        """Show the About dialog (VB ``MsAbout``)."""
+        from vaultkeeper.ui.dialogs.about import AboutDialog
+
+        AboutDialog.show_dialog(self)
+
+    def _on_send_feedback(self) -> None:
+        """Open a feedback email draft (VB ``MsSendFeedback`` mailto).
+
+        The support address is the original app's (de-obfuscated from its
+        ``Application Definitions.txt``); ``mailto:`` only drafts, never sends.
+        """
+        from PySide6.QtCore import QUrl, QUrlQuery
+        from PySide6.QtGui import QDesktopServices
+
+        url = QUrl("mailto:surazal@lazweb.net")
+        query = QUrlQuery()
+        query.addQueryItem("subject", "Vaultkeeper Feedback")
+        query.addQueryItem(
+            "body",
+            "Please provide as much information as possible "
+            "(eg screenshots, NIT Log, etc).",
+        )
+        url.setQuery(query)
+        QDesktopServices.openUrl(url)
 
     def _remove_files(self, method: str, label: str) -> None:
         """Run a per-mod file-removal cleanup on the selection and report the count."""
@@ -1112,6 +1150,37 @@ class MainWindow(QMainWindow):
         self.refresh()
         self.nit_status.set_info(f"Created restorer for {made} mod(s).")
 
+    def _on_convert_restorer(self) -> None:
+        """Convert the selected Restorer into an installable Mod (VB MsConvertRestorer)."""
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a restorer first.")
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        name = names[0]
+        md = self.controller.pd.mod_item(name)
+        if md is None or md.is_group_item or not md.is_restorer():
+            self.nit_status.set_info(f"{name} is not a restorer.")
+            return
+        confirm = QMessageBox.question(
+            self,
+            "Convert Restorer",
+            f"Do you want to convert {name} from a Restorer to a Mod?",
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        result = self.controller.convert_restorer(name)
+        self.refresh()
+        if result == 1:
+            self.nit_status.set_info(f"Converted {name} to a Mod.")
+        elif result == 0:
+            self.nit_status.set_info(
+                "The Restorer does not contain any files to convert."
+            )
+        else:
+            self.nit_status.set_info(f"Unable to convert {name}.")
+
     # -- Group / maintenance handlers -------------------------------------- #
     def _on_new_group(self) -> None:
         if self.controller is None:
@@ -1305,6 +1374,69 @@ class MainWindow(QMainWindow):
         message = self.controller.restore_data(Path(path))
         self.refresh()
         self.nit_status.set_info(message)
+
+    def _resolve_recovery_source(self, path: str):
+        """Resolve a chosen ``*.json``/``*.zip`` path to a recovery source.
+
+        A ``.json`` is used directly; a ``.zip`` (a Vaultkeeper backup) is searched
+        for ``<current profile>.json`` and extracted to a temp dir — the port's
+        equivalent of VB extracting the chosen Profile Data backup and reading
+        ``<profile>\\ModData`` from it (NIT.Menu.vb:4938-4942 / 5099-5111). Returns
+        ``None`` when nothing usable is found.
+        """
+        import tempfile
+        from pathlib import Path
+
+        from vaultkeeper.game.recovery import extract_profile_json_from_zip
+
+        src = Path(path)
+        if src.suffix.lower() == ".json":
+            return src
+        if src.suffix.lower() == ".zip":
+            if self.controller is None or self.controller.store_path is None:
+                return None
+            profile_name = self.controller.store_path.stem
+            dest_dir = Path(tempfile.mkdtemp(prefix="vaultkeeper-recover-"))
+            return extract_profile_json_from_zip(src, profile_name, dest_dir)
+        return None
+
+    def _on_recover_groups(self) -> None:
+        """Recover Group assignments from another profile (VB MsRecoverGroups)."""
+        if self.controller is None:
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Recover Groups", "", "Profile data (*.json *.zip)"
+        )
+        if not path:
+            return
+        source = self._resolve_recovery_source(path)
+        if source is None:
+            self.nit_status.set_info(
+                "Unable to load recovery information from the selected file."
+            )
+            return
+        changed = self.controller.recover_groups(source)
+        self.refresh()
+        self.nit_status.set_info(f"Mod Group changes: {changed:,}.")
+
+    def _on_recover_properties(self) -> None:
+        """Recover user mod-property data from another profile (VB MsRecoverModProperties)."""
+        if self.controller is None:
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Recover Mod Properties", "", "Profile data (*.json *.zip)"
+        )
+        if not path:
+            return
+        source = self._resolve_recovery_source(path)
+        if source is None:
+            self.nit_status.set_info(
+                "Unable to load recovery information from the selected file."
+            )
+            return
+        updated = self.controller.recover_mod_properties(source)
+        self.refresh()
+        self.nit_status.set_info(f"Mod property information recovered: {updated:,}.")
 
     def _on_download_project(self) -> None:
         if self.controller is None:
