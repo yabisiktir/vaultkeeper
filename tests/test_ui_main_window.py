@@ -522,16 +522,16 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsCut", "MsViewClipboard", "MsBackupManager"):
+    for dead_id in ("MsHakPatchEditor", "MsViewClipboard", "MsBackupManager"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented
     for dead_id in ("RbnExportSettings", "RbnManageWorkshop"):
         button = win.ribbon.button(dead_id)
         assert button is not None and not button.isEnabled()
-    for dead_id in ("TsCut", "TsPaste"):
-        act = win.quick_toolbar.actions_by_id[dead_id]
-        assert not act.isEnabled()
+    # The quick toolbar's commands are now all wired (cut/copy/paste were the last
+    # dead ones), so every toolbar id is implemented.
+    assert all(tid in implemented for tid in win.quick_toolbar.actions_by_id)
 
     # Implemented items are untouched by the pass (still governed by selection
     # logic or enabled by default).

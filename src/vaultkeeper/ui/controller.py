@@ -652,6 +652,81 @@ class ProfileController:
             "message": " ".join(parts),
         }
 
+    def paste_mod_sources(self, sources: list[Path], group: str | None = None) -> dict:
+        """Paste mod folders / archives from the clipboard as new mods (VB ModPaste).
+
+        Ports the essence of ``NIT.Paste.vb`` ``ModPaste`` for the mods pane: each
+        clipboard source becomes a new mod under ``group``. A *directory* is copied
+        verbatim into the profile (its folder name becomes the mod name); an
+        *archive* is delegated to :meth:`add_mods_from_files` (extract into a new
+        mod). A source whose mod name already exists is ignored — faithful to VB,
+        which skips a paste target that already exists (NIT.Paste.vb:659-664), so a
+        copy/paste within the same profile is a deliberate no-op. Anything that is
+        neither a directory nor an extractable archive is an error. Returns
+        ``{"created", "ignored", "errors", "message"}``.
+
+        NOTE (divergence): VB derives the mod name from the source via
+        ``ModNameFromFile`` (title-casing / roman-numeral normalisation via the
+        LazWorks ``ToSentence`` helper). The port uses the source folder/stem name
+        verbatim, matching the convention already used by :meth:`add_mods_from_files`.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.archive import is_extractable
+
+        group = group or C.GROUP_NONE
+        archives = [Path(s) for s in sources if Path(s).is_file()]
+        dirs = [Path(s) for s in sources if Path(s).is_dir()]
+
+        created: list[str] = []
+        ignored: list[str] = []
+        errors: list[str] = []
+
+        # Directories: copy the mod folder verbatim, skipping existing names.
+        for source in dirs:
+            name = source.name
+            if self.pd.mod_item(name) is not None:
+                ignored.append(name)
+                continue
+            dest = self.ctx.profile_mods_dir / name
+            try:
+                shutil.copytree(source, dest)
+            except OSError:
+                errors.append(name)
+                shutil.rmtree(dest, ignore_errors=True)
+                continue
+            md = ModData(group=group, mod_name=name)
+            self.pd.add_mod(md)
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+            created.append(name)
+        if created:
+            self.pd.initialise_groups()
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+
+        # Archives: delegate to the validated Add-Mods-from-Files path.
+        extractable = [a for a in archives if is_extractable(a.suffix)]
+        errors.extend(a.name for a in archives if not is_extractable(a.suffix))
+        if extractable:
+            arch_result = self.add_mods_from_files(extractable, group)
+            created.extend(arch_result["created"])
+            ignored.extend(arch_result["ignored"])
+            errors.extend(arch_result["errors"])
+
+        parts = [f"Mods created: {len(created) or 'None'}."]
+        if ignored:
+            parts.append(f"Already exist: {len(ignored)}.")
+        if errors:
+            parts.append(f"Errors: {len(errors)}.")
+        return {
+            "created": created,
+            "ignored": ignored,
+            "errors": errors,
+            "message": " ".join(parts),
+        }
+
     def update_downloads(self, mod_names: list[str]) -> dict:
         """Move loose compressed files into each mod's ``_Downloads`` folder.
 

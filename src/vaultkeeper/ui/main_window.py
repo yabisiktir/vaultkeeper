@@ -797,6 +797,14 @@ class MainWindow(QMainWindow):
             "MsRemoveLetoLogFiles": lambda: self._remove_files(
                 "remove_leto_log_files", "Leto log file"
             ),
+            # Mods-pane clipboard: copy/cut selected mods to the clipboard, paste
+            # dropped folders/archives back as new mods (VB MsCut/MsCopy/MsPaste).
+            "MsCopy": self._on_mods_copy,
+            "MsCut": self._on_mods_copy,
+            "TsCopy": self._on_mods_copy,
+            "TsCut": self._on_mods_copy,
+            "MsPaste": self._on_mods_paste,
+            "TsPaste": self._on_mods_paste,
             # Add mods from archive files (create + extract each).
             "MsAddMods": self._on_add_mods,
             # Add files.
@@ -987,6 +995,63 @@ class MainWindow(QMainWindow):
         removed = sum(getattr(self.controller, method)(n) for n in names)
         self.refresh()
         self.nit_status.set_info(f"Removed {removed} {label}(s).")
+
+    # -- Mods-pane clipboard (VB MsCut / MsCopy / MsPaste on FvMods) -------- #
+    def _on_mods_copy(self) -> None:
+        """Copy the selected mods' folders to the system clipboard (VB FileView.Copy).
+
+        Puts each selected mod's folder on the clipboard as a file URL, so it can be
+        pasted back (into another group/profile) or dropped into the OS file manager
+        — faithful to VB, where Copy/Cut place the mod folders on the clipboard and
+        Paste (``ModPaste``) turns dropped folders/archives into new mods.
+        """
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        from PySide6.QtCore import QMimeData, QUrl
+        from PySide6.QtWidgets import QApplication
+
+        urls = [
+            QUrl.fromLocalFile(str(self.controller.ctx.profile_mods_dir / name))
+            for name in names
+            if (self.controller.ctx.profile_mods_dir / name).is_dir()
+        ]
+        if not urls:
+            self.nit_status.set_info("Nothing to copy.")
+            return
+        mime = QMimeData()
+        mime.setUrls(urls)
+        QApplication.clipboard().setMimeData(mime)
+        self.nit_status.set_info(f"Copied {len(urls)} mod(s) to the clipboard.")
+
+    def _on_mods_paste(self) -> None:
+        """Paste clipboard mod folders / archives as new mods (VB ModPaste)."""
+        if self.controller is None:
+            return
+        from pathlib import Path
+
+        from PySide6.QtWidgets import QApplication
+
+        mime = QApplication.clipboard().mimeData()
+        if mime is None or not mime.hasUrls():
+            self.nit_status.set_info("The clipboard has no mods to paste.")
+            return
+        sources = [
+            Path(url.toLocalFile()) for url in mime.urls() if url.isLocalFile()
+        ]
+        if not sources:
+            self.nit_status.set_info("The clipboard has no mods to paste.")
+            return
+        # Paste into the selected mod's group (VB drop-target group), else No Group.
+        selected = self.selected_mod_names()
+        group = None
+        if selected:
+            md = self.controller.pd.mod_item(selected[0])
+            group = md.group if md is not None else None
+        result = self.controller.paste_mod_sources(sources, group)
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     # -- Add files / mod creation handlers --------------------------------- #
     def _on_add_files(self) -> None:
