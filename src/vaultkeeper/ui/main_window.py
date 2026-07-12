@@ -381,6 +381,32 @@ class MainWindow(QMainWindow):
         menu.addAction("Import Legacy NIT Store…", self._on_import_legacy)
         menu.exec(QCursor.pos())
 
+    def offer_legacy_import(self) -> None:
+        """On first run, offer to import a detected legacy NIT Store (VB auto-migrates).
+
+        Only prompts when a legacy store is present *and* the (freshly auto-created)
+        active profile has no mods yet — so it never nags an established user. Choosing
+        *Yes* opens the import dialog; *No* leaves the empty profile with the standing
+        "import an existing collection" hint.
+        """
+        from vaultkeeper.ui.session import detect_legacy_store
+
+        if self.controller is None or detect_legacy_store() is None:
+            return
+        total, _ = self.controller.counts()
+        if total > 0:
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        answer = QMessageBox.question(
+            self,
+            "Import Legacy NIT Store",
+            "An existing NIT Store was found on this machine.\n\n"
+            "Import your mods and their groups now?",
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            self._on_import_legacy()
+
     def _on_import_legacy(self) -> None:
         """Migrate a legacy NIT Store profile into Vaultkeeper (port addition)."""
         from vaultkeeper.ui.dialogs.import_legacy import ImportLegacyStore

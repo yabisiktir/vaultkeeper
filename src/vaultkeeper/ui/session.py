@@ -14,8 +14,50 @@ from collections.abc import Callable
 from pathlib import Path
 
 from vaultkeeper.config.settings import Settings, load_settings, save_settings
+from vaultkeeper.game.editions import Edition
 from vaultkeeper.game.locations import GameInstall, discover_installs
 from vaultkeeper.ui.controller import ProfileController
+
+#: Default profile names created on first run (VB ``Paths.DefaultProfile`` /
+#: ``Paths.DefaultEeProfile``), chosen by the detected game edition.
+DEFAULT_PROFILE = "Neverwinter Nights Mods"
+DEFAULT_EE_PROFILE = "Enhanced Edition Mods"
+
+
+def default_profile_name(edition: Edition) -> str:
+    """The first-run default profile name for a game edition (VB Paths defaults)."""
+    return DEFAULT_EE_PROFILE if edition == Edition.ENHANCED else DEFAULT_PROFILE
+
+
+def auto_configure_first_run(
+    settings: Settings | None = None,
+    *,
+    settings_path: Path | None = None,
+    discover: Callable[[], list[GameInstall]] = discover_installs,
+) -> ProfileController | None:
+    """Establish a default profile on first run from the discovered install.
+
+    Faithful to the VB startup (``Paths.vb`` ~1615-1643): when no profile is active
+    yet, the tool auto-creates a default profile named for the detected edition
+    (``Enhanced Edition Mods`` / ``Neverwinter Nights Mods``) against the discovered
+    game folder — the user is never dropped into an empty, profile-less state. When
+    nothing is discovered (VB solicits paths) this returns ``None`` so the caller
+    falls back to the manual *Set Up Profile* flow. A no-op when a profile is already
+    active.
+    """
+    settings = settings or load_settings(settings_path)
+    if settings.active_profile:
+        return None
+    installs = discover()
+    if not installs:
+        return None
+    install = installs[0]
+    return configure_profile(
+        str(install.root),
+        default_profile_name(install.edition),
+        settings=settings,
+        settings_path=settings_path,
+    )
 
 
 def bootstrap_controller(

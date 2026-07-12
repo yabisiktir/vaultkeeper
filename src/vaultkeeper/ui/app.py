@@ -34,10 +34,21 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     except Exception:
         logger.exception("Failed to apply saved appearance settings; continuing with defaults")
 
+    first_run = False
     if controller is None:
-        from vaultkeeper.ui.session import bootstrap_controller
+        from vaultkeeper.ui.session import (
+            auto_configure_first_run,
+            bootstrap_controller,
+        )
 
         controller = bootstrap_controller()
+        if controller is None:
+            # First run: establish a default profile from the discovered install
+            # (VB auto-creates one) instead of dropping into an empty state.
+            controller = auto_configure_first_run()
+            first_run = controller is not None
     window = MainWindow(controller)
     window.show()
+    if first_run:
+        window.offer_legacy_import()
     return app.exec()
