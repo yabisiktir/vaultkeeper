@@ -341,6 +341,31 @@ class NitMenuBar(QMenuBar):
             act.triggered.connect(lambda _=False, u=url: on_open(u))
             menu.addAction(act)
 
+    def populate_recent_mods(self, names, on_select, *, numbered: bool = False) -> None:
+        """Fill the Recent Mods submenu (VB ``MsRecentMods`` RecentItems manager).
+
+        ``names`` is the recent mod names (most-recent first); ``on_select`` is called
+        with a name when its entry is triggered. ``numbered`` prefixes each entry with
+        its position (VB ``RecentItemImageType.Number`` vs the status-icon view). An
+        empty list leaves the submenu present but disabled.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        act = self.actions_by_id.get("MsRecentMods")
+        if act is None:
+            return
+        menu = act.menu()
+        if menu is None:
+            menu = QMenu(self)
+            act.setMenu(menu)
+        menu.clear()
+        act.setEnabled(bool(names))
+        for index, name in enumerate(names, start=1):
+            caption = f"{index}. {name}" if numbered else name
+            entry = QAction(caption, self)
+            entry.triggered.connect(lambda _=False, n=name: on_select(n))
+            menu.addAction(entry)
+
     def action(self, item_id: str) -> QAction | None:
         """The QAction for a VB control-name id, if present."""
         return self.actions_by_id.get(item_id)

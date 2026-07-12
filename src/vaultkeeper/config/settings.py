@@ -73,6 +73,12 @@ class Settings:
     window_geometry: str = ""
     #: Play a sound when the application starts (VB start-up sound preference).
     startup_sound: bool = False
+    #: Maximum number of mods shown in the Recent Mods menu (VB
+    #: ``ConfigMaxRecentMods``; range 5-50, default 15).
+    max_recent_mods: int = 15
+    #: Number the Recent Mods entries instead of showing a status icon (VB
+    #: ``BehaviourNumberRecentMods``).
+    number_recent_mods: bool = False
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default

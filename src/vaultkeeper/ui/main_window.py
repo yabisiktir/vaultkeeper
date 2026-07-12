@@ -194,7 +194,17 @@ class MainWindow(QMainWindow):
         # Populate the Web menu from the user's saved links (VB SetWebMenu).
         from vaultkeeper.config.settings import load_settings
 
-        self.nit_menu.populate_web_menu(load_settings().web_links, self._open_url)
+        _settings = load_settings()
+        self.nit_menu.populate_web_menu(_settings.web_links, self._open_url)
+
+        # Recent Mods (VB MsRecentMods): most-recently-selected mod names, capped at
+        # Settings.max_recent_mods, shown in a dynamic submenu. Number Recent Mods
+        # (VB MsNumberRecentMods) toggles numbering the entries.
+        self._recent_mods: list[str] = []
+        act = self.nit_menu.action("MsNumberRecentMods")
+        if act is not None:
+            act.setChecked(_settings.number_recent_mods)
+        self._rebuild_recent_mods_menu()
 
         # Right-aligned "Mod played for …" menubar item (VB MsPlayedInfo): shows the
         # selected mod's play time and opens the play-data view when clicked.
@@ -277,6 +287,42 @@ class MainWindow(QMainWindow):
             self.ribbon.setVisible(checked)
         elif item_id == "MsShowToolbar":
             self.quick_toolbar.setVisible(checked)
+        elif item_id == "MsNumberRecentMods":
+            # VB MsNumberRecentMods_CheckedChanged: persist + re-render the list.
+            from vaultkeeper.config.settings import load_settings, save_settings
+
+            settings = load_settings()
+            settings.number_recent_mods = checked
+            save_settings(settings)
+            self._rebuild_recent_mods_menu()
+
+    # -- Recent Mods (VB MsRecentMods) ------------------------------------- #
+    def _record_recent_mod(self, name: str) -> None:
+        """Push a selected mod to the front of the Recent Mods list (VB Manager.Add)."""
+        from vaultkeeper.config.settings import load_settings
+
+        if not name:
+            return
+        recent = [n for n in self._recent_mods if n != name]
+        recent.insert(0, name)
+        max_recent = max(1, load_settings().max_recent_mods)
+        self._recent_mods = recent[:max_recent]
+        self._rebuild_recent_mods_menu()
+
+    def _rebuild_recent_mods_menu(self) -> None:
+        """Re-render the Recent Mods submenu from the tracked list."""
+        from vaultkeeper.config.settings import load_settings
+
+        # Drop names no longer in the profile (VB Manager.Remove on delete/rename).
+        if self.controller is not None:
+            self._recent_mods = [
+                n for n in self._recent_mods if self.controller.pd.mod_item(n) is not None
+            ]
+        self.nit_menu.populate_recent_mods(
+            self._recent_mods,
+            self._select_mod_by_name,
+            numbered=load_settings().number_recent_mods,
+        )
 
     def set_controller(self, controller: ProfileController) -> None:
         """Swap in a new active profile controller and repopulate."""
@@ -448,6 +494,8 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_details(md)
                 self._show_contents(md)
+                # Track the selected mod in the Recent Mods list (VB Manager.Add).
+                self._record_recent_mod(names[0])
             self._update_played_info(names[0])
         else:
             self._save_current_notes()
@@ -682,7 +730,14 @@ class MainWindow(QMainWindow):
         items whose id is not in this set are shown disabled instead of raising
         "not available yet" when clicked.
         """
-        return set(self._command_handlers()) | {"MsShowRibbon", "MsShowToolbar"}
+        return set(self._command_handlers()) | {
+            "MsShowRibbon",
+            "MsShowToolbar",
+            # Recent Mods is a dynamic submenu container; Number Recent Mods is a
+            # checkable toggle — both handled outside the dispatch dict.
+            "MsRecentMods",
+            "MsNumberRecentMods",
+        }
 
     def _apply_command_availability(self) -> None:
         """Grey out chrome items whose command isn't implemented yet.
