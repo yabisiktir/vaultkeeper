@@ -872,6 +872,40 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
+    def convert_restorer(self, mod_name: str) -> int:
+        """Convert a Restorer into an installable Mod (VB ``MsConvertRestorer``).
+
+        VB (``NIT.Menu.vb`` MsConvertRestorer_Click @2738) moves the restorer's
+        payload folders into ``_Downloads`` and re-runs Create Installer. The port's
+        mod *type* is identifier-based — a ``<mod>.nitres`` vs ``<mod>.nitins`` file
+        in ``nitconfig`` — and the payload lives in ``.Mod Installer`` regardless of
+        type, so conversion simply swaps the identifier and rescans: the same
+        observable end state (the mod becomes an installer). The payload does not
+        need relocating in the port's model (noted divergence).
+
+        Returns ``-1`` when the mod is missing or is not a restorer, ``0`` when the
+        restorer has no payload files to convert (VB "The Restorer does not contain
+        any files to convert."), and ``1`` when converted.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item or not md.is_restorer():
+            return -1
+        # VB gathers folders from files whose extension isn't the restorer marker;
+        # if there are none, there is nothing to convert.
+        payload = [fk for fk in md.files if fk.extension.lower() != C.EXT_RESTORER]
+        if not payload:
+            return 0
+        # Drop the restorer identifier file + its FileKey via the safe removal path
+        # (a plain rescan only *adds* keys, so the stale .nitres would linger).
+        self._remove_mod_files(
+            mod_name, lambda fk: fk.extension.lower() == C.EXT_RESTORER
+        )
+        # Write the installer identifier + rescan + recompute states + persist.
+        self.create_installer(mod_name)
+        return 1
+
     def wizard_install_prompt(self, mod_name: str) -> dict:
         """The install-time wizard choices to present, if any (VB ``RunWizard``).
 
@@ -1495,6 +1529,85 @@ class ProfileController:
                 self.pd.initialise_groups()
                 self._rebuild_engine()
         return f"Restored data from {src_zip.name}."
+
+    # -- Recovery (VB MsRecoverGroups / MsRecoverModProperties) ------------ #
+    def recover_groups(self, source: dict | Path | str) -> int:
+        """Recover Group assignments from another profile's data (VB
+        ``MsRecoverGroups_Click``, NIT.Menu.vb:4898 → ``BgRecoverGroups`` @5030).
+
+        ``source`` is whatever :func:`vaultkeeper.game.recovery.read_group_info`
+        accepts (a parsed profile dict, or a path to a ``<profile>.json``). VB
+        (``BgRecoverGroups`` @5051-5063) creates a group row for every recovered
+        group that does not already exist (``pd.AddGroups``), then moves a mod into
+        its recovered group ONLY when the mod still sits in a hidden/reserved
+        pseudo-group (``mdi.Group <> key AndAlso mdi.IsHiddenGroup``) — it never
+        overrides a mod the user has since organised. Persists. Returns the number
+        of mods moved (VB "Mod Group changes").
+        """
+        from vaultkeeper.game.recovery import read_group_info
+
+        group_info = read_group_info(source)
+        # VB pd.AddGroups: ensure each recovered group exists as a row, even empty.
+        for group in dict.fromkeys(group_info.values()):
+            if group and group not in self.pd.mod_list:
+                self.pd.move_mods_to_group([], group)
+        changed = 0
+        for mod_name, group in group_info.items():
+            md = self.pd.mod_item(mod_name)
+            if md is None or md.is_group_item:
+                continue
+            if group and md.group != group and md.is_hidden_group:
+                self.pd.move_mods_to_group([mod_name], group)
+                changed += 1
+        self.save()
+        return changed
+
+    def recover_mod_properties(self, source: dict | Path | str) -> int:
+        """Recover user-editable mod properties from another profile's data (VB
+        ``MsRecoverModProperties_Click``, NIT.Menu.vb:5077 →
+        ``ProfileData.RecoverUserData`` @2730).
+
+        For every mod that still exists in the active profile, copies the SIX
+        properties ``RecoverUserData`` restores — Rating, BestWeapon, LevelStart,
+        LevelEnd, HenchCount, WebLink (ProfileData.vb:2755-2785). VB deliberately
+        does NOT restore DateCompleted/CompletedCount, so neither does this.
+        Persists. Returns the number of mods with at least one changed property.
+        """
+        from vaultkeeper.core.state import Ratings, Weapon
+        from vaultkeeper.game.recovery import read_property_info
+
+        property_info = read_property_info(source)
+        changed = 0
+        for mod_name, props in property_info.items():
+            md = self.pd.mod_item(mod_name)
+            if md is None or md.is_group_item:
+                continue
+            rating = Ratings(props["rating"])
+            best_weapon = Weapon(props["best_weapon"])
+            web_link = props["web_link"] or ""
+            mod_changed = False
+            if md.rating != rating:
+                md.rating = rating
+                mod_changed = True
+            if md.best_weapon != best_weapon:
+                md.best_weapon = best_weapon
+                mod_changed = True
+            if md.level_start != props["level_start"]:
+                md.level_start = props["level_start"]
+                mod_changed = True
+            if md.level_end != props["level_end"]:
+                md.level_end = props["level_end"]
+                mod_changed = True
+            if md.hench_count != props["hench_count"]:
+                md.hench_count = props["hench_count"]
+                mod_changed = True
+            if md.web_link != web_link:
+                md.web_link = web_link
+                mod_changed = True
+            if mod_changed:
+                changed += 1
+        self.save()
+        return changed
 
     # -- Engine maintenance ------------------------------------------------ #
     def anneal(self) -> str:
