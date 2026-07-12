@@ -861,6 +861,7 @@ class MainWindow(QMainWindow):
             "MsCharacterSummary": self._on_characters,
             "BtCharacter": self._on_characters,
             "MsPortraitManager": self._on_portraits,
+            "MsClassesSkillsAndFeats": self._on_classes_skills_feats,
             "MsLoadscreens": self._on_loadscreens,
             "RbnPortraitManager": self._on_portraits,
             # Edit the GameMapper's remembered user responses.
@@ -1359,6 +1360,14 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
         self._portrait_manager = PortraitManager.show_for(self.controller, self)
+
+    def _on_classes_skills_feats(self) -> None:
+        """Open the Classes/Skills/Feats reference viewer (VB MsClassesSkillsAndFeats)."""
+        from vaultkeeper.ui.dialogs.classes_skills_feats import (
+            ClassesSkillsAndFeatsDialog,
+        )
+
+        ClassesSkillsAndFeatsDialog.show_dialog(parent=self)
 
     def _on_loadscreens(self) -> None:
         if self.controller is None:
