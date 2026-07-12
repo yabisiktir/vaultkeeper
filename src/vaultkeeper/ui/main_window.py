@@ -698,6 +698,8 @@ class MainWindow(QMainWindow):
             "MsRemoveLetoLogFiles": lambda: self._remove_files(
                 "remove_leto_log_files", "Leto log file"
             ),
+            # Add mods from archive files (create + extract each).
+            "MsAddMods": self._on_add_mods,
             # Add files.
             "MsAddFiles": self._on_add_files,
             "TsAddFiles": self._on_add_files,
@@ -863,6 +865,29 @@ class MainWindow(QMainWindow):
         added = self.controller.add_files_to_mod(names[0], [Path(p) for p in paths])
         self.refresh()
         self.nit_status.set_info(f"Added {added} file(s) to {names[0]}.")
+
+    def _on_add_mods(self) -> None:
+        """Create new mods from selected archive files (VB ``MsAddMods``)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.core.archive import archive_filter
+
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "Add Mods from Files", "", f"Archives ({archive_filter()})"
+        )
+        if not paths:
+            return
+        from pathlib import Path
+
+        # New mods go into the selected mod's group (VB SelectedMod.Group).
+        selected = self.selected_mod_names()
+        group = None
+        if selected:
+            md = self.controller.pd.mod_item(selected[0])
+            group = md.group if md is not None else None
+        result = self.controller.add_mods_from_files([Path(p) for p in paths], group)
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     def _on_update_downloads(self) -> None:
         names = self.selected_mod_names()

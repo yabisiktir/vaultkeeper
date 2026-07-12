@@ -705,3 +705,61 @@ def test_image_viewer_load_pixmap(tmp_path) -> None:
     pix = load_pixmap(tga)
     assert pix is not None and not pix.isNull()
     assert load_pixmap(tmp_path / "missing.tga") is None
+
+
+# -- Add Mods from Files (VB MsAddMods / ModPaste) ------------------------- #
+def test_add_mods_from_files(controller, tmp_path) -> None:
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller._extractor = FakeArchiveExtractor(
+        contents={"cool.zip": {"hak/c.hak": b"CCC", "readme.txt": b"hi"}}
+    )
+    result = controller.add_mods_from_files([tmp_path / "cool.zip"], group="100. Packs")
+    assert result["created"] == ["cool"]
+    md = controller.pd.mod_item("cool")
+    assert md is not None and md.group == "100. Packs"
+    mod_dir = controller.ctx.profile_mods_dir / "cool"
+    assert (mod_dir / "hak" / "c.hak").is_file()
+    assert (mod_dir / "_Downloads").is_dir()
+
+    # A non-archive errors; an already-created name is ignored.
+    r2 = controller.add_mods_from_files(
+        [tmp_path / "notes.txt", tmp_path / "cool.zip"]
+    )
+    assert r2["errors"] == ["notes.txt"] and r2["ignored"] == ["cool"]
+    assert not r2["created"]
+
+
+def test_add_mods_from_files_extract_failure_cleans_up(controller, tmp_path) -> None:
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    # available=False -> extract returns not-ok; the half-made mod dir is removed.
+    controller._extractor = FakeArchiveExtractor(available=False)
+    result = controller.add_mods_from_files([tmp_path / "broken.zip"])
+    assert result["errors"] == ["broken.zip"] and not result["created"]
+    assert controller.pd.mod_item("broken") is None
+    assert not (controller.ctx.profile_mods_dir / "broken").exists()
+
+
+def test_add_mods_via_ui(qtbot, controller, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QFileDialog
+
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller._extractor = FakeArchiveExtractor(
+        contents={"newmod.7z": {"override/o.2da": b"X"}}
+    )
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # New mods land in the selected mod's group.
+    _select_mod(win, "Alpha")
+    group = controller.pd.mod_item("Alpha").group
+    monkeypatch.setattr(
+        QFileDialog,
+        "getOpenFileNames",
+        lambda *a, **k: ([str(tmp_path / "newmod.7z")], ""),
+    )
+    win._on_command("MsAddMods")
+    md = controller.pd.mod_item("newmod")
+    assert md is not None and md.group == group
+    assert win.nit_menu.action("MsAddMods").isEnabled()

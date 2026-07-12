@@ -512,6 +512,59 @@ class ProfileController:
             self.save()
         return added
 
+    def add_mods_from_files(self, paths: list[Path], group: str | None = None) -> dict:
+        """Create a new mod from each archive, extracting its files (VB MsAddMods/ModPaste).
+
+        For each selected archive a mod folder named after the archive is created
+        under ``group`` (the currently-selected group, else No Group), the archive is
+        extracted into it and a ``_Downloads`` folder is added — leaving the mod ready
+        for Create Installer, exactly as the VB "Add Mods from Files" flow does. A file
+        that 7-Zip can't extract, or whose mod name already exists, is skipped. Returns
+        ``{"created", "ignored", "errors", "message"}``.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.archive import is_extractable
+
+        group = group or C.GROUP_NONE
+        created: list[str] = []
+        ignored: list[str] = []
+        errors: list[str] = []
+        for raw in paths:
+            source = Path(raw)
+            if not is_extractable(source.suffix):
+                errors.append(source.name)
+                continue
+            name = source.stem
+            if self.pd.mod_item(name) is not None:
+                ignored.append(name)
+                continue
+            mod_dir = self.ctx.profile_mods_dir / name
+            mod_dir.mkdir(parents=True, exist_ok=True)
+            result = self._archive_backend().extract(source, mod_dir)
+            if not result.ok:
+                errors.append(source.name)
+                shutil.rmtree(mod_dir, ignore_errors=True)
+                continue
+            (mod_dir / C.DOWNLOADS_DIR).mkdir(exist_ok=True)
+            self.pd.add_mod(ModData(group=group, mod_name=name))
+            created.append(name)
+        if created:
+            self.pd.initialise_groups()
+            self.save()
+        parts = [f"Mods created: {len(created) or 'None'}."]
+        if ignored:
+            parts.append(f"Already exist: {len(ignored)}.")
+        if errors:
+            parts.append(f"Errors: {len(errors)}.")
+        return {
+            "created": created,
+            "ignored": ignored,
+            "errors": errors,
+            "message": " ".join(parts),
+        }
+
     def update_downloads(self, mod_names: list[str]) -> dict:
         """Move loose compressed files into each mod's ``_Downloads`` folder.
 
