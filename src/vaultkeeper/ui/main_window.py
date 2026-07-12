@@ -626,6 +626,9 @@ class MainWindow(QMainWindow):
             "MsRename": self._on_rename,
             # Edit mod metadata (rating / weapon / levels / henchmen).
             "MsProperties": self._on_properties,
+            # Web link (edit / copy to clipboard).
+            "MsEditWebLink": self._on_edit_web_link,
+            "MsCopyWebLink": self._on_copy_web_link,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
             # Cleanup.
@@ -1363,6 +1366,42 @@ class MainWindow(QMainWindow):
         if md is not None:
             self._show_details(md)
         self.nit_status.set_info(f"Updated properties for '{names[0]}'")
+
+    def _on_edit_web_link(self) -> None:
+        """Edit the selected mod's web page address (VB ``MsEditWebLink``)."""
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            self.nit_status.set_info("Select a single mod first.")
+            return
+        mod = names[0]
+        current = self.controller.mod_web_link(mod)
+        prompt = f'Enter "{mod}" web page address (URL).'
+        if current:
+            prompt += "\nClear the field to remove the address."
+        url, ok = QInputDialog.getText(self, "Mod's Web Page", prompt, text=current)
+        if not ok:
+            return
+        result = self.controller.set_mod_web_link(mod, url)
+        if result["ok"]:
+            md = self.controller.pd.mod_item(mod)
+            if md is not None:
+                self._show_details(md)
+        self.nit_status.set_info(result["message"])
+
+    def _on_copy_web_link(self) -> None:
+        """Copy the selected mod's web link to the clipboard (VB ``MsCopyWebLink``)."""
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            self.nit_status.set_info("Select a single mod first.")
+            return
+        link = self.controller.mod_web_link(names[0])
+        if not link:
+            self.nit_status.set_info(f"{names[0]} has no web link.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.clipboard().setText(link)
+        self.nit_status.set_info(f"Copied {names[0]}'s web link.")
 
     def _on_remove(self) -> None:
         names = self.selected_mod_names()

@@ -568,3 +568,43 @@ def test_basic_settings_opens_behaviour_tab(qtbot, controller, monkeypatch) -> N
     assert seen["start_tab"] == "Behaviour"
     win._on_command("MsSettings")
     assert seen["start_tab"] == ""
+
+
+# -- Web link: edit + copy (VB MsEditWebLink / MsCopyWebLink) --------------- #
+def test_controller_set_and_get_web_link(controller) -> None:
+    assert controller.mod_web_link("Alpha") == ""
+    ok = controller.set_mod_web_link("Alpha", "https://neverwintervault.org/x")
+    assert ok["ok"] and controller.mod_web_link("Alpha") == "https://neverwintervault.org/x"
+    # Invalid URL is rejected, link unchanged.
+    bad = controller.set_mod_web_link("Alpha", "not a url")
+    assert not bad["ok"] and "valid web page" in bad["message"]
+    assert controller.mod_web_link("Alpha") == "https://neverwintervault.org/x"
+    # Empty clears it.
+    assert controller.set_mod_web_link("Alpha", "")["ok"]
+    assert controller.mod_web_link("Alpha") == ""
+
+
+def test_edit_web_link_via_ui(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    # The command is now enabled (it has a handler).
+    assert win.nit_menu.action("MsEditWebLink").isEnabled()
+    monkeypatch.setattr(
+        QInputDialog, "getText", lambda *a, **k: ("www.example.com", True)
+    )
+    win._on_command("MsEditWebLink")
+    assert controller.mod_web_link("Alpha") == "www.example.com"
+
+
+def test_copy_web_link_via_ui(qtbot, controller) -> None:
+    from PySide6.QtWidgets import QApplication
+
+    controller.set_mod_web_link("Beta", "https://example.com/beta")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Beta")
+    win._on_command("MsCopyWebLink")
+    assert QApplication.clipboard().text() == "https://example.com/beta"

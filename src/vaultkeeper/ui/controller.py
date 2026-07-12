@@ -235,6 +235,34 @@ class ProfileController:
         )
         return removed > 0
 
+    def mod_web_link(self, mod_name: str) -> str:
+        """A mod's Neverwinter Vault / web page address (VB ``ModData.WebLink``)."""
+        md = self.pd.mod_item(mod_name)
+        return md.web_link if md is not None else ""
+
+    def set_mod_web_link(self, mod_name: str, url: str) -> dict:
+        """Set (or clear) a mod's web page address (VB ``MsEditWebLink``).
+
+        An empty string clears the link (VB "Clear the current link to remove the
+        address."); a non-empty value must be a valid URL (VB ``ValidateLink`` →
+        ``IsUrl``). Persists on success. Returns ``{"ok", "message"}``.
+        """
+        from vaultkeeper.core.urls import is_url
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"Unknown mod: {mod_name}"}
+        url = url.strip()
+        if url and not is_url(url):
+            return {
+                "ok": False,
+                "message": "You have not specified a valid web page address (URL).",
+            }
+        md.web_link = url
+        self.save()
+        message = f"Web link {'set' if url else 'cleared'} for {mod_name}."
+        return {"ok": True, "message": message}
+
     def mod_properties(self, mod_name: str) -> dict | None:
         """Current editable metadata for a mod (VB TlModProperties), or None."""
         md = self.pd.mod_item(mod_name)
