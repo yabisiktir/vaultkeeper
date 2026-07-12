@@ -317,7 +317,7 @@ FAQ / What's New / Version History). Each opens its `<ControlName>.htm` topic.
 
 The menu/ribbon/toolbar mirror the VB designer 1:1; a command becomes live when its
 handler is added to `MainWindow._command_handlers()` (the availability pass greys out
-the rest). Current coverage: **142 / 185 chrome ids wired.** The 43 still-disabled ids
+the rest). Current coverage: **143 / 185 chrome ids wired.** The 42 still-disabled ids
 are all accounted for — nothing is an accidental gap:
 
 - **FileView current-folder navigation (6): DEFERRED.** `MsNewFolder`, `MsNewTextFile`,
@@ -332,10 +332,11 @@ are all accounted for — nothing is an accidental gap:
   `MsImportMods`, `MsSynchroniseMods`, `MsOpenSharedStore`, `MsBackupManager`,
   `RbnExportSettings` — VB `SharedNit`/`BackupManager` network-share sync (single-machine
   use case; consistent with the read-only-NRBF data strategy).
-- **Other deferred features (14):** e.g. `MsClassesSkillsAndFeats` (reference viewer —
-  bundled data ready, cleanest next win), `MsCreateOriginalRestorers`,
-  `MsEditStartScreenPrefixes`, `MsHakPatchEditor`, `MsAliasSection`, `MsFindAndRename`,
-  workshop enable/refresh, `MsValidate*`.
+- **Other deferred features (13):** e.g. `MsCreateOriginalRestorers`,
+  `MsEditStartScreenPrefixes` (prefix editor — the read-only model is ported),
+  `MsHakPatchEditor`, `MsAliasSection`, `MsFindAndRename`, workshop enable/refresh,
+  `MsValidate*`. (`MsClassesSkillsAndFeats` is now wired — a searchable
+  Classes/Skills/Feats reference viewer over the bundled data.)
 - **Intentional cross-platform divergences (17): NOT gaps.** Windows taskbar/shell,
   clipboard viewer, debug menu, online update / diagnostics, NTFS/Notepad++-specific
   items — left visible-but-disabled by design.
