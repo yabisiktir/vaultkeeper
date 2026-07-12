@@ -145,6 +145,72 @@ def test_dialog_prefills_mod_name_from_project_title(qtbot, tmp_path):
     assert dlg.download_button.isEnabled()
 
 
+def test_install_downloaded_project(qtbot, tmp_path):
+    # Install = download the project + build the installer + install (VB Install).
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/pack.zip": HttpResponse("http://cdn/pack.zip", 200, content=b"Z")}
+    )
+    controller._extractor = FakeArchiveExtractor(
+        contents={"pack.zip": {"override/o.2da": b"O"}}
+    )
+    files = [VaultScraperInfo(direct_url="http://cdn/pack.zip", filename="pack.zip")]
+    result = controller.install_downloaded_project(files, "New Project", group="100. Packs")
+    assert result["downloaded"] == 1
+    assert result["built"] is True
+    md = controller.pd.mod_item("New Project")
+    assert md is not None and md.is_installer()
+    payload = (
+        tmp_path / "Profiles" / "P" / "New Project" / C.MOD_INSTALLER_DIR
+        / "override" / "o.2da"
+    )
+    assert payload.is_file()
+
+
+def test_dialog_marks_already_downloaded(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    downloads = tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR
+    downloads.mkdir(parents=True, exist_ok=True)
+    (downloads / "a.zip").write_bytes(b"old")
+
+    dlg = DownloadProjectDialog(controller, default_mod="My Mod")
+    qtbot.addWidget(dlg)
+    dlg.populate_files(
+        [
+            VaultScraperInfo(description="a.zip", filename="a.zip"),
+            VaultScraperInfo(description="b.hak", filename="b.hak"),
+        ]
+    )
+    # a.zip already present -> "Already downloaded" + unticked; b.hak -> ticked.
+    assert dlg.file_tree.topLevelItem(0).text(2) == "Already downloaded"
+    assert dlg.file_tree.topLevelItem(0).checkState(0) == Qt.CheckState.Unchecked
+    assert dlg.file_tree.topLevelItem(1).text(2) == ""
+    assert dlg.file_tree.topLevelItem(1).checkState(0) == Qt.CheckState.Checked
+    # Only the not-yet-downloaded file is queued.
+    assert [f.filename for f in dlg.checked_files()] == ["b.hak"]
+
+
+def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/a.zip": HttpResponse("http://cdn/a.zip", 200, content=b"Z")}
+    )
+    controller._extractor = FakeArchiveExtractor(
+        contents={"a.zip": {"hak/x.hak": b"X"}}
+    )
+    dlg = DownloadProjectDialog(controller, default_mod="Installed Project")
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+    dlg._on_install()
+    md = controller.pd.mod_item("Installed Project")
+    assert md is not None and md.is_installer()
+    assert "Installed 'Installed Project'" in dlg.status.text()
+
+
 def test_dialog_download_needs_a_mod_name(qtbot, tmp_path):
     controller = _controller(tmp_path)
     dlg = DownloadProjectDialog(controller)

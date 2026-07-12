@@ -93,6 +93,7 @@ class DownloadProjectDialog(QDialog):
         self.mod_name_edit = QLineEdit(default_mod)
         self.mod_name_edit.setPlaceholderText("New mod folder name")
         self.mod_name_edit.textEdited.connect(self._on_name_edited)
+        self.mod_name_edit.editingFinished.connect(self._render_files)
         form.addRow("Mod folder name:", self.mod_name_edit)
         self.group_combo = QComboBox()
         self.group_combo.setEditable(True)
@@ -102,7 +103,7 @@ class DownloadProjectDialog(QDialog):
 
         config.addWidget(QLabel("Project files (tick the ones to download):"))
         self.file_tree = QTreeWidget()
-        self.file_tree.setHeaderLabels(["File", "Size"])
+        self.file_tree.setHeaderLabels(["File", "Size", "Status"])
         self.file_tree.setRootIsDecorated(False)
         self.file_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         config.addWidget(self.file_tree, 1)
@@ -130,9 +131,17 @@ class DownloadProjectDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch(1)
         self.download_button = QPushButton("Download")
+        self.download_button.setToolTip("Download the ticked files into the mod's downloads")
         self.download_button.clicked.connect(self._on_download)
         self.download_button.setEnabled(False)
         buttons.addWidget(self.download_button)
+        self.install_button = QPushButton("Install")
+        self.install_button.setToolTip(
+            "Download the ticked files, build the installer, and install the mod"
+        )
+        self.install_button.clicked.connect(self._on_install)
+        self.install_button.setEnabled(False)
+        buttons.addWidget(self.install_button)
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
         buttons.addWidget(help_button("BhDownloadProject", self))
@@ -156,19 +165,12 @@ class DownloadProjectDialog(QDialog):
 
     # -- Population -------------------------------------------------------- #
     def populate_files(self, files: list) -> None:
-        """Show the scraped files as checked rows + reveal the configuration."""
+        """Store the scraped files, reveal the configuration, and render the list."""
         self._files = files
-        self.file_tree.clear()
-        for vsi in files:
-            item = QTreeWidgetItem(
-                [vsi.description or vsi.filename, _fmt_size(vsi.byte_size)]
-            )
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            item.setCheckState(0, Qt.CheckState.Checked)
-            self.file_tree.addTopLevelItem(item)
         has_files = bool(files)
         self.config_box.setVisible(has_files)
         self.download_button.setEnabled(has_files)
+        self.install_button.setEnabled(has_files)
         # Pre-fill the mod name + project label from the project title (VB derives
         # the Mod Folder Name from the project); respect a name the user has typed.
         title = files[0].project_title if files else ""
@@ -177,9 +179,38 @@ class DownloadProjectDialog(QDialog):
             self.project_label.setText(nice or title)
             if not self._name_touched and not self.mod_name_edit.text().strip():
                 self.mod_name_edit.setText(nice)
+        self._render_files()
         self.status.setText(
             f"{len(files)} file(s) found." if files else "No files found."
         )
+
+    def _render_files(self) -> None:
+        """(Re)build the file rows, flagging files already in the target mod's downloads."""
+        from PySide6.QtGui import QBrush, QColor
+
+        from vaultkeeper.vault.scraper_info import FileStatus
+
+        self.controller.mark_download_status(self._files, self.mod_name_edit.text().strip())
+        self.file_tree.clear()
+        for vsi in self._files:
+            downloaded = vsi.status == FileStatus.DOWNLOADED
+            item = QTreeWidgetItem(
+                [
+                    vsi.description or vsi.filename,
+                    _fmt_size(vsi.byte_size),
+                    "Already downloaded" if downloaded else "",
+                ]
+            )
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            # Already-downloaded files are unticked by default (don't re-fetch) + dimmed.
+            item.setCheckState(
+                0, Qt.CheckState.Unchecked if downloaded else Qt.CheckState.Checked
+            )
+            if downloaded:
+                dim = QBrush(QColor(0x88, 0x88, 0x88))
+                for col in range(3):
+                    item.setForeground(col, dim)
+            self.file_tree.addTopLevelItem(item)
 
     def checked_files(self) -> list:
         """The files the user has ticked."""
@@ -245,3 +276,38 @@ class DownloadProjectDialog(QDialog):
         self.status.setText(
             f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
         )
+        self._render_files()  # newly-downloaded files now show "Already downloaded"
+
+    def _on_install(self) -> None:
+        """Download the ticked files, build the installer, and install the mod."""
+        files = self.checked_files()
+        mod = self.mod_name_edit.text().strip()
+        if not files:
+            self.status.setText("Tick at least one file to install.")
+            return
+        if not mod:
+            self.status.setText("Enter a mod folder name to install into.")
+            self.mod_name_edit.setFocus()
+            return
+        group = self.group_combo.currentText().strip() or None
+        self.progress.setVisible(True)
+        self.progress.setMaximum(len(files))
+
+        def on_progress(index: int, total: int, vsi) -> None:
+            self.progress.setValue(index)
+            self.status.setText(f"Downloading {vsi.description or vsi.filename}…")
+
+        result = self.controller.install_downloaded_project(
+            files, mod, group=group, on_progress=on_progress
+        )
+        self.progress.setValue(len(files))
+        if result["built"]:
+            self.status.setText(
+                f"Installed '{mod}'. {result['install_message']}"
+            )
+        else:
+            self.status.setText(
+                f"Downloaded {result['downloaded']} of {result['total']} file(s), "
+                f"but could not build the installer for '{mod}'."
+            )
+        self._render_files()

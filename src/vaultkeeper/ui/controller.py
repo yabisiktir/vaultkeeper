@@ -1776,6 +1776,61 @@ class ProfileController:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return " ".join(w[:1].upper() + w[1:] for w in cleaned.split(" ") if w)
 
+    def mark_download_status(self, files: list, mod_name: str) -> None:
+        """Flag each project file DOWNLOADED when it already sits in the mod's downloads.
+
+        Ports VB ``DownloadProject.IsDownloaded``: a file already present in the target
+        mod's ``_Downloads`` is shown "Already downloaded" so it isn't needlessly
+        re-fetched (the dialog unticks those by default; the user can re-tick to force a
+        re-download). Files with no matching download are marked ``AVAILABLE``.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.vault.downloader import _filename_from_url
+        from vaultkeeper.vault.scraper_info import FileStatus
+
+        downloads = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
+        existing = (
+            {p.name.lower() for p in downloads.iterdir() if p.is_file()}
+            if mod_name and downloads.is_dir()
+            else set()
+        )
+        for vsi in files:
+            if vsi.excluded:
+                continue
+            name = (
+                vsi.local_filename
+                or vsi.filename
+                or _filename_from_url(vsi.direct_url or vsi.counter_url or "")
+            )
+            vsi.status = (
+                FileStatus.DOWNLOADED if name.lower() in existing else FileStatus.AVAILABLE
+            )
+
+    def install_downloaded_project(
+        self, files: list, mod_name: str, *, group: str | None = None, on_progress=None
+    ) -> dict:
+        """Download a project, build its installer, then install it (VB Install button).
+
+        VB's Download Project *Install* downloads the marked files and, when done,
+        builds the installer and installs the mod (``DownloadMarkedFiles`` →
+        ``CreateInstallers`` → ``MsInstall``). Composes the existing steps:
+        :meth:`download_project` (create-if-new + fetch) → :meth:`build_installer_payload`
+        (extract downloads → payload) → :meth:`install`. Returns
+        ``{"downloaded", "total", "built", "install_message"}``.
+        """
+        results = self.download_project(
+            files, mod_name, group=group, on_progress=on_progress
+        )
+        downloaded = sum(1 for r in results if r.ok)
+        build = self.build_installer_payload(mod_name)
+        install_message = self.install([mod_name]) if build["ok"] else build["message"]
+        return {
+            "downloaded": downloaded,
+            "total": len(results),
+            "built": build["ok"],
+            "install_message": install_message,
+        }
+
     @staticmethod
     def _load_download_rules(data_dir: Path):
         """Load the cached Vault download rules (for GameMapper save-name rules)."""
