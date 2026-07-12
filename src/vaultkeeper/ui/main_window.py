@@ -482,9 +482,20 @@ class MainWindow(QMainWindow):
 
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
+        menu.addAction("Copy Name", self._on_copy_contents_name)
         menu.addSeparator()
         menu.addAction("Delete File", self._on_delete_contents_file)
         menu.exec(self._contents.viewport().mapToGlobal(pos))
+
+    def _on_copy_contents_name(self) -> None:
+        """Copy the selected Contents file's name to the clipboard (VB CmContents CopyName)."""
+        selected = self._contents.selected_file()
+        if selected is None:
+            return
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.clipboard().setText(selected[1])  # (folder, filename)
+        self.nit_status.set_info(f"Copied {selected[1]}.")
 
     def _on_view_contents_file(self, *_args) -> None:
         """Open the selected Contents file in the read-only viewer (VB CmContents Open)."""
@@ -629,6 +640,9 @@ class MainWindow(QMainWindow):
             # Web link (edit / copy to clipboard).
             "MsEditWebLink": self._on_edit_web_link,
             "MsCopyWebLink": self._on_copy_web_link,
+            # Copy the selected mod name(s) to the clipboard.
+            "MsCopyName": self._on_copy_name,
+            "TsCopyName": self._on_copy_name,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
             # Cleanup.
@@ -1387,6 +1401,22 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_details(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_copy_name(self) -> None:
+        """Copy the selected mod name(s) to the clipboard (VB ``MsCopyName``).
+
+        VB copies from the active FileView; the mod list is the primary one, so we
+        copy the selected mod names (one per line). The Contents pane has its own
+        "Copy Name" in its right-click menu for file names.
+        """
+        names = self.selected_mod_names()
+        if self.controller is None or not names:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.clipboard().setText("\n".join(names))
+        self.nit_status.set_info(f"Copied {len(names)} name(s).")
 
     def _on_copy_web_link(self) -> None:
         """Copy the selected mod's web link to the clipboard (VB ``MsCopyWebLink``)."""

@@ -608,3 +608,26 @@ def test_copy_web_link_via_ui(qtbot, controller) -> None:
     _select_mod(win, "Beta")
     win._on_command("MsCopyWebLink")
     assert QApplication.clipboard().text() == "https://example.com/beta"
+
+
+# -- Copy Name (VB MsCopyName) --------------------------------------------- #
+def test_copy_name_via_ui(qtbot, controller) -> None:
+    from PySide6.QtWidgets import QApplication
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    win._on_command("MsCopyName")
+    assert QApplication.clipboard().text() == "Alpha"
+    assert win.nit_menu.action("MsCopyName").isEnabled()  # wired -> enabled
+
+
+def test_copy_contents_file_name(qtbot, controller) -> None:
+    from PySide6.QtWidgets import QApplication
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+    _select_contents_file(win, "hak", "a.hak")
+    win._on_copy_contents_name()
+    assert QApplication.clipboard().text() == "a.hak"
