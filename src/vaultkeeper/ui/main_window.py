@@ -143,10 +143,10 @@ class MainWindow(QMainWindow):
         self._details.setHtml(
             "<h3>Welcome to Vaultkeeper</h3>"
             "<p>No profile is open yet.</p>"
-            "<p>Use <b>File &rarr; Set Up Profile…</b> to locate your Neverwinter "
-            "Nights folder and create a profile.</p>" + self._import_hint()
+            "<p>Use <b>File &rarr; Load Profile</b> (or <b>Open</b>) to locate your "
+            "Neverwinter Nights folder and create a profile.</p>" + self._import_hint()
         )
-        self.nit_status.set_info("No profile — use File ▸ Set Up Profile…")
+        self.nit_status.set_info("No profile — use File ▸ Load Profile")
 
     @staticmethod
     def _import_hint() -> str:
@@ -156,9 +156,9 @@ class MainWindow(QMainWindow):
         if detect_legacy_store() is None:
             return ""
         return (
-            "<p>An existing <b>NIT Store</b> was found on this machine. "
-            "Use <b>File &rarr; Import Legacy NIT Store…</b> to bring in your "
-            "mods and their groups.</p>"
+            "<p>An existing <b>NIT Store</b> was found on this machine. Click "
+            "<b>Mods</b> in the status bar below, then <b>Import Legacy NIT "
+            "Store…</b>, to bring in your mods and their groups.</p>"
         )
 
     # -- Menu -------------------------------------------------------------- #

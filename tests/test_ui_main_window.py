@@ -149,7 +149,10 @@ def test_contents_pane_shows_mod_files(qtbot, controller) -> None:
 def test_empty_window_shows_guidance(qtbot) -> None:
     win = MainWindow()  # no controller
     qtbot.addWidget(win)
-    assert "Set Up Profile" in win._details.toPlainText()
+    text = win._details.toPlainText()
+    # Guidance must name a menu path that actually exists (File ▸ Load Profile).
+    assert "Load Profile" in text
+    assert win.nit_menu.action("MsLoadProfile") is not None
 
 
 def test_remove_mod_via_controller(qtbot, controller) -> None:
