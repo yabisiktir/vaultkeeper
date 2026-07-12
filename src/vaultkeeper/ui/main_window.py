@@ -482,10 +482,56 @@ class MainWindow(QMainWindow):
 
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
+        menu.addAction("Display Info", self._on_display_contents_info)
         menu.addAction("Copy Name", self._on_copy_contents_name)
         menu.addSeparator()
         menu.addAction("Delete File", self._on_delete_contents_file)
         menu.exec(self._contents.viewport().mapToGlobal(pos))
+
+    def _on_display_contents_info(self, *_args) -> None:
+        """Preview the selected Contents file (VB ``MsDisplayInfo``).
+
+        A ``.bic`` opens the Character Explorer summary; an image (loadscreen /
+        portrait / texture) opens the image viewer; anything else falls back to the
+        read-only text viewer.
+        """
+        if self.controller is None or self._contents_mod is None:
+            return
+        selected = self._contents.selected_file()
+        if selected is None:
+            return
+        folder, filename = selected
+        path = self.controller.mod_file_path(self._contents_mod, folder, filename)
+        if path is None:
+            self.nit_status.set_info(f"{filename} is not on disk.")
+            return
+        from vaultkeeper.ui.dialogs.image_viewer import IMAGE_EXTENSIONS, ImageViewer
+
+        ext = path.suffix.lower()
+        if ext == ".bic":
+            self._show_character_file(path)
+        elif ext in IMAGE_EXTENSIONS:
+            self._image_viewer = ImageViewer.show_for(path, self)
+        else:
+            self._on_view_contents_file()
+
+    def _show_character_file(self, path) -> None:
+        """Open the Character Explorer summary for a single ``.bic`` file."""
+        from vaultkeeper.core.formats.bic_reader import BicFileReader
+        from vaultkeeper.game.character import CharacterFile
+        from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+
+        info = BicFileReader().read_file(path)
+        if info is None:
+            self.nit_status.set_info(f"Unable to read {path.name}.")
+            return
+        cf = CharacterFile(path=path, info=info)
+
+        def resolver(resref, own_folder):
+            return self.controller.portrait_path(resref, extra_dirs=[own_folder])
+
+        self._character_viewer = CharacterViewer([cf], resolver, self)
+        self._character_viewer.show()
 
     def _on_copy_contents_name(self) -> None:
         """Copy the selected Contents file's name to the clipboard (VB CmContents CopyName)."""
@@ -643,6 +689,8 @@ class MainWindow(QMainWindow):
             # Copy the selected mod name(s) to the clipboard.
             "MsCopyName": self._on_copy_name,
             "TsCopyName": self._on_copy_name,
+            # Display info for the selected Contents file (character / image).
+            "MsDisplayInfo": self._on_display_contents_info,
             "TsDelete": self._on_remove,
             "MsDelete": self._on_remove,
             # Cleanup.

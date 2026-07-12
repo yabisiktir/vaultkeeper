@@ -631,3 +631,77 @@ def test_copy_contents_file_name(qtbot, controller) -> None:
     _select_contents_file(win, "hak", "a.hak")
     win._on_copy_contents_name()
     assert QApplication.clipboard().text() == "a.hak"
+
+
+# -- Display Info: character / image preview (VB MsDisplayInfo) ------------- #
+def _tga_bytes(w: int = 2, h: int = 2) -> bytes:
+    import struct
+
+    header = struct.pack("<BBBHHBHHHHBB", 0, 0, 2, 0, 0, 0, 0, 0, w, h, 24, 0)
+    return header + bytes([0, 0, 255] * (w * h))
+
+
+def _image_controller(tmp_path):
+    profile_mods = tmp_path / "Profiles" / "P"
+    _make_mod(profile_mods, "Art", {"portraits/p.tga": _tga_bytes(), "hak/big.hak": b"X"})
+    return ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+
+def test_display_info_opens_image_viewer(qtbot, tmp_path) -> None:
+    from vaultkeeper.ui.dialogs.image_viewer import ImageViewer
+
+    win = MainWindow(_image_controller(tmp_path))
+    qtbot.addWidget(win)
+    _select_mod(win, "Art")
+    _select_contents_file(win, "portraits", "p.tga")
+    win._on_display_contents_info()
+    assert isinstance(win._image_viewer, ImageViewer)
+
+
+def test_display_info_bic_opens_character(qtbot, tmp_path, monkeypatch) -> None:
+    profile_mods = tmp_path / "Profiles" / "P"
+    _make_mod(profile_mods, "Chars", {"bic/hero.bic": b"not-a-real-bic"})
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Chars")
+    _select_contents_file(win, "bic", "hero.bic")
+    seen = {}
+    monkeypatch.setattr(
+        MainWindow, "_show_character_file", lambda self, path: seen.setdefault("p", path)
+    )
+    win._on_display_contents_info()
+    assert str(seen["p"]).endswith("hero.bic")
+
+
+def test_display_info_other_falls_back_to_text(qtbot, tmp_path, monkeypatch) -> None:
+    from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+    win = MainWindow(_image_controller(tmp_path))
+    qtbot.addWidget(win)
+    _select_mod(win, "Art")
+    _select_contents_file(win, "hak", "big.hak")
+    calls = {}
+    monkeypatch.setattr(
+        TextViewer, "show_file", lambda path, title, parent: calls.setdefault("p", path)
+    )
+    win._on_display_contents_info()
+    assert str(calls["p"]).endswith("big.hak")
+
+
+def test_image_viewer_load_pixmap(tmp_path) -> None:
+    from vaultkeeper.ui.dialogs.image_viewer import load_pixmap
+
+    tga = tmp_path / "x.tga"
+    tga.write_bytes(_tga_bytes(4, 4))
+    pix = load_pixmap(tga)
+    assert pix is not None and not pix.isNull()
+    assert load_pixmap(tmp_path / "missing.tga") is None
