@@ -221,6 +221,22 @@ class FileView(QTreeWidget):
                 return True
         return False
 
+    def select_group(self, group_name: str) -> bool:
+        """Expand + scroll to a group header, selecting its first mod (VB Go to Group)."""
+        for i in range(self.topLevelItemCount()):
+            item = self.topLevelItem(i)
+            # A group header has a group name but no mod name.
+            if (
+                item.data(0, _ROLE_MOD_NAME) is None
+                and item.data(0, _ROLE_GROUP_NAME) == group_name
+            ):
+                item.setExpanded(True)
+                self.scrollToItem(item)
+                if item.childCount() > 0:
+                    self.setCurrentItem(item.child(0))
+                return True
+        return False
+
     def _on_selection_changed(self) -> None:
         self.selection_changed.emit(self.selected_mod_names())
 

@@ -730,6 +730,9 @@ class MainWindow(QMainWindow):
             # Find files across the profile.
             "MsFind": self._on_find,
             "TsFind": self._on_find,
+            # Jump the mod list to a chosen group.
+            "MsGoToGroup": self._on_go_to_group,
+            "TsGoToGroup": self._on_go_to_group,
             # Display info for the selected Contents file (character / image).
             "MsDisplayInfo": self._on_display_contents_info,
             "TsDelete": self._on_remove,
@@ -1529,6 +1532,26 @@ class MainWindow(QMainWindow):
     def _select_mod_by_name(self, mod_name: str) -> None:
         """Select a mod in the list by name (VB ``SelectMod``)."""
         if self._tree.select_mod(mod_name):
+            self._on_selection_changed()
+
+    def _on_go_to_group(self) -> None:
+        """Jump the mod list to a chosen group (VB ``MsGoToGroup``)."""
+        from vaultkeeper.core import constants as C
+
+        if self.controller is None:
+            return
+        groups = [
+            g
+            for g in self.controller.group_names()
+            if not g.startswith(C.GROUP_HIDDEN_PREFIX)
+        ]
+        if not groups:
+            self.nit_status.set_info("There are no groups to go to.")
+            return
+        name, ok = QInputDialog.getItem(
+            self, "Go to Group", "Group:", groups, editable=False
+        )
+        if ok and name and self._tree.select_group(name):
             self._on_selection_changed()
 
     def _on_copy_name(self) -> None:

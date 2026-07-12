@@ -529,7 +529,7 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     for dead_id in ("RbnFontAndColour", "RbnManageWorkshop"):
         button = win.ribbon.button(dead_id)
         assert button is not None and not button.isEnabled()
-    for dead_id in ("TsCut", "TsGoToGroup"):
+    for dead_id in ("TsCut", "TsPaste"):
         act = win.quick_toolbar.actions_by_id[dead_id]
         assert not act.isEnabled()
 
@@ -857,3 +857,26 @@ def test_find_selects_mod_in_tree(qtbot, controller) -> None:
     assert win.selected_mod_names() == ["Beta"]
     # Wired -> the command is enabled.
     assert win.nit_menu.action("MsFind").isEnabled()
+
+
+# -- Go to Group (VB MsGoToGroup) ------------------------------------------ #
+def test_go_to_group_selects_group(qtbot, controller) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    # Put Alpha in a named group so a header row exists.
+    controller.move_to_group(["Alpha"], "100. Packs")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._tree.clearSelection()
+    # select_group expands + selects the group's first mod.
+    assert win._tree.select_group("100. Packs")
+    assert "Alpha" in win.selected_mod_names()
+
+    # The command dispatches through a group picker.
+    import unittest.mock as m
+
+    with m.patch.object(QInputDialog, "getItem", return_value=("100. Packs", True)):
+        win._tree.clearSelection()
+        win._on_command("MsGoToGroup")
+    assert "Alpha" in win.selected_mod_names()
+    assert win.nit_menu.action("MsGoToGroup").isEnabled()
