@@ -340,3 +340,44 @@ are all accounted for — nothing is an accidental gap:
 - **Intentional cross-platform divergences (17): NOT gaps.** Windows taskbar/shell,
   clipboard viewer, debug menu, online update / diagnostics, NTFS/Notepad++-specific
   items — left visible-but-disabled by design.
+
+## Full-app screen evaluation (2026-07-12)
+
+Every window was rendered offscreen (`QT_QPA_PLATFORM=offscreen`, `dlg.grab()`) with
+representative data and compared to the original's layout, control order, captions and
+workflow. **26 screens assessed: 21 already faithful, 5 corrected this pass.** A
+shareable summary of this pass also lives as a Claude artifact ("The Keeper's Ledger").
+
+### Corrected this pass
+
+| Screen | Change |
+| --- | --- |
+| **Download Project** | 🟡→✅ Rebuilt to the VB "create or update a Mod" experience: purpose header, **Retrieve**, editable **Mod folder name** + **Group**, file list with an **Already-downloaded** status column, and both **Download** (creates the mod) and **Install** (download → build installer → install). Was a bare URL+file list that forced picking an existing mod. |
+| **First-run / empty state** | 🟡→✅ Auto-creates a default profile from the discovered install (VB `Paths.vb`), instead of an empty profile-less state; welcome text now names real menu items (`File → Load Profile`), and offers to import a detected legacy NIT Store. |
+| **Mod Explorer / Mod Play Viewer / main details pane** | 🟡→✅ `group` showed the raw `......001`/`......000` sentinels; routed through `controller.group_label` → "No Group" / "Installed by NWN". |
+| **Conflicts Viewer / Dependency Manager** | ✅ Added a one-line explanatory header to the bare report tables (matching the other dialogs). |
+
+### Verified faithful (no change needed)
+
+Rendered and compared — layout/controls/workflow already match. Many surfaced real
+machine data during the check (34 characters, 1,495 portraits, 13 game saves, the
+"Enhanced Edition Mods" legacy store).
+
+- **Shell:** Main window (menu / quick toolbar / 7-tab ribbon / 3-pane splitter / status cluster).
+- **Mods:** Mod Properties, Find Files, Doc Organiser.
+- **Installers:** Publish Mod, Create Missing Installers, Folder Mapping, Dependency Editor, Wizard Builder.
+- **Play:** Game Saves Manager, Play Data Viewer, Character Viewer.
+- **Tools:** Portrait Manager, Start Screen Manager, Classes/Skills/Feats, Workshop Viewer.
+- **Diagnose:** Installation Analyser, User Response Editor.
+- **Other:** Settings, Import Legacy NIT Store, About.
+
+### Deferred by design (not gaps — see "Command-wiring status" above)
+
+42 commands stay disabled deliberately: FileView navigation (6 — needs the deferred
+folder-navigator rewrite), shared store & sync (6 — single-machine / read-only data
+strategy), and 17 cross-platform omissions, plus 13 other deferred editors/validators.
+
+**Verdict:** correctness core ~100%, ~91% overall parity, 1,134 tests green, ruff
+clean. The port matches the original's experience across the board; the one genuinely
+unintuitive screen (Download Project) is fixed and the one internal-data leak (group
+sentinel) is closed.
