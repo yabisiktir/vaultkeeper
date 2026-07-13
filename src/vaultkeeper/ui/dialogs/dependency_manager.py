@@ -32,6 +32,12 @@ class DependencyManager(QDialog):
         self.resize(640, 440)
 
         layout = QVBoxLayout(self)
+        intro = QLabel(
+            "Mod dependencies: which mods each mod depends on, and which mods require "
+            "it. Installing a mod also installs what it depends on."
+        )
+        intro.setWordWrap(True)
+        layout.addWidget(intro)
 
         self.table = QTreeWidget()
         self.table.setHeaderLabels(["Mod", "Depends On", "Required By"])

@@ -33,6 +33,12 @@ class ConflictsViewer(QDialog):
         self.resize(640, 440)
 
         layout = QVBoxLayout(self)
+        intro = QLabel(
+            "Files installed by more than one mod. The winning mod's version is the "
+            "one currently on disk; the others are overridden."
+        )
+        intro.setWordWrap(True)
+        layout.addWidget(intro)
 
         self.table = QTreeWidget()
         self.table.setHeaderLabels(["File", "Winner", "Conflicting Mods"])
