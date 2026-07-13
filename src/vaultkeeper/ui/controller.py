@@ -1897,7 +1897,7 @@ class ProfileController:
             rows.append(
                 {
                     "mod": name,
-                    "group": md.group,
+                    "group": self.group_label(md.group),
                     "state": md.mod_state.name.replace("_", " ").title(),
                     "rating": md.rating.name.title(),
                     "files": len(md.files),
@@ -2007,7 +2007,7 @@ class ProfileController:
                 )
         return {"rows": rows, "count": len(rows)}
 
-    def _group_label(self, group: str) -> str:
+    def group_label(self, group: str) -> str:
         """A display label for a group key (sentinel buckets get friendly names)."""
         from vaultkeeper.core import constants as C
 
@@ -2040,7 +2040,7 @@ class ProfileController:
                 continue
             if "restorer" in other.group.lower():  # VB skips restorer/auto groups
                 continue
-            buckets.setdefault(self._group_label(other.group), []).append(name)
+            buckets.setdefault(self.group_label(other.group), []).append(name)
 
         groups = [
             {"name": label, "mods": sorted(mods, key=key)}
@@ -3074,7 +3074,7 @@ class ProfileController:
                     "end": _hyphen_if_negative(md.level_end),
                     "state": int(md.mod_state),
                     "installed": md.installed,
-                    "group": md.group,
+                    "group": self.group_label(md.group),
                     "web_link": md.web_link,
                     "best_weapon": _to_weapon_text(md.best_weapon),
                     "played_info": self._time_since_played(md),

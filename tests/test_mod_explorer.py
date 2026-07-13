@@ -33,6 +33,17 @@ def test_mod_explorer_report(qtbot, tmp_path):
     assert by_mod["Abyss"]["group"] == "Adv"
 
 
+def test_mod_explorer_report_maps_sentinel_groups(qtbot, tmp_path):
+    # A no-group mod must show "No Group", never the raw "......001" sentinel.
+    from vaultkeeper.core import constants as C
+
+    controller = _controller(tmp_path)
+    controller.pd.add_mod(ModData(group=C.GROUP_NONE, mod_name="Loose Mod"))
+    by_mod = {r["mod"]: r for r in controller.mod_explorer_report()["rows"]}
+    assert by_mod["Loose Mod"]["group"] == "No Group"
+    assert not by_mod["Loose Mod"]["group"].startswith("......")
+
+
 def test_mod_explorer_dialog(qtbot, tmp_path):
     controller = _controller(tmp_path)
     dlg = ModExplorer.show_for(controller)

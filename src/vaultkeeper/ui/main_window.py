@@ -698,8 +698,9 @@ class MainWindow(QMainWindow):
 
     def _show_details(self, md: ModData) -> None:
         # Details list (VB FvDetails): key properties as Property/Value rows.
+        group = self.controller.group_label(md.group) if self.controller else md.group
         rows: list[tuple[str, str]] = [
-            ("Group", md.group),
+            ("Group", group),
             ("State", md.mod_state.name.replace("_", " ").title()),
             ("Rating", md.rating.name.title()),
             ("Files", f"{len(md.files):,}"),
