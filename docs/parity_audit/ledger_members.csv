@@ -14,12 +14,12 @@ AliasSectionEditor.vb,AliasSectionEditor,RestoreFolder,Sub,,AliasSectionEditor.v
 AliasSectionEditor.vb,AliasSectionEditor,RefreshContextMenu,Sub,,AliasSectionEditor.vb:452,none,,Deferred,"CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py)."
 AliasSectionEditor.vb,AliasSectionEditor,SavesTypeSuffix,Sub,,AliasSectionEditor.vb:467,none,,Deferred,"CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py)."
 AliasSectionEditor.vb,AliasSectionEditor,ProcessCmdKey,Function,,AliasSectionEditor.vb:479,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ApplicationEvents.vb,MyApplication,MyApplication_Startup,Sub,Me.Startup,ApplicationEvents.vb:28,none,,GAP?,
-ApplicationEvents.vb,MyApplication,MyApplication_UnhandledException,Sub,Me.UnhandledException,ApplicationEvents.vb:65,none,,GAP?,
-ApplicationEvents.vb,MyApplication,LogExceptionInfo,Sub,,ApplicationEvents.vb:156,none,,GAP?,
-ApplicationEvents.vb,MyApplication,MyApplication_StartupNextInstance,Sub,Me.StartupNextInstance,ApplicationEvents.vb:196,none,,GAP?,
-ApplicationEvents.vb,MyApplication,RestartOnShutdown,Property,,ApplicationEvents.vb:217,none,,GAP?,
-ApplicationEvents.vb,MyApplication,MyApplication_Shutdown,Sub,Me.Shutdown,ApplicationEvents.vb:219,none,,GAP?,
+ApplicationEvents.vb,MyApplication,MyApplication_Startup,Sub,Me.Startup,ApplicationEvents.vb:28,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ApplicationEvents.vb,MyApplication,MyApplication_UnhandledException,Sub,Me.UnhandledException,ApplicationEvents.vb:65,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ApplicationEvents.vb,MyApplication,LogExceptionInfo,Sub,,ApplicationEvents.vb:156,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ApplicationEvents.vb,MyApplication,MyApplication_StartupNextInstance,Sub,Me.StartupNextInstance,ApplicationEvents.vb:196,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ApplicationEvents.vb,MyApplication,RestartOnShutdown,Property,,ApplicationEvents.vb:217,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ApplicationEvents.vb,MyApplication,MyApplication_Shutdown,Sub,Me.Shutdown,ApplicationEvents.vb:219,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 BackupManager.Methods.vb,BackupManager,DisplaySelectionInfo,Sub,,BackupManager.Methods.vb:24,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 BackupManager.Methods.vb,BackupManager,PopulateStandard,Function,,BackupManager.Methods.vb:93,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 BackupManager.Methods.vb,BackupManager,UpdateListView,Sub,,BackupManager.Methods.vb:118,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
@@ -80,16 +80,16 @@ BasicSettings.vb,BasicSettings,BtAdvanced_Click,Sub,BtAdvanced.Click,BasicSettin
 BasicSettings.vb,BasicSettings,BtApply_Click,Sub,BtApply.Click,BasicSettings.vb:195,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 BasicSettings.vb,BasicSettings,BtCancel_Click,Sub,BtCancel.Click,BasicSettings.vb:245,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BicFileInfo.vb,BicFileInfo,TitleIndex,Function,,BicFileInfo.vb:142,strong,vaultkeeper/game/character.py,AUTO-PORTED,
-BicFileInfo.vb,BicFileInfo,SkillInfo,Property,,BicFileInfo.vb:157,none,,GAP?,
-BicFileInfo.vb,BicFileInfo,PlayerFeats,Property,,BicFileInfo.vb:186,none,,GAP?,
+BicFileInfo.vb,BicFileInfo,SkillInfo,Property,,BicFileInfo.vb:157,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+BicFileInfo.vb,BicFileInfo,PlayerFeats,Property,,BicFileInfo.vb:186,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 BicFileInfo.vb,BicFileInfo,Portrait,Property,,BicFileInfo.vb:200,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/erf_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,CharacterLevel,Property,,BicFileInfo.vb:206,comment,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_viewer.py,AUTO-PORTED,matched in comment/docstring
 BicFileInfo.vb,BicFileInfo,LevelSummary,Property,,BicFileInfo.vb:216,strong,vaultkeeper/game/character.py | vaultkeeper/ui/dialogs/character_viewer.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,PortraitDirectories,Property,,BicFileInfo.vb:226,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,CharacterSummary,Function,,BicFileInfo.vb:250,strong,vaultkeeper/game/character.py | vaultkeeper/ui/resources.py,AUTO-PORTED,
-BicFileInfo.vb,BicFileInfo,DisplayCharacterInformation,Sub,,BicFileInfo.vb:444,none,,GAP?,
-BicFileInfo.vb,BicFileInfo,SkillDescription,Function,,BicFileInfo.vb:457,none,,GAP?,
-BicFileInfo.vb,BicFileInfo,FeatDescription,Function,,BicFileInfo.vb:473,none,,GAP?,
+BicFileInfo.vb,BicFileInfo,DisplayCharacterInformation,Sub,,BicFileInfo.vb:444,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+BicFileInfo.vb,BicFileInfo,SkillDescription,Function,,BicFileInfo.vb:457,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+BicFileInfo.vb,BicFileInfo,FeatDescription,Function,,BicFileInfo.vb:473,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 BicFileInfo.vb,BicFileInfo,GetSkills,Sub,,BicFileInfo.vb:489,strong,vaultkeeper/game/character.py | vaultkeeper/game/character_reference.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,GetFeats,Sub,,BicFileInfo.vb:511,strong,vaultkeeper/game/character.py | vaultkeeper/game/character_reference.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,GetNames,Sub,,BicFileInfo.vb:535,strong,vaultkeeper/game/character_reference.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -101,14 +101,14 @@ BicNameInfo.vb,BicNameInfo,Ref,Property,,BicNameInfo.vb:26,strong,vaultkeeper/ga
 BicNameInfo.vb,BicNameInfo,New,Sub,,BicNameInfo.vb:31,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 BicNameInfo.vb,BicNameInfo,New,Sub,,BicNameInfo.vb:39,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 BicNameInfo.vb,BicNameInfo,New,Sub,,BicNameInfo.vb:48,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-BikToWbmDialogue.vb,BikToWbmDialogue,FileCount,Property,,BikToWbmDialogue.vb:35,none,,GAP?,
+BikToWbmDialogue.vb,BikToWbmDialogue,FileCount,Property,,BikToWbmDialogue.vb:35,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 BikToWbmDialogue.vb,BikToWbmDialogue,Converted,Property,,BikToWbmDialogue.vb:44,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 BikToWbmDialogue.vb,BikToWbmDialogue,Failed,Property,,BikToWbmDialogue.vb:49,strong,vaultkeeper/core/archive.py | vaultkeeper/game/client_log.py | vaultkeeper/game/recovery.py,AUTO-PORTED,
-BikToWbmDialogue.vb,BikToWbmDialogue,IncompleteMods,Property,,BikToWbmDialogue.vb:54,none,,GAP?,
+BikToWbmDialogue.vb,BikToWbmDialogue,IncompleteMods,Property,,BikToWbmDialogue.vb:54,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 BikToWbmDialogue.vb,BikToWbmDialogue,ShowDialog,Function,,BikToWbmDialogue.vb:63,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Load,Sub,MyBase.Load,BikToWbmDialogue.vb:81,none,,GAP?,
-BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Shown,Sub,Me.Shown,BikToWbmDialogue.vb:99,none,,GAP?,
-BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_FormClosing,Sub,Me.FormClosing,BikToWbmDialogue.vb:110,none,,GAP?,
+BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Load,Sub,MyBase.Load,BikToWbmDialogue.vb:81,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Shown,Sub,Me.Shown,BikToWbmDialogue.vb:99,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_FormClosing,Sub,Me.FormClosing,BikToWbmDialogue.vb:110,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 BikToWbmDialogue.vb,BikToWbmDialogue,BtCancel_Click,Sub,BtCancel.Click,BikToWbmDialogue.vb:120,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BikToWbmDialogue.vb,BikToWbmDialogue,WndProc,Sub,,BikToWbmDialogue.vb:141,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_DoWork,Sub,BgConverter.DoWork,BikToWbmDialogue.vb:173,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
@@ -118,17 +118,17 @@ BikToWbmDialogue.vb,ConversionInfo,WbmFile,Property,,BikToWbmDialogue.vb:246,com
 BikToWbmDialogue.vb,ConversionInfo,Converted,Property,,BikToWbmDialogue.vb:251,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 BikToWbmDialogue.vb,ConversionInfo,New,Sub,,BikToWbmDialogue.vb:257,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 CalculateCRCs.CrcInfo.vb,CrcInfo,New,Sub,,CalculateCRCs.CrcInfo.vb:30,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-CalculateCRCs.CrcInfo.vb,CrcInfo,BgIndex,Property,,CalculateCRCs.CrcInfo.vb:50,none,,GAP?,
+CalculateCRCs.CrcInfo.vb,CrcInfo,BgIndex,Property,,CalculateCRCs.CrcInfo.vb:50,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 CalculateCRCs.CrcInfo.vb,CrcInfo,Index,Property,,CalculateCRCs.CrcInfo.vb:58,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/gff_reader.py,AUTO-PORTED,
 CalculateCRCs.CrcInfo.vb,CrcInfo,Key,Property,,CalculateCRCs.CrcInfo.vb:66,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/ci_dict.py,AUTO-PORTED,
 CalculateCRCs.CrcInfo.vb,CrcInfo,FullName,Property,,CalculateCRCs.CrcInfo.vb:74,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
 CalculateCRCs.CrcInfo.vb,CrcInfo,ByteSize,Property,,CalculateCRCs.CrcInfo.vb:83,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 CalculateCRCs.CrcInfo.vb,CrcInfo,DisplayRoot,Property,,CalculateCRCs.CrcInfo.vb:91,strong,vaultkeeper/ui/file_view.py,AUTO-PORTED,
-CalculateCRCs.CrcInfo.vb,CrcInfo,DisplayFolder,Property,,CalculateCRCs.CrcInfo.vb:100,none,,GAP?,
-CalculateCRCs.CrcInfo.vb,CrcInfo,CrcValue,Property,,CalculateCRCs.CrcInfo.vb:108,none,,GAP?,
+CalculateCRCs.CrcInfo.vb,CrcInfo,DisplayFolder,Property,,CalculateCRCs.CrcInfo.vb:100,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+CalculateCRCs.CrcInfo.vb,CrcInfo,CrcValue,Property,,CalculateCRCs.CrcInfo.vb:108,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 CalculateCRCs.CrcInfo.vb,CrcInfo,Skipped,Property,,CalculateCRCs.CrcInfo.vb:116,strong,vaultkeeper/core/crc.py | vaultkeeper/core/rtf.py | vaultkeeper/game/character_reference.py,AUTO-PORTED,
-CalculateCRCs.CrcInfo.vb,CrcInfo,CrcStatus,Property,,CalculateCRCs.CrcInfo.vb:124,none,,GAP?,
-CalculateCRCs.CrcInfo.vb,CrcInfo,CrcError,Property,,CalculateCRCs.CrcInfo.vb:132,none,,GAP?,
+CalculateCRCs.CrcInfo.vb,CrcInfo,CrcStatus,Property,,CalculateCRCs.CrcInfo.vb:124,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+CalculateCRCs.CrcInfo.vb,CrcInfo,CrcError,Property,,CalculateCRCs.CrcInfo.vb:132,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 CalculateCRCs.vb,CalculateCRCs,Files,Property,,CalculateCRCs.vb:65,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,Duration,Property,,CalculateCRCs.vb:73,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,EstimatedDuration,Property,,CalculateCRCs.vb:81,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
@@ -196,14 +196,14 @@ ChangeData.vb,InfoMods,DeleteItem,Sub,,ChangeData.vb:776,strong,vaultkeeper/core
 ChangeData.vb,InfoMods,NameExists,Function,,ChangeData.vb:790,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,Clone,Function,,ChangeData.vb:799,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py,N/A,framework/designer-generated
 CharacterFilter.vb,CharacterFilter,LevelFilterText,Property,,CharacterFilter.vb:40,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-CharacterFilter.vb,CharacterFilter,ClassNamesFilter,Property,,CharacterFilter.vb:53,none,,GAP?,
-CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,CharacterFilter.vb:59,none,,GAP?,
-CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,GAP?,
+CharacterFilter.vb,CharacterFilter,ClassNamesFilter,Property,,CharacterFilter.vb:53,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,CharacterFilter.vb:59,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 CharacterFilter.vb,CharacterFilter,BtApply_Click,Sub,BtApply.Click,CharacterFilter.vb:123,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 CharacterFilter.vb,CharacterFilter,BtCancel_Click,Sub,BtCancel.Click,CharacterFilter.vb:138,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CharacterFilter.vb,CharacterFilter,LvClassNames_ItemClicked,Sub,LvClassNames.ItemClicked,CharacterFilter.vb:149,none,,GAP?,
-CharacterFilter.vb,CharacterFilter,LvClassNames_ItemCheck,Sub,,CharacterFilter.vb:161,none,,GAP?,
+CharacterFilter.vb,CharacterFilter,LvClassNames_ItemClicked,Sub,LvClassNames.ItemClicked,CharacterFilter.vb:149,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+CharacterFilter.vb,CharacterFilter,LvClassNames_ItemCheck,Sub,,CharacterFilter.vb:161,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 CharacterFilter.vb,CharacterFilter,CmClear_Click,Sub,CmClear.Click,CharacterFilter.vb:184,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CharacterFilter.vb,CharacterFilter,IsValidLevelFilter,Function,,CharacterFilter.vb:197,strong,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
 CharacterViewer.vb,CharacterViewer,SelectMod,Property,,CharacterViewer.vb:36,strong,vaultkeeper/ui/dialogs/find_files.py | vaultkeeper/ui/file_view.py | vaultkeeper/ui/main_window.py,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
@@ -222,8 +222,8 @@ CharacterViewer.vb,CharacterViewer,LbcFilter_Click,Sub,LcbFilter.Click,Character
 CharacterViewer.vb,CharacterViewer,ClassFilterInfo,Function,,CharacterViewer.vb:763,strong,vaultkeeper/game/character_filter.py,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
 CharacterViewer.vb,CharacterViewer,ApplyClassFilter,Function,,CharacterViewer.vb:782,strong,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_viewer.py,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
 CharacterViewer.vb,CharacterViewer,CbRanked_CheckedChanged,Sub,,CharacterViewer.vb:802,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
-CharacterViewer.vb,CharacterViewer,TsCopyDetails_Click,Sub,TsCopyDetails.Click,CharacterViewer.vb:819,none,,MISSING,genuine small feature gap (owner-visible) — see notes.
-CharacterViewer.vb,CharacterViewer,TsCopyLevel_Click,Sub,TsCopyLevel.Click,CharacterViewer.vb:831,none,,MISSING,genuine small feature gap (owner-visible) — see notes.
+CharacterViewer.vb,CharacterViewer,TsCopyDetails_Click,Sub,TsCopyDetails.Click,CharacterViewer.vb:819,none,,Ported,WAS MISSING; FIXED 2026-07-15 (empty-group render + Copy Details/Level clipboard buttons). See DASHBOARD.md Findings.
+CharacterViewer.vb,CharacterViewer,TsCopyLevel_Click,Sub,TsCopyLevel.Click,CharacterViewer.vb:831,none,,Ported,WAS MISSING; FIXED 2026-07-15 (empty-group render + Copy Details/Level clipboard buttons). See DASHBOARD.md Findings.
 CharacterViewer.vb,CharacterViewer,Bt_MouseLeave,Sub,,CharacterViewer.vb:843,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CharacterViewer.vb,CharacterViewer,BtDescription_Click,Sub,"BtDescription.Click, CmDescription.Click",CharacterViewer.vb:851,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CharacterViewer.vb,CharacterViewer,BtSelect_Click,Sub,BtSelect.Click,CharacterViewer.vb:867,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
@@ -264,7 +264,7 @@ ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LoadClassDescriptions,Sub,,Classe
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LoadInfoFiles,Function,,ClassesSkillsAndFeats.vb:341,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SetHeading,Sub,,ClassesSkillsAndFeats.vb:377,strong,vaultkeeper/ui/dialogs/classes_skills_feats.py,AUTO-PORTED,
 CommonFiltersDialogue.vb,CommonFiltersDialogue,New,Sub,,CommonFiltersDialogue.vb:47,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-CommonFiltersDialogue.vb,CommonFiltersDialogue,Filters_Load,Sub,MyBase.Load,CommonFiltersDialogue.vb:62,none,,GAP?,
+CommonFiltersDialogue.vb,CommonFiltersDialogue,Filters_Load,Sub,MyBase.Load,CommonFiltersDialogue.vb:62,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 CommonFiltersDialogue.vb,CommonFiltersDialogue,BtApply_Click,Sub,BtApply.Click,CommonFiltersDialogue.vb:114,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 CommonFiltersDialogue.vb,CommonFiltersDialogue,BtCancel_Click,Sub,BtCancel.Click,CommonFiltersDialogue.vb:133,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CommonFiltersDialogue.vb,CommonFiltersDialogue,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,CommonFiltersDialogue.vb:144,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
@@ -372,11 +372,11 @@ CreateNwnFolder.vb,CreateNwnFolder,ProcessCmdKey,Function,,CreateNwnFolder.vb:64
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,InfoFile,Property,,DailyPlayTimeInfo.vb:31,strong,vaultkeeper/game/start_screen.py,AUTO-PORTED,
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,New,Sub,,DailyPlayTimeInfo.vb:48,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,New,Sub,,DailyPlayTimeInfo.vb:60,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-DailyPlayTimeInfo.vb,DailyPlayTimeInfo,TodaysTime,Sub,,DailyPlayTimeInfo.vb:89,none,,GAP?,
-DailyPlayTimeInfo.vb,DailyPlayTimeInfo,NitStartUp,Sub,,DailyPlayTimeInfo.vb:109,none,,GAP?,
-DailyPlayTimeInfo.vb,DailyPlayTimeInfo,DailyAverage,Function,,DailyPlayTimeInfo.vb:128,none,,GAP?,
+DailyPlayTimeInfo.vb,DailyPlayTimeInfo,TodaysTime,Sub,,DailyPlayTimeInfo.vb:89,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+DailyPlayTimeInfo.vb,DailyPlayTimeInfo,NitStartUp,Sub,,DailyPlayTimeInfo.vb:109,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+DailyPlayTimeInfo.vb,DailyPlayTimeInfo,DailyAverage,Function,,DailyPlayTimeInfo.vb:128,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,Save,Sub,,DailyPlayTimeInfo.vb:164,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-DailyPlayTimeInfo.vb,DailyPlayTimeInfo,GetDailyPlayInfo,Function,,DailyPlayTimeInfo.vb:185,none,,GAP?,
+DailyPlayTimeInfo.vb,DailyPlayTimeInfo,GetDailyPlayInfo,Function,,DailyPlayTimeInfo.vb:185,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 Defs.vb,Defs,StartupType,Property,,Defs.vb:477,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,DefaultWebMenu,Property,,Defs.vb:691,strong,vaultkeeper/config/settings.py,AUTO-PORTED,
 Defs.vb,Defs,SuppressGotFocus,Property,,Defs.vb:753,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
@@ -460,9 +460,9 @@ DocOrganiser.DocInfo.vb,DocInfo,IsVersionNumber,Function,,DocOrganiser.DocInfo.v
 DocOrganiser.DocInfo.vb,DocInfo,Clone,Function,,DocOrganiser.DocInfo.vb:164,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py,N/A,framework/designer-generated
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_DoWork,Sub,BgProcessDocs.DoWork,DocOrganiser.ProcessDocs.vb:27,strong,vaultkeeper/game/documentation.py,AUTO-PORTED,
 DocOrganiser.ProcessDocs.vb,DocOrganiser,GetDocFile,Function,,DocOrganiser.ProcessDocs.vb:128,strong,vaultkeeper/game/documentation.py,AUTO-PORTED,
-DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_ProgressChanged,Sub,BgProcessDocs.ProgressChanged,DocOrganiser.ProcessDocs.vb:157,none,,GAP?,
-DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_RunWorkerCompleted,Sub,BgProcessDocs.RunWorkerCompleted,DocOrganiser.ProcessDocs.vb:197,none,,GAP?,
-DocOrganiser.ProcessDocs.vb,DocOrganiser,RestoreDocInfo,Sub,,DocOrganiser.ProcessDocs.vb:315,none,,GAP?,
+DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_ProgressChanged,Sub,BgProcessDocs.ProgressChanged,DocOrganiser.ProcessDocs.vb:157,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_RunWorkerCompleted,Sub,BgProcessDocs.RunWorkerCompleted,DocOrganiser.ProcessDocs.vb:197,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+DocOrganiser.ProcessDocs.vb,DocOrganiser,RestoreDocInfo,Sub,,DocOrganiser.ProcessDocs.vb:315,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 DocOrganiser.vb,DocOrganiser,ModCount,Property,,DocOrganiser.vb:27,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 DocOrganiser.vb,DocOrganiser,DocumentsCopied,Property,,DocOrganiser.vb:32,none,,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 DocOrganiser.vb,DocOrganiser,CopyErrors,Property,,DocOrganiser.vb:37,none,,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
@@ -504,13 +504,13 @@ DocOrganiser.vb,DocOrganiser,SetMenuItems,Sub,,DocOrganiser.vb:959,none,,Diverge
 DocOrganiser.vb,DocOrganiser,Reload,Sub,,DocOrganiser.vb:978,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 DocOrganiser.vb,DocOrganiser,ProcessCmdKey,Function,,DocOrganiser.vb:1022,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 DownloadDeleteMsg.vb,DownloadDeleteMsg,New,Sub,,DownloadDeleteMsg.vb:38,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-DownloadDeleteMsg.vb,DownloadDeleteMsg,MarkedFileCount,Property,,DownloadDeleteMsg.vb:68,none,,GAP?,
+DownloadDeleteMsg.vb,DownloadDeleteMsg,MarkedFileCount,Property,,DownloadDeleteMsg.vb:68,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 DownloadDeleteMsg.vb,DownloadDeleteMsg,MarkedFiles,Property,,DownloadDeleteMsg.vb:74,comment,vaultkeeper/ui/controller.py,AUTO-PORTED,matched in comment/docstring
-DownloadDeleteMsg.vb,DownloadDeleteMsg,CheckedFileCount,Property,,DownloadDeleteMsg.vb:87,none,,GAP?,
-DownloadDeleteMsg.vb,DownloadDeleteMsg,DownloadDeleteMsg_Load,Sub,Me.Load,DownloadDeleteMsg.vb:105,none,,GAP?,
-DownloadDeleteMsg.vb,DownloadDeleteMsg,LvFileList_ItemChecked,Sub,,DownloadDeleteMsg.vb:127,none,,GAP?,
+DownloadDeleteMsg.vb,DownloadDeleteMsg,CheckedFileCount,Property,,DownloadDeleteMsg.vb:87,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+DownloadDeleteMsg.vb,DownloadDeleteMsg,DownloadDeleteMsg_Load,Sub,Me.Load,DownloadDeleteMsg.vb:105,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+DownloadDeleteMsg.vb,DownloadDeleteMsg,LvFileList_ItemChecked,Sub,,DownloadDeleteMsg.vb:127,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtDelete_Click,Sub,BtDelete.Click,DownloadDeleteMsg.vb:137,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
-DownloadDeleteMsg.vb,DownloadDeleteMsg,BtHistory_Click,Sub,BtHistory.Click,DownloadDeleteMsg.vb:146,none,,GAP?,
+DownloadDeleteMsg.vb,DownloadDeleteMsg,BtHistory_Click,Sub,BtHistory.Click,DownloadDeleteMsg.vb:146,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtCancel_Click,Sub,BtCancel.Click,DownloadDeleteMsg.vb:155,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DownloadProject.Files.vb,DownloadProject,DownloadMarkedFiles,Sub,,DownloadProject.Files.vb:32,strong,vaultkeeper/ui/controller.py,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
 DownloadProject.Files.vb,DownloadProject,CreateModFolder,Function,,DownloadProject.Files.vb:186,strong,vaultkeeper/ui/controller.py,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
@@ -597,11 +597,11 @@ DownloadProject.vb,DownloadProject,GetFtpByteSize,Function,,DownloadProject.vb:1
 DownloadProject.vb,DownloadProject,BgWebFileSize_ProgressChanged,Sub,BgWebFileSize.ProgressChanged,DownloadProject.vb:1294,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DownloadProject.vb,DownloadProject,ProcessCmdKey,Function,,DownloadProject.vb:1325,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ErfFileReader.IfoReader.vb,IfoReader,New,Sub,,ErfFileReader.IfoReader.vb:50,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ErfFileReader.IfoReader.vb,IfoReader,GetFieldText,Function,,ErfFileReader.IfoReader.vb:62,none,,GAP?,
-ErfFileReader.IfoReader.vb,IfoReader,ReadHeader,Function,,ErfFileReader.IfoReader.vb:122,none,,GAP?,
-ErfFileReader.IfoReader.vb,IfoReader,GetFieldDataCExoLocString,Function,,ErfFileReader.IfoReader.vb:152,none,,GAP?,
-ErfFileReader.IfoReader.vb,IfoReader,GetLabel,Function,,ErfFileReader.IfoReader.vb:178,none,,GAP?,
-ErfFileReader.IfoReader.vb,IfoReader,IsIfoHeader,Function,,ErfFileReader.IfoReader.vb:189,none,,GAP?,
+ErfFileReader.IfoReader.vb,IfoReader,GetFieldText,Function,,ErfFileReader.IfoReader.vb:62,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ErfFileReader.IfoReader.vb,IfoReader,ReadHeader,Function,,ErfFileReader.IfoReader.vb:122,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ErfFileReader.IfoReader.vb,IfoReader,GetFieldDataCExoLocString,Function,,ErfFileReader.IfoReader.vb:152,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ErfFileReader.IfoReader.vb,IfoReader,GetLabel,Function,,ErfFileReader.IfoReader.vb:178,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ErfFileReader.IfoReader.vb,IfoReader,IsIfoHeader,Function,,ErfFileReader.IfoReader.vb:189,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ErfFileReader.vb,ErfFileReader,ModuleDataFileName,Property,,ErfFileReader.vb:34,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ErfFileReader.vb,ErfFileReader,ModuleDataOnlineFile,Property,,ErfFileReader.vb:44,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 ErfFileReader.vb,ErfFileReader,ModFilename,Property,,ErfFileReader.vb:82,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/game/module_reader.py,AUTO-PORTED,
@@ -691,7 +691,7 @@ FileKeyInfo.vb,FileKeyInfo,IsModFile,Property,,FileKeyInfo.vb:208,strong,vaultke
 FileKeyInfo.vb,FileKeyInfo,IsModExtension,Property,,FileKeyInfo.vb:217,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,IsNotModFile,Property,,FileKeyInfo.vb:226,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,FullName,Property,,FileKeyInfo.vb:235,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
-FileKeyInfo.vb,FileKeyInfo,CrashReportFullName,Property,,FileKeyInfo.vb:248,none,,GAP?,
+FileKeyInfo.vb,FileKeyInfo,CrashReportFullName,Property,,FileKeyInfo.vb:248,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 FileKeyInfo.vb,FileKeyInfo,IsIdentifierKey,Property,,FileKeyInfo.vb:263,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,IsInstallerKey,Property,,FileKeyInfo.vb:272,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,IsRestorerKey,Property,,FileKeyInfo.vb:281,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
@@ -700,22 +700,22 @@ FileKeyInfo.vb,FileKeyInfo,CompareTo,Function,,FileKeyInfo.vb:307,strong,vaultke
 FileKeyInfo.vb,FileKeyInfo,Equals,Function,,FileKeyInfo.vb:320,strong,vaultkeeper/core/file_key.py | vaultkeeper/game/character.py | vaultkeeper/ui/dialogs/character_filter.py,N/A,framework/designer-generated
 FileKeyInfo.vb,FileKeyInfo,GetHashCode,Function,,FileKeyInfo.vb:337,strong,vaultkeeper/core/file_key.py,N/A,framework/designer-generated
 FileKeyInfo.vb,FileKeyInfo,Comparer,Function,,FileKeyInfo.vb:347,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/file_key.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-FileKeyInfo.vb,EqualityComparer,IEqualityComparer_Equals,Function,,FileKeyInfo.vb:367,none,,GAP?,
-FileKeyInfo.vb,EqualityComparer,IEqualityComparer_GetHashCode,Function,,FileKeyInfo.vb:372,none,,GAP?,
+FileKeyInfo.vb,EqualityComparer,IEqualityComparer_Equals,Function,,FileKeyInfo.vb:367,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+FileKeyInfo.vb,EqualityComparer,IEqualityComparer_GetHashCode,Function,,FileKeyInfo.vb:372,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 FindDialogue.vb,FindDialogue,FileView,Property,,FindDialogue.vb:24,strong,vaultkeeper/core/constants.py | vaultkeeper/ui/dialogs/mod_play_viewer.py | vaultkeeper/ui/file_view.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindDialogue.vb,FindDialogue,Selecting,Property,,FindDialogue.vb:30,strong,vaultkeeper/ui/dialogs/mod_play_viewer.py | vaultkeeper/ui/dialogs/workshop_viewer.py | vaultkeeper/ui/file_view.py,AUTO-PORTED,
 FindDialogue.vb,FindDialogue,FindOptions,Property,,FindDialogue.vb:41,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 FindDialogue.vb,FindDialogue,New,Sub,,FindDialogue.vb:70,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-FindDialogue.vb,FindDialogue,FindDialogue_Load,Sub,MyBase.Load,FindDialogue.vb:85,none,,GAP?,
-FindDialogue.vb,FindDialogue,FindDialogue_Shown,Sub,Me.Shown,FindDialogue.vb:137,none,,GAP?,
+FindDialogue.vb,FindDialogue,FindDialogue_Load,Sub,MyBase.Load,FindDialogue.vb:85,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+FindDialogue.vb,FindDialogue,FindDialogue_Shown,Sub,Me.Shown,FindDialogue.vb:137,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 FindDialogue.vb,FindDialogue,BtClose_Click,Sub,BtClose.Click,FindDialogue.vb:150,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 FindDialogue.vb,FindDialogue,CbxFind_TextChanged,Sub,CbxFind.TextChanged,FindDialogue.vb:162,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindDialogue.vb,FindDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindDialogue.vb:172,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-FindDialogue.vb,FindDialogue,SetFindButtonAvailibility,Sub,,FindDialogue.vb:192,none,,GAP?,
-FindDialogue.vb,FindDialogue,BtFindNext_Click,Sub,BtFindNext.Click,FindDialogue.vb:203,none,,GAP?,
-FindDialogue.vb,FindDialogue,BtFindPrevious_Click,Sub,BtFindPrevious.Click,FindDialogue.vb:213,none,,GAP?,
+FindDialogue.vb,FindDialogue,SetFindButtonAvailibility,Sub,,FindDialogue.vb:192,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+FindDialogue.vb,FindDialogue,BtFindNext_Click,Sub,BtFindNext.Click,FindDialogue.vb:203,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+FindDialogue.vb,FindDialogue,BtFindPrevious_Click,Sub,BtFindPrevious.Click,FindDialogue.vb:213,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 FindDialogue.vb,FindDialogue,FindItem,Sub,,FindDialogue.vb:228,comment,vaultkeeper/ui/controller.py,AUTO-PORTED,matched in comment/docstring
-FindDialogue.vb,FindDialogue,ItemFound,Sub,,FindDialogue.vb:269,none,,GAP?,
+FindDialogue.vb,FindDialogue,ItemFound,Sub,,FindDialogue.vb:269,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 FindDialogue.vb,FindDialogue,WndProc,Sub,,FindDialogue.vb:295,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 FindProfileFilesDialogue.vb,ModFileInfo,ModName,Property,,FindProfileFilesDialogue.vb:37,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_key.py | vaultkeeper/core/install_manager.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 FindProfileFilesDialogue.vb,ModFileInfo,FileName,Property,,FindProfileFilesDialogue.vb:42,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/formats/erf_reader.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -848,16 +848,16 @@ GameManagerRestore.vb,GameManagerRestore,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.
 GameManagerRestore.vb,GameManagerRestore,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManagerRestore.vb:359,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameMapper.Defs.vb,GameMapper,FileScanCurrent,Property,,GameMapper.Defs.vb:44,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.Defs.vb,GameMapper,GameMapData,Property,,GameMapper.Defs.vb:100,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
-GameMapper.Defs.vb,GameMapper,UserResponsesFile,Property,,GameMapper.Defs.vb:109,none,,GAP?,
+GameMapper.Defs.vb,GameMapper,UserResponsesFile,Property,,GameMapper.Defs.vb:109,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 GameMapper.Internal.vb,GameMapper,Load,Function,,GameMapper.Internal.vb:30,strong,vaultkeeper/config/settings.py | vaultkeeper/core/formats/tga_reader.py | vaultkeeper/core/hak_patch.py,AUTO-PORTED,
 GameMapper.Internal.vb,GameMapper,Save,Sub,,GameMapper.Internal.vb:71,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-GameMapper.Internal.vb,GameMapper,GetDescriptionFromFile,Function,,GameMapper.Internal.vb:106,none,,GAP?,
+GameMapper.Internal.vb,GameMapper,GetDescriptionFromFile,Function,,GameMapper.Internal.vb:106,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 GameMapper.Internal.vb,GameMapper,IsNotPatch,Function,,GameMapper.Internal.vb:125,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.Internal.vb,GameMapper,IsNotPatch,Function,,GameMapper.Internal.vb:156,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.Internal.vb,GameMapper,AskUser,Function,,GameMapper.Internal.vb:188,strong,vaultkeeper/ui/prompter.py,AUTO-PORTED,
 GameMapper.Internal.vb,GameMapper,FindModNames,Function,,GameMapper.Internal.vb:237,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.Internal.vb,GameMapper,ValidateName,Function,,GameMapper.Internal.vb:270,strong,vaultkeeper/core/name_edit.py | vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-GameMapper.Internal.vb,GameMapper,GetSaveInfo,Function,,GameMapper.Internal.vb:297,none,,GAP?,
+GameMapper.Internal.vb,GameMapper,GetSaveInfo,Function,,GameMapper.Internal.vb:297,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 GameMapper.ModFileInfo.vb,ModFileInfo,SaveName,Property,,GameMapper.ModFileInfo.vb:24,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/game/module_reader.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 GameMapper.ModFileInfo.vb,ModFileInfo,Description,Property,,GameMapper.ModFileInfo.vb:29,strong,vaultkeeper/game/character_filter.py | vaultkeeper/game/character_reference.py | vaultkeeper/game/game_mapper.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 GameMapper.ModFileInfo.vb,ModFileInfo,Profile,Property,,GameMapper.ModFileInfo.vb:34,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/constants.py,AUTO-PORTED,
@@ -879,12 +879,12 @@ GameMapper.UserResponses.vb,UserResponses,Save,Sub,,GameMapper.UserResponses.vb:
 GameMapper.UserResponses.vb,UserResponses,Add,Function,,GameMapper.UserResponses.vb:147,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 GameMapper.UserResponses.vb,UserResponses,Add,Sub,,GameMapper.UserResponses.vb:190,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 GameMapper.UserResponses.vb,UserResponses,RenameMod,Sub,,GameMapper.UserResponses.vb:205,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,Ported,install engine + rename + analyser browser report (subagent-swept).
-GameMapper.UserResponses.vb,UserResponses,PopulateListView,Sub,,GameMapper.UserResponses.vb:258,none,,GAP?,
-GameMapper.UserResponses.vb,UserResponses,UpdateFromListView,Sub,,GameMapper.UserResponses.vb:313,none,,GAP?,
-GameMapper.Workers.vb,GameMapper,BgModScanner_DoWork,Sub,BgModScanner.DoWork,GameMapper.Workers.vb:27,none,,GAP?,
-GameMapper.Workers.vb,GameMapper,BgModScanner_ProgressChanged,Sub,BgModScanner.ProgressChanged,GameMapper.Workers.vb:55,none,,GAP?,
+GameMapper.UserResponses.vb,UserResponses,PopulateListView,Sub,,GameMapper.UserResponses.vb:258,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+GameMapper.UserResponses.vb,UserResponses,UpdateFromListView,Sub,,GameMapper.UserResponses.vb:313,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+GameMapper.Workers.vb,GameMapper,BgModScanner_DoWork,Sub,BgModScanner.DoWork,GameMapper.Workers.vb:27,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+GameMapper.Workers.vb,GameMapper,BgModScanner_ProgressChanged,Sub,BgModScanner.ProgressChanged,GameMapper.Workers.vb:55,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 GameMapper.Workers.vb,GameMapper,ScanProfiles,Function,,GameMapper.Workers.vb:73,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
-GameMapper.Workers.vb,GameMapper,ModFileExists,Function,,GameMapper.Workers.vb:129,none,,GAP?,
+GameMapper.Workers.vb,GameMapper,ModFileExists,Function,,GameMapper.Workers.vb:129,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 GameMapper.Workers.vb,GameMapper,IgnoreModFile,Function,,GameMapper.Workers.vb:150,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,New,Sub,,GameMapper.vb:34,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 GameMapper.vb,GameMapper,CreateMapEntries,Sub,,GameMapper.vb:67,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
@@ -966,14 +966,14 @@ GroupMemberData.vb,GroupMemberData,State,Property,,GroupMemberData.vb:37,strong,
 GroupMemberData.vb,GroupMemberData,Count,Property,,GroupMemberData.vb:46,strong,vaultkeeper/core/archive.py | vaultkeeper/core/file_data.py | vaultkeeper/core/formats/bic_reader.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GroupMemberData.vb,GroupMemberData,Members,Property,,GroupMemberData.vb:57,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,MemberNames,Property,,GroupMemberData.vb:68,strong,vaultkeeper/core/group_member.py | vaultkeeper/persistence/nrbf/reader.py,AUTO-PORTED,
-GroupMemberData.vb,GroupMemberData,MemberPaths,Property,,GroupMemberData.vb:79,none,,GAP?,
+GroupMemberData.vb,GroupMemberData,MemberPaths,Property,,GroupMemberData.vb:79,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 GroupMemberData.vb,GroupMemberData,InstalledCount,Property,,GroupMemberData.vb:90,strong,vaultkeeper/core/group_member.py | vaultkeeper/game/install_verify.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,InstalledMembers,Property,,GroupMemberData.vb:101,strong,vaultkeeper/core/group_member.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,Remove,Sub,,GroupMemberData.vb:115,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GroupMemberData.vb,GroupMemberData,Rename,Sub,,GroupMemberData.vb:132,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/fs.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,AddMembers,Sub,,GroupMemberData.vb:194,strong,vaultkeeper/core/group_member.py,AUTO-PORTED,
-GroupMemberData.vb,GroupMemberData,AddMembersThread,Sub,,GroupMemberData.vb:205,none,,GAP?,
-GroupMemberData.vb,GroupMemberData,AddingMembers,Sub,,GroupMemberData.vb:236,none,,GAP?,
+GroupMemberData.vb,GroupMemberData,AddMembersThread,Sub,,GroupMemberData.vb:205,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+GroupMemberData.vb,GroupMemberData,AddingMembers,Sub,,GroupMemberData.vb:236,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Load,Sub,MyBase.Load,HakPatchEditor.vb:30,none,,Deferred,"CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py)."
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Shown,Sub,Me.Shown,HakPatchEditor.vb:102,none,,Deferred,"CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py)."
 HakPatchEditor.vb,HakPatchEditor,LvPatchList_ItemClicked,Sub,LvPatchList.ItemClicked,HakPatchEditor.vb:114,none,,Deferred,"CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py)."
@@ -1042,8 +1042,8 @@ InstallationAnalyser.vb,InstallationAnalyser,ProcessCmdKey,Function,,Installatio
 InstallationManager.GroupInfo.vb,GroupInfo,Name,Property,,InstallationManager.GroupInfo.vb:27,strong,vaultkeeper/config/settings.py | vaultkeeper/core/archive.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
 InstallationManager.GroupInfo.vb,GroupInfo,ModList,Property,,InstallationManager.GroupInfo.vb:32,strong,vaultkeeper/core/ci_dict.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,AUTO-PORTED,
 InstallationManager.GroupInfo.vb,GroupInfo,ModCount,Property,,InstallationManager.GroupInfo.vb:37,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-InstallationManager.GroupInfo.vb,GroupInfo,ModItems,Property,,InstallationManager.GroupInfo.vb:48,none,,GAP?,
-InstallationManager.GroupInfo.vb,GroupInfo,ModItems,Property,,InstallationManager.GroupInfo.vb:59,none,,GAP?,
+InstallationManager.GroupInfo.vb,GroupInfo,ModItems,Property,,InstallationManager.GroupInfo.vb:48,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+InstallationManager.GroupInfo.vb,GroupInfo,ModItems,Property,,InstallationManager.GroupInfo.vb:59,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 InstallationManager.GroupInfo.vb,GroupInfo,GroupState,Property,,InstallationManager.GroupInfo.vb:74,strong,vaultkeeper/core/group_member.py | vaultkeeper/core/mod_data.py | vaultkeeper/persistence/nrbf/mapping.py,AUTO-PORTED,
 InstallationManager.GroupInfo.vb,GroupInfo,New,Sub,,InstallationManager.GroupInfo.vb:100,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 InstallationManager.GroupInfo.vb,GroupInfo,New,Sub,,InstallationManager.GroupInfo.vb:111,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -1051,8 +1051,8 @@ InstallationManager.GroupInfo.vb,GroupInfo,AddMod,Sub,,InstallationManager.Group
 InstallationManager.GroupInfo.vb,GroupInfo,AddMod,Sub,,InstallationManager.GroupInfo.vb:135,strong,vaultkeeper/core/profile_data.py | vaultkeeper/persistence/nrbf/migrate.py | vaultkeeper/persistence/profile_store.py,AUTO-PORTED,
 InstallationManager.GroupInfo.vb,GroupInfo,CompareTo,Function,,InstallationManager.GroupInfo.vb:145,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/play_time.py,N/A,framework/designer-generated
 InstallationManager.ModInfo.vb,ModInfo,Name,Property,,InstallationManager.ModInfo.vb:27,strong,vaultkeeper/config/settings.py | vaultkeeper/core/archive.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
-InstallationManager.ModInfo.vb,ModInfo,CurrentState,Property,,InstallationManager.ModInfo.vb:32,none,,GAP?,
-InstallationManager.ModInfo.vb,ModInfo,DesiredState,Property,,InstallationManager.ModInfo.vb:45,none,,GAP?,
+InstallationManager.ModInfo.vb,ModInfo,CurrentState,Property,,InstallationManager.ModInfo.vb:32,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+InstallationManager.ModInfo.vb,ModInfo,DesiredState,Property,,InstallationManager.ModInfo.vb:45,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 InstallationManager.ModInfo.vb,ModInfo,New,Sub,,InstallationManager.ModInfo.vb:55,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 InstallationManager.ModInfo.vb,ModInfo,New,Sub,,InstallationManager.ModInfo.vb:66,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 InstallationManager.ModInfo.vb,ModInfo,New,Sub,,InstallationManager.ModInfo.vb:85,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -1060,14 +1060,14 @@ InstallationManager.ModInfo.vb,ModInfo,Clone,Function,,InstallationManager.ModIn
 InstallationManager.ModInfo.vb,ModInfo,CompareTo,Function,,InstallationManager.ModInfo.vb:114,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/play_time.py,N/A,framework/designer-generated
 InstallationManager.SetInfo.vb,SetInfo,Name,Property,,InstallationManager.SetInfo.vb:27,strong,vaultkeeper/config/settings.py | vaultkeeper/core/archive.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
 InstallationManager.SetInfo.vb,SetInfo,Created,Property,,InstallationManager.SetInfo.vb:32,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
-InstallationManager.SetInfo.vb,SetInfo,SetType,Property,,InstallationManager.SetInfo.vb:37,none,,GAP?,
+InstallationManager.SetInfo.vb,SetInfo,SetType,Property,,InstallationManager.SetInfo.vb:37,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 InstallationManager.SetInfo.vb,SetInfo,Updated,Property,,InstallationManager.SetInfo.vb:42,strong,vaultkeeper/game/character.py | vaultkeeper/game/client_log.py | vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 InstallationManager.SetInfo.vb,SetInfo,GroupList,Property,,InstallationManager.SetInfo.vb:47,strong,vaultkeeper/ui/dialogs/dependency_editor.py,AUTO-PORTED,
 InstallationManager.SetInfo.vb,SetInfo,GroupCount,Property,,InstallationManager.SetInfo.vb:52,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-InstallationManager.SetInfo.vb,SetInfo,GroupItems,Property,,InstallationManager.SetInfo.vb:63,none,,GAP?,
-InstallationManager.SetInfo.vb,SetInfo,GroupItems,Property,,InstallationManager.SetInfo.vb:73,none,,GAP?,
-InstallationManager.SetInfo.vb,SetInfo,GroupIndex,Property,,InstallationManager.SetInfo.vb:88,none,,GAP?,
-InstallationManager.SetInfo.vb,SetInfo,SetState,Property,,InstallationManager.SetInfo.vb:97,none,,GAP?,
+InstallationManager.SetInfo.vb,SetInfo,GroupItems,Property,,InstallationManager.SetInfo.vb:63,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+InstallationManager.SetInfo.vb,SetInfo,GroupItems,Property,,InstallationManager.SetInfo.vb:73,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+InstallationManager.SetInfo.vb,SetInfo,GroupIndex,Property,,InstallationManager.SetInfo.vb:88,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+InstallationManager.SetInfo.vb,SetInfo,SetState,Property,,InstallationManager.SetInfo.vb:97,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 InstallationManager.SetInfo.vb,SetInfo,New,Sub,,InstallationManager.SetInfo.vb:132,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 InstallationManager.SetInfo.vb,SetInfo,New,Sub,,InstallationManager.SetInfo.vb:145,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 InstallationManager.SetInfo.vb,SetInfo,AddGroup,Function,,InstallationManager.SetInfo.vb:177,comment,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,matched in comment/docstring
@@ -1151,7 +1151,7 @@ InstalledFileData.vb,InstalledFileData,IsDefaultInstaller,Property,,InstalledFil
 InstalledFileData.vb,InstalledFileData,IsUnknownInstaller,Property,,InstalledFileData.vb:177,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 InstalledFileData.vb,InstalledFileData,ModFileConflicts,Property,,InstalledFileData.vb:189,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 InstalledFileData.vb,InstalledFileData,ModFiles,Property,,InstalledFileData.vb:198,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
-InstalledFileData.vb,InstalledFileData,ModFileKeys,Property,,InstalledFileData.vb:206,none,,GAP?,
+InstalledFileData.vb,InstalledFileData,ModFileKeys,Property,,InstalledFileData.vb:206,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 InstalledFileData.vb,InstalledFileData,DefaultInstaller,Sub,,InstalledFileData.vb:220,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 InstalledFileData.vb,InstalledFileData,InstallerConflicts,Sub,,InstalledFileData.vb:251,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 InstalledFileData.vb,InstalledFileData,ResetModFiles,Sub,,InstalledFileData.vb:280,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
@@ -1420,21 +1420,21 @@ ModExplorer.vb,ModExplorer,ProcessCmdKey,Function,,ModExplorer.vb:1068,none,,Div
 ModExplorer.vb,ModExplorer,BgNotes_DoWork,Sub,BgNotes.DoWork,ModExplorer.vb:1099,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ModExplorer.vb,ModExplorer,BgNotes_ProgressChanged,Sub,BgNotes.ProgressChanged,ModExplorer.vb:1131,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ModExplorer.vb,ModExplorer,BgNotes_RunWorkerCompleted,Sub,BgNotes.RunWorkerCompleted,ModExplorer.vb:1141,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModExplorerExtensions.vb,ModExplorerExtensions,MenuItemOperand,Function,,ModExplorerExtensions.vb:29,none,,GAP?,
+ModExplorerExtensions.vb,ModExplorerExtensions,MenuItemOperand,Function,,ModExplorerExtensions.vb:29,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ModExplorerExtensions.vb,ModExplorerExtensions,Active,Function,,ModExplorerExtensions.vb:38,strong,vaultkeeper/config/settings.py | vaultkeeper/game/game_backup.py | vaultkeeper/game/game_mapper.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ModExplorerExtensions.vb,ModExplorerExtensions,ToggleFilter,Sub,,ModExplorerExtensions.vb:47,none,,GAP?,
-ModExport.vb,ModExport,ExportFolder,Property,,ModExport.vb:25,none,,GAP?,
+ModExplorerExtensions.vb,ModExplorerExtensions,ToggleFilter,Sub,,ModExplorerExtensions.vb:47,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ModExport.vb,ModExport,ExportFolder,Property,,ModExport.vb:25,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 ModExport.vb,ModExport,New,Sub,,ModExport.vb:35,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ModExport.vb,ModExport,ExportMod,Function,,ModExport.vb:50,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
-ModExport.vb,ModExport,GetExports,Function,,ModExport.vb:79,none,,GAP?,
-ModExport.vb,ModExport,GetImports,Function,,ModExport.vb:86,none,,GAP?,
-ModExport.vb,ModExport,GetList,Function,,ModExport.vb:124,none,,GAP?,
-ModExport.vb,ModExport,ModDataComparer,Function,,ModExport.vb:169,none,,GAP?,
+ModExport.vb,ModExport,GetExports,Function,,ModExport.vb:79,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+ModExport.vb,ModExport,GetImports,Function,,ModExport.vb:86,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+ModExport.vb,ModExport,GetList,Function,,ModExport.vb:124,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+ModExport.vb,ModExport,ModDataComparer,Function,,ModExport.vb:169,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 ModExport.vb,ModExportInfo,ModInfo,Property,,ModExport.vb:184,strong,vaultkeeper/game/workshop.py,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 ModExport.vb,ModExportInfo,ModFolder,Property,,ModExport.vb:189,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
 ModExport.vb,ModExportInfo,ModData,Property,,ModExport.vb:201,strong,vaultkeeper/core/group_member.py | vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModExport.vb,ModExportInfo,New,Sub,,ModExport.vb:208,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ModFindAndRename.ModNameInfo.vb,ModNameInfo,CurrentName,Property,,ModFindAndRename.ModNameInfo.vb:23,none,,GAP?,
+ModFindAndRename.ModNameInfo.vb,ModNameInfo,CurrentName,Property,,ModFindAndRename.ModNameInfo.vb:23,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 ModFindAndRename.ModNameInfo.vb,ModNameInfo,NewName,Property,,ModFindAndRename.ModNameInfo.vb:28,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 ModFindAndRename.ModNameInfo.vb,ModNameInfo,Index,Property,,ModFindAndRename.ModNameInfo.vb:33,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/gff_reader.py,AUTO-PORTED,
 ModFindAndRename.ModNameInfo.vb,ModNameInfo,Changed,Property,,ModFindAndRename.ModNameInfo.vb:38,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/name_edit.py,AUTO-PORTED,
@@ -1506,7 +1506,7 @@ ModInstallationManager.vb,ModInstallationManager,AddToFileList,Sub,,ModInstallat
 ModInstallationManager.vb,ModInstallationManager,UninstallFiles,Sub,,ModInstallationManager.vb:256,strong,vaultkeeper/core/install_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ModInstallationManager.vb,ModInstallationManager,Anneal,Sub,,ModInstallationManager.vb:426,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/game/start_screen.py,AUTO-PORTED,
 ModInstallationManager.vb,ModInstallationManager,FileListAdd,Sub,,ModInstallationManager.vb:523,strong,vaultkeeper/core/install_manager.py,AUTO-PORTED,
-ModInstallationManager.vb,ModInstallationManager,AddFileKeyInfo,Sub,,ModInstallationManager.vb:537,none,,GAP?,
+ModInstallationManager.vb,ModInstallationManager,AddFileKeyInfo,Sub,,ModInstallationManager.vb:537,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ModInstallationManager.vb,ModInstallationManager,UpdateProfileData,Sub,,ModInstallationManager.vb:552,strong,vaultkeeper/core/install_manager.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ModInstallationManager.vb,ModInstallationManager,Dispose,Sub,,ModInstallationManager.vb:594,none,,N/A,framework/designer-generated
 ModInstallationManager.vb,ModInstallationManager,Dispose,Sub,,ModInstallationManager.vb:617,none,,N/A,framework/designer-generated
@@ -1924,7 +1924,7 @@ NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.v
 NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.ModView.vb,NIT,InitialiseModView,Sub,,NIT.ModView.vb:33,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
 NIT.ModView.vb,NIT,SetDoubleClickAction,Sub,,NIT.ModView.vb:45,none,,Divergence,"VB per-preference ListView-editor plumbing (Preferences/Advanced/MenuCommon/MapExceptions pages), ModExplorer rating/prefix/operand filters + virtual-list/bg-worker, and ModView WinForms events / cosmetic icons+tooltips. Bounded port = tabbed Settings dialog + name/state/completed ModExplorer filter."
-NIT.ModView.vb,NIT,ApplyGroupsAndStatus,Sub,,NIT.ModView.vb:65,strong,vaultkeeper/ui/controller.py,MISSING,Confirmed divergence found during audit design (2026-07-15) — see DASHBOARD.md Findings. Method partly ported; the empty-group render behavior is the missing unit.
+NIT.ModView.vb,NIT,ApplyGroupsAndStatus,Sub,,NIT.ModView.vb:65,strong,vaultkeeper/ui/controller.py,Ported,WAS MISSING; FIXED 2026-07-15 (empty-group render + Copy Details/Level clipboard buttons). See DASHBOARD.md Findings.
 NIT.ModView.vb,NIT,SetCountInfo,Sub,,NIT.ModView.vb:153,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
 NIT.ModView.vb,NIT,InitialiseModInfo,Sub,,NIT.ModView.vb:172,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
 NIT.ModView.vb,NIT,FvMods_KeyPress,Sub,FvMods.KeyPress,NIT.ModView.vb:204,none,,Divergence,"VB per-preference ListView-editor plumbing (Preferences/Advanced/MenuCommon/MapExceptions pages), ModExplorer rating/prefix/operand filters + virtual-list/bg-worker, and ModView WinForms events / cosmetic icons+tooltips. Bounded port = tabbed Settings dialog + name/state/completed ModExplorer filter."
@@ -2126,14 +2126,14 @@ NetworkManager.vb,NetworkManager,SyncListSave,Sub,,NetworkManager.vb:398,none,,D
 NetworkManager.vb,NetworkManager,SyncReport,Function,,NetworkManager.vb:429,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 NetworkManager.vb,NetworkManager,BgNetwork_DoWork,Sub,BgNetwork.DoWork,NetworkManager.vb:474,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 NetworkManager.vb,NetworkManager,BgSync_DoWork,Sub,BgSync.DoWork,NetworkManager.vb:553,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
-NitDownload.vb,NitDownload,SiteUrl,Property,,NitDownload.vb:28,none,,GAP?,
-NitDownload.vb,NitDownload,ShowOpenOptions,Property,,NitDownload.vb:33,none,,GAP?,
-NitDownload.vb,NitDownload,PerformOpen,Property,,NitDownload.vb:38,none,,GAP?,
-NitDownload.vb,NitDownload,NitDownload_Load,Sub,MyBase.Load,NitDownload.vb:55,none,,GAP?,
-NitDownload.vb,NitDownload,NitDownload_Shown,Sub,Me.Shown,NitDownload.vb:122,none,,GAP?,
-NitDownload.vb,NitDownload,BhNitDownload_Click,Sub,BhNitDownload.Click,NitDownload.vb:135,none,,GAP?,
+NitDownload.vb,NitDownload,SiteUrl,Property,,NitDownload.vb:28,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+NitDownload.vb,NitDownload,ShowOpenOptions,Property,,NitDownload.vb:33,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+NitDownload.vb,NitDownload,PerformOpen,Property,,NitDownload.vb:38,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+NitDownload.vb,NitDownload,NitDownload_Load,Sub,MyBase.Load,NitDownload.vb:55,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+NitDownload.vb,NitDownload,NitDownload_Shown,Sub,Me.Shown,NitDownload.vb:122,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+NitDownload.vb,NitDownload,BhNitDownload_Click,Sub,BhNitDownload.Click,NitDownload.vb:135,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 NitDownload.vb,NitDownload,BtOpen_Click,Sub,BtOpen.Click,NitDownload.vb:146,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-NitDownload.vb,NitDownload,Rb_CheckedChanged,Sub,,NitDownload.vb:164,none,,GAP?,
+NitDownload.vb,NitDownload,Rb_CheckedChanged,Sub,,NitDownload.vb:164,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 NitDownload.vb,NitDownload,ProcessCmdKey,Function,,NitDownload.vb:182,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 NitUserInterface.vb,NitUserInterface,New,Sub,,NitUserInterface.vb:32,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 NitUserInterface.vb,NitUserInterface,SetPrefs,Sub,,NitUserInterface.vb:50,none,,Partial,"reads present, bounded (settings prefs load, nwn.ini validate)."
@@ -2323,8 +2323,8 @@ PlayDataManager.vb,PlayDataManager,Migrate,Function,,PlayDataManager.vb:1800,str
 PlayDataManager.vb,PlayDataManager,Dispose,Sub,,PlayDataManager.vb:1858,none,,N/A,framework/designer-generated
 PlayDataManager.vb,PlayDataManager,Dispose,Sub,,PlayDataManager.vb:1881,none,,N/A,framework/designer-generated
 PlayDataViewPending.vb,PlayDataViewPending,New,Sub,,PlayDataViewPending.vb:35,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-PlayDataViewPending.vb,PlayDataViewPending,PlayDataViewPending_Load,Sub,MyBase.Load,PlayDataViewPending.vb:50,none,,GAP?,
-PlayDataViewPending.vb,PlayDataViewPending,BtClear_Click,Sub,BtClear.Click,PlayDataViewPending.vb:85,none,,GAP?,
+PlayDataViewPending.vb,PlayDataViewPending,PlayDataViewPending_Load,Sub,MyBase.Load,PlayDataViewPending.vb:50,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+PlayDataViewPending.vb,PlayDataViewPending,BtClear_Click,Sub,BtClear.Click,PlayDataViewPending.vb:85,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 PlayDataViewer.vb,PlayDataViewer,ShowReport,Property,,PlayDataViewer.vb:80,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 PlayDataViewer.vb,PlayDataViewer,New,Sub,,PlayDataViewer.vb:86,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 PlayDataViewer.vb,PlayDataViewer,PlayDataViewer_Load,Sub,MyBase.Load,PlayDataViewer.vb:101,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -2356,8 +2356,8 @@ PlayTimeInfo.vb,PlayTimeInfo,Clone,Function,,PlayTimeInfo.vb:99,strong,vaultkeep
 PlayTimeInfo.vb,PlayTimeInfo,CompareTo,Function,,PlayTimeInfo.vb:114,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/play_time.py,N/A,framework/designer-generated
 PlayTimeInfo.vb,PlayTimeInfo,Equals,Function,,PlayTimeInfo.vb:127,strong,vaultkeeper/core/file_key.py | vaultkeeper/game/character.py | vaultkeeper/ui/dialogs/character_filter.py,N/A,framework/designer-generated
 PlayTimeInfo.vb,PlayTimeInfo,GetHashCode,Function,,PlayTimeInfo.vb:144,strong,vaultkeeper/core/file_key.py,N/A,framework/designer-generated
-PlayTimeInfo.vb,EqualityComparer,IEqualityComparer_Equals,Function,,PlayTimeInfo.vb:156,none,,GAP?,
-PlayTimeInfo.vb,EqualityComparer,IEqualityComparer_GetHashCode,Function,,PlayTimeInfo.vb:161,none,,GAP?,
+PlayTimeInfo.vb,EqualityComparer,IEqualityComparer_Equals,Function,,PlayTimeInfo.vb:156,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+PlayTimeInfo.vb,EqualityComparer,IEqualityComparer_GetHashCode,Function,,PlayTimeInfo.vb:161,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 PortraitManager.vb,PortraitManager,LastDirection,Property,,PortraitManager.vb:126,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 PortraitManager.vb,PortraitManager,RbEnabled,Property,,PortraitManager.vb:144,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 PortraitManager.vb,PortraitManager,ExcludeEnabled,Property,,PortraitManager.vb:157,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
@@ -2408,11 +2408,11 @@ PortraitManager.vb,PortraitManager,GetBaseName,Function,,PortraitManager.vb:1319
 PortraitManager.vb,PortraitManager,GetInstalledFileData,Function,,PortraitManager.vb:1328,none,,Ported,grep-verified in port (portrait scan / help button).
 PortraitManager.vb,PortraitManager,ProcessCmdKey,Function,,PortraitManager.vb:1340,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 PortraitManager.vb,PortraitManager,WndProc,Sub,,PortraitManager.vb:1369,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ProfileData.Config.vb,ProfileData,OrangeRed,Property,,ProfileData.Config.vb:37,none,,GAP?,
+ProfileData.Config.vb,ProfileData,OrangeRed,Property,,ProfileData.Config.vb:37,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ProfileData.Config.vb,ProfileData,Green,Property,,ProfileData.Config.vb:47,strong,vaultkeeper/ui/file_view.py,AUTO-PORTED,
-ProfileData.Config.vb,ProfileData,DodgerBlue,Property,,ProfileData.Config.vb:57,none,,GAP?,
+ProfileData.Config.vb,ProfileData,DodgerBlue,Property,,ProfileData.Config.vb:57,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ProfileData.Config.vb,TextInfo,ModText,Property,,ProfileData.Config.vb:181,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileData.Config.vb,TextInfo,FileText,Property,,ProfileData.Config.vb:186,none,,GAP?,
+ProfileData.Config.vb,TextInfo,FileText,Property,,ProfileData.Config.vb:186,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ProfileData.Config.vb,TextInfo,Colour,Property,,ProfileData.Config.vb:191,strong,vaultkeeper/config/settings.py | vaultkeeper/core/rtf.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.Config.vb,TextInfo,New,Sub,,ProfileData.Config.vb:198,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileData.Config.vb,TextInfo,New,Sub,,ProfileData.Config.vb:211,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -2470,14 +2470,14 @@ ProfileData.vb,ProfileData,Load,Function,,ProfileData.vb:71,strong,vaultkeeper/c
 ProfileData.vb,ProfileData,LoadWorkshopContent,Function,,ProfileData.vb:168,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,LoadData,Function,,ProfileData.vb:181,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,GetLatestDataFile,Function,,ProfileData.vb:320,strong,vaultkeeper/persistence/nrbf/migrate.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,CreateRepairList,Function,,ProfileData.vb:350,none,,GAP?,
+ProfileData.vb,ProfileData,CreateRepairList,Function,,ProfileData.vb:350,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 ProfileData.vb,ProfileData,Save,Sub,,ProfileData.vb:371,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,SaveOriginalFiles,Sub,,ProfileData.vb:385,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveInstalled,Sub,,ProfileData.vb:397,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveMods,Sub,,ProfileData.vb:409,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,SaveFiles,Sub,,ProfileData.vb:421,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveStatus,Sub,,ProfileData.vb:433,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,ProfileData,SavePlayData,Sub,,ProfileData.vb:446,none,,GAP?,
+ProfileData.vb,ProfileData,SavePlayData,Sub,,ProfileData.vb:446,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ProfileData.vb,ProfileData,SaveInstallationSets,Sub,,ProfileData.vb:457,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveWorkshopContent,Sub,,ProfileData.vb:468,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,SaveData,Sub,,ProfileData.vb:480,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
@@ -2547,29 +2547,29 @@ ProfileData.vb,ProfileData,GetDependants,Function,,ProfileData.vb:2890,strong,va
 ProfileData.vb,ProfileData,GetInstalledDependants,Function,,ProfileData.vb:2918,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetAutoDependencyList,Function,,ProfileData.vb:2947,strong,vaultkeeper/ui/dialogs/dependency_editor.py,AUTO-PORTED,
 ProfileDataExtensions.vb,ProfileDataExtensions,ToName,Function,,ProfileDataExtensions.vb:30,strong,vaultkeeper/persistence/nrbf/migrate.py,AUTO-PORTED,
-ProfileDataExtensions.vb,ProfileDataExtensions,ToFullName,Function,,ProfileDataExtensions.vb:44,none,,GAP?,
+ProfileDataExtensions.vb,ProfileDataExtensions,ToFullName,Function,,ProfileDataExtensions.vb:44,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ProfileDataExtensions.vb,ProfileDataExtensions,ToWeaponText,Function,,ProfileDataExtensions.vb:63,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileDataExtensions.vb,ProfileDataExtensions,ToModStateText,Function,,ProfileDataExtensions.vb:77,none,,GAP?,
-ProfileDataExtensions.vb,ProfileDataExtensions,ToFileStateText,Function,,ProfileDataExtensions.vb:89,none,,GAP?,
-ProfileDataExtensions.vb,ProfileDataExtensions,ToStateColour,Function,,ProfileDataExtensions.vb:101,none,,GAP?,
-ProfileDataExtensions.vb,ProfileDataExtensions,IsInstallerDefault,Function,,ProfileDataExtensions.vb:118,none,,GAP?,
+ProfileDataExtensions.vb,ProfileDataExtensions,ToModStateText,Function,,ProfileDataExtensions.vb:77,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileDataExtensions.vb,ProfileDataExtensions,ToFileStateText,Function,,ProfileDataExtensions.vb:89,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileDataExtensions.vb,ProfileDataExtensions,ToStateColour,Function,,ProfileDataExtensions.vb:101,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileDataExtensions.vb,ProfileDataExtensions,IsInstallerDefault,Function,,ProfileDataExtensions.vb:118,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ProfileDataExtensions.vb,ProfileDataExtensions,ToModKey,Function,,ProfileDataExtensions.vb:130,strong,vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/play_loop.py,AUTO-PORTED,
-ProfileDataExtensions.vb,ProfileDataExtensions,IsOriginalFile,Function,,ProfileDataExtensions.vb:142,none,,GAP?,
-ProfileInfo.vb,ProfileInfo,OperationStates,Property,,ProfileInfo.vb:26,none,,GAP?,
-ProfileInfo.vb,ProfileInfo,LoadStateFilename,Property,,ProfileInfo.vb:43,none,,GAP?,
+ProfileDataExtensions.vb,ProfileDataExtensions,IsOriginalFile,Function,,ProfileDataExtensions.vb:142,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileInfo.vb,ProfileInfo,OperationStates,Property,,ProfileInfo.vb:26,none,,Partial,web-menu editing + operation-state present but bounded.
+ProfileInfo.vb,ProfileInfo,LoadStateFilename,Property,,ProfileInfo.vb:43,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ProfileInfo.vb,ProfileInfo,ProfileName,Property,,ProfileInfo.vb:52,strong,vaultkeeper/app_paths.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/migrate.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileInfo.vb,ProfileInfo,Edition,Property,,ProfileInfo.vb:57,strong,vaultkeeper/__main__.py | vaultkeeper/game/editions.py | vaultkeeper/game/locations.py,AUTO-PORTED,
 ProfileInfo.vb,ProfileInfo,ConvertBikFiles,Property,,ProfileInfo.vb:62,strong,vaultkeeper/config/settings.py | vaultkeeper/game/bik_convert.py | vaultkeeper/game/installer_build.py,AUTO-PORTED,
 ProfileInfo.vb,ProfileInfo,NwnFolder,Property,,ProfileInfo.vb:71,comment,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/game/nwn_folders.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-ProfileInfo.vb,ProfileInfo,NwnVersion,Property,,ProfileInfo.vb:76,none,,GAP?,
+ProfileInfo.vb,ProfileInfo,NwnVersion,Property,,ProfileInfo.vb:76,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 ProfileInfo.vb,ProfileInfo,New,Sub,,ProfileInfo.vb:81,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileInfo.vb,ProfileInfo,New,Sub,,ProfileInfo.vb:94,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileInfo.vb,ProfileInfo,New,Sub,,ProfileInfo.vb:125,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileInfo.vb,ProfileInfo,New,Sub,,ProfileInfo.vb:135,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ProfileInfo.vb,ProfileInfo,GetNwnVersion,Function,,ProfileInfo.vb:154,none,,GAP?,
-ProfileInfo.vb,ProfileInfo,SaveLoadStates,Sub,,ProfileInfo.vb:180,none,,GAP?,
-ProfileInfo.vb,ProfileInfo,SetEdition,Sub,,ProfileInfo.vb:198,none,,GAP?,
-ProfileInfo.vb,ProfileInfo,SetOperationStates,Sub,,ProfileInfo.vb:217,none,,GAP?,
+ProfileInfo.vb,ProfileInfo,GetNwnVersion,Function,,ProfileInfo.vb:154,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileInfo.vb,ProfileInfo,SaveLoadStates,Sub,,ProfileInfo.vb:180,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+ProfileInfo.vb,ProfileInfo,SetEdition,Sub,,ProfileInfo.vb:198,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+ProfileInfo.vb,ProfileInfo,SetOperationStates,Sub,,ProfileInfo.vb:217,none,,Partial,web-menu editing + operation-state present but bounded.
 ProfileInfoManager.vb,ProfileInfoManager,ProfileCount,Property,,ProfileInfoManager.vb:30,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,ProfileInfoManager,Profiles,Property,,ProfileInfoManager.vb:39,strong,vaultkeeper/app_paths.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 ProfileInfoManager.vb,ProfileInfoManager,ProfileInfo,Property,,ProfileInfoManager.vb:48,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -2743,10 +2743,10 @@ Settings.Locations.vb,Settings,EditFromChoice,Function,,Settings.Locations.vb:60
 Settings.Locations.vb,Settings,EditSharedProfile,Function,,Settings.Locations.vb:626,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Locations.vb,Settings,EditUrl,Function,,Settings.Locations.vb:674,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Locations.vb,Settings,ValidateUrl,Function,,Settings.Locations.vb:698,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-Settings.MapCommon.vb,Settings,SetMapValues,Sub,,Settings.MapCommon.vb:23,none,,GAP?,
-Settings.MapCommon.vb,Settings,SetMapItem,Sub,,Settings.MapCommon.vb:66,none,,GAP?,
-Settings.MapCommon.vb,Settings,RemoveDeletedMapItems,Sub,,Settings.MapCommon.vb:107,none,,GAP?,
-Settings.MapCommon.vb,Settings,UpdateContextMenu,Sub,,Settings.MapCommon.vb:131,none,,GAP?,
+Settings.MapCommon.vb,Settings,SetMapValues,Sub,,Settings.MapCommon.vb:23,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.MapCommon.vb,Settings,SetMapItem,Sub,,Settings.MapCommon.vb:66,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.MapCommon.vb,Settings,RemoveDeletedMapItems,Sub,,Settings.MapCommon.vb:107,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.MapCommon.vb,Settings,UpdateContextMenu,Sub,,Settings.MapCommon.vb:131,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 Settings.MapExceptions.vb,Settings,AddExceptions,Sub,,Settings.MapExceptions.vb:26,none,,Partial,group-delete/installer-subfolder/download-target/map-exception editing present but bounded.
 Settings.MapExceptions.vb,Settings,LvExceptionsItemChanged,Sub,,Settings.MapExceptions.vb:87,none,,Divergence,"VB per-preference ListView-editor plumbing (Preferences/Advanced/MenuCommon/MapExceptions pages), ModExplorer rating/prefix/operand filters + virtual-list/bg-worker, and ModView WinForms events / cosmetic icons+tooltips. Bounded port = tabbed Settings dialog + name/state/completed ModExplorer filter."
 Settings.MapExceptions.vb,Settings,LvExceptions_GotFocus,Sub,LvExceptions.GotFocus,Settings.MapExceptions.vb:118,none,,Divergence,"VB per-preference ListView-editor plumbing (Preferences/Advanced/MenuCommon/MapExceptions pages), ModExplorer rating/prefix/operand filters + virtual-list/bg-worker, and ModView WinForms events / cosmetic icons+tooltips. Bounded port = tabbed Settings dialog + name/state/completed ModExplorer filter."
@@ -2855,14 +2855,14 @@ Settings.RunMenu.vb,Settings,SaveRunMenu,Sub,,Settings.RunMenu.vb:89,none,,Defer
 Settings.RunMenu.vb,Settings,CmrNewMenu_Click,Sub,CmrNewMenu.Click,Settings.RunMenu.vb:106,none,,Deferred,Run Menu (external launch programs) + screen-crop editor not ported.
 Settings.RunMenu.vb,Settings,CmrChangeMenu_Click,Sub,CmrEditMenu.Click,Settings.RunMenu.vb:118,none,,Deferred,Run Menu (external launch programs) + screen-crop editor not ported.
 Settings.RunMenu.vb,Settings,LvRunMenu_KeyPress,Sub,LvRunMenu.KeyPress,Settings.RunMenu.vb:130,none,,Deferred,Run Menu (external launch programs) + screen-crop editor not ported.
-Settings.WebMenu.vb,Settings,AddWebMenu,Sub,,Settings.WebMenu.vb:22,none,,GAP?,
+Settings.WebMenu.vb,Settings,AddWebMenu,Sub,,Settings.WebMenu.vb:22,none,,Partial,web-menu editing + operation-state present but bounded.
 Settings.WebMenu.vb,Settings,ResetWebMenu,Sub,,Settings.WebMenu.vb:61,comment,vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
-Settings.WebMenu.vb,Settings,ImportWebMenu,Sub,,Settings.WebMenu.vb:71,none,,GAP?,
-Settings.WebMenu.vb,Settings,ResetWebMenuItem,Sub,,Settings.WebMenu.vb:82,none,,GAP?,
-Settings.WebMenu.vb,Settings,SaveWebMenu,Sub,,Settings.WebMenu.vb:92,none,,GAP?,
-Settings.WebMenu.vb,Settings,CmwNewMenu_Click,Sub,CmwNewMenu.Click,Settings.WebMenu.vb:109,none,,GAP?,
-Settings.WebMenu.vb,Settings,CmwChangeMenu_Click,Sub,CmwEditMenu.Click,Settings.WebMenu.vb:121,none,,GAP?,
-Settings.WebMenu.vb,Settings,LvWebMenu_KeyPress,Sub,LvWebMenu.KeyPress,Settings.WebMenu.vb:133,none,,GAP?,
+Settings.WebMenu.vb,Settings,ImportWebMenu,Sub,,Settings.WebMenu.vb:71,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.WebMenu.vb,Settings,ResetWebMenuItem,Sub,,Settings.WebMenu.vb:82,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.WebMenu.vb,Settings,SaveWebMenu,Sub,,Settings.WebMenu.vb:92,none,,Partial,web-menu editing + operation-state present but bounded.
+Settings.WebMenu.vb,Settings,CmwNewMenu_Click,Sub,CmwNewMenu.Click,Settings.WebMenu.vb:109,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.WebMenu.vb,Settings,CmwChangeMenu_Click,Sub,CmwEditMenu.Click,Settings.WebMenu.vb:121,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+Settings.WebMenu.vb,Settings,LvWebMenu_KeyPress,Sub,LvWebMenu.KeyPress,Settings.WebMenu.vb:133,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 Settings.vb,Settings,SettingsStartPage,Property,,Settings.vb:37,strong,vaultkeeper/ui/dialogs/settings_dialog.py,Partial,SettingsStartPage -> start_tab.
 Settings.vb,Settings,Settings_Load,Sub,MyBase.Load,Settings.vb:59,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.vb,Settings,Settings_Shown,Sub,Me.Shown,Settings.vb:184,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
@@ -3032,13 +3032,13 @@ StartScreenManager.vb,StartScreenManager,PrefixedReportCount,Function,,StartScre
 StartScreenManager.vb,StartScreenManager,RbAutoSelect_CheckedChanged,Sub,RbAutoSelect.CheckedChanged,StartScreenManager.vb:2550,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 StartScreenManager.vb,StartScreenManager,RbShowPrefixed_CheckedChanged,Sub,RbShowPrefixed.CheckedChanged,StartScreenManager.vb:2562,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 StartScreenManager.vb,StartScreenManager,RbRepairPrefixed_Click,Sub,RbRepairPrefixed.Click,StartScreenManager.vb:2605,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-SteamWorkshop.IdFileInfo.vb,IdFileInfo,IsInstallerFile,Property,,SteamWorkshop.IdFileInfo.vb:26,none,,GAP?,
+SteamWorkshop.IdFileInfo.vb,IdFileInfo,IsInstallerFile,Property,,SteamWorkshop.IdFileInfo.vb:26,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 SteamWorkshop.IdFileInfo.vb,IdFileInfo,Modified,Property,,SteamWorkshop.IdFileInfo.vb:37,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 SteamWorkshop.IdFileInfo.vb,IdFileInfo,ByteSize,Property,,SteamWorkshop.IdFileInfo.vb:42,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 SteamWorkshop.IdFileInfo.vb,IdFileInfo,Checksum,Property,,SteamWorkshop.IdFileInfo.vb:48,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 SteamWorkshop.IdFileInfo.vb,IdFileInfo,New,Sub,,SteamWorkshop.IdFileInfo.vb:62,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 SteamWorkshop.IdFileInfo.vb,IdFileInfo,Clone,Function,,SteamWorkshop.IdFileInfo.vb:74,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py,N/A,framework/designer-generated
-SteamWorkshop.IdInfo.vb,IdInfo,Id,Property,,SteamWorkshop.IdInfo.vb:32,none,,GAP?,
+SteamWorkshop.IdInfo.vb,IdInfo,Id,Property,,SteamWorkshop.IdInfo.vb:32,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 SteamWorkshop.IdInfo.vb,IdInfo,ModFolderName,Property,,SteamWorkshop.IdInfo.vb:37,comment,vaultkeeper/game/workshop.py,AUTO-PORTED,matched in comment/docstring
 SteamWorkshop.IdInfo.vb,IdInfo,UnknownModName,Property,,SteamWorkshop.IdInfo.vb:43,strong,vaultkeeper/game/workshop.py,AUTO-PORTED,
 SteamWorkshop.IdInfo.vb,IdInfo,DisplayName,Property,,SteamWorkshop.IdInfo.vb:52,strong,vaultkeeper/game/character.py | vaultkeeper/game/editions.py | vaultkeeper/game/workshop.py,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
@@ -3047,19 +3047,19 @@ SteamWorkshop.IdInfo.vb,IdInfo,Files,Property,,SteamWorkshop.IdInfo.vb:75,strong
 SteamWorkshop.IdInfo.vb,IdInfo,New,Sub,,SteamWorkshop.IdInfo.vb:82,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 SteamWorkshop.IdInfo.vb,IdInfo,New,Sub,,SteamWorkshop.IdInfo.vb:94,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 SteamWorkshop.IdInfo.vb,IdInfo,GetModFolderName,Function,,SteamWorkshop.IdInfo.vb:104,strong,vaultkeeper/game/workshop.py,AUTO-PORTED,
-SteamWorkshop.IdInfo.vb,IdInfo,ModNameFromWeb,Function,,SteamWorkshop.IdInfo.vb:140,none,,GAP?,
-SteamWorkshop.IdInfo.vb,IdInfo,GetSteamPage,Function,,SteamWorkshop.IdInfo.vb:151,none,,GAP?,
-SteamWorkshop.IdInfo.vb,IdInfo,GetSteamTitle,Function,,SteamWorkshop.IdInfo.vb:184,none,,GAP?,
+SteamWorkshop.IdInfo.vb,IdInfo,ModNameFromWeb,Function,,SteamWorkshop.IdInfo.vb:140,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+SteamWorkshop.IdInfo.vb,IdInfo,GetSteamPage,Function,,SteamWorkshop.IdInfo.vb:151,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
+SteamWorkshop.IdInfo.vb,IdInfo,GetSteamTitle,Function,,SteamWorkshop.IdInfo.vb:184,none,,Deferred,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
 SteamWorkshop.IdInfo.vb,IdInfo,RefreshSteamFiles,Function,,SteamWorkshop.IdInfo.vb:213,strong,vaultkeeper/game/workshop.py,AUTO-PORTED,
-SteamWorkshop.IdInfo.vb,IdInfo,AddCrcItem,Function,,SteamWorkshop.IdInfo.vb:268,none,,GAP?,
+SteamWorkshop.IdInfo.vb,IdInfo,AddCrcItem,Function,,SteamWorkshop.IdInfo.vb:268,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 SteamWorkshop.IdInfo.vb,IdInfo,Clone,Function,,SteamWorkshop.IdInfo.vb:285,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py,N/A,framework/designer-generated
-SteamWorkshop.ModInfo.vb,ModInfo,Id,Property,,SteamWorkshop.ModInfo.vb:27,none,,GAP?,
+SteamWorkshop.ModInfo.vb,ModInfo,Id,Property,,SteamWorkshop.ModInfo.vb:27,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 SteamWorkshop.ModInfo.vb,ModInfo,ModName,Property,,SteamWorkshop.ModInfo.vb:32,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_key.py | vaultkeeper/core/install_manager.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 SteamWorkshop.ModInfo.vb,ModInfo,Managed,Property,,SteamWorkshop.ModInfo.vb:37,strong,vaultkeeper/core/constants.py | vaultkeeper/game/install_verify.py | vaultkeeper/game/start_screen.py,AUTO-PORTED,
 SteamWorkshop.ModInfo.vb,ModInfo,SteamOnly,Property,,SteamWorkshop.ModInfo.vb:42,strong,vaultkeeper/ui/dialogs/workshop_viewer.py,AUTO-PORTED,
 SteamWorkshop.ModInfo.vb,ModInfo,WorkshopFolder,Property,,SteamWorkshop.ModInfo.vb:47,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-SteamWorkshop.ModInfo.vb,ModInfo,WorkshopFileName,Property,,SteamWorkshop.ModInfo.vb:56,none,,GAP?,
-SteamWorkshop.ModInfo.vb,ModInfo,WorkshopFullName,Property,,SteamWorkshop.ModInfo.vb:65,none,,GAP?,
+SteamWorkshop.ModInfo.vb,ModInfo,WorkshopFileName,Property,,SteamWorkshop.ModInfo.vb:56,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+SteamWorkshop.ModInfo.vb,ModInfo,WorkshopFullName,Property,,SteamWorkshop.ModInfo.vb:65,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 SteamWorkshop.ModInfo.vb,ModInfo,New,Sub,,SteamWorkshop.ModInfo.vb:75,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 SteamWorkshop.ModInfo.vb,ModInfo,CheckResubscribed,Sub,,SteamWorkshop.ModInfo.vb:114,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 SteamWorkshop.ModInfo.vb,ModInfo,CreateModFolder,Function,,SteamWorkshop.ModInfo.vb:133,strong,vaultkeeper/ui/controller.py,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
@@ -3086,7 +3086,7 @@ SteamWorkshop.vb,SteamWorkshop,ValidateModContent,Function,,SteamWorkshop.vb:575
 SteamWorkshop.vb,SteamWorkshop,UpdateRequired,Function,,SteamWorkshop.vb:663,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 SteamWorkshop.vb,SteamWorkshop,CreateMods,Sub,,SteamWorkshop.vb:709,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 SteamWorkshop.vb,SteamWorkshop,CreateInstallers,Sub,,SteamWorkshop.vb:738,strong,vaultkeeper/ui/controller.py,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
-TaskbarProgress.vb,TaskbarProgress,WindowHandle,Property,,TaskbarProgress.vb:21,none,,GAP?,
+TaskbarProgress.vb,TaskbarProgress,WindowHandle,Property,,TaskbarProgress.vb:21,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 TaskbarProgress.vb,TaskbarProgress,New,Sub,,TaskbarProgress.vb:23,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 TaskbarProgress.vb,TaskbarProgress,Update,Sub,,TaskbarProgress.vb:31,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/ci_dict.py,AUTO-PORTED,
 TaskbarProgress.vb,TaskbarProgress,Reset,Sub,,TaskbarProgress.vb:42,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
@@ -3101,14 +3101,14 @@ UserResponseEditor.vb,UserResponseEditor,BtDelete_Click,Sub,BtDelete.Click,UserR
 UserResponseEditor.vb,UserResponseEditor,BtClose_Click,Sub,BtClose.Click,UserResponseEditor.vb:152,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ModFolder,Property,,VaultDownloadRules.ProjectInfo.vb:23,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Group,Property,,VaultDownloadRules.ProjectInfo.vb:28,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ApplyExcludes,Property,,VaultDownloadRules.ProjectInfo.vb:33,none,,GAP?,
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ApplyExcludes,Property,,VaultDownloadRules.ProjectInfo.vb:33,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Files,Property,,VaultDownloadRules.ProjectInfo.vb:38,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExternalFiles,Property,,VaultDownloadRules.ProjectInfo.vb:43,none,,GAP?,
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExternalFiles,Property,,VaultDownloadRules.ProjectInfo.vb:43,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,RequiredFiles,Property,,VaultDownloadRules.ProjectInfo.vb:48,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,AddRequired,Property,,VaultDownloadRules.ProjectInfo.vb:53,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeRequiredProjects,Property,,VaultDownloadRules.ProjectInfo.vb:59,none,,GAP?,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeDirectLinks,Property,,VaultDownloadRules.ProjectInfo.vb:64,none,,GAP?,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,IncludeExtensions,Property,,VaultDownloadRules.ProjectInfo.vb:69,none,,GAP?,
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeRequiredProjects,Property,,VaultDownloadRules.ProjectInfo.vb:59,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeDirectLinks,Property,,VaultDownloadRules.ProjectInfo.vb:64,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,IncludeExtensions,Property,,VaultDownloadRules.ProjectInfo.vb:69,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Wizard,Property,,VaultDownloadRules.ProjectInfo.vb:74,strong,vaultkeeper/core/constants.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/game/character.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,RulesVersionSuffix,Property,,VaultDownloadRules.vb:58,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 VaultDownloadRules.vb,VaultDownloadRules,RulesFilename,Property,,VaultDownloadRules.vb:76,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
@@ -3201,8 +3201,8 @@ VaultScraperInfo.vb,VaultScraperInfo,New,Sub,,VaultScraperInfo.vb:134,strong,vau
 VaultScraperInfo.vb,VaultScraperInfo,New,Sub,,VaultScraperInfo.vb:148,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 VaultScraperInfo.vb,VaultScraperInfo,New,Sub,,VaultScraperInfo.vb:179,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 VaultScraperInfo.vb,VaultScraperInfo,SetDirectUrl,Sub,,VaultScraperInfo.vb:191,strong,vaultkeeper/vault/scraper.py,AUTO-PORTED,
-VaultScraperInfo.vb,VaultScraperInfo,SetNewDirectUrl,Sub,,VaultScraperInfo.vb:211,none,,GAP?,
-VaultScraperInfo.vb,VaultScraperInfo,SetFilename,Sub,,VaultScraperInfo.vb:248,none,,GAP?,
+VaultScraperInfo.vb,VaultScraperInfo,SetNewDirectUrl,Sub,,VaultScraperInfo.vb:211,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
+VaultScraperInfo.vb,VaultScraperInfo,SetFilename,Sub,,VaultScraperInfo.vb:248,none,,Ported,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
 WizardBuilder.vb,WizardBuilder,ShowDialog,Function,,WizardBuilder.vb:88,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 WizardBuilder.vb,WizardBuilder,WizardBuilder_Load,Sub,MyBase.Load,WizardBuilder.vb:128,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 WizardBuilder.vb,WizardBuilder,WizardBuilder_Shown,Sub,Me.Shown,WizardBuilder.vb:246,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
@@ -3265,11 +3265,11 @@ WizardInfo.vb,WizardInfo,ProcessSubFolder,Sub,,WizardInfo.vb:588,strong,vaultkee
 WizardInfo.vb,WizardInfo,ConvertToText,Function,,WizardInfo.vb:607,strong,vaultkeeper/game/wizard.py,AUTO-PORTED,
 WorkshopNameEditor.vb,WorkshopNameEditor,ModFolderName,Property,,WorkshopNameEditor.vb:34,comment,vaultkeeper/game/workshop.py,AUTO-PORTED,matched in comment/docstring
 WorkshopNameEditor.vb,WorkshopNameEditor,ShowDialog,Function,,WorkshopNameEditor.vb:51,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Load,Sub,MyBase.Load,WorkshopNameEditor.vb:60,none,,GAP?,
-WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Shown,Sub,Me.Shown,WorkshopNameEditor.vb:103,none,,GAP?,
+WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Load,Sub,MyBase.Load,WorkshopNameEditor.vb:60,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Shown,Sub,Me.Shown,WorkshopNameEditor.vb:103,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 WorkshopNameEditor.vb,WorkshopNameEditor,OnClosing,Sub,,WorkshopNameEditor.vb:115,none,,N/A,framework/designer-generated
-WorkshopNameEditor.vb,WorkshopNameEditor,FvWorkshop_ItemClicked,Sub,FvWorkshop.ItemClicked,WorkshopNameEditor.vb:129,none,,GAP?,
-WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_KeyPress,Sub,TxModName.KeyPress,WorkshopNameEditor.vb:139,none,,GAP?,
+WorkshopNameEditor.vb,WorkshopNameEditor,FvWorkshop_ItemClicked,Sub,FvWorkshop.ItemClicked,WorkshopNameEditor.vb:129,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
+WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_KeyPress,Sub,TxModName.KeyPress,WorkshopNameEditor.vb:139,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_TextChanged,Sub,TxModName.TextChanged,WorkshopNameEditor.vb:149,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 WorkshopNameEditor.vb,WorkshopNameEditor,BtApply_Click,Sub,BtApply.Click,WorkshopNameEditor.vb:163,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 WorkshopNameEditor.vb,WorkshopNameEditor,ErrorMessage,Sub,,WorkshopNameEditor.vb:206,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/game/character.py,AUTO-PORTED,
