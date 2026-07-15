@@ -84,7 +84,7 @@ BicFileInfo.vb,BicFileInfo,SkillInfo,Property,,BicFileInfo.vb:157,none,,GAP?,
 BicFileInfo.vb,BicFileInfo,PlayerFeats,Property,,BicFileInfo.vb:186,none,,GAP?,
 BicFileInfo.vb,BicFileInfo,Portrait,Property,,BicFileInfo.vb:200,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/erf_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,CharacterLevel,Property,,BicFileInfo.vb:206,comment,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_viewer.py,AUTO-PORTED,matched in comment/docstring
-BicFileInfo.vb,BicFileInfo,LevelSummary,Property,,BicFileInfo.vb:216,strong,vaultkeeper/game/character.py,AUTO-PORTED,
+BicFileInfo.vb,BicFileInfo,LevelSummary,Property,,BicFileInfo.vb:216,strong,vaultkeeper/game/character.py | vaultkeeper/ui/dialogs/character_viewer.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,PortraitDirectories,Property,,BicFileInfo.vb:226,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,CharacterSummary,Function,,BicFileInfo.vb:250,strong,vaultkeeper/game/character.py | vaultkeeper/ui/resources.py,AUTO-PORTED,
 BicFileInfo.vb,BicFileInfo,DisplayCharacterInformation,Sub,,BicFileInfo.vb:444,none,,GAP?,
@@ -152,7 +152,7 @@ CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_RunWorkerCompleted,Sub,"bgCalculat
 CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWork,CalculateCRCs.vb:730,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 ChangeData.vb,ChangeData,New,Sub,,ChangeData.vb:53,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ChangeData.vb,ChangeData,Installed,Property,,ChangeData.vb:59,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+ChangeData.vb,ChangeData,Installed,Property,,ChangeData.vb:59,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ChangeData.vb,ChangeData,File,Property,,ChangeData.vb:64,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 ChangeData.vb,ChangeData,Mods,Property,,ChangeData.vb:69,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,AUTO-PORTED,
 ChangeData.vb,ChangeData,OrphanedModNotes,Property,,ChangeData.vb:75,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
@@ -602,21 +602,21 @@ ErfFileReader.IfoReader.vb,IfoReader,ReadHeader,Function,,ErfFileReader.IfoReade
 ErfFileReader.IfoReader.vb,IfoReader,GetFieldDataCExoLocString,Function,,ErfFileReader.IfoReader.vb:152,none,,GAP?,
 ErfFileReader.IfoReader.vb,IfoReader,GetLabel,Function,,ErfFileReader.IfoReader.vb:178,none,,GAP?,
 ErfFileReader.IfoReader.vb,IfoReader,IsIfoHeader,Function,,ErfFileReader.IfoReader.vb:189,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,ModuleDataFileName,Property,,ErfFileReader.vb:34,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,ModuleDataOnlineFile,Property,,ErfFileReader.vb:44,none,,GAP?,
+ErfFileReader.vb,ErfFileReader,ModuleDataFileName,Property,,ErfFileReader.vb:34,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,ModuleDataOnlineFile,Property,,ErfFileReader.vb:44,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 ErfFileReader.vb,ErfFileReader,ModFilename,Property,,ErfFileReader.vb:82,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/game/module_reader.py,AUTO-PORTED,
-ErfFileReader.vb,ErfFileReader,ModDescription,Property,,ErfFileReader.vb:87,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,ModSavName,Property,,ErfFileReader.vb:92,none,,GAP?,
+ErfFileReader.vb,ErfFileReader,ModDescription,Property,,ErfFileReader.vb:87,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,ModSavName,Property,,ErfFileReader.vb:92,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ErfFileReader.vb,ErfFileReader,Status,Property,,ErfFileReader.vb:97,strong,vaultkeeper/config/settings.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/log.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 ErfFileReader.vb,ErfFileReader,StatusMessage,Property,,ErfFileReader.vb:102,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ErfFileReader.vb,ErfFileReader,LogMessage,Property,,ErfFileReader.vb:108,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 ErfFileReader.vb,ErfFileReader,New,Sub,,ErfFileReader.vb:115,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ErfFileReader.vb,ErfFileReader,OpenModFile,Function,,ErfFileReader.vb:136,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,ValidateModInfo,Sub,,ErfFileReader.vb:203,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,LoadModuleData,Sub,,ErfFileReader.vb:235,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,DownloadModuleData,Function,,ErfFileReader.vb:299,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,IsValidType,Function,,ErfFileReader.vb:325,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,IsValidVersion,Function,,ErfFileReader.vb:333,none,,GAP?,
+ErfFileReader.vb,ErfFileReader,OpenModFile,Function,,ErfFileReader.vb:136,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,ValidateModInfo,Sub,,ErfFileReader.vb:203,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,LoadModuleData,Sub,,ErfFileReader.vb:235,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,DownloadModuleData,Function,,ErfFileReader.vb:299,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
+ErfFileReader.vb,ErfFileReader,IsValidType,Function,,ErfFileReader.vb:325,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ErfFileReader.vb,ErfFileReader,IsValidVersion,Function,,ErfFileReader.vb:333,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ErfFileReader.vb,ErfFileReader,GetDescription,Function,,ErfFileReader.vb:341,strong,vaultkeeper/game/module_reader.py,AUTO-PORTED,
 ErfFileReader.vb,ErfFileReader,FindFile,Function,,ErfFileReader.vb:372,strong,vaultkeeper/game/module_reader.py,AUTO-PORTED,
 ErfFileReader.vb,ErfFileReader,GetResourcePosition,Function,,ErfFileReader.vb:397,strong,vaultkeeper/game/module_reader.py,AUTO-PORTED,
@@ -662,7 +662,7 @@ FileData.vb,FileData,New,Sub,,FileData.vb:45,strong,vaultkeeper/core/hak_patch.p
 FileData.vb,FileData,New,Sub,,FileData.vb:62,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 FileData.vb,FileData,Key,Property,,FileData.vb:78,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/ci_dict.py,AUTO-PORTED,
 FileData.vb,FileData,FileState,Property,,FileData.vb:86,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
-FileData.vb,FileData,Installed,Property,,FileData.vb:94,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+FileData.vb,FileData,Installed,Property,,FileData.vb:94,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 FileData.vb,FileData,Extension,Property,,FileData.vb:106,strong,vaultkeeper/core/archive.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 FileData.vb,FileData,Modified,Property,,FileData.vb:114,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 FileData.vb,FileData,ByteSize,Property,,FileData.vb:122,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/hak_patch.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
@@ -938,7 +938,7 @@ GameSaves.vb,GameSaves,Refresh,Sub,,GameSaves.vb:322,strong,vaultkeeper/game/gam
 GameSaves.vb,GameSaves,WaitForScanner,Sub,,GameSaves.vb:347,none,,GAP?,
 GameSaves.vb,GameSaves,WaitForCompletion,Sub,,GameSaves.vb:360,none,,GAP?,
 GameSaves.vb,GameSaves,WaitForWorkerCompletion,Sub,,GameSaves.vb:372,none,,GAP?,
-GameSaves.vb,GameSaves,Remove,Function,,GameSaves.vb:389,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/install_manager.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+GameSaves.vb,GameSaves,Remove,Function,,GameSaves.vb:389,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GameSaves.vb,GameSaves,AddInfo,Sub,,GameSaves.vb:437,strong,vaultkeeper/game/game_saves.py,AUTO-PORTED,
 GameSaves.vb,GameSaves,OnGameSavesNotification,Sub,,GameSaves.vb:467,none,,GAP?,
 GameSaves.vb,GameSaves,BgSaveScanner_DoWork,Sub,BgSaveScanner.DoWork,GameSaves.vb:479,none,,GAP?,
@@ -969,7 +969,7 @@ GroupMemberData.vb,GroupMemberData,MemberNames,Property,,GroupMemberData.vb:68,s
 GroupMemberData.vb,GroupMemberData,MemberPaths,Property,,GroupMemberData.vb:79,none,,GAP?,
 GroupMemberData.vb,GroupMemberData,InstalledCount,Property,,GroupMemberData.vb:90,strong,vaultkeeper/core/group_member.py | vaultkeeper/game/install_verify.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,InstalledMembers,Property,,GroupMemberData.vb:101,strong,vaultkeeper/core/group_member.py,AUTO-PORTED,
-GroupMemberData.vb,GroupMemberData,Remove,Sub,,GroupMemberData.vb:115,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/install_manager.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+GroupMemberData.vb,GroupMemberData,Remove,Sub,,GroupMemberData.vb:115,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GroupMemberData.vb,GroupMemberData,Rename,Sub,,GroupMemberData.vb:132,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/fs.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,AddMembers,Sub,,GroupMemberData.vb:194,strong,vaultkeeper/core/group_member.py,AUTO-PORTED,
 GroupMemberData.vb,GroupMemberData,AddMembersThread,Sub,,GroupMemberData.vb:205,none,,GAP?,
@@ -1079,7 +1079,7 @@ InstallationManager.vb,InstallationManager,SetItems,Property,,InstallationManage
 InstallationManager.vb,InstallationManager,SetItems,Property,,InstallationManager.vb:125,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManager.vb,InstallationManager,RemovedGroups,Property,,InstallationManager.vb:139,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManager.vb,InstallationManager,RemovedMods,Property,,InstallationManager.vb:144,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
-InstallationManager.vb,InstallationManager,AddedMods,Property,,InstallationManager.vb:149,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManager.vb,InstallationManager,AddedMods,Property,,InstallationManager.vb:149,comment,vaultkeeper/config/settings.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManager.vb,InstallationManager,ChangedState,Property,,InstallationManager.vb:154,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManager.vb,InstallationManager,ChangesInfo,Property,,InstallationManager.vb:159,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManager.vb,InstallationManager,SetItemIndex,Property,,InstallationManager.vb:190,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
@@ -1302,7 +1302,7 @@ ModData.vb,ModData,LastPlayed,Property,,ModData.vb:152,strong,vaultkeeper/core/p
 ModData.vb,ModData,IsSteamManaged,Property,,ModData.vb:177,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/workshop.py,AUTO-PORTED,
 ModData.vb,ModData,InstallState,Property,,ModData.vb:195,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/state.py | vaultkeeper/persistence/nrbf/mapping.py,AUTO-PORTED,
 ModData.vb,ModData,ModState,Property,,ModData.vb:204,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/mod_data.py | vaultkeeper/game/install_verify.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-ModData.vb,ModData,Installed,Property,,ModData.vb:212,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+ModData.vb,ModData,Installed,Property,,ModData.vb:212,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModData.vb,ModData,ModPath,Property,,ModData.vb:224,strong,vaultkeeper/core/install_manager.py | vaultkeeper/game/documentation.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 ModData.vb,ModData,InstallerPath,Property,,ModData.vb:236,strong,vaultkeeper/game/installer_build.py,AUTO-PORTED,
 ModData.vb,ModData,HasModInstaller,Function,,ModData.vb:248,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -1325,7 +1325,7 @@ ModData.vb,ModData,Notes,Property,,ModData.vb:444,strong,vaultkeeper/app_paths.p
 ModData.vb,ModData,DeleteInstaller,Function,,ModData.vb:461,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,RemoveAllFiles,Sub,,ModData.vb:482,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,RemoveFile,Sub,,ModData.vb:514,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
-ModData.vb,ModData,Remove,Sub,,ModData.vb:533,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/install_manager.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+ModData.vb,ModData,Remove,Sub,,ModData.vb:533,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ModData.vb,ModData,Rename,Sub,,ModData.vb:557,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/fs.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
 ModData.vb,ModData,CreateInstallerFolder,Function,,ModData.vb:626,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,CreateInstaller,Function,,ModData.vb:649,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/installer_build.py | vaultkeeper/game/wizard.py,AUTO-PORTED,
@@ -1548,7 +1548,7 @@ ModPlayViewer.vb,ModPlayedInfo,LevelStart,Property,,ModPlayViewer.vb:905,strong,
 ModPlayViewer.vb,ModPlayedInfo,LevelEnd,Property,,ModPlayViewer.vb:911,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModPlayViewer.vb,ModPlayedInfo,Group,Property,,ModPlayViewer.vb:916,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModPlayViewer.vb,ModPlayedInfo,ModState,Property,,ModPlayViewer.vb:922,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/mod_data.py | vaultkeeper/game/install_verify.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-ModPlayViewer.vb,ModPlayedInfo,Installed,Property,,ModPlayViewer.vb:928,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+ModPlayViewer.vb,ModPlayedInfo,Installed,Property,,ModPlayViewer.vb:928,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModPlayViewer.vb,ModPlayedInfo,SortKey,Property,,ModPlayViewer.vb:934,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModPlayViewer.vb,ModPlayedInfo,WebLink,Property,,ModPlayViewer.vb:940,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModPlayViewer.vb,ModPlayedInfo,BestWeapon,Property,,ModPlayViewer.vb:945,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
@@ -1628,7 +1628,7 @@ NIT.Common.vb,NIT,AnnealAffectedMods,Function,,NIT.Common.vb:1685,none,,Ported,c
 NIT.Common.vb,NIT,InstallMods,Sub,,NIT.Common.vb:1722,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,IncludeDependencies,Sub,,NIT.Common.vb:1793,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,UninstallMods,Sub,,NIT.Common.vb:1817,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
-NIT.Common.vb,NIT,UninstallDependencies,Sub,,NIT.Common.vb:1873,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,UninstallDependencies,Sub,,NIT.Common.vb:1873,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/settings_dialog.py,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,InstalledDependants,Sub,,NIT.Common.vb:1929,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,RunAutoModDependencies,Sub,,NIT.Common.vb:1958,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 NIT.Common.vb,NIT,ValidateMods,Sub,,NIT.Common.vb:2016,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/resources.py,AUTO-PORTED,
@@ -1694,57 +1694,57 @@ NIT.DetailsView.vb,NIT,RemoveInstallerFiles,Function,,NIT.DetailsView.vb:443,non
 NIT.DetailsView.vb,NIT,RenameDetails,Sub,,NIT.DetailsView.vb:496,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 NIT.DetailsView.vb,NIT,MoveToFolder,Sub,,NIT.DetailsView.vb:593,comment,vaultkeeper/ui/menu_bar.py | vaultkeeper/ui/quick_toolbar.py | vaultkeeper/ui/resources.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 NIT.DragDrop.vb,NIT,Fv_DragDrop,Sub,"FvMods.DragDrop, FvContents.DragDrop, FvDetails.DragDrop",NIT.DragDrop.vb:22,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-NIT.Menu.vb,NIT,ProcessCommandLine,Sub,,NIT.Menu.vb:125,none,,GAP?,
-NIT.Menu.vb,NIT,DisplayStartOptions,Function,,NIT.Menu.vb:188,none,,GAP?,
-NIT.Menu.vb,NIT,ConfigSystemTrayMinimise,Property,,NIT.Menu.vb:259,none,,GAP?,
-NIT.Menu.vb,NIT,InitialiseMenuItems,Sub,,NIT.Menu.vb:291,none,,GAP?,
-NIT.Menu.vb,NIT,SetClearHakPortraits,Sub,,NIT.Menu.vb:316,none,,GAP?,
-NIT.Menu.vb,NIT,SetDefaultRunMenu,Sub,,NIT.Menu.vb:325,none,,GAP?,
-NIT.Menu.vb,NIT,SetRunMenu,Sub,,NIT.Menu.vb:345,none,,GAP?,
-NIT.Menu.vb,NIT,SetNwnExePaths,Sub,,NIT.Menu.vb:388,none,,GAP?,
-NIT.Menu.vb,NIT,SetDefaultWebMenu,Sub,,NIT.Menu.vb:406,none,,GAP?,
+NIT.Menu.vb,NIT,ProcessCommandLine,Sub,,NIT.Menu.vb:125,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DisplayStartOptions,Function,,NIT.Menu.vb:188,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,ConfigSystemTrayMinimise,Property,,NIT.Menu.vb:259,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,InitialiseMenuItems,Sub,,NIT.Menu.vb:291,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,SetClearHakPortraits,Sub,,NIT.Menu.vb:316,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,SetDefaultRunMenu,Sub,,NIT.Menu.vb:325,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetRunMenu,Sub,,NIT.Menu.vb:345,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetNwnExePaths,Sub,,NIT.Menu.vb:388,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetDefaultWebMenu,Sub,,NIT.Menu.vb:406,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,SetWebMenu,Sub,,NIT.Menu.vb:422,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,SetRibbon,Sub,,NIT.Menu.vb:472,none,,GAP?,
-NIT.Menu.vb,NIT,SetPortraitManagerToolTip,Sub,,NIT.Menu.vb:492,none,,GAP?,
-NIT.Menu.vb,NIT,RegisterShortCutKeys,Sub,,NIT.Menu.vb:532,none,,GAP?,
+NIT.Menu.vb,NIT,SetRibbon,Sub,,NIT.Menu.vb:472,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,SetPortraitManagerToolTip,Sub,,NIT.Menu.vb:492,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,RegisterShortCutKeys,Sub,,NIT.Menu.vb:532,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,DefineContextMenus,Sub,,NIT.Menu.vb:562,strong,vaultkeeper/ui/main_window.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicked",NIT.Menu.vb:593,none,,GAP?,
-NIT.Menu.vb,NIT,Tx_TextChanged,Sub,,NIT.Menu.vb:607,none,,GAP?,
-NIT.Menu.vb,NIT,Tx_PreviewKeyDown,Sub,,NIT.Menu.vb:615,none,,GAP?,
-NIT.Menu.vb,NIT,Tx_KeyUp,Sub,,NIT.Menu.vb:627,none,,GAP?,
-NIT.Menu.vb,NIT,Tx_MouseUp,Sub,,NIT.Menu.vb:637,none,,GAP?,
-NIT.Menu.vb,NIT,SetOriginalPortraitsMenuItem,Sub,,NIT.Menu.vb:651,none,,GAP?,
-NIT.Menu.vb,NIT,SetDownloadMenuItems,Sub,,NIT.Menu.vb:671,none,,GAP?,
-NIT.Menu.vb,NIT,SetSharedNitMenuItems,Sub,,NIT.Menu.vb:698,none,,GAP?,
-NIT.Menu.vb,NIT,SetCreateOriginalRestorers,Sub,,NIT.Menu.vb:723,none,,GAP?,
-NIT.Menu.vb,NIT,SetDebugOptionsMenu,Sub,,NIT.Menu.vb:736,none,,GAP?,
-NIT.Menu.vb,NIT,SetTextBoxEditMenu,Sub,,NIT.Menu.vb:750,none,,GAP?,
-NIT.Menu.vb,NIT,SetTextBoxEditMenu,Sub,,NIT.Menu.vb:773,none,,GAP?,
-NIT.Menu.vb,NIT,SetMoveToFolder,Sub,,NIT.Menu.vb:790,none,,GAP?,
-NIT.Menu.vb,NIT,SetProfileMenus,Sub,,NIT.Menu.vb:848,none,,GAP?,
-NIT.Menu.vb,NIT,FileViewMenus,Sub,,NIT.Menu.vb:898,none,,GAP?,
-NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,GAP?,
-NIT.Menu.vb,NIT,MsGetUpdatePerformClick,Sub,,NIT.Menu.vb:1102,none,,GAP?,
-NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,GAP?,
-NIT.Menu.vb,NIT,TsbModSelector_SearchBoxClosed,Sub,TsbModSelector.ItemSelected,NIT.Menu.vb:1163,none,,GAP?,
+NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicked",NIT.Menu.vb:593,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,Tx_TextChanged,Sub,,NIT.Menu.vb:607,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,Tx_PreviewKeyDown,Sub,,NIT.Menu.vb:615,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,Tx_KeyUp,Sub,,NIT.Menu.vb:627,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,Tx_MouseUp,Sub,,NIT.Menu.vb:637,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,SetOriginalPortraitsMenuItem,Sub,,NIT.Menu.vb:651,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetDownloadMenuItems,Sub,,NIT.Menu.vb:671,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetSharedNitMenuItems,Sub,,NIT.Menu.vb:698,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetCreateOriginalRestorers,Sub,,NIT.Menu.vb:723,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetDebugOptionsMenu,Sub,,NIT.Menu.vb:736,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetTextBoxEditMenu,Sub,,NIT.Menu.vb:750,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,SetTextBoxEditMenu,Sub,,NIT.Menu.vb:773,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,SetMoveToFolder,Sub,,NIT.Menu.vb:790,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SetProfileMenus,Sub,,NIT.Menu.vb:848,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,FileViewMenus,Sub,,NIT.Menu.vb:898,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,MsGetUpdatePerformClick,Sub,,NIT.Menu.vb:1102,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,TsbModSelector_SearchBoxClosed,Sub,TsbModSelector.ItemSelected,NIT.Menu.vb:1163,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,RbnPlay_Click,Sub,RbnPlay.Click,NIT.Menu.vb:1181,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnPlay_MouseUp,Sub,RbnPlay.MouseUp,NIT.Menu.vb:1191,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnInstallUninstall_Click,Sub,RbnInstallUninstall.Click,NIT.Menu.vb:1219,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RbnGameSaves_MouseHover,Sub,,NIT.Menu.vb:1232,none,,GAP?,
-NIT.Menu.vb,NIT,RbnGameSaves_MouseLeave,Sub,,NIT.Menu.vb:1244,none,,GAP?,
+NIT.Menu.vb,NIT,RbnGameSaves_MouseHover,Sub,,NIT.Menu.vb:1232,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,RbnGameSaves_MouseLeave,Sub,,NIT.Menu.vb:1244,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,RbnToolset_Click,Sub,RbnToolset.Click,NIT.Menu.vb:1258,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnMapFolders_Click,Sub,RbnMapFolders.Click,NIT.Menu.vb:1270,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnMapFiles_Click,Sub,RbnMapFiles.Click,NIT.Menu.vb:1282,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnNwnIni_Click,Sub,RbnNwnIni.Click,NIT.Menu.vb:1298,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnExportSettings_Click,Sub,RbnExportSettings.Click,NIT.Menu.vb:1310,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnBackupData_Click,Sub,RbnBackupData.Click,NIT.Menu.vb:1360,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,GAP?,
+NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,RbnFontAndColour_Click,Sub,"RbnFontAndColour.Click, MsFontAndColour.Click",NIT.Menu.vb:1385,strong,vaultkeeper/ui/theme.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,RbnManageWorkshop_Click,Sub,RbnManageWorkshop.Click,NIT.Menu.vb:1427,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnAdvancedSettings_Click,Sub,RbnAdvancedSettings.Click,NIT.Menu.vb:1463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsOpen_Click,Sub,MsOpen.Click,NIT.Menu.vb:1477,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsDownloadProject_Click,Sub,"MsDownloadProject.Click, RbnDownloadProject.Click",NIT.Menu.vb:1499,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DownloadProject_FormClosed,Sub,,NIT.Menu.vb:1523,none,,GAP?,
+NIT.Menu.vb,NIT,DownloadProject_FormClosed,Sub,,NIT.Menu.vb:1523,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsAddFiles_Click,Sub,"MsAddFiles.Click, RbnAddFiles.Click",NIT.Menu.vb:1567,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsAddMods_Click,Sub,MsAddMods.Click,NIT.Menu.vb:1619,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsUpdateDownloads_Click,Sub,"MsUpdateDownloads.Click, RbnUpdateDownloads.Click",NIT.Menu.vb:1661,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -1789,14 +1789,14 @@ NIT.Menu.vb,NIT,MsDisplaySettings_Click,Sub,"MsDisplaySettings.Click, RbnDisplay
 NIT.Menu.vb,NIT,MsOpenRulesFile_Click,Sub,MsOpenRulesFile.Click,NIT.Menu.vb:3099,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsNwnClientLogFile_Click,Sub,"MsNwnClientLogFile.Click, RbnNwnLog.Click",NIT.Menu.vb:3124,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsNwnEngineLogFile_Click,Sub,"MsNwnEngineLogFile.Click, RbnNwnEngineLog.Click",NIT.Menu.vb:3141,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DisplayLogFile,Sub,,NIT.Menu.vb:3158,none,,GAP?,
-NIT.Menu.vb,NIT,ViewIniFile_Click,Sub,"MsNWNIniFile.Click,",NIT.Menu.vb:3189,none,,GAP?,
+NIT.Menu.vb,NIT,DisplayLogFile,Sub,,NIT.Menu.vb:3158,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,ViewIniFile_Click,Sub,"MsNWNIniFile.Click,",NIT.Menu.vb:3189,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsNwnSettingsFile_Click,Sub,"MsNwnSettingsFile.Click, RbnNwnSettingsFile.Click",NIT.Menu.vb:3228,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsViewClipboard_Click,Sub,MsViewClipboard.Click,NIT.Menu.vb:3245,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsNewGroup_Click,Sub,MsNewGroup.Click,NIT.Menu.vb:3267,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsNewMod_Click,Sub,"MsNewMod.Click, RbnNewMod.Click",NIT.Menu.vb:3296,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsCreateInstaller_Click,Sub,"MsCreateInstaller.Click, RbnCreateInstaller.Click,",NIT.Menu.vb:3329,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,PerformCreateInstaller,Sub,,NIT.Menu.vb:3361,none,,GAP?,
+NIT.Menu.vb,NIT,PerformCreateInstaller,Sub,,NIT.Menu.vb:3361,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsCreateMissingInstallers_Click,Sub,MsCreateMissingInstallers.Click,NIT.Menu.vb:3401,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,ProcessCreateInstaller,Sub,,NIT.Menu.vb:3485,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,MsChangeInstaller_Click,Sub,"MsChangeInstaller.Click, RbnChangeInstaller.Click",NIT.Menu.vb:3527,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -1817,16 +1817,16 @@ NIT.Menu.vb,NIT,MsModExplorer_Click,Sub,"MsModExplorer.Click, RbnModExplorer.Cli
 NIT.Menu.vb,NIT,MsCharacterExplorer_Click,Sub,"MsCharacterExplorer.Click, RbnCharacterExplorer.Click",NIT.Menu.vb:4076,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsDocOrganiser_Click,Sub,"MsDocOrganiser.Click, RbnDocOrganise.Click",NIT.Menu.vb:4108,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsGameSaves_Click,Sub,"MsGameSaves.Click, RbnGameSaves.Click",NIT.Menu.vb:4131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,GameMangerEnabled,Function,,NIT.Menu.vb:4223,none,,GAP?,
-NIT.Menu.vb,NIT,FixGameSaves,Function,,NIT.Menu.vb:4251,none,,GAP?,
+NIT.Menu.vb,NIT,GameMangerEnabled,Function,,NIT.Menu.vb:4223,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,FixGameSaves,Function,,NIT.Menu.vb:4251,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsBackupManager_Click,Sub,"MsBackupManager.Click, RbnRestoreData.Click",NIT.Menu.vb:4283,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsInstallationManager_Click,Sub,"MsInstallationManager.Click, RbnInstallationManager.Click",NIT.Menu.vb:4317,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsInstallationAnalyser_Click,Sub,MsInstallationAnalyser.Click,NIT.Menu.vb:4347,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsWizardBuilder_Click,Sub,"MsWizardBuilder.Click, RbnWizardBuilder.Click",NIT.Menu.vb:4373,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RunCreateModInstaller,Function,,NIT.Menu.vb:4401,none,,GAP?,
+NIT.Menu.vb,NIT,RunCreateModInstaller,Function,,NIT.Menu.vb:4401,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsDependencyManager_Click,Sub,"MsDependencyManager.Click, RbnDependencyManager.Click",NIT.Menu.vb:4435,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsPortraitManager_Click,Sub,"MsPortraitManager.Click, RbnPortraitManager.Click",NIT.Menu.vb:4462,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,PortraitsManager_FormClosed,Sub,,NIT.Menu.vb:4492,none,,GAP?,
+NIT.Menu.vb,NIT,PortraitsManager_FormClosed,Sub,,NIT.Menu.vb:4492,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsPortraitManager_MouseUp,Sub,"MsPortraitManager.MouseUp, RbnPortraitManager.MouseUp",NIT.Menu.vb:4514,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsUpdateEeFiles_Click,Sub,MsUpdateEeFiles.Click,NIT.Menu.vb:4530,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsRefreshWorkshopFiles_Click,Sub,MsRefreshWorkshopFiles.Click,NIT.Menu.vb:4583,none,,Deferred,handler for a command in the tracked deferred set.
@@ -1836,23 +1836,23 @@ NIT.Menu.vb,NIT,MsValidateProfileData_Click,Sub,MsValidateProfileData.Click,NIT.
 NIT.Menu.vb,NIT,MsValidateMods_Click,Sub,MsValidateMods.Click,NIT.Menu.vb:4722,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsValidateInstalledData_Click,Sub,MsValidateInstalledData.Click,NIT.Menu.vb:4756,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsValidate_Click,Sub,MsValidate.Click,NIT.Menu.vb:4811,none,,Deferred,handler for a command in the tracked deferred set.
-NIT.Menu.vb,NIT,CheckForInvalidFiles,Sub,,NIT.Menu.vb:4876,none,,GAP?,
+NIT.Menu.vb,NIT,CheckForInvalidFiles,Sub,,NIT.Menu.vb:4876,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsRecoverGroups_Click,Sub,MsRecoverGroups.Click,NIT.Menu.vb:4898,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,BgRecoverGroups,Sub,,NIT.Menu.vb:5030,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,MsRecoverModProperties_Click,Sub,MsRecoverModProperties.Click,NIT.Menu.vb:5077,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,MsRepairCrcs_Click,Sub,MsRepairCrcs.Click,NIT.Menu.vb:5131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsRebuildDatabase_Click,Sub,MsRebuildDatabase.Click,NIT.Menu.vb:5209,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,GAP?,
-NIT.Menu.vb,NIT,SelectGameMod,Sub,,NIT.Menu.vb:5380,none,,GAP?,
+NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,SelectGameMod,Sub,,NIT.Menu.vb:5380,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
 NIT.Menu.vb,NIT,WebMenu_Click,Sub,,NIT.Menu.vb:5413,strong,vaultkeeper/ui/main_window.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,BimLink_MouseClick,Sub,"BimLink.MouseClick, lbModState.MouseClick",NIT.Menu.vb:5436,none,,GAP?,
+NIT.Menu.vb,NIT,BimLink_MouseClick,Sub,"BimLink.MouseClick, lbModState.MouseClick",NIT.Menu.vb:5436,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsBasicSettings_Click,Sub,"MsBasicSettings.Click, RbnBasicSettings.Click",NIT.Menu.vb:5463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSettings_Click,Sub,MsSettings.Click,NIT.Menu.vb:5496,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsOriginalPortraits_CheckedChanged,Sub,MsOriginalPortraits.CheckedChanged,NIT.Menu.vb:5766,none,,Deferred,handler for a command in the tracked deferred set.
-NIT.Menu.vb,NIT,DownloadPortraits,Function,,NIT.Menu.vb:5814,none,,GAP?,
-NIT.Menu.vb,NIT,InstallPortraits,Sub,,NIT.Menu.vb:5844,none,,GAP?,
+NIT.Menu.vb,NIT,DownloadPortraits,Function,,NIT.Menu.vb:5814,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,InstallPortraits,Sub,,NIT.Menu.vb:5844,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
 NIT.Menu.vb,NIT,MsPropertiesHeight_Click,Sub,MsPropertiesHeight.Click,NIT.Menu.vb:5872,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
-NIT.Menu.vb,NIT,LbProperties_Click,Sub,,NIT.Menu.vb:5896,none,,GAP?,
+NIT.Menu.vb,NIT,LbProperties_Click,Sub,,NIT.Menu.vb:5896,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsResetWindow_Click,Sub,MsResetWindow.Click,NIT.Menu.vb:5904,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsResetWebMenu_Click,Sub,MsResetWebMenu.Click,NIT.Menu.vb:5928,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsResetTaskbarIcon_Click,Sub,MsResetTaskbarIcon.Click,NIT.Menu.vb:5980,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
@@ -1861,67 +1861,67 @@ NIT.Menu.vb,NIT,MsEnableClosing_Click,Sub,MsEnableClosing.Click,NIT.Menu.vb:6018
 NIT.Menu.vb,NIT,MsClearScrollInfo_Click,Sub,MsClearScrollInfo.Click,NIT.Menu.vb:6034,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsClearSelectionHistory_Click,Sub,MsClearSelectionHistory.Click,NIT.Menu.vb:6079,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsClearHakPortraits_Click,Sub,MsClearHakPortraits.Click,NIT.Menu.vb:6095,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,MsShowRibbon_Clicked,Sub,MsShowRibbon.Click,NIT.Menu.vb:6149,none,,GAP?,
-NIT.Menu.vb,NIT,MsShowToolbar_Clicked,Sub,MsShowToolbar.Click,NIT.Menu.vb:6174,none,,GAP?,
+NIT.Menu.vb,NIT,MsShowRibbon_Clicked,Sub,MsShowRibbon.Click,NIT.Menu.vb:6149,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,MsShowToolbar_Clicked,Sub,MsShowToolbar.Click,NIT.Menu.vb:6174,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsShowText_Click,Sub,MsShowText.Click,NIT.Menu.vb:6191,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsCustomise_Click,Sub,MsCustomise.Click,NIT.Menu.vb:6213,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsRemoveErfs_Click,Sub,MsRemoveErfs.Click,NIT.Menu.vb:6241,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DbEnableDevelopmentFolder_Click,Sub,DbEnableDevelopmentFolder.Click,NIT.Menu.vb:6267,none,,GAP?,
-NIT.Menu.vb,NIT,DbRedoDateCompleted_Click,Sub,DbRedoDateCompleted.Click,NIT.Menu.vb:6322,none,,GAP?,
-NIT.Menu.vb,NIT,DbSetPlayTimeValue_Click,Sub,DbSetPlayTimeValue.Click,NIT.Menu.vb:6333,none,,GAP?,
-NIT.Menu.vb,NIT,MsSaveNwnInfo_Click,Sub,MsSaveNwnInfo.Click,NIT.Menu.vb:6393,none,,GAP?,
-NIT.Menu.vb,NIT,DbOriginalFilesReport_Click,Sub,DbOriginalFilesReport.Click,NIT.Menu.vb:6428,none,,GAP?,
-NIT.Menu.vb,NIT,DbInstalledFilesReport_Click,Sub,DbInstalledFilesReport.Click,NIT.Menu.vb:6444,none,,GAP?,
-NIT.Menu.vb,NIT,DbModDataReport_Click,Sub,DbModDataReport.Click,NIT.Menu.vb:6465,none,,GAP?,
-NIT.Menu.vb,NIT,DbModFileReport_Click,Sub,DbModFileReport.Click,NIT.Menu.vb:6485,none,,GAP?,
-NIT.Menu.vb,NIT,DbGameMapDataReport_Click,Sub,DbGameMapDataReport.Click,NIT.Menu.vb:6506,none,,GAP?,
+NIT.Menu.vb,NIT,DbEnableDevelopmentFolder_Click,Sub,DbEnableDevelopmentFolder.Click,NIT.Menu.vb:6267,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbRedoDateCompleted_Click,Sub,DbRedoDateCompleted.Click,NIT.Menu.vb:6322,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSetPlayTimeValue_Click,Sub,DbSetPlayTimeValue.Click,NIT.Menu.vb:6333,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,MsSaveNwnInfo_Click,Sub,MsSaveNwnInfo.Click,NIT.Menu.vb:6393,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbOriginalFilesReport_Click,Sub,DbOriginalFilesReport.Click,NIT.Menu.vb:6428,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbInstalledFilesReport_Click,Sub,DbInstalledFilesReport.Click,NIT.Menu.vb:6444,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbModDataReport_Click,Sub,DbModDataReport.Click,NIT.Menu.vb:6465,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbModFileReport_Click,Sub,DbModFileReport.Click,NIT.Menu.vb:6485,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbGameMapDataReport_Click,Sub,DbGameMapDataReport.Click,NIT.Menu.vb:6506,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,DbGameMapUserReport_Click,Sub,DbGameMapUserReport.Click,NIT.Menu.vb:6527,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DbBlankFilesReport_Click,Sub,DbBlankFilesReport.Click,NIT.Menu.vb:6545,none,,GAP?,
-NIT.Menu.vb,NIT,FindBlankTextFiles,Sub,,NIT.Menu.vb:6582,none,,GAP?,
-NIT.Menu.vb,NIT,DbSyncReport_Click,Sub,DbSyncReport.Click,NIT.Menu.vb:6623,none,,GAP?,
-NIT.Menu.vb,NIT,DbScrollReport_Click,Sub,DbScrollReport.Click,NIT.Menu.vb:6661,none,,GAP?,
-NIT.Menu.vb,NIT,ReportWidth,Function,,NIT.Menu.vb:6784,none,,GAP?,
-NIT.Menu.vb,NIT,DbSelectionHistory_Click,Sub,DbSelectionHistory.Click,NIT.Menu.vb:6793,none,,GAP?,
-NIT.Menu.vb,NIT,DbExtractedPortraits_Click,Sub,DbExtractedPortraits.Click,NIT.Menu.vb:6867,none,,GAP?,
-NIT.Menu.vb,NIT,DbStartScreenInfo_Click,Sub,DbStartScreenInfo.Click,NIT.Menu.vb:6949,none,,GAP?,
-NIT.Menu.vb,NIT,DbMethod_Click,Sub,DbMethod.Click,NIT.Menu.vb:6977,none,,GAP?,
-NIT.Menu.vb,NIT,DbColourSettings_Click,Sub,DbColourSettings.Click,NIT.Menu.vb:7000,none,,GAP?,
-NIT.Menu.vb,NIT,DbChangedColours_Click,Sub,DbChangedColours.Click,NIT.Menu.vb:7010,none,,GAP?,
-NIT.Menu.vb,NIT,DbActionList_Click,Sub,DbActionList.Click,NIT.Menu.vb:7020,none,,GAP?,
-NIT.Menu.vb,NIT,DbEnableVaultDownloadCounter_Click,Sub,DbEnableVaultDownloadCounter.Click,NIT.Menu.vb:7036,none,,GAP?,
-NIT.Menu.vb,NIT,DbHelpLayout_Click,Sub,DbHelpLayout.Click,NIT.Menu.vb:7048,none,,GAP?,
-NIT.Menu.vb,NIT,DbSetSize_Click,Sub,DbSetSize.Click,NIT.Menu.vb:7089,none,,GAP?,
-NIT.Menu.vb,NIT,ValidateSize,Function,,NIT.Menu.vb:7123,none,,GAP?,
-NIT.Menu.vb,NIT,DbDisableAltKey_Click,Sub,DbDisableAltKey.Click,NIT.Menu.vb:7144,none,,GAP?,
-NIT.Menu.vb,NIT,DbShowNitAvailable_Click,Sub,DbShowNitAvailable.Click,NIT.Menu.vb:7161,none,,GAP?,
-NIT.Menu.vb,NIT,DbAppDefsReport_Click,Sub,DbAppDefsReport.Click,NIT.Menu.vb:7172,none,,GAP?,
-NIT.Menu.vb,NIT,ValidateTimeValue,Function,,NIT.Menu.vb:7189,none,,GAP?,
-NIT.Menu.vb,NIT,DbOriginalFiles_Click,Sub,DbOriginalFiles.Click,NIT.Menu.vb:7219,none,,GAP?,
-NIT.Menu.vb,NIT,DbEeOriginalFiles_Click,Sub,DbEeOriginalFiles.Click,NIT.Menu.vb:7258,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateOnActivateStatus_Click,Sub,MsValidateOnActivateStatus.Click,NIT.Menu.vb:7315,none,,GAP?,
+NIT.Menu.vb,NIT,DbBlankFilesReport_Click,Sub,DbBlankFilesReport.Click,NIT.Menu.vb:6545,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,FindBlankTextFiles,Sub,,NIT.Menu.vb:6582,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSyncReport_Click,Sub,DbSyncReport.Click,NIT.Menu.vb:6623,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbScrollReport_Click,Sub,DbScrollReport.Click,NIT.Menu.vb:6661,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,ReportWidth,Function,,NIT.Menu.vb:6784,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSelectionHistory_Click,Sub,DbSelectionHistory.Click,NIT.Menu.vb:6793,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbExtractedPortraits_Click,Sub,DbExtractedPortraits.Click,NIT.Menu.vb:6867,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbStartScreenInfo_Click,Sub,DbStartScreenInfo.Click,NIT.Menu.vb:6949,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbMethod_Click,Sub,DbMethod.Click,NIT.Menu.vb:6977,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbColourSettings_Click,Sub,DbColourSettings.Click,NIT.Menu.vb:7000,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbChangedColours_Click,Sub,DbChangedColours.Click,NIT.Menu.vb:7010,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbActionList_Click,Sub,DbActionList.Click,NIT.Menu.vb:7020,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbEnableVaultDownloadCounter_Click,Sub,DbEnableVaultDownloadCounter.Click,NIT.Menu.vb:7036,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbHelpLayout_Click,Sub,DbHelpLayout.Click,NIT.Menu.vb:7048,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSetSize_Click,Sub,DbSetSize.Click,NIT.Menu.vb:7089,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,ValidateSize,Function,,NIT.Menu.vb:7123,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbDisableAltKey_Click,Sub,DbDisableAltKey.Click,NIT.Menu.vb:7144,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbShowNitAvailable_Click,Sub,DbShowNitAvailable.Click,NIT.Menu.vb:7161,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbAppDefsReport_Click,Sub,DbAppDefsReport.Click,NIT.Menu.vb:7172,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,ValidateTimeValue,Function,,NIT.Menu.vb:7189,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbOriginalFiles_Click,Sub,DbOriginalFiles.Click,NIT.Menu.vb:7219,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbEeOriginalFiles_Click,Sub,DbEeOriginalFiles.Click,NIT.Menu.vb:7258,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,MsValidateOnActivateStatus_Click,Sub,MsValidateOnActivateStatus.Click,NIT.Menu.vb:7315,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsUpdateNow_Click,Sub,MsUpdateNow.Click,NIT.Menu.vb:7329,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
-NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,GAP?,
+NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,GAP?,
-NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,GAP?,
-NIT.Menu.vb,NIT,CmRecentMods_Opened,Sub,CmRecentMods.Opened,NIT.Menu.vb:7539,none,,GAP?,
-NIT.Menu.vb,NIT,BtMods_MouseUp,Sub,,NIT.Menu.vb:7551,none,,GAP?,
-NIT.Menu.vb,NIT,BtModCount_Click,Sub,BtModCount.Click,NIT.Menu.vb:7564,none,,GAP?,
-NIT.Menu.vb,NIT,BtModCount_MouseEnter,Sub,BtModCount.MouseEnter,NIT.Menu.vb:7585,none,,GAP?,
-NIT.Menu.vb,NIT,BtGroupHdg_Click,Sub,BtGroupHdg.Click,NIT.Menu.vb:7599,none,,GAP?,
-NIT.Menu.vb,NIT,MgInfo_Click,Sub,MgInfo.Click,NIT.Menu.vb:7611,none,,GAP?,
-NIT.Menu.vb,NIT,BtFileCheckInfo_Click,Sub,BtFileCheckInfo.Click,NIT.Menu.vb:7626,none,,GAP?,
-NIT.Menu.vb,NIT,BtHealth_Click,Sub,BtHealth.Click,NIT.Menu.vb:7649,none,,GAP?,
-NIT.Menu.vb,NIT,BtWizardReport_Click,Sub,BtWizardReport.Click,NIT.Menu.vb:7682,none,,GAP?,
-NIT.Menu.vb,NIT,BtWizardReport_MouseUp,Sub,BtWizardReport.MouseUp,NIT.Menu.vb:7720,none,,GAP?,
+NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,CmRecentMods_Opened,Sub,CmRecentMods.Opened,NIT.Menu.vb:7539,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtMods_MouseUp,Sub,,NIT.Menu.vb:7551,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtModCount_Click,Sub,BtModCount.Click,NIT.Menu.vb:7564,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtModCount_MouseEnter,Sub,BtModCount.MouseEnter,NIT.Menu.vb:7585,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtGroupHdg_Click,Sub,BtGroupHdg.Click,NIT.Menu.vb:7599,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,MgInfo_Click,Sub,MgInfo.Click,NIT.Menu.vb:7611,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtFileCheckInfo_Click,Sub,BtFileCheckInfo.Click,NIT.Menu.vb:7626,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtHealth_Click,Sub,BtHealth.Click,NIT.Menu.vb:7649,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,BtWizardReport_Click,Sub,BtWizardReport.Click,NIT.Menu.vb:7682,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtWizardReport_MouseUp,Sub,BtWizardReport.MouseUp,NIT.Menu.vb:7720,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,BtCharacter_Click,Sub,BtCharacter.Click,NIT.Menu.vb:7732,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,ProcessCharacterRestorer,Function,,NIT.Menu.vb:7761,none,,GAP?,
+NIT.Menu.vb,NIT,ProcessCharacterRestorer,Function,,NIT.Menu.vb:7761,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
 NIT.Menu.vb,NIT,BtCharacter_MouseUp,Sub,BtCharacter.MouseUp,NIT.Menu.vb:7788,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.vb:7800,none,,GAP?,
-NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,GAP?,
+NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.vb:7800,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.ModView.vb,NIT,InitialiseModView,Sub,,NIT.ModView.vb:33,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
 NIT.ModView.vb,NIT,SetDoubleClickAction,Sub,,NIT.ModView.vb:45,none,,GAP?,
 NIT.ModView.vb,NIT,ApplyGroupsAndStatus,Sub,,NIT.ModView.vb:65,strong,vaultkeeper/ui/controller.py,MISSING,Confirmed divergence found during audit design (2026-07-15) — see DASHBOARD.md Findings. Method partly ported; the empty-group render behavior is the missing unit.
@@ -2030,7 +2030,7 @@ NIT.RecentMods.vb,NIT,GetRecentModImage,Function,,NIT.RecentMods.vb:76,none,,Div
 NIT.RecentMods.vb,NIT,MsNumberRecentMods_CheckedChanged,Sub,,NIT.RecentMods.vb:93,strong,vaultkeeper/ui/main_window.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 NIT.RecentMods.vb,NIT,MsRecentMods_RecentItemClicked,Sub,MsRecentMods.RecentItemClicked,NIT.RecentMods.vb:107,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 NIT.RecentMods.vb,SelectionInfo,Contents,Property,,NIT.RecentMods.vb:130,strong,vaultkeeper/core/archive.py | vaultkeeper/core/formats/erf_reader.py | vaultkeeper/core/formats/gff_reader.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-NIT.RecentMods.vb,SelectionInfo,Details,Property,,NIT.RecentMods.vb:136,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/resources.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+NIT.RecentMods.vb,SelectionInfo,Details,Property,,NIT.RecentMods.vb:136,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/dialogs/character_viewer.py | vaultkeeper/ui/main_window.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 NIT.RecentMods.vb,SelectionInfo,New,Sub,,NIT.RecentMods.vb:141,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 NIT.RecentMods.vb,SelectionInfo,New,Sub,,NIT.RecentMods.vb:151,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 NIT.RecentMods.vb,NIT,LoadSelectionHistory,Sub,,NIT.RecentMods.vb:170,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -2136,40 +2136,40 @@ NitDownload.vb,NitDownload,BtOpen_Click,Sub,BtOpen.Click,NitDownload.vb:146,none
 NitDownload.vb,NitDownload,Rb_CheckedChanged,Sub,,NitDownload.vb:164,none,,GAP?,
 NitDownload.vb,NitDownload,ProcessCmdKey,Function,,NitDownload.vb:182,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 NitUserInterface.vb,NitUserInterface,New,Sub,,NitUserInterface.vb:32,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-NitUserInterface.vb,NitUserInterface,SetPrefs,Sub,,NitUserInterface.vb:50,none,,GAP?,
+NitUserInterface.vb,NitUserInterface,SetPrefs,Sub,,NitUserInterface.vb:50,none,,Partial,"reads present, bounded (settings prefs load, nwn.ini validate)."
 NitUserInterface.vb,NitUserInterface,DisplayCounts,Sub,,NitUserInterface.vb:79,strong,vaultkeeper/ui/dialogs/create_missing_installers.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-NitUserInterface.vb,NitUserInterface,DisplayModCounts,Sub,,NitUserInterface.vb:90,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,DisplayGroupModCounts,Sub,,NitUserInterface.vb:105,none,,GAP?,
+NitUserInterface.vb,NitUserInterface,DisplayModCounts,Sub,,NitUserInterface.vb:90,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NitUserInterface.vb,NitUserInterface,DisplayGroupModCounts,Sub,,NitUserInterface.vb:105,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 NitUserInterface.vb,NitUserInterface,Overwrite,Property,,NitUserInterface.vb:157,strong,vaultkeeper/app_paths.py | vaultkeeper/core/file_ops.py | vaultkeeper/core/fs.py,AUTO-PORTED,
 NitUserInterface.vb,NitUserInterface,Recycle,Property,,NitUserInterface.vb:183,strong,vaultkeeper/core/fs.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/settings_dialog.py,AUTO-PORTED,
 NitUserInterface.vb,NitUserInterface,ShowFileCheckIcon,Property,,NitUserInterface.vb:210,strong,vaultkeeper/ui/status_bar.py,AUTO-PORTED,
-NitUserInterface.vb,NitUserInterface,TaskBarMarqueeActive,Property,,NitUserInterface.vb:225,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,ActionConfirmed,Function,,NitUserInterface.vb:244,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,InfoStatus,Sub,,NitUserInterface.vb:299,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,InfoStatus,Sub,,NitUserInterface.vb:335,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,TaskBarProgress,Sub,,NitUserInterface.vb:374,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,TaskBarMarquee,Sub,,NitUserInterface.vb:388,none,,GAP?,
-NitUserInterface.vb,NitUserInterface,TaskBarNoProgress,Sub,,NitUserInterface.vb:403,none,,GAP?,
+NitUserInterface.vb,NitUserInterface,TaskBarMarqueeActive,Property,,NitUserInterface.vb:225,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+NitUserInterface.vb,NitUserInterface,ActionConfirmed,Function,,NitUserInterface.vb:244,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NitUserInterface.vb,NitUserInterface,InfoStatus,Sub,,NitUserInterface.vb:299,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NitUserInterface.vb,NitUserInterface,InfoStatus,Sub,,NitUserInterface.vb:335,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NitUserInterface.vb,NitUserInterface,TaskBarProgress,Sub,,NitUserInterface.vb:374,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+NitUserInterface.vb,NitUserInterface,TaskBarMarquee,Sub,,NitUserInterface.vb:388,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+NitUserInterface.vb,NitUserInterface,TaskBarNoProgress,Sub,,NitUserInterface.vb:403,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 NwnFolderInfo.vb,NwnFolderInfo,Fullname,Property,,NwnFolderInfo.vb:151,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/documentation.py,AUTO-PORTED,
 NwnFolderInfo.vb,NwnFolderInfo,Edition,Property,,NwnFolderInfo.vb:156,strong,vaultkeeper/__main__.py | vaultkeeper/game/editions.py | vaultkeeper/game/locations.py,AUTO-PORTED,
-NwnFolderInfo.vb,NwnFolderInfo,PatchIniFilename,Property,,NwnFolderInfo.vb:162,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,InactivePatchFile,Property,,NwnFolderInfo.vb:167,none,,GAP?,
+NwnFolderInfo.vb,NwnFolderInfo,PatchIniFilename,Property,,NwnFolderInfo.vb:162,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NwnFolderInfo.vb,NwnFolderInfo,InactivePatchFile,Property,,NwnFolderInfo.vb:167,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 NwnFolderInfo.vb,NwnFolderInfo,GameSavesPath,Property,,NwnFolderInfo.vb:172,comment,vaultkeeper/game/nwn_folders.py,AUTO-PORTED,matched in comment/docstring
 NwnFolderInfo.vb,NwnFolderInfo,Locations,Property,,NwnFolderInfo.vb:177,strong,vaultkeeper/__main__.py | vaultkeeper/app_paths.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 NwnFolderInfo.vb,NwnFolderInfo,NwnIni,Property,,NwnFolderInfo.vb:182,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py | vaultkeeper/ui/ribbon.py,AUTO-PORTED,matched in comment/docstring
 NwnFolderInfo.vb,NwnFolderInfo,ProfileName,Property,,NwnFolderInfo.vb:187,strong,vaultkeeper/app_paths.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/migrate.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-NwnFolderInfo.vb,NwnFolderInfo,CustomAliasFile,Property,,NwnFolderInfo.vb:192,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,CustomAliasState,Property,,NwnFolderInfo.vb:201,none,,GAP?,
+NwnFolderInfo.vb,NwnFolderInfo,CustomAliasFile,Property,,NwnFolderInfo.vb:192,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
+NwnFolderInfo.vb,NwnFolderInfo,CustomAliasState,Property,,NwnFolderInfo.vb:201,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 NwnFolderInfo.vb,NwnFolderInfo,New,Sub,,NwnFolderInfo.vb:213,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-NwnFolderInfo.vb,NwnFolderInfo,CreateUserPatchFile,Sub,,NwnFolderInfo.vb:243,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,ValidateNwnIni,Function,,NwnFolderInfo.vb:266,none,,GAP?,
+NwnFolderInfo.vb,NwnFolderInfo,CreateUserPatchFile,Sub,,NwnFolderInfo.vb:243,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
+NwnFolderInfo.vb,NwnFolderInfo,ValidateNwnIni,Function,,NwnFolderInfo.vb:266,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 NwnFolderInfo.vb,NwnFolderInfo,PopulateLocations,Sub,,NwnFolderInfo.vb:319,strong,vaultkeeper/game/nwn_folders.py,AUTO-PORTED,
-NwnFolderInfo.vb,NwnFolderInfo,ValidateNwnConfigIni,Function,,NwnFolderInfo.vb:393,none,,GAP?,
+NwnFolderInfo.vb,NwnFolderInfo,ValidateNwnConfigIni,Function,,NwnFolderInfo.vb:393,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 NwnFolderInfo.vb,NwnFolderInfo,SetGameSavesPath,Sub,,NwnFolderInfo.vb:453,strong,vaultkeeper/game/nwn_folders.py,AUTO-PORTED,
-NwnFolderInfo.vb,NwnFolderInfo,LoadNwnIniFile,Function,,NwnFolderInfo.vb:502,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,SaveNwnIniFile,Function,,NwnFolderInfo.vb:547,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,LoadCustomAliasFile,Sub,,NwnFolderInfo.vb:597,none,,GAP?,
-NwnFolderInfo.vb,NwnFolderInfo,SaveCustomAliasFile,Sub,,NwnFolderInfo.vb:629,none,,GAP?,
+NwnFolderInfo.vb,NwnFolderInfo,LoadNwnIniFile,Function,,NwnFolderInfo.vb:502,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NwnFolderInfo.vb,NwnFolderInfo,SaveNwnIniFile,Function,,NwnFolderInfo.vb:547,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
+NwnFolderInfo.vb,NwnFolderInfo,LoadCustomAliasFile,Sub,,NwnFolderInfo.vb:597,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+NwnFolderInfo.vb,NwnFolderInfo,SaveCustomAliasFile,Sub,,NwnFolderInfo.vb:629,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 Paths.vb,Paths,Tool,Property,,Paths.vb:260,strong,vaultkeeper/core/constants.py | vaultkeeper/core/name_edit.py | vaultkeeper/game/character.py,AUTO-PORTED,
 Paths.vb,Paths,Profiles,Property,,Paths.vb:270,strong,vaultkeeper/app_paths.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 Paths.vb,Paths,ProfileMods,Property,,Paths.vb:280,strong,vaultkeeper/game/documentation.py | vaultkeeper/verify_install.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -2420,17 +2420,17 @@ ProfileData.Diag.vb,ProfileData,Report,Sub,,ProfileData.Diag.vb:28,strong,vaultk
 ProfileData.Diag.vb,ProfileData,Report,Sub,,ProfileData.Diag.vb:42,strong,vaultkeeper/core/change_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/install_verify.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileData.Diag.vb,ProfileData,Report,Sub,,ProfileData.Diag.vb:56,strong,vaultkeeper/core/change_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/install_verify.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileData.Diag.vb,ProfileData,Report,Sub,,ProfileData.Diag.vb:71,strong,vaultkeeper/core/change_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/install_verify.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Diag.vb,ProfileData,ReportFileKey,Sub,,ProfileData.Diag.vb:108,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,OriginalDataReport,Sub,,ProfileData.Diag.vb:161,none,,GAP?,
+ProfileData.Diag.vb,ProfileData,ReportFileKey,Sub,,ProfileData.Diag.vb:108,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,OriginalDataReport,Sub,,ProfileData.Diag.vb:161,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 ProfileData.Diag.vb,ProfileData,Matched,Function,,ProfileData.Diag.vb:180,strong,vaultkeeper/game/documentation.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/doc_organiser.py,AUTO-PORTED,
-ProfileData.Diag.vb,ProfileData,InstallDataReport,Sub,,ProfileData.Diag.vb:198,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,InstallDataReportItem,Sub,,ProfileData.Diag.vb:239,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,ModDataReport,Sub,,ProfileData.Diag.vb:269,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,ModDataReportItem,Sub,,ProfileData.Diag.vb:308,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,FileDataReport,Sub,,ProfileData.Diag.vb:375,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,FileDataReportItem,Sub,,ProfileData.Diag.vb:416,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,FileKeyInfoReport,Sub,,ProfileData.Diag.vb:424,none,,GAP?,
-ProfileData.Diag.vb,ProfileData,FileDataReport,Sub,,ProfileData.Diag.vb:431,none,,GAP?,
+ProfileData.Diag.vb,ProfileData,InstallDataReport,Sub,,ProfileData.Diag.vb:198,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,InstallDataReportItem,Sub,,ProfileData.Diag.vb:239,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,ModDataReport,Sub,,ProfileData.Diag.vb:269,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,ModDataReportItem,Sub,,ProfileData.Diag.vb:308,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,FileDataReport,Sub,,ProfileData.Diag.vb:375,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,FileDataReportItem,Sub,,ProfileData.Diag.vb:416,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,FileKeyInfoReport,Sub,,ProfileData.Diag.vb:424,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+ProfileData.Diag.vb,ProfileData,FileDataReport,Sub,,ProfileData.Diag.vb:431,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 ProfileData.Properties.vb,ProfileData,ProfileMods,Property,,ProfileData.Properties.vb:20,strong,vaultkeeper/game/documentation.py | vaultkeeper/verify_install.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileData.Properties.vb,ProfileData,ProfileData,Property,,ProfileData.Properties.vb:26,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileData.Properties.vb,ProfileData,ProfileName,Property,,ProfileData.Properties.vb:31,strong,vaultkeeper/app_paths.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/migrate.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
@@ -2544,7 +2544,7 @@ ProfileData.vb,ProfileData,ModDeleted,Sub,,ProfileData.vb:2822,none,,Ported,conf
 ProfileData.vb,ProfileData,HasDependants,Function,,ProfileData.vb:2840,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,ValidateDependencies,Function,,ProfileData.vb:2860,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetDependants,Function,,ProfileData.vb:2890,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,GetInstalledDependants,Function,,ProfileData.vb:2918,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
+ProfileData.vb,ProfileData,GetInstalledDependants,Function,,ProfileData.vb:2918,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetAutoDependencyList,Function,,ProfileData.vb:2947,strong,vaultkeeper/ui/dialogs/dependency_editor.py,AUTO-PORTED,
 ProfileDataExtensions.vb,ProfileDataExtensions,ToName,Function,,ProfileDataExtensions.vb:30,strong,vaultkeeper/persistence/nrbf/migrate.py,AUTO-PORTED,
 ProfileDataExtensions.vb,ProfileDataExtensions,ToFullName,Function,,ProfileDataExtensions.vb:44,none,,GAP?,
@@ -2570,21 +2570,21 @@ ProfileInfo.vb,ProfileInfo,GetNwnVersion,Function,,ProfileInfo.vb:154,none,,GAP?
 ProfileInfo.vb,ProfileInfo,SaveLoadStates,Sub,,ProfileInfo.vb:180,none,,GAP?,
 ProfileInfo.vb,ProfileInfo,SetEdition,Sub,,ProfileInfo.vb:198,none,,GAP?,
 ProfileInfo.vb,ProfileInfo,SetOperationStates,Sub,,ProfileInfo.vb:217,none,,GAP?,
-ProfileInfoManager.vb,ProfileInfoManager,ProfileCount,Property,,ProfileInfoManager.vb:30,none,,GAP?,
+ProfileInfoManager.vb,ProfileInfoManager,ProfileCount,Property,,ProfileInfoManager.vb:30,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,ProfileInfoManager,Profiles,Property,,ProfileInfoManager.vb:39,strong,vaultkeeper/app_paths.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 ProfileInfoManager.vb,ProfileInfoManager,ProfileInfo,Property,,ProfileInfoManager.vb:48,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ProfileInfoManager.vb,ProfileInfoManager,ProfileInfo,Property,,ProfileInfoManager.vb:57,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileInfoManager.vb,ProfileInfoManager,NwnFolderList,Property,,ProfileInfoManager.vb:66,none,,GAP?,
+ProfileInfoManager.vb,ProfileInfoManager,NwnFolderList,Property,,ProfileInfoManager.vb:66,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,ProfileInfoManager,FolderInfo,Property,,ProfileInfoManager.vb:71,comment,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/game/nwn_folders.py,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 ProfileInfoManager.vb,ProfileInfoManager,FolderInfo,Property,,ProfileInfoManager.vb:80,comment,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/game/nwn_folders.py,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
-ProfileInfoManager.vb,ProfileInfoManager,InactivePatchFile,Property,,ProfileInfoManager.vb:90,none,,GAP?,
-ProfileInfoManager.vb,ProfileInfoManager,PatchIniFilename,Property,,ProfileInfoManager.vb:100,none,,GAP?,
-ProfileInfoManager.vb,ProfileInfoManager,GameSavePaths,Property,,ProfileInfoManager.vb:109,none,,GAP?,
+ProfileInfoManager.vb,ProfileInfoManager,InactivePatchFile,Property,,ProfileInfoManager.vb:90,none,,Deferred,config-isolation writes NOT done / alias editor / online module fetch / patch file.
+ProfileInfoManager.vb,ProfileInfoManager,PatchIniFilename,Property,,ProfileInfoManager.vb:100,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ProfileInfoManager.vb,ProfileInfoManager,GameSavePaths,Property,,ProfileInfoManager.vb:109,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,ProfileInfoManager,New,Sub,,ProfileInfoManager.vb:122,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileInfoManager.vb,ProfileInfoManager,SetGameSaves,Sub,,ProfileInfoManager.vb:158,comment,vaultkeeper/game/nwn_folders.py,AUTO-PORTED,matched in comment/docstring
-ProfileInfoManager.vb,ProfileInfoManager,GetProfiles,Sub,,ProfileInfoManager.vb:206,none,,GAP?,
-ProfileInfoManager.vb,ProfileInfoManager,CreateDefaultProfile,Function,,ProfileInfoManager.vb:340,none,,GAP?,
-ProfileInfoManager.vb,ProfileInfoManager,CreateProfile,Function,,ProfileInfoManager.vb:365,none,,GAP?,
+ProfileInfoManager.vb,ProfileInfoManager,GetProfiles,Sub,,ProfileInfoManager.vb:206,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ProfileInfoManager.vb,ProfileInfoManager,CreateDefaultProfile,Function,,ProfileInfoManager.vb:340,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
+ProfileInfoManager.vb,ProfileInfoManager,CreateProfile,Function,,ProfileInfoManager.vb:365,none,,Ported,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 PublishMod.vb,PublishMod,Published,Property,,PublishMod.vb:29,strong,vaultkeeper/core/constants.py | vaultkeeper/game/wizard.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PublishMod.vb,PublishMod,ZipFileName,Property,,PublishMod.vb:38,strong,vaultkeeper/game/wizard.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PublishMod.vb,PublishMod,PublishedFile,Property,,PublishMod.vb:51,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
@@ -2597,20 +2597,20 @@ PublishMod.vb,PublishMod,OnKeyDown,Sub,,PublishMod.vb:148,none,,Deferred,ModFind
 PublishMod.vb,PublishMod,BhPublishMod_Click,Sub,BhPublishMod.Click,PublishMod.vb:157,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PublishMod.vb,PublishMod,BtCancel_Click,Sub,BtCancel.Click,PublishMod.vb:166,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 PublishMod.vb,PublishMod,BtPublish_Click,Sub,BtPublish.Click,PublishMod.vb:177,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-RtfThemeManager.vb,RtfThemeManager,ProgressText,Property,,RtfThemeManager.vb:175,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,ColourToRtf,Function,,RtfThemeManager.vb:191,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_FormClosing,Sub,Me.FormClosing,RtfThemeManager.vb:284,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_DoWork,Sub,,RtfThemeManager.vb:314,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_ProgressChanged,Sub,,RtfThemeManager.vb:345,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_RunWorkerCompleted,Sub,,RtfThemeManager.vb:358,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,IsValidThemeBackground,Function,,RtfThemeManager.vb:375,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,SetColourTable,Function,,RtfThemeManager.vb:390,none,,GAP?,
+RtfThemeManager.vb,RtfThemeManager,ProgressText,Property,,RtfThemeManager.vb:175,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,ColourToRtf,Function,,RtfThemeManager.vb:191,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_FormClosing,Sub,Me.FormClosing,RtfThemeManager.vb:284,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_DoWork,Sub,,RtfThemeManager.vb:314,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_ProgressChanged,Sub,,RtfThemeManager.vb:345,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,BgProcessFiles_RunWorkerCompleted,Sub,,RtfThemeManager.vb:358,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,IsValidThemeBackground,Function,,RtfThemeManager.vb:375,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,SetColourTable,Function,,RtfThemeManager.vb:390,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 RtfThemeManager.vb,RtfThemeManager,ProcessFile,Sub,,RtfThemeManager.vb:427,comment,vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,AUTO-PORTED,matched in comment/docstring
-RtfThemeManager.vb,RtfThemeManager,SetAutoControlWord,Function,,RtfThemeManager.vb:501,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,ProcessColourTable,Function,,RtfThemeManager.vb:538,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,UpdateColours,Sub,,RtfThemeManager.vb:588,none,,GAP?,
+RtfThemeManager.vb,RtfThemeManager,SetAutoControlWord,Function,,RtfThemeManager.vb:501,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,ProcessColourTable,Function,,RtfThemeManager.vb:538,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,UpdateColours,Sub,,RtfThemeManager.vb:588,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 Settings.Advanced.vb,Settings,DefaultGroupOptions,Function,,Settings.Advanced.vb:22,none,,GAP?,
 Settings.Advanced.vb,Settings,AddAdvanced,Sub,,Settings.Advanced.vb:40,none,,GAP?,
 Settings.Advanced.vb,Settings,ResetAdvancedItem,Sub,,Settings.Advanced.vb:119,none,,GAP?,
@@ -2627,7 +2627,7 @@ Settings.Classes.vb,ButtonInfo,PanelName,Property,,Settings.Classes.vb:33,none,,
 Settings.Classes.vb,ButtonInfo,LinkedListView,Property,,Settings.Classes.vb:45,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,ButtonInfo,New,Sub,,Settings.Classes.vb:52,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Settings.Classes.vb,SettingInfo,Description,Property,,Settings.Classes.vb:98,strong,vaultkeeper/game/character_filter.py | vaultkeeper/game/character_reference.py | vaultkeeper/game/game_mapper.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-Settings.Classes.vb,SettingInfo,Details,Property,,Settings.Classes.vb:104,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/resources.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Classes.vb,SettingInfo,Details,Property,,Settings.Classes.vb:104,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/dialogs/character_viewer.py | vaultkeeper/ui/main_window.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,SettingInfo,DefKey,Property,,Settings.Classes.vb:132,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,SettingInfo,New,Sub,,Settings.Classes.vb:140,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Settings.Classes.vb,ProcessingInfo,SetInfoText,Property,,Settings.Classes.vb:179,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
@@ -2642,7 +2642,7 @@ Settings.Classes.vb,ProcessingInfo,MenuShown,Property,,Settings.Classes.vb:225,n
 Settings.Classes.vb,ProcessingInfo,ItemChecked,Property,,Settings.Classes.vb:236,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,ProcessingInfo,New,Sub,,Settings.Classes.vb:256,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Settings.Classes.vb,ProcessingInfo,New,Sub,,Settings.Classes.vb:263,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Settings.Classes.vb,ListViewInfo,Details,Property,,Settings.Classes.vb:327,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/resources.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Classes.vb,ListViewInfo,Details,Property,,Settings.Classes.vb:327,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/dialogs/character_viewer.py | vaultkeeper/ui/main_window.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,ListViewInfo,BoldText,Property,,Settings.Classes.vb:332,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,ListViewInfo,ItalicText,Property,,Settings.Classes.vb:337,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,ListViewInfo,KeywordText,Property,,Settings.Classes.vb:343,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
@@ -2657,7 +2657,7 @@ Settings.Classes.vb,LocationInfo,Type,Property,,Settings.Classes.vb:486,strong,v
 Settings.Classes.vb,LocationInfo,SettingsAction,Property,,Settings.Classes.vb:491,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,LocationInfo,ProgramKey,Property,,Settings.Classes.vb:496,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,LocationInfo,PathKey,Property,,Settings.Classes.vb:501,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-Settings.Classes.vb,LocationInfo,Required,Property,,Settings.Classes.vb:506,strong,vaultkeeper/core/crc.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/fs.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Classes.vb,LocationInfo,Required,Property,,Settings.Classes.vb:506,strong,vaultkeeper/config/settings.py | vaultkeeper/core/crc.py | vaultkeeper/core/formats/bic_reader.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,LocationInfo,FileMask,Property,,Settings.Classes.vb:511,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,LocationInfo,Options,Property,,Settings.Classes.vb:516,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/find_files.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.Classes.vb,LocationInfo,New,Sub,,Settings.Classes.vb:527,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -2924,7 +2924,7 @@ StartScreenInfo.vb,StartScreenInfo,BrowseFolder,Property,,StartScreenInfo.vb:223
 StartScreenInfo.vb,StartScreenInfo,Status,Property,,StartScreenInfo.vb:254,strong,vaultkeeper/config/settings.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/log.py,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 StartScreenInfo.vb,StartScreenInfo,PrefixEnabled,Property,,StartScreenInfo.vb:268,strong,vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,Exists,Function,,StartScreenInfo.vb:278,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/tga_reader.py | vaultkeeper/core/fs.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-StartScreenInfo.vb,StartScreenInfo,Open,Function,,StartScreenInfo.vb:290,strong,vaultkeeper/core/crc.py | vaultkeeper/core/formats/erf_reader.py | vaultkeeper/core/formats/gff_reader.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+StartScreenInfo.vb,StartScreenInfo,Open,Function,,StartScreenInfo.vb:290,strong,vaultkeeper/config/settings.py | vaultkeeper/core/crc.py | vaultkeeper/core/formats/erf_reader.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,Close,Sub,,StartScreenInfo.vb:311,strong,vaultkeeper/game/client_log.py | vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,Create,Function,,StartScreenInfo.vb:324,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,New,Sub,,StartScreenInfo.vb:362,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -2937,7 +2937,7 @@ StartScreenInfo.vb,StartScreenInfo,Report,Sub,,StartScreenInfo.vb:543,strong,vau
 StartScreenInfo.vb,StartScreenInfo,SaveInfo,Sub,,StartScreenInfo.vb:558,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/game/game_saves.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,SaveAutoExcludes,Sub,,StartScreenInfo.vb:569,strong,vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,SaveScreenFiles,Sub,,StartScreenInfo.vb:584,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-StartScreenInfo.vb,StartScreenInfo,Remove,Sub,,StartScreenInfo.vb:601,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/install_manager.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+StartScreenInfo.vb,StartScreenInfo,Remove,Sub,,StartScreenInfo.vb:601,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 StartScreenInfo.vb,StartScreenInfo,GetAvailableScreens,Function,,StartScreenInfo.vb:645,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 StartScreenInfo.vb,StartScreenInfo,GetStandardAvailable,Function,,StartScreenInfo.vb:659,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 StartScreenInfo.vb,StartScreenInfo,GetPrefixedAvailable,Function,,StartScreenInfo.vb:671,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
@@ -3255,7 +3255,7 @@ WizardInfo.vb,WizardInfo,AddSelectOne,Sub,,WizardInfo.vb:279,strong,vaultkeeper/
 WizardInfo.vb,WizardInfo,GetItemInfo,Function,,WizardInfo.vb:292,strong,vaultkeeper/game/wizard.py,AUTO-PORTED,
 WizardInfo.vb,WizardInfo,AddSelectMany,Sub,,WizardInfo.vb:312,strong,vaultkeeper/game/wizard.py,AUTO-PORTED,
 WizardInfo.vb,WizardInfo,Save,Function,,WizardInfo.vb:327,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-WizardInfo.vb,WizardInfo,Delete,Sub,,WizardInfo.vb:352,strong,vaultkeeper/core/file_ops.py | vaultkeeper/core/fs.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
+WizardInfo.vb,WizardInfo,Delete,Sub,,WizardInfo.vb:352,strong,vaultkeeper/config/settings.py | vaultkeeper/core/file_ops.py | vaultkeeper/core/fs.py,AUTO-PORTED,
 WizardInfo.vb,WizardInfo,IsExtractedFile,Function,,WizardInfo.vb:368,strong,vaultkeeper/game/wizard.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 WizardInfo.vb,WizardInfo,Validate,Function,,WizardInfo.vb:394,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/name_edit.py | vaultkeeper/game/character_filter.py,AUTO-PORTED,
 WizardInfo.vb,WizardInfo,ScanFiles,Sub,,WizardInfo.vb:449,strong,vaultkeeper/game/wizard.py | vaultkeeper/ui/controller.py,AUTO-PORTED,

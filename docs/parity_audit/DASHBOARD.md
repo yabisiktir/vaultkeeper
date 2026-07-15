@@ -10,32 +10,32 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 2189 (66%) | 1095 |
-| Event handlers | 885 | 698 (78%) | 187 |
+| Methods/props | 3284 | 2350 (71%) | 934 |
+| Event handlers | 885 | 753 (85%) | 132 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `Divergence`: 1015
+- `Divergence`: 1104
 - `AUTO-PORTED`: 561
-- `GAP?`: 534
-- `Ported`: 491
-- `Deferred`: 344
+- `Ported`: 536
+- `GAP?`: 373
+- `Deferred`: 370
 - `N/A`: 188
-- `Partial`: 148
+- `Partial`: 149
 - `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `Divergence`: 419
-- `GAP?`: 180
-- `Ported`: 124
-- `Deferred`: 112
+- `Divergence`: 464
+- `Ported`: 132
+- `GAP?`: 125
+- `Deferred`: 114
 - `Partial`: 41
 - `AUTO-PORTED`: 7
 - `MISSING`: 2
 
 ### Designer controls — status breakdown
-- `GAP?`: 1432
-- `AUTO-PORTED`: 303
+- `GAP?`: 1426
+- `AUTO-PORTED`: 309
 - `Deferred`: 25
 - `Divergence`: 17
 
@@ -45,23 +45,17 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
-| NIT.Menu.vb | 228 | 99 | 13 | 116 |
 | NIT.ModView.vb | 59 | 16 | 8 | 35 |
-| RtfThemeManager.vb | 14 | 13 | 1 | 0 |
 | Settings.Advanced.vb | 12 | 12 | 0 | 0 |
 | GameManager.GameManagerInfo.vb | 23 | 12 | 5 | 6 |
 | ExtendedEditionDialogue.vb | 18 | 12 | 1 | 5 |
 | Settings.MenuCommon.vb | 13 | 11 | 0 | 2 |
-| NwnFolderInfo.vb | 20 | 11 | 7 | 2 |
 | ModExplorer.Properties.vb | 15 | 11 | 4 | 0 |
 | GameManagerRestore.vb | 19 | 11 | 0 | 8 |
 | GameManager.Methods.vb | 16 | 11 | 5 | 0 |
 | Settings.Preferences.vb | 10 | 10 | 0 | 0 |
 | Settings.Common.vb | 15 | 10 | 1 | 4 |
-| ProfileData.Diag.vb | 15 | 10 | 1 | 4 |
-| NitUserInterface.vb | 15 | 10 | 3 | 2 |
 | ModExplorer.ListManager.vb | 11 | 10 | 0 | 1 |
-| ErfFileReader.vb | 18 | 10 | 4 | 4 |
 | CrashDumpManager.vb | 18 | 10 | 2 | 6 |
 | AliasSectionEditor.vb | 15 | 10 | 0 | 5 |
 | Settings.MapExceptions.vb | 9 | 9 | 0 | 0 |
@@ -70,11 +64,17 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | ClassesSkillsAndFeats.vb | 15 | 9 | 3 | 3 |
 | BasicSettings.vb | 11 | 9 | 0 | 2 |
 | Settings.RunMenu.vb | 8 | 8 | 0 | 0 |
-| ProfileInfoManager.vb | 15 | 8 | 2 | 5 |
 | ModExplorer.Common.vb | 9 | 8 | 1 | 0 |
 | DependencyManager.vb | 14 | 8 | 0 | 6 |
 | Settings.WebMenu.vb | 8 | 7 | 1 | 0 |
 | ProfileInfo.vb | 15 | 7 | 2 | 6 |
+| NitDownload.vb | 9 | 7 | 0 | 2 |
+| GameSavesPathDialogue.vb | 11 | 7 | 0 | 4 |
+| DownloadProject.Properties.vb | 9 | 7 | 2 | 0 |
+| ProfileDataExtensions.vb | 9 | 6 | 3 | 0 |
+| FindDialogue.vb | 15 | 6 | 2 | 7 |
+| ApplicationEvents.vb | 6 | 6 | 0 | 0 |
+| VaultDownloadRules.ProjectInfo.vb | 11 | 5 | 3 | 3 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -145,7 +145,7 @@ implement it under a different name).
 | CrashDumpManager.vb:143 | CrashDumpManager | CrashDumpManager_Load | Sub |
 | CrashDumpManager.vb:203 | CrashDumpManager | CrashDumpManager_FormClosing | Sub |
 
-_(534 GAP? methods total; see ledger_members.csv for the full list.)_
+_(373 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 

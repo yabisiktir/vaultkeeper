@@ -465,10 +465,10 @@ NIT.DetailsView.vb,NIT,FvDetails_SelectedIndexChanged,Sub,FvDetails.SelectedInde
 NIT.DetailsView.vb,NIT,FvDetails_VirtualItemsSelectionRangeChanged,Sub,FvDetails.VirtualItemsSelectionRangeChanged,NIT.DetailsView.vb:212,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 NIT.DetailsView.vb,NIT,LbProperties_TextChanged,Sub,LbProperties.TextChanged,NIT.DetailsView.vb:391,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 NIT.DragDrop.vb,NIT,Fv_DragDrop,Sub,"FvMods.DragDrop, FvContents.DragDrop, FvDetails.DragDrop",NIT.DragDrop.vb:22,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicked",NIT.Menu.vb:593,none,,GAP?,
-NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,GAP?,
-NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,GAP?,
-NIT.Menu.vb,NIT,TsbModSelector_SearchBoxClosed,Sub,TsbModSelector.ItemSelected,NIT.Menu.vb:1163,none,,GAP?,
+NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicked",NIT.Menu.vb:593,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,TsbModSelector_SearchBoxClosed,Sub,TsbModSelector.ItemSelected,NIT.Menu.vb:1163,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,RbnPlay_Click,Sub,RbnPlay.Click,NIT.Menu.vb:1181,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnPlay_MouseUp,Sub,RbnPlay.MouseUp,NIT.Menu.vb:1191,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnInstallUninstall_Click,Sub,RbnInstallUninstall.Click,NIT.Menu.vb:1219,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -478,7 +478,7 @@ NIT.Menu.vb,NIT,RbnMapFiles_Click,Sub,RbnMapFiles.Click,NIT.Menu.vb:1282,none,,P
 NIT.Menu.vb,NIT,RbnNwnIni_Click,Sub,RbnNwnIni.Click,NIT.Menu.vb:1298,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnExportSettings_Click,Sub,RbnExportSettings.Click,NIT.Menu.vb:1310,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnBackupData_Click,Sub,RbnBackupData.Click,NIT.Menu.vb:1360,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,GAP?,
+NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,RbnFontAndColour_Click,Sub,"RbnFontAndColour.Click, MsFontAndColour.Click",NIT.Menu.vb:1385,strong,vaultkeeper/ui/theme.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,RbnManageWorkshop_Click,Sub,RbnManageWorkshop.Click,NIT.Menu.vb:1427,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnAdvancedSettings_Click,Sub,RbnAdvancedSettings.Click,NIT.Menu.vb:1463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -526,7 +526,7 @@ NIT.Menu.vb,NIT,MsDisplaySettings_Click,Sub,"MsDisplaySettings.Click, RbnDisplay
 NIT.Menu.vb,NIT,MsOpenRulesFile_Click,Sub,MsOpenRulesFile.Click,NIT.Menu.vb:3099,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsNwnClientLogFile_Click,Sub,"MsNwnClientLogFile.Click, RbnNwnLog.Click",NIT.Menu.vb:3124,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsNwnEngineLogFile_Click,Sub,"MsNwnEngineLogFile.Click, RbnNwnEngineLog.Click",NIT.Menu.vb:3141,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,ViewIniFile_Click,Sub,"MsNWNIniFile.Click,",NIT.Menu.vb:3189,none,,GAP?,
+NIT.Menu.vb,NIT,ViewIniFile_Click,Sub,"MsNWNIniFile.Click,",NIT.Menu.vb:3189,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsNwnSettingsFile_Click,Sub,"MsNwnSettingsFile.Click, RbnNwnSettingsFile.Click",NIT.Menu.vb:3228,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsViewClipboard_Click,Sub,MsViewClipboard.Click,NIT.Menu.vb:3245,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsNewGroup_Click,Sub,MsNewGroup.Click,NIT.Menu.vb:3267,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -569,8 +569,8 @@ NIT.Menu.vb,NIT,MsRecoverGroups_Click,Sub,MsRecoverGroups.Click,NIT.Menu.vb:4898
 NIT.Menu.vb,NIT,MsRecoverModProperties_Click,Sub,MsRecoverModProperties.Click,NIT.Menu.vb:5077,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,MsRepairCrcs_Click,Sub,MsRepairCrcs.Click,NIT.Menu.vb:5131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsRebuildDatabase_Click,Sub,MsRebuildDatabase.Click,NIT.Menu.vb:5209,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,GAP?,
-NIT.Menu.vb,NIT,BimLink_MouseClick,Sub,"BimLink.MouseClick, lbModState.MouseClick",NIT.Menu.vb:5436,none,,GAP?,
+NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
+NIT.Menu.vb,NIT,BimLink_MouseClick,Sub,"BimLink.MouseClick, lbModState.MouseClick",NIT.Menu.vb:5436,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsBasicSettings_Click,Sub,"MsBasicSettings.Click, RbnBasicSettings.Click",NIT.Menu.vb:5463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSettings_Click,Sub,MsSettings.Click,NIT.Menu.vb:5496,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsOriginalPortraits_CheckedChanged,Sub,MsOriginalPortraits.CheckedChanged,NIT.Menu.vb:5766,none,,Deferred,handler for a command in the tracked deferred set.
@@ -583,61 +583,61 @@ NIT.Menu.vb,NIT,MsEnableClosing_Click,Sub,MsEnableClosing.Click,NIT.Menu.vb:6018
 NIT.Menu.vb,NIT,MsClearScrollInfo_Click,Sub,MsClearScrollInfo.Click,NIT.Menu.vb:6034,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsClearSelectionHistory_Click,Sub,MsClearSelectionHistory.Click,NIT.Menu.vb:6079,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsClearHakPortraits_Click,Sub,MsClearHakPortraits.Click,NIT.Menu.vb:6095,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,MsShowRibbon_Clicked,Sub,MsShowRibbon.Click,NIT.Menu.vb:6149,none,,GAP?,
-NIT.Menu.vb,NIT,MsShowToolbar_Clicked,Sub,MsShowToolbar.Click,NIT.Menu.vb:6174,none,,GAP?,
+NIT.Menu.vb,NIT,MsShowRibbon_Clicked,Sub,MsShowRibbon.Click,NIT.Menu.vb:6149,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,MsShowToolbar_Clicked,Sub,MsShowToolbar.Click,NIT.Menu.vb:6174,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsShowText_Click,Sub,MsShowText.Click,NIT.Menu.vb:6191,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsCustomise_Click,Sub,MsCustomise.Click,NIT.Menu.vb:6213,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsRemoveErfs_Click,Sub,MsRemoveErfs.Click,NIT.Menu.vb:6241,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DbEnableDevelopmentFolder_Click,Sub,DbEnableDevelopmentFolder.Click,NIT.Menu.vb:6267,none,,GAP?,
-NIT.Menu.vb,NIT,DbRedoDateCompleted_Click,Sub,DbRedoDateCompleted.Click,NIT.Menu.vb:6322,none,,GAP?,
-NIT.Menu.vb,NIT,DbSetPlayTimeValue_Click,Sub,DbSetPlayTimeValue.Click,NIT.Menu.vb:6333,none,,GAP?,
-NIT.Menu.vb,NIT,MsSaveNwnInfo_Click,Sub,MsSaveNwnInfo.Click,NIT.Menu.vb:6393,none,,GAP?,
-NIT.Menu.vb,NIT,DbOriginalFilesReport_Click,Sub,DbOriginalFilesReport.Click,NIT.Menu.vb:6428,none,,GAP?,
-NIT.Menu.vb,NIT,DbInstalledFilesReport_Click,Sub,DbInstalledFilesReport.Click,NIT.Menu.vb:6444,none,,GAP?,
-NIT.Menu.vb,NIT,DbModDataReport_Click,Sub,DbModDataReport.Click,NIT.Menu.vb:6465,none,,GAP?,
-NIT.Menu.vb,NIT,DbModFileReport_Click,Sub,DbModFileReport.Click,NIT.Menu.vb:6485,none,,GAP?,
-NIT.Menu.vb,NIT,DbGameMapDataReport_Click,Sub,DbGameMapDataReport.Click,NIT.Menu.vb:6506,none,,GAP?,
+NIT.Menu.vb,NIT,DbEnableDevelopmentFolder_Click,Sub,DbEnableDevelopmentFolder.Click,NIT.Menu.vb:6267,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbRedoDateCompleted_Click,Sub,DbRedoDateCompleted.Click,NIT.Menu.vb:6322,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSetPlayTimeValue_Click,Sub,DbSetPlayTimeValue.Click,NIT.Menu.vb:6333,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,MsSaveNwnInfo_Click,Sub,MsSaveNwnInfo.Click,NIT.Menu.vb:6393,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbOriginalFilesReport_Click,Sub,DbOriginalFilesReport.Click,NIT.Menu.vb:6428,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbInstalledFilesReport_Click,Sub,DbInstalledFilesReport.Click,NIT.Menu.vb:6444,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbModDataReport_Click,Sub,DbModDataReport.Click,NIT.Menu.vb:6465,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbModFileReport_Click,Sub,DbModFileReport.Click,NIT.Menu.vb:6485,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbGameMapDataReport_Click,Sub,DbGameMapDataReport.Click,NIT.Menu.vb:6506,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,DbGameMapUserReport_Click,Sub,DbGameMapUserReport.Click,NIT.Menu.vb:6527,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,DbBlankFilesReport_Click,Sub,DbBlankFilesReport.Click,NIT.Menu.vb:6545,none,,GAP?,
-NIT.Menu.vb,NIT,DbSyncReport_Click,Sub,DbSyncReport.Click,NIT.Menu.vb:6623,none,,GAP?,
-NIT.Menu.vb,NIT,DbScrollReport_Click,Sub,DbScrollReport.Click,NIT.Menu.vb:6661,none,,GAP?,
-NIT.Menu.vb,NIT,DbSelectionHistory_Click,Sub,DbSelectionHistory.Click,NIT.Menu.vb:6793,none,,GAP?,
-NIT.Menu.vb,NIT,DbExtractedPortraits_Click,Sub,DbExtractedPortraits.Click,NIT.Menu.vb:6867,none,,GAP?,
-NIT.Menu.vb,NIT,DbStartScreenInfo_Click,Sub,DbStartScreenInfo.Click,NIT.Menu.vb:6949,none,,GAP?,
-NIT.Menu.vb,NIT,DbMethod_Click,Sub,DbMethod.Click,NIT.Menu.vb:6977,none,,GAP?,
-NIT.Menu.vb,NIT,DbColourSettings_Click,Sub,DbColourSettings.Click,NIT.Menu.vb:7000,none,,GAP?,
-NIT.Menu.vb,NIT,DbChangedColours_Click,Sub,DbChangedColours.Click,NIT.Menu.vb:7010,none,,GAP?,
-NIT.Menu.vb,NIT,DbActionList_Click,Sub,DbActionList.Click,NIT.Menu.vb:7020,none,,GAP?,
-NIT.Menu.vb,NIT,DbEnableVaultDownloadCounter_Click,Sub,DbEnableVaultDownloadCounter.Click,NIT.Menu.vb:7036,none,,GAP?,
-NIT.Menu.vb,NIT,DbHelpLayout_Click,Sub,DbHelpLayout.Click,NIT.Menu.vb:7048,none,,GAP?,
-NIT.Menu.vb,NIT,DbSetSize_Click,Sub,DbSetSize.Click,NIT.Menu.vb:7089,none,,GAP?,
-NIT.Menu.vb,NIT,DbDisableAltKey_Click,Sub,DbDisableAltKey.Click,NIT.Menu.vb:7144,none,,GAP?,
-NIT.Menu.vb,NIT,DbShowNitAvailable_Click,Sub,DbShowNitAvailable.Click,NIT.Menu.vb:7161,none,,GAP?,
-NIT.Menu.vb,NIT,DbAppDefsReport_Click,Sub,DbAppDefsReport.Click,NIT.Menu.vb:7172,none,,GAP?,
-NIT.Menu.vb,NIT,DbOriginalFiles_Click,Sub,DbOriginalFiles.Click,NIT.Menu.vb:7219,none,,GAP?,
-NIT.Menu.vb,NIT,DbEeOriginalFiles_Click,Sub,DbEeOriginalFiles.Click,NIT.Menu.vb:7258,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateOnActivateStatus_Click,Sub,MsValidateOnActivateStatus.Click,NIT.Menu.vb:7315,none,,GAP?,
+NIT.Menu.vb,NIT,DbBlankFilesReport_Click,Sub,DbBlankFilesReport.Click,NIT.Menu.vb:6545,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSyncReport_Click,Sub,DbSyncReport.Click,NIT.Menu.vb:6623,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbScrollReport_Click,Sub,DbScrollReport.Click,NIT.Menu.vb:6661,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSelectionHistory_Click,Sub,DbSelectionHistory.Click,NIT.Menu.vb:6793,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbExtractedPortraits_Click,Sub,DbExtractedPortraits.Click,NIT.Menu.vb:6867,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbStartScreenInfo_Click,Sub,DbStartScreenInfo.Click,NIT.Menu.vb:6949,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbMethod_Click,Sub,DbMethod.Click,NIT.Menu.vb:6977,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbColourSettings_Click,Sub,DbColourSettings.Click,NIT.Menu.vb:7000,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbChangedColours_Click,Sub,DbChangedColours.Click,NIT.Menu.vb:7010,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbActionList_Click,Sub,DbActionList.Click,NIT.Menu.vb:7020,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbEnableVaultDownloadCounter_Click,Sub,DbEnableVaultDownloadCounter.Click,NIT.Menu.vb:7036,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbHelpLayout_Click,Sub,DbHelpLayout.Click,NIT.Menu.vb:7048,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbSetSize_Click,Sub,DbSetSize.Click,NIT.Menu.vb:7089,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbDisableAltKey_Click,Sub,DbDisableAltKey.Click,NIT.Menu.vb:7144,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbShowNitAvailable_Click,Sub,DbShowNitAvailable.Click,NIT.Menu.vb:7161,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbAppDefsReport_Click,Sub,DbAppDefsReport.Click,NIT.Menu.vb:7172,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbOriginalFiles_Click,Sub,DbOriginalFiles.Click,NIT.Menu.vb:7219,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,DbEeOriginalFiles_Click,Sub,DbEeOriginalFiles.Click,NIT.Menu.vb:7258,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,MsValidateOnActivateStatus_Click,Sub,MsValidateOnActivateStatus.Click,NIT.Menu.vb:7315,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,MsUpdateNow_Click,Sub,MsUpdateNow.Click,NIT.Menu.vb:7329,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
-NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,GAP?,
+NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
-NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,GAP?,
-NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,GAP?,
-NIT.Menu.vb,NIT,CmRecentMods_Opened,Sub,CmRecentMods.Opened,NIT.Menu.vb:7539,none,,GAP?,
-NIT.Menu.vb,NIT,BtModCount_Click,Sub,BtModCount.Click,NIT.Menu.vb:7564,none,,GAP?,
-NIT.Menu.vb,NIT,BtModCount_MouseEnter,Sub,BtModCount.MouseEnter,NIT.Menu.vb:7585,none,,GAP?,
-NIT.Menu.vb,NIT,BtGroupHdg_Click,Sub,BtGroupHdg.Click,NIT.Menu.vb:7599,none,,GAP?,
-NIT.Menu.vb,NIT,MgInfo_Click,Sub,MgInfo.Click,NIT.Menu.vb:7611,none,,GAP?,
-NIT.Menu.vb,NIT,BtFileCheckInfo_Click,Sub,BtFileCheckInfo.Click,NIT.Menu.vb:7626,none,,GAP?,
-NIT.Menu.vb,NIT,BtHealth_Click,Sub,BtHealth.Click,NIT.Menu.vb:7649,none,,GAP?,
-NIT.Menu.vb,NIT,BtWizardReport_Click,Sub,BtWizardReport.Click,NIT.Menu.vb:7682,none,,GAP?,
-NIT.Menu.vb,NIT,BtWizardReport_MouseUp,Sub,BtWizardReport.MouseUp,NIT.Menu.vb:7720,none,,GAP?,
+NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,CmRecentMods_Opened,Sub,CmRecentMods.Opened,NIT.Menu.vb:7539,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtModCount_Click,Sub,BtModCount.Click,NIT.Menu.vb:7564,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtModCount_MouseEnter,Sub,BtModCount.MouseEnter,NIT.Menu.vb:7585,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtGroupHdg_Click,Sub,BtGroupHdg.Click,NIT.Menu.vb:7599,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,MgInfo_Click,Sub,MgInfo.Click,NIT.Menu.vb:7611,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtFileCheckInfo_Click,Sub,BtFileCheckInfo.Click,NIT.Menu.vb:7626,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtHealth_Click,Sub,BtHealth.Click,NIT.Menu.vb:7649,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
+NIT.Menu.vb,NIT,BtWizardReport_Click,Sub,BtWizardReport.Click,NIT.Menu.vb:7682,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtWizardReport_MouseUp,Sub,BtWizardReport.MouseUp,NIT.Menu.vb:7720,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.Menu.vb,NIT,BtCharacter_Click,Sub,BtCharacter.Click,NIT.Menu.vb:7732,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,BtCharacter_MouseUp,Sub,BtCharacter.MouseUp,NIT.Menu.vb:7788,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.vb:7800,none,,GAP?,
-NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,GAP?,
+NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.vb:7800,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
+NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
 NIT.ModView.vb,NIT,FvMods_KeyPress,Sub,FvMods.KeyPress,NIT.ModView.vb:204,none,,GAP?,
 NIT.ModView.vb,NIT,FvMods_MouseDoubleClick,Sub,FvMods.MouseDoubleClick,NIT.ModView.vb:219,none,,GAP?,
 NIT.ModView.vb,NIT,FvMods_SelectedIndexChanged,Sub,FvMods.SelectedIndexChanged,NIT.ModView.vb:235,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
@@ -725,9 +725,9 @@ PublishMod.vb,PublishMod,TxVersion_TextChanged,Sub,TxVersion.TextChanged,Publish
 PublishMod.vb,PublishMod,BhPublishMod_Click,Sub,BhPublishMod.Click,PublishMod.vb:157,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PublishMod.vb,PublishMod,BtCancel_Click,Sub,BtCancel.Click,PublishMod.vb:166,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 PublishMod.vb,PublishMod,BtPublish_Click,Sub,BtPublish.Click,PublishMod.vb:177,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,GAP?,
-RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_FormClosing,Sub,Me.FormClosing,RtfThemeManager.vb:284,none,,GAP?,
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
+RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_FormClosing,Sub,Me.FormClosing,RtfThemeManager.vb:284,none,,Divergence,debug diagnostic reports (debug-menu-only) + Windows taskbar progress + bounded RTF-recolour theme engine (port uses a single palette).
 Settings.Advanced.vb,Settings,LvAdvanced_ItemCheck,Sub,LvAdvanced.ItemCheck,Settings.Advanced.vb:278,none,,GAP?,
 Settings.Advanced.vb,Settings,LvAdvanced_SelectedIndexChanged,Sub,LvAdvanced.SelectedIndexChanged,Settings.Advanced.vb:463,none,,GAP?,
 Settings.Locations.vb,Settings,LvLocations_ItemCheck,Sub,LvLocations.ItemCheck,Settings.Locations.vb:281,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
