@@ -10,27 +10,28 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 966 (29%) | 2318 |
-| Event handlers | 885 | 307 (34%) | 578 |
+| Methods/props | 3284 | 1374 (41%) | 1910 |
+| Event handlers | 885 | 500 (56%) | 385 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `GAP?`: 1451
-- `AUTO-PORTED`: 867
-- `Divergence`: 408
-- `Ported`: 197
+- `GAP?`: 1169
+- `AUTO-PORTED`: 741
+- `Divergence`: 602
+- `Ported`: 330
 - `N/A`: 188
-- `Deferred`: 116
-- `Partial`: 56
-- `MISSING`: 1
+- `Deferred`: 171
+- `Partial`: 80
+- `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `GAP?`: 552
-- `Divergence`: 185
-- `Ported`: 86
-- `Deferred`: 29
-- `AUTO-PORTED`: 26
-- `Partial`: 7
+- `GAP?`: 378
+- `Divergence`: 303
+- `Ported`: 106
+- `Deferred`: 67
+- `Partial`: 22
+- `AUTO-PORTED`: 7
+- `MISSING`: 2
 
 ### Designer controls — status breakdown
 - `GAP?`: 1432
@@ -45,35 +46,35 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
 | NIT.Menu.vb | 228 | 100 | 13 | 115 |
-| InstallationManagerEditor.vb | 39 | 32 | 4 | 3 |
 | VaultDownloadRules.vb | 46 | 30 | 15 | 1 |
-| NIT.vb | 35 | 29 | 1 | 5 |
-| CharacterViewer.vb | 42 | 29 | 9 | 4 |
-| ModFindAndRename.vb | 29 | 28 | 1 | 0 |
-| WizardBuilder.vb | 34 | 26 | 6 | 2 |
-| GameManager.vb | 28 | 26 | 0 | 2 |
-| Settings.Classes.vb | 71 | 25 | 24 | 22 |
-| NIT.Workers.vb | 26 | 25 | 1 | 0 |
-| ModPlayViewer.vb | 45 | 25 | 13 | 7 |
-| CreateInstaller.vb | 49 | 25 | 16 | 8 |
-| DocOrganiser.vb | 40 | 24 | 13 | 3 |
-| BackupManager.vb | 33 | 23 | 5 | 5 |
-| Settings.vb | 27 | 21 | 3 | 3 |
-| InstallationAnalyser.vb | 28 | 21 | 2 | 5 |
+| InstallationManagerEditor.vb | 39 | 29 | 1 | 9 |
+| Settings.Classes.vb | 71 | 25 | 20 | 26 |
+| Settings.vb | 27 | 21 | 2 | 4 |
 | Settings.Config.vb | 20 | 20 | 0 | 0 |
+| BackupManager.vb | 33 | 20 | 3 | 10 |
 | NetworkManager.vb | 24 | 19 | 4 | 1 |
-| MsgPicture.vb | 22 | 19 | 2 | 1 |
-| ProfileData.Properties.vb | 34 | 18 | 16 | 0 |
+| MsgPicture.vb | 22 | 19 | 1 | 2 |
+| InstallationAnalyser.vb | 28 | 19 | 1 | 8 |
+| ProfileData.Properties.vb | 34 | 18 | 15 | 1 |
 | PlayDataViewer.vb | 19 | 18 | 0 | 1 |
 | InstallationManager.vb | 29 | 18 | 7 | 4 |
-| VaultScraper.vb | 28 | 17 | 8 | 3 |
-| ModFindAndRename.ModNames.vb | 25 | 17 | 7 | 1 |
-| MenuItemEditor.vb | 23 | 17 | 4 | 2 |
-| GameManagerRestore.vb | 19 | 17 | 1 | 1 |
-| FindProfileFilesDialogue.vb | 24 | 17 | 3 | 4 |
-| NIT.ModView.vb | 59 | 16 | 11 | 32 |
+| VaultScraper.vb | 28 | 17 | 7 | 4 |
+| MenuItemEditor.vb | 23 | 17 | 1 | 5 |
+| NIT.ModView.vb | 59 | 16 | 10 | 33 |
+| ModFindAndRename.ModNames.vb | 25 | 16 | 7 | 2 |
+| FindProfileFilesDialogue.vb | 24 | 16 | 2 | 6 |
 | StartScreenInfo.vb | 42 | 15 | 24 | 3 |
-| SlideShow.vb | 18 | 15 | 2 | 1 |
+| SlideShow.vb | 18 | 15 | 0 | 3 |
+| Settings.MapExtensions.vb | 15 | 15 | 0 | 0 |
+| Settings.MapExcludes.vb | 15 | 15 | 0 | 0 |
+| Settings.Profiles.vb | 15 | 14 | 0 | 1 |
+| Settings.Locations.vb | 14 | 14 | 0 | 0 |
+| HakPatchManager.vb | 26 | 14 | 11 | 1 |
+| FileConflictsViewer.vb | 19 | 14 | 0 | 5 |
+| SteamWorkshop.vb | 22 | 13 | 7 | 2 |
+| Settings.MapFolders.vb | 13 | 13 | 0 | 0 |
+| RtfThemeManager.vb | 14 | 13 | 1 | 0 |
+| NIT.Paste.vb | 18 | 13 | 2 | 3 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -86,7 +87,6 @@ implement it under a different name).
 | AliasSectionEditor.vb:61 | AliasSectionEditor | AliasSectionEditor_Load | Sub |
 | AliasSectionEditor.vb:148 | AliasSectionEditor | AliasSectionEditor_Shown | Sub |
 | AliasSectionEditor.vb:159 | AliasSectionEditor | BhAliasEditor_Click | Sub |
-| AliasSectionEditor.vb:168 | AliasSectionEditor | BtDelete_Click | Sub |
 | AliasSectionEditor.vb:192 | AliasSectionEditor | RestoreDefaults | Sub |
 | AliasSectionEditor.vb:298 | AliasSectionEditor | LvFolders_ItemClicked | Sub |
 | AliasSectionEditor.vb:326 | AliasSectionEditor | LvFolders_SelectedIndexChanged | Sub |
@@ -125,10 +125,7 @@ implement it under a different name).
 | BackupManager.vb:360 | BackupManager | BtAction_SizeChanged | Sub |
 | BackupManager.vb:368 | BackupManager | BtAction_Click | Sub |
 | BackupManager.vb:385 | BackupManager | BackupManager_KeyUp | Sub |
-| BackupManager.vb:395 | BackupManager | BtDelete_Click | Sub |
 | BackupManager.vb:448 | BackupManager | TbBackupManager_SelectedIndexChanged | Sub |
-| BackupManager.vb:461 | BackupManager | Lv_SelectedIndexChanged | Sub |
-| BackupManager.vb:478 | BackupManager | LvMods_SelectedIndexChanged | Sub |
 | BackupManager.vb:558 | BackupManager | BgBackups_DoWork | Sub |
 | BackupManager.vb:568 | BackupManager | BgSettings_DoWork | Sub |
 | BackupManager.vb:580 | BackupManager | BgStandard_ProgressChanged | Sub |
@@ -143,8 +140,12 @@ implement it under a different name).
 | BasicSettings.vb:166 | BasicSettings | BhBasicSettings_Click | Sub |
 | BasicSettings.vb:176 | BasicSettings | BtSelection_Click | Sub |
 | BasicSettings.vb:184 | BasicSettings | BtAdvanced_Click | Sub |
+| BicFileInfo.vb:157 | BicFileInfo | SkillInfo | Property |
+| BicFileInfo.vb:186 | BicFileInfo | PlayerFeats | Property |
+| BicFileInfo.vb:444 | BicFileInfo | DisplayCharacterInformation | Sub |
+| BicFileInfo.vb:457 | BicFileInfo | SkillDescription | Function |
 
-_(1451 GAP? methods total; see ledger_members.csv for the full list.)_
+_(1169 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 

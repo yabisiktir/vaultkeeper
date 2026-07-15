@@ -2,8 +2,8 @@ file,type,member,kind,handles,vb_ref,match,port_hint,status,notes
 AliasSectionEditor.vb,AliasSectionEditor,AliasSectionEditor_Load,Sub,MyBase.Load,AliasSectionEditor.vb:61,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,AliasSectionEditor_Shown,Sub,Me.Shown,AliasSectionEditor.vb:148,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,BhAliasEditor_Click,Sub,BhAliasEditor.Click,AliasSectionEditor.vb:159,none,,GAP?,
-AliasSectionEditor.vb,AliasSectionEditor,BtDelete_Click,Sub,BtDelete.Click,AliasSectionEditor.vb:168,none,,GAP?,
-AliasSectionEditor.vb,AliasSectionEditor,BtSave_Click,Sub,BtSave.Click,AliasSectionEditor.vb:235,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+AliasSectionEditor.vb,AliasSectionEditor,BtDelete_Click,Sub,BtDelete.Click,AliasSectionEditor.vb:168,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+AliasSectionEditor.vb,AliasSectionEditor,BtSave_Click,Sub,BtSave.Click,AliasSectionEditor.vb:235,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 AliasSectionEditor.vb,AliasSectionEditor,BtCancel_Click,Sub,BtCancel.Click,AliasSectionEditor.vb:287,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 AliasSectionEditor.vb,AliasSectionEditor,LvFolders_ItemClicked,Sub,LvFolders.ItemClicked,AliasSectionEditor.vb:298,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,AliasSectionEditor.vb:326,none,,GAP?,
@@ -18,11 +18,11 @@ BackupManager.vb,BackupManager,BhBackupManager_Click,Sub,BhBackupManager.Click,B
 BackupManager.vb,BackupManager,BtAction_SizeChanged,Sub,BtAction.SizeChanged,BackupManager.vb:360,none,,GAP?,
 BackupManager.vb,BackupManager,BtAction_Click,Sub,BtAction.Click,BackupManager.vb:368,none,,GAP?,
 BackupManager.vb,BackupManager,BackupManager_KeyUp,Sub,Me.KeyUp,BackupManager.vb:385,none,,GAP?,
-BackupManager.vb,BackupManager,BtDelete_Click,Sub,BtDelete.Click,BackupManager.vb:395,none,,GAP?,
+BackupManager.vb,BackupManager,BtDelete_Click,Sub,BtDelete.Click,BackupManager.vb:395,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 BackupManager.vb,BackupManager,BtCancel_Click,Sub,BtCancel.Click,BackupManager.vb:433,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BackupManager.vb,BackupManager,TbBackupManager_SelectedIndexChanged,Sub,TbBackupManager.SelectedIndexChanged,BackupManager.vb:448,none,,GAP?,
-BackupManager.vb,BackupManager,Lv_SelectedIndexChanged,Sub,"LvBackups.SelectedIndexChanged, LvSettings.SelectedIndexChanged",BackupManager.vb:461,none,,GAP?,
-BackupManager.vb,BackupManager,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,BackupManager.vb:478,none,,GAP?,
+BackupManager.vb,BackupManager,Lv_SelectedIndexChanged,Sub,"LvBackups.SelectedIndexChanged, LvSettings.SelectedIndexChanged",BackupManager.vb:461,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+BackupManager.vb,BackupManager,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,BackupManager.vb:478,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 BackupManager.vb,BackupManager,Lv_ItemClicked,Sub,"LvBackups.ItemClicked, LvSettings.ItemClicked, LvMods.ItemClicked",BackupManager.vb:502,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BackupManager.vb,BackupManager,BgBackups_DoWork,Sub,BgBackups.DoWork,BackupManager.vb:558,none,,GAP?,
 BackupManager.vb,BackupManager,BgSettings_DoWork,Sub,BgSettings.DoWork,BackupManager.vb:568,none,,GAP?,
@@ -35,15 +35,15 @@ BasicSettings.vb,BasicSettings,CbInstallRestore_CheckedChanged,Sub,CbInstallRest
 BasicSettings.vb,BasicSettings,BhBasicSettings_Click,Sub,BhBasicSettings.Click,BasicSettings.vb:166,none,,GAP?,
 BasicSettings.vb,BasicSettings,BtSelection_Click,Sub,BtSelection.Click,BasicSettings.vb:176,none,,GAP?,
 BasicSettings.vb,BasicSettings,BtAdvanced_Click,Sub,BtAdvanced.Click,BasicSettings.vb:184,none,,GAP?,
-BasicSettings.vb,BasicSettings,BtApply_Click,Sub,BtApply.Click,BasicSettings.vb:195,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
+BasicSettings.vb,BasicSettings,BtApply_Click,Sub,BtApply.Click,BasicSettings.vb:195,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 BasicSettings.vb,BasicSettings,BtCancel_Click,Sub,BtCancel.Click,BasicSettings.vb:245,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Load,Sub,MyBase.Load,BikToWbmDialogue.vb:81,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Shown,Sub,Me.Shown,BikToWbmDialogue.vb:99,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_FormClosing,Sub,Me.FormClosing,BikToWbmDialogue.vb:110,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BtCancel_Click,Sub,BtCancel.Click,BikToWbmDialogue.vb:120,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_DoWork,Sub,BgConverter.DoWork,BikToWbmDialogue.vb:173,none,,GAP?,
-BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,BikToWbmDialogue.vb:203,none,,GAP?,
-BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,BikToWbmDialogue.vb:226,none,,GAP?,
+BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_DoWork,Sub,BgConverter.DoWork,BikToWbmDialogue.vb:173,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,BikToWbmDialogue.vb:203,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,BikToWbmDialogue.vb:226,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,BtCancel_Click,Sub,btCancel.Click,CalculateCRCs.vb:439,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
@@ -56,72 +56,72 @@ CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCount
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,CharacterFilter.vb:59,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,GAP?,
-CharacterFilter.vb,CharacterFilter,BtApply_Click,Sub,BtApply.Click,CharacterFilter.vb:123,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
+CharacterFilter.vb,CharacterFilter,BtApply_Click,Sub,BtApply.Click,CharacterFilter.vb:123,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 CharacterFilter.vb,CharacterFilter,BtCancel_Click,Sub,BtCancel.Click,CharacterFilter.vb:138,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CharacterFilter.vb,CharacterFilter,LvClassNames_ItemClicked,Sub,LvClassNames.ItemClicked,CharacterFilter.vb:149,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,CmClear_Click,Sub,CmClear.Click,CharacterFilter.vb:184,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-CharacterViewer.vb,CharacterViewer,CharacterViewer_Load,Sub,Me.Load,CharacterViewer.vb:364,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,CharacterViewer_Shown,Sub,Me.Shown,CharacterViewer.vb:570,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,CharacterViewer_FormClosing,Sub,Me.FormClosing,CharacterViewer.vb:589,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,CharacterViewer_FormClosed,Sub,Me.FormClosed,CharacterViewer.vb:619,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,PicPortrait_Click,Sub,"PicPortrait.Click, CmOpenPortraitManager.Click",CharacterViewer.vb:640,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LbcFilter_Click,Sub,LcbFilter.Click,CharacterViewer.vb:655,strong,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_viewer.py,AUTO-PORTED,
-CharacterViewer.vb,CharacterViewer,TsCopyDetails_Click,Sub,TsCopyDetails.Click,CharacterViewer.vb:819,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,TsCopyLevel_Click,Sub,TsCopyLevel.Click,CharacterViewer.vb:831,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,BtDescription_Click,Sub,"BtDescription.Click, CmDescription.Click",CharacterViewer.vb:851,none,,GAP?,
+CharacterViewer.vb,CharacterViewer,CharacterViewer_Load,Sub,Me.Load,CharacterViewer.vb:364,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,CharacterViewer_Shown,Sub,Me.Shown,CharacterViewer.vb:570,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,CharacterViewer_FormClosing,Sub,Me.FormClosing,CharacterViewer.vb:589,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,CharacterViewer_FormClosed,Sub,Me.FormClosed,CharacterViewer.vb:619,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,PicPortrait_Click,Sub,"PicPortrait.Click, CmOpenPortraitManager.Click",CharacterViewer.vb:640,none,,Deferred,unported subsystem (restorer/update/crypt/shared-store/portrait-mgr integration).
+CharacterViewer.vb,CharacterViewer,LbcFilter_Click,Sub,LcbFilter.Click,CharacterViewer.vb:655,strong,vaultkeeper/game/character_filter.py | vaultkeeper/ui/dialogs/character_viewer.py,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
+CharacterViewer.vb,CharacterViewer,TsCopyDetails_Click,Sub,TsCopyDetails.Click,CharacterViewer.vb:819,none,,MISSING,genuine small feature gap (owner-visible) — see notes.
+CharacterViewer.vb,CharacterViewer,TsCopyLevel_Click,Sub,TsCopyLevel.Click,CharacterViewer.vb:831,none,,MISSING,genuine small feature gap (owner-visible) — see notes.
+CharacterViewer.vb,CharacterViewer,BtDescription_Click,Sub,"BtDescription.Click, CmDescription.Click",CharacterViewer.vb:851,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CharacterViewer.vb,CharacterViewer,BtSelect_Click,Sub,BtSelect.Click,CharacterViewer.vb:867,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CharacterViewer.vb,CharacterViewer,BtClose_Click,Sub,BtClose.Click,CharacterViewer.vb:878,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-CharacterViewer.vb,CharacterViewer,LvCharacters_GotFocus,Sub,LvCharacters.GotFocus,CharacterViewer.vb:889,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LvCharacters_RetrieveVirtualItem,Sub,LvCharacters.RetrieveVirtualItem,CharacterViewer.vb:900,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LvCharacters_SelectedIndexChanged,Sub,LvCharacters.SelectedIndexChanged,CharacterViewer.vb:913,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LvCharacters_ItemClicked,Sub,LvCharacters.ItemClicked,CharacterViewer.vb:1002,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LvSkills_RetrieveVirtualItem,Sub,LvSkills.RetrieveVirtualItem,CharacterViewer.vb:1038,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,LvFeats_RetrieveVirtualItem,Sub,LvFeats.RetrieveVirtualItem,CharacterViewer.vb:1050,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,Lv_SelectedIndexChanged,Sub,"LvSkills.SelectedIndexChanged, LvFeats.SelectedIndexChanged",CharacterViewer.vb:1062,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,Lv_MouseDoubleClick,Sub,"LvSkills.MouseDoubleClick, LvFeats.MouseDoubleClick",CharacterViewer.vb:1070,none,,GAP?,
-CharacterViewer.vb,CharacterViewer,TabCharacter_SelectedIndexChanged,Sub,TabCharacter.SelectedIndexChanged,CharacterViewer.vb:1084,none,,GAP?,
+CharacterViewer.vb,CharacterViewer,LvCharacters_GotFocus,Sub,LvCharacters.GotFocus,CharacterViewer.vb:889,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,LvCharacters_RetrieveVirtualItem,Sub,LvCharacters.RetrieveVirtualItem,CharacterViewer.vb:900,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,LvCharacters_SelectedIndexChanged,Sub,LvCharacters.SelectedIndexChanged,CharacterViewer.vb:913,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
+CharacterViewer.vb,CharacterViewer,LvCharacters_ItemClicked,Sub,LvCharacters.ItemClicked,CharacterViewer.vb:1002,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,LvSkills_RetrieveVirtualItem,Sub,LvSkills.RetrieveVirtualItem,CharacterViewer.vb:1038,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,LvFeats_RetrieveVirtualItem,Sub,LvFeats.RetrieveVirtualItem,CharacterViewer.vb:1050,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,Lv_SelectedIndexChanged,Sub,"LvSkills.SelectedIndexChanged, LvFeats.SelectedIndexChanged",CharacterViewer.vb:1062,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+CharacterViewer.vb,CharacterViewer,Lv_MouseDoubleClick,Sub,"LvSkills.MouseDoubleClick, LvFeats.MouseDoubleClick",CharacterViewer.vb:1070,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CharacterViewer.vb,CharacterViewer,TabCharacter_SelectedIndexChanged,Sub,TabCharacter.SelectedIndexChanged,CharacterViewer.vb:1084,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SkillsAndFeats_Load,Sub,MyBase.Load,ClassesSkillsAndFeats.vb:46,strong,vaultkeeper/game/character_reference.py,AUTO-PORTED,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SkillsAndFeats_Shown,Sub,Me.Shown,ClassesSkillsAndFeats.vb:159,none,,GAP?,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,TabMain_SelectedIndexChanged,Sub,TabMain.SelectedIndexChanged,ClassesSkillsAndFeats.vb:177,none,,GAP?,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvClasses_RetrieveVirtualItem,Sub,LvClasses.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:197,none,,GAP?,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvClasses_SelectedIndexChanged,Sub,LvClasses.SelectedIndexChanged,ClassesSkillsAndFeats.vb:208,none,,GAP?,
-ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvSkills_RetrieveVirtualItem,Sub,LvSkills.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:225,none,,GAP?,
+ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvSkills_RetrieveVirtualItem,Sub,LvSkills.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:225,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvSkills_SelectedIndexChanged,Sub,LvSkills.SelectedIndexChanged,ClassesSkillsAndFeats.vb:237,none,,GAP?,
-ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvFeats_RetrieveVirtualItem,Sub,LvFeats.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:251,none,,GAP?,
+ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvFeats_RetrieveVirtualItem,Sub,LvFeats.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:251,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvFeats_SelectedIndexChanged,Sub,LvFeats.SelectedIndexChanged,ClassesSkillsAndFeats.vb:263,none,,GAP?,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,BtClose_Click,Sub,BtClose.Click,ClassesSkillsAndFeats.vb:278,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CommonFiltersDialogue.vb,CommonFiltersDialogue,Filters_Load,Sub,MyBase.Load,CommonFiltersDialogue.vb:62,none,,GAP?,
-CommonFiltersDialogue.vb,CommonFiltersDialogue,BtApply_Click,Sub,BtApply.Click,CommonFiltersDialogue.vb:114,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
+CommonFiltersDialogue.vb,CommonFiltersDialogue,BtApply_Click,Sub,BtApply.Click,CommonFiltersDialogue.vb:114,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 CommonFiltersDialogue.vb,CommonFiltersDialogue,BtCancel_Click,Sub,BtCancel.Click,CommonFiltersDialogue.vb:133,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CommonFiltersDialogue.vb,CommonFiltersDialogue,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,CommonFiltersDialogue.vb:144,none,,GAP?,
+CommonFiltersDialogue.vb,CommonFiltersDialogue,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,CommonFiltersDialogue.vb:144,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 CommonFiltersDialogue.vb,CommonFiltersDialogue,LvFilters_ItemChecked,Sub,"LvGroupFilters.ItemChecked, LvRatingFilters.ItemChecked",CommonFiltersDialogue.vb:157,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CrashDumpManager.vb,CrashDumpManager,CrashDumpManager_Load,Sub,MyBase.Load,CrashDumpManager.vb:143,none,,GAP?,
 CrashDumpManager.vb,CrashDumpManager,CrashDumpManager_FormClosing,Sub,Me.FormClosing,CrashDumpManager.vb:203,none,,GAP?,
 CrashDumpManager.vb,CrashDumpManager,BtSubmit_Click,Sub,BtSubmit.Click,CrashDumpManager.vb:222,none,,GAP?,
 CrashDumpManager.vb,CrashDumpManager,BgOpenSupportPage_DoWork,Sub,BgOpenSupportPage.DoWork,CrashDumpManager.vb:248,none,,GAP?,
 CrashDumpManager.vb,CrashDumpManager,BtDeleteAll_Click,Sub,BtDeleteAll.Click,CrashDumpManager.vb:260,none,,GAP?,
-CrashDumpManager.vb,CrashDumpManager,BtDelete_Click,Sub,BtDelete.Click,CrashDumpManager.vb:270,none,,GAP?,
+CrashDumpManager.vb,CrashDumpManager,BtDelete_Click,Sub,BtDelete.Click,CrashDumpManager.vb:270,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 CrashDumpManager.vb,CrashDumpManager,LvCrashFiles_ItemClicked,Sub,LvCrashFiles.ItemClicked,CrashDumpManager.vb:353,none,,GAP?,
 CrashDumpManager.vb,CrashDumpManager,LvCrashFiles_SelectedIndexChanged,Sub,LvCrashFiles.SelectedIndexChanged,CrashDumpManager.vb:367,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,CreateInstaller_Load,Sub,MyBase.Load,CreateInstaller.vb:761,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,CreateInstaller_Shown,Sub,Me.Shown,CreateInstaller.vb:810,none,,GAP?,
+CreateInstaller.vb,CreateInstaller,CreateInstaller_Load,Sub,MyBase.Load,CreateInstaller.vb:761,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,CreateInstaller_Shown,Sub,Me.Shown,CreateInstaller.vb:810,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CreateInstaller.vb,CreateInstaller,BtCancel_Click,Sub,BtCancel.Click,CreateInstaller.vb:823,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CreateInstaller.vb,CreateInstaller,CreateInstaller_FormClosing,Sub,Me.FormClosing,CreateInstaller.vb:843,none,,GAP?,
+CreateInstaller.vb,CreateInstaller,CreateInstaller_FormClosing,Sub,Me.FormClosing,CreateInstaller.vb:843,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CreateInstaller.vb,CreateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,CreateInstaller.vb:868,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CreateInstaller.vb,CreateInstaller,BgScanner_ProgressChanged,Sub,BgScanner.ProgressChanged,CreateInstaller.vb:1006,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CreateInstaller.vb,CreateInstaller,BgScanner_RunWorkerCompleted,Sub,BgScanner.RunWorkerCompleted,CreateInstaller.vb:1032,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgExtractor_DoWork,Sub,BgExtractor.DoWork,CreateInstaller.vb:1116,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgExtractor_ProgressChanged,Sub,BgExtractor.ProgressChanged,CreateInstaller.vb:1154,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgExtractor_RunWorkerCompleted,Sub,BgExtractor.RunWorkerCompleted,CreateInstaller.vb:1179,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgConverter_DoWork,Sub,BgConverter.DoWork,CreateInstaller.vb:1208,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,CreateInstaller.vb:1255,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,CreateInstaller.vb:1281,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgAnalyser_DoWork,Sub,BgAnalyser.DoWork,CreateInstaller.vb:1313,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgAnalyser_ProgressChanged,Sub,BgAnalyser.ProgressChanged,CreateInstaller.vb:1447,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgAnalyser_RunWorkerCompleted,Sub,BgAnalyser.RunWorkerCompleted,CreateInstaller.vb:1472,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,CreateInstaller.vb:1524,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgCreate_ProgressChanged,Sub,BgCreate.ProgressChanged,CreateInstaller.vb:1590,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgCreate_RunWorkerCompleted,Sub,BgCreate.RunWorkerCompleted,CreateInstaller.vb:1614,none,,GAP?,
+CreateInstaller.vb,CreateInstaller,BgScanner_RunWorkerCompleted,Sub,BgScanner.RunWorkerCompleted,CreateInstaller.vb:1032,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgExtractor_DoWork,Sub,BgExtractor.DoWork,CreateInstaller.vb:1116,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgExtractor_ProgressChanged,Sub,BgExtractor.ProgressChanged,CreateInstaller.vb:1154,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgExtractor_RunWorkerCompleted,Sub,BgExtractor.RunWorkerCompleted,CreateInstaller.vb:1179,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgConverter_DoWork,Sub,BgConverter.DoWork,CreateInstaller.vb:1208,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,CreateInstaller.vb:1255,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,CreateInstaller.vb:1281,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgAnalyser_DoWork,Sub,BgAnalyser.DoWork,CreateInstaller.vb:1313,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgAnalyser_ProgressChanged,Sub,BgAnalyser.ProgressChanged,CreateInstaller.vb:1447,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgAnalyser_RunWorkerCompleted,Sub,BgAnalyser.RunWorkerCompleted,CreateInstaller.vb:1472,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,CreateInstaller.vb:1524,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgCreate_ProgressChanged,Sub,BgCreate.ProgressChanged,CreateInstaller.vb:1590,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+CreateInstaller.vb,CreateInstaller,BgCreate_RunWorkerCompleted,Sub,BgCreate.RunWorkerCompleted,CreateInstaller.vb:1614,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Load,Sub,MyBase.Load,CreateMissingInstallers.vb:110,none,,GAP?,
 CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Shown,Sub,Me.Shown,CreateMissingInstallers.vb:172,none,,GAP?,
 CreateMissingInstallers.vb,CreateMissingInstallers,LvModNames_ItemCheck,Sub,LvModNames.ItemCheck,CreateMissingInstallers.vb:184,none,,GAP?,
@@ -136,42 +136,42 @@ CreateNwnFolder.vb,CreateNwnFolder,BuSource_Click,Sub,BuSource.Click,CreateNwnFo
 CreateNwnFolder.vb,CreateNwnFolder,Tx_KeyPress,Sub,"TxTarget.KeyPress, TxSource.KeyPress",CreateNwnFolder.vb:341,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CreateNwnFolder.vb,CreateNwnFolder,TxTarget_Enter,Sub,TxTarget.Enter,CreateNwnFolder.vb:349,none,,GAP?,
 CreateNwnFolder.vb,CreateNwnFolder,TxSource_Enter,Sub,TxSource.Enter,CreateNwnFolder.vb:360,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,BtSave_Click,Sub,BtSave.Click,CreateNwnFolder.vb:469,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+CreateNwnFolder.vb,CreateNwnFolder,BtSave_Click,Sub,BtSave.Click,CreateNwnFolder.vb:469,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 CreateNwnFolder.vb,CreateNwnFolder,BtCancel_Click,Sub,BtCancel.Click,CreateNwnFolder.vb:595,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DependencyManager.vb,DependencyManager,DependencyManager_Load,Sub,MyBase.Load,DependencyManager.vb:99,none,,GAP?,
 DependencyManager.vb,DependencyManager,DependencyManager_Shown,Sub,Me.Shown,DependencyManager.vb:180,none,,GAP?,
 DependencyManager.vb,DependencyManager,BhDependencyManager_Click,Sub,BhDependencyManager.Click,DependencyManager.vb:196,none,,GAP?,
 DependencyManager.vb,DependencyManager,TsModDependenciesReport_Click,Sub,TsModDependenciesReport.Click,DependencyManager.vb:204,none,,GAP?,
 DependencyManager.vb,DependencyManager,BtAuto_Click,Sub,BtAuto.Click,DependencyManager.vb:231,none,,GAP?,
-DependencyManager.vb,DependencyManager,BtSave_Click,Sub,BtSave.Click,DependencyManager.vb:244,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+DependencyManager.vb,DependencyManager,BtSave_Click,Sub,BtSave.Click,DependencyManager.vb:244,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 DependencyManager.vb,DependencyManager,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,DependencyManager.vb:290,none,,GAP?,
-DependencyManager.vb,DependencyManager,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,DependencyManager.vb:320,none,,GAP?,
-DependencyManager.vb,DependencyManager,LvMods_ItemClicked,Sub,LvMods.ItemClicked,DependencyManager.vb:336,none,,GAP?,
+DependencyManager.vb,DependencyManager,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,DependencyManager.vb:320,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+DependencyManager.vb,DependencyManager,LvMods_ItemClicked,Sub,LvMods.ItemClicked,DependencyManager.vb:336,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 DependencyManager.vb,DependencyManager,LvDependencies_RetrieveVirtualItem,Sub,LvDependencies.RetrieveVirtualItem,DependencyManager.vb:439,none,,GAP?,
 DependencyManager.vb,DependencyManager,LvDependencies_ItemClicked,Sub,LvDependencies.ItemClicked,DependencyManager.vb:453,none,,GAP?,
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_DoWork,Sub,BgProcessDocs.DoWork,DocOrganiser.ProcessDocs.vb:27,strong,vaultkeeper/game/documentation.py,AUTO-PORTED,
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_ProgressChanged,Sub,BgProcessDocs.ProgressChanged,DocOrganiser.ProcessDocs.vb:157,none,,GAP?,
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_RunWorkerCompleted,Sub,BgProcessDocs.RunWorkerCompleted,DocOrganiser.ProcessDocs.vb:197,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,DocManager_Load,Sub,MyBase.Load,DocOrganiser.vb:291,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,DocManager_Shown,Sub,Me.Shown,DocOrganiser.vb:345,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,DocOrganiser_FormClosing,Sub,Me.FormClosing,DocOrganiser.vb:371,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,BtCopy_Click,Sub,BtCopy.Click,DocOrganiser.vb:398,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/doc_organiser.py,AUTO-PORTED,
-DocOrganiser.vb,DocOrganiser,BtNext_Click,Sub,BtNext.Click,DocOrganiser.vb:449,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,BhDocManager_Click,Sub,BhDocManager.Click,DocOrganiser.vb:467,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,CmVersion_Click,Sub,"CmVersion.Click, TsVersion.Click",DocOrganiser.vb:476,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,CmRename_Click,Sub,"CmRename.Click, TsRename.Click",DocOrganiser.vb:509,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,CmProperties_Click,Sub,"CmProperties.Click, TsProperties.Click",DocOrganiser.vb:618,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,CmReset_Click,Sub,"CmReset.Click, TsReset.Click",DocOrganiser.vb:633,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,TsUncheck_Click,Sub,TsUncheck.Click,DocOrganiser.vb:644,strong,vaultkeeper/ui/dialogs/doc_organiser.py,AUTO-PORTED,
-DocOrganiser.vb,DocOrganiser,LvDocs_SelectedIndexChanged,Sub,LvDocs.SelectedIndexChanged,DocOrganiser.vb:660,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,LvContents_SelectedIndexChanged,Sub,LvContents.SelectedIndexChanged,DocOrganiser.vb:681,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,LvDocs_ItemCheck,Sub,LvDocs.ItemCheck,DocOrganiser.vb:700,none,,GAP?,
+DocOrganiser.vb,DocOrganiser,DocManager_Load,Sub,MyBase.Load,DocOrganiser.vb:291,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,DocManager_Shown,Sub,Me.Shown,DocOrganiser.vb:345,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,DocOrganiser_FormClosing,Sub,Me.FormClosing,DocOrganiser.vb:371,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,BtCopy_Click,Sub,BtCopy.Click,DocOrganiser.vb:398,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/doc_organiser.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+DocOrganiser.vb,DocOrganiser,BtNext_Click,Sub,BtNext.Click,DocOrganiser.vb:449,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,BhDocManager_Click,Sub,BhDocManager.Click,DocOrganiser.vb:467,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,CmVersion_Click,Sub,"CmVersion.Click, TsVersion.Click",DocOrganiser.vb:476,none,,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+DocOrganiser.vb,DocOrganiser,CmRename_Click,Sub,"CmRename.Click, TsRename.Click",DocOrganiser.vb:509,none,,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+DocOrganiser.vb,DocOrganiser,CmProperties_Click,Sub,"CmProperties.Click, TsProperties.Click",DocOrganiser.vb:618,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+DocOrganiser.vb,DocOrganiser,CmReset_Click,Sub,"CmReset.Click, TsReset.Click",DocOrganiser.vb:633,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+DocOrganiser.vb,DocOrganiser,TsUncheck_Click,Sub,TsUncheck.Click,DocOrganiser.vb:644,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+DocOrganiser.vb,DocOrganiser,LvDocs_SelectedIndexChanged,Sub,LvDocs.SelectedIndexChanged,DocOrganiser.vb:660,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,LvContents_SelectedIndexChanged,Sub,LvContents.SelectedIndexChanged,DocOrganiser.vb:681,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,LvDocs_ItemCheck,Sub,LvDocs.ItemCheck,DocOrganiser.vb:700,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 DocOrganiser.vb,DocOrganiser,Lv_ItemClicked,Sub,"LvDocs.ItemClicked, LvContents.ItemClicked",DocOrganiser.vb:718,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-DocOrganiser.vb,DocOrganiser,Lv_GotFocus,Sub,"LvDocs.GotFocus, LvContents.GotFocus",DocOrganiser.vb:737,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,Rt_MouseMove,Sub,"RtfDoc.MouseMove, RtfContents.MouseMove",DocOrganiser.vb:758,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,Rt_MouseClick,Sub,"RtfDoc.MouseClick, RtfContents.MouseClick",DocOrganiser.vb:789,none,,GAP?,
+DocOrganiser.vb,DocOrganiser,Lv_GotFocus,Sub,"LvDocs.GotFocus, LvContents.GotFocus",DocOrganiser.vb:737,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,Rt_MouseMove,Sub,"RtfDoc.MouseMove, RtfContents.MouseMove",DocOrganiser.vb:758,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+DocOrganiser.vb,DocOrganiser,Rt_MouseClick,Sub,"RtfDoc.MouseClick, RtfContents.MouseClick",DocOrganiser.vb:789,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 DownloadDeleteMsg.vb,DownloadDeleteMsg,DownloadDeleteMsg_Load,Sub,Me.Load,DownloadDeleteMsg.vb:105,none,,GAP?,
-DownloadDeleteMsg.vb,DownloadDeleteMsg,BtDelete_Click,Sub,BtDelete.Click,DownloadDeleteMsg.vb:137,none,,GAP?,
+DownloadDeleteMsg.vb,DownloadDeleteMsg,BtDelete_Click,Sub,BtDelete.Click,DownloadDeleteMsg.vb:137,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtHistory_Click,Sub,BtHistory.Click,DownloadDeleteMsg.vb:146,none,,GAP?,
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtCancel_Click,Sub,BtCancel.Click,DownloadDeleteMsg.vb:155,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DownloadProject.Files.vb,DownloadProject,BgDownloadTimer_DoWork,Sub,BgDownloadTimer.DoWork,DownloadProject.Files.vb:679,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
@@ -215,7 +215,7 @@ DownloadProject.vb,DownloadProject,BgWebFileSize_DoWork,Sub,BgWebFileSize.DoWork
 DownloadProject.vb,DownloadProject,BgWebFileSize_ProgressChanged,Sub,BgWebFileSize.ProgressChanged,DownloadProject.vb:1294,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,ExtendedDialogue_Load,Sub,MyBase.Load,ExtendedEditionDialogue.vb:102,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,ExtendedEditionDialogue_Shown,Sub,Me.Shown,ExtendedEditionDialogue.vb:177,none,,GAP?,
-ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtSave_Click,Sub,BtSave.Click,ExtendedEditionDialogue.vb:202,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtSave_Click,Sub,BtSave.Click,ExtendedEditionDialogue.vb:202,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtCancel_Click,Sub,BtCancel.Click,ExtendedEditionDialogue.vb:211,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BuBrowse_Click,Sub,"BuUser.Click, BuLibrary.Click",ExtendedEditionDialogue.vb:220,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,Tx_Enter,Sub,"TxUserFolder.Enter, TxLibrary.Enter",ExtendedEditionDialogue.vb:251,none,,GAP?,
@@ -246,50 +246,50 @@ FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BtClose_Click,Sub,BtClose.C
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,FindProfileFilesDialogue_FormClosed,Sub,Me.FormClosed,FindProfileFilesDialogue.vb:261,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindProfileFilesDialogue.vb:293,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmDisplayInfo_Click,Sub,CmDisplayInfo.Click,FindProfileFilesDialogue.vb:314,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmProperties_Click,Sub,CmProperties.Click,FindProfileFilesDialogue.vb:346,none,,GAP?,
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmProperties_Click,Sub,CmProperties.Click,FindProfileFilesDialogue.vb:346,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_ItemClicked,Sub,LvFound.ItemClicked,FindProfileFilesDialogue.vb:356,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_SelectedIndexChanged,Sub,LvFound.SelectedIndexChanged,FindProfileFilesDialogue.vb:366,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_RetrieveVirtualItem,Sub,LvFound.RetrieveVirtualItem,FindProfileFilesDialogue.vb:391,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_DoWork,Sub,BgGetFiles.DoWork,FindProfileFilesDialogue.vb:525,none,,GAP?,
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_RunWorkerCompleted,Sub,BgGetFiles.RunWorkerCompleted,FindProfileFilesDialogue.vb:544,none,,GAP?,
-GameManager.vb,GameManager,GameManager_Load,Sub,MyBase.Load,GameManager.vb:72,none,,GAP?,
-GameManager.vb,GameManager,GameManager_Shown,Sub,Me.Shown,GameManager.vb:166,none,,GAP?,
-GameManager.vb,GameManager,GameManager_KeyUp,Sub,Me.KeyUp,GameManager.vb:202,none,,GAP?,
+GameManager.vb,GameManager,GameManager_Load,Sub,MyBase.Load,GameManager.vb:72,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,GameManager_Shown,Sub,Me.Shown,GameManager.vb:166,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,GameManager_KeyUp,Sub,Me.KeyUp,GameManager.vb:202,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManager.vb,GameManager,BtClose_Click,Sub,BtClose.Click,GameManager.vb:218,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-GameManager.vb,GameManager,LvGames_Enter,Sub,LvGames.Enter,GameManager.vb:255,none,,GAP?,
-GameManager.vb,GameManager,LvGames_SelectedIndexChanged,Sub,LvGames.SelectedIndexChanged,GameManager.vb:271,none,,GAP?,
-GameManager.vb,GameManager,LvGames_ItemClicked,Sub,LvGames.ItemClicked,GameManager.vb:304,none,,GAP?,
-GameManager.vb,GameManager,LvGames_ItemChecked,Sub,LvGames.ItemChecked,GameManager.vb:332,none,,GAP?,
-GameManager.vb,GameManager,FvGameSaves_Enter,Sub,FvGameSaves.Enter,GameManager.vb:357,none,,GAP?,
-GameManager.vb,GameManager,FvGameSaves_SelectedIndexChanged,Sub,FvGameSaves.SelectedIndexChanged,GameManager.vb:374,none,,GAP?,
-GameManager.vb,GameManager,FvGameSaves_Leave,Sub,FvGameSaves.Leave,GameManager.vb:399,none,,GAP?,
-GameManager.vb,GameManager,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.Click",GameManager.vb:407,none,,GAP?,
-GameManager.vb,GameManager,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManager.vb:441,none,,GAP?,
-GameManager.vb,GameManager,LpGameList_MouseHover,Sub,"LpGameList.MouseHover, LbLocation.MouseHover",GameManager.vb:454,none,,GAP?,
-GameManager.vb,GameManager,LpGameList_MouseLeave,Sub,LpGameList.MouseLeave,GameManager.vb:469,none,,GAP?,
-GameManager.vb,GameManager,BhGameManager_Click,Sub,BhGameManager.Click,GameManager.vb:486,none,,GAP?,
-GameManager.vb,GameManager,TsArchive_Click,Sub,TsArchive.Click,GameManager.vb:495,none,,GAP?,
-GameManager.vb,GameManager,TsRestore_Click,Sub,TsRestore.Click,GameManager.vb:508,none,,GAP?,
-GameManager.vb,GameManager,TsActivate_Click,Sub,TsActivate.Click,GameManager.vb:549,none,,GAP?,
-GameManager.vb,GameManager,TsActivate_MouseUp,Sub,TsActivate.MouseUp,GameManager.vb:572,none,,GAP?,
-GameManager.vb,GameManager,TsDeactivate_Click,Sub,TsDeactivate.Click,GameManager.vb:638,none,,GAP?,
-GameManager.vb,GameManager,TsDeactivate_MouseUp,Sub,TsDeactivate.MouseUp,GameManager.vb:654,none,,GAP?,
-GameManager.vb,GameManager,TsDelete_Click,Sub,TsDelete.Click,GameManager.vb:681,none,,GAP?,
-GameManager.vb,GameManager,TsFinished_Click,Sub,TsFinished.Click,GameManager.vb:703,none,,GAP?,
+GameManager.vb,GameManager,LvGames_Enter,Sub,LvGames.Enter,GameManager.vb:255,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,LvGames_SelectedIndexChanged,Sub,LvGames.SelectedIndexChanged,GameManager.vb:271,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,LvGames_ItemClicked,Sub,LvGames.ItemClicked,GameManager.vb:304,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,LvGames_ItemChecked,Sub,LvGames.ItemChecked,GameManager.vb:332,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,FvGameSaves_Enter,Sub,FvGameSaves.Enter,GameManager.vb:357,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,FvGameSaves_SelectedIndexChanged,Sub,FvGameSaves.SelectedIndexChanged,GameManager.vb:374,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,FvGameSaves_Leave,Sub,FvGameSaves.Leave,GameManager.vb:399,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.Click",GameManager.vb:407,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManager.vb:441,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,LpGameList_MouseHover,Sub,"LpGameList.MouseHover, LbLocation.MouseHover",GameManager.vb:454,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,LpGameList_MouseLeave,Sub,LpGameList.MouseLeave,GameManager.vb:469,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,BhGameManager_Click,Sub,BhGameManager.Click,GameManager.vb:486,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,TsArchive_Click,Sub,TsArchive.Click,GameManager.vb:495,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+GameManager.vb,GameManager,TsRestore_Click,Sub,TsRestore.Click,GameManager.vb:508,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+GameManager.vb,GameManager,TsActivate_Click,Sub,TsActivate.Click,GameManager.vb:549,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+GameManager.vb,GameManager,TsActivate_MouseUp,Sub,TsActivate.MouseUp,GameManager.vb:572,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,TsDeactivate_Click,Sub,TsDeactivate.Click,GameManager.vb:638,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+GameManager.vb,GameManager,TsDeactivate_MouseUp,Sub,TsDeactivate.MouseUp,GameManager.vb:654,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManager.vb,GameManager,TsDelete_Click,Sub,TsDelete.Click,GameManager.vb:681,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+GameManager.vb,GameManager,TsFinished_Click,Sub,TsFinished.Click,GameManager.vb:703,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManagerRestore.vb,GameManagerRestore,GameManagerRestore_Load,Sub,MyBase.Load,GameManagerRestore.vb:88,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,BtDelete_Click,Sub,BtDelete.Click,GameManagerRestore.vb:166,none,,GAP?,
+GameManagerRestore.vb,GameManagerRestore,BtDelete_Click,Sub,BtDelete.Click,GameManagerRestore.vb:166,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 GameManagerRestore.vb,GameManagerRestore,BtRestore_Click,Sub,BtRestore.Click,GameManagerRestore.vb:218,none,,GAP?,
 GameManagerRestore.vb,GameManagerRestore,BtClose_Click,Sub,BtClose.Click,GameManagerRestore.vb:230,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 GameManagerRestore.vb,GameManagerRestore,FvRanges_ItemSelectionChanged,Sub,FvRanges.ItemSelectionChanged,GameManagerRestore.vb:240,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,FvGameSaves_Enter,Sub,FvGameSaves.Enter,GameManagerRestore.vb:252,none,,GAP?,
+GameManagerRestore.vb,GameManagerRestore,FvGameSaves_Enter,Sub,FvGameSaves.Enter,GameManagerRestore.vb:252,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManagerRestore.vb,GameManagerRestore,FvGameSaves_ItemSelectionChanged,Sub,FvGameSaves.ItemSelectionChanged,GameManagerRestore.vb:263,none,,GAP?,
 GameManagerRestore.vb,GameManagerRestore,FvGameSaves_KeyPress,Sub,FvGameSaves.KeyPress,GameManagerRestore.vb:278,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,FvGameSaves_Leave,Sub,FvGameSaves.Leave,GameManagerRestore.vb:289,none,,GAP?,
+GameManagerRestore.vb,GameManagerRestore,FvGameSaves_Leave,Sub,FvGameSaves.Leave,GameManagerRestore.vb:289,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManagerRestore.vb,GameManagerRestore,LbLocation_MouseHover,Sub,"LbLocation.MouseHover, LbRange.MouseHover, LbLocationHdg.MouseHover,",GameManagerRestore.vb:297,none,,GAP?,
 GameManagerRestore.vb,GameManagerRestore,LbLocation_MouseLeave,Sub,"LbLocation.MouseLeave, LbRange.MouseLeave, LbLocationHdg.MouseLeave,",GameManagerRestore.vb:323,none,,GAP?,
 GameManagerRestore.vb,GameManagerRestore,LpActions_MouseMove,Sub,LpActions.MouseMove,GameManagerRestore.vb:337,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.Click",GameManagerRestore.vb:350,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManagerRestore.vb:359,none,,GAP?,
+GameManagerRestore.vb,GameManagerRestore,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.Click",GameManagerRestore.vb:350,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+GameManagerRestore.vb,GameManagerRestore,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManagerRestore.vb:359,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameMapper.Workers.vb,GameMapper,BgModScanner_DoWork,Sub,BgModScanner.DoWork,GameMapper.Workers.vb:27,none,,GAP?,
 GameMapper.Workers.vb,GameMapper,BgModScanner_ProgressChanged,Sub,BgModScanner.ProgressChanged,GameMapper.Workers.vb:55,none,,GAP?,
 GameSaves.vb,GameSaves,BgSaveScanner_DoWork,Sub,BgSaveScanner.DoWork,GameSaves.vb:479,none,,GAP?,
@@ -302,7 +302,7 @@ GameSavesPathDialogue.vb,GameSavesPathDialogue,TxGameSaves_TextChanged,Sub,TxGam
 GameSavesPathDialogue.vb,GameSavesPathDialogue,BuBrowse_Click,Sub,BuBrowse.Click,GameSavesPathDialogue.vb:174,none,,GAP?,
 GameSavesPathDialogue.vb,GameSavesPathDialogue,LvGameSaves_ItemClicked,Sub,LvGameSaves.ItemClicked,GameSavesPathDialogue.vb:197,none,,GAP?,
 GameSavesPathDialogue.vb,GameSavesPathDialogue,LvGameSaves_SelectedIndexChanged,Sub,LvGameSaves.SelectedIndexChanged,GameSavesPathDialogue.vb:210,none,,GAP?,
-GameSavesPathDialogue.vb,GameSavesPathDialogue,BtSave_Click,Sub,BtSave.Click,GameSavesPathDialogue.vb:222,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+GameSavesPathDialogue.vb,GameSavesPathDialogue,BtSave_Click,Sub,BtSave.Click,GameSavesPathDialogue.vb:222,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 GameSavesPathDialogue.vb,GameSavesPathDialogue,BtCancel_Click,Sub,BtCancel.Click,GameSavesPathDialogue.vb:237,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Load,Sub,MyBase.Load,HakPatchEditor.vb:30,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Shown,Sub,Me.Shown,HakPatchEditor.vb:102,none,,GAP?,
@@ -312,7 +312,7 @@ HakPatchEditor.vb,HakPatchEditor,MsMoveUp_Click,Sub,MsMoveUp.Click,HakPatchEdito
 HakPatchEditor.vb,HakPatchEditor,MsMoveDown_Click,Sub,MsMoveDown.Click,HakPatchEditor.vb:151,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,CmMoveUp_Click,Sub,CmMoveUp.Click,HakPatchEditor.vb:159,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,CmMoveDown_Click,Sub,CmMoveDown.Click,HakPatchEditor.vb:167,none,,GAP?,
-HakPatchEditor.vb,HakPatchEditor,BtSave_Click,Sub,BtSave.Click,HakPatchEditor.vb:202,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+HakPatchEditor.vb,HakPatchEditor,BtSave_Click,Sub,BtSave.Click,HakPatchEditor.vb:202,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 HakPatchEditor.vb,HakPatchEditor,BhHelp_Click,Sub,BhHelp.Click,HakPatchEditor.vb:222,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Load,Sub,MyBase.Load,InstallationAnalyser.vb:106,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Shown,Sub,Me.Shown,InstallationAnalyser.vb:198,none,,GAP?,
@@ -322,8 +322,8 @@ InstallationAnalyser.vb,InstallationAnalyser,BtRefresh_Click,Sub,BtRefresh.Click
 InstallationAnalyser.vb,InstallationAnalyser,BtSelect_Click,Sub,BtSelect.Click,InstallationAnalyser.vb:300,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 InstallationAnalyser.vb,InstallationAnalyser,BtClose_Click,Sub,BtClose.Click,InstallationAnalyser.vb:312,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 InstallationAnalyser.vb,InstallationAnalyser,CmOpenFolder_Click,Sub,CmOpenFolder.Click,InstallationAnalyser.vb:325,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,CmProperties_Click,Sub,CmProperties.Click,InstallationAnalyser.vb:334,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,CmCharacterSummary_Click,Sub,CmCharacterSummary.Click,InstallationAnalyser.vb:348,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,CmProperties_Click,Sub,CmProperties.Click,InstallationAnalyser.vb:334,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+InstallationAnalyser.vb,InstallationAnalyser,CmCharacterSummary_Click,Sub,CmCharacterSummary.Click,InstallationAnalyser.vb:348,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 InstallationAnalyser.vb,InstallationAnalyser,LbFilesInFolder_Click,Sub,LbFilesInFolder.Click,InstallationAnalyser.vb:365,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,MiDetails_Click,Sub,MiDetails.Click,InstallationAnalyser.vb:373,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,Lv_ItemClicked,Sub,"LvFolders.ItemClicked, LvFiles.ItemClicked",InstallationAnalyser.vb:391,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
@@ -338,14 +338,14 @@ InstallationAnalyser.vb,InstallationAnalyser,BhInstallationAnalyser_Click,Sub,Bh
 InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Load,Sub,MyBase.Load,InstallationManagerEditor.vb:110,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Shown,Sub,Me.Shown,InstallationManagerEditor.vb:232,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManagerEditor_FormClosing,Sub,Me.FormClosing,InstallationManagerEditor.vb:244,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,BtApply_Click,Sub,BtApply.Click,InstallationManagerEditor.vb:268,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-InstallationManagerEditor.vb,InstallationManagerEditor,BtSave_Click,Sub,BtSave.Click,InstallationManagerEditor.vb:320,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+InstallationManagerEditor.vb,InstallationManagerEditor,BtApply_Click,Sub,BtApply.Click,InstallationManagerEditor.vb:268,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+InstallationManagerEditor.vb,InstallationManagerEditor,BtSave_Click,Sub,BtSave.Click,InstallationManagerEditor.vb:320,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 InstallationManagerEditor.vb,InstallationManagerEditor,BtCancel_Click,Sub,BtCancel.Click,InstallationManagerEditor.vb:332,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 InstallationManagerEditor.vb,InstallationManagerEditor,TsCheckpoint_Click,Sub,TsCheckpoint.Click,InstallationManagerEditor.vb:347,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsCreateSet_Click,Sub,TsCreateSet.Click,InstallationManagerEditor.vb:359,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsRename_Click,Sub,TsRename.Click,InstallationManagerEditor.vb:381,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsPrune_Click,Sub,TsPrune.Click,InstallationManagerEditor.vb:398,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsDelete_Click,Sub,TsDelete.Click,InstallationManagerEditor.vb:424,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,TsDelete_Click,Sub,TsDelete.Click,InstallationManagerEditor.vb:424,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 InstallationManagerEditor.vb,InstallationManagerEditor,TsSortBy_Click,Sub,"TsUpdated.Click, TsCreated.Click, TsSetName.Click",InstallationManagerEditor.vb:440,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsSortOrder_Click,Sub,"TsAscending.Click, TsDescending.Click",InstallationManagerEditor.vb:476,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsGroupSelector_Click,Sub,TsGroupSelector.Click,InstallationManagerEditor.vb:500,none,,GAP?,
@@ -358,13 +358,13 @@ InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_Leave,Sub,LvSets.L
 InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_RetrieveVirtualItem,Sub,LvGroups.RetrieveVirtualItem,InstallationManagerEditor.vb:649,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,InstallationManagerEditor.vb:670,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_ItemClicked,Sub,LvGroups.ItemClicked,InstallationManagerEditor.vb:687,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,InstallationManagerEditor.vb:726,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_ItemClicked,Sub,LvMods.ItemClicked,InstallationManagerEditor.vb:746,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,InstallationManagerEditor.vb:726,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_ItemClicked,Sub,LvMods.ItemClicked,InstallationManagerEditor.vb:746,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 InstallationManagerEditor.vb,InstallationManagerEditor,LvGroupSelector_ItemCheck,Sub,LvGroupSelector.ItemCheck,InstallationManagerEditor.vb:779,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Load,Sub,MyBase.Load,MenuItemEditor.vb:188,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Shown,Sub,Me.Shown,MenuItemEditor.vb:295,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,BtCancel_Click,Sub,BtCancel.Click,MenuItemEditor.vb:309,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-MenuItemEditor.vb,MenuItemEditor,BtSave_Click,Sub,BtSave.Click,MenuItemEditor.vb:320,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+MenuItemEditor.vb,MenuItemEditor,BtSave_Click,Sub,BtSave.Click,MenuItemEditor.vb:320,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 MenuItemEditor.vb,MenuItemEditor,TxMenuText_KeyPress,Sub,TxMenuText.KeyPress,MenuItemEditor.vb:482,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,TxMenuText_TextChanged,Sub,TxMenuText.TextChanged,MenuItemEditor.vb:500,none,,GAP?,
 ModExplorer.ListManager.vb,ModExplorer,BgPopulate_DoWork,Sub,BgPopulate.DoWork,ModExplorer.ListManager.vb:45,none,,GAP?,
@@ -405,46 +405,46 @@ ModExplorer.vb,ModExplorer,TsRemovePrefix_Click,Sub,TsRemovePrefix.Click,ModExpl
 ModExplorer.vb,ModExplorer,BgNotes_DoWork,Sub,BgNotes.DoWork,ModExplorer.vb:1099,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ModExplorer.vb,ModExplorer,BgNotes_ProgressChanged,Sub,BgNotes.ProgressChanged,ModExplorer.vb:1131,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ModExplorer.vb,ModExplorer,BgNotes_RunWorkerCompleted,Sub,BgNotes.RunWorkerCompleted,ModExplorer.vb:1141,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModFindAndRename.vb,ModFindAndRename,ModFindAndReplace_Load,Sub,MyBase.Load,ModFindAndRename.vb:53,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,BtApply_Click,Sub,BtApply.Click,ModFindAndRename.vb:133,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-ModFindAndRename.vb,ModFindAndRename,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,ModFindAndRename.vb:241,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,ModFindAndRename.vb:262,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,LvMods_ItemClicked,Sub,LvMods.ItemClicked,ModFindAndRename.vb:278,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,LvMods_MouseDoubleClick,Sub,LvMods.MouseDoubleClick,ModFindAndRename.vb:292,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,BuClearFind_Click,Sub,BuClearFind.Click,ModFindAndRename.vb:308,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,BuClearReplace_Click,Sub,BuClearReplace.Click,ModFindAndRename.vb:317,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,CbMatchStart_CheckedChanged,Sub,CbMatchStart.CheckedChanged,ModFindAndRename.vb:326,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,CbMatchCase_CheckedChanged,Sub,CbMatchCase.CheckedChanged,ModFindAndRename.vb:339,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TxFind_KeyDown,Sub,TxFind.KeyDown,ModFindAndRename.vb:352,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TxFind_TextChanged,Sub,TxFind.TextChanged,ModFindAndRename.vb:366,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TxReplace_KeyPress,Sub,"TxFind.KeyPress, TxReplace.KeyPress",ModFindAndRename.vb:407,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TxReplace_TextChanged,Sub,TxReplace.TextChanged,ModFindAndRename.vb:417,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TxReplace_KeyDown,Sub,TxReplace.KeyDown,ModFindAndRename.vb:427,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsFindNext_Click,Sub,TsFindNext.Click,ModFindAndRename.vb:449,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsReplace_Click,Sub,TsReplace.Click,ModFindAndRename.vb:466,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsReplaceAll_Click,Sub,TsReplaceAll.Click,ModFindAndRename.vb:487,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsUndo_Click,Sub,TsUndo.Click,ModFindAndRename.vb:509,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsUndoAll_Click,Sub,TsUndoAll.Click,ModFindAndRename.vb:534,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,TsHelpFindAndRename_Click,Sub,TsHelpFindAndRename.Click,ModFindAndRename.vb:570,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,BgReplaceAll_DoWork,Sub,BgReplaceAll.DoWork,ModFindAndRename.vb:685,none,,GAP?,
-ModFindAndRename.vb,ModFindAndRename,BgReplaceAll_ProgressChanged,Sub,BgReplaceAll.ProgressChanged,ModFindAndRename.vb:693,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_Load,Sub,MyBase.Load,ModPlayViewer.vb:124,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_Shown,Sub,Me.Shown,ModPlayViewer.vb:260,none,,GAP?,
+ModFindAndRename.vb,ModFindAndRename,ModFindAndReplace_Load,Sub,MyBase.Load,ModFindAndRename.vb:53,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,BtApply_Click,Sub,BtApply.Click,ModFindAndRename.vb:133,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,ModFindAndRename.vb:241,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,ModFindAndRename.vb:262,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,LvMods_ItemClicked,Sub,LvMods.ItemClicked,ModFindAndRename.vb:278,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,LvMods_MouseDoubleClick,Sub,LvMods.MouseDoubleClick,ModFindAndRename.vb:292,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,BuClearFind_Click,Sub,BuClearFind.Click,ModFindAndRename.vb:308,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,BuClearReplace_Click,Sub,BuClearReplace.Click,ModFindAndRename.vb:317,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,CbMatchStart_CheckedChanged,Sub,CbMatchStart.CheckedChanged,ModFindAndRename.vb:326,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,CbMatchCase_CheckedChanged,Sub,CbMatchCase.CheckedChanged,ModFindAndRename.vb:339,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TxFind_KeyDown,Sub,TxFind.KeyDown,ModFindAndRename.vb:352,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TxFind_TextChanged,Sub,TxFind.TextChanged,ModFindAndRename.vb:366,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TxReplace_KeyPress,Sub,"TxFind.KeyPress, TxReplace.KeyPress",ModFindAndRename.vb:407,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TxReplace_TextChanged,Sub,TxReplace.TextChanged,ModFindAndRename.vb:417,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TxReplace_KeyDown,Sub,TxReplace.KeyDown,ModFindAndRename.vb:427,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsFindNext_Click,Sub,TsFindNext.Click,ModFindAndRename.vb:449,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsReplace_Click,Sub,TsReplace.Click,ModFindAndRename.vb:466,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsReplaceAll_Click,Sub,TsReplaceAll.Click,ModFindAndRename.vb:487,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsUndo_Click,Sub,TsUndo.Click,ModFindAndRename.vb:509,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsUndoAll_Click,Sub,TsUndoAll.Click,ModFindAndRename.vb:534,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,TsHelpFindAndRename_Click,Sub,TsHelpFindAndRename.Click,ModFindAndRename.vb:570,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,BgReplaceAll_DoWork,Sub,BgReplaceAll.DoWork,ModFindAndRename.vb:685,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModFindAndRename.vb,ModFindAndRename,BgReplaceAll_ProgressChanged,Sub,BgReplaceAll.ProgressChanged,ModFindAndRename.vb:693,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
+ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_Load,Sub,MyBase.Load,ModPlayViewer.vb:124,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_Shown,Sub,Me.Shown,ModPlayViewer.vb:260,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,TsCharacter_Click,Sub,TsCharacter.Click,ModPlayViewer.vb:277,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModPlayViewer.vb,ModPlayViewer,BhModsPlayed_Click,Sub,BhModsPlayed.Click,ModPlayViewer.vb:293,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,BtRecent_Click,Sub,"BtRecent.Click, CmAddToRecentMods.Click",ModPlayViewer.vb:302,none,,GAP?,
+ModPlayViewer.vb,ModPlayViewer,BhModsPlayed_Click,Sub,BhModsPlayed.Click,ModPlayViewer.vb:293,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,BtRecent_Click,Sub,"BtRecent.Click, CmAddToRecentMods.Click",ModPlayViewer.vb:302,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,BtSelect_Click,Sub,"BtSelect.Click, CmSelect.Click",ModPlayViewer.vb:321,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModPlayViewer.vb,ModPlayViewer,CmCopyName_Click,Sub,CmCopyName.Click,ModPlayViewer.vb:339,none,,GAP?,
+ModPlayViewer.vb,ModPlayViewer,CmCopyName_Click,Sub,CmCopyName.Click,ModPlayViewer.vb:339,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,BtClose_Click,Sub,BtClose.Click,ModPlayViewer.vb:349,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_FormClosing,Sub,Me.FormClosing,ModPlayViewer.vb:357,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,LvModInfo_RetrieveVirtualItem,Sub,LvModInfo.RetrieveVirtualItem,ModPlayViewer.vb:397,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,LvModInfo_SelectedIndexChanged,Sub,LvModInfo.SelectedIndexChanged,ModPlayViewer.vb:423,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,LvModInfo_ItemClicked,Sub,LvModInfo.ItemClicked,ModPlayViewer.vb:502,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,TsEndFilter_Click,Sub,TsEndFilter.Click,ModPlayViewer.vb:534,none,,GAP?,
+ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_FormClosing,Sub,Me.FormClosing,ModPlayViewer.vb:357,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,LvModInfo_RetrieveVirtualItem,Sub,LvModInfo.RetrieveVirtualItem,ModPlayViewer.vb:397,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,LvModInfo_SelectedIndexChanged,Sub,LvModInfo.SelectedIndexChanged,ModPlayViewer.vb:423,none,,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
+ModPlayViewer.vb,ModPlayViewer,LvModInfo_ItemClicked,Sub,LvModInfo.ItemClicked,ModPlayViewer.vb:502,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,TsEndFilter_Click,Sub,TsEndFilter.Click,ModPlayViewer.vb:534,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,TsFilters_Click,Sub,TsFilters.Click,ModPlayViewer.vb:559,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_DoWork,Sub,BgGetPlayedInfo.DoWork,ModPlayViewer.vb:615,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_RunWorkerCompleted,Sub,BgGetPlayedInfo.RunWorkerCompleted,ModPlayViewer.vb:656,none,,GAP?,
-ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,ModPlayViewer.vb:831,none,,GAP?,
+ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_DoWork,Sub,BgGetPlayedInfo.DoWork,ModPlayViewer.vb:615,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_RunWorkerCompleted,Sub,BgGetPlayedInfo.RunWorkerCompleted,ModPlayViewer.vb:656,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,ModPlayViewer.vb:831,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,RttNotes_RichTextContentSaved,Sub,RttNotes.RichTextContentSaved,ModPlayViewer.vb:847,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 MsgPicture.vb,MsgPicture,MsgPicture_Load,Sub,MyBase.Load,MsgPicture.vb:191,none,,GAP?,
 MsgPicture.vb,MsgPicture,MsgPicture_Shown,Sub,Me.Shown,MsgPicture.vb:279,none,,GAP?,
@@ -650,29 +650,29 @@ NIT.StatusBar.vb,NIT,BtGroup_Click,Sub,BtGroup.Click,NIT.StatusBar.vb:24,none,,G
 NIT.StatusBar.vb,NIT,BtRecycleToggle_Click,Sub,BtRecycleToggle.Click,NIT.StatusBar.vb:59,none,,GAP?,
 NIT.StatusBar.vb,NIT,BtOverwrite_Click,Sub,BtOverwrite.Click,NIT.StatusBar.vb:73,none,,GAP?,
 NIT.StatusBar.vb,NIT,BtSelectTextFile_Click,Sub,BtSelectTextFile.Click,NIT.StatusBar.vb:87,none,,GAP?,
-NIT.Workers.vb,NIT,BgTasks_DoWork,Sub,BgTasks.DoWork,NIT.Workers.vb:173,none,,GAP?,
-NIT.Workers.vb,NIT,BgTasks_ProgressChanged,Sub,BgTasks.ProgressChanged,NIT.Workers.vb:193,none,,GAP?,
-NIT.Workers.vb,NIT,BgRunNwn_DoWork,Sub,BgRunNwn.DoWork,NIT.Workers.vb:880,none,,GAP?,
-NIT.Workers.vb,NIT,BgRunNwn_ProgressChanged,Sub,BgRunNwn.ProgressChanged,NIT.Workers.vb:947,none,,GAP?,
-NIT.Workers.vb,NIT,BgRunNwnToolset_DoWork,Sub,BgRunNwnToolset.DoWork,NIT.Workers.vb:1118,none,,GAP?,
-NIT.Workers.vb,NIT,BgRunNwnToolset_ProgressChanged,Sub,BgRunNwnToolset.ProgressChanged,NIT.Workers.vb:1134,none,,GAP?,
-NIT.vb,NIT,NIT_Load,Sub,MyBase.Load,NIT.vb:270,none,,GAP?,
-NIT.vb,NIT,NIT_Shown,Sub,Me.Shown,NIT.vb:868,none,,GAP?,
-NIT.vb,NIT,NIT_ResizeBegin,Sub,Me.ResizeBegin,NIT.vb:1292,none,,GAP?,
-NIT.vb,NIT,NIT_ResizeEnd,Sub,Me.ResizeEnd,NIT.vb:1318,none,,GAP?,
-NIT.vb,NIT,NIT_ClientSizeChanged,Sub,Me.ClientSizeChanged,NIT.vb:1334,none,,GAP?,
-NIT.vb,NIT,TlContents_SizeChanged,Sub,TlContents.SizeChanged,NIT.vb:1374,none,,GAP?,
-NIT.vb,NIT,RtModNotes_SizeChanged,Sub,RtModNotes.SizeChanged,NIT.vb:1387,none,,GAP?,
-NIT.vb,NIT,FvMods_SizeChanged,Sub,FvMods.SizeChanged,NIT.vb:1409,none,,GAP?,
-NIT.vb,NIT,ScContents_SplitterMoved,Sub,ScContents.SplitterMoved,NIT.vb:1422,none,,GAP?,
-NIT.vb,NIT,Fv_GotFocus,Sub,"FvMods.GotFocus, FvContents.GotFocus, FvDetails.GotFocus",NIT.vb:1440,none,,GAP?,
-NIT.vb,NIT,TsbModSelector_GotFocus,Sub,TsbModSelector.GotFocus,NIT.vb:1457,none,,GAP?,
-NIT.vb,NIT,Ribbon_GotFocus,Sub,TbRibbon.GotFocus,NIT.vb:1512,none,,GAP?,
+NIT.Workers.vb,NIT,BgTasks_DoWork,Sub,BgTasks.DoWork,NIT.Workers.vb:173,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.Workers.vb,NIT,BgTasks_ProgressChanged,Sub,BgTasks.ProgressChanged,NIT.Workers.vb:193,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.Workers.vb,NIT,BgRunNwn_DoWork,Sub,BgRunNwn.DoWork,NIT.Workers.vb:880,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
+NIT.Workers.vb,NIT,BgRunNwn_ProgressChanged,Sub,BgRunNwn.ProgressChanged,NIT.Workers.vb:947,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.Workers.vb,NIT,BgRunNwnToolset_DoWork,Sub,BgRunNwnToolset.DoWork,NIT.Workers.vb:1118,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
+NIT.Workers.vb,NIT,BgRunNwnToolset_ProgressChanged,Sub,BgRunNwnToolset.ProgressChanged,NIT.Workers.vb:1134,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,NIT_Load,Sub,MyBase.Load,NIT.vb:270,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,NIT_Shown,Sub,Me.Shown,NIT.vb:868,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,NIT_ResizeBegin,Sub,Me.ResizeBegin,NIT.vb:1292,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,NIT_ResizeEnd,Sub,Me.ResizeEnd,NIT.vb:1318,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,NIT_ClientSizeChanged,Sub,Me.ClientSizeChanged,NIT.vb:1334,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,TlContents_SizeChanged,Sub,TlContents.SizeChanged,NIT.vb:1374,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,RtModNotes_SizeChanged,Sub,RtModNotes.SizeChanged,NIT.vb:1387,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,FvMods_SizeChanged,Sub,FvMods.SizeChanged,NIT.vb:1409,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,ScContents_SplitterMoved,Sub,ScContents.SplitterMoved,NIT.vb:1422,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,Fv_GotFocus,Sub,"FvMods.GotFocus, FvContents.GotFocus, FvDetails.GotFocus",NIT.vb:1440,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,TsbModSelector_GotFocus,Sub,TsbModSelector.GotFocus,NIT.vb:1457,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,Ribbon_GotFocus,Sub,TbRibbon.GotFocus,NIT.vb:1512,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 NIT.vb,NIT,RttNotes_RichTextContentSaved,Sub,RttNotes.RichTextContentSaved,NIT.vb:1528,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-NIT.vb,NIT,RttDetails_RichTextContentSaved,Sub,RttDetails.RichTextContentSaved,NIT.vb:1541,none,,GAP?,
-NIT.vb,NIT,LbProfile_MouseEnter,Sub,"LbProfile.MouseEnter, LbContents.MouseEnter, LbDetails.MouseEnter",NIT.vb:1563,none,,GAP?,
-NIT.vb,NIT,AppDefs_VersionChecked,Sub,AppDefs.VersionChecked,NIT.vb:1602,none,,GAP?,
-NIT.vb,NIT,Fv_OpenImage,Sub,"FvContents.OpenImage, FvDetails.OpenImage",NIT.vb:1627,none,,GAP?,
+NIT.vb,NIT,RttDetails_RichTextContentSaved,Sub,RttDetails.RichTextContentSaved,NIT.vb:1541,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,LbProfile_MouseEnter,Sub,"LbProfile.MouseEnter, LbContents.MouseEnter, LbDetails.MouseEnter",NIT.vb:1563,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,AppDefs_VersionChecked,Sub,AppDefs.VersionChecked,NIT.vb:1602,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
+NIT.vb,NIT,Fv_OpenImage,Sub,"FvContents.OpenImage, FvDetails.OpenImage",NIT.vb:1627,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
 NetworkManager.vb,NetworkManager,BgNetwork_DoWork,Sub,BgNetwork.DoWork,NetworkManager.vb:474,none,,GAP?,
 NetworkManager.vb,NetworkManager,BgSync_DoWork,Sub,BgSync.DoWork,NetworkManager.vb:553,none,,GAP?,
 NitDownload.vb,NitDownload,NitDownload_Load,Sub,MyBase.Load,NitDownload.vb:55,none,,GAP?,
@@ -786,7 +786,7 @@ Settings.vb,Settings,TsToolbar_Click,Sub,TsToolbar.Click,Settings.vb:365,none,,G
 Settings.vb,Settings,TsExport_Click,Sub,TsExport.Click,Settings.vb:385,none,,GAP?,
 Settings.vb,Settings,TsImport_Click,Sub,TsImport.Click,Settings.vb:433,none,,GAP?,
 Settings.vb,Settings,TsImportMaps_Click,Sub,TsImportMaps.Click,Settings.vb:577,none,,GAP?,
-Settings.vb,Settings,BtSave_Click,Sub,BtSave.Click,Settings.vb:674,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+Settings.vb,Settings,BtSave_Click,Sub,BtSave.Click,Settings.vb:674,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 Settings.vb,Settings,BtReset_Click,Sub,BtReset.Click,Settings.vb:764,none,,GAP?,
 Settings.vb,Settings,BtCancel_Click,Sub,BtCancel.Click,Settings.vb:800,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 Settings.vb,Settings,CmsResetAll_Click,Sub,CmsResetAll.Click,Settings.vb:868,none,,GAP?,
@@ -844,39 +844,39 @@ StartScreenManager.vb,StartScreenManager,RbAutoSelect_CheckedChanged,Sub,RbAutoS
 StartScreenManager.vb,StartScreenManager,RbShowPrefixed_CheckedChanged,Sub,RbShowPrefixed.CheckedChanged,StartScreenManager.vb:2562,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 StartScreenManager.vb,StartScreenManager,RbRepairPrefixed_Click,Sub,RbRepairPrefixed.Click,StartScreenManager.vb:2605,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 UpdateInstaller.vb,UpdateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,UpdateInstaller.vb:66,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-UpdateInstaller.vb,UpdateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,UpdateInstaller.vb:98,none,,GAP?,
+UpdateInstaller.vb,UpdateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,UpdateInstaller.vb:98,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Load,Sub,MyBase.Load,UserResponseEditor.vb:35,none,,GAP?,
 UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Shown,Sub,Me.Shown,UserResponseEditor.vb:96,none,,GAP?,
 UserResponseEditor.vb,UserResponseEditor,LvResponses_SelectedIndexChanged,Sub,LvResponses.SelectedIndexChanged,UserResponseEditor.vb:106,none,,GAP?,
-UserResponseEditor.vb,UserResponseEditor,BtDelete_Click,Sub,BtDelete.Click,UserResponseEditor.vb:125,none,,GAP?,
+UserResponseEditor.vb,UserResponseEditor,BtDelete_Click,Sub,BtDelete.Click,UserResponseEditor.vb:125,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 UserResponseEditor.vb,UserResponseEditor,BtClose_Click,Sub,BtClose.Click,UserResponseEditor.vb:152,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-WizardBuilder.vb,WizardBuilder,WizardBuilder_Load,Sub,MyBase.Load,WizardBuilder.vb:128,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,WizardBuilder_Shown,Sub,Me.Shown,WizardBuilder.vb:246,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,LvFiles_ColumnHeaderHeightChanged,Sub,LvFiles.ColumnHeaderHeightChanged,WizardBuilder.vb:267,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,WizardBuilder_Resize,Sub,Me.Resize,WizardBuilder.vb:289,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,BnView_MenuItemChecked,Sub,BnView.MenuItemChecked,WizardBuilder.vb:304,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,LvOneAndMany_KeyDown,Sub,"LvSelectOne.KeyDown, LvSelectMany.KeyDown",WizardBuilder.vb:334,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,Lv_SelectedIndexChanged,Sub,"LvSelectOne.SelectedIndexChanged, LvSelectMany.SelectedIndexChanged",WizardBuilder.vb:347,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,Lv_GotFocus,Sub,"LvSelectOne.GotFocus, LvSelectMany.GotFocus, LvExcludes.GotFocus",WizardBuilder.vb:357,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,LbDisplayName_Click,Sub,LbDisplayName.Click,WizardBuilder.vb:397,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_MouseEnter,Sub,TxDisplayName.MouseEnter,WizardBuilder.vb:414,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_MouseLeave,Sub,TxDisplayName.MouseLeave,WizardBuilder.vb:426,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_GotFocus,Sub,TxDisplayName.GotFocus,WizardBuilder.vb:438,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_LostFocus,Sub,TxDisplayName.LostFocus,WizardBuilder.vb:453,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_KeyUp,Sub,TxDisplayName.KeyDown,WizardBuilder.vb:530,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,TxDisplayName_KeyPress,Sub,TxDisplayName.KeyPress,WizardBuilder.vb:541,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,BhWizardBuilder_Click,Sub,BhWizardBuilder.Click,WizardBuilder.vb:572,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,BtAddRemove_Click,Sub,"BtAddOne.Click, BtRemoveOne.Click, BtAddMany.Click, BtRemoveMany.Click,",WizardBuilder.vb:589,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,BtAddAll_Click,Sub,"BtAddAllOne.Click, BtAddAllMany.Click, BtAddAllExclude.Click",WizardBuilder.vb:613,none,,GAP?,
-WizardBuilder.vb,WizardBuilder,BtSave_Click,Sub,BtSave.Click,WizardBuilder.vb:632,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+WizardBuilder.vb,WizardBuilder,WizardBuilder_Load,Sub,MyBase.Load,WizardBuilder.vb:128,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,WizardBuilder_Shown,Sub,Me.Shown,WizardBuilder.vb:246,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,LvFiles_ColumnHeaderHeightChanged,Sub,LvFiles.ColumnHeaderHeightChanged,WizardBuilder.vb:267,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,WizardBuilder_Resize,Sub,Me.Resize,WizardBuilder.vb:289,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,BnView_MenuItemChecked,Sub,BnView.MenuItemChecked,WizardBuilder.vb:304,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,LvOneAndMany_KeyDown,Sub,"LvSelectOne.KeyDown, LvSelectMany.KeyDown",WizardBuilder.vb:334,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,Lv_SelectedIndexChanged,Sub,"LvSelectOne.SelectedIndexChanged, LvSelectMany.SelectedIndexChanged",WizardBuilder.vb:347,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,Lv_GotFocus,Sub,"LvSelectOne.GotFocus, LvSelectMany.GotFocus, LvExcludes.GotFocus",WizardBuilder.vb:357,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,LbDisplayName_Click,Sub,LbDisplayName.Click,WizardBuilder.vb:397,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_MouseEnter,Sub,TxDisplayName.MouseEnter,WizardBuilder.vb:414,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_MouseLeave,Sub,TxDisplayName.MouseLeave,WizardBuilder.vb:426,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_GotFocus,Sub,TxDisplayName.GotFocus,WizardBuilder.vb:438,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_LostFocus,Sub,TxDisplayName.LostFocus,WizardBuilder.vb:453,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_KeyUp,Sub,TxDisplayName.KeyDown,WizardBuilder.vb:530,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,TxDisplayName_KeyPress,Sub,TxDisplayName.KeyPress,WizardBuilder.vb:541,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,BhWizardBuilder_Click,Sub,BhWizardBuilder.Click,WizardBuilder.vb:572,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
+WizardBuilder.vb,WizardBuilder,BtAddRemove_Click,Sub,"BtAddOne.Click, BtRemoveOne.Click, BtAddMany.Click, BtRemoveMany.Click,",WizardBuilder.vb:589,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+WizardBuilder.vb,WizardBuilder,BtAddAll_Click,Sub,"BtAddAllOne.Click, BtAddAllMany.Click, BtAddAllExclude.Click",WizardBuilder.vb:613,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
+WizardBuilder.vb,WizardBuilder,BtSave_Click,Sub,BtSave.Click,WizardBuilder.vb:632,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 WizardBuilder.vb,WizardBuilder,BtCancel_Click,Sub,BtCancel.Click,WizardBuilder.vb:697,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-WizardBuilder.vb,WizardBuilder,BtDelete_Click,Sub,BtDelete.Click,WizardBuilder.vb:707,none,,GAP?,
+WizardBuilder.vb,WizardBuilder,BtDelete_Click,Sub,BtDelete.Click,WizardBuilder.vb:707,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Load,Sub,MyBase.Load,WorkshopNameEditor.vb:60,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Shown,Sub,Me.Shown,WorkshopNameEditor.vb:103,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,FvWorkshop_ItemClicked,Sub,FvWorkshop.ItemClicked,WorkshopNameEditor.vb:129,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_KeyPress,Sub,TxModName.KeyPress,WorkshopNameEditor.vb:139,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_TextChanged,Sub,TxModName.TextChanged,WorkshopNameEditor.vb:149,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-WorkshopNameEditor.vb,WorkshopNameEditor,BtApply_Click,Sub,BtApply.Click,WorkshopNameEditor.vb:163,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
+WorkshopNameEditor.vb,WorkshopNameEditor,BtApply_Click,Sub,BtApply.Click,WorkshopNameEditor.vb:163,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Load,Sub,MyBase.Load,WorkshopViewer.vb:30,none,,GAP?,
 WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Shown,Sub,Me.Shown,WorkshopViewer.vb:152,none,,GAP?,
 WorkshopViewer.vb,WorkshopViewer,BhWorkshop_Click,Sub,BhWorkshop.Click,WorkshopViewer.vb:163,none,,GAP?,
