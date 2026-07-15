@@ -11,6 +11,7 @@ from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.state import State
 from vaultkeeper.game.install_verify import (
     InstallLedger,
+    verify_install_states,
     verify_ledger,
     verify_located,
     verify_placement,
@@ -111,6 +112,63 @@ def test_verify_located_present_absent_and_skips(tmp_path: Path) -> None:
     checked, findings = verify_located(ledger, {"hak": tmp_path / "hak", "nwn": tmp_path})
     assert checked == 2  # present + absent (nwn config skipped)
     assert len(findings) == 1 and findings[0].file_key.endswith("absent.hak")
+
+
+def _mod(group: str, name: str, files: list[FileKeyInfo], state: State):
+    from vaultkeeper.core.mod_data import ModData
+
+    md = ModData(group=group, mod_name=name)
+    md.files.extend(files)
+    md.mod_state = state
+    return md
+
+
+def test_verify_install_states_flags_ignored_and_hallucinated(tmp_path: Path) -> None:
+    from vaultkeeper.core.profile_data import ProfileData
+
+    (tmp_path / "hak").mkdir()
+    (tmp_path / "hak" / "present.hak").write_bytes(b"x")
+    folders = {"hak": tmp_path / "hak"}
+
+    pd = ProfileData()
+    pd.add_mod(_mod("G", "OK", [FileKeyInfo("G", "OK", "hak", "present.hak")],
+                    State.INSTALLED))  # present + installed -> fine
+    pd.add_mod(_mod("G", "Ignored", [FileKeyInfo("G", "Ignored", "hak", "present.hak")],
+                    State.NOT_INSTALLED))  # present but says not-installed
+    pd.add_mod(_mod("G", "Ghost", [FileKeyInfo("G", "Ghost", "hak", "missing.hak")],
+                    State.INSTALLED))  # says installed but absent
+
+    checked, findings = verify_install_states(pd, folders)
+    assert checked == 3
+    kinds = {f.file_key: f.kind for f in findings}
+    assert kinds == {"Ignored": "ignored", "Ghost": "hallucination"}
+
+
+def test_verify_install_states_ignores_config_and_markers(tmp_path: Path) -> None:
+    from vaultkeeper.core.profile_data import ProfileData
+
+    pd = ProfileData()
+    pd.add_mod(_mod(
+        "G", "ConfigOnly",
+        [FileKeyInfo("G", "ConfigOnly", C.MOD_NIT_DIR, "ConfigOnly.nitres"),
+         FileKeyInfo("G", "ConfigOnly", C.MOD_ROOT_FOLDER, "nwn.ini")],
+        State.INSTALLED,
+    ))
+    checked, findings = verify_install_states(pd, {})
+    assert checked == 0 and not findings  # only config / markers -> not content
+
+
+def test_verify_install_states_partial_state_is_not_ignored(tmp_path: Path) -> None:
+    from vaultkeeper.core.profile_data import ProfileData
+
+    (tmp_path / "mod").mkdir()
+    (tmp_path / "mod" / "c.mod").write_bytes(b"m")
+    pd = ProfileData()
+    # SOME_INSTALLED with the file present is correct detection (base campaign), not ignored.
+    pd.add_mod(_mod("G", "Base", [FileKeyInfo("G", "Base", "mod", "c.mod")],
+                    State.SOME_INSTALLED))
+    checked, findings = verify_install_states(pd, {"mod": tmp_path / "mod"})
+    assert checked == 1 and not findings
 
 
 def test_verify_ledger_aggregate_pass(tmp_path: Path) -> None:

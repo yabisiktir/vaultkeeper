@@ -63,6 +63,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--game", type=Path, help="NWN install root (else auto-discovered)")
     parser.add_argument("--user", type=Path, help="NWN user folder (else the platform default)")
     parser.add_argument("--offline", action="store_true", help="skip the live on-disk checks")
+    parser.add_argument("--states", action="store_true",
+                        help="also cross-check per-mod install state vs files on disk "
+                             "(catches ignored / hallucinated installs; scans the game)")
     parser.add_argument("--list", action="store_true", help="print every finding, not just counts")
     args = parser.parse_args(argv)
 
@@ -85,19 +88,58 @@ def main(argv: list[str] | None = None) -> int:
     report = verify_ledger(ledger, game_folders=folders)
     print(report.summary())
 
-    if report.findings:
-        shown = report.findings if args.list else report.findings[:15]
-        print(f"\n{len(report.findings)} finding(s):")
+    state_findings: list = []
+    if args.states and folders is not None:
+        state_findings = _run_state_check(data_dir, args.game, args.user)
+
+    all_findings = list(report.findings) + list(state_findings)
+    if all_findings:
+        shown = all_findings if args.list else all_findings[:15]
+        print(f"\n{len(all_findings)} finding(s):")
         for f in shown:
             print(f"  [{f.kind}] {f.file_key}")
-            print(f"      original: {f.expected}  |  port: {f.actual}"
+            print(f"      expected: {f.expected}  |  got: {f.actual}"
                   + (f"  ({f.detail})" if f.detail else ""))
-        if not args.list and len(report.findings) > len(shown):
-            print(f"  … {len(report.findings) - len(shown)} more (use --list)")
+        if not args.list and len(all_findings) > len(shown):
+            print(f"  … {len(all_findings) - len(shown)} more (use --list)")
         return 1
 
-    print("\nPASS — the port's install logic matches the original's recorded ledger.")
+    print("\nPASS — the port's install logic matches the original's recorded ledger"
+          + (" and the on-disk state (no ignored / hallucinated installs)."
+             if args.states else "."))
     return 0
+
+
+def _run_state_check(data_dir: Path, game: Path | None, user: Path | None) -> list:
+    """Open the live profile from its Profiles payloads and cross-check states vs disk."""
+    from vaultkeeper.game.install_verify import verify_install_states
+    from vaultkeeper.game.locations import discover_installs
+    from vaultkeeper.ui.controller import ProfileController
+    from vaultkeeper.ui.session import default_game_user_path
+
+    # data_dir is <store>/Data/<profile>; the payloads are <store>/Profiles/<profile>.
+    profile = data_dir.name
+    profile_mods = data_dir.parent.parent / "Profiles" / profile
+    if not profile_mods.is_dir():
+        print(f"\n(state check skipped — no payloads at {profile_mods})")
+        return []
+    if game is None:
+        installs = discover_installs()
+        if not installs:
+            return []
+        game = installs[0].root
+    if user is None:
+        user = default_game_user_path()
+    print("\nScanning the game to cross-check install states (this can take ~15s)…")
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods, game_root=game, store_path=None, game_user_dir=user
+    )
+    checked, findings = verify_install_states(controller.pd, controller.ctx.game_folders)
+    ignored = sum(1 for f in findings if f.kind == "ignored")
+    halluc = sum(1 for f in findings if f.kind == "hallucination")
+    print(f"  states: {checked} mods — ignored (on disk, says not installed): {ignored}; "
+          f"hallucinated (says installed, not on disk): {halluc}")
+    return findings
 
 
 if __name__ == "__main__":  # pragma: no cover

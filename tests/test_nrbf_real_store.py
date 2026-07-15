@@ -78,3 +78,28 @@ def test_install_ledger_decodes_and_matches() -> None:
     assert report.winners_checked > 0
     assert not report.of_kind("winner"), report.of_kind("winner")[:3]
     assert not report.of_kind("placement"), report.of_kind("placement")[:3]
+
+
+def test_install_states_no_ignored_or_hallucinated() -> None:
+    """Real profile: no mod is ignored (present but says not-installed) or hallucinated."""
+    from vaultkeeper.game.install_verify import verify_install_states
+    from vaultkeeper.game.locations import discover_installs
+    from vaultkeeper.ui.controller import ProfileController
+    from vaultkeeper.ui.session import default_game_user_path
+
+    installs = discover_installs()
+    if not installs:
+        import pytest as _pytest
+        _pytest.skip("no NWN install discovered")
+    controller = ProfileController.open_profile(
+        profile_mods_dir=_STORE / "Profiles" / _PROFILE,
+        game_root=installs[0].root,
+        store_path=None,
+        game_user_dir=default_game_user_path(),
+    )
+    checked, findings = verify_install_states(controller.pd, controller.ctx.game_folders)
+    assert checked > 0
+    ignored = [f for f in findings if f.kind == "ignored"]
+    hallucinated = [f for f in findings if f.kind == "hallucination"]
+    assert not ignored, ignored
+    assert not hallucinated, hallucinated

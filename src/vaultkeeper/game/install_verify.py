@@ -30,6 +30,7 @@ from vaultkeeper.core import constants as C
 from vaultkeeper.core.crc import crc32_file
 from vaultkeeper.core.file_data import FileData, InstalledFileData
 from vaultkeeper.core.file_key import FileKeyInfo
+from vaultkeeper.core.state import State
 from vaultkeeper.persistence.nrbf.mapping import import_file_list, import_installed_list
 
 INSTALL_DATA_FILE = "nit.InstallData_Format_002"
@@ -229,6 +230,53 @@ def verify_contents(
                     f"crc {actual}",
                     detail=str(path),
                 )
+            )
+    return checked, findings
+
+
+def verify_install_states(pd, game_folders: dict[str, Path]) -> tuple[int, list[Finding]]:
+    """Cross-check each mod's reported install state against files actually on disk.
+
+    This is the "not ignored / not hallucinated" check — it compares the port's own
+    verdict (``ModData.mod_state``, derived from the full scan + state machine)
+    against the *raw presence* of the mod's content files in the game folders, which
+    is a far simpler computation. Two disagreements matter:
+
+    * **ignored** — content files are present on disk but the mod reports
+      ``NOT_INSTALLED`` / ``NONE`` (a real install the tool missed).
+    * **hallucination** — the mod reports an installed state but *none* of its content
+      files are on disk (an install the tool imagined).
+
+    ``nitconfig`` identifier markers and ``nwn``-root config files (config-isolation)
+    are excluded — they are not installed game content. Returns ``(mods_checked,
+    findings)``.
+    """
+    not_detected = {State.NONE, State.NOT_INSTALLED}
+    excluded = {C.MOD_NIT_DIR.lower(), C.MOD_ROOT_FOLDER.lower()}
+    checked = 0
+    findings: list[Finding] = []
+    for md in pd.mod_list.values():
+        if md.is_group_item:
+            continue
+        content = [fk for fk in md.files if fk.folder.lower() not in excluded]
+        if not content:
+            continue
+        checked += 1
+        present = 0
+        for fk in content:
+            folder = game_folders.get(fk.folder) or game_folders.get(fk.folder.lower())
+            if folder is not None and (folder / fk.filename).is_file():
+                present += 1
+        detected = md.mod_state not in not_detected
+        if present > 0 and not detected:
+            findings.append(
+                Finding("ignored", md.mod_name, f"{present}/{len(content)} files on disk",
+                        f"reports {md.mod_state.name}")
+            )
+        elif present == 0 and detected:
+            findings.append(
+                Finding("hallucination", md.mod_name, "0 content files on disk",
+                        f"reports {md.mod_state.name}")
             )
     return checked, findings
 
