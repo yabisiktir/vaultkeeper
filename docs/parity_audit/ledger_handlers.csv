@@ -4,7 +4,7 @@ AliasSectionEditor.vb,AliasSectionEditor,AliasSectionEditor_Shown,Sub,Me.Shown,A
 AliasSectionEditor.vb,AliasSectionEditor,BhAliasEditor_Click,Sub,BhAliasEditor.Click,AliasSectionEditor.vb:159,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,BtDelete_Click,Sub,BtDelete.Click,AliasSectionEditor.vb:168,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,BtSave_Click,Sub,BtSave.Click,AliasSectionEditor.vb:235,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-AliasSectionEditor.vb,AliasSectionEditor,BtCancel_Click,Sub,BtCancel.Click,AliasSectionEditor.vb:287,none,,GAP?,
+AliasSectionEditor.vb,AliasSectionEditor,BtCancel_Click,Sub,BtCancel.Click,AliasSectionEditor.vb:287,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 AliasSectionEditor.vb,AliasSectionEditor,LvFolders_ItemClicked,Sub,LvFolders.ItemClicked,AliasSectionEditor.vb:298,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,AliasSectionEditor.vb:326,none,,GAP?,
 AliasSectionEditor.vb,AliasSectionEditor,CmMenuItem_Click,Sub,"CmEdit.Click, CmUndo.Click",AliasSectionEditor.vb:341,none,,GAP?,
@@ -19,11 +19,11 @@ BackupManager.vb,BackupManager,BtAction_SizeChanged,Sub,BtAction.SizeChanged,Bac
 BackupManager.vb,BackupManager,BtAction_Click,Sub,BtAction.Click,BackupManager.vb:368,none,,GAP?,
 BackupManager.vb,BackupManager,BackupManager_KeyUp,Sub,Me.KeyUp,BackupManager.vb:385,none,,GAP?,
 BackupManager.vb,BackupManager,BtDelete_Click,Sub,BtDelete.Click,BackupManager.vb:395,none,,GAP?,
-BackupManager.vb,BackupManager,BtCancel_Click,Sub,BtCancel.Click,BackupManager.vb:433,none,,GAP?,
+BackupManager.vb,BackupManager,BtCancel_Click,Sub,BtCancel.Click,BackupManager.vb:433,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BackupManager.vb,BackupManager,TbBackupManager_SelectedIndexChanged,Sub,TbBackupManager.SelectedIndexChanged,BackupManager.vb:448,none,,GAP?,
 BackupManager.vb,BackupManager,Lv_SelectedIndexChanged,Sub,"LvBackups.SelectedIndexChanged, LvSettings.SelectedIndexChanged",BackupManager.vb:461,none,,GAP?,
 BackupManager.vb,BackupManager,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,BackupManager.vb:478,none,,GAP?,
-BackupManager.vb,BackupManager,Lv_ItemClicked,Sub,"LvBackups.ItemClicked, LvSettings.ItemClicked, LvMods.ItemClicked",BackupManager.vb:502,none,,GAP?,
+BackupManager.vb,BackupManager,Lv_ItemClicked,Sub,"LvBackups.ItemClicked, LvSettings.ItemClicked, LvMods.ItemClicked",BackupManager.vb:502,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BackupManager.vb,BackupManager,BgBackups_DoWork,Sub,BgBackups.DoWork,BackupManager.vb:558,none,,GAP?,
 BackupManager.vb,BackupManager,BgSettings_DoWork,Sub,BgSettings.DoWork,BackupManager.vb:568,none,,GAP?,
 BackupManager.vb,BackupManager,BgStandard_ProgressChanged,Sub,"BgBackups.ProgressChanged, BgSettings.ProgressChanged",BackupManager.vb:580,none,,GAP?,
@@ -36,17 +36,17 @@ BasicSettings.vb,BasicSettings,BhBasicSettings_Click,Sub,BhBasicSettings.Click,B
 BasicSettings.vb,BasicSettings,BtSelection_Click,Sub,BtSelection.Click,BasicSettings.vb:176,none,,GAP?,
 BasicSettings.vb,BasicSettings,BtAdvanced_Click,Sub,BtAdvanced.Click,BasicSettings.vb:184,none,,GAP?,
 BasicSettings.vb,BasicSettings,BtApply_Click,Sub,BtApply.Click,BasicSettings.vb:195,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-BasicSettings.vb,BasicSettings,BtCancel_Click,Sub,BtCancel.Click,BasicSettings.vb:245,none,,GAP?,
+BasicSettings.vb,BasicSettings,BtCancel_Click,Sub,BtCancel.Click,BasicSettings.vb:245,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Load,Sub,MyBase.Load,BikToWbmDialogue.vb:81,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_Shown,Sub,Me.Shown,BikToWbmDialogue.vb:99,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BikToWbmDialogue_FormClosing,Sub,Me.FormClosing,BikToWbmDialogue.vb:110,none,,GAP?,
-BikToWbmDialogue.vb,BikToWbmDialogue,BtCancel_Click,Sub,BtCancel.Click,BikToWbmDialogue.vb:120,none,,GAP?,
+BikToWbmDialogue.vb,BikToWbmDialogue,BtCancel_Click,Sub,BtCancel.Click,BikToWbmDialogue.vb:120,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_DoWork,Sub,BgConverter.DoWork,BikToWbmDialogue.vb:173,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,BikToWbmDialogue.vb:203,none,,GAP?,
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,BikToWbmDialogue.vb:226,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BtCancel_Click,Sub,btCancel.Click,CalculateCRCs.vb:439,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,BtCancel_Click,Sub,btCancel.Click,CalculateCRCs.vb:439,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_FormClosing,Sub,Me.FormClosing,CalculateCRCs.vb:511,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_DoWork,Sub,"bgCalculateCRC.DoWork, bgCalculateCRC1.DoWork, bgCalculateCRC2.DoWork, bgCalculateCRC3.DoWork",CalculateCRCs.vb:587,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_ProgressChanged,Sub,"bgCalculateCRC.ProgressChanged, bgCalculateCRC1.ProgressChanged, bgCalculateCRC2.ProgressChanged, bgCalculateCRC3.ProgressChanged",CalculateCRCs.vb:630,none,,GAP?,
@@ -57,7 +57,7 @@ CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,Characte
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,BtApply_Click,Sub,BtApply.Click,CharacterFilter.vb:123,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-CharacterFilter.vb,CharacterFilter,BtCancel_Click,Sub,BtCancel.Click,CharacterFilter.vb:138,none,,GAP?,
+CharacterFilter.vb,CharacterFilter,BtCancel_Click,Sub,BtCancel.Click,CharacterFilter.vb:138,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CharacterFilter.vb,CharacterFilter,LvClassNames_ItemClicked,Sub,LvClassNames.ItemClicked,CharacterFilter.vb:149,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,CmClear_Click,Sub,CmClear.Click,CharacterFilter.vb:184,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CharacterViewer.vb,CharacterViewer,CharacterViewer_Load,Sub,Me.Load,CharacterViewer.vb:364,none,,GAP?,
@@ -92,7 +92,7 @@ ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvFeats_SelectedIndexChanged,Sub,
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,BtClose_Click,Sub,BtClose.Click,ClassesSkillsAndFeats.vb:278,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CommonFiltersDialogue.vb,CommonFiltersDialogue,Filters_Load,Sub,MyBase.Load,CommonFiltersDialogue.vb:62,none,,GAP?,
 CommonFiltersDialogue.vb,CommonFiltersDialogue,BtApply_Click,Sub,BtApply.Click,CommonFiltersDialogue.vb:114,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
-CommonFiltersDialogue.vb,CommonFiltersDialogue,BtCancel_Click,Sub,BtCancel.Click,CommonFiltersDialogue.vb:133,none,,GAP?,
+CommonFiltersDialogue.vb,CommonFiltersDialogue,BtCancel_Click,Sub,BtCancel.Click,CommonFiltersDialogue.vb:133,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CommonFiltersDialogue.vb,CommonFiltersDialogue,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,CommonFiltersDialogue.vb:144,none,,GAP?,
 CommonFiltersDialogue.vb,CommonFiltersDialogue,LvFilters_ItemChecked,Sub,"LvGroupFilters.ItemChecked, LvRatingFilters.ItemChecked",CommonFiltersDialogue.vb:157,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 CrashDumpManager.vb,CrashDumpManager,CrashDumpManager_Load,Sub,MyBase.Load,CrashDumpManager.vb:143,none,,GAP?,
@@ -105,10 +105,10 @@ CrashDumpManager.vb,CrashDumpManager,LvCrashFiles_ItemClicked,Sub,LvCrashFiles.I
 CrashDumpManager.vb,CrashDumpManager,LvCrashFiles_SelectedIndexChanged,Sub,LvCrashFiles.SelectedIndexChanged,CrashDumpManager.vb:367,none,,GAP?,
 CreateInstaller.vb,CreateInstaller,CreateInstaller_Load,Sub,MyBase.Load,CreateInstaller.vb:761,none,,GAP?,
 CreateInstaller.vb,CreateInstaller,CreateInstaller_Shown,Sub,Me.Shown,CreateInstaller.vb:810,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BtCancel_Click,Sub,BtCancel.Click,CreateInstaller.vb:823,none,,GAP?,
+CreateInstaller.vb,CreateInstaller,BtCancel_Click,Sub,BtCancel.Click,CreateInstaller.vb:823,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CreateInstaller.vb,CreateInstaller,CreateInstaller_FormClosing,Sub,Me.FormClosing,CreateInstaller.vb:843,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,CreateInstaller.vb:868,none,,GAP?,
-CreateInstaller.vb,CreateInstaller,BgScanner_ProgressChanged,Sub,BgScanner.ProgressChanged,CreateInstaller.vb:1006,none,,GAP?,
+CreateInstaller.vb,CreateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,CreateInstaller.vb:868,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+CreateInstaller.vb,CreateInstaller,BgScanner_ProgressChanged,Sub,BgScanner.ProgressChanged,CreateInstaller.vb:1006,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CreateInstaller.vb,CreateInstaller,BgScanner_RunWorkerCompleted,Sub,BgScanner.RunWorkerCompleted,CreateInstaller.vb:1032,none,,GAP?,
 CreateInstaller.vb,CreateInstaller,BgExtractor_DoWork,Sub,BgExtractor.DoWork,CreateInstaller.vb:1116,none,,GAP?,
 CreateInstaller.vb,CreateInstaller,BgExtractor_ProgressChanged,Sub,BgExtractor.ProgressChanged,CreateInstaller.vb:1154,none,,GAP?,
@@ -133,11 +133,11 @@ CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Load,Sub,MyBase.Load,CreateNw
 CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Shown,Sub,Me.Shown,CreateNwnFolder.vb:230,none,,GAP?,
 CreateNwnFolder.vb,CreateNwnFolder,BuTarget_Click,Sub,BuTarget.Click,CreateNwnFolder.vb:254,none,,GAP?,
 CreateNwnFolder.vb,CreateNwnFolder,BuSource_Click,Sub,BuSource.Click,CreateNwnFolder.vb:298,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,Tx_KeyPress,Sub,"TxTarget.KeyPress, TxSource.KeyPress",CreateNwnFolder.vb:341,none,,GAP?,
+CreateNwnFolder.vb,CreateNwnFolder,Tx_KeyPress,Sub,"TxTarget.KeyPress, TxSource.KeyPress",CreateNwnFolder.vb:341,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CreateNwnFolder.vb,CreateNwnFolder,TxTarget_Enter,Sub,TxTarget.Enter,CreateNwnFolder.vb:349,none,,GAP?,
 CreateNwnFolder.vb,CreateNwnFolder,TxSource_Enter,Sub,TxSource.Enter,CreateNwnFolder.vb:360,none,,GAP?,
 CreateNwnFolder.vb,CreateNwnFolder,BtSave_Click,Sub,BtSave.Click,CreateNwnFolder.vb:469,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-CreateNwnFolder.vb,CreateNwnFolder,BtCancel_Click,Sub,BtCancel.Click,CreateNwnFolder.vb:595,none,,GAP?,
+CreateNwnFolder.vb,CreateNwnFolder,BtCancel_Click,Sub,BtCancel.Click,CreateNwnFolder.vb:595,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DependencyManager.vb,DependencyManager,DependencyManager_Load,Sub,MyBase.Load,DependencyManager.vb:99,none,,GAP?,
 DependencyManager.vb,DependencyManager,DependencyManager_Shown,Sub,Me.Shown,DependencyManager.vb:180,none,,GAP?,
 DependencyManager.vb,DependencyManager,BhDependencyManager_Click,Sub,BhDependencyManager.Click,DependencyManager.vb:196,none,,GAP?,
@@ -166,57 +166,57 @@ DocOrganiser.vb,DocOrganiser,TsUncheck_Click,Sub,TsUncheck.Click,DocOrganiser.vb
 DocOrganiser.vb,DocOrganiser,LvDocs_SelectedIndexChanged,Sub,LvDocs.SelectedIndexChanged,DocOrganiser.vb:660,none,,GAP?,
 DocOrganiser.vb,DocOrganiser,LvContents_SelectedIndexChanged,Sub,LvContents.SelectedIndexChanged,DocOrganiser.vb:681,none,,GAP?,
 DocOrganiser.vb,DocOrganiser,LvDocs_ItemCheck,Sub,LvDocs.ItemCheck,DocOrganiser.vb:700,none,,GAP?,
-DocOrganiser.vb,DocOrganiser,Lv_ItemClicked,Sub,"LvDocs.ItemClicked, LvContents.ItemClicked",DocOrganiser.vb:718,none,,GAP?,
+DocOrganiser.vb,DocOrganiser,Lv_ItemClicked,Sub,"LvDocs.ItemClicked, LvContents.ItemClicked",DocOrganiser.vb:718,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DocOrganiser.vb,DocOrganiser,Lv_GotFocus,Sub,"LvDocs.GotFocus, LvContents.GotFocus",DocOrganiser.vb:737,none,,GAP?,
 DocOrganiser.vb,DocOrganiser,Rt_MouseMove,Sub,"RtfDoc.MouseMove, RtfContents.MouseMove",DocOrganiser.vb:758,none,,GAP?,
 DocOrganiser.vb,DocOrganiser,Rt_MouseClick,Sub,"RtfDoc.MouseClick, RtfContents.MouseClick",DocOrganiser.vb:789,none,,GAP?,
 DownloadDeleteMsg.vb,DownloadDeleteMsg,DownloadDeleteMsg_Load,Sub,Me.Load,DownloadDeleteMsg.vb:105,none,,GAP?,
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtDelete_Click,Sub,BtDelete.Click,DownloadDeleteMsg.vb:137,none,,GAP?,
 DownloadDeleteMsg.vb,DownloadDeleteMsg,BtHistory_Click,Sub,BtHistory.Click,DownloadDeleteMsg.vb:146,none,,GAP?,
-DownloadDeleteMsg.vb,DownloadDeleteMsg,BtCancel_Click,Sub,BtCancel.Click,DownloadDeleteMsg.vb:155,none,,GAP?,
-DownloadProject.Files.vb,DownloadProject,BgDownloadTimer_DoWork,Sub,BgDownloadTimer.DoWork,DownloadProject.Files.vb:679,none,,GAP?,
-DownloadProject.Files.vb,DownloadProject,BgDownloadTimer_ProgressChanged,Sub,BgDownloadTimer.ProgressChanged,DownloadProject.Files.vb:699,none,,GAP?,
-DownloadProject.vb,DownloadProject,DownloadProject_Load,Sub,MyBase.Load,DownloadProject.vb:36,none,,GAP?,
-DownloadProject.vb,DownloadProject,DownloadProject_Shown,Sub,Me.Shown,DownloadProject.vb:204,none,,GAP?,
-DownloadProject.vb,DownloadProject,DownloadProject_Activated,Sub,Me.Activated,DownloadProject.vb:240,none,,GAP?,
-DownloadProject.vb,DownloadProject,Lp_Resize,Sub,"LpProjectConfig.Resize, LpRequiredConfig.Resize",DownloadProject.vb:266,none,,GAP?,
-DownloadProject.vb,DownloadProject,DownloadProject_FormClosing,Sub,Me.FormClosing,DownloadProject.vb:281,none,,GAP?,
-DownloadProject.vb,DownloadProject,TxUrl_GotFocus,Sub,TxUrl.GotFocus,DownloadProject.vb:340,none,,GAP?,
-DownloadProject.vb,DownloadProject,TxUrl_LostFocus,Sub,TxUrl.LostFocus,DownloadProject.vb:348,none,,GAP?,
-DownloadProject.vb,DownloadProject,TxUrl_TextChanged,Sub,TxUrl.TextChanged,DownloadProject.vb:358,none,,GAP?,
-DownloadProject.vb,DownloadProject,BlClear_Click,Sub,BlClear.Click,DownloadProject.vb:368,none,,GAP?,
-DownloadProject.vb,DownloadProject,BtRetrieve_Click,Sub,BtRetrieve.Click,DownloadProject.vb:379,none,,GAP?,
-DownloadProject.vb,DownloadProject,Lk_LinkClicked,Sub,"LkProject.LinkClicked, LkRequiredProject.LinkClicked",DownloadProject.vb:416,none,,GAP?,
-DownloadProject.vb,DownloadProject,TsOpenRulesFile_Click,Sub,TsOpenRulesFile.Click,DownloadProject.vb:436,none,,GAP?,
-DownloadProject.vb,DownloadProject,TsReloadDownloadRulesFile_Click,Sub,TsReloadDownloadRulesFile.Click,DownloadProject.vb:446,none,,GAP?,
-DownloadProject.vb,DownloadProject,BhDownloadProject_Click,Sub,BhDownloadProject.Click,DownloadProject.vb:485,none,,GAP?,
-DownloadProject.vb,DownloadProject,BtDownload_Click,Sub,BtDownload.Click,DownloadProject.vb:493,none,,GAP?,
-DownloadProject.vb,DownloadProject,BtInstall_Click,Sub,BtInstall.Click,DownloadProject.vb:503,none,,GAP?,
-DownloadProject.vb,DownloadProject,BtCancel_Click,Sub,BtCancel.Click,DownloadProject.vb:528,none,,GAP?,
-DownloadProject.vb,DownloadProject,CmCopyFilename_Click,Sub,CmCopyFilename.Click,DownloadProject.vb:540,none,,GAP?,
-DownloadProject.vb,DownloadProject,CmCopyLink_Click,Sub,CmCopyLink.Click,DownloadProject.vb:551,none,,GAP?,
-DownloadProject.vb,DownloadProject,Lv_KeyDown,Sub,"LvProject.KeyDown, LvRequirements.KeyDown",DownloadProject.vb:576,none,,GAP?,
-DownloadProject.vb,DownloadProject,Lv_KeyPress,Sub,"LvProject.KeyPress, LvRequirements.KeyPress",DownloadProject.vb:591,none,,GAP?,
-DownloadProject.vb,DownloadProject,Lv_ItemClicked,Sub,"LvRequirements.ItemClicked, LvProject.ItemClicked",DownloadProject.vb:622,none,,GAP?,
-DownloadProject.vb,DownloadProject,LbProjectFiles_MouseEnter,Sub,LbProjectFiles.MouseEnter,DownloadProject.vb:657,none,,GAP?,
-DownloadProject.vb,DownloadProject,LvProject_ItemCheck,Sub,LvProject.ItemCheck,DownloadProject.vb:667,none,,GAP?,
-DownloadProject.vb,DownloadProject,LvProject_SelectedIndexChanged,Sub,LvProject.SelectedIndexChanged,DownloadProject.vb:700,none,,GAP?,
-DownloadProject.vb,DownloadProject,LbRequiredProjects_MouseEnter,Sub,LbRequiredProjects.MouseEnter,DownloadProject.vb:722,none,,GAP?,
-DownloadProject.vb,DownloadProject,LvRequirements_ItemCheck,Sub,LvRequirements.ItemCheck,DownloadProject.vb:732,none,,GAP?,
-DownloadProject.vb,DownloadProject,LvRequirements_SelectedIndexChanged,Sub,LvRequirements.SelectedIndexChanged,DownloadProject.vb:765,none,,GAP?,
-DownloadProject.vb,DownloadProject,Tx_KeyPress,Sub,"TxModName.KeyPress, TxRequiredModName.KeyPress",DownloadProject.vb:831,none,,GAP?,
-DownloadProject.vb,DownloadProject,TxModName_TextChanged,Sub,TxModName.TextChanged,DownloadProject.vb:839,none,,GAP?,
-DownloadProject.vb,DownloadProject,TxRequiredModName_TextChanged,Sub,TxRequiredModName.TextChanged,DownloadProject.vb:953,none,,GAP?,
-DownloadProject.vb,DownloadProject,MbGroup_MenuItemChecked,Sub,MbGroup.MenuItemChecked,DownloadProject.vb:1076,none,,GAP?,
-DownloadProject.vb,DownloadProject,MbRequiredGroup_MenuItemChecked,Sub,MbRequiredGroup.MenuItemChecked,DownloadProject.vb:1094,none,,GAP?,
-DownloadProject.vb,DownloadProject,BgScanner_DoWork,Sub,BgScanner.DoWork,DownloadProject.vb:1175,none,,GAP?,
-DownloadProject.vb,DownloadProject,BgScanner_ProgressChanged,Sub,BgScanner.ProgressChanged,DownloadProject.vb:1198,none,,GAP?,
-DownloadProject.vb,DownloadProject,BgWebFileSize_DoWork,Sub,BgWebFileSize.DoWork,DownloadProject.vb:1216,none,,GAP?,
-DownloadProject.vb,DownloadProject,BgWebFileSize_ProgressChanged,Sub,BgWebFileSize.ProgressChanged,DownloadProject.vb:1294,none,,GAP?,
+DownloadDeleteMsg.vb,DownloadDeleteMsg,BtCancel_Click,Sub,BtCancel.Click,DownloadDeleteMsg.vb:155,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.Files.vb,DownloadProject,BgDownloadTimer_DoWork,Sub,BgDownloadTimer.DoWork,DownloadProject.Files.vb:679,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.Files.vb,DownloadProject,BgDownloadTimer_ProgressChanged,Sub,BgDownloadTimer.ProgressChanged,DownloadProject.Files.vb:699,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,DownloadProject_Load,Sub,MyBase.Load,DownloadProject.vb:36,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,DownloadProject_Shown,Sub,Me.Shown,DownloadProject.vb:204,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,DownloadProject_Activated,Sub,Me.Activated,DownloadProject.vb:240,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Lp_Resize,Sub,"LpProjectConfig.Resize, LpRequiredConfig.Resize",DownloadProject.vb:266,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,DownloadProject_FormClosing,Sub,Me.FormClosing,DownloadProject.vb:281,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TxUrl_GotFocus,Sub,TxUrl.GotFocus,DownloadProject.vb:340,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TxUrl_LostFocus,Sub,TxUrl.LostFocus,DownloadProject.vb:348,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TxUrl_TextChanged,Sub,TxUrl.TextChanged,DownloadProject.vb:358,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BlClear_Click,Sub,BlClear.Click,DownloadProject.vb:368,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BtRetrieve_Click,Sub,BtRetrieve.Click,DownloadProject.vb:379,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Lk_LinkClicked,Sub,"LkProject.LinkClicked, LkRequiredProject.LinkClicked",DownloadProject.vb:416,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TsOpenRulesFile_Click,Sub,TsOpenRulesFile.Click,DownloadProject.vb:436,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TsReloadDownloadRulesFile_Click,Sub,TsReloadDownloadRulesFile.Click,DownloadProject.vb:446,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BhDownloadProject_Click,Sub,BhDownloadProject.Click,DownloadProject.vb:485,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BtDownload_Click,Sub,BtDownload.Click,DownloadProject.vb:493,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BtInstall_Click,Sub,BtInstall.Click,DownloadProject.vb:503,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BtCancel_Click,Sub,BtCancel.Click,DownloadProject.vb:528,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,CmCopyFilename_Click,Sub,CmCopyFilename.Click,DownloadProject.vb:540,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,CmCopyLink_Click,Sub,CmCopyLink.Click,DownloadProject.vb:551,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Lv_KeyDown,Sub,"LvProject.KeyDown, LvRequirements.KeyDown",DownloadProject.vb:576,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Lv_KeyPress,Sub,"LvProject.KeyPress, LvRequirements.KeyPress",DownloadProject.vb:591,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Lv_ItemClicked,Sub,"LvRequirements.ItemClicked, LvProject.ItemClicked",DownloadProject.vb:622,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LbProjectFiles_MouseEnter,Sub,LbProjectFiles.MouseEnter,DownloadProject.vb:657,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LvProject_ItemCheck,Sub,LvProject.ItemCheck,DownloadProject.vb:667,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LvProject_SelectedIndexChanged,Sub,LvProject.SelectedIndexChanged,DownloadProject.vb:700,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LbRequiredProjects_MouseEnter,Sub,LbRequiredProjects.MouseEnter,DownloadProject.vb:722,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LvRequirements_ItemCheck,Sub,LvRequirements.ItemCheck,DownloadProject.vb:732,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,LvRequirements_SelectedIndexChanged,Sub,LvRequirements.SelectedIndexChanged,DownloadProject.vb:765,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,Tx_KeyPress,Sub,"TxModName.KeyPress, TxRequiredModName.KeyPress",DownloadProject.vb:831,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TxModName_TextChanged,Sub,TxModName.TextChanged,DownloadProject.vb:839,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,TxRequiredModName_TextChanged,Sub,TxRequiredModName.TextChanged,DownloadProject.vb:953,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,MbGroup_MenuItemChecked,Sub,MbGroup.MenuItemChecked,DownloadProject.vb:1076,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,MbRequiredGroup_MenuItemChecked,Sub,MbRequiredGroup.MenuItemChecked,DownloadProject.vb:1094,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BgScanner_DoWork,Sub,BgScanner.DoWork,DownloadProject.vb:1175,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BgScanner_ProgressChanged,Sub,BgScanner.ProgressChanged,DownloadProject.vb:1198,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BgWebFileSize_DoWork,Sub,BgWebFileSize.DoWork,DownloadProject.vb:1216,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+DownloadProject.vb,DownloadProject,BgWebFileSize_ProgressChanged,Sub,BgWebFileSize.ProgressChanged,DownloadProject.vb:1294,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,ExtendedDialogue_Load,Sub,MyBase.Load,ExtendedEditionDialogue.vb:102,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,ExtendedEditionDialogue_Shown,Sub,Me.Shown,ExtendedEditionDialogue.vb:177,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtSave_Click,Sub,BtSave.Click,ExtendedEditionDialogue.vb:202,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtCancel_Click,Sub,BtCancel.Click,ExtendedEditionDialogue.vb:211,none,,GAP?,
+ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BtCancel_Click,Sub,BtCancel.Click,ExtendedEditionDialogue.vb:211,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,BuBrowse_Click,Sub,"BuUser.Click, BuLibrary.Click",ExtendedEditionDialogue.vb:220,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,Tx_Enter,Sub,"TxUserFolder.Enter, TxLibrary.Enter",ExtendedEditionDialogue.vb:251,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,TxUserFolder_TextChanged,Sub,TxUserFolder.TextChanged,ExtendedEditionDialogue.vb:262,none,,GAP?,
@@ -303,7 +303,7 @@ GameSavesPathDialogue.vb,GameSavesPathDialogue,BuBrowse_Click,Sub,BuBrowse.Click
 GameSavesPathDialogue.vb,GameSavesPathDialogue,LvGameSaves_ItemClicked,Sub,LvGameSaves.ItemClicked,GameSavesPathDialogue.vb:197,none,,GAP?,
 GameSavesPathDialogue.vb,GameSavesPathDialogue,LvGameSaves_SelectedIndexChanged,Sub,LvGameSaves.SelectedIndexChanged,GameSavesPathDialogue.vb:210,none,,GAP?,
 GameSavesPathDialogue.vb,GameSavesPathDialogue,BtSave_Click,Sub,BtSave.Click,GameSavesPathDialogue.vb:222,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-GameSavesPathDialogue.vb,GameSavesPathDialogue,BtCancel_Click,Sub,BtCancel.Click,GameSavesPathDialogue.vb:237,none,,GAP?,
+GameSavesPathDialogue.vb,GameSavesPathDialogue,BtCancel_Click,Sub,BtCancel.Click,GameSavesPathDialogue.vb:237,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Load,Sub,MyBase.Load,HakPatchEditor.vb:30,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,HakPatchEditor_Shown,Sub,Me.Shown,HakPatchEditor.vb:102,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,LvPatchList_ItemClicked,Sub,LvPatchList.ItemClicked,HakPatchEditor.vb:114,none,,GAP?,
@@ -326,7 +326,7 @@ InstallationAnalyser.vb,InstallationAnalyser,CmProperties_Click,Sub,CmProperties
 InstallationAnalyser.vb,InstallationAnalyser,CmCharacterSummary_Click,Sub,CmCharacterSummary.Click,InstallationAnalyser.vb:348,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,LbFilesInFolder_Click,Sub,LbFilesInFolder.Click,InstallationAnalyser.vb:365,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,MiDetails_Click,Sub,MiDetails.Click,InstallationAnalyser.vb:373,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,Lv_ItemClicked,Sub,"LvFolders.ItemClicked, LvFiles.ItemClicked",InstallationAnalyser.vb:391,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,Lv_ItemClicked,Sub,"LvFolders.ItemClicked, LvFiles.ItemClicked",InstallationAnalyser.vb:391,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 InstallationAnalyser.vb,InstallationAnalyser,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,InstallationAnalyser.vb:414,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,LvFolders_MouseDoubleClick,Sub,LvFolders.MouseDoubleClick,InstallationAnalyser.vb:431,none,,GAP?,
 InstallationAnalyser.vb,InstallationAnalyser,LvFiles_Enter,Sub,LvFiles.Enter,InstallationAnalyser.vb:439,none,,GAP?,
@@ -340,7 +340,7 @@ InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Shown
 InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManagerEditor_FormClosing,Sub,Me.FormClosing,InstallationManagerEditor.vb:244,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,BtApply_Click,Sub,BtApply.Click,InstallationManagerEditor.vb:268,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
 InstallationManagerEditor.vb,InstallationManagerEditor,BtSave_Click,Sub,BtSave.Click,InstallationManagerEditor.vb:320,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-InstallationManagerEditor.vb,InstallationManagerEditor,BtCancel_Click,Sub,BtCancel.Click,InstallationManagerEditor.vb:332,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,BtCancel_Click,Sub,BtCancel.Click,InstallationManagerEditor.vb:332,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 InstallationManagerEditor.vb,InstallationManagerEditor,TsCheckpoint_Click,Sub,TsCheckpoint.Click,InstallationManagerEditor.vb:347,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsCreateSet_Click,Sub,TsCreateSet.Click,InstallationManagerEditor.vb:359,none,,GAP?,
 InstallationManagerEditor.vb,InstallationManagerEditor,TsRename_Click,Sub,TsRename.Click,InstallationManagerEditor.vb:381,none,,GAP?,
@@ -363,7 +363,7 @@ InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_ItemClicked,Sub,Lv
 InstallationManagerEditor.vb,InstallationManagerEditor,LvGroupSelector_ItemCheck,Sub,LvGroupSelector.ItemCheck,InstallationManagerEditor.vb:779,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Load,Sub,MyBase.Load,MenuItemEditor.vb:188,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Shown,Sub,Me.Shown,MenuItemEditor.vb:295,none,,GAP?,
-MenuItemEditor.vb,MenuItemEditor,BtCancel_Click,Sub,BtCancel.Click,MenuItemEditor.vb:309,none,,GAP?,
+MenuItemEditor.vb,MenuItemEditor,BtCancel_Click,Sub,BtCancel.Click,MenuItemEditor.vb:309,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 MenuItemEditor.vb,MenuItemEditor,BtSave_Click,Sub,BtSave.Click,MenuItemEditor.vb:320,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 MenuItemEditor.vb,MenuItemEditor,TxMenuText_KeyPress,Sub,TxMenuText.KeyPress,MenuItemEditor.vb:482,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,TxMenuText_TextChanged,Sub,TxMenuText.TextChanged,MenuItemEditor.vb:500,none,,GAP?,
@@ -469,125 +469,125 @@ NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicke
 NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,GAP?,
 NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,GAP?,
 NIT.Menu.vb,NIT,TsbModSelector_SearchBoxClosed,Sub,TsbModSelector.ItemSelected,NIT.Menu.vb:1163,none,,GAP?,
-NIT.Menu.vb,NIT,RbnPlay_Click,Sub,RbnPlay.Click,NIT.Menu.vb:1181,none,,GAP?,
-NIT.Menu.vb,NIT,RbnPlay_MouseUp,Sub,RbnPlay.MouseUp,NIT.Menu.vb:1191,none,,GAP?,
-NIT.Menu.vb,NIT,RbnInstallUninstall_Click,Sub,RbnInstallUninstall.Click,NIT.Menu.vb:1219,none,,GAP?,
-NIT.Menu.vb,NIT,RbnToolset_Click,Sub,RbnToolset.Click,NIT.Menu.vb:1258,none,,GAP?,
-NIT.Menu.vb,NIT,RbnMapFolders_Click,Sub,RbnMapFolders.Click,NIT.Menu.vb:1270,none,,GAP?,
-NIT.Menu.vb,NIT,RbnMapFiles_Click,Sub,RbnMapFiles.Click,NIT.Menu.vb:1282,none,,GAP?,
-NIT.Menu.vb,NIT,RbnNwnIni_Click,Sub,RbnNwnIni.Click,NIT.Menu.vb:1298,none,,GAP?,
-NIT.Menu.vb,NIT,RbnExportSettings_Click,Sub,RbnExportSettings.Click,NIT.Menu.vb:1310,none,,GAP?,
-NIT.Menu.vb,NIT,RbnBackupData_Click,Sub,RbnBackupData.Click,NIT.Menu.vb:1360,none,,GAP?,
+NIT.Menu.vb,NIT,RbnPlay_Click,Sub,RbnPlay.Click,NIT.Menu.vb:1181,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnPlay_MouseUp,Sub,RbnPlay.MouseUp,NIT.Menu.vb:1191,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnInstallUninstall_Click,Sub,RbnInstallUninstall.Click,NIT.Menu.vb:1219,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnToolset_Click,Sub,RbnToolset.Click,NIT.Menu.vb:1258,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnMapFolders_Click,Sub,RbnMapFolders.Click,NIT.Menu.vb:1270,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnMapFiles_Click,Sub,RbnMapFiles.Click,NIT.Menu.vb:1282,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnNwnIni_Click,Sub,RbnNwnIni.Click,NIT.Menu.vb:1298,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,RbnExportSettings_Click,Sub,RbnExportSettings.Click,NIT.Menu.vb:1310,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,RbnBackupData_Click,Sub,RbnBackupData.Click,NIT.Menu.vb:1360,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,GAP?,
 NIT.Menu.vb,NIT,RbnFontAndColour_Click,Sub,"RbnFontAndColour.Click, MsFontAndColour.Click",NIT.Menu.vb:1385,strong,vaultkeeper/ui/theme.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,RbnManageWorkshop_Click,Sub,RbnManageWorkshop.Click,NIT.Menu.vb:1427,none,,GAP?,
-NIT.Menu.vb,NIT,RbnAdvancedSettings_Click,Sub,RbnAdvancedSettings.Click,NIT.Menu.vb:1463,none,,GAP?,
-NIT.Menu.vb,NIT,MsOpen_Click,Sub,MsOpen.Click,NIT.Menu.vb:1477,none,,GAP?,
-NIT.Menu.vb,NIT,MsDownloadProject_Click,Sub,"MsDownloadProject.Click, RbnDownloadProject.Click",NIT.Menu.vb:1499,none,,GAP?,
-NIT.Menu.vb,NIT,MsAddFiles_Click,Sub,"MsAddFiles.Click, RbnAddFiles.Click",NIT.Menu.vb:1567,none,,GAP?,
-NIT.Menu.vb,NIT,MsAddMods_Click,Sub,MsAddMods.Click,NIT.Menu.vb:1619,none,,GAP?,
-NIT.Menu.vb,NIT,MsUpdateDownloads_Click,Sub,"MsUpdateDownloads.Click, RbnUpdateDownloads.Click",NIT.Menu.vb:1661,none,,GAP?,
-NIT.Menu.vb,NIT,MsMoveToFolder_Click,Sub,"MsMoveToFolder.Click, MsMoveToDev.Click",NIT.Menu.vb:1698,none,,GAP?,
-NIT.Menu.vb,NIT,MsMoveToHistory_Click,Sub,MsMoveToHistory.Click,NIT.Menu.vb:1730,none,,GAP?,
-NIT.Menu.vb,NIT,MsNewFolder_Click,Sub,MsNewFolder.Click,NIT.Menu.vb:1782,none,,GAP?,
-NIT.Menu.vb,NIT,MsNewTextFile_Click,Sub,MsNewTextFile.Click,NIT.Menu.vb:1839,none,,GAP?,
-NIT.Menu.vb,NIT,MsNewRtfFile_Click,Sub,MsNewRtfFile.Click,NIT.Menu.vb:1859,none,,GAP?,
-NIT.Menu.vb,NIT,MsBackupData_Click,Sub,MsBackupData.Click,NIT.Menu.vb:1879,none,,GAP?,
-NIT.Menu.vb,NIT,MsRestoreData_Click,Sub,MsRestoreData.Click,NIT.Menu.vb:1927,none,,GAP?,
-NIT.Menu.vb,NIT,MsExportMods_Click,Sub,MsExportMods.Click,NIT.Menu.vb:1954,none,,GAP?,
-NIT.Menu.vb,NIT,MsImportMods_Click,Sub,MsImportMods.Click,NIT.Menu.vb:1984,none,,GAP?,
-NIT.Menu.vb,NIT,MsOpenSharedStore_Click,Sub,MsOpenSharedStore.Click,NIT.Menu.vb:2027,none,,GAP?,
-NIT.Menu.vb,NIT,MsConnect_Click,Sub,MsConnect.Click,NIT.Menu.vb:2053,none,,GAP?,
-NIT.Menu.vb,NIT,MsExtractPortraits_Click,Sub,MsExtractPortraits.Click,NIT.Menu.vb:2084,none,,GAP?,
-NIT.Menu.vb,NIT,MsDisplayInfo_Click,Sub,MsDisplayInfo.Click,NIT.Menu.vb:2220,none,,GAP?,
-NIT.Menu.vb,NIT,MsProperties_Click,Sub,MsProperties.Click,NIT.Menu.vb:2277,none,,GAP?,
-NIT.Menu.vb,NIT,MsRestart_Click,Sub,MsRestart.Click,NIT.Menu.vb:2303,none,,GAP?,
-NIT.Menu.vb,NIT,MsExit_Click,Sub,MsExit.Click,NIT.Menu.vb:2319,none,,GAP?,
-NIT.Menu.vb,NIT,MsSelectAll_Click,Sub,MsSelectAll.Click,NIT.Menu.vb:2374,none,,GAP?,
-NIT.Menu.vb,NIT,MsCopy_Click,Sub,"MsCut.Click, MsCopy.Click",NIT.Menu.vb:2425,none,,GAP?,
-NIT.Menu.vb,NIT,MsCopyName_Click,Sub,MsCopyName.Click,NIT.Menu.vb:2489,none,,GAP?,
-NIT.Menu.vb,NIT,MsPaste_Click,Sub,MsPaste.Click,NIT.Menu.vb:2517,none,,GAP?,
-NIT.Menu.vb,NIT,MsDelete_Click,Sub,MsDelete.Click,NIT.Menu.vb:2578,none,,GAP?,
-NIT.Menu.vb,NIT,MsRename_Click,Sub,MsRename.Click,NIT.Menu.vb:2620,none,,GAP?,
-NIT.Menu.vb,NIT,MsFind_Click,Sub,MsFind.Click,NIT.Menu.vb:2648,none,,GAP?,
-NIT.Menu.vb,NIT,MsFindAndRename_Click,Sub,MsFindAndRename.Click,NIT.Menu.vb:2713,none,,GAP?,
+NIT.Menu.vb,NIT,RbnManageWorkshop_Click,Sub,RbnManageWorkshop.Click,NIT.Menu.vb:1427,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,RbnAdvancedSettings_Click,Sub,RbnAdvancedSettings.Click,NIT.Menu.vb:1463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsOpen_Click,Sub,MsOpen.Click,NIT.Menu.vb:1477,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDownloadProject_Click,Sub,"MsDownloadProject.Click, RbnDownloadProject.Click",NIT.Menu.vb:1499,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsAddFiles_Click,Sub,"MsAddFiles.Click, RbnAddFiles.Click",NIT.Menu.vb:1567,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsAddMods_Click,Sub,MsAddMods.Click,NIT.Menu.vb:1619,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsUpdateDownloads_Click,Sub,"MsUpdateDownloads.Click, RbnUpdateDownloads.Click",NIT.Menu.vb:1661,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsMoveToFolder_Click,Sub,"MsMoveToFolder.Click, MsMoveToDev.Click",NIT.Menu.vb:1698,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsMoveToHistory_Click,Sub,MsMoveToHistory.Click,NIT.Menu.vb:1730,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsNewFolder_Click,Sub,MsNewFolder.Click,NIT.Menu.vb:1782,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsNewTextFile_Click,Sub,MsNewTextFile.Click,NIT.Menu.vb:1839,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsNewRtfFile_Click,Sub,MsNewRtfFile.Click,NIT.Menu.vb:1859,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsBackupData_Click,Sub,MsBackupData.Click,NIT.Menu.vb:1879,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRestoreData_Click,Sub,MsRestoreData.Click,NIT.Menu.vb:1927,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsExportMods_Click,Sub,MsExportMods.Click,NIT.Menu.vb:1954,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsImportMods_Click,Sub,MsImportMods.Click,NIT.Menu.vb:1984,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsOpenSharedStore_Click,Sub,MsOpenSharedStore.Click,NIT.Menu.vb:2027,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsConnect_Click,Sub,MsConnect.Click,NIT.Menu.vb:2053,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsExtractPortraits_Click,Sub,MsExtractPortraits.Click,NIT.Menu.vb:2084,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDisplayInfo_Click,Sub,MsDisplayInfo.Click,NIT.Menu.vb:2220,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsProperties_Click,Sub,MsProperties.Click,NIT.Menu.vb:2277,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRestart_Click,Sub,MsRestart.Click,NIT.Menu.vb:2303,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsExit_Click,Sub,MsExit.Click,NIT.Menu.vb:2319,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsSelectAll_Click,Sub,MsSelectAll.Click,NIT.Menu.vb:2374,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCopy_Click,Sub,"MsCut.Click, MsCopy.Click",NIT.Menu.vb:2425,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCopyName_Click,Sub,MsCopyName.Click,NIT.Menu.vb:2489,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsPaste_Click,Sub,MsPaste.Click,NIT.Menu.vb:2517,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDelete_Click,Sub,MsDelete.Click,NIT.Menu.vb:2578,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRename_Click,Sub,MsRename.Click,NIT.Menu.vb:2620,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsFind_Click,Sub,MsFind.Click,NIT.Menu.vb:2648,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsFindAndRename_Click,Sub,MsFindAndRename.Click,NIT.Menu.vb:2713,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsConvertRestorer_Click,Sub,MsConvertRestorer.Click,NIT.Menu.vb:2738,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,MsEditWebLink_Click,Sub,MsEditWebLink.Click,NIT.Menu.vb:2812,none,,GAP?,
-NIT.Menu.vb,NIT,MsCopyWebLink_Click,Sub,MsCopyWebLink.Click,NIT.Menu.vb:2847,none,,GAP?,
-NIT.Menu.vb,NIT,MsEditStartScreenPrefixes_Click,Sub,MsEditStartScreenPrefixes.Click,NIT.Menu.vb:2866,none,,GAP?,
-NIT.Menu.vb,NIT,MsCollapseAllGroups_Click,Sub,MsCollapseAllGroups.Click,NIT.Menu.vb:2891,none,,GAP?,
-NIT.Menu.vb,NIT,MsExpandAllGroups_Click,Sub,MsExpandAllGroups.Click,NIT.Menu.vb:2912,none,,GAP?,
-NIT.Menu.vb,NIT,MsCharacterSummary_Click,Sub,MsCharacterSummary.Click,NIT.Menu.vb:2933,none,,GAP?,
-NIT.Menu.vb,NIT,MsConflicts_Click,Sub,MsConflicts.Click,NIT.Menu.vb:2979,none,,GAP?,
-NIT.Menu.vb,NIT,MsModsPlayed_Click,Sub,MsModsPlayed.Click,NIT.Menu.vb:3014,none,,GAP?,
-NIT.Menu.vb,NIT,MsWorkshopViewer_Click,Sub,MsWorkshopViewer.Click,NIT.Menu.vb:3042,none,,GAP?,
-NIT.Menu.vb,NIT,MsLogFile_Click,Sub,"MsLogFile.Click, RbnNitLog.Click",NIT.Menu.vb:3059,none,,GAP?,
-NIT.Menu.vb,NIT,MsDisplaySettings_Click,Sub,"MsDisplaySettings.Click, RbnDisplaySettings.Click",NIT.Menu.vb:3077,none,,GAP?,
-NIT.Menu.vb,NIT,MsOpenRulesFile_Click,Sub,MsOpenRulesFile.Click,NIT.Menu.vb:3099,none,,GAP?,
-NIT.Menu.vb,NIT,MsNwnClientLogFile_Click,Sub,"MsNwnClientLogFile.Click, RbnNwnLog.Click",NIT.Menu.vb:3124,none,,GAP?,
-NIT.Menu.vb,NIT,MsNwnEngineLogFile_Click,Sub,"MsNwnEngineLogFile.Click, RbnNwnEngineLog.Click",NIT.Menu.vb:3141,none,,GAP?,
+NIT.Menu.vb,NIT,MsEditWebLink_Click,Sub,MsEditWebLink.Click,NIT.Menu.vb:2812,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCopyWebLink_Click,Sub,MsCopyWebLink.Click,NIT.Menu.vb:2847,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsEditStartScreenPrefixes_Click,Sub,MsEditStartScreenPrefixes.Click,NIT.Menu.vb:2866,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsCollapseAllGroups_Click,Sub,MsCollapseAllGroups.Click,NIT.Menu.vb:2891,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsExpandAllGroups_Click,Sub,MsExpandAllGroups.Click,NIT.Menu.vb:2912,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCharacterSummary_Click,Sub,MsCharacterSummary.Click,NIT.Menu.vb:2933,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsConflicts_Click,Sub,MsConflicts.Click,NIT.Menu.vb:2979,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsModsPlayed_Click,Sub,MsModsPlayed.Click,NIT.Menu.vb:3014,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsWorkshopViewer_Click,Sub,MsWorkshopViewer.Click,NIT.Menu.vb:3042,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsLogFile_Click,Sub,"MsLogFile.Click, RbnNitLog.Click",NIT.Menu.vb:3059,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDisplaySettings_Click,Sub,"MsDisplaySettings.Click, RbnDisplaySettings.Click",NIT.Menu.vb:3077,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsOpenRulesFile_Click,Sub,MsOpenRulesFile.Click,NIT.Menu.vb:3099,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsNwnClientLogFile_Click,Sub,"MsNwnClientLogFile.Click, RbnNwnLog.Click",NIT.Menu.vb:3124,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsNwnEngineLogFile_Click,Sub,"MsNwnEngineLogFile.Click, RbnNwnEngineLog.Click",NIT.Menu.vb:3141,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,ViewIniFile_Click,Sub,"MsNWNIniFile.Click,",NIT.Menu.vb:3189,none,,GAP?,
-NIT.Menu.vb,NIT,MsNwnSettingsFile_Click,Sub,"MsNwnSettingsFile.Click, RbnNwnSettingsFile.Click",NIT.Menu.vb:3228,none,,GAP?,
-NIT.Menu.vb,NIT,MsViewClipboard_Click,Sub,MsViewClipboard.Click,NIT.Menu.vb:3245,none,,GAP?,
-NIT.Menu.vb,NIT,MsNewGroup_Click,Sub,MsNewGroup.Click,NIT.Menu.vb:3267,none,,GAP?,
-NIT.Menu.vb,NIT,MsNewMod_Click,Sub,"MsNewMod.Click, RbnNewMod.Click",NIT.Menu.vb:3296,none,,GAP?,
-NIT.Menu.vb,NIT,MsCreateInstaller_Click,Sub,"MsCreateInstaller.Click, RbnCreateInstaller.Click,",NIT.Menu.vb:3329,none,,GAP?,
-NIT.Menu.vb,NIT,MsCreateMissingInstallers_Click,Sub,MsCreateMissingInstallers.Click,NIT.Menu.vb:3401,none,,GAP?,
-NIT.Menu.vb,NIT,MsChangeInstaller_Click,Sub,"MsChangeInstaller.Click, RbnChangeInstaller.Click",NIT.Menu.vb:3527,none,,GAP?,
-NIT.Menu.vb,NIT,MsCreateRestorer_Click,Sub,"MsCreateRestorer.Click, RbnCreateRestorer.Click",NIT.Menu.vb:3542,none,,GAP?,
-NIT.Menu.vb,NIT,MsCreateOriginalRestorers_Click,Sub,MsCreateOriginalRestorers.Click,NIT.Menu.vb:3624,none,,GAP?,
-NIT.Menu.vb,NIT,MsPublishMod_Click,Sub,MsPublishMod.Click,NIT.Menu.vb:3654,none,,GAP?,
-NIT.Menu.vb,NIT,MsLoadscreens_Click,Sub,MsLoadscreens.Click,NIT.Menu.vb:3699,none,,GAP?,
-NIT.Menu.vb,NIT,MsHakPatchEditor_Click,Sub,MsHakPatchEditor.Click,NIT.Menu.vb:3732,none,,GAP?,
-NIT.Menu.vb,NIT,MsAliasSection_Click,Sub,MsAliasSection.Click,NIT.Menu.vb:3754,none,,GAP?,
-NIT.Menu.vb,NIT,MsRemoveLetoLogFiles_Click,Sub,MsRemoveLetoLogFiles.Click,NIT.Menu.vb:3779,none,,GAP?,
-NIT.Menu.vb,NIT,MsSynchroniseMods_Click,Sub,MsSynchroniseMods.Click,NIT.Menu.vb:3816,none,,GAP?,
-NIT.Menu.vb,NIT,MsCompact_Click,Sub,MsCompact.Click,NIT.Menu.vb:3857,none,,GAP?,
-NIT.Menu.vb,NIT,MsRemoveIllegalModFiles_Click,Sub,MsRemoveIllegalModFiles.Click,NIT.Menu.vb:3918,none,,GAP?,
-NIT.Menu.vb,NIT,MsAnneal_Click,Sub,MsAnneal.Click,NIT.Menu.vb:3954,none,,GAP?,
-NIT.Menu.vb,NIT,MsInstall_Click,Sub,MsInstall.Click,NIT.Menu.vb:4002,none,,GAP?,
-NIT.Menu.vb,NIT,MsUninstall_Click,Sub,MsUninstall.Click,NIT.Menu.vb:4024,none,,GAP?,
-NIT.Menu.vb,NIT,MsModExplorer_Click,Sub,"MsModExplorer.Click, RbnModExplorer.Click",NIT.Menu.vb:4050,none,,GAP?,
-NIT.Menu.vb,NIT,MsCharacterExplorer_Click,Sub,"MsCharacterExplorer.Click, RbnCharacterExplorer.Click",NIT.Menu.vb:4076,none,,GAP?,
-NIT.Menu.vb,NIT,MsDocOrganiser_Click,Sub,"MsDocOrganiser.Click, RbnDocOrganise.Click",NIT.Menu.vb:4108,none,,GAP?,
-NIT.Menu.vb,NIT,MsGameSaves_Click,Sub,"MsGameSaves.Click, RbnGameSaves.Click",NIT.Menu.vb:4131,none,,GAP?,
-NIT.Menu.vb,NIT,MsBackupManager_Click,Sub,"MsBackupManager.Click, RbnRestoreData.Click",NIT.Menu.vb:4283,none,,GAP?,
-NIT.Menu.vb,NIT,MsInstallationManager_Click,Sub,"MsInstallationManager.Click, RbnInstallationManager.Click",NIT.Menu.vb:4317,none,,GAP?,
-NIT.Menu.vb,NIT,MsInstallationAnalyser_Click,Sub,MsInstallationAnalyser.Click,NIT.Menu.vb:4347,none,,GAP?,
-NIT.Menu.vb,NIT,MsWizardBuilder_Click,Sub,"MsWizardBuilder.Click, RbnWizardBuilder.Click",NIT.Menu.vb:4373,none,,GAP?,
-NIT.Menu.vb,NIT,MsDependencyManager_Click,Sub,"MsDependencyManager.Click, RbnDependencyManager.Click",NIT.Menu.vb:4435,none,,GAP?,
-NIT.Menu.vb,NIT,MsPortraitManager_Click,Sub,"MsPortraitManager.Click, RbnPortraitManager.Click",NIT.Menu.vb:4462,none,,GAP?,
-NIT.Menu.vb,NIT,MsPortraitManager_MouseUp,Sub,"MsPortraitManager.MouseUp, RbnPortraitManager.MouseUp",NIT.Menu.vb:4514,none,,GAP?,
-NIT.Menu.vb,NIT,MsUpdateEeFiles_Click,Sub,MsUpdateEeFiles.Click,NIT.Menu.vb:4530,none,,GAP?,
-NIT.Menu.vb,NIT,MsRefreshWorkshopFiles_Click,Sub,MsRefreshWorkshopFiles.Click,NIT.Menu.vb:4583,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateMovieFiles_Click,Sub,MsValidateMovieFiles.Click,NIT.Menu.vb:4614,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateProfileData_Click,Sub,MsValidateProfileData.Click,NIT.Menu.vb:4680,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateMods_Click,Sub,MsValidateMods.Click,NIT.Menu.vb:4722,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidateInstalledData_Click,Sub,MsValidateInstalledData.Click,NIT.Menu.vb:4756,none,,GAP?,
-NIT.Menu.vb,NIT,MsValidate_Click,Sub,MsValidate.Click,NIT.Menu.vb:4811,none,,GAP?,
+NIT.Menu.vb,NIT,MsNwnSettingsFile_Click,Sub,"MsNwnSettingsFile.Click, RbnNwnSettingsFile.Click",NIT.Menu.vb:3228,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsViewClipboard_Click,Sub,MsViewClipboard.Click,NIT.Menu.vb:3245,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsNewGroup_Click,Sub,MsNewGroup.Click,NIT.Menu.vb:3267,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsNewMod_Click,Sub,"MsNewMod.Click, RbnNewMod.Click",NIT.Menu.vb:3296,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCreateInstaller_Click,Sub,"MsCreateInstaller.Click, RbnCreateInstaller.Click,",NIT.Menu.vb:3329,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCreateMissingInstallers_Click,Sub,MsCreateMissingInstallers.Click,NIT.Menu.vb:3401,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsChangeInstaller_Click,Sub,"MsChangeInstaller.Click, RbnChangeInstaller.Click",NIT.Menu.vb:3527,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCreateRestorer_Click,Sub,"MsCreateRestorer.Click, RbnCreateRestorer.Click",NIT.Menu.vb:3542,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCreateOriginalRestorers_Click,Sub,MsCreateOriginalRestorers.Click,NIT.Menu.vb:3624,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsPublishMod_Click,Sub,MsPublishMod.Click,NIT.Menu.vb:3654,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsLoadscreens_Click,Sub,MsLoadscreens.Click,NIT.Menu.vb:3699,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsHakPatchEditor_Click,Sub,MsHakPatchEditor.Click,NIT.Menu.vb:3732,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsAliasSection_Click,Sub,MsAliasSection.Click,NIT.Menu.vb:3754,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsRemoveLetoLogFiles_Click,Sub,MsRemoveLetoLogFiles.Click,NIT.Menu.vb:3779,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsSynchroniseMods_Click,Sub,MsSynchroniseMods.Click,NIT.Menu.vb:3816,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsCompact_Click,Sub,MsCompact.Click,NIT.Menu.vb:3857,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRemoveIllegalModFiles_Click,Sub,MsRemoveIllegalModFiles.Click,NIT.Menu.vb:3918,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsAnneal_Click,Sub,MsAnneal.Click,NIT.Menu.vb:3954,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsInstall_Click,Sub,MsInstall.Click,NIT.Menu.vb:4002,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsUninstall_Click,Sub,MsUninstall.Click,NIT.Menu.vb:4024,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsModExplorer_Click,Sub,"MsModExplorer.Click, RbnModExplorer.Click",NIT.Menu.vb:4050,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsCharacterExplorer_Click,Sub,"MsCharacterExplorer.Click, RbnCharacterExplorer.Click",NIT.Menu.vb:4076,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDocOrganiser_Click,Sub,"MsDocOrganiser.Click, RbnDocOrganise.Click",NIT.Menu.vb:4108,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsGameSaves_Click,Sub,"MsGameSaves.Click, RbnGameSaves.Click",NIT.Menu.vb:4131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsBackupManager_Click,Sub,"MsBackupManager.Click, RbnRestoreData.Click",NIT.Menu.vb:4283,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsInstallationManager_Click,Sub,"MsInstallationManager.Click, RbnInstallationManager.Click",NIT.Menu.vb:4317,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsInstallationAnalyser_Click,Sub,MsInstallationAnalyser.Click,NIT.Menu.vb:4347,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsWizardBuilder_Click,Sub,"MsWizardBuilder.Click, RbnWizardBuilder.Click",NIT.Menu.vb:4373,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsDependencyManager_Click,Sub,"MsDependencyManager.Click, RbnDependencyManager.Click",NIT.Menu.vb:4435,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsPortraitManager_Click,Sub,"MsPortraitManager.Click, RbnPortraitManager.Click",NIT.Menu.vb:4462,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsPortraitManager_MouseUp,Sub,"MsPortraitManager.MouseUp, RbnPortraitManager.MouseUp",NIT.Menu.vb:4514,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsUpdateEeFiles_Click,Sub,MsUpdateEeFiles.Click,NIT.Menu.vb:4530,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsRefreshWorkshopFiles_Click,Sub,MsRefreshWorkshopFiles.Click,NIT.Menu.vb:4583,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsValidateMovieFiles_Click,Sub,MsValidateMovieFiles.Click,NIT.Menu.vb:4614,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsValidateProfileData_Click,Sub,MsValidateProfileData.Click,NIT.Menu.vb:4680,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsValidateMods_Click,Sub,MsValidateMods.Click,NIT.Menu.vb:4722,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsValidateInstalledData_Click,Sub,MsValidateInstalledData.Click,NIT.Menu.vb:4756,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsValidate_Click,Sub,MsValidate.Click,NIT.Menu.vb:4811,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsRecoverGroups_Click,Sub,MsRecoverGroups.Click,NIT.Menu.vb:4898,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,MsRecoverModProperties_Click,Sub,MsRecoverModProperties.Click,NIT.Menu.vb:5077,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,MsRepairCrcs_Click,Sub,MsRepairCrcs.Click,NIT.Menu.vb:5131,none,,GAP?,
-NIT.Menu.vb,NIT,MsRebuildDatabase_Click,Sub,MsRebuildDatabase.Click,NIT.Menu.vb:5209,none,,GAP?,
+NIT.Menu.vb,NIT,MsRepairCrcs_Click,Sub,MsRepairCrcs.Click,NIT.Menu.vb:5131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRebuildDatabase_Click,Sub,MsRebuildDatabase.Click,NIT.Menu.vb:5209,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,GAP?,
 NIT.Menu.vb,NIT,BimLink_MouseClick,Sub,"BimLink.MouseClick, lbModState.MouseClick",NIT.Menu.vb:5436,none,,GAP?,
-NIT.Menu.vb,NIT,MsBasicSettings_Click,Sub,"MsBasicSettings.Click, RbnBasicSettings.Click",NIT.Menu.vb:5463,none,,GAP?,
-NIT.Menu.vb,NIT,MsSettings_Click,Sub,MsSettings.Click,NIT.Menu.vb:5496,none,,GAP?,
-NIT.Menu.vb,NIT,MsOriginalPortraits_CheckedChanged,Sub,MsOriginalPortraits.CheckedChanged,NIT.Menu.vb:5766,none,,GAP?,
-NIT.Menu.vb,NIT,MsPropertiesHeight_Click,Sub,MsPropertiesHeight.Click,NIT.Menu.vb:5872,none,,GAP?,
-NIT.Menu.vb,NIT,MsResetWindow_Click,Sub,MsResetWindow.Click,NIT.Menu.vb:5904,none,,GAP?,
-NIT.Menu.vb,NIT,MsResetWebMenu_Click,Sub,MsResetWebMenu.Click,NIT.Menu.vb:5928,none,,GAP?,
-NIT.Menu.vb,NIT,MsResetTaskbarIcon_Click,Sub,MsResetTaskbarIcon.Click,NIT.Menu.vb:5980,none,,GAP?,
-NIT.Menu.vb,NIT,MsClearWaitCursors_Click,Sub,MsClearWaitCursors.Click,NIT.Menu.vb:6004,none,,GAP?,
-NIT.Menu.vb,NIT,MsEnableClosing_Click,Sub,MsEnableClosing.Click,NIT.Menu.vb:6018,none,,GAP?,
-NIT.Menu.vb,NIT,MsClearScrollInfo_Click,Sub,MsClearScrollInfo.Click,NIT.Menu.vb:6034,none,,GAP?,
-NIT.Menu.vb,NIT,MsClearSelectionHistory_Click,Sub,MsClearSelectionHistory.Click,NIT.Menu.vb:6079,none,,GAP?,
-NIT.Menu.vb,NIT,MsClearHakPortraits_Click,Sub,MsClearHakPortraits.Click,NIT.Menu.vb:6095,none,,GAP?,
+NIT.Menu.vb,NIT,MsBasicSettings_Click,Sub,"MsBasicSettings.Click, RbnBasicSettings.Click",NIT.Menu.vb:5463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsSettings_Click,Sub,MsSettings.Click,NIT.Menu.vb:5496,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsOriginalPortraits_CheckedChanged,Sub,MsOriginalPortraits.CheckedChanged,NIT.Menu.vb:5766,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsPropertiesHeight_Click,Sub,MsPropertiesHeight.Click,NIT.Menu.vb:5872,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsResetWindow_Click,Sub,MsResetWindow.Click,NIT.Menu.vb:5904,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsResetWebMenu_Click,Sub,MsResetWebMenu.Click,NIT.Menu.vb:5928,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsResetTaskbarIcon_Click,Sub,MsResetTaskbarIcon.Click,NIT.Menu.vb:5980,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsClearWaitCursors_Click,Sub,MsClearWaitCursors.Click,NIT.Menu.vb:6004,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsEnableClosing_Click,Sub,MsEnableClosing.Click,NIT.Menu.vb:6018,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsClearScrollInfo_Click,Sub,MsClearScrollInfo.Click,NIT.Menu.vb:6034,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsClearSelectionHistory_Click,Sub,MsClearSelectionHistory.Click,NIT.Menu.vb:6079,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsClearHakPortraits_Click,Sub,MsClearHakPortraits.Click,NIT.Menu.vb:6095,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsShowRibbon_Clicked,Sub,MsShowRibbon.Click,NIT.Menu.vb:6149,none,,GAP?,
 NIT.Menu.vb,NIT,MsShowToolbar_Clicked,Sub,MsShowToolbar.Click,NIT.Menu.vb:6174,none,,GAP?,
-NIT.Menu.vb,NIT,MsShowText_Click,Sub,MsShowText.Click,NIT.Menu.vb:6191,none,,GAP?,
-NIT.Menu.vb,NIT,MsCustomise_Click,Sub,MsCustomise.Click,NIT.Menu.vb:6213,none,,GAP?,
-NIT.Menu.vb,NIT,MsRemoveErfs_Click,Sub,MsRemoveErfs.Click,NIT.Menu.vb:6241,none,,GAP?,
+NIT.Menu.vb,NIT,MsShowText_Click,Sub,MsShowText.Click,NIT.Menu.vb:6191,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsCustomise_Click,Sub,MsCustomise.Click,NIT.Menu.vb:6213,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsRemoveErfs_Click,Sub,MsRemoveErfs.Click,NIT.Menu.vb:6241,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,DbEnableDevelopmentFolder_Click,Sub,DbEnableDevelopmentFolder.Click,NIT.Menu.vb:6267,none,,GAP?,
 NIT.Menu.vb,NIT,DbRedoDateCompleted_Click,Sub,DbRedoDateCompleted.Click,NIT.Menu.vb:6322,none,,GAP?,
 NIT.Menu.vb,NIT,DbSetPlayTimeValue_Click,Sub,DbSetPlayTimeValue.Click,NIT.Menu.vb:6333,none,,GAP?,
@@ -597,7 +597,7 @@ NIT.Menu.vb,NIT,DbInstalledFilesReport_Click,Sub,DbInstalledFilesReport.Click,NI
 NIT.Menu.vb,NIT,DbModDataReport_Click,Sub,DbModDataReport.Click,NIT.Menu.vb:6465,none,,GAP?,
 NIT.Menu.vb,NIT,DbModFileReport_Click,Sub,DbModFileReport.Click,NIT.Menu.vb:6485,none,,GAP?,
 NIT.Menu.vb,NIT,DbGameMapDataReport_Click,Sub,DbGameMapDataReport.Click,NIT.Menu.vb:6506,none,,GAP?,
-NIT.Menu.vb,NIT,DbGameMapUserReport_Click,Sub,DbGameMapUserReport.Click,NIT.Menu.vb:6527,none,,GAP?,
+NIT.Menu.vb,NIT,DbGameMapUserReport_Click,Sub,DbGameMapUserReport.Click,NIT.Menu.vb:6527,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,DbBlankFilesReport_Click,Sub,DbBlankFilesReport.Click,NIT.Menu.vb:6545,none,,GAP?,
 NIT.Menu.vb,NIT,DbSyncReport_Click,Sub,DbSyncReport.Click,NIT.Menu.vb:6623,none,,GAP?,
 NIT.Menu.vb,NIT,DbScrollReport_Click,Sub,DbScrollReport.Click,NIT.Menu.vb:6661,none,,GAP?,
@@ -617,9 +617,9 @@ NIT.Menu.vb,NIT,DbAppDefsReport_Click,Sub,DbAppDefsReport.Click,NIT.Menu.vb:7172
 NIT.Menu.vb,NIT,DbOriginalFiles_Click,Sub,DbOriginalFiles.Click,NIT.Menu.vb:7219,none,,GAP?,
 NIT.Menu.vb,NIT,DbEeOriginalFiles_Click,Sub,DbEeOriginalFiles.Click,NIT.Menu.vb:7258,none,,GAP?,
 NIT.Menu.vb,NIT,MsValidateOnActivateStatus_Click,Sub,MsValidateOnActivateStatus.Click,NIT.Menu.vb:7315,none,,GAP?,
-NIT.Menu.vb,NIT,MsUpdateNow_Click,Sub,MsUpdateNow.Click,NIT.Menu.vb:7329,none,,GAP?,
-NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,none,,GAP?,
-NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,GAP?,
+NIT.Menu.vb,NIT,MsUpdateNow_Click,Sub,MsUpdateNow.Click,NIT.Menu.vb:7329,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
+NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,GAP?,
 NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,AUTO-PORTED,
 NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,GAP?,
@@ -634,8 +634,8 @@ NIT.Menu.vb,NIT,BtFileCheckInfo_Click,Sub,BtFileCheckInfo.Click,NIT.Menu.vb:7626
 NIT.Menu.vb,NIT,BtHealth_Click,Sub,BtHealth.Click,NIT.Menu.vb:7649,none,,GAP?,
 NIT.Menu.vb,NIT,BtWizardReport_Click,Sub,BtWizardReport.Click,NIT.Menu.vb:7682,none,,GAP?,
 NIT.Menu.vb,NIT,BtWizardReport_MouseUp,Sub,BtWizardReport.MouseUp,NIT.Menu.vb:7720,none,,GAP?,
-NIT.Menu.vb,NIT,BtCharacter_Click,Sub,BtCharacter.Click,NIT.Menu.vb:7732,none,,GAP?,
-NIT.Menu.vb,NIT,BtCharacter_MouseUp,Sub,BtCharacter.MouseUp,NIT.Menu.vb:7788,none,,GAP?,
+NIT.Menu.vb,NIT,BtCharacter_Click,Sub,BtCharacter.Click,NIT.Menu.vb:7732,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,BtCharacter_MouseUp,Sub,BtCharacter.MouseUp,NIT.Menu.vb:7788,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,BtSelectTextFile_MouseUp,Sub,BtSelectTextFile.MouseUp,NIT.Menu.vb:7800,none,,GAP?,
 NIT.Menu.vb,NIT,BtRecycleToggle_MouseUp,Sub,BtRecycleToggle.MouseUp,NIT.Menu.vb:7812,none,,GAP?,
 NIT.ModView.vb,NIT,FvMods_KeyPress,Sub,FvMods.KeyPress,NIT.ModView.vb:204,none,,GAP?,
@@ -723,7 +723,7 @@ PublishMod.vb,PublishMod,PublishMod_Shown,Sub,Me.Shown,PublishMod.vb:118,none,,G
 PublishMod.vb,PublishMod,TxVersion_KeyPress,Sub,TxVersion.KeyPress,PublishMod.vb:127,none,,GAP?,
 PublishMod.vb,PublishMod,TxVersion_TextChanged,Sub,TxVersion.TextChanged,PublishMod.vb:137,none,,GAP?,
 PublishMod.vb,PublishMod,BhPublishMod_Click,Sub,BhPublishMod.Click,PublishMod.vb:157,none,,GAP?,
-PublishMod.vb,PublishMod,BtCancel_Click,Sub,BtCancel.Click,PublishMod.vb:166,none,,GAP?,
+PublishMod.vb,PublishMod,BtCancel_Click,Sub,BtCancel.Click,PublishMod.vb:166,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 PublishMod.vb,PublishMod,BtPublish_Click,Sub,BtPublish.Click,PublishMod.vb:177,none,,GAP?,
 RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,GAP?,
 RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,GAP?,
@@ -788,7 +788,7 @@ Settings.vb,Settings,TsImport_Click,Sub,TsImport.Click,Settings.vb:433,none,,GAP
 Settings.vb,Settings,TsImportMaps_Click,Sub,TsImportMaps.Click,Settings.vb:577,none,,GAP?,
 Settings.vb,Settings,BtSave_Click,Sub,BtSave.Click,Settings.vb:674,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 Settings.vb,Settings,BtReset_Click,Sub,BtReset.Click,Settings.vb:764,none,,GAP?,
-Settings.vb,Settings,BtCancel_Click,Sub,BtCancel.Click,Settings.vb:800,none,,GAP?,
+Settings.vb,Settings,BtCancel_Click,Sub,BtCancel.Click,Settings.vb:800,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 Settings.vb,Settings,CmsResetAll_Click,Sub,CmsResetAll.Click,Settings.vb:868,none,,GAP?,
 Settings.vb,Settings,CmsResetPanel_Click,Sub,CmsResetPanel.Click,Settings.vb:892,none,,GAP?,
 Settings.vb,Settings,CmsResetSelected_Click,Sub,CmsResetSelected.Click,Settings.vb:949,none,,GAP?,
@@ -801,49 +801,49 @@ SlideShow.vb,SlideShow,PicClose_MouseEnter,Sub,PicClose.MouseEnter,SlideShow.vb:
 SlideShow.vb,SlideShow,PicClose_MouseLeave,Sub,PicClose.MouseLeave,SlideShow.vb:248,none,,GAP?,
 SlideShow.vb,SlideShow,PicClose_Click,Sub,PicClose.Click,SlideShow.vb:257,none,,GAP?,
 SlideShow.vb,SlideShow,SlideShow_FormClosing,Sub,Me.FormClosing,SlideShow.vb:267,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LoadscreenManager_Load,Sub,MyBase.Load,StartScreenManager.vb:292,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LoadscreenManager_FormClosing,Sub,Me.FormClosing,StartScreenManager.vb:838,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,FvImages_KeyPress,Sub,FvImages.KeyPress,StartScreenManager.vb:902,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,FvImages_SelectedIndexChanged,Sub,FvImages.SelectedIndexChanged,StartScreenManager.vb:912,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,FvImages_VirtualItemsSelectionRangeChanged,Sub,FvImages.VirtualItemsSelectionRangeChanged,StartScreenManager.vb:923,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,PicScreen_Click,Sub,PicScreen.Click,StartScreenManager.vb:1049,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,PicScreen_MouseMove,Sub,PicScreen.MouseMove,StartScreenManager.vb:1076,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LoadscreenManager_Activated,Sub,Me.Activated,StartScreenManager.vb:1120,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LsbImages_SearchActivated,Sub,LsbImages.SearchActivated,StartScreenManager.vb:1143,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LsbImages_SearchDeactivated,Sub,LsbImages.SearchDeactivated,StartScreenManager.vb:1151,none,,GAP?,
+StartScreenManager.vb,StartScreenManager,LoadscreenManager_Load,Sub,MyBase.Load,StartScreenManager.vb:292,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
+StartScreenManager.vb,StartScreenManager,LoadscreenManager_FormClosing,Sub,Me.FormClosing,StartScreenManager.vb:838,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
+StartScreenManager.vb,StartScreenManager,FvImages_KeyPress,Sub,FvImages.KeyPress,StartScreenManager.vb:902,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,FvImages_SelectedIndexChanged,Sub,FvImages.SelectedIndexChanged,StartScreenManager.vb:912,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,FvImages_VirtualItemsSelectionRangeChanged,Sub,FvImages.VirtualItemsSelectionRangeChanged,StartScreenManager.vb:923,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,PicScreen_Click,Sub,PicScreen.Click,StartScreenManager.vb:1049,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,PicScreen_MouseMove,Sub,PicScreen.MouseMove,StartScreenManager.vb:1076,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,LoadscreenManager_Activated,Sub,Me.Activated,StartScreenManager.vb:1120,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,LsbImages_SearchActivated,Sub,LsbImages.SearchActivated,StartScreenManager.vb:1143,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,LsbImages_SearchDeactivated,Sub,LsbImages.SearchDeactivated,StartScreenManager.vb:1151,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 StartScreenManager.vb,StartScreenManager,RbPrevious_Click,Sub,RbPrevious.Click,StartScreenManager.vb:1168,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 StartScreenManager.vb,StartScreenManager,RbNext_Click,Sub,RbNext.Click,StartScreenManager.vb:1176,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-StartScreenManager.vb,StartScreenManager,RbAddFolders_Click,Sub,RbAddFolders.Click,StartScreenManager.vb:1184,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbAddFiles_Click,Sub,RbAddFiles.Click,StartScreenManager.vb:1215,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbRename_Click,Sub,RbRename.Click,StartScreenManager.vb:1243,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbExport_Click,Sub,RbExport.Click,StartScreenManager.vb:1309,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbDeleteFile_Click,Sub,RbDeleteFile.Click,StartScreenManager.vb:1340,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbInstall_Click,Sub,RbInstall.Click,StartScreenManager.vb:1449,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbSlideshow_Click,Sub,RbSlideshow.Click,StartScreenManager.vb:1486,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbSlideshow_MouseUp,Sub,RbSlideshow.MouseUp,StartScreenManager.vb:1496,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbLoadscreenHelp_Click,Sub,RbLoadscreenHelp.Click,StartScreenManager.vb:1550,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,FvImages_MouseUp,Sub,FvImages.MouseUp,StartScreenManager.vb:1558,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,PicScreen_MouseUp,Sub,PicScreen.MouseUp,StartScreenManager.vb:1566,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbAddAutoExclusion_Click,Sub,RbAddAutoExclusion.Click,StartScreenManager.vb:1643,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbRemoveAutoExclusion_Click,Sub,RbRemoveAutoExclusion.Click,StartScreenManager.vb:1655,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LcbExcluded_CheckedChanged,Sub,LcbExcluded.CheckedChanged,StartScreenManager.vb:1670,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LcbStats_Click,Sub,LcbStats.Click,StartScreenManager.vb:1687,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbInfoReport_Click,Sub,RbInfoReport.Click,StartScreenManager.vb:1699,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbSlideShowInterval_Click,Sub,RbSlideShowInterval.Click,StartScreenManager.vb:1732,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbImport_Click,Sub,RbImport.Click,StartScreenManager.vb:1752,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbClearExported_Click,Sub,RbClearExported.Click,StartScreenManager.vb:1804,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbUninstall_Click,Sub,RbUninstall.Click,StartScreenManager.vb:1824,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbRemove_Click,Sub,RbRemove.Click,StartScreenManager.vb:1847,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbClose_Click,Sub,RbClose.Click,StartScreenManager.vb:1906,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,BtSearch_Click,Sub,BtSearch.Click,StartScreenManager.vb:2304,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,MgStatus_Click,Sub,MgStatus.Click,StartScreenManager.vb:2315,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,LcbInstalled_Click,Sub,LcbInstalled.Click,StartScreenManager.vb:2323,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,BgExportImport_DoWork,Sub,BgExportImport.DoWork,StartScreenManager.vb:2426,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,BgExportImport_ProgressChanged,Sub,BgExportImport.ProgressChanged,StartScreenManager.vb:2452,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbAutoSelect_CheckedChanged,Sub,RbAutoSelect.CheckedChanged,StartScreenManager.vb:2550,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbShowPrefixed_CheckedChanged,Sub,RbShowPrefixed.CheckedChanged,StartScreenManager.vb:2562,none,,GAP?,
-StartScreenManager.vb,StartScreenManager,RbRepairPrefixed_Click,Sub,RbRepairPrefixed.Click,StartScreenManager.vb:2605,none,,GAP?,
-UpdateInstaller.vb,UpdateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,UpdateInstaller.vb:66,none,,GAP?,
+StartScreenManager.vb,StartScreenManager,RbAddFolders_Click,Sub,RbAddFolders.Click,StartScreenManager.vb:1184,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbAddFiles_Click,Sub,RbAddFiles.Click,StartScreenManager.vb:1215,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbRename_Click,Sub,RbRename.Click,StartScreenManager.vb:1243,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbExport_Click,Sub,RbExport.Click,StartScreenManager.vb:1309,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbDeleteFile_Click,Sub,RbDeleteFile.Click,StartScreenManager.vb:1340,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbInstall_Click,Sub,RbInstall.Click,StartScreenManager.vb:1449,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbSlideshow_Click,Sub,RbSlideshow.Click,StartScreenManager.vb:1486,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
+StartScreenManager.vb,StartScreenManager,RbSlideshow_MouseUp,Sub,RbSlideshow.MouseUp,StartScreenManager.vb:1496,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
+StartScreenManager.vb,StartScreenManager,RbLoadscreenHelp_Click,Sub,RbLoadscreenHelp.Click,StartScreenManager.vb:1550,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,FvImages_MouseUp,Sub,FvImages.MouseUp,StartScreenManager.vb:1558,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,PicScreen_MouseUp,Sub,PicScreen.MouseUp,StartScreenManager.vb:1566,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbAddAutoExclusion_Click,Sub,RbAddAutoExclusion.Click,StartScreenManager.vb:1643,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,RbRemoveAutoExclusion_Click,Sub,RbRemoveAutoExclusion.Click,StartScreenManager.vb:1655,none,,Ported,"StartScreen actions + vault download/install pipeline (subagent-swept, orchestrator-verified vs memory)."
+StartScreenManager.vb,StartScreenManager,LcbExcluded_CheckedChanged,Sub,LcbExcluded.CheckedChanged,StartScreenManager.vb:1670,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,LcbStats_Click,Sub,LcbStats.Click,StartScreenManager.vb:1687,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbInfoReport_Click,Sub,RbInfoReport.Click,StartScreenManager.vb:1699,none,,Partial,"core ported, VB UI flow simplified."
+StartScreenManager.vb,StartScreenManager,RbSlideShowInterval_Click,Sub,RbSlideShowInterval.Click,StartScreenManager.vb:1732,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
+StartScreenManager.vb,StartScreenManager,RbImport_Click,Sub,RbImport.Click,StartScreenManager.vb:1752,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbClearExported_Click,Sub,RbClearExported.Click,StartScreenManager.vb:1804,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbUninstall_Click,Sub,RbUninstall.Click,StartScreenManager.vb:1824,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbRemove_Click,Sub,RbRemove.Click,StartScreenManager.vb:1847,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbClose_Click,Sub,RbClose.Click,StartScreenManager.vb:1906,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,BtSearch_Click,Sub,BtSearch.Click,StartScreenManager.vb:2304,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,MgStatus_Click,Sub,MgStatus.Click,StartScreenManager.vb:2315,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,LcbInstalled_Click,Sub,LcbInstalled.Click,StartScreenManager.vb:2323,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,BgExportImport_DoWork,Sub,BgExportImport.DoWork,StartScreenManager.vb:2426,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,BgExportImport_ProgressChanged,Sub,BgExportImport.ProgressChanged,StartScreenManager.vb:2452,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbAutoSelect_CheckedChanged,Sub,RbAutoSelect.CheckedChanged,StartScreenManager.vb:2550,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbShowPrefixed_CheckedChanged,Sub,RbShowPrefixed.CheckedChanged,StartScreenManager.vb:2562,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+StartScreenManager.vb,StartScreenManager,RbRepairPrefixed_Click,Sub,RbRepairPrefixed.Click,StartScreenManager.vb:2605,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
+UpdateInstaller.vb,UpdateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,UpdateInstaller.vb:66,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 UpdateInstaller.vb,UpdateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,UpdateInstaller.vb:98,none,,GAP?,
 UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Load,Sub,MyBase.Load,UserResponseEditor.vb:35,none,,GAP?,
 UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Shown,Sub,Me.Shown,UserResponseEditor.vb:96,none,,GAP?,
@@ -869,13 +869,13 @@ WizardBuilder.vb,WizardBuilder,BhWizardBuilder_Click,Sub,BhWizardBuilder.Click,W
 WizardBuilder.vb,WizardBuilder,BtAddRemove_Click,Sub,"BtAddOne.Click, BtRemoveOne.Click, BtAddMany.Click, BtRemoveMany.Click,",WizardBuilder.vb:589,none,,GAP?,
 WizardBuilder.vb,WizardBuilder,BtAddAll_Click,Sub,"BtAddAllOne.Click, BtAddAllMany.Click, BtAddAllExclude.Click",WizardBuilder.vb:613,none,,GAP?,
 WizardBuilder.vb,WizardBuilder,BtSave_Click,Sub,BtSave.Click,WizardBuilder.vb:632,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-WizardBuilder.vb,WizardBuilder,BtCancel_Click,Sub,BtCancel.Click,WizardBuilder.vb:697,none,,GAP?,
+WizardBuilder.vb,WizardBuilder,BtCancel_Click,Sub,BtCancel.Click,WizardBuilder.vb:697,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 WizardBuilder.vb,WizardBuilder,BtDelete_Click,Sub,BtDelete.Click,WizardBuilder.vb:707,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Load,Sub,MyBase.Load,WorkshopNameEditor.vb:60,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,WorkshopIdName_Shown,Sub,Me.Shown,WorkshopNameEditor.vb:103,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,FvWorkshop_ItemClicked,Sub,FvWorkshop.ItemClicked,WorkshopNameEditor.vb:129,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_KeyPress,Sub,TxModName.KeyPress,WorkshopNameEditor.vb:139,none,,GAP?,
-WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_TextChanged,Sub,TxModName.TextChanged,WorkshopNameEditor.vb:149,none,,GAP?,
+WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_TextChanged,Sub,TxModName.TextChanged,WorkshopNameEditor.vb:149,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 WorkshopNameEditor.vb,WorkshopNameEditor,BtApply_Click,Sub,BtApply.Click,WorkshopNameEditor.vb:163,strong,vaultkeeper/ui/dialogs/character_filter.py,AUTO-PORTED,
 WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Load,Sub,MyBase.Load,WorkshopViewer.vb:30,none,,GAP?,
 WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Shown,Sub,Me.Shown,WorkshopViewer.vb:152,none,,GAP?,
