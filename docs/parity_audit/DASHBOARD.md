@@ -10,26 +10,26 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 2350 (71%) | 934 |
-| Event handlers | 885 | 753 (85%) | 132 |
+| Methods/props | 3284 | 2579 (78%) | 705 |
+| Event handlers | 885 | 845 (95%) | 40 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `Divergence`: 1104
+- `Divergence`: 1256
 - `AUTO-PORTED`: 561
-- `Ported`: 536
-- `GAP?`: 373
-- `Deferred`: 370
+- `Ported`: 548
+- `Deferred`: 423
 - `N/A`: 188
-- `Partial`: 149
+- `Partial`: 161
+- `GAP?`: 144
 - `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `Divergence`: 464
+- `Divergence`: 522
+- `Deferred`: 146
 - `Ported`: 132
-- `GAP?`: 125
-- `Deferred`: 114
-- `Partial`: 41
+- `Partial`: 43
+- `GAP?`: 33
 - `AUTO-PORTED`: 7
 - `MISSING`: 2
 
@@ -45,36 +45,36 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
-| NIT.ModView.vb | 59 | 16 | 8 | 35 |
-| Settings.Advanced.vb | 12 | 12 | 0 | 0 |
-| GameManager.GameManagerInfo.vb | 23 | 12 | 5 | 6 |
-| ExtendedEditionDialogue.vb | 18 | 12 | 1 | 5 |
-| Settings.MenuCommon.vb | 13 | 11 | 0 | 2 |
-| ModExplorer.Properties.vb | 15 | 11 | 4 | 0 |
-| GameManagerRestore.vb | 19 | 11 | 0 | 8 |
-| GameManager.Methods.vb | 16 | 11 | 5 | 0 |
-| Settings.Preferences.vb | 10 | 10 | 0 | 0 |
-| Settings.Common.vb | 15 | 10 | 1 | 4 |
-| ModExplorer.ListManager.vb | 11 | 10 | 0 | 1 |
-| CrashDumpManager.vb | 18 | 10 | 2 | 6 |
-| AliasSectionEditor.vb | 15 | 10 | 0 | 5 |
-| Settings.MapExceptions.vb | 9 | 9 | 0 | 0 |
-| HakPatchEditor.vb | 11 | 9 | 1 | 1 |
-| GameSaves.vb | 25 | 9 | 9 | 7 |
-| ClassesSkillsAndFeats.vb | 15 | 9 | 3 | 3 |
-| BasicSettings.vb | 11 | 9 | 0 | 2 |
-| Settings.RunMenu.vb | 8 | 8 | 0 | 0 |
-| ModExplorer.Common.vb | 9 | 8 | 1 | 0 |
-| DependencyManager.vb | 14 | 8 | 0 | 6 |
 | Settings.WebMenu.vb | 8 | 7 | 1 | 0 |
 | ProfileInfo.vb | 15 | 7 | 2 | 6 |
 | NitDownload.vb | 9 | 7 | 0 | 2 |
-| GameSavesPathDialogue.vb | 11 | 7 | 0 | 4 |
-| DownloadProject.Properties.vb | 9 | 7 | 2 | 0 |
 | ProfileDataExtensions.vb | 9 | 6 | 3 | 0 |
 | FindDialogue.vb | 15 | 6 | 2 | 7 |
 | ApplicationEvents.vb | 6 | 6 | 0 | 0 |
 | VaultDownloadRules.ProjectInfo.vb | 11 | 5 | 3 | 3 |
+| SteamWorkshop.IdInfo.vb | 15 | 5 | 6 | 4 |
+| ModExport.vb | 11 | 5 | 3 | 3 |
+| InstallationManager.SetInfo.vb | 16 | 5 | 6 | 5 |
+| ErfFileReader.IfoReader.vb | 6 | 5 | 0 | 1 |
+| DownloadDeleteMsg.vb | 9 | 5 | 1 | 3 |
+| CharacterFilter.vb | 11 | 5 | 2 | 4 |
+| CalculateCRCs.CrcInfo.vb | 12 | 5 | 6 | 1 |
+| BikToWbmDialogue.vb | 16 | 5 | 4 | 7 |
+| BicFileInfo.vb | 17 | 5 | 10 | 2 |
+| WorkshopNameEditor.vb | 11 | 4 | 2 | 5 |
+| Settings.MapCommon.vb | 4 | 4 | 0 | 0 |
+| DailyPlayTimeInfo.vb | 8 | 4 | 2 | 2 |
+| SteamWorkshop.ModInfo.vb | 11 | 3 | 5 | 3 |
+| ProfileData.Config.vb | 8 | 3 | 3 | 2 |
+| GroupMemberData.vb | 14 | 3 | 8 | 3 |
+| GameMapper.Workers.vb | 5 | 3 | 2 | 0 |
+| FileKeyInfo.vb | 31 | 3 | 13 | 15 |
+| DocOrganiser.ProcessDocs.vb | 5 | 3 | 2 | 0 |
+| VaultScraperInfo.vb | 19 | 2 | 11 | 6 |
+| ProfileData.vb | 81 | 2 | 32 | 47 |
+| PlayTimeInfo.vb | 14 | 2 | 1 | 11 |
+| PlayDataViewPending.vb | 3 | 2 | 0 | 1 |
+| ModExplorerExtensions.vb | 3 | 2 | 0 | 1 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -84,31 +84,12 @@ implement it under a different name).
 
 | VB ref | class | method | kind |
 |---|---|---|---|
-| AliasSectionEditor.vb:61 | AliasSectionEditor | AliasSectionEditor_Load | Sub |
-| AliasSectionEditor.vb:148 | AliasSectionEditor | AliasSectionEditor_Shown | Sub |
-| AliasSectionEditor.vb:159 | AliasSectionEditor | BhAliasEditor_Click | Sub |
-| AliasSectionEditor.vb:192 | AliasSectionEditor | RestoreDefaults | Sub |
-| AliasSectionEditor.vb:298 | AliasSectionEditor | LvFolders_ItemClicked | Sub |
-| AliasSectionEditor.vb:341 | AliasSectionEditor | CmMenuItem_Click | Sub |
-| AliasSectionEditor.vb:359 | AliasSectionEditor | ChangeFolder | Sub |
-| AliasSectionEditor.vb:432 | AliasSectionEditor | RestoreFolder | Sub |
-| AliasSectionEditor.vb:452 | AliasSectionEditor | RefreshContextMenu | Sub |
-| AliasSectionEditor.vb:467 | AliasSectionEditor | SavesTypeSuffix | Sub |
 | ApplicationEvents.vb:28 | MyApplication | MyApplication_Startup | Sub |
 | ApplicationEvents.vb:65 | MyApplication | MyApplication_UnhandledException | Sub |
 | ApplicationEvents.vb:156 | MyApplication | LogExceptionInfo | Sub |
 | ApplicationEvents.vb:196 | MyApplication | MyApplication_StartupNextInstance | Sub |
 | ApplicationEvents.vb:217 | MyApplication | RestartOnShutdown | Property |
 | ApplicationEvents.vb:219 | MyApplication | MyApplication_Shutdown | Sub |
-| BasicSettings.vb:29 | BasicSettings | BasicSettings_Load | Sub |
-| BasicSettings.vb:90 | BasicSettings | CbCommon_CheckedChanged | Sub |
-| BasicSettings.vb:103 | BasicSettings | CbCopyDebugModeOnPlay_CheckedChanged | Sub |
-| BasicSettings.vb:129 | BasicSettings | CbInstallRestore_CheckedChanged | Sub |
-| BasicSettings.vb:141 | BasicSettings | PicCheckBox_Click | Sub |
-| BasicSettings.vb:151 | BasicSettings | RbLine_CheckedChanged | Sub |
-| BasicSettings.vb:166 | BasicSettings | BhBasicSettings_Click | Sub |
-| BasicSettings.vb:176 | BasicSettings | BtSelection_Click | Sub |
-| BasicSettings.vb:184 | BasicSettings | BtAdvanced_Click | Sub |
 | BicFileInfo.vb:157 | BicFileInfo | SkillInfo | Property |
 | BicFileInfo.vb:186 | BicFileInfo | PlayerFeats | Property |
 | BicFileInfo.vb:444 | BicFileInfo | DisplayCharacterInformation | Sub |
@@ -129,23 +110,42 @@ implement it under a different name).
 | CharacterFilter.vb:101 | CharacterFilter | CharacterFilter_Shown | Sub |
 | CharacterFilter.vb:149 | CharacterFilter | LvClassNames_ItemClicked | Sub |
 | CharacterFilter.vb:161 | CharacterFilter | LvClassNames_ItemCheck | Sub |
-| ClassesSkillsAndFeats.vb:27 | ClassesSkillsAndFeats | ErrorText | Property |
-| ClassesSkillsAndFeats.vb:159 | ClassesSkillsAndFeats | SkillsAndFeats_Shown | Sub |
-| ClassesSkillsAndFeats.vb:177 | ClassesSkillsAndFeats | TabMain_SelectedIndexChanged | Sub |
-| ClassesSkillsAndFeats.vb:197 | ClassesSkillsAndFeats | LvClasses_RetrieveVirtualItem | Sub |
-| ClassesSkillsAndFeats.vb:208 | ClassesSkillsAndFeats | LvClasses_SelectedIndexChanged | Sub |
-| ClassesSkillsAndFeats.vb:237 | ClassesSkillsAndFeats | LvSkills_SelectedIndexChanged | Sub |
-| ClassesSkillsAndFeats.vb:263 | ClassesSkillsAndFeats | LvFeats_SelectedIndexChanged | Sub |
-| ClassesSkillsAndFeats.vb:291 | ClassesSkillsAndFeats | ActivateSearch | Sub |
-| ClassesSkillsAndFeats.vb:341 | ClassesSkillsAndFeats | LoadInfoFiles | Function |
 | CommonFiltersDialogue.vb:62 | CommonFiltersDialogue | Filters_Load | Sub |
-| CrashDumpManager.vb:52 | DumpInfo | DisplayText | Property |
-| CrashDumpManager.vb:93 | CrashDumpManager | CrashFilesDeleted | Property |
-| CrashDumpManager.vb:98 | CrashDumpManager | FileSizeAdjustment | Property |
-| CrashDumpManager.vb:143 | CrashDumpManager | CrashDumpManager_Load | Sub |
-| CrashDumpManager.vb:203 | CrashDumpManager | CrashDumpManager_FormClosing | Sub |
+| DailyPlayTimeInfo.vb:89 | DailyPlayTimeInfo | TodaysTime | Sub |
+| DailyPlayTimeInfo.vb:109 | DailyPlayTimeInfo | NitStartUp | Sub |
+| DailyPlayTimeInfo.vb:128 | DailyPlayTimeInfo | DailyAverage | Function |
+| DailyPlayTimeInfo.vb:185 | DailyPlayTimeInfo | GetDailyPlayInfo | Function |
+| DocOrganiser.ProcessDocs.vb:157 | DocOrganiser | BgProcessDocs_ProgressChanged | Sub |
+| DocOrganiser.ProcessDocs.vb:197 | DocOrganiser | BgProcessDocs_RunWorkerCompleted | Sub |
+| DocOrganiser.ProcessDocs.vb:315 | DocOrganiser | RestoreDocInfo | Sub |
+| DownloadDeleteMsg.vb:68 | DownloadDeleteMsg | MarkedFileCount | Property |
+| DownloadDeleteMsg.vb:87 | DownloadDeleteMsg | CheckedFileCount | Property |
+| DownloadDeleteMsg.vb:105 | DownloadDeleteMsg | DownloadDeleteMsg_Load | Sub |
+| DownloadDeleteMsg.vb:127 | DownloadDeleteMsg | LvFileList_ItemChecked | Sub |
+| DownloadDeleteMsg.vb:146 | DownloadDeleteMsg | BtHistory_Click | Sub |
+| ErfFileReader.IfoReader.vb:62 | IfoReader | GetFieldText | Function |
+| ErfFileReader.IfoReader.vb:122 | IfoReader | ReadHeader | Function |
+| ErfFileReader.IfoReader.vb:152 | IfoReader | GetFieldDataCExoLocString | Function |
+| ErfFileReader.IfoReader.vb:178 | IfoReader | GetLabel | Function |
+| ErfFileReader.IfoReader.vb:189 | IfoReader | IsIfoHeader | Function |
+| FileKeyInfo.vb:248 | FileKeyInfo | CrashReportFullName | Property |
+| FileKeyInfo.vb:367 | EqualityComparer | IEqualityComparer_Equals | Function |
+| FileKeyInfo.vb:372 | EqualityComparer | IEqualityComparer_GetHashCode | Function |
+| FindDialogue.vb:85 | FindDialogue | FindDialogue_Load | Sub |
+| FindDialogue.vb:137 | FindDialogue | FindDialogue_Shown | Sub |
+| FindDialogue.vb:192 | FindDialogue | SetFindButtonAvailibility | Sub |
+| FindDialogue.vb:203 | FindDialogue | BtFindNext_Click | Sub |
+| FindDialogue.vb:213 | FindDialogue | BtFindPrevious_Click | Sub |
+| FindDialogue.vb:269 | FindDialogue | ItemFound | Sub |
+| GameMapper.Defs.vb:109 | GameMapper | UserResponsesFile | Property |
+| GameMapper.Internal.vb:106 | GameMapper | GetDescriptionFromFile | Function |
+| GameMapper.Internal.vb:297 | GameMapper | GetSaveInfo | Function |
+| GameMapper.UserResponses.vb:258 | UserResponses | PopulateListView | Sub |
+| GameMapper.UserResponses.vb:313 | UserResponses | UpdateFromListView | Sub |
+| GameMapper.Workers.vb:27 | GameMapper | BgModScanner_DoWork | Sub |
+| GameMapper.Workers.vb:55 | GameMapper | BgModScanner_ProgressChanged | Sub |
 
-_(373 GAP? methods total; see ledger_members.csv for the full list.)_
+_(144 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 
