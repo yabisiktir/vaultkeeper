@@ -44,15 +44,15 @@ BikToWbmDialogue.vb,BikToWbmDialogue,BtCancel_Click,Sub,BtCancel.Click,BikToWbmD
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_DoWork,Sub,BgConverter.DoWork,BikToWbmDialogue.vb:173,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_ProgressChanged,Sub,BgConverter.ProgressChanged,BikToWbmDialogue.vb:203,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 BikToWbmDialogue.vb,BikToWbmDialogue,BgConverter_RunWorkerCompleted,Sub,BgConverter.RunWorkerCompleted,BikToWbmDialogue.vb:226,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CalculateCRCs.vb,CalculateCRCs,BtCancel_Click,Sub,btCancel.Click,CalculateCRCs.vb:439,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_FormClosing,Sub,Me.FormClosing,CalculateCRCs.vb:511,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_DoWork,Sub,"bgCalculateCRC.DoWork, bgCalculateCRC1.DoWork, bgCalculateCRC2.DoWork, bgCalculateCRC3.DoWork",CalculateCRCs.vb:587,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_ProgressChanged,Sub,"bgCalculateCRC.ProgressChanged, bgCalculateCRC1.ProgressChanged, bgCalculateCRC2.ProgressChanged, bgCalculateCRC3.ProgressChanged",CalculateCRCs.vb:630,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_RunWorkerCompleted,Sub,"bgCalculateCRC.RunWorkerCompleted, bgCalculateCRC1.RunWorkerCompleted, bgCalculateCRC2.RunWorkerCompleted, bgCalculateCRC3.RunWorkerCompleted",CalculateCRCs.vb:707,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWork,CalculateCRCs.vb:730,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_FormClosing,Sub,Me.FormClosing,CalculateCRCs.vb:511,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_DoWork,Sub,"bgCalculateCRC.DoWork, bgCalculateCRC1.DoWork, bgCalculateCRC2.DoWork, bgCalculateCRC3.DoWork",CalculateCRCs.vb:587,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_ProgressChanged,Sub,"bgCalculateCRC.ProgressChanged, bgCalculateCRC1.ProgressChanged, bgCalculateCRC2.ProgressChanged, bgCalculateCRC3.ProgressChanged",CalculateCRCs.vb:630,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_RunWorkerCompleted,Sub,"bgCalculateCRC.RunWorkerCompleted, bgCalculateCRC1.RunWorkerCompleted, bgCalculateCRC2.RunWorkerCompleted, bgCalculateCRC3.RunWorkerCompleted",CalculateCRCs.vb:707,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWork,CalculateCRCs.vb:730,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,CharacterFilter.vb:59,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,GAP?,

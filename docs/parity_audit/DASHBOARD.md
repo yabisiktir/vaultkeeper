@@ -10,23 +10,23 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 1374 (41%) | 1910 |
-| Event handlers | 885 | 500 (56%) | 385 |
+| Methods/props | 3284 | 1461 (44%) | 1823 |
+| Event handlers | 885 | 508 (57%) | 377 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `GAP?`: 1169
+- `GAP?`: 1082
 - `AUTO-PORTED`: 741
-- `Divergence`: 602
-- `Ported`: 330
+- `Divergence`: 636
+- `Ported`: 372
 - `N/A`: 188
-- `Deferred`: 171
-- `Partial`: 80
+- `Deferred`: 177
+- `Partial`: 85
 - `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `GAP?`: 378
-- `Divergence`: 303
+- `GAP?`: 370
+- `Divergence`: 311
 - `Ported`: 106
 - `Deferred`: 67
 - `Partial`: 22
@@ -46,7 +46,6 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
 | NIT.Menu.vb | 228 | 100 | 13 | 115 |
-| VaultDownloadRules.vb | 46 | 30 | 15 | 1 |
 | InstallationManagerEditor.vb | 39 | 29 | 1 | 9 |
 | Settings.Classes.vb | 71 | 25 | 20 | 26 |
 | Settings.vb | 27 | 21 | 2 | 4 |
@@ -58,7 +57,6 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | ProfileData.Properties.vb | 34 | 18 | 15 | 1 |
 | PlayDataViewer.vb | 19 | 18 | 0 | 1 |
 | InstallationManager.vb | 29 | 18 | 7 | 4 |
-| VaultScraper.vb | 28 | 17 | 7 | 4 |
 | MenuItemEditor.vb | 23 | 17 | 1 | 5 |
 | NIT.ModView.vb | 59 | 16 | 10 | 33 |
 | ModFindAndRename.ModNames.vb | 25 | 16 | 7 | 2 |
@@ -71,10 +69,12 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | Settings.Locations.vb | 14 | 14 | 0 | 0 |
 | HakPatchManager.vb | 26 | 14 | 11 | 1 |
 | FileConflictsViewer.vb | 19 | 14 | 0 | 5 |
-| SteamWorkshop.vb | 22 | 13 | 7 | 2 |
 | Settings.MapFolders.vb | 13 | 13 | 0 | 0 |
 | RtfThemeManager.vb | 14 | 13 | 1 | 0 |
 | NIT.Paste.vb | 18 | 13 | 2 | 3 |
+| NIT.DetailsView.vb | 14 | 13 | 1 | 0 |
+| SteamWorkshop.vb | 22 | 12 | 7 | 3 |
+| Settings.Advanced.vb | 12 | 12 | 0 | 0 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -145,7 +145,7 @@ implement it under a different name).
 | BicFileInfo.vb:444 | BicFileInfo | DisplayCharacterInformation | Sub |
 | BicFileInfo.vb:457 | BicFileInfo | SkillDescription | Function |
 
-_(1169 GAP? methods total; see ledger_members.csv for the full list.)_
+_(1082 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 

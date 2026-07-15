@@ -131,26 +131,26 @@ CalculateCRCs.CrcInfo.vb,CrcInfo,CrcStatus,Property,,CalculateCRCs.CrcInfo.vb:12
 CalculateCRCs.CrcInfo.vb,CrcInfo,CrcError,Property,,CalculateCRCs.CrcInfo.vb:132,none,,GAP?,
 CalculateCRCs.vb,CalculateCRCs,Files,Property,,CalculateCRCs.vb:65,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,Duration,Property,,CalculateCRCs.vb:73,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-CalculateCRCs.vb,CalculateCRCs,EstimatedDuration,Property,,CalculateCRCs.vb:81,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,TotalFileSize,Property,,CalculateCRCs.vb:89,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,EstimatedDuration,Property,,CalculateCRCs.vb:81,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,TotalFileSize,Property,,CalculateCRCs.vb:89,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CalculateCRCs.vb,CalculateCRCs,Skipped,Property,,CalculateCRCs.vb:97,strong,vaultkeeper/core/crc.py | vaultkeeper/core/rtf.py | vaultkeeper/game/character_reference.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,Errors,Property,,CalculateCRCs.vb:105,strong,vaultkeeper/core/formats/gff_reader.py | vaultkeeper/core/install_manager.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
-CalculateCRCs.vb,CalculateCRCs,LogMessage,Property,,CalculateCRCs.vb:113,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,LogMessage,Property,,CalculateCRCs.vb:113,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CalculateCRCs.vb,CalculateCRCs,CancelMode,Property,,CalculateCRCs.vb:126,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 CalculateCRCs.vb,CalculateCRCs,New,Sub,,CalculateCRCs.vb:228,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 CalculateCRCs.vb,CalculateCRCs,ShowDialog,Function,,CalculateCRCs.vb:246,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Shown,Sub,Me.Shown,CalculateCRCs.vb:415,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CalculateCRCs.vb,CalculateCRCs,BtCancel_Click,Sub,btCancel.Click,CalculateCRCs.vb:439,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CalculateCRCs.vb,CalculateCRCs,WndProc,Sub,,CalculateCRCs.vb:479,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_FormClosing,Sub,Me.FormClosing,CalculateCRCs.vb:511,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,DequeueItem,Function,,CalculateCRCs.vb:567,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_DoWork,Sub,"bgCalculateCRC.DoWork, bgCalculateCRC1.DoWork, bgCalculateCRC2.DoWork, bgCalculateCRC3.DoWork",CalculateCRCs.vb:587,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_ProgressChanged,Sub,"bgCalculateCRC.ProgressChanged, bgCalculateCRC1.ProgressChanged, bgCalculateCRC2.ProgressChanged, bgCalculateCRC3.ProgressChanged",CalculateCRCs.vb:630,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,ProgressInfo,Function,,CalculateCRCs.vb:692,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_RunWorkerCompleted,Sub,"bgCalculateCRC.RunWorkerCompleted, bgCalculateCRC1.RunWorkerCompleted, bgCalculateCRC2.RunWorkerCompleted, bgCalculateCRC3.RunWorkerCompleted",CalculateCRCs.vb:707,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWork,CalculateCRCs.vb:730,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_FormClosing,Sub,Me.FormClosing,CalculateCRCs.vb:511,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,DequeueItem,Function,,CalculateCRCs.vb:567,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_DoWork,Sub,"bgCalculateCRC.DoWork, bgCalculateCRC1.DoWork, bgCalculateCRC2.DoWork, bgCalculateCRC3.DoWork",CalculateCRCs.vb:587,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_ProgressChanged,Sub,"bgCalculateCRC.ProgressChanged, bgCalculateCRC1.ProgressChanged, bgCalculateCRC2.ProgressChanged, bgCalculateCRC3.ProgressChanged",CalculateCRCs.vb:630,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,ProgressInfo,Function,,CalculateCRCs.vb:692,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgCalculateCRC_RunWorkerCompleted,Sub,"bgCalculateCRC.RunWorkerCompleted, bgCalculateCRC1.RunWorkerCompleted, bgCalculateCRC2.RunWorkerCompleted, bgCalculateCRC3.RunWorkerCompleted",CalculateCRCs.vb:707,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWork,CalculateCRCs.vb:730,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 ChangeData.vb,ChangeData,New,Sub,,ChangeData.vb:53,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ChangeData.vb,ChangeData,Installed,Property,,ChangeData.vb:59,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ChangeData.vb,ChangeData,File,Property,,ChangeData.vb:64,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
@@ -166,7 +166,7 @@ ChangeData.vb,ChangeData,SaveInfo,Sub,,ChangeData.vb:180,strong,vaultkeeper/core
 ChangeData.vb,ChangeData,RestoreSavedInfo,Sub,,ChangeData.vb:206,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 ChangeData.vb,ChangeData,MergeSavedInfo,Sub,,ChangeData.vb:234,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 ChangeData.vb,ChangeData,StatusLine,Function,,ChangeData.vb:293,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
-ChangeData.vb,ChangeData,StatusLineNone,Function,,ChangeData.vb:395,none,,GAP?,
+ChangeData.vb,ChangeData,StatusLineNone,Function,,ChangeData.vb:395,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 ChangeData.vb,ChangeData,Report,Sub,,ChangeData.vb:411,strong,vaultkeeper/core/change_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/install_verify.py,AUTO-PORTED,
 ChangeData.vb,ChangeData,GetReport,Function,,ChangeData.vb:432,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,New,Sub,,ChangeData.vb:493,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -609,7 +609,7 @@ ErfFileReader.vb,ErfFileReader,ModDescription,Property,,ErfFileReader.vb:87,none
 ErfFileReader.vb,ErfFileReader,ModSavName,Property,,ErfFileReader.vb:92,none,,GAP?,
 ErfFileReader.vb,ErfFileReader,Status,Property,,ErfFileReader.vb:97,strong,vaultkeeper/config/settings.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/log.py,AUTO-PORTED,
 ErfFileReader.vb,ErfFileReader,StatusMessage,Property,,ErfFileReader.vb:102,none,,GAP?,
-ErfFileReader.vb,ErfFileReader,LogMessage,Property,,ErfFileReader.vb:108,none,,GAP?,
+ErfFileReader.vb,ErfFileReader,LogMessage,Property,,ErfFileReader.vb:108,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 ErfFileReader.vb,ErfFileReader,New,Sub,,ErfFileReader.vb:115,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ErfFileReader.vb,ErfFileReader,OpenModFile,Function,,ErfFileReader.vb:136,none,,GAP?,
 ErfFileReader.vb,ErfFileReader,ValidateModInfo,Sub,,ErfFileReader.vb:203,none,,GAP?,
@@ -890,10 +890,10 @@ GameMapper.vb,GameMapper,New,Sub,,GameMapper.vb:34,strong,vaultkeeper/core/hak_p
 GameMapper.vb,GameMapper,CreateMapEntries,Sub,,GameMapper.vb:67,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,GetModDescription,Function,,GameMapper.vb:120,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,LogNameToModName,Function,,GameMapper.vb:160,strong,vaultkeeper/game/client_log.py | vaultkeeper/game/game_mapper.py | vaultkeeper/ui/play_loop.py,AUTO-PORTED,
-GameMapper.vb,GameMapper,GetModFromLogName,Function,,GameMapper.vb:182,none,,GAP?,
-GameMapper.vb,GameMapper,GetModFromLogFilename,Function,,GameMapper.vb:290,none,,GAP?,
+GameMapper.vb,GameMapper,GetModFromLogName,Function,,GameMapper.vb:182,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+GameMapper.vb,GameMapper,GetModFromLogFilename,Function,,GameMapper.vb:290,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 GameMapper.vb,GameMapper,SaveNameToModName,Function,,GameMapper.vb:337,strong,vaultkeeper/game/client_log.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-GameMapper.vb,GameMapper,GetModFromSaveName,Function,,GameMapper.vb:364,none,,GAP?,
+GameMapper.vb,GameMapper,GetModFromSaveName,Function,,GameMapper.vb:364,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 GameMapper.vb,GameMapper,IsSaveName,Function,,GameMapper.vb:466,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,IsModName,Function,,GameMapper.vb:481,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,Clear,Sub,,GameMapper.vb:508,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/game/game_mapper.py,AUTO-PORTED,
@@ -901,9 +901,9 @@ GameMapper.vb,GameMapper,RenameMod,Sub,,GameMapper.vb:527,strong,vaultkeeper/cor
 GameMapper.vb,GameMapper,RenameModFile,Sub,,GameMapper.vb:581,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,ResetRefreshTime,Sub,,GameMapper.vb:609,strong,vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 GameMapper.vb,GameMapper,Refresh,Sub,,GameMapper.vb:622,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/game/game_saves.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-GameMapper.vb,GameMapper,DisplayReport,Sub,,GameMapper.vb:663,none,,GAP?,
+GameMapper.vb,GameMapper,DisplayReport,Sub,,GameMapper.vb:663,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 GameMapper.vb,GameMapper,PopulateUserResponses,Sub,,GameMapper.vb:707,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-GameMapper.vb,GameMapper,UpdateUserResponses,Sub,,GameMapper.vb:723,none,,GAP?,
+GameMapper.vb,GameMapper,UpdateUserResponses,Sub,,GameMapper.vb:723,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 GameSaveInfo.vb,GameSaveInfo,FolderType,Property,,GameSaveInfo.vb:32,strong,vaultkeeper/game/game_saves.py,AUTO-PORTED,
 GameSaveInfo.vb,GameSaveInfo,FullName,Property,,GameSaveInfo.vb:37,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/documentation.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
 GameSaveInfo.vb,GameSaveInfo,Number,Property,,GameSaveInfo.vb:42,strong,vaultkeeper/config/settings.py | vaultkeeper/core/formatting.py | vaultkeeper/game/character.py,AUTO-PORTED,
@@ -1307,7 +1307,7 @@ ModData.vb,ModData,ModPath,Property,,ModData.vb:224,strong,vaultkeeper/core/inst
 ModData.vb,ModData,InstallerPath,Property,,ModData.vb:236,strong,vaultkeeper/game/installer_build.py,AUTO-PORTED,
 ModData.vb,ModData,HasModInstaller,Function,,ModData.vb:248,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ModData.vb,ModData,HasModInstaller,Function,,ModData.vb:262,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-ModData.vb,ModData,HasSourceFiles,Function,,ModData.vb:275,none,,GAP?,
+ModData.vb,ModData,HasSourceFiles,Function,,ModData.vb:275,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,IsRestorer,Function,,ModData.vb:287,strong,vaultkeeper/core/mod_data.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 ModData.vb,ModData,IsInstaller,Function,,ModData.vb:300,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ModData.vb,ModData,HasModFile,Property,,ModData.vb:313,strong,vaultkeeper/core/mod_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -1322,19 +1322,19 @@ ModData.vb,ModData,BestWeapon,Property,,ModData.vb:417,strong,vaultkeeper/core/m
 ModData.vb,ModData,HenchCount,Property,,ModData.vb:426,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,AUTO-PORTED,
 ModData.vb,ModData,WebLink,Property,,ModData.vb:435,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 ModData.vb,ModData,Notes,Property,,ModData.vb:444,strong,vaultkeeper/app_paths.py | vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-ModData.vb,ModData,DeleteInstaller,Function,,ModData.vb:461,none,,GAP?,
+ModData.vb,ModData,DeleteInstaller,Function,,ModData.vb:461,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,RemoveAllFiles,Sub,,ModData.vb:482,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,RemoveFile,Sub,,ModData.vb:514,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,Remove,Sub,,ModData.vb:533,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/group_member.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 ModData.vb,ModData,Rename,Sub,,ModData.vb:557,strong,vaultkeeper/core/file_data.py | vaultkeeper/core/fs.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
-ModData.vb,ModData,CreateInstallerFolder,Function,,ModData.vb:626,none,,GAP?,
+ModData.vb,ModData,CreateInstallerFolder,Function,,ModData.vb:626,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,CreateInstaller,Function,,ModData.vb:649,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/installer_build.py | vaultkeeper/game/wizard.py,AUTO-PORTED,
 ModData.vb,ModData,CreateRestorer,Function,,ModData.vb:668,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
-ModData.vb,ModData,CreateTypeFile,Function,,ModData.vb:689,none,,GAP?,
+ModData.vb,ModData,CreateTypeFile,Function,,ModData.vb:689,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,ValidateInstallerType,Function,,ModData.vb:721,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
 ModData.vb,ModData,AddModFile,Sub,,ModData.vb:801,comment,vaultkeeper/ui/menu_bar.py | vaultkeeper/ui/resources.py,AUTO-PORTED,matched in comment/docstring
-ModData.vb,ModData,GetModFolderFiles,Function,,ModData.vb:839,none,,GAP?,
-ModData.vb,ModData,FolderHasSourceFiles,Function,,ModData.vb:854,none,,GAP?,
+ModData.vb,ModData,GetModFolderFiles,Function,,ModData.vb:839,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+ModData.vb,ModData,FolderHasSourceFiles,Function,,ModData.vb:854,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 ModData.vb,ModData,SetModState,Sub,,ModData.vb:879,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,UpdateFileKeys,Sub,,ModData.vb:983,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,RebuildFileList,Sub,,ModData.vb:1015,strong,vaultkeeper/core/mod_data.py,AUTO-PORTED,
@@ -2269,8 +2269,8 @@ PlayDataManager.PlayData.vb,PlayData,MostInOneDay,Property,,PlayDataManager.Play
 PlayDataManager.PlayData.vb,PlayData,LastPlayed,Property,,PlayDataManager.PlayData.vb:38,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 PlayDataManager.PlayData.vb,PlayData,PlayTimes,Property,,PlayDataManager.PlayData.vb:50,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 PlayDataManager.PlayData.vb,PlayData,New,Sub,,PlayDataManager.PlayData.vb:55,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-PlayDataManager.vb,PlayDataManager,PendingPlayTimesFile,Property,,PlayDataManager.vb:33,none,,GAP?,
-PlayDataManager.vb,PlayDataManager,ModsStartedFile,Property,,PlayDataManager.vb:42,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,PendingPlayTimesFile,Property,,PlayDataManager.vb:33,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+PlayDataManager.vb,PlayDataManager,ModsStartedFile,Property,,PlayDataManager.vb:42,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 PlayDataManager.vb,PlayDataManager,TotalPlayed,Property,,PlayDataManager.vb:135,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,TotalToday,Property,,PlayDataManager.vb:150,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/play_loop.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,MostInOneDay,Property,,PlayDataManager.vb:165,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -2284,11 +2284,11 @@ PlayDataManager.vb,PlayDataManager,RecordedGames,Property,,PlayDataManager.vb:27
 PlayDataManager.vb,PlayDataManager,DeletedGames,Property,,PlayDataManager.vb:282,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,PendingModCount,Property,,PlayDataManager.vb:291,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,Result,Property,,PlayDataManager.vb:306,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/file_ops.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,UninstallMsgDisplayed,Property,,PlayDataManager.vb:314,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,UninstallMsgDisplayed,Property,,PlayDataManager.vb:314,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 PlayDataManager.vb,PlayDataManager,New,Sub,,PlayDataManager.vb:327,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 PlayDataManager.vb,PlayDataManager,Load,Function,,PlayDataManager.vb:372,strong,vaultkeeper/config/settings.py | vaultkeeper/core/formats/tga_reader.py | vaultkeeper/core/hak_patch.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,LoadModsStarted,Sub,,PlayDataManager.vb:408,none,,GAP?,
-PlayDataManager.vb,PlayDataManager,LoadPendingPlayTimes,Sub,,PlayDataManager.vb:440,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,LoadModsStarted,Sub,,PlayDataManager.vb:408,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+PlayDataManager.vb,PlayDataManager,LoadPendingPlayTimes,Sub,,PlayDataManager.vb:440,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 PlayDataManager.vb,PlayDataManager,SetPlayTime,Sub,,PlayDataManager.vb:481,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,AddLoggedTimes,Sub,,PlayDataManager.vb:495,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,AddTime,Sub,,PlayDataManager.vb:551,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
@@ -2300,24 +2300,24 @@ PlayDataManager.vb,PlayDataManager,Validate,Sub,,PlayDataManager.vb:791,strong,v
 PlayDataManager.vb,PlayDataManager,ValidatePlayData,Sub,,PlayDataManager.vb:808,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,Save,Sub,,PlayDataManager.vb:890,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,SaveModsStarted,Sub,,PlayDataManager.vb:907,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,SavePending,Sub,,PlayDataManager.vb:931,none,,GAP?,
-PlayDataManager.vb,PlayDataManager,DisplayRecorded,Sub,,PlayDataManager.vb:961,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,SavePending,Sub,,PlayDataManager.vb:931,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+PlayDataManager.vb,PlayDataManager,DisplayRecorded,Sub,,PlayDataManager.vb:961,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 PlayDataManager.vb,PlayDataManager,RecordTime,Function,,PlayDataManager.vb:1030,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,GetPendingPlayTimes,Function,,PlayDataManager.vb:1122,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,ClearPendingPlayTimes,Sub,,PlayDataManager.vb:1152,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,RecordCompletedGames,Sub,,PlayDataManager.vb:1166,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,RecordCompletedGame,Function,,PlayDataManager.vb:1242,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,RecordCompletedGame,Function,,PlayDataManager.vb:1242,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 PlayDataManager.vb,PlayDataManager,SyncPlayTimes,Function,,PlayDataManager.vb:1270,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,SyncPlayTimes,Function,,PlayDataManager.vb:1294,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,RebuildPlayTimeFile,Function,,PlayDataManager.vb:1339,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,ReadPlayTimeFile,Function,,PlayDataManager.vb:1365,strong,vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,GetPlayTimes,Function,,PlayDataManager.vb:1394,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,GetPlayTimes,Function,,PlayDataManager.vb:1394,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 PlayDataManager.vb,PlayDataManager,SavePlayTimes,Function,,PlayDataManager.vb:1449,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,UpdateCompletedInfo,Sub,,PlayDataManager.vb:1510,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,FormatTime,Function,,PlayDataManager.vb:1560,strong,vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,FormatDays,Function,,PlayDataManager.vb:1616,strong,vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-PlayDataManager.vb,PlayDataManager,FormatStartDate,Function,,PlayDataManager.vb:1683,none,,GAP?,
-PlayDataManager.vb,PlayDataManager,MigrateProfiles,Sub,,PlayDataManager.vb:1717,none,,GAP?,
+PlayDataManager.vb,PlayDataManager,FormatStartDate,Function,,PlayDataManager.vb:1683,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
+PlayDataManager.vb,PlayDataManager,MigrateProfiles,Sub,,PlayDataManager.vb:1717,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
 PlayDataManager.vb,PlayDataManager,Migrate,Function,,PlayDataManager.vb:1753,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/dialogs/import_legacy.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,Migrate,Function,,PlayDataManager.vb:1800,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/dialogs/import_legacy.py,AUTO-PORTED,
 PlayDataManager.vb,PlayDataManager,Dispose,Sub,,PlayDataManager.vb:1858,none,,N/A,framework/designer-generated
@@ -3067,7 +3067,7 @@ SteamWorkshop.ModInfo.vb,ModInfo,UpdateWorkshopFile,Sub,,SteamWorkshop.ModInfo.v
 SteamWorkshop.vb,SteamWorkshop,Loaded,Property,,SteamWorkshop.vb:27,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/game/character_reference.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 SteamWorkshop.vb,SteamWorkshop,ManagedItems,Property,,SteamWorkshop.vb:32,none,,GAP?,
 SteamWorkshop.vb,SteamWorkshop,UnmanagedItems,Property,,SteamWorkshop.vb:41,none,,GAP?,
-SteamWorkshop.vb,SteamWorkshop,LogMessage,Property,,SteamWorkshop.vb:50,none,,GAP?,
+SteamWorkshop.vb,SteamWorkshop,LogMessage,Property,,SteamWorkshop.vb:50,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 SteamWorkshop.vb,SteamWorkshop,StatusMessage,Property,,SteamWorkshop.vb:55,none,,GAP?,
 SteamWorkshop.vb,SteamWorkshop,LoadModsStatus,Property,,SteamWorkshop.vb:60,none,,GAP?,
 SteamWorkshop.vb,SteamWorkshop,WorkshopContents,Property,,SteamWorkshop.vb:87,strong,vaultkeeper/game/workshop.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/workshop_viewer.py,AUTO-PORTED,
@@ -3104,84 +3104,84 @@ VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Group,Property,,VaultDownloadRules
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ApplyExcludes,Property,,VaultDownloadRules.ProjectInfo.vb:33,none,,GAP?,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Files,Property,,VaultDownloadRules.ProjectInfo.vb:38,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExternalFiles,Property,,VaultDownloadRules.ProjectInfo.vb:43,none,,GAP?,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,RequiredFiles,Property,,VaultDownloadRules.ProjectInfo.vb:48,none,,GAP?,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,AddRequired,Property,,VaultDownloadRules.ProjectInfo.vb:53,none,,GAP?,
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,RequiredFiles,Property,,VaultDownloadRules.ProjectInfo.vb:48,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,AddRequired,Property,,VaultDownloadRules.ProjectInfo.vb:53,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeRequiredProjects,Property,,VaultDownloadRules.ProjectInfo.vb:59,none,,GAP?,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExcludeDirectLinks,Property,,VaultDownloadRules.ProjectInfo.vb:64,none,,GAP?,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,IncludeExtensions,Property,,VaultDownloadRules.ProjectInfo.vb:69,none,,GAP?,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Wizard,Property,,VaultDownloadRules.ProjectInfo.vb:74,strong,vaultkeeper/core/constants.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/game/character.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,RulesVersionSuffix,Property,,VaultDownloadRules.vb:58,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RulesFilename,Property,,VaultDownloadRules.vb:76,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,RulesVersionSuffix,Property,,VaultDownloadRules.vb:58,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,RulesFilename,Property,,VaultDownloadRules.vb:76,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 VaultDownloadRules.vb,VaultDownloadRules,RulesFile,Property,,VaultDownloadRules.vb:86,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,SourceLocation,Property,,VaultDownloadRules.vb:95,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,SourceRevision,Property,,VaultDownloadRules.vb:112,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RuleFileVersionInfo,Property,,VaultDownloadRules.vb:117,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RulesFullVersion,Property,,VaultDownloadRules.vb:126,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RulesFileLanguage,Property,,VaultDownloadRules.vb:135,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RevisionNumber,Property,,VaultDownloadRules.vb:140,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,CountPhp,Property,,VaultDownloadRules.vb:145,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,SourceLocation,Property,,VaultDownloadRules.vb:95,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,SourceRevision,Property,,VaultDownloadRules.vb:112,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,RuleFileVersionInfo,Property,,VaultDownloadRules.vb:117,none,,Partial,"present but bounded (title/temp-name helpers, rule accessors)."
+VaultDownloadRules.vb,VaultDownloadRules,RulesFullVersion,Property,,VaultDownloadRules.vb:126,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,RulesFileLanguage,Property,,VaultDownloadRules.vb:135,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,RevisionNumber,Property,,VaultDownloadRules.vb:140,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,CountPhp,Property,,VaultDownloadRules.vb:145,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 VaultDownloadRules.vb,VaultDownloadRules,FileIdPrefix,Property,,VaultDownloadRules.vb:150,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,ProjectUrlSuffix,Property,,VaultDownloadRules.vb:158,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,VaultTempUrl,Property,,VaultDownloadRules.vb:164,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,CountRoloVaultDownloads,Property,,VaultDownloadRules.vb:169,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,SitesBaseAddress,Property,,VaultDownloadRules.vb:175,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,VaultDomain,Property,,VaultDownloadRules.vb:181,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,OldVaultDomain,Property,,VaultDownloadRules.vb:187,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,VaultTitleId,Property,,VaultDownloadRules.vb:193,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,RulesMessage,Property,,VaultDownloadRules.vb:198,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,ProjectUrlSuffix,Property,,VaultDownloadRules.vb:158,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,VaultTempUrl,Property,,VaultDownloadRules.vb:164,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,CountRoloVaultDownloads,Property,,VaultDownloadRules.vb:169,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
+VaultDownloadRules.vb,VaultDownloadRules,SitesBaseAddress,Property,,VaultDownloadRules.vb:175,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,VaultDomain,Property,,VaultDownloadRules.vb:181,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,OldVaultDomain,Property,,VaultDownloadRules.vb:187,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,VaultTitleId,Property,,VaultDownloadRules.vb:193,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultDownloadRules.vb,VaultDownloadRules,RulesMessage,Property,,VaultDownloadRules.vb:198,none,,Partial,"present but bounded (title/temp-name helpers, rule accessors)."
 VaultDownloadRules.vb,VaultDownloadRules,SaveNameRemovedChars,Property,,VaultDownloadRules.vb:208,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/play_loop.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,SaveNameRules,Property,,VaultDownloadRules.vb:213,strong,vaultkeeper/game/game_mapper.py | vaultkeeper/ui/play_loop.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,WorkshopFileMap,Property,,VaultDownloadRules.vb:218,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,WorkshopFileMap,Property,,VaultDownloadRules.vb:218,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.vb,VaultDownloadRules,Projects,Property,,VaultDownloadRules.vb:242,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/download_project.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,PrefixFilenames,Property,,VaultDownloadRules.vb:278,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,New,Sub,,VaultDownloadRules.vb:439,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-VaultDownloadRules.vb,VaultDownloadRules,SetRulesFileLanguage,Sub,,VaultDownloadRules.vb:528,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,DeleteOldVersions,Sub,,VaultDownloadRules.vb:545,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,LogRevisionNumber,Sub,,VaultDownloadRules.vb:561,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,SetRulesFileLanguage,Sub,,VaultDownloadRules.vb:528,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
+VaultDownloadRules.vb,VaultDownloadRules,DeleteOldVersions,Sub,,VaultDownloadRules.vb:545,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
+VaultDownloadRules.vb,VaultDownloadRules,LogRevisionNumber,Sub,,VaultDownloadRules.vb:561,none,,Deferred,legacy migrate / rules-file version management / LazWorks date-diff helper.
 VaultDownloadRules.vb,VaultDownloadRules,CreateInstaller,Function,,VaultDownloadRules.vb:592,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/installer_build.py | vaultkeeper/game/wizard.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,IsUnsupported,Function,,VaultDownloadRules.vb:602,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,IsValidVaultUrl,Function,,VaultDownloadRules.vb:612,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,ModHasWizardRule,Function,,VaultDownloadRules.vb:633,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,IsValidVaultUrl,Function,,VaultDownloadRules.vb:612,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.vb,VaultDownloadRules,ModHasWizardRule,Function,,VaultDownloadRules.vb:633,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.vb,VaultDownloadRules,IsExcluded,Function,,VaultDownloadRules.vb:672,comment,vaultkeeper/core/mapper.py | vaultkeeper/game/installer_build.py,AUTO-PORTED,matched in comment/docstring
-VaultDownloadRules.vb,VaultDownloadRules,IsDescriptionExcluded,Function,,VaultDownloadRules.vb:693,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,IsDescriptionExcluded,Function,,VaultDownloadRules.vb:693,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.vb,VaultDownloadRules,IsPrefixFilename,Function,,VaultDownloadRules.vb:722,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,FormattedUrl,Function,,VaultDownloadRules.vb:733,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,GetFinalUrl,Function,,VaultDownloadRules.vb:744,strong,vaultkeeper/vault/download_rules.py | vaultkeeper/vault/scraper.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,ProjectExists,Function,,VaultDownloadRules.vb:759,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,GetProjectInfo,Function,,VaultDownloadRules.vb:769,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,GetWizardInfo,Function,,VaultDownloadRules.vb:786,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,GetSeriesMods,Function,,VaultDownloadRules.vb:807,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,ProjectExists,Function,,VaultDownloadRules.vb:759,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.vb,VaultDownloadRules,GetProjectInfo,Function,,VaultDownloadRules.vb:769,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.vb,VaultDownloadRules,GetWizardInfo,Function,,VaultDownloadRules.vb:786,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.vb,VaultDownloadRules,GetSeriesMods,Function,,VaultDownloadRules.vb:807,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultDownloadRules.vb,VaultDownloadRules,ReadFile,Sub,,VaultDownloadRules.vb:842,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/gff_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,GetKeywordParameter,Function,,VaultDownloadRules.vb:1239,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultDownloadRules.vb,VaultDownloadRules,GetEqualsParameter,Function,,VaultDownloadRules.vb:1250,strong,vaultkeeper/vault/download_rules.py,AUTO-PORTED,
-VaultDownloadRules.vb,VaultDownloadRules,AddConditional,Sub,,VaultDownloadRules.vb:1264,none,,GAP?,
-VaultDownloadRules.vb,VaultDownloadRules,AddExternalFile,Sub,,VaultDownloadRules.vb:1297,none,,GAP?,
+VaultDownloadRules.vb,VaultDownloadRules,AddConditional,Sub,,VaultDownloadRules.vb:1264,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultDownloadRules.vb,VaultDownloadRules,AddExternalFile,Sub,,VaultDownloadRules.vb:1297,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultScraper.vb,VaultScraper,StatusText,Property,,VaultScraper.vb:75,strong,vaultkeeper/vault/scraper_info.py,AUTO-PORTED,
 VaultScraper.vb,VaultScraper,ProjectTitle,Property,,VaultScraper.vb:94,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/download_project.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,ProjectUrl,Property,,VaultScraper.vb:99,none,,GAP?,
+VaultScraper.vb,VaultScraper,ProjectUrl,Property,,VaultScraper.vb:99,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultScraper.vb,VaultScraper,ModFolder,Property,,VaultScraper.vb:105,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
 VaultScraper.vb,VaultScraper,Group,Property,,VaultScraper.vb:122,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 VaultScraper.vb,VaultScraper,Files,Property,,VaultScraper.vb:127,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,RequiredProjects,Property,,VaultScraper.vb:132,none,,GAP?,
-VaultScraper.vb,VaultScraper,RequiredFiles,Property,,VaultScraper.vb:137,none,,GAP?,
-VaultScraper.vb,VaultScraper,ExInfo,Property,,VaultScraper.vb:142,none,,GAP?,
+VaultScraper.vb,VaultScraper,RequiredProjects,Property,,VaultScraper.vb:132,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,RequiredFiles,Property,,VaultScraper.vb:137,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,ExInfo,Property,,VaultScraper.vb:142,none,,Partial,"present but bounded (title/temp-name helpers, rule accessors)."
 VaultScraper.vb,VaultScraper,Errors,Property,,VaultScraper.vb:148,strong,vaultkeeper/core/formats/gff_reader.py | vaultkeeper/core/install_manager.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,IsVaultAddress,Function,,VaultScraper.vb:161,none,,GAP?,
+VaultScraper.vb,VaultScraper,IsVaultAddress,Function,,VaultScraper.vb:161,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultScraper.vb,VaultScraper,New,Sub,,VaultScraper.vb:196,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-VaultScraper.vb,VaultScraper,AdjustTempFilenames,Sub,,VaultScraper.vb:330,none,,GAP?,
-VaultScraper.vb,VaultScraper,RetrieveFileUrls,Sub,,VaultScraper.vb:374,none,,GAP?,
+VaultScraper.vb,VaultScraper,AdjustTempFilenames,Sub,,VaultScraper.vb:330,none,,Partial,"present but bounded (title/temp-name helpers, rule accessors)."
+VaultScraper.vb,VaultScraper,RetrieveFileUrls,Sub,,VaultScraper.vb:374,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultScraper.vb,VaultScraper,SetDirectUrl,Sub,,VaultScraper.vb:424,strong,vaultkeeper/vault/scraper.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,UrlProgress,Sub,,VaultScraper.vb:450,none,,GAP?,
-VaultScraper.vb,VaultScraper,AddRequired,Sub,,VaultScraper.vb:469,none,,GAP?,
-VaultScraper.vb,VaultScraper,GetWebPage,Function,,VaultScraper.vb:554,none,,GAP?,
-VaultScraper.vb,VaultScraper,GetProjectTitle,Function,,VaultScraper.vb:590,none,,GAP?,
-VaultScraper.vb,VaultScraper,GetUnknownTitle,Function,,VaultScraper.vb:620,none,,GAP?,
+VaultScraper.vb,VaultScraper,UrlProgress,Sub,,VaultScraper.vb:450,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
+VaultScraper.vb,VaultScraper,AddRequired,Sub,,VaultScraper.vb:469,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,GetWebPage,Function,,VaultScraper.vb:554,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,GetProjectTitle,Function,,VaultScraper.vb:590,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,GetUnknownTitle,Function,,VaultScraper.vb:620,none,,Partial,"present but bounded (title/temp-name helpers, rule accessors)."
 VaultScraper.vb,VaultScraper,ExtractAttachments,Function,,VaultScraper.vb:640,strong,vaultkeeper/vault/scraper.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,ExtractScraperInfo,Function,,VaultScraper.vb:662,none,,GAP?,
-VaultScraper.vb,VaultScraper,ExtractRequired,Function,,VaultScraper.vb:711,none,,GAP?,
-VaultScraper.vb,VaultScraper,GetTable,Function,,VaultScraper.vb:739,none,,GAP?,
-VaultScraper.vb,VaultScraper,ExtractLink,Function,,VaultScraper.vb:755,none,,GAP?,
-VaultScraper.vb,VaultScraper,GetLinkDescription,Function,,VaultScraper.vb:781,none,,GAP?,
+VaultScraper.vb,VaultScraper,ExtractScraperInfo,Function,,VaultScraper.vb:662,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,ExtractRequired,Function,,VaultScraper.vb:711,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,GetTable,Function,,VaultScraper.vb:739,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,ExtractLink,Function,,VaultScraper.vb:755,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
+VaultScraper.vb,VaultScraper,GetLinkDescription,Function,,VaultScraper.vb:781,none,,Ported,"domain layer ported Phase 1-5 (ModData mutators, play-data, vault scraper/rules parsing, GameMapper resolution)."
 VaultScraper.vb,VaultScraper,Dispose,Sub,,VaultScraper.vb:793,none,,N/A,framework/designer-generated
 VaultScraper.vb,VaultScraper,Dispose,Sub,,VaultScraper.vb:817,none,,N/A,framework/designer-generated
 VaultScraperInfo.vb,VaultScraperInfo,ProjectTitle,Property,,VaultScraperInfo.vb:25,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/download_project.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
