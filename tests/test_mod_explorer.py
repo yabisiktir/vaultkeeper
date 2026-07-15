@@ -52,3 +52,31 @@ def test_mod_explorer_dialog(qtbot, tmp_path):
     # Sortable table has the expected columns.
     assert dlg.table.headerItem().text(0) == "Mod"
     assert dlg.table.headerItem().text(6) == "Completed"
+
+
+def test_mod_explorer_filter_bar(qtbot):
+    report = {
+        "count": 3,
+        "rows": [
+            {"mod": "Aribeth", "group": "Campaigns", "state": "Installed",
+             "rating": "", "files": 10, "played": "", "completed": 2},
+            {"mod": "Bastard", "group": "Community", "state": "Not Installed",
+             "rating": "", "files": 5, "played": "", "completed": 0},
+            {"mod": "Aftermath", "group": "Campaigns", "state": "Installed",
+             "rating": "", "files": 3, "played": "", "completed": 0},
+        ],
+    }
+    dlg = ModExplorer(report)
+    qtbot.addWidget(dlg)
+    assert dlg.table.topLevelItemCount() == 3
+
+    dlg._search.setText("af")  # name substring
+    assert dlg.table.topLevelItemCount() == 1  # Aftermath
+
+    dlg._search.clear()
+    dlg._state.setCurrentText("Not Installed")
+    assert dlg.table.topLevelItemCount() == 1  # Bastard
+
+    dlg._state.setCurrentIndex(0)  # All states
+    dlg._only_completed.setChecked(True)
+    assert dlg.table.topLevelItemCount() == 1  # Aribeth (completed=2)
