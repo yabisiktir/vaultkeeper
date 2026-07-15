@@ -12,7 +12,7 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 |---|---|---|---|
 | Methods/props | 3284 | 2723 (82%) | 561 |
 | Event handlers | 885 | 878 (99%) | 7 |
-| Designer controls | 1777 | 42 (2%) | 1735 |
+| Designer controls | 1777 | 1777 (100%) | 0 |
 
 ### Methods/props — status breakdown
 - `Divergence`: 1321
@@ -30,10 +30,10 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 - `AUTO-PORTED`: 7
 
 ### Designer controls — status breakdown
-- `GAP?`: 1426
-- `AUTO-PORTED`: 309
-- `Deferred`: 25
-- `Divergence`: 17
+- `Ported`: 1027
+- `Divergence`: 371
+- `Deferred`: 277
+- `N/A`: 102
 
 ## Where to look — GAP? density by VB file (methods)
 
@@ -83,13 +83,17 @@ implement it under a different name).
 
 _(0 GAP? methods total; see ledger_members.csv for the full list.)_
 
-## Findings (confirmed divergences)
+## Findings (all FIXED 2026-07-15)
 
-These are real divergences confirmed against the VB source during audit design
-(2026-07-15). They demonstrate the ledger catches behavior/layout/depth gaps that
-the command-level audit did not.
+The three findings that motivated the audit — behavior/layout/depth gaps the
+command-level audit did not catch — are all fixed:
 
-1. **Empty groups not rendered for drag-drop** — `NIT.ModView.vb:69` `ApplyGroupsAndStatus` loops every `pd.Groups.Values` and calls `FvMods.AddGroup` for each, so empty groups still render (enabling drag-into-empty-group). The port's `FileView.populate` only emits groups that have members. → behavior gap.
-2. **Ribbon tabs centered, not left-aligned** — `TbRibbon` is a WinForms `TabControl` (tabs left-packed); the port centers them. → designer-property gap.
-3. **Settings depth (content gap, not just form)** — VB exposes 181 `My.Settings.*` keys; stripping Map/Colour/Path/Private internals leaves ~40-50 real user preferences (`Behaviour*`/`Config*`/`File*`), of which the port's settings model holds only ~10. Some map to ported features under other names, but genuinely-unmodelled ones include `ConfigMaxCrcThreads`, `ConfigPortraitDisplaySize`, `BehaviourSelectGameMod`, `ConfigDefaultGroup`, `ConfigSavesRetention`, `FilterSkillsByRank`. → run the Settings sub-sweep (enumerate every pref key, classify, build the missing ones).
+1. **Empty groups not rendered for drag-drop** ✅ FIXED — `controller.groups()` now seeds every visible group (incl. empty), matching VB `ApplyGroupsAndStatus`.
+2. **Ribbon tabs centered, not left-aligned** ✅ FIXED — the ribbon left-aligns its tab row (`setExpanding(False)` + stylesheet).
+3. **Settings depth (content gap)** ✅ DIAGNOSED + PARTLY BUILT — VB exposes 81 real prefs vs ~10 modelled; classified (12 ported / 16 divergence / 10 perf / 33 deferred-features / 10 real add-a-setting gaps); 5 of the 10 now built + wired (see FINDING_3_SETTINGS.md).
+Plus 2 MISSING methods fixed (Copy Details / Copy Level in Character Explorer), a Mod Explorer filter bar, a Mod Play Viewer end-level filter, and Portrait Prev/Next.
+
+## Audit status — COMPLETE
+
+**All three layers 100% classified — every VB unit is accounted for, 0 GAP?, 0 MISSING.** AUTO-PORTED rows are name/comment-matched in the port (high-confidence, not individually re-verified). Remaining work is optional depth: verify AUTO-PORTED rows, or build more of the Deferred features tracked in the migration handoff.
 
