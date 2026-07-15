@@ -13,6 +13,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -31,6 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.tga_reader import TGAReader
+from vaultkeeper.game.character import level_summary
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 
@@ -111,15 +113,24 @@ class CharacterViewer(QDialog):
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
 
-        # Bottom bar: match count + Close (VB bottom bar Search/Select/Close).
+        # Bottom bar: match count + copy actions + Close.
         bar = QHBoxLayout()
         self._count_label = QLabel()
         bar.addWidget(self._count_label)
         bar.addStretch(1)
+        # VB TsCopyDetails / TsCopyLevel: put the selected character's summary /
+        # class-level line on the clipboard.
+        self._copy_details_btn = QPushButton("Copy Details")
+        self._copy_details_btn.clicked.connect(self._on_copy_details)
+        bar.addWidget(self._copy_details_btn)
+        self._copy_level_btn = QPushButton("Copy Level")
+        self._copy_level_btn.clicked.connect(self._on_copy_level)
+        bar.addWidget(self._copy_level_btn)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         bar.addWidget(close)
         outer.addLayout(bar)
+        self._current_cf = None
 
         self._populate_list()
         if not characters:
@@ -226,6 +237,10 @@ class CharacterViewer(QDialog):
     def _on_row(self, row: int) -> None:
         item = self._list.item(row) if row >= 0 else None
         cf = item.data(_CHAR_ROLE) if item is not None else None
+        self._current_cf = cf
+        has = cf is not None
+        self._copy_details_btn.setEnabled(has)
+        self._copy_level_btn.setEnabled(has)
         if cf is None:
             self._summary.clear()
             self._portrait.clear()
@@ -237,6 +252,17 @@ class CharacterViewer(QDialog):
         self._summary.setPlainText(cf.summary(show_stats=True))
         self._show_portrait(cf)
         self._populate_skills_and_feats(cf)
+
+    def _on_copy_details(self) -> None:
+        """Copy the selected character's full summary to the clipboard (VB TsCopyDetails)."""
+        if self._current_cf is not None:
+            QApplication.clipboard().setText(self._current_cf.summary(show_stats=True))
+
+    def _on_copy_level(self) -> None:
+        """Copy the selected character's name + class/level line (VB TsCopyLevel)."""
+        cf = self._current_cf
+        if cf is not None:
+            QApplication.clipboard().setText(f"{cf.display_name}: {level_summary(cf.info)}")
 
     def _populate_skills_and_feats(self, cf) -> None:
         self._skills.clear()

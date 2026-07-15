@@ -62,6 +62,22 @@ def _write_tga(path: Path, w: int = 2, h: int = 2) -> None:
     path.write_bytes(header + pixels)
 
 
+def test_copy_details_and_level_to_clipboard(qtbot, tmp_path):
+    from PySide6.QtWidgets import QApplication
+
+    dlg = CharacterViewer([_char("Alpha Hero", tmp_path / "a.bic")], None)
+    qtbot.addWidget(dlg)
+    dlg._list.setCurrentRow(0)
+
+    dlg._on_copy_details()
+    assert "Alpha Hero" in QApplication.clipboard().text()
+
+    dlg._on_copy_level()
+    level = QApplication.clipboard().text()
+    assert level.startswith("Alpha Hero:")
+    assert "Bard 5" in level  # class/level line
+
+
 def test_viewer_populates_list_and_summary(qtbot, tmp_path):
     chars = [
         _char("Alpha Hero", tmp_path / "a.bic"),
