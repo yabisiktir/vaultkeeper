@@ -136,7 +136,7 @@ CalculateCRCs.vb,CalculateCRCs,TotalFileSize,Property,,CalculateCRCs.vb:89,none,
 CalculateCRCs.vb,CalculateCRCs,Skipped,Property,,CalculateCRCs.vb:97,strong,vaultkeeper/core/crc.py | vaultkeeper/core/rtf.py | vaultkeeper/game/character_reference.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,Errors,Property,,CalculateCRCs.vb:105,strong,vaultkeeper/core/formats/gff_reader.py | vaultkeeper/core/install_manager.py | vaultkeeper/game/game_backup.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,LogMessage,Property,,CalculateCRCs.vb:113,none,,GAP?,
-CalculateCRCs.vb,CalculateCRCs,CancelMode,Property,,CalculateCRCs.vb:126,none,,GAP?,
+CalculateCRCs.vb,CalculateCRCs,CancelMode,Property,,CalculateCRCs.vb:126,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 CalculateCRCs.vb,CalculateCRCs,New,Sub,,CalculateCRCs.vb:228,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 CalculateCRCs.vb,CalculateCRCs,ShowDialog,Function,,CalculateCRCs.vb:246,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 CalculateCRCs.vb,CalculateCRCs,CalculateCRCs_Load,Sub,Me.Load,CalculateCRCs.vb:333,none,,GAP?,
@@ -377,61 +377,61 @@ DailyPlayTimeInfo.vb,DailyPlayTimeInfo,NitStartUp,Sub,,DailyPlayTimeInfo.vb:109,
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,DailyAverage,Function,,DailyPlayTimeInfo.vb:128,none,,GAP?,
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,Save,Sub,,DailyPlayTimeInfo.vb:164,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 DailyPlayTimeInfo.vb,DailyPlayTimeInfo,GetDailyPlayInfo,Function,,DailyPlayTimeInfo.vb:185,none,,GAP?,
-Defs.vb,Defs,StartupType,Property,,Defs.vb:477,none,,GAP?,
+Defs.vb,Defs,StartupType,Property,,Defs.vb:477,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,DefaultWebMenu,Property,,Defs.vb:691,strong,vaultkeeper/config/settings.py,AUTO-PORTED,
-Defs.vb,Defs,SuppressGotFocus,Property,,Defs.vb:753,none,,GAP?,
-Defs.vb,Defs,ValidateOnActivate,Property,,Defs.vb:761,none,,GAP?,
-Defs.vb,Defs,MissingModFiles,Property,,Defs.vb:793,none,,GAP?,
-Defs.vb,Defs,LastFocusedControl,Property,,Defs.vb:799,none,,GAP?,
-Defs.vb,Defs,ModImportAction,Property,,Defs.vb:861,none,,GAP?,
-Defs.vb,Defs,CancelMode,Property,,Defs.vb:877,none,,GAP?,
-Defs.vb,Defs,DevUser,Property,,Defs.vb:898,none,,GAP?,
-Defs.vb,Defs,FsDisplayErrorMessages,Property,,Defs.vb:906,none,,GAP?,
-Defs.vb,Defs,BehaviourInstallerInstall,Property,,Defs.vb:924,none,,GAP?,
-Defs.vb,Defs,CharRestorerPrefix,Property,,Defs.vb:932,none,,GAP?,
-Defs.vb,Defs,ScreenImageCrop,Property,,Defs.vb:946,none,,GAP?,
+Defs.vb,Defs,SuppressGotFocus,Property,,Defs.vb:753,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ValidateOnActivate,Property,,Defs.vb:761,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,MissingModFiles,Property,,Defs.vb:793,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,LastFocusedControl,Property,,Defs.vb:799,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ModImportAction,Property,,Defs.vb:861,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+Defs.vb,Defs,CancelMode,Property,,Defs.vb:877,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,DevUser,Property,,Defs.vb:898,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,FsDisplayErrorMessages,Property,,Defs.vb:906,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,BehaviourInstallerInstall,Property,,Defs.vb:924,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,CharRestorerPrefix,Property,,Defs.vb:932,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+Defs.vb,Defs,ScreenImageCrop,Property,,Defs.vb:946,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 Defs.vb,GroupUserData,TotalMods,Property,,Defs.vb:965,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_analyser.py,AUTO-PORTED,
 Defs.vb,GroupUserData,InstalledMods,Property,,Defs.vb:970,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_analyser.py,AUTO-PORTED,
 Defs.vb,GroupUserData,New,Sub,,Defs.vb:975,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Defs.vb,GroupUserData,New,Sub,,Defs.vb:984,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Defs.vb,Defs,TitleInfo,Property,,Defs.vb:1001,none,,GAP?,
-Defs.vb,Defs,PlayedTodayText,Function,,Defs.vb:1113,none,,GAP?,
-Defs.vb,Defs,DrawingEnabled,Property,,Defs.vb:1135,none,,GAP?,
-Defs.vb,Defs,CancelImage,Property,,Defs.vb:1162,none,,GAP?,
-Defs.vb,Defs,EditionName,Property,,Defs.vb:1186,none,,GAP?,
-Defs.vb,Defs,EditionFull,Property,,Defs.vb:1203,none,,GAP?,
-Defs.vb,Defs,EditionStd,Property,,Defs.vb:1220,none,,GAP?,
-Defs.vb,Defs,EditionShort,Property,,Defs.vb:1237,none,,GAP?,
-Defs.vb,Defs,EditionShorter,Property,,Defs.vb:1254,none,,GAP?,
-Defs.vb,Defs,LoadingProfile,Property,,Defs.vb:1275,none,,GAP?,
-Defs.vb,Defs,OpenAndSaveSettings,Property,,Defs.vb:1300,none,,GAP?,
-Defs.vb,Defs,ForceAskEachTime,Property,,Defs.vb:1309,none,,GAP?,
-Defs.vb,Defs,ModDownloaded,Property,,Defs.vb:1319,none,,GAP?,
-Defs.vb,Defs,DownloadedNitFile,Property,,Defs.vb:1330,none,,GAP?,
-Defs.vb,Defs,ForceNitUpdate,Property,,Defs.vb:1339,none,,GAP?,
+Defs.vb,Defs,TitleInfo,Property,,Defs.vb:1001,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,PlayedTodayText,Function,,Defs.vb:1113,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,DrawingEnabled,Property,,Defs.vb:1135,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,CancelImage,Property,,Defs.vb:1162,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,EditionName,Property,,Defs.vb:1186,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,EditionFull,Property,,Defs.vb:1203,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,EditionStd,Property,,Defs.vb:1220,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,EditionShort,Property,,Defs.vb:1237,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,EditionShorter,Property,,Defs.vb:1254,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,LoadingProfile,Property,,Defs.vb:1275,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,OpenAndSaveSettings,Property,,Defs.vb:1300,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ForceAskEachTime,Property,,Defs.vb:1309,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ModDownloaded,Property,,Defs.vb:1319,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+Defs.vb,Defs,DownloadedNitFile,Property,,Defs.vb:1330,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+Defs.vb,Defs,ForceNitUpdate,Property,,Defs.vb:1339,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 Defs.vb,Defs,NwnEngineLog,Property,,Defs.vb:1348,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py | vaultkeeper/ui/ribbon.py,AUTO-PORTED,matched in comment/docstring
-Defs.vb,Defs,DefaultGroupName,Property,,Defs.vb:1361,none,,GAP?,
-Defs.vb,Defs,ModWebPage,Property,,Defs.vb:1385,none,,GAP?,
-Defs.vb,Defs,HelpLayoutWindows,Property,,Defs.vb:1416,none,,GAP?,
-Defs.vb,Defs,HelpLayoutPanels,Property,,Defs.vb:1428,none,,GAP?,
-Defs.vb,Defs,ConfirmDeleteOperationText,Property,,Defs.vb:1441,none,,GAP?,
+Defs.vb,Defs,DefaultGroupName,Property,,Defs.vb:1361,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,ModWebPage,Property,,Defs.vb:1385,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,HelpLayoutWindows,Property,,Defs.vb:1416,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,HelpLayoutPanels,Property,,Defs.vb:1428,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ConfirmDeleteOperationText,Property,,Defs.vb:1441,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,SteamWorkshopUrl,Property,,Defs.vb:1459,strong,vaultkeeper/game/workshop.py,AUTO-PORTED,
-Defs.vb,Defs,ExportedModsCount,Property,,Defs.vb:1472,none,,GAP?,
-Defs.vb,Defs,ProgressBarPrefs,Property,,Defs.vb:1492,none,,GAP?,
-Defs.vb,Defs,ToolTipTextAppearance,Property,,Defs.vb:1515,none,,GAP?,
-Defs.vb,Defs,DefaultToolTipPlus,Function,,Defs.vb:1539,none,,GAP?,
-Defs.vb,Defs,DefaultToolTipPlus,Function,,Defs.vb:1556,none,,GAP?,
-Defs.vb,Defs,SaveCopiesPerByte,Sub,,Defs.vb:1574,none,,GAP?,
-Defs.vb,Defs,ZipExeOption,Function,,Defs.vb:1598,none,,GAP?,
-Defs.vb,Defs,ZipExeOption,Function,,Defs.vb:1609,none,,GAP?,
+Defs.vb,Defs,ExportedModsCount,Property,,Defs.vb:1472,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+Defs.vb,Defs,ProgressBarPrefs,Property,,Defs.vb:1492,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ToolTipTextAppearance,Property,,Defs.vb:1515,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,DefaultToolTipPlus,Function,,Defs.vb:1539,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,DefaultToolTipPlus,Function,,Defs.vb:1556,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,SaveCopiesPerByte,Sub,,Defs.vb:1574,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ZipExeOption,Function,,Defs.vb:1598,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,ZipExeOption,Function,,Defs.vb:1609,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,SaveColourSettings,Function,,Defs.vb:1626,strong,vaultkeeper/config/settings.py,AUTO-PORTED,
-Defs.vb,Defs,TgaToBitmap,Function,,Defs.vb:1693,none,,GAP?,
-Defs.vb,Defs,IsNotPortraitFile,Function,,Defs.vb:1743,none,,GAP?,
+Defs.vb,Defs,TgaToBitmap,Function,,Defs.vb:1693,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,IsNotPortraitFile,Function,,Defs.vb:1743,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 Defs.vb,Defs,GetLocationInGameSave,Function,,Defs.vb:1768,strong,vaultkeeper/game/game_saves.py,AUTO-PORTED,
-Defs.vb,Defs,ModHasWizard,Function,,Defs.vb:1796,none,,GAP?,
-Defs.vb,Defs,GetFilteredSkills,Function,,Defs.vb:1831,none,,GAP?,
-Defs.vb,Defs,ReadCrashReportFiles,Function,,Defs.vb:1845,none,,GAP?,
-Defs.vb,Defs,SaveCrashReportFiles,Sub,,Defs.vb:1860,none,,GAP?,
+Defs.vb,Defs,ModHasWizard,Function,,Defs.vb:1796,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,GetFilteredSkills,Function,,Defs.vb:1831,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,ReadCrashReportFiles,Function,,Defs.vb:1845,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+Defs.vb,Defs,SaveCrashReportFiles,Sub,,Defs.vb:1860,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 DependencyManager.vb,DependencyManager,ExplanationText,Property,,DependencyManager.vb:25,none,,GAP?,
 DependencyManager.vb,DependencyManager,ShowDialog,Function,,DependencyManager.vb:80,strong,vaultkeeper/ui/dialogs/about.py | vaultkeeper/ui/dialogs/classes_skills_feats.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 DependencyManager.vb,DependencyManager,DependencyManager_Load,Sub,MyBase.Load,DependencyManager.vb:99,none,,GAP?,
@@ -798,7 +798,7 @@ GameManager.Properties.vb,GameManager,TotalArchiveSize,Property,,GameManager.Pro
 GameManager.Properties.vb,GameManager,ActiveGameKey,Property,,GameManager.Properties.vb:241,none,,GAP?,
 GameManager.Properties.vb,GameManager,ActiveGame,Property,,GameManager.Properties.vb:250,strong,vaultkeeper/game/save_archive.py,AUTO-PORTED,
 GameManager.Properties.vb,GameManager,ActiveGameSaves,Property,,GameManager.Properties.vb:260,none,,GAP?,
-GameManager.Properties.vb,GameManager,UninstallMods,Property,,GameManager.Properties.vb:269,none,,GAP?,
+GameManager.Properties.vb,GameManager,UninstallMods,Property,,GameManager.Properties.vb:269,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 GameManager.vb,GameManager,RedoBackupFolder,Property,,GameManager.vb:28,none,,GAP?,
 GameManager.vb,GameManager,GiveFvModsFocus,Property,,GameManager.vb:37,none,,GAP?,
 GameManager.vb,GameManager,GameManager_Load,Sub,MyBase.Load,GameManager.vb:72,none,,GAP?,
@@ -1577,101 +1577,101 @@ MsgPicture.vb,MsgPicture,PicClose_MouseLeave,Sub,PicClose.MouseLeave,MsgPicture.
 MsgPicture.vb,MsgPicture,MsgPicture_FormClosing,Sub,Me.FormClosing,MsgPicture.vb:499,none,,GAP?,
 MsgPicture.vb,MsgPicture,PicFile_MouseMove,Sub,,MsgPicture.vb:524,none,,GAP?,
 MsgPicture.vb,MsgPicture,ProcessCmdKey,Function,,MsgPicture.vb:538,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-NIT.Common.vb,NIT,ProcessErrorLogFile,Sub,,NIT.Common.vb:39,none,,GAP?,
-NIT.Common.vb,NIT,UpdateConfigKeyDelay,Function,,NIT.Common.vb:95,none,,GAP?,
-NIT.Common.vb,NIT,SaveScrollPositions,Sub,,NIT.Common.vb:139,none,,GAP?,
-NIT.Common.vb,NIT,LoadScrollPositions,Sub,,NIT.Common.vb:170,none,,GAP?,
-NIT.Common.vb,NIT,LoadTaskStates,Sub,,NIT.Common.vb:207,none,,GAP?,
-NIT.Common.vb,NIT,SaveTasksStates,Sub,,NIT.Common.vb:240,none,,GAP?,
-NIT.Common.vb,NIT,RegisterEventHandlers,Sub,,NIT.Common.vb:266,none,,GAP?,
-NIT.Common.vb,NIT,RegisterRibbonFocusHandlers,Sub,,NIT.Common.vb:314,none,,GAP?,
-NIT.Common.vb,NIT,MoveNitStore,Function,,NIT.Common.vb:336,none,,GAP?,
-NIT.Common.vb,NIT,DefineTabStops,Sub,,NIT.Common.vb:401,none,,GAP?,
-NIT.Common.vb,NIT,PlayStartupSound,Sub,,NIT.Common.vb:416,none,,GAP?,
-NIT.Common.vb,NIT,InitialiseSettingsValues,Sub,,NIT.Common.vb:441,none,,GAP?,
-NIT.Common.vb,NIT,DynamicDefaultSettings,Sub,,NIT.Common.vb:459,none,,GAP?,
-NIT.Common.vb,NIT,UpdateDefaultValues,Sub,,NIT.Common.vb:521,none,,GAP?,
-NIT.Common.vb,NIT,SetRibbonAndToolbarVisibility,Sub,,NIT.Common.vb:554,none,,GAP?,
-NIT.Common.vb,NIT,GetRunMenuPath,Function,,NIT.Common.vb:591,none,,GAP?,
-NIT.Common.vb,NIT,InitialiseHelp,Sub,,NIT.Common.vb:637,none,,GAP?,
-NIT.Common.vb,NIT,PopulateSiteToUrl,Sub,,NIT.Common.vb:650,none,,GAP?,
-NIT.Common.vb,NIT,LogHelpRequests,Sub,,NIT.Common.vb:668,none,,GAP?,
-NIT.Common.vb,NIT,TerminateNit,Sub,,NIT.Common.vb:682,none,,GAP?,
-NIT.Common.vb,NIT,SaveGroupStatus,Sub,,NIT.Common.vb:699,none,,GAP?,
-NIT.Common.vb,NIT,SaveProfileSelections,Sub,,NIT.Common.vb:718,none,,GAP?,
+NIT.Common.vb,NIT,ProcessErrorLogFile,Sub,,NIT.Common.vb:39,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,UpdateConfigKeyDelay,Function,,NIT.Common.vb:95,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SaveScrollPositions,Sub,,NIT.Common.vb:139,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,LoadScrollPositions,Sub,,NIT.Common.vb:170,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,LoadTaskStates,Sub,,NIT.Common.vb:207,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SaveTasksStates,Sub,,NIT.Common.vb:240,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,RegisterEventHandlers,Sub,,NIT.Common.vb:266,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,RegisterRibbonFocusHandlers,Sub,,NIT.Common.vb:314,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,MoveNitStore,Function,,NIT.Common.vb:336,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,DefineTabStops,Sub,,NIT.Common.vb:401,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,PlayStartupSound,Sub,,NIT.Common.vb:416,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,InitialiseSettingsValues,Sub,,NIT.Common.vb:441,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,DynamicDefaultSettings,Sub,,NIT.Common.vb:459,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,UpdateDefaultValues,Sub,,NIT.Common.vb:521,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SetRibbonAndToolbarVisibility,Sub,,NIT.Common.vb:554,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,GetRunMenuPath,Function,,NIT.Common.vb:591,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,InitialiseHelp,Sub,,NIT.Common.vb:637,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,PopulateSiteToUrl,Sub,,NIT.Common.vb:650,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,LogHelpRequests,Sub,,NIT.Common.vb:668,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,TerminateNit,Sub,,NIT.Common.vb:682,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SaveGroupStatus,Sub,,NIT.Common.vb:699,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SaveProfileSelections,Sub,,NIT.Common.vb:718,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,ApplyThemeToRichTextFiles,Sub,,NIT.Common.vb:739,strong,vaultkeeper/config/settings.py,AUTO-PORTED,
 NIT.Common.vb,NIT,Restart,Sub,,NIT.Common.vb:757,strong,vaultkeeper/game/save_archive.py | vaultkeeper/ui/app.py | vaultkeeper/ui/theme.py,AUTO-PORTED,
-NIT.Common.vb,NIT,DisplayClosingMessage,Sub,,NIT.Common.vb:784,none,,GAP?,
-NIT.Common.vb,NIT,SetRunApplicationSetup,Sub,,NIT.Common.vb:804,none,,GAP?,
-NIT.Common.vb,NIT,GetDownloadInfo,Function,,NIT.Common.vb:859,none,,GAP?,
-NIT.Common.vb,NIT,GetUpdateMessage,Function,,NIT.Common.vb:946,none,,GAP?,
-NIT.Common.vb,NIT,DisplaySelectedCount,Sub,,NIT.Common.vb:971,none,,GAP?,
-NIT.Common.vb,NIT,DisplayChangeStatusLine,Sub,,NIT.Common.vb:994,none,,GAP?,
-NIT.Common.vb,NIT,PerformVersionCheck,Sub,,NIT.Common.vb:1016,none,,GAP?,
-NIT.Common.vb,NIT,GetNwnVersionInfo,Function,,NIT.Common.vb:1039,none,,GAP?,
-NIT.Common.vb,NIT,InputModnameMask,Function,,NIT.Common.vb:1132,none,,GAP?,
-NIT.Common.vb,NIT,InputFileKey,Function,,NIT.Common.vb:1154,none,,GAP?,
-NIT.Common.vb,NIT,InputFileKeyMask,Function,,NIT.Common.vb:1177,none,,GAP?,
+NIT.Common.vb,NIT,DisplayClosingMessage,Sub,,NIT.Common.vb:784,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SetRunApplicationSetup,Sub,,NIT.Common.vb:804,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,GetDownloadInfo,Function,,NIT.Common.vb:859,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,GetUpdateMessage,Function,,NIT.Common.vb:946,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,DisplaySelectedCount,Sub,,NIT.Common.vb:971,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,DisplayChangeStatusLine,Sub,,NIT.Common.vb:994,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,PerformVersionCheck,Sub,,NIT.Common.vb:1016,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,GetNwnVersionInfo,Function,,NIT.Common.vb:1039,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,InputModnameMask,Function,,NIT.Common.vb:1132,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,InputFileKey,Function,,NIT.Common.vb:1154,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,InputFileKeyMask,Function,,NIT.Common.vb:1177,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,ValidateName,Function,,NIT.Common.vb:1220,strong,vaultkeeper/core/name_edit.py | vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-NIT.Common.vb,NIT,ValidateNameMask,Function,,NIT.Common.vb:1288,none,,GAP?,
-NIT.Common.vb,NIT,ValidateFileKey,Function,,NIT.Common.vb:1317,none,,GAP?,
-NIT.Common.vb,NIT,ValidateFileKeyMask,Function,,NIT.Common.vb:1357,none,,GAP?,
+NIT.Common.vb,NIT,ValidateNameMask,Function,,NIT.Common.vb:1288,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,ValidateFileKey,Function,,NIT.Common.vb:1317,none,,Partial,"validation helpers present but bounded (core/name_edit, core/reserved)."
+NIT.Common.vb,NIT,ValidateFileKeyMask,Function,,NIT.Common.vb:1357,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,ValidateLink,Function,,NIT.Common.vb:1423,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
-NIT.Common.vb,NIT,RefreshGroupCounts,Sub,,NIT.Common.vb:1460,none,,GAP?,
-NIT.Common.vb,NIT,GroupChoiceInfo,Property,,NIT.Common.vb:1475,none,,GAP?,
-NIT.Common.vb,NIT,RenameGroupFilters,Sub,,NIT.Common.vb:1511,none,,GAP?,
+NIT.Common.vb,NIT,RefreshGroupCounts,Sub,,NIT.Common.vb:1460,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,GroupChoiceInfo,Property,,NIT.Common.vb:1475,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,RenameGroupFilters,Sub,,NIT.Common.vb:1511,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,SaveSelections,Sub,,NIT.Common.vb:1551,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-NIT.Common.vb,NIT,RestoreSelections,Sub,,NIT.Common.vb:1564,none,,GAP?,
-NIT.Common.vb,NIT,CreateModDir,Function,,NIT.Common.vb:1586,none,,GAP?,
-NIT.Common.vb,NIT,RemoveAllErfFiles,Sub,,NIT.Common.vb:1612,none,,GAP?,
-NIT.Common.vb,NIT,AnnealAffectedMods,Function,,NIT.Common.vb:1685,none,,GAP?,
-NIT.Common.vb,NIT,InstallMods,Sub,,NIT.Common.vb:1722,none,,GAP?,
-NIT.Common.vb,NIT,IncludeDependencies,Sub,,NIT.Common.vb:1793,none,,GAP?,
-NIT.Common.vb,NIT,UninstallMods,Sub,,NIT.Common.vb:1817,none,,GAP?,
-NIT.Common.vb,NIT,UninstallDependencies,Sub,,NIT.Common.vb:1873,none,,GAP?,
-NIT.Common.vb,NIT,InstalledDependants,Sub,,NIT.Common.vb:1929,none,,GAP?,
-NIT.Common.vb,NIT,RunAutoModDependencies,Sub,,NIT.Common.vb:1958,none,,GAP?,
+NIT.Common.vb,NIT,RestoreSelections,Sub,,NIT.Common.vb:1564,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,CreateModDir,Function,,NIT.Common.vb:1586,none,,Partial,"validation helpers present but bounded (core/name_edit, core/reserved)."
+NIT.Common.vb,NIT,RemoveAllErfFiles,Sub,,NIT.Common.vb:1612,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,AnnealAffectedMods,Function,,NIT.Common.vb:1685,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,InstallMods,Sub,,NIT.Common.vb:1722,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,IncludeDependencies,Sub,,NIT.Common.vb:1793,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,UninstallMods,Sub,,NIT.Common.vb:1817,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,UninstallDependencies,Sub,,NIT.Common.vb:1873,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,InstalledDependants,Sub,,NIT.Common.vb:1929,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,RunAutoModDependencies,Sub,,NIT.Common.vb:1958,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 NIT.Common.vb,NIT,ValidateMods,Sub,,NIT.Common.vb:2016,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/resources.py,AUTO-PORTED,
-NIT.Common.vb,NIT,ProcessNotesSaved,Sub,,NIT.Common.vb:2044,none,,GAP?,
-NIT.Common.vb,NIT,SynchroniseModsThread,Sub,,NIT.Common.vb:2087,none,,GAP?,
-NIT.Common.vb,NIT,CopyNwmFile,Function,,NIT.Common.vb:2137,none,,GAP?,
-NIT.Common.vb,NIT,CreateCopyMod,Function,,NIT.Common.vb:2200,none,,GAP?,
-NIT.Common.vb,NIT,NwmModNotes,Sub,,NIT.Common.vb:2236,none,,GAP?,
-NIT.Common.vb,NIT,ExportedModsAction,Sub,,NIT.Common.vb:2264,none,,GAP?,
-NIT.Common.vb,NIT,RefreshModsExported,Sub,,NIT.Common.vb:2286,none,,GAP?,
-NIT.Common.vb,NIT,ImportModsExported,Sub,,NIT.Common.vb:2305,none,,GAP?,
-NIT.Common.vb,NIT,ImportPatchFile,Sub,,NIT.Common.vb:2661,none,,GAP?,
-NIT.Common.vb,NIT,MergePlayTimes,Function,,NIT.Common.vb:2682,none,,GAP?,
-NIT.Common.vb,NIT,ModPropertySyncFile,Property,,NIT.Common.vb:2710,none,,GAP?,
-NIT.Common.vb,NIT,ModPropertySourceFile,Property,,NIT.Common.vb:2720,none,,GAP?,
-NIT.Common.vb,NIT,AddPropertySync,Sub,,NIT.Common.vb:2736,none,,GAP?,
-NIT.Common.vb,NIT,SyncModProperties,Sub,,NIT.Common.vb:2755,none,,GAP?,
-NIT.Common.vb,NIT,ClearModPropertySyncFile,Sub,,NIT.Common.vb:2850,none,,GAP?,
-NIT.Common.vb,NIT,ModPropertySyncFileReport,Function,,NIT.Common.vb:2866,none,,GAP?,
-NIT.Common.vb,NIT,RefreshContents,Sub,,NIT.Common.vb:2901,none,,GAP?,
+NIT.Common.vb,NIT,ProcessNotesSaved,Sub,,NIT.Common.vb:2044,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SynchroniseModsThread,Sub,,NIT.Common.vb:2087,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,CopyNwmFile,Function,,NIT.Common.vb:2137,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,CreateCopyMod,Function,,NIT.Common.vb:2200,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,NwmModNotes,Sub,,NIT.Common.vb:2236,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,ExportedModsAction,Sub,,NIT.Common.vb:2264,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,RefreshModsExported,Sub,,NIT.Common.vb:2286,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ImportModsExported,Sub,,NIT.Common.vb:2305,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ImportPatchFile,Sub,,NIT.Common.vb:2661,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,MergePlayTimes,Function,,NIT.Common.vb:2682,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,ModPropertySyncFile,Property,,NIT.Common.vb:2710,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ModPropertySourceFile,Property,,NIT.Common.vb:2720,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,AddPropertySync,Sub,,NIT.Common.vb:2736,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,SyncModProperties,Sub,,NIT.Common.vb:2755,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ClearModPropertySyncFile,Sub,,NIT.Common.vb:2850,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ModPropertySyncFileReport,Function,,NIT.Common.vb:2866,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,RefreshContents,Sub,,NIT.Common.vb:2901,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,CreateFile,Sub,,NIT.Common.vb:2928,comment,vaultkeeper/core/profile_data.py,AUTO-PORTED,matched in comment/docstring
-NIT.Common.vb,NIT,SetPropertiesPanelHeight,Sub,,NIT.Common.vb:2987,none,,GAP?,
-NIT.Common.vb,NIT,DeleteLetoLogs,Sub,,NIT.Common.vb:3032,none,,GAP?,
+NIT.Common.vb,NIT,SetPropertiesPanelHeight,Sub,,NIT.Common.vb:2987,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,DeleteLetoLogs,Sub,,NIT.Common.vb:3032,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 NIT.Common.vb,NIT,RestoreData,Sub,,NIT.Common.vb:3051,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
-NIT.Common.vb,NIT,ApplyFontPreferences,Sub,,NIT.Common.vb:3135,none,,GAP?,
-NIT.Common.vb,NIT,AdjustRibbonButtons,Sub,,NIT.Common.vb:3222,none,,GAP?,
-NIT.Common.vb,NIT,GetImageEditorInfo,Function,,NIT.Common.vb:3254,none,,GAP?,
-NIT.Common.vb,NIT,SetPaintDotNet,Function,,NIT.Common.vb:3343,none,,GAP?,
-NIT.Common.vb,NIT,GetProgramIcon,Function,,NIT.Common.vb:3372,none,,GAP?,
-NIT.Common.vb,NIT,PruneAutoConfig,Sub,,NIT.Common.vb:3394,none,,GAP?,
-NIT.Common.vb,NIT,RemoveAutoConfigMod,Sub,,NIT.Common.vb:3448,none,,GAP?,
-NIT.Common.vb,NIT,ClearNwnRunLog,Sub,,NIT.Common.vb:3480,none,,GAP?,
-NIT.Common.vb,NIT,UpdatePlayData,Sub,,NIT.Common.vb:3505,none,,GAP?,
-NIT.Common.vb,NIT,ValidatePlayTimeSettings,Sub,,NIT.Common.vb:3524,none,,GAP?,
+NIT.Common.vb,NIT,ApplyFontPreferences,Sub,,NIT.Common.vb:3135,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,AdjustRibbonButtons,Sub,,NIT.Common.vb:3222,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,GetImageEditorInfo,Function,,NIT.Common.vb:3254,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,SetPaintDotNet,Function,,NIT.Common.vb:3343,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,GetProgramIcon,Function,,NIT.Common.vb:3372,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,PruneAutoConfig,Sub,,NIT.Common.vb:3394,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,RemoveAutoConfigMod,Sub,,NIT.Common.vb:3448,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ClearNwnRunLog,Sub,,NIT.Common.vb:3480,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,UpdatePlayData,Sub,,NIT.Common.vb:3505,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,ValidatePlayTimeSettings,Sub,,NIT.Common.vb:3524,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,ConvertBik,Function,,NIT.Common.vb:3576,strong,vaultkeeper/game/bik_convert.py | vaultkeeper/game/installer_build.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-NIT.Common.vb,NIT,GetSteamAppId,Function,,NIT.Common.vb:3601,none,,GAP?,
-NIT.Common.vb,NIT,ProcessChangedSubscriptions,Sub,,NIT.Common.vb:3636,none,,GAP?,
-NIT.Common.vb,NIT,IsRunDocOrganiser,Function,,NIT.Common.vb:3667,none,,GAP?,
-NIT.Common.vb,NIT,ShowCommonMsp,Function,,NIT.Common.vb:3723,none,,GAP?,
-NIT.Common.vb,NIT,CloseCommonMsp,Sub,,NIT.Common.vb:3743,none,,GAP?,
+NIT.Common.vb,NIT,GetSteamAppId,Function,,NIT.Common.vb:3601,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,ProcessChangedSubscriptions,Sub,,NIT.Common.vb:3636,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+NIT.Common.vb,NIT,IsRunDocOrganiser,Function,,NIT.Common.vb:3667,none,,Deferred,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
+NIT.Common.vb,NIT,ShowCommonMsp,Function,,NIT.Common.vb:3723,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
+NIT.Common.vb,NIT,CloseCommonMsp,Sub,,NIT.Common.vb:3743,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.Common.vb,NIT,AutoLoadscreen,Sub,,NIT.Common.vb:3773,strong,vaultkeeper/game/start_screen.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 NIT.Common.vb,NIT,InstallLoadscreen,Function,,NIT.Common.vb:3831,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,AUTO-PORTED,
-NIT.Common.vb,NIT,SetPlayImage,Sub,,NIT.Common.vb:3882,none,,GAP?,
+NIT.Common.vb,NIT,SetPlayImage,Sub,,NIT.Common.vb:3882,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 NIT.ContentsView.vb,NIT,InitialiseContentsView,Sub,,NIT.ContentsView.vb:27,none,,GAP?,
 NIT.ContentsView.vb,NIT,FvContents_SelectedIndexChanged,Sub,FvContents.SelectedIndexChanged,NIT.ContentsView.vb:61,none,,GAP?,
 NIT.ContentsView.vb,NIT,FvContents_VirtualItemsSelectionRangeChanged,Sub,FvContents.VirtualItemsSelectionRangeChanged,NIT.ContentsView.vb:81,none,,GAP?,
@@ -2889,7 +2889,7 @@ Settings.vb,Settings,ResetListView,Sub,,Settings.vb:910,none,,GAP?,
 Settings.vb,Settings,CmsResetSelected_Click,Sub,CmsResetSelected.Click,Settings.vb:949,none,,GAP?,
 Settings.vb,Settings,ResetRemoveItems,Sub,,Settings.vb:980,none,,GAP?,
 Settings.vb,Settings,Initialise,Sub,,Settings.vb:1016,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
-Settings.vb,Settings,RegisterEventHandlers,Sub,,Settings.vb:1097,none,,GAP?,
+Settings.vb,Settings,RegisterEventHandlers,Sub,,Settings.vb:1097,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 SlideShow.vb,SlideShow,CurrentFile,Property,,SlideShow.vb:26,none,,GAP?,
 SlideShow.vb,SlideShow,AutoShowEnabled,Property,,SlideShow.vb:32,none,,GAP?,
 SlideShow.vb,SlideShow,AutoShowInterval,Property,,SlideShow.vb:38,none,,GAP?,

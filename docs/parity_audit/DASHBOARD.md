@@ -10,18 +10,18 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 833 (25%) | 2451 |
+| Methods/props | 3284 | 966 (29%) | 2318 |
 | Event handlers | 885 | 307 (34%) | 578 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `GAP?`: 1584
+- `GAP?`: 1451
 - `AUTO-PORTED`: 867
-- `Divergence`: 338
+- `Divergence`: 408
+- `Ported`: 197
 - `N/A`: 188
-- `Ported`: 164
-- `Deferred`: 88
-- `Partial`: 54
+- `Deferred`: 116
+- `Partial`: 56
 - `MISSING`: 1
 
 ### Event handlers — status breakdown
@@ -45,8 +45,6 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
 | NIT.Menu.vb | 228 | 100 | 13 | 115 |
-| NIT.Common.vb | 95 | 84 | 9 | 2 |
-| Defs.vb | 55 | 46 | 7 | 2 |
 | InstallationManagerEditor.vb | 39 | 32 | 4 | 3 |
 | VaultDownloadRules.vb | 46 | 30 | 15 | 1 |
 | NIT.vb | 35 | 29 | 1 | 5 |
@@ -60,7 +58,7 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | CreateInstaller.vb | 49 | 25 | 16 | 8 |
 | DocOrganiser.vb | 40 | 24 | 13 | 3 |
 | BackupManager.vb | 33 | 23 | 5 | 5 |
-| Settings.vb | 27 | 22 | 3 | 2 |
+| Settings.vb | 27 | 21 | 3 | 3 |
 | InstallationAnalyser.vb | 28 | 21 | 2 | 5 |
 | Settings.Config.vb | 20 | 20 | 0 | 0 |
 | NetworkManager.vb | 24 | 19 | 4 | 1 |
@@ -74,6 +72,8 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | GameManagerRestore.vb | 19 | 17 | 1 | 1 |
 | FindProfileFilesDialogue.vb | 24 | 17 | 3 | 4 |
 | NIT.ModView.vb | 59 | 16 | 11 | 32 |
+| StartScreenInfo.vb | 42 | 15 | 24 | 3 |
+| SlideShow.vb | 18 | 15 | 2 | 1 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -144,7 +144,7 @@ implement it under a different name).
 | BasicSettings.vb:176 | BasicSettings | BtSelection_Click | Sub |
 | BasicSettings.vb:184 | BasicSettings | BtAdvanced_Click | Sub |
 
-_(1584 GAP? methods total; see ledger_members.csv for the full list.)_
+_(1451 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 
