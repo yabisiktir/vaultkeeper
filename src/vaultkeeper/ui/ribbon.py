@@ -131,6 +131,10 @@ class Ribbon(QTabWidget):
         self.buttons: dict[str, RibbonButton] = {}
         for title, items in RIBBON_TABS:
             self.addTab(self._build_tab(items), title)
+        # Left-align the tab row: VB TbRibbon (a WinForms TabControl) left-packs
+        # its tabs, but Qt's macOS style centers them by default.
+        self.tabBar().setExpanding(False)
+        self.setStyleSheet("QTabWidget::tab-bar { alignment: left; }")
 
     def _build_tab(self, items: tuple[RibbonItem, ...]) -> QWidget:
         page = QWidget()

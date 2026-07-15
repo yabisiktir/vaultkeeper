@@ -57,6 +57,33 @@ def test_rename_group_moves_members() -> None:
     assert pd.groups["New Group"].member_names == ["Alpha"]
 
 
+def test_controller_groups_includes_empty_groups(tmp_path) -> None:
+    """Empty groups must still render as drag-drop targets.
+
+    VB ApplyGroupsAndStatus (NIT.ModView.vb) adds a header for every pd.Groups
+    row before placing any mods, so an empty group is still shown.
+    """
+    from vaultkeeper.persistence.profile_store import save_profile
+    from vaultkeeper.ui.controller import ProfileController
+
+    pd = ProfileData()
+    pd.add_mod(ModData(group="Alpha", mod_name="A"))
+    pd.ensure_mandatory_groups()
+    pd.move_mods_to_group([], "Empty Group")  # a group row with no members
+    store = tmp_path / "Data" / "P.json"
+    save_profile(pd, store)
+
+    controller = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "mods",
+        game_root=tmp_path / "NWN",
+        store_path=store,
+    )
+    grouped = dict(controller.groups())
+    assert "Alpha" in grouped
+    assert "Empty Group" in grouped  # the fix — was dropped before
+    assert grouped["Empty Group"] == []
+
+
 def test_rename_group_guards() -> None:
     pd = _pd_with_mods("Alpha")
     pd.move_mods_to_group(["Alpha"], "G1")

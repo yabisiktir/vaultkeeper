@@ -143,6 +143,11 @@ class ProfileController:
         from vaultkeeper.core.win_sort import win_compare
 
         by_group: dict[str, list[ModData]] = {}
+        # Seed every existing (visible) group so empty groups still render as
+        # drag-drop targets — VB ApplyGroupsAndStatus (NIT.ModView.vb) adds a
+        # header for every pd.Groups row before placing any mods.
+        for gname in self.pd.group_keys:
+            by_group.setdefault(gname, [])
         for name in self.pd.mod_keys:
             md = self.pd.mod_item(name)
             if md is not None:

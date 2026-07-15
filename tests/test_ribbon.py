@@ -59,3 +59,11 @@ def test_set_enabled(qtbot):
     qtbot.addWidget(ribbon)
     ribbon.set_enabled("RbnToolset", False)
     assert not ribbon.button("RbnToolset").isEnabled()
+
+
+def test_tabs_left_aligned(qtbot):
+    """VB TbRibbon left-packs its tabs; Qt/macOS would center them otherwise."""
+    ribbon = Ribbon()
+    qtbot.addWidget(ribbon)
+    assert not ribbon.tabBar().expanding()
+    assert "alignment: left" in ribbon.styleSheet()
