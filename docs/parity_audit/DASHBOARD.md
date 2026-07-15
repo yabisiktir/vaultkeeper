@@ -10,18 +10,18 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 373 (11%) | 2911 |
+| Methods/props | 3284 | 533 (16%) | 2751 |
 | Event handlers | 885 | 88 (9%) | 797 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `GAP?`: 2017
+- `GAP?`: 1857
 - `AUTO-PORTED`: 894
 - `N/A`: 188
-- `Divergence`: 145
-- `Ported`: 18
-- `Deferred`: 11
-- `Partial`: 10
+- `Divergence`: 181
+- `Ported`: 64
+- `Deferred`: 52
+- `Partial`: 47
 - `MISSING`: 1
 
 ### Event handlers — status breakdown
@@ -44,11 +44,8 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
 | NIT.Menu.vb | 228 | 215 | 13 | 0 |
-| NIT.Common.vb | 95 | 85 | 10 | 0 |
+| NIT.Common.vb | 95 | 84 | 10 | 1 |
 | StartScreenManager.vb | 82 | 66 | 11 | 5 |
-| Mapper.vb | 105 | 64 | 39 | 2 |
-| Paths.vb | 86 | 51 | 35 | 0 |
-| ProfileData.vb | 81 | 46 | 33 | 2 |
 | Defs.vb | 55 | 46 | 7 | 2 |
 | DownloadProject.vb | 44 | 42 | 1 | 1 |
 | InstallationManagerEditor.vb | 39 | 33 | 4 | 2 |
@@ -73,6 +70,9 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 | PlayDataViewer.vb | 19 | 18 | 0 | 1 |
 | MenuItemEditor.vb | 23 | 18 | 4 | 1 |
 | InstallationManager.vb | 29 | 18 | 8 | 3 |
+| VaultScraper.vb | 28 | 17 | 8 | 3 |
+| ModFindAndRename.ModNames.vb | 25 | 17 | 7 | 1 |
+| GameManagerRestore.vb | 19 | 17 | 1 | 1 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -143,7 +143,7 @@ implement it under a different name).
 | BasicSettings.vb:141 | BasicSettings | PicCheckBox_Click | Sub |
 | BasicSettings.vb:151 | BasicSettings | RbLine_CheckedChanged | Sub |
 
-_(2017 GAP? methods total; see ledger_members.csv for the full list.)_
+_(1857 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 

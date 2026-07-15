@@ -177,7 +177,7 @@ ChangeData.vb,InfoFiles,Adds,Property,,ChangeData.vb:562,strong,vaultkeeper/core
 ChangeData.vb,InfoFiles,Removes,Property,,ChangeData.vb:571,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/fs.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,Changes,Property,,ChangeData.vb:580,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,Renames,Property,,ChangeData.vb:589,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/name_edit.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
-ChangeData.vb,InfoFiles,Added,Sub,,ChangeData.vb:599,strong,vaultkeeper/app_paths.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
+ChangeData.vb,InfoFiles,Added,Sub,,ChangeData.vb:599,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,Removed,Sub,,ChangeData.vb:611,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/fs.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,Changed,Sub,,ChangeData.vb:619,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/name_edit.py,AUTO-PORTED,
 ChangeData.vb,InfoFiles,DeleteRemoved,Sub,,ChangeData.vb:631,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
@@ -189,7 +189,7 @@ ChangeData.vb,InfoMods,Removes,Property,,ChangeData.vb:707,strong,vaultkeeper/co
 ChangeData.vb,InfoMods,Affecteds,Property,,ChangeData.vb:716,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,UpdateStates,Property,,ChangeData.vb:725,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,ChangesDetected,Property,,ChangeData.vb:734,strong,vaultkeeper/core/change_data.py,AUTO-PORTED,
-ChangeData.vb,InfoMods,Added,Sub,,ChangeData.vb:744,strong,vaultkeeper/app_paths.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
+ChangeData.vb,InfoMods,Added,Sub,,ChangeData.vb:744,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,Removed,Sub,,ChangeData.vb:755,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/fs.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,Affected,Sub,,ChangeData.vb:765,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ChangeData.vb,InfoMods,DeleteItem,Sub,,ChangeData.vb:776,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_ops.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
@@ -678,7 +678,7 @@ FileKeyInfo.vb,FileKeyInfo,New,Sub,,FileKeyInfo.vb:65,strong,vaultkeeper/core/ha
 FileKeyInfo.vb,FileKeyInfo,New,Sub,,FileKeyInfo.vb:80,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 FileKeyInfo.vb,FileKeyInfo,New,Sub,,FileKeyInfo.vb:91,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 FileKeyInfo.vb,FileKeyInfo,New,Sub,,FileKeyInfo.vb:103,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-FileKeyInfo.vb,FileKeyInfo,Group,Property,,FileKeyInfo.vb:129,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+FileKeyInfo.vb,FileKeyInfo,Group,Property,,FileKeyInfo.vb:129,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,ModName,Property,,FileKeyInfo.vb:134,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_key.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,Folder,Property,,FileKeyInfo.vb:139,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,AUTO-PORTED,
 FileKeyInfo.vb,FileKeyInfo,Filename,Property,,FileKeyInfo.vb:144,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/formats/erf_reader.py,AUTO-PORTED,
@@ -1059,7 +1059,7 @@ InstallationManager.ModInfo.vb,ModInfo,New,Sub,,InstallationManager.ModInfo.vb:8
 InstallationManager.ModInfo.vb,ModInfo,Clone,Function,,InstallationManager.ModInfo.vb:98,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_data.py | vaultkeeper/core/mod_data.py,N/A,framework/designer-generated
 InstallationManager.ModInfo.vb,ModInfo,CompareTo,Function,,InstallationManager.ModInfo.vb:114,strong,vaultkeeper/core/file_key.py | vaultkeeper/core/play_time.py,N/A,framework/designer-generated
 InstallationManager.SetInfo.vb,SetInfo,Name,Property,,InstallationManager.SetInfo.vb:27,strong,vaultkeeper/config/settings.py | vaultkeeper/core/archive.py | vaultkeeper/core/change_data.py,AUTO-PORTED,
-InstallationManager.SetInfo.vb,SetInfo,Created,Property,,InstallationManager.SetInfo.vb:32,strong,vaultkeeper/app_paths.py | vaultkeeper/core/archive.py | vaultkeeper/core/state.py,AUTO-PORTED,
+InstallationManager.SetInfo.vb,SetInfo,Created,Property,,InstallationManager.SetInfo.vb:32,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 InstallationManager.SetInfo.vb,SetInfo,SetType,Property,,InstallationManager.SetInfo.vb:37,none,,GAP?,
 InstallationManager.SetInfo.vb,SetInfo,Updated,Property,,InstallationManager.SetInfo.vb:42,strong,vaultkeeper/game/character.py | vaultkeeper/game/client_log.py | vaultkeeper/game/game_mapper.py,AUTO-PORTED,
 InstallationManager.SetInfo.vb,SetInfo,GroupList,Property,,InstallationManager.SetInfo.vb:47,strong,vaultkeeper/ui/dialogs/dependency_editor.py,AUTO-PORTED,
@@ -1162,31 +1162,31 @@ InstalledFileData.vb,InstalledFileData,Clone,Function,,InstalledFileData.vb:466,
 Mapper.vb,C,New,Sub,,Mapper.vb:131,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Mapper.vb,Mapper,NwnRootFolder,Property,,Mapper.vb:293,strong,vaultkeeper/core/file_key.py,AUTO-PORTED,
 Mapper.vb,Mapper,LegalFolders,Property,,Mapper.vb:316,comment,vaultkeeper/core/mapper.py,AUTO-PORTED,matched in comment/docstring
-Mapper.vb,Mapper,ExcludeTypes,Property,,Mapper.vb:329,none,,GAP?,
-Mapper.vb,Mapper,PlayerExcludesCount,Property,,Mapper.vb:341,none,,GAP?,
-Mapper.vb,Mapper,DatabaseFileMask,Property,,Mapper.vb:354,none,,GAP?,
-Mapper.vb,Mapper,ModInstallerList,Property,,Mapper.vb:375,none,,GAP?,
-Mapper.vb,Mapper,OldDatabaseExtensions,Property,,Mapper.vb:383,none,,GAP?,
+Mapper.vb,Mapper,ExcludeTypes,Property,,Mapper.vb:329,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,PlayerExcludesCount,Property,,Mapper.vb:341,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,DatabaseFileMask,Property,,Mapper.vb:354,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ModInstallerList,Property,,Mapper.vb:375,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,OldDatabaseExtensions,Property,,Mapper.vb:383,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
 Mapper.vb,Mapper,New,Sub,,Mapper.vb:401,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Mapper.vb,Mapper,Initialise,Sub,,Mapper.vb:516,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
-Mapper.vb,Mapper,CheckPlayerExcludes,Function,,Mapper.vb:623,none,,GAP?,
-Mapper.vb,Mapper,MapMigrated,Property,,Mapper.vb:713,none,,GAP?,
-Mapper.vb,Mapper,MapMigratedText,Property,,Mapper.vb:719,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion6,Sub,,Mapper.vb:752,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion8,Sub,,Mapper.vb:812,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion9,Sub,,Mapper.vb:862,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion10,Sub,,Mapper.vb:901,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion11,Sub,,Mapper.vb:940,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion12,Sub,,Mapper.vb:963,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion13,Sub,,Mapper.vb:999,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion14,Sub,,Mapper.vb:1039,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion15,Sub,,Mapper.vb:1072,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion16,Sub,,Mapper.vb:1106,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion17,Sub,,Mapper.vb:1141,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion18,Sub,,Mapper.vb:1175,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion19,Sub,,Mapper.vb:1229,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion20,Sub,,Mapper.vb:1263,none,,GAP?,
-Mapper.vb,Mapper,UpdateFromVersion21,Sub,,Mapper.vb:1297,none,,GAP?,
+Mapper.vb,Mapper,CheckPlayerExcludes,Function,,Mapper.vb:623,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,MapMigrated,Property,,Mapper.vb:713,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,MapMigratedText,Property,,Mapper.vb:719,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion6,Sub,,Mapper.vb:752,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion8,Sub,,Mapper.vb:812,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion9,Sub,,Mapper.vb:862,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion10,Sub,,Mapper.vb:901,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion11,Sub,,Mapper.vb:940,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion12,Sub,,Mapper.vb:963,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion13,Sub,,Mapper.vb:999,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion14,Sub,,Mapper.vb:1039,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion15,Sub,,Mapper.vb:1072,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion16,Sub,,Mapper.vb:1106,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion17,Sub,,Mapper.vb:1141,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion18,Sub,,Mapper.vb:1175,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion19,Sub,,Mapper.vb:1229,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion20,Sub,,Mapper.vb:1263,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,UpdateFromVersion21,Sub,,Mapper.vb:1297,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
 Mapper.vb,Mapper,DefaultExtMapping,Property,,Mapper.vb:1353,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,DefaultDirMapping,Property,,Mapper.vb:1443,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,DefaultExceptionFiles,Property,,Mapper.vb:1466,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
@@ -1197,10 +1197,10 @@ Mapper.vb,Mapper,DefaultExcludeMods,Property,,Mapper.vb:1568,strong,vaultkeeper/
 Mapper.vb,Mapper,DefaultExcludeFiles,Property,,Mapper.vb:1583,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,DefineNwnFolders,Sub,,Mapper.vb:1601,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,DefineEeFolders,Sub,,Mapper.vb:1643,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
-Mapper.vb,Mapper,DevelopmentFolder,Sub,,Mapper.vb:1716,none,,GAP?,
-Mapper.vb,Mapper,CreateMandatoryFolders,Sub,,Mapper.vb:1775,none,,GAP?,
+Mapper.vb,Mapper,DevelopmentFolder,Sub,,Mapper.vb:1716,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Mapper.vb,Mapper,CreateMandatoryFolders,Sub,,Mapper.vb:1775,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
 Mapper.vb,Mapper,MappedFolder,Function,,Mapper.vb:1796,comment,vaultkeeper/game/installer_build.py | vaultkeeper/game/wizard.py,AUTO-PORTED,matched in comment/docstring
-Mapper.vb,Mapper,MappedFolderPath,Function,,Mapper.vb:1810,none,,GAP?,
+Mapper.vb,Mapper,MappedFolderPath,Function,,Mapper.vb:1810,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Mapper.vb,Mapper,MappedExtension,Function,,Mapper.vb:1823,strong,vaultkeeper/core/mapper.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 Mapper.vb,Mapper,RootMappedExtension,Function,,Mapper.vb:1836,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,ExtensionFolder,Function,,Mapper.vb:1849,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
@@ -1226,44 +1226,44 @@ Mapper.vb,Mapper,GetMappedFolder,Function,,Mapper.vb:2153,strong,vaultkeeper/cor
 Mapper.vb,Mapper,GetMoveTarget,Function,,Mapper.vb:2230,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Mapper.vb,Mapper,GetSecondaryFolder,Function,,Mapper.vb:2248,strong,vaultkeeper/core/mapper.py | vaultkeeper/game/installer_build.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 Mapper.vb,Mapper,GetPrimaryFolder,Function,,Mapper.vb:2265,strong,vaultkeeper/core/mapper.py | vaultkeeper/game/installer_build.py,AUTO-PORTED,
-Mapper.vb,Mapper,GetFolderList,Function,,Mapper.vb:2283,none,,GAP?,
-Mapper.vb,Mapper,GetExtensionMap,Sub,,Mapper.vb:2324,none,,GAP?,
-Mapper.vb,Mapper,GetDefaultExtensionMap,Function,,Mapper.vb:2346,none,,GAP?,
-Mapper.vb,Mapper,ImportedExtensionMap,Function,,Mapper.vb:2360,none,,GAP?,
-Mapper.vb,Mapper,ExtensionMapDictionary,Function,,Mapper.vb:2377,none,,GAP?,
-Mapper.vb,Mapper,SetExtensionMap,Sub,,Mapper.vb:2407,none,,GAP?,
-Mapper.vb,Mapper,GetDirMapping,Sub,,Mapper.vb:2441,none,,GAP?,
-Mapper.vb,Mapper,ImportedDirMapping,Function,,Mapper.vb:2455,none,,GAP?,
-Mapper.vb,Mapper,SetDirMapping,Sub,,Mapper.vb:2466,none,,GAP?,
-Mapper.vb,Mapper,GetExceptionFiles,Sub,,Mapper.vb:2482,none,,GAP?,
-Mapper.vb,Mapper,ImportedExceptionFiles,Function,,Mapper.vb:2497,none,,GAP?,
-Mapper.vb,Mapper,SetExceptionFiles,Sub,,Mapper.vb:2509,none,,GAP?,
-Mapper.vb,Mapper,GetExceptionPrefixes,Sub,,Mapper.vb:2525,none,,GAP?,
-Mapper.vb,Mapper,SetExceptionPrefixes,Sub,,Mapper.vb:2539,none,,GAP?,
-Mapper.vb,Mapper,GetFolderMoves,Sub,,Mapper.vb:2556,none,,GAP?,
-Mapper.vb,Mapper,SetFolderMoves,Sub,,Mapper.vb:2570,none,,GAP?,
-Mapper.vb,Mapper,GetExcludes,Sub,,Mapper.vb:2587,none,,GAP?,
-Mapper.vb,Mapper,ImportedExcludeMods,Function,,Mapper.vb:2626,none,,GAP?,
-Mapper.vb,Mapper,ImportedExcludeFiles,Function,,Mapper.vb:2648,none,,GAP?,
-Mapper.vb,Mapper,ImportedExcludeFolders,Function,,Mapper.vb:2670,none,,GAP?,
-Mapper.vb,Mapper,IsPlayerExclude,Function,,Mapper.vb:2691,none,,GAP?,
-Mapper.vb,Mapper,AddPlayerExcludes,Function,,Mapper.vb:2705,none,,GAP?,
-Mapper.vb,Mapper,RemovePlayerExcludes,Function,,Mapper.vb:2741,none,,GAP?,
-Mapper.vb,Mapper,SetExcludes,Sub,,Mapper.vb:2767,none,,GAP?,
-Mapper.vb,Mapper,UpdateMapSettings,Sub,,Mapper.vb:2819,none,,GAP?,
-Mapper.vb,Mapper,GetSettingExcludeFolders,Sub,,Mapper.vb:2842,none,,GAP?,
-Mapper.vb,Mapper,GetSettingsExcludeMods,Sub,,Mapper.vb:2855,none,,GAP?,
-Mapper.vb,Mapper,GetSettingsExcludeFiles,Sub,,Mapper.vb:2868,none,,GAP?,
-Mapper.vb,Mapper,GetExcludes,Sub,,Mapper.vb:2884,none,,GAP?,
-Mapper.vb,Mapper,FormatExcludes,Function,,Mapper.vb:2914,none,,GAP?,
-Mapper.vb,Mapper,GetSettingSingle,Function,,Mapper.vb:2937,none,,GAP?,
-Mapper.vb,Mapper,FormatSettingSingle,Function,,Mapper.vb:2961,none,,GAP?,
-Mapper.vb,Mapper,GetSettingList,Function,,Mapper.vb:2981,none,,GAP?,
-Mapper.vb,Mapper,FormatSettingList,Function,,Mapper.vb:3005,none,,GAP?,
-Mapper.vb,Mapper,SingleToListView,Function,,Mapper.vb:3032,none,,GAP?,
-Mapper.vb,Mapper,SingleFromListView,Function,,Mapper.vb:3065,none,,GAP?,
-Mapper.vb,Mapper,ListToListView,Function,,Mapper.vb:3084,none,,GAP?,
-Mapper.vb,Mapper,ListFromListView,Function,,Mapper.vb:3112,none,,GAP?,
+Mapper.vb,Mapper,GetFolderList,Function,,Mapper.vb:2283,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Mapper.vb,Mapper,GetExtensionMap,Sub,,Mapper.vb:2324,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetDefaultExtensionMap,Function,,Mapper.vb:2346,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedExtensionMap,Function,,Mapper.vb:2360,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ExtensionMapDictionary,Function,,Mapper.vb:2377,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetExtensionMap,Sub,,Mapper.vb:2407,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetDirMapping,Sub,,Mapper.vb:2441,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedDirMapping,Function,,Mapper.vb:2455,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetDirMapping,Sub,,Mapper.vb:2466,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetExceptionFiles,Sub,,Mapper.vb:2482,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedExceptionFiles,Function,,Mapper.vb:2497,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetExceptionFiles,Sub,,Mapper.vb:2509,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetExceptionPrefixes,Sub,,Mapper.vb:2525,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetExceptionPrefixes,Sub,,Mapper.vb:2539,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetFolderMoves,Sub,,Mapper.vb:2556,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetFolderMoves,Sub,,Mapper.vb:2570,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetExcludes,Sub,,Mapper.vb:2587,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedExcludeMods,Function,,Mapper.vb:2626,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedExcludeFiles,Function,,Mapper.vb:2648,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,ImportedExcludeFolders,Function,,Mapper.vb:2670,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,IsPlayerExclude,Function,,Mapper.vb:2691,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,AddPlayerExcludes,Function,,Mapper.vb:2705,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,RemovePlayerExcludes,Function,,Mapper.vb:2741,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,SetExcludes,Sub,,Mapper.vb:2767,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,UpdateMapSettings,Sub,,Mapper.vb:2819,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,GetSettingExcludeFolders,Sub,,Mapper.vb:2842,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,GetSettingsExcludeMods,Sub,,Mapper.vb:2855,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,GetSettingsExcludeFiles,Sub,,Mapper.vb:2868,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,GetExcludes,Sub,,Mapper.vb:2884,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Mapper.vb,Mapper,FormatExcludes,Function,,Mapper.vb:2914,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,GetSettingSingle,Function,,Mapper.vb:2937,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,FormatSettingSingle,Function,,Mapper.vb:2961,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,GetSettingList,Function,,Mapper.vb:2981,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,FormatSettingList,Function,,Mapper.vb:3005,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,SingleToListView,Function,,Mapper.vb:3032,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,SingleFromListView,Function,,Mapper.vb:3065,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,ListToListView,Function,,Mapper.vb:3084,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Mapper.vb,Mapper,ListFromListView,Function,,Mapper.vb:3112,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 MenuItemEditor.vb,MenuItemEditor,Operation,Property,,MenuItemEditor.vb:49,strong,vaultkeeper/core/archive.py | vaultkeeper/game/game_backup.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 MenuItemEditor.vb,MenuItemEditor,MenuLocation,Property,,MenuItemEditor.vb:78,none,,GAP?,
 MenuItemEditor.vb,MenuItemEditor,MenuText,Property,,MenuItemEditor.vb:93,none,,GAP?,
@@ -1289,7 +1289,7 @@ MenuItemEditor.vb,MenuItemEditor,DisplayCharacterCount,Sub,,MenuItemEditor.vb:55
 MenuItemEditor.vb,MenuItemEditor,WndProc,Sub,,MenuItemEditor.vb:591,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 ModData.vb,ModData,New,Sub,,ModData.vb:31,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ModData.vb,ModData,New,Sub,,ModData.vb:45,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-ModData.vb,ModData,Group,Property,,ModData.vb:71,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+ModData.vb,ModData,Group,Property,,ModData.vb:71,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 ModData.vb,ModData,IsGroupItem,Property,,ModData.vb:76,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/game/install_verify.py,AUTO-PORTED,
 ModData.vb,ModData,IsNotGroupItem,Property,,ModData.vb:85,strong,vaultkeeper/core/group_member.py | vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ModData.vb,ModData,IsHiddenGroup,Property,,ModData.vb:94,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -1546,7 +1546,7 @@ ModPlayViewer.vb,ModPlayedInfo,PlayTime,Property,,ModPlayViewer.vb:894,strong,va
 ModPlayViewer.vb,ModPlayedInfo,Rating,Property,,ModPlayViewer.vb:899,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/state.py | vaultkeeper/game/recovery.py,AUTO-PORTED,
 ModPlayViewer.vb,ModPlayedInfo,LevelStart,Property,,ModPlayViewer.vb:905,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,AUTO-PORTED,
 ModPlayViewer.vb,ModPlayedInfo,LevelEnd,Property,,ModPlayViewer.vb:911,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/recovery.py | vaultkeeper/persistence/nrbf/mapping.py,AUTO-PORTED,
-ModPlayViewer.vb,ModPlayedInfo,Group,Property,,ModPlayViewer.vb:916,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+ModPlayViewer.vb,ModPlayedInfo,Group,Property,,ModPlayViewer.vb:916,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 ModPlayViewer.vb,ModPlayedInfo,ModState,Property,,ModPlayViewer.vb:922,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/mod_data.py | vaultkeeper/game/install_verify.py,AUTO-PORTED,
 ModPlayViewer.vb,ModPlayedInfo,Installed,Property,,ModPlayViewer.vb:928,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py,AUTO-PORTED,
 ModPlayViewer.vb,ModPlayedInfo,SortKey,Property,,ModPlayViewer.vb:934,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -1620,7 +1620,7 @@ NIT.Common.vb,NIT,ValidateLink,Function,,NIT.Common.vb:1423,strong,vaultkeeper/u
 NIT.Common.vb,NIT,RefreshGroupCounts,Sub,,NIT.Common.vb:1460,none,,GAP?,
 NIT.Common.vb,NIT,GroupChoiceInfo,Property,,NIT.Common.vb:1475,none,,GAP?,
 NIT.Common.vb,NIT,RenameGroupFilters,Sub,,NIT.Common.vb:1511,none,,GAP?,
-NIT.Common.vb,NIT,SaveSelections,Sub,,NIT.Common.vb:1551,none,,GAP?,
+NIT.Common.vb,NIT,SaveSelections,Sub,,NIT.Common.vb:1551,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 NIT.Common.vb,NIT,RestoreSelections,Sub,,NIT.Common.vb:1564,none,,GAP?,
 NIT.Common.vb,NIT,CreateModDir,Function,,NIT.Common.vb:1586,none,,GAP?,
 NIT.Common.vb,NIT,RemoveAllErfFiles,Sub,,NIT.Common.vb:1612,none,,GAP?,
@@ -1953,7 +1953,7 @@ NIT.ModView.vb,NIT,DeleteSelectedMods,Sub,,NIT.ModView.vb:1005,none,,Ported,Veri
 NIT.ModView.vb,NIT,UninstallPref,Function,,NIT.ModView.vb:1074,none,,GAP?,
 NIT.ModView.vb,NIT,RemoveMods,Function,,NIT.ModView.vb:1101,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
 NIT.ModView.vb,NIT,RenameMod,Sub,,NIT.ModView.vb:1166,strong,vaultkeeper/core/profile_data.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-NIT.ModView.vb,NIT,ModRenamed,Sub,,NIT.ModView.vb:1264,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
+NIT.ModView.vb,NIT,ModRenamed,Sub,,NIT.ModView.vb:1264,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 NIT.ModView.vb,NIT,InstallSelectedMods,Sub,,NIT.ModView.vb:1301,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
 NIT.ModView.vb,NIT,UpdateInstallStateDisplay,Sub,,NIT.ModView.vb:1325,none,,GAP?,
 NIT.ModView.vb,NIT,UninstallSelectedMods,Sub,,NIT.ModView.vb:1346,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
@@ -1998,7 +1998,7 @@ NIT.Monitor.vb,PathInfo,ModKey,Property,,NIT.Monitor.vb:730,comment,vaultkeeper/
 NIT.Monitor.vb,PathInfo,Installer,Property,,NIT.Monitor.vb:735,strong,vaultkeeper/__init__.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 NIT.Monitor.vb,PathInfo,New,Sub,,NIT.Monitor.vb:742,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 NIT.Monitor.vb,PathInfo,ToString,Function,,NIT.Monitor.vb:828,strong,vaultkeeper/ui/dialogs/help_viewer.py,N/A,framework/designer-generated
-NIT.Paste.vb,ModPasteInfo,Group,Property,,NIT.Paste.vb:32,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+NIT.Paste.vb,ModPasteInfo,Group,Property,,NIT.Paste.vb:32,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 NIT.Paste.vb,ModPasteInfo,ModName,Property,,NIT.Paste.vb:37,strong,vaultkeeper/core/change_data.py | vaultkeeper/core/file_key.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
 NIT.Paste.vb,ModPasteInfo,IsZip,Property,,NIT.Paste.vb:42,none,,GAP?,
 NIT.Paste.vb,ModPasteInfo,New,Sub,,NIT.Paste.vb:54,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -2173,89 +2173,89 @@ NwnFolderInfo.vb,NwnFolderInfo,SaveCustomAliasFile,Sub,,NwnFolderInfo.vb:629,non
 Paths.vb,Paths,Tool,Property,,Paths.vb:260,strong,vaultkeeper/core/constants.py | vaultkeeper/core/name_edit.py | vaultkeeper/game/character.py,AUTO-PORTED,
 Paths.vb,Paths,Profiles,Property,,Paths.vb:270,strong,vaultkeeper/app_paths.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
 Paths.vb,Paths,ProfileMods,Property,,Paths.vb:280,strong,vaultkeeper/game/documentation.py | vaultkeeper/verify_install.py,AUTO-PORTED,
-Paths.vb,Paths,SharedProfileMods,Property,,Paths.vb:291,none,,GAP?,
+Paths.vb,Paths,SharedProfileMods,Property,,Paths.vb:291,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
 Paths.vb,Paths,Data,Property,,Paths.vb:305,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 Paths.vb,Paths,ProfileData,Property,,Paths.vb:315,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_data.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
-Paths.vb,Paths,ProfileNotes,Property,,Paths.vb:325,none,,GAP?,
-Paths.vb,Paths,ExportedMods,Property,,Paths.vb:335,none,,GAP?,
-Paths.vb,Paths,ImportedMods,Property,,Paths.vb:346,none,,GAP?,
-Paths.vb,Paths,SyncNotes,Property,,Paths.vb:362,none,,GAP?,
+Paths.vb,Paths,ProfileNotes,Property,,Paths.vb:325,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,ExportedMods,Property,,Paths.vb:335,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Paths.vb,Paths,ImportedMods,Property,,Paths.vb:346,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+Paths.vb,Paths,SyncNotes,Property,,Paths.vb:362,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
 Paths.vb,Paths,Backups,Property,,Paths.vb:377,strong,vaultkeeper/app_paths.py | vaultkeeper/game/game_backup.py | vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-Paths.vb,Paths,DataBackups,Property,,Paths.vb:387,none,,GAP?,
+Paths.vb,Paths,DataBackups,Property,,Paths.vb:387,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,ArchivedSaves,Property,,Paths.vb:397,strong,vaultkeeper/app_paths.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 Paths.vb,Paths,ExportedSettings,Property,,Paths.vb:407,strong,vaultkeeper/app_paths.py,AUTO-PORTED,
 Paths.vb,Paths,GameSaves,Property,,Paths.vb:417,strong,vaultkeeper/game/game_backup.py | vaultkeeper/game/game_mapper.py | vaultkeeper/game/game_saves.py,AUTO-PORTED,
-Paths.vb,Paths,NwnPortraits,Property,,Paths.vb:430,none,,GAP?,
+Paths.vb,Paths,NwnPortraits,Property,,Paths.vb:430,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,HakPortraits,Property,,Paths.vb:444,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 Paths.vb,Paths,Nwn,Property,,Paths.vb:453,strong,vaultkeeper/__main__.py | vaultkeeper/app_paths.py | vaultkeeper/config/settings.py,AUTO-PORTED,
 Paths.vb,Paths,Temp,Property,,Paths.vb:462,strong,vaultkeeper/app_paths.py | vaultkeeper/core/file_ops.py | vaultkeeper/core/mapper.py,AUTO-PORTED,
-Paths.vb,Paths,TempWbm,Property,,Paths.vb:471,none,,GAP?,
+Paths.vb,Paths,TempWbm,Property,,Paths.vb:471,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,Downloads,Property,,Paths.vb:480,strong,vaultkeeper/core/archive.py | vaultkeeper/core/constants.py | vaultkeeper/game/documentation.py,AUTO-PORTED,
-Paths.vb,Paths,CrashReports,Property,,Paths.vb:503,none,,GAP?,
-Paths.vb,Paths,TaskStateFilename,Property,,Paths.vb:516,none,,GAP?,
+Paths.vb,Paths,CrashReports,Property,,Paths.vb:503,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Paths.vb,Paths,TaskStateFilename,Property,,Paths.vb:516,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 Paths.vb,Paths,UserName,Property,,Paths.vb:525,strong,vaultkeeper/core/play_time.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 Paths.vb,Paths,RebuildRequested,Property,,Paths.vb:536,strong,vaultkeeper/persistence/nrbf/migrate.py,AUTO-PORTED,
 Paths.vb,Paths,NwnClientLogFile,Property,,Paths.vb:552,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
 Paths.vb,Paths,NwnEngineLogFile,Property,,Paths.vb:564,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
-Paths.vb,Paths,NwnPlayLogFile,Property,,Paths.vb:578,none,,GAP?,
-Paths.vb,Paths,NwnMissingLogFile,Property,,Paths.vb:592,none,,GAP?,
+Paths.vb,Paths,NwnPlayLogFile,Property,,Paths.vb:578,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,NwnMissingLogFile,Property,,Paths.vb:592,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 Paths.vb,Paths,NwnIniFile,Property,,Paths.vb:602,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
 Paths.vb,Paths,NwnPlayerIniFile,Property,,Paths.vb:611,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
 Paths.vb,Paths,NwnPatchIniFile,Property,,Paths.vb:620,comment,vaultkeeper/core/hak_patch.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
 Paths.vb,Paths,NwnConfigIniFile,Property,,Paths.vb:629,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
 Paths.vb,Paths,NwnToolsetIniFile,Property,,Paths.vb:638,comment,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
-Paths.vb,Paths,GroupNameFilters,Property,,Paths.vb:647,none,,GAP?,
+Paths.vb,Paths,GroupNameFilters,Property,,Paths.vb:647,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 Paths.vb,Paths,RecentMods,Property,,Paths.vb:656,comment,vaultkeeper/config/settings.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,AUTO-PORTED,matched in comment/docstring
-Paths.vb,Paths,SelectionHistoryFile,Property,,Paths.vb:665,none,,GAP?,
-Paths.vb,Paths,ScrollPositionsFile,Property,,Paths.vb:675,none,,GAP?,
-Paths.vb,Paths,InstallerIdFile,Property,,Paths.vb:686,none,,GAP?,
-Paths.vb,Paths,UserRulesFile,Property,,Paths.vb:699,none,,GAP?,
-Paths.vb,Paths,CrashReportFiles,Property,,Paths.vb:708,none,,GAP?,
-Paths.vb,Paths,InstallerIdFilePath,Property,,Paths.vb:725,none,,GAP?,
-Paths.vb,Paths,InstalledEditions,Property,,Paths.vb:737,none,,GAP?,
+Paths.vb,Paths,SelectionHistoryFile,Property,,Paths.vb:665,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Paths.vb,Paths,ScrollPositionsFile,Property,,Paths.vb:675,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Paths.vb,Paths,InstallerIdFile,Property,,Paths.vb:686,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,UserRulesFile,Property,,Paths.vb:699,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,CrashReportFiles,Property,,Paths.vb:708,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+Paths.vb,Paths,InstallerIdFilePath,Property,,Paths.vb:725,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,InstalledEditions,Property,,Paths.vb:737,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,Profile,Property,,Paths.vb:750,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/constants.py,AUTO-PORTED,
-Paths.vb,Paths,ReservedNameImage,Property,,Paths.vb:766,none,,GAP?,
+Paths.vb,Paths,ReservedNameImage,Property,,Paths.vb:766,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
 Paths.vb,Paths,IsReservedName,Property,,Paths.vb:779,strong,vaultkeeper/game/wizard.py,AUTO-PORTED,
-Paths.vb,Paths,IsNotReservedName,Property,,Paths.vb:792,none,,GAP?,
+Paths.vb,Paths,IsNotReservedName,Property,,Paths.vb:792,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,IsReservedNameOrPrefix,Property,,Paths.vb:805,strong,vaultkeeper/core/name_edit.py | vaultkeeper/core/reserved.py | vaultkeeper/game/documentation.py,AUTO-PORTED,
-Paths.vb,Paths,IsNotReservedNameOrPrefix,Property,,Paths.vb:826,none,,GAP?,
-Paths.vb,Paths,HasDataFile,Property,,Paths.vb:846,none,,GAP?,
+Paths.vb,Paths,IsNotReservedNameOrPrefix,Property,,Paths.vb:826,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,HasDataFile,Property,,Paths.vb:846,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,ErrorMessage,Property,,Paths.vb:865,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/game/character.py,AUTO-PORTED,
-Paths.vb,Paths,ExtendedLibrary,Property,,Paths.vb:915,none,,GAP?,
+Paths.vb,Paths,ExtendedLibrary,Property,,Paths.vb:915,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,WorkshopContentPath,Property,,Paths.vb:928,strong,vaultkeeper/game/workshop.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-Paths.vb,Paths,ExtendedExePath,Property,,Paths.vb:941,none,,GAP?,
+Paths.vb,Paths,ExtendedExePath,Property,,Paths.vb:941,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,ExtendedDataPath,Property,,Paths.vb:966,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Paths.vb,Paths,ExtendedOvrPath,Property,,Paths.vb:978,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
-Paths.vb,Paths,ExtendedUserPath,Property,,Paths.vb:991,none,,GAP?,
-Paths.vb,Paths,ExtendedVersionFileName,Property,,Paths.vb:1003,none,,GAP?,
-Paths.vb,Paths,EditionFilename,Function,,Paths.vb:1016,none,,GAP?,
-Paths.vb,Paths,EditionFilePath,Function,,Paths.vb:1028,none,,GAP?,
-Paths.vb,Paths,GetFileEdition,Function,,Paths.vb:1040,none,,GAP?,
-Paths.vb,Paths,CreateEditionFile,Sub,,Paths.vb:1060,none,,GAP?,
-Paths.vb,Paths,SolicitEdition,Function,,Paths.vb:1080,none,,GAP?,
+Paths.vb,Paths,ExtendedUserPath,Property,,Paths.vb:991,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,ExtendedVersionFileName,Property,,Paths.vb:1003,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,EditionFilename,Function,,Paths.vb:1016,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,EditionFilePath,Function,,Paths.vb:1028,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,GetFileEdition,Function,,Paths.vb:1040,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,CreateEditionFile,Sub,,Paths.vb:1060,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Paths.vb,Paths,SolicitEdition,Function,,Paths.vb:1080,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
 Paths.vb,Paths,DetectExtended,Function,,Paths.vb:1106,strong,vaultkeeper/game/locations.py,AUTO-PORTED,
-Paths.vb,Paths,SolicitEnhanced,Function,,Paths.vb:1174,none,,GAP?,
-Paths.vb,Paths,UserFilesFolder,Function,,Paths.vb:1206,none,,GAP?,
-Paths.vb,Paths,BeamdogLibrary,Function,,Paths.vb:1242,none,,GAP?,
-Paths.vb,Paths,GogLibrary,Function,,Paths.vb:1290,none,,GAP?,
-Paths.vb,Paths,SteamLibrary,Function,,Paths.vb:1311,none,,GAP?,
-Paths.vb,Paths,SteamLibraryFolder,Function,,Paths.vb:1368,none,,GAP?,
+Paths.vb,Paths,SolicitEnhanced,Function,,Paths.vb:1174,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Paths.vb,Paths,UserFilesFolder,Function,,Paths.vb:1206,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,BeamdogLibrary,Function,,Paths.vb:1242,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,GogLibrary,Function,,Paths.vb:1290,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,SteamLibrary,Function,,Paths.vb:1311,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,SteamLibraryFolder,Function,,Paths.vb:1368,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,GetWorkshopContentPath,Function,,Paths.vb:1434,strong,vaultkeeper/game/workshop.py,AUTO-PORTED,
-Paths.vb,Paths,ValidateExtendedLib,Function,,Paths.vb:1462,none,,GAP?,
-Paths.vb,Paths,ValidateExtendedUser,Function,,Paths.vb:1496,none,,GAP?,
-Paths.vb,Paths,ValidateEeFolder,Function,,Paths.vb:1512,none,,GAP?,
+Paths.vb,Paths,ValidateExtendedLib,Function,,Paths.vb:1462,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,ValidateExtendedUser,Function,,Paths.vb:1496,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,ValidateEeFolder,Function,,Paths.vb:1512,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,Validate,Sub,,Paths.vb:1538,strong,vaultkeeper/core/mod_data.py | vaultkeeper/core/name_edit.py | vaultkeeper/game/character_filter.py,AUTO-PORTED,
-Paths.vb,Paths,SetPathNit,Sub,,Paths.vb:1713,none,,GAP?,
-Paths.vb,Paths,ValidatedNitPath,Function,,Paths.vb:1787,none,,GAP?,
-Paths.vb,Paths,CreateStore,Sub,,Paths.vb:1811,none,,GAP?,
-Paths.vb,Paths,DetectOriginal,Function,,Paths.vb:1841,none,,GAP?,
-Paths.vb,Paths,GetExePath,Function,,Paths.vb:1906,none,,GAP?,
+Paths.vb,Paths,SetPathNit,Sub,,Paths.vb:1713,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,ValidatedNitPath,Function,,Paths.vb:1787,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,CreateStore,Sub,,Paths.vb:1811,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,DetectOriginal,Function,,Paths.vb:1841,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,GetExePath,Function,,Paths.vb:1906,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,Paths,SolicitNwnExeFile,Function,,Paths.vb:1942,strong,vaultkeeper/game/locations.py,AUTO-PORTED,
 Paths.vb,Paths,GetFolder,Function,,Paths.vb:1967,comment,vaultkeeper/game/installer_build.py,AUTO-PORTED,matched in comment/docstring
-Paths.vb,Paths,CreateMissingFolders,Function,,Paths.vb:2010,none,,GAP?,
-Paths.vb,Paths,CheckAccessPermissions,Sub,,Paths.vb:2035,none,,GAP?,
-Paths.vb,Paths,CreateProfileFolder,Function,,Paths.vb:2077,none,,GAP?,
-Paths.vb,Paths,IsValidNwnFolder,Function,,Paths.vb:2119,none,,GAP?,
+Paths.vb,Paths,CreateMissingFolders,Function,,Paths.vb:2010,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,CheckAccessPermissions,Sub,,Paths.vb:2035,none,,Partial,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
+Paths.vb,Paths,CreateProfileFolder,Function,,Paths.vb:2077,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+Paths.vb,Paths,IsValidNwnFolder,Function,,Paths.vb:2119,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 PlayDataManager.ClientLog.vb,ClientLog,ModsLoaded,Property,,PlayDataManager.ClientLog.vb:68,strong,vaultkeeper/game/client_log.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/play_loop.py,AUTO-PORTED,
 PlayDataManager.ClientLog.vb,ClientLog,ExecutionTime,Property,,PlayDataManager.ClientLog.vb:74,strong,vaultkeeper/game/client_log.py | vaultkeeper/game/play_data_manager.py | vaultkeeper/ui/play_loop.py,AUTO-PORTED,
 PlayDataManager.ClientLog.vb,ClientLog,New,Sub,,PlayDataManager.ClientLog.vb:82,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
@@ -2467,29 +2467,29 @@ ProfileData.Properties.vb,ProfileData,CalculateOriginalCrcs,Property,,ProfileDat
 ProfileData.Properties.vb,ProfileData,GroupsInitialised,Property,,ProfileData.Properties.vb:569,none,,GAP?,
 ProfileData.vb,ProfileData,New,Sub,,ProfileData.vb:32,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 ProfileData.vb,ProfileData,Load,Function,,ProfileData.vb:71,strong,vaultkeeper/config/settings.py | vaultkeeper/core/formats/tga_reader.py | vaultkeeper/core/hak_patch.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,LoadWorkshopContent,Function,,ProfileData.vb:168,none,,GAP?,
-ProfileData.vb,ProfileData,LoadData,Function,,ProfileData.vb:181,none,,GAP?,
+ProfileData.vb,ProfileData,LoadWorkshopContent,Function,,ProfileData.vb:168,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,LoadData,Function,,ProfileData.vb:181,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,GetLatestDataFile,Function,,ProfileData.vb:320,strong,vaultkeeper/persistence/nrbf/migrate.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,CreateRepairList,Function,,ProfileData.vb:350,none,,GAP?,
 ProfileData.vb,ProfileData,Save,Sub,,ProfileData.vb:371,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/install_manager.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,SaveOriginalFiles,Sub,,ProfileData.vb:385,none,,GAP?,
-ProfileData.vb,ProfileData,SaveInstalled,Sub,,ProfileData.vb:397,none,,GAP?,
+ProfileData.vb,ProfileData,SaveOriginalFiles,Sub,,ProfileData.vb:385,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,SaveInstalled,Sub,,ProfileData.vb:397,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveMods,Sub,,ProfileData.vb:409,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,SaveFiles,Sub,,ProfileData.vb:421,none,,GAP?,
-ProfileData.vb,ProfileData,SaveStatus,Sub,,ProfileData.vb:433,none,,GAP?,
+ProfileData.vb,ProfileData,SaveFiles,Sub,,ProfileData.vb:421,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,SaveStatus,Sub,,ProfileData.vb:433,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SavePlayData,Sub,,ProfileData.vb:446,none,,GAP?,
-ProfileData.vb,ProfileData,SaveInstallationSets,Sub,,ProfileData.vb:457,none,,GAP?,
+ProfileData.vb,ProfileData,SaveInstallationSets,Sub,,ProfileData.vb:457,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,SaveWorkshopContent,Sub,,ProfileData.vb:468,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,SaveData,Sub,,ProfileData.vb:480,strong,vaultkeeper/game/play_data_manager.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,CalculateAllChecksums,Sub,,ProfileData.vb:519,none,,GAP?,
+ProfileData.vb,ProfileData,CalculateAllChecksums,Sub,,ProfileData.vb:519,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 ProfileData.vb,ProfileData,CalculateChecksums,Sub,,ProfileData.vb:549,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,RepairChecksums,Function,,ProfileData.vb:605,none,,GAP?,
-ProfileData.vb,ProfileData,RepairChecksums,Function,,ProfileData.vb:637,none,,GAP?,
-ProfileData.vb,ProfileData,RepairOriginalChecksums,Function,,ProfileData.vb:672,none,,GAP?,
+ProfileData.vb,ProfileData,RepairChecksums,Function,,ProfileData.vb:605,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,RepairChecksums,Function,,ProfileData.vb:637,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,RepairOriginalChecksums,Function,,ProfileData.vb:672,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 ProfileData.vb,ProfileData,CreateInstalledList,Function,,ProfileData.vb:696,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,AddInstalledFiles,Function,,ProfileData.vb:711,comment,vaultkeeper/core/profile_data.py,AUTO-PORTED,matched in comment/docstring
 ProfileData.vb,ProfileData,AddInstalledFilesThread,Sub,,ProfileData.vb:731,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,UpdateDatabaseFile,Function,,ProfileData.vb:795,none,,GAP?,
+ProfileData.vb,ProfileData,UpdateDatabaseFile,Function,,ProfileData.vb:795,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,AddInstalledFile,Sub,,ProfileData.vb:817,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,CreateModList,Function,,ProfileData.vb:852,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,CreateModListThread,Sub,,ProfileData.vb:911,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
@@ -2502,45 +2502,45 @@ ProfileData.vb,ProfileData,GetGroupInfo,Function,,ProfileData.vb:1046,strong,vau
 ProfileData.vb,ProfileData,AddGroups,Function,,ProfileData.vb:1082,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,UpdateModStates,Sub,,ProfileData.vb:1110,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,UpdateFileStates,Sub,,ProfileData.vb:1128,strong,vaultkeeper/core/install_manager.py | vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,UpdateFileStatesThread,Sub,,ProfileData.vb:1137,none,,GAP?,
+ProfileData.vb,ProfileData,UpdateFileStatesThread,Sub,,ProfileData.vb:1137,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 ProfileData.vb,ProfileData,SetModFiles,Sub,,ProfileData.vb:1193,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,UseNwOriginal,Sub,,ProfileData.vb:1216,none,,GAP?,
-ProfileData.vb,ProfileData,CreateOriginalFiles,Function,,ProfileData.vb:1235,none,,GAP?,
-ProfileData.vb,ProfileData,BuildOriginalFiles,Function,,ProfileData.vb:1276,none,,GAP?,
-ProfileData.vb,ProfileData,BuildOriginalFilesDoWork,Sub,,ProfileData.vb:1308,none,,GAP?,
-ProfileData.vb,ProfileData,UseEeOriginal,Sub,,ProfileData.vb:1379,none,,GAP?,
-ProfileData.vb,ProfileData,CreateOriginalEeFiles,Function,,ProfileData.vb:1399,none,,GAP?,
-ProfileData.vb,ProfileData,BuildOriginalEeFiles,Function,,ProfileData.vb:1431,none,,GAP?,
-ProfileData.vb,ProfileData,UpdateOriginalEeFiles,Function,,ProfileData.vb:1487,none,,GAP?,
-ProfileData.vb,ProfileData,UpdateOriginalEeFilesThread,Sub,,ProfileData.vb:1508,none,,GAP?,
-ProfileData.vb,ProfileData,SaveEeFileVersion,Sub,,ProfileData.vb:1656,none,,GAP?,
-ProfileData.vb,ProfileData,GetEeFolders,Function,,ProfileData.vb:1673,none,,GAP?,
-ProfileData.vb,ProfileData,ValidateOriginals,Sub,,ProfileData.vb:1704,none,,GAP?,
-ProfileData.vb,ProfileData,CheckInstalledFiles,Sub,,ProfileData.vb:1776,none,,GAP?,
-ProfileData.vb,ProfileData,ValidateInstalledFileData,Sub,,ProfileData.vb:1843,none,,GAP?,
-ProfileData.vb,ProfileData,ValidateInstalledFileDataThread,Sub,,ProfileData.vb:1885,none,,GAP?,
-ProfileData.vb,ProfileData,IsIllegalFile,Function,,ProfileData.vb:1994,none,,GAP?,
-ProfileData.vb,ProfileData,CheckSelectedFiles,Sub,,ProfileData.vb:2026,none,,GAP?,
-ProfileData.vb,ProfileData,AddCrashDumpFiles,Sub,,ProfileData.vb:2080,none,,GAP?,
-ProfileData.vb,ProfileData,AddDatabaseFiles,Sub,,ProfileData.vb:2137,none,,GAP?,
-ProfileData.vb,ProfileData,CheckCharacterFiles,Sub,,ProfileData.vb:2177,none,,GAP?,
-ProfileData.vb,ProfileData,CheckTmpSettings,Sub,,ProfileData.vb:2203,none,,GAP?,
-ProfileData.vb,ProfileData,CheckAutoFileChanges,Sub,,ProfileData.vb:2234,none,,GAP?,
-ProfileData.vb,ProfileData,ValidateModAndFileData,Sub,,ProfileData.vb:2321,none,,GAP?,
-ProfileData.vb,ProfileData,ValidateModAndFileDataThread,Sub,,ProfileData.vb:2370,none,,GAP?,
+ProfileData.vb,ProfileData,UseNwOriginal,Sub,,ProfileData.vb:1216,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,CreateOriginalFiles,Function,,ProfileData.vb:1235,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,BuildOriginalFiles,Function,,ProfileData.vb:1276,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,BuildOriginalFilesDoWork,Sub,,ProfileData.vb:1308,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,UseEeOriginal,Sub,,ProfileData.vb:1379,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,CreateOriginalEeFiles,Function,,ProfileData.vb:1399,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,BuildOriginalEeFiles,Function,,ProfileData.vb:1431,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,UpdateOriginalEeFiles,Function,,ProfileData.vb:1487,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,UpdateOriginalEeFilesThread,Sub,,ProfileData.vb:1508,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,SaveEeFileVersion,Sub,,ProfileData.vb:1656,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,GetEeFolders,Function,,ProfileData.vb:1673,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,ValidateOriginals,Sub,,ProfileData.vb:1704,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,CheckInstalledFiles,Sub,,ProfileData.vb:1776,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,ValidateInstalledFileData,Sub,,ProfileData.vb:1843,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,ValidateInstalledFileDataThread,Sub,,ProfileData.vb:1885,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,IsIllegalFile,Function,,ProfileData.vb:1994,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,CheckSelectedFiles,Sub,,ProfileData.vb:2026,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,AddCrashDumpFiles,Sub,,ProfileData.vb:2080,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,AddDatabaseFiles,Sub,,ProfileData.vb:2137,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,CheckCharacterFiles,Sub,,ProfileData.vb:2177,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,CheckTmpSettings,Sub,,ProfileData.vb:2203,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,CheckAutoFileChanges,Sub,,ProfileData.vb:2234,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,ValidateModAndFileData,Sub,,ProfileData.vb:2321,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
+ProfileData.vb,ProfileData,ValidateModAndFileDataThread,Sub,,ProfileData.vb:2370,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
 ProfileData.vb,ProfileData,RemoveIllegalModFiles,Sub,,ProfileData.vb:2482,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,RemoveIllegalModFilesThread,Sub,,ProfileData.vb:2502,none,,GAP?,
+ProfileData.vb,ProfileData,RemoveIllegalModFilesThread,Sub,,ProfileData.vb:2502,none,,Deferred,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
 ProfileData.vb,ProfileData,ValidateNotes,Function,,ProfileData.vb:2556,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetInstaller,Function,,ProfileData.vb:2593,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetConflicts,Function,,ProfileData.vb:2615,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2635,none,,GAP?,
-ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2648,none,,GAP?,
-ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2660,none,,GAP?,
-ProfileData.vb,ProfileData,LoadSelections,Sub,,ProfileData.vb:2683,none,,GAP?,
-ProfileData.vb,ProfileData,SaveSelections,Sub,,ProfileData.vb:2706,none,,GAP?,
+ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2635,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2648,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,FileKeyExists,Function,,ProfileData.vb:2660,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,LoadSelections,Sub,,ProfileData.vb:2683,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
+ProfileData.vb,ProfileData,SaveSelections,Sub,,ProfileData.vb:2706,none,,Divergence,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
 ProfileData.vb,ProfileData,RecoverUserData,Function,,ProfileData.vb:2730,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-ProfileData.vb,ProfileData,ModRenamed,Sub,,ProfileData.vb:2803,none,,Ported,Verified present in port under different name/structure (grep-confirmed 2026-07-15).
-ProfileData.vb,ProfileData,ModDeleted,Sub,,ProfileData.vb:2822,none,,GAP?,
+ProfileData.vb,ProfileData,ModRenamed,Sub,,ProfileData.vb:2803,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
+ProfileData.vb,ProfileData,ModDeleted,Sub,,ProfileData.vb:2822,none,,Ported,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 ProfileData.vb,ProfileData,HasDependants,Function,,ProfileData.vb:2840,strong,vaultkeeper/core/profile_data.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,ValidateDependencies,Function,,ProfileData.vb:2860,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
 ProfileData.vb,ProfileData,GetDependants,Function,,ProfileData.vb:2890,strong,vaultkeeper/core/profile_data.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
@@ -2650,9 +2650,9 @@ Settings.Classes.vb,ListViewInfo,EmphasisedText,Property,,Settings.Classes.vb:34
 Settings.Classes.vb,ListViewInfo,EmphasisedStyle,Property,,Settings.Classes.vb:353,none,,GAP?,
 Settings.Classes.vb,ListViewInfo,New,Sub,,Settings.Classes.vb:372,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Settings.Classes.vb,ListViewInfo,New,Sub,,Settings.Classes.vb:391,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Settings.Classes.vb,Preference,Group,Property,,Settings.Classes.vb:447,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+Settings.Classes.vb,Preference,Group,Property,,Settings.Classes.vb:447,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 Settings.Classes.vb,Preference,New,Sub,,Settings.Classes.vb:455,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Settings.Classes.vb,LocationInfo,Group,Property,,Settings.Classes.vb:480,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+Settings.Classes.vb,LocationInfo,Group,Property,,Settings.Classes.vb:480,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 Settings.Classes.vb,LocationInfo,Type,Property,,Settings.Classes.vb:486,strong,vaultkeeper/core/constants.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/erf_reader.py,AUTO-PORTED,
 Settings.Classes.vb,LocationInfo,SettingsAction,Property,,Settings.Classes.vb:491,none,,GAP?,
 Settings.Classes.vb,LocationInfo,ProgramKey,Property,,Settings.Classes.vb:496,none,,GAP?,
@@ -2670,7 +2670,7 @@ Settings.Classes.vb,ProfileSettingsInfo,NwnFolder,Property,,Settings.Classes.vb:
 Settings.Classes.vb,ProfileSettingsInfo,ExtendedEdition,Property,,Settings.Classes.vb:637,none,,GAP?,
 Settings.Classes.vb,ProfileSettingsInfo,SourceFolder,Property,,Settings.Classes.vb:642,strong,vaultkeeper/core/mapper.py,AUTO-PORTED,
 Settings.Classes.vb,ProfileSettingsInfo,New,Sub,,Settings.Classes.vb:650,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Settings.Classes.vb,AdvancedInfo,Group,Property,,Settings.Classes.vb:676,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+Settings.Classes.vb,AdvancedInfo,Group,Property,,Settings.Classes.vb:676,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 Settings.Classes.vb,AdvancedInfo,Type,Property,,Settings.Classes.vb:682,strong,vaultkeeper/core/constants.py | vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/erf_reader.py,AUTO-PORTED,
 Settings.Classes.vb,AdvancedInfo,Minimum,Property,,Settings.Classes.vb:687,strong,vaultkeeper/core/formats/bic_reader.py | vaultkeeper/core/formats/gff_reader.py | vaultkeeper/core/formats/tga_reader.py,AUTO-PORTED,
 Settings.Classes.vb,AdvancedInfo,Maximum,Property,,Settings.Classes.vb:692,strong,vaultkeeper/config/settings.py | vaultkeeper/game/character_filter.py,AUTO-PORTED,
@@ -2691,7 +2691,7 @@ Settings.Classes.vb,MapExtensionInfo,New,Sub,,Settings.Classes.vb:904,strong,vau
 Settings.Classes.vb,ExceptionInfo,Current,Property,,Settings.Classes.vb:927,strong,vaultkeeper/config/settings.py | vaultkeeper/core/change_data.py | vaultkeeper/core/hak_patch.py,AUTO-PORTED,
 Settings.Classes.vb,ExceptionInfo,Status,Property,,Settings.Classes.vb:932,strong,vaultkeeper/config/settings.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/log.py,AUTO-PORTED,
 Settings.Classes.vb,ExceptionInfo,New,Sub,,Settings.Classes.vb:939,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Settings.Classes.vb,MapExcludeInfo,Group,Property,,Settings.Classes.vb:961,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+Settings.Classes.vb,MapExcludeInfo,Group,Property,,Settings.Classes.vb:961,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 Settings.Classes.vb,MapExcludeInfo,CanDelete,Property,,Settings.Classes.vb:966,none,,GAP?,
 Settings.Classes.vb,MapExcludeInfo,New,Sub,,Settings.Classes.vb:972,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Settings.Common.vb,Settings,GetRulePrefs,Function,,Settings.Common.vb:27,none,,GAP?,
@@ -3100,7 +3100,7 @@ UserResponseEditor.vb,UserResponseEditor,LvResponses_SelectedIndexChanged,Sub,Lv
 UserResponseEditor.vb,UserResponseEditor,BtDelete_Click,Sub,BtDelete.Click,UserResponseEditor.vb:125,none,,GAP?,
 UserResponseEditor.vb,UserResponseEditor,BtClose_Click,Sub,BtClose.Click,UserResponseEditor.vb:152,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ModFolder,Property,,VaultDownloadRules.ProjectInfo.vb:23,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
-VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Group,Property,,VaultDownloadRules.ProjectInfo.vb:28,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Group,Property,,VaultDownloadRules.ProjectInfo.vb:28,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ApplyExcludes,Property,,VaultDownloadRules.ProjectInfo.vb:33,none,,GAP?,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,Files,Property,,VaultDownloadRules.ProjectInfo.vb:38,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 VaultDownloadRules.ProjectInfo.vb,ProjectInfo,ExternalFiles,Property,,VaultDownloadRules.ProjectInfo.vb:43,none,,GAP?,
@@ -3160,7 +3160,7 @@ VaultScraper.vb,VaultScraper,StatusText,Property,,VaultScraper.vb:75,strong,vaul
 VaultScraper.vb,VaultScraper,ProjectTitle,Property,,VaultScraper.vb:94,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/download_project.py | vaultkeeper/vault/download_rules.py,AUTO-PORTED,
 VaultScraper.vb,VaultScraper,ProjectUrl,Property,,VaultScraper.vb:99,none,,GAP?,
 VaultScraper.vb,VaultScraper,ModFolder,Property,,VaultScraper.vb:105,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
-VaultScraper.vb,VaultScraper,Group,Property,,VaultScraper.vb:122,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+VaultScraper.vb,VaultScraper,Group,Property,,VaultScraper.vb:122,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 VaultScraper.vb,VaultScraper,Files,Property,,VaultScraper.vb:127,strong,vaultkeeper/app_paths.py | vaultkeeper/config/settings.py | vaultkeeper/core/archive.py,AUTO-PORTED,
 VaultScraper.vb,VaultScraper,RequiredProjects,Property,,VaultScraper.vb:132,none,,GAP?,
 VaultScraper.vb,VaultScraper,RequiredFiles,Property,,VaultScraper.vb:137,none,,GAP?,
@@ -3195,7 +3195,7 @@ VaultScraperInfo.vb,VaultScraperInfo,Excluded,Property,,VaultScraperInfo.vb:68,s
 VaultScraperInfo.vb,VaultScraperInfo,Status,Property,,VaultScraperInfo.vb:86,strong,vaultkeeper/config/settings.py | vaultkeeper/core/install_manager.py | vaultkeeper/core/log.py,AUTO-PORTED,
 VaultScraperInfo.vb,VaultScraperInfo,StatusText,Property,,VaultScraperInfo.vb:91,strong,vaultkeeper/vault/scraper_info.py,AUTO-PORTED,
 VaultScraperInfo.vb,VaultScraperInfo,ModFolder,Property,,VaultScraperInfo.vb:102,strong,vaultkeeper/core/constants.py | vaultkeeper/core/mapper.py | vaultkeeper/core/mod_data.py,AUTO-PORTED,
-VaultScraperInfo.vb,VaultScraperInfo,Group,Property,,VaultScraperInfo.vb:120,strong,vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py | vaultkeeper/core/group_member.py,AUTO-PORTED,
+VaultScraperInfo.vb,VaultScraperInfo,Group,Property,,VaultScraperInfo.vb:120,strong,vaultkeeper/config/settings.py | vaultkeeper/core/constants.py | vaultkeeper/core/file_key.py,AUTO-PORTED,
 VaultScraperInfo.vb,VaultScraperInfo,CreateInstaller,Property,,VaultScraperInfo.vb:125,strong,vaultkeeper/core/mod_data.py | vaultkeeper/game/installer_build.py | vaultkeeper/game/wizard.py,AUTO-PORTED,
 VaultScraperInfo.vb,VaultScraperInfo,New,Sub,,VaultScraperInfo.vb:134,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 VaultScraperInfo.vb,VaultScraperInfo,New,Sub,,VaultScraperInfo.vb:148,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
