@@ -10,26 +10,26 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |
 |---|---|---|---|
-| Methods/props | 3284 | 1461 (44%) | 1823 |
-| Event handlers | 885 | 508 (57%) | 377 |
+| Methods/props | 3284 | 2189 (66%) | 1095 |
+| Event handlers | 885 | 698 (78%) | 187 |
 | Designer controls | 1777 | 42 (2%) | 1735 |
 
 ### Methods/props — status breakdown
-- `GAP?`: 1082
-- `AUTO-PORTED`: 741
-- `Divergence`: 636
-- `Ported`: 372
+- `Divergence`: 1015
+- `AUTO-PORTED`: 561
+- `GAP?`: 534
+- `Ported`: 491
+- `Deferred`: 344
 - `N/A`: 188
-- `Deferred`: 177
-- `Partial`: 85
+- `Partial`: 148
 - `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `GAP?`: 370
-- `Divergence`: 311
-- `Ported`: 106
-- `Deferred`: 67
-- `Partial`: 22
+- `Divergence`: 419
+- `GAP?`: 180
+- `Ported`: 124
+- `Deferred`: 112
+- `Partial`: 41
 - `AUTO-PORTED`: 7
 - `MISSING`: 2
 
@@ -45,36 +45,36 @@ Files with the most unmatched methods surface first; these are the sweep priorit
 
 | VB file | methods | GAP? | AUTO-PORTED | accounted |
 |---|---|---|---|---|
-| NIT.Menu.vb | 228 | 100 | 13 | 115 |
-| InstallationManagerEditor.vb | 39 | 29 | 1 | 9 |
-| Settings.Classes.vb | 71 | 25 | 20 | 26 |
-| Settings.vb | 27 | 21 | 2 | 4 |
-| Settings.Config.vb | 20 | 20 | 0 | 0 |
-| BackupManager.vb | 33 | 20 | 3 | 10 |
-| NetworkManager.vb | 24 | 19 | 4 | 1 |
-| MsgPicture.vb | 22 | 19 | 1 | 2 |
-| InstallationAnalyser.vb | 28 | 19 | 1 | 8 |
-| ProfileData.Properties.vb | 34 | 18 | 15 | 1 |
-| PlayDataViewer.vb | 19 | 18 | 0 | 1 |
-| InstallationManager.vb | 29 | 18 | 7 | 4 |
-| MenuItemEditor.vb | 23 | 17 | 1 | 5 |
-| NIT.ModView.vb | 59 | 16 | 10 | 33 |
-| ModFindAndRename.ModNames.vb | 25 | 16 | 7 | 2 |
-| FindProfileFilesDialogue.vb | 24 | 16 | 2 | 6 |
-| StartScreenInfo.vb | 42 | 15 | 24 | 3 |
-| SlideShow.vb | 18 | 15 | 0 | 3 |
-| Settings.MapExtensions.vb | 15 | 15 | 0 | 0 |
-| Settings.MapExcludes.vb | 15 | 15 | 0 | 0 |
-| Settings.Profiles.vb | 15 | 14 | 0 | 1 |
-| Settings.Locations.vb | 14 | 14 | 0 | 0 |
-| HakPatchManager.vb | 26 | 14 | 11 | 1 |
-| FileConflictsViewer.vb | 19 | 14 | 0 | 5 |
-| Settings.MapFolders.vb | 13 | 13 | 0 | 0 |
+| NIT.Menu.vb | 228 | 99 | 13 | 116 |
+| NIT.ModView.vb | 59 | 16 | 8 | 35 |
 | RtfThemeManager.vb | 14 | 13 | 1 | 0 |
-| NIT.Paste.vb | 18 | 13 | 2 | 3 |
-| NIT.DetailsView.vb | 14 | 13 | 1 | 0 |
-| SteamWorkshop.vb | 22 | 12 | 7 | 3 |
 | Settings.Advanced.vb | 12 | 12 | 0 | 0 |
+| GameManager.GameManagerInfo.vb | 23 | 12 | 5 | 6 |
+| ExtendedEditionDialogue.vb | 18 | 12 | 1 | 5 |
+| Settings.MenuCommon.vb | 13 | 11 | 0 | 2 |
+| NwnFolderInfo.vb | 20 | 11 | 7 | 2 |
+| ModExplorer.Properties.vb | 15 | 11 | 4 | 0 |
+| GameManagerRestore.vb | 19 | 11 | 0 | 8 |
+| GameManager.Methods.vb | 16 | 11 | 5 | 0 |
+| Settings.Preferences.vb | 10 | 10 | 0 | 0 |
+| Settings.Common.vb | 15 | 10 | 1 | 4 |
+| ProfileData.Diag.vb | 15 | 10 | 1 | 4 |
+| NitUserInterface.vb | 15 | 10 | 3 | 2 |
+| ModExplorer.ListManager.vb | 11 | 10 | 0 | 1 |
+| ErfFileReader.vb | 18 | 10 | 4 | 4 |
+| CrashDumpManager.vb | 18 | 10 | 2 | 6 |
+| AliasSectionEditor.vb | 15 | 10 | 0 | 5 |
+| Settings.MapExceptions.vb | 9 | 9 | 0 | 0 |
+| HakPatchEditor.vb | 11 | 9 | 1 | 1 |
+| GameSaves.vb | 25 | 9 | 9 | 7 |
+| ClassesSkillsAndFeats.vb | 15 | 9 | 3 | 3 |
+| BasicSettings.vb | 11 | 9 | 0 | 2 |
+| Settings.RunMenu.vb | 8 | 8 | 0 | 0 |
+| ProfileInfoManager.vb | 15 | 8 | 2 | 5 |
+| ModExplorer.Common.vb | 9 | 8 | 1 | 0 |
+| DependencyManager.vb | 14 | 8 | 0 | 6 |
+| Settings.WebMenu.vb | 8 | 7 | 1 | 0 |
+| ProfileInfo.vb | 15 | 7 | 2 | 6 |
 
 ## Work queue — GAP? methods (no port match; investigate)
 
@@ -89,7 +89,6 @@ implement it under a different name).
 | AliasSectionEditor.vb:159 | AliasSectionEditor | BhAliasEditor_Click | Sub |
 | AliasSectionEditor.vb:192 | AliasSectionEditor | RestoreDefaults | Sub |
 | AliasSectionEditor.vb:298 | AliasSectionEditor | LvFolders_ItemClicked | Sub |
-| AliasSectionEditor.vb:326 | AliasSectionEditor | LvFolders_SelectedIndexChanged | Sub |
 | AliasSectionEditor.vb:341 | AliasSectionEditor | CmMenuItem_Click | Sub |
 | AliasSectionEditor.vb:359 | AliasSectionEditor | ChangeFolder | Sub |
 | AliasSectionEditor.vb:432 | AliasSectionEditor | RestoreFolder | Sub |
@@ -101,36 +100,6 @@ implement it under a different name).
 | ApplicationEvents.vb:196 | MyApplication | MyApplication_StartupNextInstance | Sub |
 | ApplicationEvents.vb:217 | MyApplication | RestartOnShutdown | Property |
 | ApplicationEvents.vb:219 | MyApplication | MyApplication_Shutdown | Sub |
-| BackupManager.Methods.vb:24 | BackupManager | DisplaySelectionInfo | Sub |
-| BackupManager.Methods.vb:93 | BackupManager | PopulateStandard | Function |
-| BackupManager.Methods.vb:118 | BackupManager | UpdateListView | Sub |
-| BackupManager.Methods.vb:180 | BackupManager | DeleteFiles | Sub |
-| BackupManager.Methods.vb:197 | BackupManager | DeleteMods | Sub |
-| BackupManager.Methods.vb:219 | BackupManager | RemoveItems | Sub |
-| BackupManager.TypeInfo.vb:45 | TypeInfo | DataType | Property |
-| BackupManager.TypeInfo.vb:55 | TypeInfo | ActionAllowed | Property |
-| BackupManager.TypeInfo.vb:60 | TypeInfo | ActionText | Property |
-| BackupManager.TypeInfo.vb:65 | TypeInfo | DeleteText | Property |
-| BackupManager.vb:28 | BackupManager | ActionType | Property |
-| BackupManager.vb:35 | BackupManager | ActionItem | Property |
-| BackupManager.vb:40 | BackupManager | ActionText | Property |
-| BackupManager.vb:52 | BackupManager | DataInfo | Property |
-| BackupManager.vb:121 | BackupManager | AutoImport | Property |
-| BackupManager.vb:126 | BackupManager | Initialising | Property |
-| BackupManager.vb:136 | BackupManager | SelectedSize | Property |
-| BackupManager.vb:160 | BackupManager | TabPage | Property |
-| BackupManager.vb:214 | BackupManager | BackupManager_Load | Sub |
-| BackupManager.vb:317 | BackupManager | BackupManager_Shown | Sub |
-| BackupManager.vb:342 | BackupManager | BhBackupManager_Click | Sub |
-| BackupManager.vb:360 | BackupManager | BtAction_SizeChanged | Sub |
-| BackupManager.vb:368 | BackupManager | BtAction_Click | Sub |
-| BackupManager.vb:385 | BackupManager | BackupManager_KeyUp | Sub |
-| BackupManager.vb:448 | BackupManager | TbBackupManager_SelectedIndexChanged | Sub |
-| BackupManager.vb:558 | BackupManager | BgBackups_DoWork | Sub |
-| BackupManager.vb:568 | BackupManager | BgSettings_DoWork | Sub |
-| BackupManager.vb:580 | BackupManager | BgStandard_ProgressChanged | Sub |
-| BackupManager.vb:590 | BackupManager | BgMods_DoWork | Sub |
-| BackupManager.vb:622 | BackupManager | BgMods_ProgressChanged | Sub |
 | BasicSettings.vb:29 | BasicSettings | BasicSettings_Load | Sub |
 | BasicSettings.vb:90 | BasicSettings | CbCommon_CheckedChanged | Sub |
 | BasicSettings.vb:103 | BasicSettings | CbCopyDebugModeOnPlay_CheckedChanged | Sub |
@@ -144,8 +113,39 @@ implement it under a different name).
 | BicFileInfo.vb:186 | BicFileInfo | PlayerFeats | Property |
 | BicFileInfo.vb:444 | BicFileInfo | DisplayCharacterInformation | Sub |
 | BicFileInfo.vb:457 | BicFileInfo | SkillDescription | Function |
+| BicFileInfo.vb:473 | BicFileInfo | FeatDescription | Function |
+| BikToWbmDialogue.vb:35 | BikToWbmDialogue | FileCount | Property |
+| BikToWbmDialogue.vb:54 | BikToWbmDialogue | IncompleteMods | Property |
+| BikToWbmDialogue.vb:81 | BikToWbmDialogue | BikToWbmDialogue_Load | Sub |
+| BikToWbmDialogue.vb:99 | BikToWbmDialogue | BikToWbmDialogue_Shown | Sub |
+| BikToWbmDialogue.vb:110 | BikToWbmDialogue | BikToWbmDialogue_FormClosing | Sub |
+| CalculateCRCs.CrcInfo.vb:50 | CrcInfo | BgIndex | Property |
+| CalculateCRCs.CrcInfo.vb:100 | CrcInfo | DisplayFolder | Property |
+| CalculateCRCs.CrcInfo.vb:108 | CrcInfo | CrcValue | Property |
+| CalculateCRCs.CrcInfo.vb:124 | CrcInfo | CrcStatus | Property |
+| CalculateCRCs.CrcInfo.vb:132 | CrcInfo | CrcError | Property |
+| CharacterFilter.vb:53 | CharacterFilter | ClassNamesFilter | Property |
+| CharacterFilter.vb:59 | CharacterFilter | CharacterFilter_Load | Sub |
+| CharacterFilter.vb:101 | CharacterFilter | CharacterFilter_Shown | Sub |
+| CharacterFilter.vb:149 | CharacterFilter | LvClassNames_ItemClicked | Sub |
+| CharacterFilter.vb:161 | CharacterFilter | LvClassNames_ItemCheck | Sub |
+| ClassesSkillsAndFeats.vb:27 | ClassesSkillsAndFeats | ErrorText | Property |
+| ClassesSkillsAndFeats.vb:159 | ClassesSkillsAndFeats | SkillsAndFeats_Shown | Sub |
+| ClassesSkillsAndFeats.vb:177 | ClassesSkillsAndFeats | TabMain_SelectedIndexChanged | Sub |
+| ClassesSkillsAndFeats.vb:197 | ClassesSkillsAndFeats | LvClasses_RetrieveVirtualItem | Sub |
+| ClassesSkillsAndFeats.vb:208 | ClassesSkillsAndFeats | LvClasses_SelectedIndexChanged | Sub |
+| ClassesSkillsAndFeats.vb:237 | ClassesSkillsAndFeats | LvSkills_SelectedIndexChanged | Sub |
+| ClassesSkillsAndFeats.vb:263 | ClassesSkillsAndFeats | LvFeats_SelectedIndexChanged | Sub |
+| ClassesSkillsAndFeats.vb:291 | ClassesSkillsAndFeats | ActivateSearch | Sub |
+| ClassesSkillsAndFeats.vb:341 | ClassesSkillsAndFeats | LoadInfoFiles | Function |
+| CommonFiltersDialogue.vb:62 | CommonFiltersDialogue | Filters_Load | Sub |
+| CrashDumpManager.vb:52 | DumpInfo | DisplayText | Property |
+| CrashDumpManager.vb:93 | CrashDumpManager | CrashFilesDeleted | Property |
+| CrashDumpManager.vb:98 | CrashDumpManager | FileSizeAdjustment | Property |
+| CrashDumpManager.vb:143 | CrashDumpManager | CrashDumpManager_Load | Sub |
+| CrashDumpManager.vb:203 | CrashDumpManager | CrashDumpManager_FormClosing | Sub |
 
-_(1082 GAP? methods total; see ledger_members.csv for the full list.)_
+_(534 GAP? methods total; see ledger_members.csv for the full list.)_
 
 ## Findings (confirmed divergences)
 

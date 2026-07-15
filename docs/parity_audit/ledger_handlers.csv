@@ -6,29 +6,29 @@ AliasSectionEditor.vb,AliasSectionEditor,BtDelete_Click,Sub,BtDelete.Click,Alias
 AliasSectionEditor.vb,AliasSectionEditor,BtSave_Click,Sub,BtSave.Click,AliasSectionEditor.vb:235,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 AliasSectionEditor.vb,AliasSectionEditor,BtCancel_Click,Sub,BtCancel.Click,AliasSectionEditor.vb:287,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 AliasSectionEditor.vb,AliasSectionEditor,LvFolders_ItemClicked,Sub,LvFolders.ItemClicked,AliasSectionEditor.vb:298,none,,GAP?,
-AliasSectionEditor.vb,AliasSectionEditor,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,AliasSectionEditor.vb:326,none,,GAP?,
+AliasSectionEditor.vb,AliasSectionEditor,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,AliasSectionEditor.vb:326,none,,Ported,install engine + rename + analyser browser report (subagent-swept).
 AliasSectionEditor.vb,AliasSectionEditor,CmMenuItem_Click,Sub,"CmEdit.Click, CmUndo.Click",AliasSectionEditor.vb:341,none,,GAP?,
 ApplicationEvents.vb,MyApplication,MyApplication_Startup,Sub,Me.Startup,ApplicationEvents.vb:28,none,,GAP?,
 ApplicationEvents.vb,MyApplication,MyApplication_UnhandledException,Sub,Me.UnhandledException,ApplicationEvents.vb:65,none,,GAP?,
 ApplicationEvents.vb,MyApplication,MyApplication_StartupNextInstance,Sub,Me.StartupNextInstance,ApplicationEvents.vb:196,none,,GAP?,
 ApplicationEvents.vb,MyApplication,MyApplication_Shutdown,Sub,Me.Shutdown,ApplicationEvents.vb:219,none,,GAP?,
-BackupManager.vb,BackupManager,BackupManager_Load,Sub,MyBase.Load,BackupManager.vb:214,none,,GAP?,
-BackupManager.vb,BackupManager,BackupManager_Shown,Sub,Me.Shown,BackupManager.vb:317,none,,GAP?,
-BackupManager.vb,BackupManager,BhBackupManager_Click,Sub,BhBackupManager.Click,BackupManager.vb:342,none,,GAP?,
-BackupManager.vb,BackupManager,BtAction_SizeChanged,Sub,BtAction.SizeChanged,BackupManager.vb:360,none,,GAP?,
-BackupManager.vb,BackupManager,BtAction_Click,Sub,BtAction.Click,BackupManager.vb:368,none,,GAP?,
-BackupManager.vb,BackupManager,BackupManager_KeyUp,Sub,Me.KeyUp,BackupManager.vb:385,none,,GAP?,
+BackupManager.vb,BackupManager,BackupManager_Load,Sub,MyBase.Load,BackupManager.vb:214,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BackupManager_Shown,Sub,Me.Shown,BackupManager.vb:317,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BhBackupManager_Click,Sub,BhBackupManager.Click,BackupManager.vb:342,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BtAction_SizeChanged,Sub,BtAction.SizeChanged,BackupManager.vb:360,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BtAction_Click,Sub,BtAction.Click,BackupManager.vb:368,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BackupManager_KeyUp,Sub,Me.KeyUp,BackupManager.vb:385,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 BackupManager.vb,BackupManager,BtDelete_Click,Sub,BtDelete.Click,BackupManager.vb:395,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 BackupManager.vb,BackupManager,BtCancel_Click,Sub,BtCancel.Click,BackupManager.vb:433,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-BackupManager.vb,BackupManager,TbBackupManager_SelectedIndexChanged,Sub,TbBackupManager.SelectedIndexChanged,BackupManager.vb:448,none,,GAP?,
+BackupManager.vb,BackupManager,TbBackupManager_SelectedIndexChanged,Sub,TbBackupManager.SelectedIndexChanged,BackupManager.vb:448,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 BackupManager.vb,BackupManager,Lv_SelectedIndexChanged,Sub,"LvBackups.SelectedIndexChanged, LvSettings.SelectedIndexChanged",BackupManager.vb:461,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 BackupManager.vb,BackupManager,LvMods_SelectedIndexChanged,Sub,LvMods.SelectedIndexChanged,BackupManager.vb:478,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 BackupManager.vb,BackupManager,Lv_ItemClicked,Sub,"LvBackups.ItemClicked, LvSettings.ItemClicked, LvMods.ItemClicked",BackupManager.vb:502,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-BackupManager.vb,BackupManager,BgBackups_DoWork,Sub,BgBackups.DoWork,BackupManager.vb:558,none,,GAP?,
-BackupManager.vb,BackupManager,BgSettings_DoWork,Sub,BgSettings.DoWork,BackupManager.vb:568,none,,GAP?,
-BackupManager.vb,BackupManager,BgStandard_ProgressChanged,Sub,"BgBackups.ProgressChanged, BgSettings.ProgressChanged",BackupManager.vb:580,none,,GAP?,
-BackupManager.vb,BackupManager,BgMods_DoWork,Sub,BgMods.DoWork,BackupManager.vb:590,none,,GAP?,
-BackupManager.vb,BackupManager,BgMods_ProgressChanged,Sub,BgMods.ProgressChanged,BackupManager.vb:622,none,,GAP?,
+BackupManager.vb,BackupManager,BgBackups_DoWork,Sub,BgBackups.DoWork,BackupManager.vb:558,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BgSettings_DoWork,Sub,BgSettings.DoWork,BackupManager.vb:568,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BgStandard_ProgressChanged,Sub,"BgBackups.ProgressChanged, BgSettings.ProgressChanged",BackupManager.vb:580,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BgMods_DoWork,Sub,BgMods.DoWork,BackupManager.vb:590,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+BackupManager.vb,BackupManager,BgMods_ProgressChanged,Sub,BgMods.ProgressChanged,BackupManager.vb:622,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 BasicSettings.vb,BasicSettings,BasicSettings_Load,Sub,MyBase.Load,BasicSettings.vb:29,none,,GAP?,
 BasicSettings.vb,BasicSettings,CbCommon_CheckedChanged,Sub,"CbInstallAuto.CheckedChanged, CbBehaviourSelectGameMod.CheckedChanged, CbConfigCopyOnPlay.CheckedChanged",BasicSettings.vb:90,none,,GAP?,
 BasicSettings.vb,BasicSettings,CbInstallRestore_CheckedChanged,Sub,CbInstallRestore.CheckedChanged,BasicSettings.vb:129,none,,GAP?,
@@ -55,7 +55,7 @@ CalculateCRCs.vb,CalculateCRCs,BgSecondCounterr_DoWork,Sub,bgSecondCounter.DoWor
 CalculateCRCs.vb,CalculateCRCs,BgSecondCounter_ProgressChanged,Sub,bgSecondCounter.ProgressChanged,CalculateCRCs.vb:746,none,,Divergence,UI status/progress + WinForms background-worker plumbing (CRC compute engine itself is ported in core).
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Load,Sub,MyBase.Load,CharacterFilter.vb:59,none,,GAP?,
 CharacterFilter.vb,CharacterFilter,CharacterFilter_Shown,Sub,Me.Shown,CharacterFilter.vb:101,none,,GAP?,
-CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,GAP?,
+CharacterFilter.vb,CharacterFilter,BtReset_Click,Sub,BtReset.Click,CharacterFilter.vb:110,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 CharacterFilter.vb,CharacterFilter,BtApply_Click,Sub,BtApply.Click,CharacterFilter.vb:123,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 CharacterFilter.vb,CharacterFilter,BtCancel_Click,Sub,BtCancel.Click,CharacterFilter.vb:138,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 CharacterFilter.vb,CharacterFilter,LvClassNames_ItemClicked,Sub,LvClassNames.ItemClicked,CharacterFilter.vb:149,none,,GAP?,
@@ -122,20 +122,20 @@ CreateInstaller.vb,CreateInstaller,BgAnalyser_RunWorkerCompleted,Sub,BgAnalyser.
 CreateInstaller.vb,CreateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,CreateInstaller.vb:1524,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CreateInstaller.vb,CreateInstaller,BgCreate_ProgressChanged,Sub,BgCreate.ProgressChanged,CreateInstaller.vb:1590,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CreateInstaller.vb,CreateInstaller,BgCreate_RunWorkerCompleted,Sub,BgCreate.RunWorkerCompleted,CreateInstaller.vb:1614,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
-CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Load,Sub,MyBase.Load,CreateMissingInstallers.vb:110,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Shown,Sub,Me.Shown,CreateMissingInstallers.vb:172,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,LvModNames_ItemCheck,Sub,LvModNames.ItemCheck,CreateMissingInstallers.vb:184,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,LvModNames_ItemClicked,Sub,LvModNames.ItemClicked,CreateMissingInstallers.vb:208,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,CmSelectAll_Click,Sub,CmSelectAll.Click,CreateMissingInstallers.vb:220,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,CbExcludes_CheckedChanged,Sub,CbExcludes.CheckedChanged,CreateMissingInstallers.vb:232,none,,GAP?,
-CreateMissingInstallers.vb,CreateMissingInstallers,BtCreate_Click,Sub,BtCreate.Click,CreateMissingInstallers.vb:297,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Load,Sub,MyBase.Load,CreateNwnFolder.vb:156,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Shown,Sub,Me.Shown,CreateNwnFolder.vb:230,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,BuTarget_Click,Sub,BuTarget.Click,CreateNwnFolder.vb:254,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,BuSource_Click,Sub,BuSource.Click,CreateNwnFolder.vb:298,none,,GAP?,
+CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Load,Sub,MyBase.Load,CreateMissingInstallers.vb:110,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,CreateMissingInstallers_Shown,Sub,Me.Shown,CreateMissingInstallers.vb:172,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,LvModNames_ItemCheck,Sub,LvModNames.ItemCheck,CreateMissingInstallers.vb:184,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,LvModNames_ItemClicked,Sub,LvModNames.ItemClicked,CreateMissingInstallers.vb:208,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,CmSelectAll_Click,Sub,CmSelectAll.Click,CreateMissingInstallers.vb:220,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,CbExcludes_CheckedChanged,Sub,CbExcludes.CheckedChanged,CreateMissingInstallers.vb:232,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateMissingInstallers.vb,CreateMissingInstallers,BtCreate_Click,Sub,BtCreate.Click,CreateMissingInstallers.vb:297,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Load,Sub,MyBase.Load,CreateNwnFolder.vb:156,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateNwnFolder.vb,CreateNwnFolder,CreateNwnFolder_Shown,Sub,Me.Shown,CreateNwnFolder.vb:230,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateNwnFolder.vb,CreateNwnFolder,BuTarget_Click,Sub,BuTarget.Click,CreateNwnFolder.vb:254,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateNwnFolder.vb,CreateNwnFolder,BuSource_Click,Sub,BuSource.Click,CreateNwnFolder.vb:298,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 CreateNwnFolder.vb,CreateNwnFolder,Tx_KeyPress,Sub,"TxTarget.KeyPress, TxSource.KeyPress",CreateNwnFolder.vb:341,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-CreateNwnFolder.vb,CreateNwnFolder,TxTarget_Enter,Sub,TxTarget.Enter,CreateNwnFolder.vb:349,none,,GAP?,
-CreateNwnFolder.vb,CreateNwnFolder,TxSource_Enter,Sub,TxSource.Enter,CreateNwnFolder.vb:360,none,,GAP?,
+CreateNwnFolder.vb,CreateNwnFolder,TxTarget_Enter,Sub,TxTarget.Enter,CreateNwnFolder.vb:349,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+CreateNwnFolder.vb,CreateNwnFolder,TxSource_Enter,Sub,TxSource.Enter,CreateNwnFolder.vb:360,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 CreateNwnFolder.vb,CreateNwnFolder,BtSave_Click,Sub,BtSave.Click,CreateNwnFolder.vb:469,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 CreateNwnFolder.vb,CreateNwnFolder,BtCancel_Click,Sub,BtCancel.Click,CreateNwnFolder.vb:595,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 DependencyManager.vb,DependencyManager,DependencyManager_Load,Sub,MyBase.Load,DependencyManager.vb:99,none,,GAP?,
@@ -144,7 +144,7 @@ DependencyManager.vb,DependencyManager,BhDependencyManager_Click,Sub,BhDependenc
 DependencyManager.vb,DependencyManager,TsModDependenciesReport_Click,Sub,TsModDependenciesReport.Click,DependencyManager.vb:204,none,,GAP?,
 DependencyManager.vb,DependencyManager,BtAuto_Click,Sub,BtAuto.Click,DependencyManager.vb:231,none,,GAP?,
 DependencyManager.vb,DependencyManager,BtSave_Click,Sub,BtSave.Click,DependencyManager.vb:244,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-DependencyManager.vb,DependencyManager,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,DependencyManager.vb:290,none,,GAP?,
+DependencyManager.vb,DependencyManager,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,DependencyManager.vb:290,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 DependencyManager.vb,DependencyManager,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,DependencyManager.vb:320,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 DependencyManager.vb,DependencyManager,LvMods_ItemClicked,Sub,LvMods.ItemClicked,DependencyManager.vb:336,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 DependencyManager.vb,DependencyManager,LvDependencies_RetrieveVirtualItem,Sub,LvDependencies.RetrieveVirtualItem,DependencyManager.vb:439,none,,GAP?,
@@ -222,36 +222,36 @@ ExtendedEditionDialogue.vb,ExtendedEditionDialogue,Tx_Enter,Sub,"TxUserFolder.En
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,TxUserFolder_TextChanged,Sub,TxUserFolder.TextChanged,ExtendedEditionDialogue.vb:262,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,TxLibrary_TextChanged,Sub,TxLibrary.TextChanged,ExtendedEditionDialogue.vb:278,none,,GAP?,
 ExtendedEditionDialogue.vb,ExtendedEditionDialogue,CbDisable_CheckedChanged,Sub,CbDisable.CheckedChanged,ExtendedEditionDialogue.vb:299,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_Load,Sub,MyBase.Load,FileConflictsViewer.vb:74,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_Shown,Sub,Me.Shown,FileConflictsViewer.vb:101,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BtSelected_Click,Sub,BtSelected.Click,FileConflictsViewer.vb:123,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BtInstalled_Click,Sub,BtInstalled.Click,FileConflictsViewer.vb:133,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BtAll_Click,Sub,BtAll.Click,FileConflictsViewer.vb:143,none,,GAP?,
+FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_Load,Sub,MyBase.Load,FileConflictsViewer.vb:74,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_Shown,Sub,Me.Shown,FileConflictsViewer.vb:101,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FileConflictsViewer.vb,FileConflictsViewer,BtSelected_Click,Sub,BtSelected.Click,FileConflictsViewer.vb:123,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+FileConflictsViewer.vb,FileConflictsViewer,BtInstalled_Click,Sub,BtInstalled.Click,FileConflictsViewer.vb:133,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+FileConflictsViewer.vb,FileConflictsViewer,BtAll_Click,Sub,BtAll.Click,FileConflictsViewer.vb:143,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 FileConflictsViewer.vb,FileConflictsViewer,BtClose_Click,Sub,BtClose.Click,FileConflictsViewer.vb:153,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_FormClosing,Sub,Me.FormClosing,FileConflictsViewer.vb:163,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,LvFiles_SelectedIndexChanged,Sub,LvFiles.SelectedIndexChanged,FileConflictsViewer.vb:180,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_DoWork,Sub,BgProcessModFiles.DoWork,FileConflictsViewer.vb:278,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_ProgressChanged,Sub,BgProcessModFiles.ProgressChanged,FileConflictsViewer.vb:328,none,,GAP?,
-FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_RunWorkerCompleted,Sub,BgProcessModFiles.RunWorkerCompleted,FileConflictsViewer.vb:343,none,,GAP?,
+FileConflictsViewer.vb,FileConflictsViewer,FileConflictsViewer_FormClosing,Sub,Me.FormClosing,FileConflictsViewer.vb:163,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FileConflictsViewer.vb,FileConflictsViewer,LvFiles_SelectedIndexChanged,Sub,LvFiles.SelectedIndexChanged,FileConflictsViewer.vb:180,none,,Ported,install engine + rename + analyser browser report (subagent-swept).
+FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_DoWork,Sub,BgProcessModFiles.DoWork,FileConflictsViewer.vb:278,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_ProgressChanged,Sub,BgProcessModFiles.ProgressChanged,FileConflictsViewer.vb:328,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FileConflictsViewer.vb,FileConflictsViewer,BgProcessModFiles_RunWorkerCompleted,Sub,BgProcessModFiles.RunWorkerCompleted,FileConflictsViewer.vb:343,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindDialogue.vb,FindDialogue,FindDialogue_Load,Sub,MyBase.Load,FindDialogue.vb:85,none,,GAP?,
 FindDialogue.vb,FindDialogue,FindDialogue_Shown,Sub,Me.Shown,FindDialogue.vb:137,none,,GAP?,
 FindDialogue.vb,FindDialogue,BtClose_Click,Sub,BtClose.Click,FindDialogue.vb:150,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-FindDialogue.vb,FindDialogue,CbxFind_TextChanged,Sub,CbxFind.TextChanged,FindDialogue.vb:162,none,,GAP?,
-FindDialogue.vb,FindDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindDialogue.vb:172,none,,GAP?,
+FindDialogue.vb,FindDialogue,CbxFind_TextChanged,Sub,CbxFind.TextChanged,FindDialogue.vb:162,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindDialogue.vb,FindDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindDialogue.vb:172,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindDialogue.vb,FindDialogue,BtFindNext_Click,Sub,BtFindNext.Click,FindDialogue.vb:203,none,,GAP?,
 FindDialogue.vb,FindDialogue,BtFindPrevious_Click,Sub,BtFindPrevious.Click,FindDialogue.vb:213,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,FindModFilesDialogue_Load,Sub,MyBase.Load,FindProfileFilesDialogue.vb:161,none,,GAP?,
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,FindModFilesDialogue_Load,Sub,MyBase.Load,FindProfileFilesDialogue.vb:161,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BtSelect_Click,Sub,BtSelect.Click,FindProfileFilesDialogue.vb:208,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BtClose_Click,Sub,BtClose.Click,FindProfileFilesDialogue.vb:253,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,FindProfileFilesDialogue_FormClosed,Sub,Me.FormClosed,FindProfileFilesDialogue.vb:261,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindProfileFilesDialogue.vb:293,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmDisplayInfo_Click,Sub,CmDisplayInfo.Click,FindProfileFilesDialogue.vb:314,none,,GAP?,
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,FindProfileFilesDialogue_FormClosed,Sub,Me.FormClosed,FindProfileFilesDialogue.vb:261,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CbMatch_CheckedChanged,Sub,"CbMatchWord.CheckedChanged, CbMatchCase.CheckedChanged",FindProfileFilesDialogue.vb:293,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmDisplayInfo_Click,Sub,CmDisplayInfo.Click,FindProfileFilesDialogue.vb:314,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 FindProfileFilesDialogue.vb,FindProfileFilesDialogue,CmProperties_Click,Sub,CmProperties.Click,FindProfileFilesDialogue.vb:346,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_ItemClicked,Sub,LvFound.ItemClicked,FindProfileFilesDialogue.vb:356,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_SelectedIndexChanged,Sub,LvFound.SelectedIndexChanged,FindProfileFilesDialogue.vb:366,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_RetrieveVirtualItem,Sub,LvFound.RetrieveVirtualItem,FindProfileFilesDialogue.vb:391,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_DoWork,Sub,BgGetFiles.DoWork,FindProfileFilesDialogue.vb:525,none,,GAP?,
-FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_RunWorkerCompleted,Sub,BgGetFiles.RunWorkerCompleted,FindProfileFilesDialogue.vb:544,none,,GAP?,
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_ItemClicked,Sub,LvFound.ItemClicked,FindProfileFilesDialogue.vb:356,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_SelectedIndexChanged,Sub,LvFound.SelectedIndexChanged,FindProfileFilesDialogue.vb:366,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,LvFound_RetrieveVirtualItem,Sub,LvFound.RetrieveVirtualItem,FindProfileFilesDialogue.vb:391,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_DoWork,Sub,BgGetFiles.DoWork,FindProfileFilesDialogue.vb:525,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+FindProfileFilesDialogue.vb,FindProfileFilesDialogue,BgGetFiles_RunWorkerCompleted,Sub,BgGetFiles.RunWorkerCompleted,FindProfileFilesDialogue.vb:544,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GameManager.vb,GameManager,GameManager_Load,Sub,MyBase.Load,GameManager.vb:72,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManager.vb,GameManager,GameManager_Shown,Sub,Me.Shown,GameManager.vb:166,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManager.vb,GameManager,GameManager_KeyUp,Sub,Me.KeyUp,GameManager.vb:202,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
@@ -287,7 +287,7 @@ GameManagerRestore.vb,GameManagerRestore,FvGameSaves_KeyPress,Sub,FvGameSaves.Ke
 GameManagerRestore.vb,GameManagerRestore,FvGameSaves_Leave,Sub,FvGameSaves.Leave,GameManagerRestore.vb:289,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManagerRestore.vb,GameManagerRestore,LbLocation_MouseHover,Sub,"LbLocation.MouseHover, LbRange.MouseHover, LbLocationHdg.MouseHover,",GameManagerRestore.vb:297,none,,GAP?,
 GameManagerRestore.vb,GameManagerRestore,LbLocation_MouseLeave,Sub,"LbLocation.MouseLeave, LbRange.MouseLeave, LbLocationHdg.MouseLeave,",GameManagerRestore.vb:323,none,,GAP?,
-GameManagerRestore.vb,GameManagerRestore,LpActions_MouseMove,Sub,LpActions.MouseMove,GameManagerRestore.vb:337,none,,GAP?,
+GameManagerRestore.vb,GameManagerRestore,LpActions_MouseMove,Sub,LpActions.MouseMove,GameManagerRestore.vb:337,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 GameManagerRestore.vb,GameManagerRestore,CmOpen_Click,Sub,"CmOpen.Click, TsOpen.Click",GameManagerRestore.vb:350,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameManagerRestore.vb,GameManagerRestore,CmCharacterSummary_Click,Sub,"CmCharacterSummary.Click, TsCharacterSummary.Click",GameManagerRestore.vb:359,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 GameMapper.Workers.vb,GameMapper,BgModScanner_DoWork,Sub,BgModScanner.DoWork,GameMapper.Workers.vb:27,none,,GAP?,
@@ -314,59 +314,59 @@ HakPatchEditor.vb,HakPatchEditor,CmMoveUp_Click,Sub,CmMoveUp.Click,HakPatchEdito
 HakPatchEditor.vb,HakPatchEditor,CmMoveDown_Click,Sub,CmMoveDown.Click,HakPatchEditor.vb:167,none,,GAP?,
 HakPatchEditor.vb,HakPatchEditor,BtSave_Click,Sub,BtSave.Click,HakPatchEditor.vb:202,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 HakPatchEditor.vb,HakPatchEditor,BhHelp_Click,Sub,BhHelp.Click,HakPatchEditor.vb:222,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Load,Sub,MyBase.Load,InstallationAnalyser.vb:106,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Shown,Sub,Me.Shown,InstallationAnalyser.vb:198,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,TsMiniDumpInfo_Click,Sub,TsMiniDumpInfo.Click,InstallationAnalyser.vb:213,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,BtConvert_Click,Sub,BtConvert.Click,InstallationAnalyser.vb:249,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,BtRefresh_Click,Sub,BtRefresh.Click,InstallationAnalyser.vb:270,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Load,Sub,MyBase.Load,InstallationAnalyser.vb:106,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,InstallationAnalyser_Shown,Sub,Me.Shown,InstallationAnalyser.vb:198,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,TsMiniDumpInfo_Click,Sub,TsMiniDumpInfo.Click,InstallationAnalyser.vb:213,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationAnalyser.vb,InstallationAnalyser,BtConvert_Click,Sub,BtConvert.Click,InstallationAnalyser.vb:249,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationAnalyser.vb,InstallationAnalyser,BtRefresh_Click,Sub,BtRefresh.Click,InstallationAnalyser.vb:270,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
 InstallationAnalyser.vb,InstallationAnalyser,BtSelect_Click,Sub,BtSelect.Click,InstallationAnalyser.vb:300,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 InstallationAnalyser.vb,InstallationAnalyser,BtClose_Click,Sub,BtClose.Click,InstallationAnalyser.vb:312,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-InstallationAnalyser.vb,InstallationAnalyser,CmOpenFolder_Click,Sub,CmOpenFolder.Click,InstallationAnalyser.vb:325,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,CmOpenFolder_Click,Sub,CmOpenFolder.Click,InstallationAnalyser.vb:325,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
 InstallationAnalyser.vb,InstallationAnalyser,CmProperties_Click,Sub,CmProperties.Click,InstallationAnalyser.vb:334,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 InstallationAnalyser.vb,InstallationAnalyser,CmCharacterSummary_Click,Sub,CmCharacterSummary.Click,InstallationAnalyser.vb:348,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
-InstallationAnalyser.vb,InstallationAnalyser,LbFilesInFolder_Click,Sub,LbFilesInFolder.Click,InstallationAnalyser.vb:365,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,MiDetails_Click,Sub,MiDetails.Click,InstallationAnalyser.vb:373,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,LbFilesInFolder_Click,Sub,LbFilesInFolder.Click,InstallationAnalyser.vb:365,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,MiDetails_Click,Sub,MiDetails.Click,InstallationAnalyser.vb:373,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
 InstallationAnalyser.vb,InstallationAnalyser,Lv_ItemClicked,Sub,"LvFolders.ItemClicked, LvFiles.ItemClicked",InstallationAnalyser.vb:391,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-InstallationAnalyser.vb,InstallationAnalyser,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,InstallationAnalyser.vb:414,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFolders_MouseDoubleClick,Sub,LvFolders.MouseDoubleClick,InstallationAnalyser.vb:431,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFiles_Enter,Sub,LvFiles.Enter,InstallationAnalyser.vb:439,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFiles_Leave,Sub,LvFiles.Leave,InstallationAnalyser.vb:450,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFiles_RetrieveVirtualItem,Sub,LvFiles.RetrieveVirtualItem,InstallationAnalyser.vb:460,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFiles_SelectedIndexChanged,Sub,LvFiles.SelectedIndexChanged,InstallationAnalyser.vb:504,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,LvFiles_MouseDoubleClick,Sub,LvFiles.MouseDoubleClick,InstallationAnalyser.vb:519,none,,GAP?,
-InstallationAnalyser.vb,InstallationAnalyser,BhInstallationAnalyser_Click,Sub,BhInstallationAnalyser.Click,InstallationAnalyser.vb:721,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Load,Sub,MyBase.Load,InstallationManagerEditor.vb:110,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Shown,Sub,Me.Shown,InstallationManagerEditor.vb:232,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManagerEditor_FormClosing,Sub,Me.FormClosing,InstallationManagerEditor.vb:244,none,,GAP?,
+InstallationAnalyser.vb,InstallationAnalyser,LvFolders_SelectedIndexChanged,Sub,LvFolders.SelectedIndexChanged,InstallationAnalyser.vb:414,none,,Ported,install engine + rename + analyser browser report (subagent-swept).
+InstallationAnalyser.vb,InstallationAnalyser,LvFolders_MouseDoubleClick,Sub,LvFolders.MouseDoubleClick,InstallationAnalyser.vb:431,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,LvFiles_Enter,Sub,LvFiles.Enter,InstallationAnalyser.vb:439,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,LvFiles_Leave,Sub,LvFiles.Leave,InstallationAnalyser.vb:450,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,LvFiles_RetrieveVirtualItem,Sub,LvFiles.RetrieveVirtualItem,InstallationAnalyser.vb:460,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,LvFiles_SelectedIndexChanged,Sub,LvFiles.SelectedIndexChanged,InstallationAnalyser.vb:504,none,,Ported,install engine + rename + analyser browser report (subagent-swept).
+InstallationAnalyser.vb,InstallationAnalyser,LvFiles_MouseDoubleClick,Sub,LvFiles.MouseDoubleClick,InstallationAnalyser.vb:519,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationAnalyser.vb,InstallationAnalyser,BhInstallationAnalyser_Click,Sub,BhInstallationAnalyser.Click,InstallationAnalyser.vb:721,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Load,Sub,MyBase.Load,InstallationManagerEditor.vb:110,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManager_Shown,Sub,Me.Shown,InstallationManagerEditor.vb:232,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationManagerEditor.vb,InstallationManagerEditor,InstallationManagerEditor_FormClosing,Sub,Me.FormClosing,InstallationManagerEditor.vb:244,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
 InstallationManagerEditor.vb,InstallationManagerEditor,BtApply_Click,Sub,BtApply.Click,InstallationManagerEditor.vb:268,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 InstallationManagerEditor.vb,InstallationManagerEditor,BtSave_Click,Sub,BtSave.Click,InstallationManagerEditor.vb:320,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
 InstallationManagerEditor.vb,InstallationManagerEditor,BtCancel_Click,Sub,BtCancel.Click,InstallationManagerEditor.vb:332,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-InstallationManagerEditor.vb,InstallationManagerEditor,TsCheckpoint_Click,Sub,TsCheckpoint.Click,InstallationManagerEditor.vb:347,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsCreateSet_Click,Sub,TsCreateSet.Click,InstallationManagerEditor.vb:359,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsRename_Click,Sub,TsRename.Click,InstallationManagerEditor.vb:381,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsPrune_Click,Sub,TsPrune.Click,InstallationManagerEditor.vb:398,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,TsCheckpoint_Click,Sub,TsCheckpoint.Click,InstallationManagerEditor.vb:347,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,TsCreateSet_Click,Sub,TsCreateSet.Click,InstallationManagerEditor.vb:359,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,TsRename_Click,Sub,TsRename.Click,InstallationManagerEditor.vb:381,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,TsPrune_Click,Sub,TsPrune.Click,InstallationManagerEditor.vb:398,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManagerEditor.vb,InstallationManagerEditor,TsDelete_Click,Sub,TsDelete.Click,InstallationManagerEditor.vb:424,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
-InstallationManagerEditor.vb,InstallationManagerEditor,TsSortBy_Click,Sub,"TsUpdated.Click, TsCreated.Click, TsSetName.Click",InstallationManagerEditor.vb:440,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsSortOrder_Click,Sub,"TsAscending.Click, TsDescending.Click",InstallationManagerEditor.vb:476,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,TsGroupSelector_Click,Sub,TsGroupSelector.Click,InstallationManagerEditor.vb:500,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,BhInstallationManager_Click,Sub,BhInstallationManager.Click,InstallationManagerEditor.vb:515,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_Enter,Sub,LvSets.Enter,InstallationManagerEditor.vb:528,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_RetrieveVirtualItem,Sub,LvSets.RetrieveVirtualItem,InstallationManagerEditor.vb:538,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_ItemClicked,Sub,LvSets.ItemClicked,InstallationManagerEditor.vb:563,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_SelectedIndexChanged,Sub,LvSets.SelectedIndexChanged,InstallationManagerEditor.vb:608,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_Leave,Sub,LvSets.Leave,InstallationManagerEditor.vb:635,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_RetrieveVirtualItem,Sub,LvGroups.RetrieveVirtualItem,InstallationManagerEditor.vb:649,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,InstallationManagerEditor.vb:670,none,,GAP?,
-InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_ItemClicked,Sub,LvGroups.ItemClicked,InstallationManagerEditor.vb:687,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,TsSortBy_Click,Sub,"TsUpdated.Click, TsCreated.Click, TsSetName.Click",InstallationManagerEditor.vb:440,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,TsSortOrder_Click,Sub,"TsAscending.Click, TsDescending.Click",InstallationManagerEditor.vb:476,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,TsGroupSelector_Click,Sub,TsGroupSelector.Click,InstallationManagerEditor.vb:500,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,BhInstallationManager_Click,Sub,BhInstallationManager.Click,InstallationManagerEditor.vb:515,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_Enter,Sub,LvSets.Enter,InstallationManagerEditor.vb:528,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_RetrieveVirtualItem,Sub,LvSets.RetrieveVirtualItem,InstallationManagerEditor.vb:538,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_ItemClicked,Sub,LvSets.ItemClicked,InstallationManagerEditor.vb:563,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_SelectedIndexChanged,Sub,LvSets.SelectedIndexChanged,InstallationManagerEditor.vb:608,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvSets_Leave,Sub,LvSets.Leave,InstallationManagerEditor.vb:635,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_RetrieveVirtualItem,Sub,LvGroups.RetrieveVirtualItem,InstallationManagerEditor.vb:649,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_SelectedIndexChanged,Sub,LvGroups.SelectedIndexChanged,InstallationManagerEditor.vb:670,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+InstallationManagerEditor.vb,InstallationManagerEditor,LvGroups_ItemClicked,Sub,LvGroups.ItemClicked,InstallationManagerEditor.vb:687,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
 InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_RetrieveVirtualItem,Sub,LvMods.RetrieveVirtualItem,InstallationManagerEditor.vb:726,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 InstallationManagerEditor.vb,InstallationManagerEditor,LvMods_ItemClicked,Sub,LvMods.ItemClicked,InstallationManagerEditor.vb:746,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
-InstallationManagerEditor.vb,InstallationManagerEditor,LvGroupSelector_ItemCheck,Sub,LvGroupSelector.ItemCheck,InstallationManagerEditor.vb:779,none,,GAP?,
-MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Load,Sub,MyBase.Load,MenuItemEditor.vb:188,none,,GAP?,
-MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Shown,Sub,Me.Shown,MenuItemEditor.vb:295,none,,GAP?,
+InstallationManagerEditor.vb,InstallationManagerEditor,LvGroupSelector_ItemCheck,Sub,LvGroupSelector.ItemCheck,InstallationManagerEditor.vb:779,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager) + nwm-convert + crash-dump.
+MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Load,Sub,MyBase.Load,MenuItemEditor.vb:188,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MenuItemEditor.vb,MenuItemEditor,MenuItemEditor_Shown,Sub,Me.Shown,MenuItemEditor.vb:295,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 MenuItemEditor.vb,MenuItemEditor,BtCancel_Click,Sub,BtCancel.Click,MenuItemEditor.vb:309,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 MenuItemEditor.vb,MenuItemEditor,BtSave_Click,Sub,BtSave.Click,MenuItemEditor.vb:320,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-MenuItemEditor.vb,MenuItemEditor,TxMenuText_KeyPress,Sub,TxMenuText.KeyPress,MenuItemEditor.vb:482,none,,GAP?,
-MenuItemEditor.vb,MenuItemEditor,TxMenuText_TextChanged,Sub,TxMenuText.TextChanged,MenuItemEditor.vb:500,none,,GAP?,
+MenuItemEditor.vb,MenuItemEditor,TxMenuText_KeyPress,Sub,TxMenuText.KeyPress,MenuItemEditor.vb:482,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MenuItemEditor.vb,MenuItemEditor,TxMenuText_TextChanged,Sub,TxMenuText.TextChanged,MenuItemEditor.vb:500,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 ModExplorer.ListManager.vb,ModExplorer,BgPopulate_DoWork,Sub,BgPopulate.DoWork,ModExplorer.ListManager.vb:45,none,,GAP?,
 ModExplorer.ListManager.vb,ModExplorer,BgPopulate_ProgressChanged,Sub,BgPopulate.ProgressChanged,ModExplorer.ListManager.vb:77,none,,GAP?,
 ModExplorer.ListManager.vb,ModExplorer,LvExplorer_RetrieveVirtualItem,Sub,LvExplorer.RetrieveVirtualItem,ModExplorer.ListManager.vb:326,none,,GAP?,
@@ -446,25 +446,25 @@ ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_DoWork,Sub,BgGetPlayedInfo.DoWork
 ModPlayViewer.vb,ModPlayViewer,BgGetPlayedInfo_RunWorkerCompleted,Sub,BgGetPlayedInfo.RunWorkerCompleted,ModPlayViewer.vb:656,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,ModPlayViewer_LocationChanged,Sub,Me.LocationChanged,ModPlayViewer.vb:831,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 ModPlayViewer.vb,ModPlayViewer,RttNotes_RichTextContentSaved,Sub,RttNotes.RichTextContentSaved,ModPlayViewer.vb:847,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-MsgPicture.vb,MsgPicture,MsgPicture_Load,Sub,MyBase.Load,MsgPicture.vb:191,none,,GAP?,
-MsgPicture.vb,MsgPicture,MsgPicture_Shown,Sub,Me.Shown,MsgPicture.vb:279,none,,GAP?,
-MsgPicture.vb,MsgPicture,LpActions_MouseMove,Sub,LpActions.MouseMove,MsgPicture.vb:321,none,,GAP?,
-MsgPicture.vb,MsgPicture,BtOpen_Click,Sub,"PicFile.Click, BtOpen.Click",MsgPicture.vb:335,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicFullscreen_Click,Sub,PicFullscreen.Click,MsgPicture.vb:350,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicBox_MouseHover,Sub,"PicClose.MouseHover, PicFullscreen.MouseHover",MsgPicture.vb:438,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicFullscreen_MouseEnter,Sub,PicFullscreen.MouseEnter,MsgPicture.vb:452,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicFullscreen_MouseLeave,Sub,PicFullscreen.MouseLeave,MsgPicture.vb:462,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicClose_Click,Sub,PicClose.Click,MsgPicture.vb:471,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicClose_MouseEnter,Sub,PicClose.MouseEnter,MsgPicture.vb:480,none,,GAP?,
-MsgPicture.vb,MsgPicture,PicClose_MouseLeave,Sub,PicClose.MouseLeave,MsgPicture.vb:490,none,,GAP?,
-MsgPicture.vb,MsgPicture,MsgPicture_FormClosing,Sub,Me.FormClosing,MsgPicture.vb:499,none,,GAP?,
-NIT.ContentsView.vb,NIT,FvContents_SelectedIndexChanged,Sub,FvContents.SelectedIndexChanged,NIT.ContentsView.vb:61,none,,GAP?,
-NIT.ContentsView.vb,NIT,FvContents_VirtualItemsSelectionRangeChanged,Sub,FvContents.VirtualItemsSelectionRangeChanged,NIT.ContentsView.vb:81,none,,GAP?,
-NIT.ContentsView.vb,NIT,FvContents_ShownCountZero,Sub,FvContents.ShownCountZero,NIT.ContentsView.vb:98,none,,GAP?,
-NIT.DetailsView.vb,NIT,FvDetails_SelectedIndexChanged,Sub,FvDetails.SelectedIndexChanged,NIT.DetailsView.vb:194,none,,GAP?,
-NIT.DetailsView.vb,NIT,FvDetails_VirtualItemsSelectionRangeChanged,Sub,FvDetails.VirtualItemsSelectionRangeChanged,NIT.DetailsView.vb:212,none,,GAP?,
-NIT.DetailsView.vb,NIT,LbProperties_TextChanged,Sub,LbProperties.TextChanged,NIT.DetailsView.vb:391,none,,GAP?,
-NIT.DragDrop.vb,NIT,Fv_DragDrop,Sub,"FvMods.DragDrop, FvContents.DragDrop, FvDetails.DragDrop",NIT.DragDrop.vb:22,none,,GAP?,
+MsgPicture.vb,MsgPicture,MsgPicture_Load,Sub,MyBase.Load,MsgPicture.vb:191,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,MsgPicture_Shown,Sub,Me.Shown,MsgPicture.vb:279,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,LpActions_MouseMove,Sub,LpActions.MouseMove,MsgPicture.vb:321,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,BtOpen_Click,Sub,"PicFile.Click, BtOpen.Click",MsgPicture.vb:335,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,PicFullscreen_Click,Sub,PicFullscreen.Click,MsgPicture.vb:350,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,PicBox_MouseHover,Sub,"PicClose.MouseHover, PicFullscreen.MouseHover",MsgPicture.vb:438,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,PicFullscreen_MouseEnter,Sub,PicFullscreen.MouseEnter,MsgPicture.vb:452,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,PicFullscreen_MouseLeave,Sub,PicFullscreen.MouseLeave,MsgPicture.vb:462,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+MsgPicture.vb,MsgPicture,PicClose_Click,Sub,PicClose.Click,MsgPicture.vb:471,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+MsgPicture.vb,MsgPicture,PicClose_MouseEnter,Sub,PicClose.MouseEnter,MsgPicture.vb:480,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+MsgPicture.vb,MsgPicture,PicClose_MouseLeave,Sub,PicClose.MouseLeave,MsgPicture.vb:490,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+MsgPicture.vb,MsgPicture,MsgPicture_FormClosing,Sub,Me.FormClosing,MsgPicture.vb:499,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.ContentsView.vb,NIT,FvContents_SelectedIndexChanged,Sub,FvContents.SelectedIndexChanged,NIT.ContentsView.vb:61,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.ContentsView.vb,NIT,FvContents_VirtualItemsSelectionRangeChanged,Sub,FvContents.VirtualItemsSelectionRangeChanged,NIT.ContentsView.vb:81,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.ContentsView.vb,NIT,FvContents_ShownCountZero,Sub,FvContents.ShownCountZero,NIT.ContentsView.vb:98,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.DetailsView.vb,NIT,FvDetails_SelectedIndexChanged,Sub,FvDetails.SelectedIndexChanged,NIT.DetailsView.vb:194,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.DetailsView.vb,NIT,FvDetails_VirtualItemsSelectionRangeChanged,Sub,FvDetails.VirtualItemsSelectionRangeChanged,NIT.DetailsView.vb:212,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.DetailsView.vb,NIT,LbProperties_TextChanged,Sub,LbProperties.TextChanged,NIT.DetailsView.vb:391,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+NIT.DragDrop.vb,NIT,Fv_DragDrop,Sub,"FvMods.DragDrop, FvContents.DragDrop, FvDetails.DragDrop",NIT.DragDrop.vb:22,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 NIT.Menu.vb,NIT,Fv_ItemClicked,Sub,"FvContents.ItemClicked, FvDetails.ItemClicked",NIT.Menu.vb:593,none,,GAP?,
 NIT.Menu.vb,NIT,MsGetUpdate_Click,Sub,MsGetUpdate.Click,NIT.Menu.vb:1086,none,,GAP?,
 NIT.Menu.vb,NIT,MsPlayedInfo_Click,Sub,MsPlayedInfo.Click,NIT.Menu.vb:1142,none,,GAP?,
@@ -622,7 +622,7 @@ NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,n
 NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,GAP?,
 NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,GAP?,
+NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,GAP?,
 NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,GAP?,
 NIT.Menu.vb,NIT,CmRecentMods_Opened,Sub,CmRecentMods.Opened,NIT.Menu.vb:7539,none,,GAP?,
@@ -645,11 +645,11 @@ NIT.ModView.vb,NIT,FvMods_VirtualItemsSelectionRangeChanged,Sub,FvMods.VirtualIt
 NIT.ModView.vb,NIT,FvMods_ItemClicked,Sub,FvMods.ItemClicked,NIT.ModView.vb:302,none,,GAP?,
 NIT.ModView.vb,NIT,SbRating_MenuItemChecked,Sub,SbRating.MenuItemChecked,NIT.ModView.vb:365,none,,Divergence,VB edits Rating/Weapon/props inline in the details pane; port moved them to ModPropertiesDialog (intended). Per-widget notes font = app-level theme.
 NIT.ModView.vb,NIT,SbWeapon_ItemSelected,Sub,SbWeapon.ItemSelected,NIT.ModView.vb:377,none,,Divergence,VB edits Rating/Weapon/props inline in the details pane; port moved them to ModPropertiesDialog (intended). Per-widget notes font = app-level theme.
-NIT.RecentMods.vb,NIT,MsRecentMods_RecentItemClicked,Sub,MsRecentMods.RecentItemClicked,NIT.RecentMods.vb:107,none,,GAP?,
-NIT.StatusBar.vb,NIT,BtGroup_Click,Sub,BtGroup.Click,NIT.StatusBar.vb:24,none,,GAP?,
-NIT.StatusBar.vb,NIT,BtRecycleToggle_Click,Sub,BtRecycleToggle.Click,NIT.StatusBar.vb:59,none,,GAP?,
-NIT.StatusBar.vb,NIT,BtOverwrite_Click,Sub,BtOverwrite.Click,NIT.StatusBar.vb:73,none,,GAP?,
-NIT.StatusBar.vb,NIT,BtSelectTextFile_Click,Sub,BtSelectTextFile.Click,NIT.StatusBar.vb:87,none,,GAP?,
+NIT.RecentMods.vb,NIT,MsRecentMods_RecentItemClicked,Sub,MsRecentMods.RecentItemClicked,NIT.RecentMods.vb:107,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+NIT.StatusBar.vb,NIT,BtGroup_Click,Sub,BtGroup.Click,NIT.StatusBar.vb:24,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+NIT.StatusBar.vb,NIT,BtRecycleToggle_Click,Sub,BtRecycleToggle.Click,NIT.StatusBar.vb:59,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+NIT.StatusBar.vb,NIT,BtOverwrite_Click,Sub,BtOverwrite.Click,NIT.StatusBar.vb:73,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+NIT.StatusBar.vb,NIT,BtSelectTextFile_Click,Sub,BtSelectTextFile.Click,NIT.StatusBar.vb:87,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 NIT.Workers.vb,NIT,BgTasks_DoWork,Sub,BgTasks.DoWork,NIT.Workers.vb:173,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 NIT.Workers.vb,NIT,BgTasks_ProgressChanged,Sub,BgTasks.ProgressChanged,NIT.Workers.vb:193,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 NIT.Workers.vb,NIT,BgRunNwn_DoWork,Sub,BgRunNwn.DoWork,NIT.Workers.vb:880,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
@@ -673,22 +673,22 @@ NIT.vb,NIT,RttDetails_RichTextContentSaved,Sub,RttDetails.RichTextContentSaved,N
 NIT.vb,NIT,LbProfile_MouseEnter,Sub,"LbProfile.MouseEnter, LbContents.MouseEnter, LbDetails.MouseEnter",NIT.vb:1563,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 NIT.vb,NIT,AppDefs_VersionChecked,Sub,AppDefs.VersionChecked,NIT.vb:1602,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 NIT.vb,NIT,Fv_OpenImage,Sub,"FvContents.OpenImage, FvDetails.OpenImage",NIT.vb:1627,none,,Ported,verified present in port (subagent/orchestrator swept 2026-07-15).
-NetworkManager.vb,NetworkManager,BgNetwork_DoWork,Sub,BgNetwork.DoWork,NetworkManager.vb:474,none,,GAP?,
-NetworkManager.vb,NetworkManager,BgSync_DoWork,Sub,BgSync.DoWork,NetworkManager.vb:553,none,,GAP?,
+NetworkManager.vb,NetworkManager,BgNetwork_DoWork,Sub,BgNetwork.DoWork,NetworkManager.vb:474,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+NetworkManager.vb,NetworkManager,BgSync_DoWork,Sub,BgSync.DoWork,NetworkManager.vb:553,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 NitDownload.vb,NitDownload,NitDownload_Load,Sub,MyBase.Load,NitDownload.vb:55,none,,GAP?,
 NitDownload.vb,NitDownload,NitDownload_Shown,Sub,Me.Shown,NitDownload.vb:122,none,,GAP?,
 NitDownload.vb,NitDownload,BhNitDownload_Click,Sub,BhNitDownload.Click,NitDownload.vb:135,none,,GAP?,
-NitDownload.vb,NitDownload,BtOpen_Click,Sub,BtOpen.Click,NitDownload.vb:146,none,,GAP?,
+NitDownload.vb,NitDownload,BtOpen_Click,Sub,BtOpen.Click,NitDownload.vb:146,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PlayDataViewPending.vb,PlayDataViewPending,PlayDataViewPending_Load,Sub,MyBase.Load,PlayDataViewPending.vb:50,none,,GAP?,
 PlayDataViewPending.vb,PlayDataViewPending,BtClear_Click,Sub,BtClear.Click,PlayDataViewPending.vb:85,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,PlayDataViewer_Load,Sub,MyBase.Load,PlayDataViewer.vb:101,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,PlayDataViewer_FormClosing,Sub,Me.FormClosing,PlayDataViewer.vb:356,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,BtReport_Click,Sub,BtReport.Click,PlayDataViewer.vb:369,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,BtPending_Click,Sub,BtPending.Click,PlayDataViewer.vb:513,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,LvGameTimes_MouseDown,Sub,LvGameTimes.MouseDown,PlayDataViewer.vb:532,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,LvGameTimes_ItemClicked,Sub,LvGameTimes.ItemClicked,PlayDataViewer.vb:541,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,LvGameTimes_MouseUp,Sub,LvGameTimes.MouseUp,PlayDataViewer.vb:560,none,,GAP?,
-PlayDataViewer.vb,PlayDataViewer,LbGameTime_MouseUp,Sub,"LbGameTime.MouseUp, LbGameHdg.MouseUp",PlayDataViewer.vb:643,none,,GAP?,
+PlayDataViewer.vb,PlayDataViewer,PlayDataViewer_Load,Sub,MyBase.Load,PlayDataViewer.vb:101,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PlayDataViewer.vb,PlayDataViewer,PlayDataViewer_FormClosing,Sub,Me.FormClosing,PlayDataViewer.vb:356,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PlayDataViewer.vb,PlayDataViewer,BtReport_Click,Sub,BtReport.Click,PlayDataViewer.vb:369,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+PlayDataViewer.vb,PlayDataViewer,BtPending_Click,Sub,BtPending.Click,PlayDataViewer.vb:513,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+PlayDataViewer.vb,PlayDataViewer,LvGameTimes_MouseDown,Sub,LvGameTimes.MouseDown,PlayDataViewer.vb:532,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PlayDataViewer.vb,PlayDataViewer,LvGameTimes_ItemClicked,Sub,LvGameTimes.ItemClicked,PlayDataViewer.vb:541,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PlayDataViewer.vb,PlayDataViewer,LvGameTimes_MouseUp,Sub,LvGameTimes.MouseUp,PlayDataViewer.vb:560,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PlayDataViewer.vb,PlayDataViewer,LbGameTime_MouseUp,Sub,"LbGameTime.MouseUp, LbGameHdg.MouseUp",PlayDataViewer.vb:643,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PortraitManager.vb,PortraitManager,PortraitManager_Load,Sub,Me.Load,PortraitManager.vb:189,none,,Partial,"viewer shell + core present; VB richness simplified (haiku swept, orchestrator-verified)."
 PortraitManager.vb,PortraitManager,PortraitManager_Shown,Sub,Me.Shown,PortraitManager.vb:268,none,,Partial,"viewer shell + core present; VB richness simplified (haiku swept, orchestrator-verified)."
 PortraitManager.vb,PortraitManager,PortraitManager_FormClosing,Sub,Me.FormClosing,PortraitManager.vb:375,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
@@ -718,44 +718,44 @@ PortraitManager.vb,PortraitManager,LvPortraits_KeyUp,Sub,LvPortraits.KeyUp,Portr
 PortraitManager.vb,PortraitManager,LpImages_MouseMove,Sub,LpImages.MouseMove,PortraitManager.vb:927,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 PortraitManager.vb,PortraitManager,Pic_MouseMove,Sub,"PicHuge.MouseMove, PicLarge.MouseMove, PicMedium.MouseMove,",PortraitManager.vb:975,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 PortraitManager.vb,PortraitManager,LpImages_Click,Sub,"LpImages.Click,",PortraitManager.vb:987,none,,Partial,"viewer shell + core present; VB richness simplified (haiku swept, orchestrator-verified)."
-PublishMod.vb,PublishMod,PublishMod_Load,Sub,MyBase.Load,PublishMod.vb:70,none,,GAP?,
-PublishMod.vb,PublishMod,PublishMod_Shown,Sub,Me.Shown,PublishMod.vb:118,none,,GAP?,
-PublishMod.vb,PublishMod,TxVersion_KeyPress,Sub,TxVersion.KeyPress,PublishMod.vb:127,none,,GAP?,
-PublishMod.vb,PublishMod,TxVersion_TextChanged,Sub,TxVersion.TextChanged,PublishMod.vb:137,none,,GAP?,
-PublishMod.vb,PublishMod,BhPublishMod_Click,Sub,BhPublishMod.Click,PublishMod.vb:157,none,,GAP?,
+PublishMod.vb,PublishMod,PublishMod_Load,Sub,MyBase.Load,PublishMod.vb:70,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PublishMod.vb,PublishMod,PublishMod_Shown,Sub,Me.Shown,PublishMod.vb:118,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PublishMod.vb,PublishMod,TxVersion_KeyPress,Sub,TxVersion.KeyPress,PublishMod.vb:127,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PublishMod.vb,PublishMod,TxVersion_TextChanged,Sub,TxVersion.TextChanged,PublishMod.vb:137,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+PublishMod.vb,PublishMod,BhPublishMod_Click,Sub,BhPublishMod.Click,PublishMod.vb:157,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PublishMod.vb,PublishMod,BtCancel_Click,Sub,BtCancel.Click,PublishMod.vb:166,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-PublishMod.vb,PublishMod,BtPublish_Click,Sub,BtPublish.Click,PublishMod.vb:177,none,,GAP?,
+PublishMod.vb,PublishMod,BtPublish_Click,Sub,BtPublish.Click,PublishMod.vb:177,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Load,Sub,Me.Load,RtfThemeManager.vb:204,none,,GAP?,
 RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_Shown,Sub,Me.Shown,RtfThemeManager.vb:245,none,,GAP?,
 RtfThemeManager.vb,RtfThemeManager,RtfThemeManager_FormClosing,Sub,Me.FormClosing,RtfThemeManager.vb:284,none,,GAP?,
 Settings.Advanced.vb,Settings,LvAdvanced_ItemCheck,Sub,LvAdvanced.ItemCheck,Settings.Advanced.vb:278,none,,GAP?,
 Settings.Advanced.vb,Settings,LvAdvanced_SelectedIndexChanged,Sub,LvAdvanced.SelectedIndexChanged,Settings.Advanced.vb:463,none,,GAP?,
-Settings.Locations.vb,Settings,LvLocations_ItemCheck,Sub,LvLocations.ItemCheck,Settings.Locations.vb:281,none,,GAP?,
+Settings.Locations.vb,Settings,LvLocations_ItemCheck,Sub,LvLocations.ItemCheck,Settings.Locations.vb:281,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.MapExceptions.vb,Settings,LvExceptions_GotFocus,Sub,LvExceptions.GotFocus,Settings.MapExceptions.vb:118,none,,GAP?,
 Settings.MapExceptions.vb,Settings,LvExceptions_LostFocus,Sub,LvExceptions.LostFocus,Settings.MapExceptions.vb:135,none,,GAP?,
 Settings.MapExceptions.vb,Settings,CmxNewException_Click,Sub,CmxNewException.Click,Settings.MapExceptions.vb:158,none,,GAP?,
 Settings.MapExceptions.vb,Settings,CmxEditException_Click,Sub,CmxEditException.Click,Settings.MapExceptions.vb:208,none,,GAP?,
 Settings.MapExceptions.vb,Settings,CmxUndo_Click,Sub,CmxUndo.Click,Settings.MapExceptions.vb:318,none,,GAP?,
 Settings.MapExceptions.vb,Settings,CmxRemove_Click,Sub,CmxRemove.Click,Settings.MapExceptions.vb:339,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexNewExclusion_Click,Sub,CexNewExclusion.Click,Settings.MapExcludes.vb:291,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexEditExclusion_Click,Sub,CexEditExclusion.Click,Settings.MapExcludes.vb:333,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexUndo_Click,Sub,CexUndo.Click,Settings.MapExcludes.vb:401,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexRemove_Click,Sub,CexRemove.Click,Settings.MapExcludes.vb:430,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexAddPlayerExclusions_Click,Sub,CexAddPlayerExclusions.Click,Settings.MapExcludes.vb:479,none,,GAP?,
-Settings.MapExcludes.vb,Settings,CexRemovePlayerExclusions_Click,Sub,CexRemovePlayerExclusions.Click,Settings.MapExcludes.vb:524,none,,GAP?,
-Settings.MapExtensions.vb,Settings,CmeNewExtension_Click,Sub,CmeNewExtension.Click,Settings.MapExtensions.vb:384,none,,GAP?,
-Settings.MapExtensions.vb,Settings,CmeRenameExt_Click,Sub,CmeRenameExt.Click,Settings.MapExtensions.vb:435,none,,GAP?,
-Settings.MapExtensions.vb,Settings,CmeFolder_Click,Sub,"CmeDefaultFolder.Click, CmeSecondaryFolder.Click",Settings.MapExtensions.vb:503,none,,GAP?,
-Settings.MapExtensions.vb,Settings,CmeUndo_Click,Sub,CmeUndo.Click,Settings.MapExtensions.vb:567,none,,GAP?,
-Settings.MapExtensions.vb,Settings,CmeRemove_Click,Sub,CmeRemove.Click,Settings.MapExtensions.vb:609,none,,GAP?,
-Settings.MapFiles.vb,Settings,CmfNewFileName_Click,Sub,CmfNewFileName.Click,Settings.MapFiles.vb:137,none,,GAP?,
-Settings.MapFiles.vb,Settings,CmfFileName_Click,Sub,CmfFileName.Click,Settings.MapFiles.vb:186,none,,GAP?,
-Settings.MapFiles.vb,Settings,CmfNwnFolder_Click,Sub,CmfNwnFolder.Click,Settings.MapFiles.vb:254,none,,GAP?,
-Settings.MapFolders.vb,Settings,CmdNewSourceFolder_Click,Sub,CmdNewSourceFolder.Click,Settings.MapFolders.vb:134,none,,GAP?,
-Settings.MapFolders.vb,Settings,CmdSourceFolder_Click,Sub,CmdSourceFolder.Click,Settings.MapFolders.vb:180,none,,GAP?,
-Settings.MapFolders.vb,Settings,CmdNwnFolder_Click,Sub,CmdNwnFolder.Click,Settings.MapFolders.vb:239,none,,GAP?,
-Settings.MapFolders.vb,Settings,CmdUndo_Click,Sub,"CmdUndo.Click, CmfUndo.Click",Settings.MapFolders.vb:289,none,,GAP?,
-Settings.MapFolders.vb,Settings,CmdRemove_Click,Sub,"CmdRemove.Click, CmfRemove.Click",Settings.MapFolders.vb:317,none,,GAP?,
+Settings.MapExcludes.vb,Settings,CexNewExclusion_Click,Sub,CexNewExclusion.Click,Settings.MapExcludes.vb:291,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExcludes.vb,Settings,CexEditExclusion_Click,Sub,CexEditExclusion.Click,Settings.MapExcludes.vb:333,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExcludes.vb,Settings,CexUndo_Click,Sub,CexUndo.Click,Settings.MapExcludes.vb:401,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExcludes.vb,Settings,CexRemove_Click,Sub,CexRemove.Click,Settings.MapExcludes.vb:430,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExcludes.vb,Settings,CexAddPlayerExclusions_Click,Sub,CexAddPlayerExclusions.Click,Settings.MapExcludes.vb:479,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExcludes.vb,Settings,CexRemovePlayerExclusions_Click,Sub,CexRemovePlayerExclusions.Click,Settings.MapExcludes.vb:524,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExtensions.vb,Settings,CmeNewExtension_Click,Sub,CmeNewExtension.Click,Settings.MapExtensions.vb:384,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExtensions.vb,Settings,CmeRenameExt_Click,Sub,CmeRenameExt.Click,Settings.MapExtensions.vb:435,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExtensions.vb,Settings,CmeFolder_Click,Sub,"CmeDefaultFolder.Click, CmeSecondaryFolder.Click",Settings.MapExtensions.vb:503,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExtensions.vb,Settings,CmeUndo_Click,Sub,CmeUndo.Click,Settings.MapExtensions.vb:567,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapExtensions.vb,Settings,CmeRemove_Click,Sub,CmeRemove.Click,Settings.MapExtensions.vb:609,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFiles.vb,Settings,CmfNewFileName_Click,Sub,CmfNewFileName.Click,Settings.MapFiles.vb:137,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFiles.vb,Settings,CmfFileName_Click,Sub,CmfFileName.Click,Settings.MapFiles.vb:186,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFiles.vb,Settings,CmfNwnFolder_Click,Sub,CmfNwnFolder.Click,Settings.MapFiles.vb:254,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFolders.vb,Settings,CmdNewSourceFolder_Click,Sub,CmdNewSourceFolder.Click,Settings.MapFolders.vb:134,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFolders.vb,Settings,CmdSourceFolder_Click,Sub,CmdSourceFolder.Click,Settings.MapFolders.vb:180,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFolders.vb,Settings,CmdNwnFolder_Click,Sub,CmdNwnFolder.Click,Settings.MapFolders.vb:239,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFolders.vb,Settings,CmdUndo_Click,Sub,"CmdUndo.Click, CmfUndo.Click",Settings.MapFolders.vb:289,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
+Settings.MapFolders.vb,Settings,CmdRemove_Click,Sub,"CmdRemove.Click, CmfRemove.Click",Settings.MapFolders.vb:317,none,,Partial,map editing ported via FolderMapping dialog (Extensions/Files/Folders/Excludes add/remove/reset); VB ListView import/rename context menus divergent.
 Settings.MenuCommon.vb,Settings,Cm_MoveUp_Click,Sub,"CmrMoveUp.Click, CmwMoveUp.Click",Settings.MenuCommon.vb:219,none,,GAP?,
 Settings.MenuCommon.vb,Settings,Cm_MoveDown_Click,Sub,"CmrMoveDown.Click, CmwMoveDown.Click",Settings.MenuCommon.vb:236,none,,GAP?,
 Settings.MenuCommon.vb,Settings,Cm_MoveTo_Click,Sub,"CmrMoveTo.Click, CmwMoveTo.Click",Settings.MenuCommon.vb:254,none,,GAP?,
@@ -765,42 +765,42 @@ Settings.MenuCommon.vb,Settings,Cm_Remove_Click,Sub,"CmrRemove.Click, CmwRemove.
 Settings.Preferences.vb,Settings,CprUndo_Click,Sub,CprUndo.Click,Settings.Preferences.vb:254,none,,GAP?,
 Settings.Preferences.vb,Settings,LvPreferences_ItemCheck,Sub,LvPreferences.ItemCheck,Settings.Preferences.vb:290,none,,GAP?,
 Settings.Preferences.vb,Settings,CprToggle_Click,Sub,CprToggle.Click,Settings.Preferences.vb:351,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpNewProfile_Click,Sub,CmpNewProfile.Click,Settings.Profiles.vb:389,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpRename_Click,Sub,CmpRename.Click,Settings.Profiles.vb:451,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpNwnPath_Click,Sub,CmpNwnPath.Click,Settings.Profiles.vb:509,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpCreateNwnPath_Click,Sub,CmpCreateNwnPath.Click,Settings.Profiles.vb:567,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpRemove_Click,Sub,CmpRemove.Click,Settings.Profiles.vb:632,none,,GAP?,
-Settings.Profiles.vb,Settings,CmpUndo_Click,Sub,CmpUndo.Click,Settings.Profiles.vb:695,none,,GAP?,
+Settings.Profiles.vb,Settings,CmpNewProfile_Click,Sub,CmpNewProfile.Click,Settings.Profiles.vb:389,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Profiles.vb,Settings,CmpRename_Click,Sub,CmpRename.Click,Settings.Profiles.vb:451,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Profiles.vb,Settings,CmpNwnPath_Click,Sub,CmpNwnPath.Click,Settings.Profiles.vb:509,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Profiles.vb,Settings,CmpCreateNwnPath_Click,Sub,CmpCreateNwnPath.Click,Settings.Profiles.vb:567,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Profiles.vb,Settings,CmpRemove_Click,Sub,CmpRemove.Click,Settings.Profiles.vb:632,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.Profiles.vb,Settings,CmpUndo_Click,Sub,CmpUndo.Click,Settings.Profiles.vb:695,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.RunMenu.vb,Settings,CmrNewMenu_Click,Sub,CmrNewMenu.Click,Settings.RunMenu.vb:106,none,,GAP?,
 Settings.RunMenu.vb,Settings,CmrChangeMenu_Click,Sub,CmrEditMenu.Click,Settings.RunMenu.vb:118,none,,GAP?,
 Settings.RunMenu.vb,Settings,LvRunMenu_KeyPress,Sub,LvRunMenu.KeyPress,Settings.RunMenu.vb:130,none,,GAP?,
 Settings.WebMenu.vb,Settings,CmwNewMenu_Click,Sub,CmwNewMenu.Click,Settings.WebMenu.vb:109,none,,GAP?,
 Settings.WebMenu.vb,Settings,CmwChangeMenu_Click,Sub,CmwEditMenu.Click,Settings.WebMenu.vb:121,none,,GAP?,
 Settings.WebMenu.vb,Settings,LvWebMenu_KeyPress,Sub,LvWebMenu.KeyPress,Settings.WebMenu.vb:133,none,,GAP?,
-Settings.vb,Settings,Settings_Load,Sub,MyBase.Load,Settings.vb:59,none,,GAP?,
-Settings.vb,Settings,Settings_Shown,Sub,Me.Shown,Settings.vb:184,none,,GAP?,
-Settings.vb,Settings,Settings_KeyDown,Sub,Me.KeyDown,Settings.vb:243,none,,GAP?,
-Settings.vb,Settings,BtReset_SizeChanged,Sub,BtReset.SizeChanged,Settings.vb:285,none,,GAP?,
-Settings.vb,Settings,TsFontAndColor_Click,Sub,TsFontAndColor.Click,Settings.vb:340,none,,GAP?,
-Settings.vb,Settings,TsToolbar_Click,Sub,TsToolbar.Click,Settings.vb:365,none,,GAP?,
-Settings.vb,Settings,TsExport_Click,Sub,TsExport.Click,Settings.vb:385,none,,GAP?,
-Settings.vb,Settings,TsImport_Click,Sub,TsImport.Click,Settings.vb:433,none,,GAP?,
-Settings.vb,Settings,TsImportMaps_Click,Sub,TsImportMaps.Click,Settings.vb:577,none,,GAP?,
+Settings.vb,Settings,Settings_Load,Sub,MyBase.Load,Settings.vb:59,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,Settings_Shown,Sub,Me.Shown,Settings.vb:184,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,Settings_KeyDown,Sub,Me.KeyDown,Settings.vb:243,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,BtReset_SizeChanged,Sub,BtReset.SizeChanged,Settings.vb:285,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,TsFontAndColor_Click,Sub,TsFontAndColor.Click,Settings.vb:340,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,TsToolbar_Click,Sub,TsToolbar.Click,Settings.vb:365,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,TsExport_Click,Sub,TsExport.Click,Settings.vb:385,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,TsImport_Click,Sub,TsImport.Click,Settings.vb:433,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,TsImportMaps_Click,Sub,TsImportMaps.Click,Settings.vb:577,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.vb,Settings,BtSave_Click,Sub,BtSave.Click,Settings.vb:674,strong,vaultkeeper/ui/controller.py,Ported,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-Settings.vb,Settings,BtReset_Click,Sub,BtReset.Click,Settings.vb:764,none,,GAP?,
+Settings.vb,Settings,BtReset_Click,Sub,BtReset.Click,Settings.vb:764,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 Settings.vb,Settings,BtCancel_Click,Sub,BtCancel.Click,Settings.vb:800,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
-Settings.vb,Settings,CmsResetAll_Click,Sub,CmsResetAll.Click,Settings.vb:868,none,,GAP?,
-Settings.vb,Settings,CmsResetPanel_Click,Sub,CmsResetPanel.Click,Settings.vb:892,none,,GAP?,
-Settings.vb,Settings,CmsResetSelected_Click,Sub,CmsResetSelected.Click,Settings.vb:949,none,,GAP?,
-SlideShow.vb,SlideShow,SlideShow_Load,Sub,Me.Load,SlideShow.vb:104,none,,GAP?,
-SlideShow.vb,SlideShow,TiShow_Tick,Sub,TiShow.Tick,SlideShow.vb:164,none,,GAP?,
-SlideShow.vb,SlideShow,PicSlide_Click,Sub,PicSlide.Click,SlideShow.vb:181,none,,GAP?,
-SlideShow.vb,SlideShow,PicSlide_MouseMove,Sub,PicSlide.MouseMove,SlideShow.vb:197,none,,GAP?,
-SlideShow.vb,SlideShow,PicClose_MouseHover,Sub,PicClose.MouseHover,SlideShow.vb:228,none,,GAP?,
-SlideShow.vb,SlideShow,PicClose_MouseEnter,Sub,PicClose.MouseEnter,SlideShow.vb:238,none,,GAP?,
-SlideShow.vb,SlideShow,PicClose_MouseLeave,Sub,PicClose.MouseLeave,SlideShow.vb:248,none,,GAP?,
-SlideShow.vb,SlideShow,PicClose_Click,Sub,PicClose.Click,SlideShow.vb:257,none,,GAP?,
-SlideShow.vb,SlideShow,SlideShow_FormClosing,Sub,Me.FormClosing,SlideShow.vb:267,none,,GAP?,
+Settings.vb,Settings,CmsResetAll_Click,Sub,CmsResetAll.Click,Settings.vb:868,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,CmsResetPanel_Click,Sub,CmsResetPanel.Click,Settings.vb:892,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+Settings.vb,Settings,CmsResetSelected_Click,Sub,CmsResetSelected.Click,Settings.vb:949,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
+SlideShow.vb,SlideShow,SlideShow_Load,Sub,Me.Load,SlideShow.vb:104,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,TiShow_Tick,Sub,TiShow.Tick,SlideShow.vb:164,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicSlide_Click,Sub,PicSlide.Click,SlideShow.vb:181,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicSlide_MouseMove,Sub,PicSlide.MouseMove,SlideShow.vb:197,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicClose_MouseHover,Sub,PicClose.MouseHover,SlideShow.vb:228,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicClose_MouseEnter,Sub,PicClose.MouseEnter,SlideShow.vb:238,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicClose_MouseLeave,Sub,PicClose.MouseLeave,SlideShow.vb:248,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,PicClose_Click,Sub,PicClose.Click,SlideShow.vb:257,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
+SlideShow.vb,SlideShow,SlideShow_FormClosing,Sub,Me.FormClosing,SlideShow.vb:267,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
 StartScreenManager.vb,StartScreenManager,LoadscreenManager_Load,Sub,MyBase.Load,StartScreenManager.vb:292,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
 StartScreenManager.vb,StartScreenManager,LoadscreenManager_FormClosing,Sub,Me.FormClosing,StartScreenManager.vb:838,none,,Deferred,slideshow/prefix (StartScreen) + retrieve-orchestration/old-file-mgmt/self-update (DownloadProject).
 StartScreenManager.vb,StartScreenManager,FvImages_KeyPress,Sub,FvImages.KeyPress,StartScreenManager.vb:902,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
@@ -845,9 +845,9 @@ StartScreenManager.vb,StartScreenManager,RbShowPrefixed_CheckedChanged,Sub,RbSho
 StartScreenManager.vb,StartScreenManager,RbRepairPrefixed_Click,Sub,RbRepairPrefixed.Click,StartScreenManager.vb:2605,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 UpdateInstaller.vb,UpdateInstaller,BgScanner_DoWork,Sub,BgScanner.DoWork,UpdateInstaller.vb:66,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 UpdateInstaller.vb,UpdateInstaller,BgCreate_DoWork,Sub,BgCreate.DoWork,UpdateInstaller.vb:98,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
-UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Load,Sub,MyBase.Load,UserResponseEditor.vb:35,none,,GAP?,
-UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Shown,Sub,Me.Shown,UserResponseEditor.vb:96,none,,GAP?,
-UserResponseEditor.vb,UserResponseEditor,LvResponses_SelectedIndexChanged,Sub,LvResponses.SelectedIndexChanged,UserResponseEditor.vb:106,none,,GAP?,
+UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Load,Sub,MyBase.Load,UserResponseEditor.vb:35,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+UserResponseEditor.vb,UserResponseEditor,UserResponseEditor_Shown,Sub,Me.Shown,UserResponseEditor.vb:96,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+UserResponseEditor.vb,UserResponseEditor,LvResponses_SelectedIndexChanged,Sub,LvResponses.SelectedIndexChanged,UserResponseEditor.vb:106,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 UserResponseEditor.vb,UserResponseEditor,BtDelete_Click,Sub,BtDelete.Click,UserResponseEditor.vb:125,none,,Partial,"WizardBuilder transfer/display + GameManager archive/restore/activate/deactivate/delete actions (core ported, VB wiring divergent)."
 UserResponseEditor.vb,UserResponseEditor,BtClose_Click,Sub,BtClose.Click,UserResponseEditor.vb:152,none,,Divergence,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
 WizardBuilder.vb,WizardBuilder,WizardBuilder_Load,Sub,MyBase.Load,WizardBuilder.vb:128,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
@@ -877,10 +877,10 @@ WorkshopNameEditor.vb,WorkshopNameEditor,FvWorkshop_ItemClicked,Sub,FvWorkshop.I
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_KeyPress,Sub,TxModName.KeyPress,WorkshopNameEditor.vb:139,none,,GAP?,
 WorkshopNameEditor.vb,WorkshopNameEditor,TxModName_TextChanged,Sub,TxModName.TextChanged,WorkshopNameEditor.vb:149,none,,Divergence,WinForms event/progress/UI plumbing refactored into controller/vault + bounded viewer (search/copy-paste/nav). Owner-confirm candidates: StartScreen export/copy-paste/search.
 WorkshopNameEditor.vb,WorkshopNameEditor,BtApply_Click,Sub,BtApply.Click,WorkshopNameEditor.vb:163,strong,vaultkeeper/ui/dialogs/character_filter.py,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
-WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Load,Sub,MyBase.Load,WorkshopViewer.vb:30,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Shown,Sub,Me.Shown,WorkshopViewer.vb:152,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,BhWorkshop_Click,Sub,BhWorkshop.Click,WorkshopViewer.vb:163,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,BtRefresh_Click,Sub,BtRefresh.Click,WorkshopViewer.vb:174,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,LvWorkshop_SelectedIndexChanged,Sub,LvWorkshop.SelectedIndexChanged,WorkshopViewer.vb:190,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,LvWorkshop_ItemClicked,Sub,LvWorkshop.ItemClicked,WorkshopViewer.vb:205,none,,GAP?,
-WorkshopViewer.vb,WorkshopViewer,CmCopyMapIdRule_Click,Sub,CmCopyMapIdRule.Click,WorkshopViewer.vb:221,none,,GAP?,
+WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Load,Sub,MyBase.Load,WorkshopViewer.vb:30,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+WorkshopViewer.vb,WorkshopViewer,WorkshopViewer_Shown,Sub,Me.Shown,WorkshopViewer.vb:152,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+WorkshopViewer.vb,WorkshopViewer,BhWorkshop_Click,Sub,BhWorkshop.Click,WorkshopViewer.vb:163,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+WorkshopViewer.vb,WorkshopViewer,BtRefresh_Click,Sub,BtRefresh.Click,WorkshopViewer.vb:174,none,,Divergence,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
+WorkshopViewer.vb,WorkshopViewer,LvWorkshop_SelectedIndexChanged,Sub,LvWorkshop.SelectedIndexChanged,WorkshopViewer.vb:190,none,,Ported,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
+WorkshopViewer.vb,WorkshopViewer,LvWorkshop_ItemClicked,Sub,LvWorkshop.ItemClicked,WorkshopViewer.vb:205,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
+WorkshopViewer.vb,WorkshopViewer,CmCopyMapIdRule_Click,Sub,CmCopyMapIdRule.Click,WorkshopViewer.vb:221,none,,Deferred,BackupManager + NetworkManager shared-store/sync + SlideShow + find-rename + original-restorers + prefix editor + legacy migrate.
