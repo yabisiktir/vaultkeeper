@@ -65,3 +65,16 @@ def test_real_moddata_field_names_match_mapping() -> None:
     for field in ("_Group", "_ModName", "_ModState", "_Rating", "_BestWeapon",
                   "_Dependencies", "_Files", "_WebLink", "LevelEndtValue"):
         assert field in members, field
+
+
+def test_install_ledger_decodes_and_matches() -> None:
+    """The port's install logic matches the original's recorded ledger (real store)."""
+    from vaultkeeper.game.install_verify import load_ledger, verify_ledger
+
+    ledger = load_ledger(_STORE / "Data" / _PROFILE)
+    assert len(ledger.installed) > 50  # the real profile records ~286 installed files
+    # Offline checks (winner + placement) must fully agree with the original's record.
+    report = verify_ledger(ledger)
+    assert report.winners_checked > 0
+    assert not report.of_kind("winner"), report.of_kind("winner")[:3]
+    assert not report.of_kind("placement"), report.of_kind("placement")[:3]
