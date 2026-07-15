@@ -135,3 +135,25 @@ def test_dialog_group_filter(qtbot):
     dlg.only_completed.setChecked(True)
     assert dlg.mods.topLevelItemCount() == 1  # only A has a completed date
     assert dlg.mods.topLevelItem(0).text(0) == "A"
+
+
+def test_dialog_min_end_level_filter(qtbot):
+    report = {
+        "rows": [
+            {"mod": "Low", "completed": "", "play_time": "", "rating": "",
+             "start": "", "end": "12", "state": -2, "group": "RPG",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+            {"mod": "High", "completed": "", "play_time": "", "rating": "",
+             "start": "", "end": "40", "state": -2, "group": "RPG",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+        ],
+        "summary": "0/2",
+    }
+    dlg = ModPlayViewer(report)
+    qtbot.addWidget(dlg)
+    assert dlg.mods.topLevelItemCount() == 2
+    dlg.min_end.setText("20")  # only the level-40 mod qualifies
+    assert dlg.mods.topLevelItemCount() == 1
+    assert dlg.mods.topLevelItem(0).text(0) == "High"

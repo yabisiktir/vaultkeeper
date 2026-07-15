@@ -11,7 +11,10 @@ the main window are deferred.
 
 from __future__ import annotations
 
+import re
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -19,6 +22,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QPushButton,
     QSplitter,
     QTreeWidget,
@@ -34,6 +38,12 @@ from vaultkeeper.ui.file_view import icon_name_for_state
 
 _ROW_ROLE = Qt.ItemDataRole.UserRole
 _ALL_GROUPS = "All Groups"
+
+
+def _end_level(row: dict) -> int:
+    """Leading integer of a row's End column ("40", "Lvl 40", ""); 0 if none."""
+    m = re.match(r"\s*(\d+)", str(row.get("end", "")))
+    return int(m.group(1)) if m else 0
 
 
 class ModPlayViewer(QDialog):
@@ -69,6 +79,13 @@ class ModPlayViewer(QDialog):
         self.only_completed = QCheckBox("Only completed")
         self.only_completed.stateChanged.connect(self._populate_mods)
         filters.addWidget(self.only_completed)
+        filters.addWidget(QLabel("Min end level:"))
+        self.min_end = QLineEdit()
+        self.min_end.setValidator(QIntValidator(0, 60, self))
+        self.min_end.setFixedWidth(48)
+        self.min_end.setClearButtonEnabled(True)
+        self.min_end.textChanged.connect(self._populate_mods)
+        filters.addWidget(self.min_end)
         filters.addStretch(1)
         layout.addLayout(filters)
 
@@ -129,12 +146,15 @@ class ModPlayViewer(QDialog):
         """Fill the mod list, applying the group / only-completed filters."""
         group = self.group_filter.currentText()
         only_completed = self.only_completed.isChecked()
+        min_end = int(self.min_end.text()) if self.min_end.text().strip() else 0
         self.mods.clear()
         shown = 0
         for row in self._rows:
             if group != _ALL_GROUPS and row.get("group") != group:
                 continue
             if only_completed and not row.get("completed"):
+                continue
+            if min_end and _end_level(row) < min_end:
                 continue
             item = QTreeWidgetItem(
                 [
