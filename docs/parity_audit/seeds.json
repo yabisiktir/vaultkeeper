@@ -1,0 +1,238 @@
+{
+  "_comment": "Known statuses that override the auto-matcher. Keyed by VB control/symbol name. Sourced from docs/PARITY.md, the dead-chrome audit, and the migration handoff memory. status in {Ported, Partial, Deferred, Divergence, MISSING}. Extend this file as the sweep verifies rows.",
+  "deferred_fileview_nav": {
+    "status": "Deferred",
+    "note": "LazWorks FileView Navigator/CurrentFolder model not ported (structural divergence).",
+    "names": [
+      "MsNewFolder",
+      "MsNewTextFile",
+      "MsNewRtfFile",
+      "MsMoveToFolder",
+      "MsMoveToHistory",
+      "MsMoveToDev"
+    ]
+  },
+  "deferred_shared_store": {
+    "status": "Deferred",
+    "note": "SharedNit/BackupManager network-share sync; low value single-machine, no NRBF writer.",
+    "names": [
+      "MsExportMods",
+      "MsImportMods",
+      "MsSynchroniseMods",
+      "MsOpenSharedStore",
+      "MsBackupManager",
+      "RbnExportSettings"
+    ]
+  },
+  "deferred_features": {
+    "status": "Deferred",
+    "note": "Needs an unported subsystem/editor; tracked in handoff.",
+    "names": [
+      "MsCreateOriginalRestorers",
+      "MsEditStartScreenPrefixes",
+      "MsHakPatchEditor",
+      "MsInstallationManager",
+      "MsAliasSection",
+      "MsFindAndRename",
+      "MsRefreshWorkshopFiles",
+      "RbnManageWorkshop",
+      "MsOriginalPortraits",
+      "MsResetWebMenu",
+      "MsShowText",
+      "MsValidate",
+      "MsValidateInstalledData"
+    ]
+  },
+  "intentional_divergence": {
+    "status": "Divergence",
+    "note": "Intentional cross-platform / config-isolation omission; left visible-but-disabled by design.",
+    "names": [
+      "MsResetTaskbarIcon",
+      "MsViewClipboard",
+      "MsConnect",
+      "MsDebugOptionsMenu",
+      "MsUpdateNow",
+      "MsSendDiagInfo",
+      "MsUpdateEeFiles",
+      "MsClearScrollInfo",
+      "MsClearSelectionHistory",
+      "MsClearWaitCursors",
+      "MsEnableClosing",
+      "MsResetWindow",
+      "MsDisplaySettings",
+      "RbnDisplaySettings",
+      "MsPropertiesHeight",
+      "MsCustomise",
+      "MsOpenRulesFile"
+    ]
+  },
+  "confirmed_findings": {
+    "status": "MISSING",
+    "note": "Confirmed divergence found during audit design (2026-07-15) \u2014 see DASHBOARD.md Findings. Method partly ported; the empty-group render behavior is the missing unit.",
+    "names": [
+      "ApplyGroupsAndStatus"
+    ]
+  },
+  "_swept_files_comment": "Rows below were classified by the sweep (evidence in git/grep). NIT.ModView.vb swept 2026-07-15 as the first demonstration file.",
+  "modview_deferred_autorestorers": {
+    "status": "Deferred",
+    "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) \u2014 grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
+    "names": [
+      "RunAutoRestorers",
+      "AutoDatabaseRestorer",
+      "ValidateDatabaseRestorer",
+      "AutoIniFileRestorer",
+      "AutoJournalFileRestorer",
+      "AutoNitConfigFileRestorer",
+      "AutoCharacterRestorer",
+      "GetCharacterList",
+      "ValidateCharacterMod",
+      "AutoOriginalRestorer",
+      "IsNotNamedOriginal"
+    ]
+  },
+  "modview_divergence_inline_props": {
+    "status": "Divergence",
+    "note": "VB edits Rating/Weapon/props inline in the details pane; port moved them to ModPropertiesDialog (intended). Per-widget notes font = app-level theme.",
+    "names": [
+      "SbRating_MenuItemChecked",
+      "SbWeapon_ItemSelected",
+      "ModPropertyText_LostFocus",
+      "TxControl_MouseClick",
+      "SetNotesFontAndColour"
+    ]
+  },
+  "modview_ported": {
+    "status": "Ported",
+    "note": "Verified present in port under different name/structure (grep-confirmed 2026-07-15).",
+    "names": [
+      "InitialiseModView",
+      "SetCountInfo",
+      "InitialiseModInfo",
+      "ShowModInfoPanel",
+      "DisplayModProperties",
+      "FvMods_SelectedIndexChanged",
+      "InstallSelectedMods",
+      "UninstallSelectedMods",
+      "DeleteSelectedMods",
+      "ModRenamed",
+      "UpdateSelectedModStates",
+      "RefreshModStates",
+      "SetModMenuItems",
+      "SetInstallAvailability"
+    ]
+  },
+  "dialogbatch_ported": {
+    "status": "Ported",
+    "note": "grep-verified in port (portrait scan / help button).",
+    "names": [
+      "GetInstalledFileData",
+      "IsPortraitFile",
+      "RbPortraitManagerHelp_Click"
+    ]
+  },
+  "dialogbatch_partial": {
+    "status": "Partial",
+    "note": "viewer shell + core present; VB richness simplified (haiku swept, orchestrator-verified).",
+    "names": [
+      "GetBaseName",
+      "LpImages_Click",
+      "LvPortraits_SelectedIndexChanged",
+      "ModExplorer_Load",
+      "ModExplorer_Shown",
+      "PopulatePortraits",
+      "PortraitManager_Load",
+      "PortraitManager_Shown",
+      "SetTitleText"
+    ]
+  },
+  "dialogbatch_divergence_bounded": {
+    "status": "Divergence",
+    "note": "bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation.",
+    "names": [
+      "BgNotes_DoWork",
+      "BgNotes_ProgressChanged",
+      "BgNotes_RunWorkerCompleted",
+      "BgProcessList",
+      "BgProcessPortraitFile",
+      "BtClose_Click",
+      "BtSelect_Click",
+      "CmClear_Click",
+      "CmOperand_Click",
+      "ExcludeEnabled",
+      "ExcludePortrait",
+      "GetNextPortrait",
+      "InitialiseMenuToolTips",
+      "LastDirection",
+      "LpImages_MouseMove",
+      "LvExplorer_KeyPress",
+      "LvFilters_ItemChecked",
+      "LvGroupFilters_ColumnClick",
+      "LvPlayTimes_SizeChanged",
+      "LvPortraits_ItemClicked",
+      "LvPortraits_KeyPress",
+      "LvPortraits_KeyUp",
+      "LvPortraits_MouseDoubleClick",
+      "LvPortraits_MouseEnter",
+      "LvPortraits_MouseLeave",
+      "LvPortraits_RetrieveVirtualItem",
+      "LvPrefixFilters_ColumnClick",
+      "LvPrefixFilters_Enter",
+      "LvPrefixFilters_Leave",
+      "MenuActivation",
+      "ModExplorer_FormClosing",
+      "MoveSelection",
+      "Pic_MouseMove",
+      "PopulateWizard",
+      "PortraitManager_Activated",
+      "PortraitManager_Deactivate",
+      "PortraitManager_FormClosing",
+      "PortraitManager_SizeChanged",
+      "ProcessCmdKey",
+      "RbApplyExcludes_Click",
+      "RbCreateInstaller_Click",
+      "RbEditPortrait_Click",
+      "RbEnabled",
+      "RbExclude_Click",
+      "RbLink_Click",
+      "RbNext_Click",
+      "RbPrevious_Click",
+      "RbSelect_Click",
+      "RttNotes_RichTextContentSaved",
+      "ScMain_SplitterMoved",
+      "TsAddPrefix_Click",
+      "TsAddToRecentMods_Click",
+      "TsAlwaysSelectNext_Click",
+      "TsCharacter_Click",
+      "TsClearNotesFilter_Click",
+      "TsClearTextFilters_Click",
+      "TsClose_Click",
+      "TsCopyNames_Click",
+      "TsEditPrefix_Click",
+      "TsFilters_Click",
+      "TsHelpExplorer_Click",
+      "TsInvalidPortraitSizes_Click",
+      "TsModStateFilter_MouseEnter",
+      "TsModStateFilter_MouseLeave",
+      "TsOverride_CheckedChanged",
+      "TsOverride_Click",
+      "TsRating_Click",
+      "TsRemovePrefix_Click",
+      "TsStateClear_Click",
+      "TsStateOperand_Click",
+      "TsState_Click",
+      "TsUndoGroups_Click",
+      "TsUndoPrefix_Click",
+      "TsbSearch_ItemSelected",
+      "TxFilterNumber_KeyPress",
+      "TxFilterNumber_TextChanged",
+      "TxFilter_Enter",
+      "TxFilter_KeyPress",
+      "TxFilter_Leave",
+      "TxFilter_TextChanged",
+      "TxRating_Click",
+      "TxRating_KeyDown",
+      "WndProc"
+    ]
+  }
+}
