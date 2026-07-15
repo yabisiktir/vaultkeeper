@@ -77,6 +77,13 @@ class PortraitManager(QDialog):
 
         buttons = QHBoxLayout()
         buttons.addWidget(help_button("RbPortraitManagerHelp", self))
+        # VB RbPrevious / RbNext: step through the portrait list.
+        self._prev_button = QPushButton("◀ Previous")
+        self._prev_button.clicked.connect(lambda: self._step(-1))
+        buttons.addWidget(self._prev_button)
+        self._next_button = QPushButton("Next ▶")
+        self._next_button.clicked.connect(lambda: self._step(1))
+        buttons.addWidget(self._next_button)
         buttons.addStretch(1)
         self._extract_button = QPushButton("Extract from Hak…")
         self._extract_button.clicked.connect(self._on_extract)
@@ -104,6 +111,13 @@ class PortraitManager(QDialog):
         self._caption.setText(f"Installed portraits: {len(self._entries):,}")
         if self._entries:
             self._list.setCurrentRow(min(select, len(self._entries) - 1))
+
+    def _step(self, delta: int) -> None:
+        """Move the selection by ``delta`` rows, clamped (VB RbPrevious/RbNext)."""
+        if not self._entries:
+            return
+        row = self._list.currentRow()
+        self._list.setCurrentRow(max(0, min(row + delta, len(self._entries) - 1)))
 
     def _on_row(self, row: int) -> None:
         for image in self._thumbs.values():
