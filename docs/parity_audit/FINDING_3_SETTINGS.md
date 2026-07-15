@@ -19,26 +19,30 @@ So "way more content" resolves to: a rich VB ListView form-factor + **33 deferre
 features** (tracked in the handoff) + **10 real missing settings**. The perceived
 shallowness is mostly the 33 deferred features surfacing as absent settings.
 
-## Built this pass
+## Built (behaviour-wired settings on the Settings Behaviour tab)
 
-- **`ConfigDefaultGroup`** → `Settings.default_group` + wired into
-  `controller.create_mod` (new mods land in the chosen group; empty = ungrouped)
-  + a "Default group for new mods" field on the Settings Behaviour tab.
-  Tests: `tests/test_default_group.py`.
+All wired to real behaviour + tested (`tests/test_default_group.py`,
+`tests/test_behaviour_settings.py`):
 
-## Backlog — remaining 9 safe-MISSING settings (behaviour exists, add a toggle)
+- **`ConfigDefaultGroup`** → `Settings.default_group` — new mods land in the chosen
+  group (`controller.create_mod`); empty = ungrouped.
+- **`BehaviourMoveAddedMods`** → `Settings.move_added_mods` — mods added from files
+  move into the default group (`controller.add_mods_from_files`).
+- **`BehaviourConfirmActions`** → `Settings.confirm_actions` — gates the destructive
+  confirmation dialogs (`MainWindow._confirm`, used by remove/delete-file).
+- **`BehaviourUninstallDependencies`** → `Settings.uninstall_dependencies` — uninstall
+  cascades to dependency mods no other installed mod needs
+  (`controller._with_removable_dependencies`).
+- **`BehaviourDisplayImageFiles`** / **`ConfigDisplayTgaImages`** /
+  **`ConfigDisplayStdImages`** → `Settings.display_image_files` — one toggle; when off,
+  Display Info opens images as text (`MainWindow._on_display_contents_info`).
 
-Add each as a `Settings` field + a Behaviour-tab control + wire to the existing
-behaviour (do NOT add without wiring):
+## Backlog — remaining safe-MISSING settings (defer; each needs a real hook)
 
-- `BehaviourUninstallDependencies` — cascade uninstall to installed dependents
-  (port has the dependency graph + uninstall).
-- `BehaviourConfirmActions` / `BehaviourConfirmSaves` — gate the confirm prompts.
-- `ConfigDeleteLetoLogs` — auto-run the existing `remove_leto_log_files`.
-- `ConfigDisplayTgaImages` / `ConfigDisplayStdImages` / `BehaviourDisplayImageFiles`
-  — toggle the existing image preview (DisplayInfo / ImageViewer).
-- `ConfigPortraitDisplaySize` — default size for the Portrait Manager preview.
-- `BehaviourMoveAddedMods` — move added mods into the default group on add.
+- `BehaviourConfirmSaves` — a save-confirm prompt (the port auto-saves; low value).
+- `ConfigDeleteLetoLogs` — auto-run `remove_leto_log_files`; needs the VB auto-trigger
+  point (post-install cleanup) identified before wiring (avoid a hollow toggle).
+- `ConfigPortraitDisplaySize` — default size for the Portrait Manager preview (cosmetic).
 
 ## Deferred features (33) — NOT settings gaps
 

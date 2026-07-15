@@ -620,9 +620,11 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.image_viewer import IMAGE_EXTENSIONS, ImageViewer
 
         ext = path.suffix.lower()
+        # VB BehaviourDisplayImageFiles: when off, images open as text, not a preview.
+        show_images = self.controller._settings().display_image_files
         if ext == ".bic":
             self._show_character_file(path)
-        elif ext in IMAGE_EXTENSIONS:
+        elif ext in IMAGE_EXTENSIONS and show_images:
             self._image_viewer = ImageViewer.show_for(path, self)
         else:
             self._on_view_contents_file()
@@ -679,14 +681,7 @@ class MainWindow(QMainWindow):
         if selected is None:
             return
         folder, filename = selected
-        from PySide6.QtWidgets import QMessageBox
-
-        confirm = QMessageBox.question(
-            self,
-            "Delete File",
-            f"Delete '{filename}' from {self._contents_mod}?",
-        )
-        if confirm != QMessageBox.StandardButton.Yes:
+        if not self._confirm("Delete File", f"Delete '{filename}' from {self._contents_mod}?"):
             return
         if self.controller.delete_mod_file(self._contents_mod, folder, filename):
             md = self.controller.pd.mod_item(self._contents_mod)
@@ -1874,6 +1869,13 @@ class MainWindow(QMainWindow):
         QApplication.clipboard().setText(link)
         self.nit_status.set_info(f"Copied {names[0]}'s web link.")
 
+    def _confirm(self, title: str, text: str) -> bool:
+        """Confirm a destructive action, honouring the confirm-actions preference
+        (VB NitUserInterface.ConfirmActions). Returns True to proceed."""
+        if self.controller is not None and not self.controller._settings().confirm_actions:
+            return True
+        return QMessageBox.question(self, title, text) == QMessageBox.StandardButton.Yes
+
     def _on_remove(self) -> None:
         names = self.selected_mod_names()
         if self.controller is None or not names:
@@ -1882,8 +1884,7 @@ class MainWindow(QMainWindow):
             f"Remove {len(names)} mod(s) from the profile?\n"
             "(The mod files on disk are not deleted.)"
         )
-        answer = QMessageBox.question(self, "Remove from Profile", prompt)
-        if answer != QMessageBox.StandardButton.Yes:
+        if not self._confirm("Remove from Profile", prompt):
             return
         removed = self.controller.remove_mods(names)
         self.refresh()

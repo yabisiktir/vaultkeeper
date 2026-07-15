@@ -139,6 +139,24 @@ class SettingsDialog(QDialog):
         self.default_group = QLineEdit(settings.default_group)
         self.default_group.setPlaceholderText("(ungrouped)")
         form.addRow("Default group for new mods:", self.default_group)
+
+        self.move_added_mods = QCheckBox("Move mods added from files into the default group")
+        self.move_added_mods.setChecked(settings.move_added_mods)
+        form.addRow(self.move_added_mods)
+
+        self.confirm_actions = QCheckBox("Ask for confirmation before destructive actions")
+        self.confirm_actions.setChecked(settings.confirm_actions)
+        form.addRow(self.confirm_actions)
+
+        self.uninstall_dependencies = QCheckBox(
+            "When uninstalling, also uninstall no-longer-needed dependencies"
+        )
+        self.uninstall_dependencies.setChecked(settings.uninstall_dependencies)
+        form.addRow(self.uninstall_dependencies)
+
+        self.display_image_files = QCheckBox("Preview image files in Display Info")
+        self.display_image_files.setChecked(settings.display_image_files)
+        form.addRow(self.display_image_files)
         return page
 
     #: QComboBox item labels for ``self.theme``, in display order, mapped to the
@@ -316,6 +334,10 @@ class SettingsDialog(QDialog):
         settings.remember_window_position = self.remember_window.isChecked()
         settings.startup_sound = self.startup_sound.isChecked()
         settings.default_group = self.default_group.text().strip()
+        settings.move_added_mods = self.move_added_mods.isChecked()
+        settings.confirm_actions = self.confirm_actions.isChecked()
+        settings.uninstall_dependencies = self.uninstall_dependencies.isChecked()
+        settings.display_image_files = self.display_image_files.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 

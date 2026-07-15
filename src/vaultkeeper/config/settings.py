@@ -82,6 +82,19 @@ class Settings:
     #: Default group for newly created / added mods; empty = ungrouped (VB
     #: ``ConfigDefaultGroup``).
     default_group: str = ""
+    #: Prompt to confirm destructive actions (remove/uninstall/delete). When off,
+    #: actions proceed without a confirmation dialog (VB ``BehaviourConfirmActions``
+    #: / NitUserInterface.ConfirmActions).
+    confirm_actions: bool = True
+    #: When uninstalling a mod, also uninstall its dependency mods that are no
+    #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
+    uninstall_dependencies: bool = False
+    #: Move mods added from files/paste into the default group instead of leaving
+    #: them ungrouped (VB ``BehaviourMoveAddedMods``).
+    move_added_mods: bool = False
+    #: Show image files (tga/png/…) as a preview in Display Info; when off they open
+    #: as text (VB ``BehaviourDisplayImageFiles`` / ``ConfigDisplayTgaImages``).
+    display_image_files: bool = True
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default

@@ -404,9 +404,43 @@ class ProfileController:
         self.engine.install_files(self.mod_files(names), anneal_mods=names)
         return self.engine.result_message
 
+    def _settings(self):
+        """Load the current settings (VB My.Settings)."""
+        from vaultkeeper.config.settings import load_settings
+
+        return load_settings(self._settings_path)
+
     def uninstall(self, names: list[str]) -> str:
+        names = list(names)
+        if self._settings().uninstall_dependencies:
+            names = self._with_removable_dependencies(names)
         self.engine.uninstall_files(self.mod_files(names), anneal_mods=names)
         return self.engine.result_message
+
+    def _with_removable_dependencies(self, names: list[str]) -> list[str]:
+        """Extend ``names`` with each mod's installed dependencies that no *other*
+        installed mod still needs (VB BehaviourUninstallDependencies cascade)."""
+        removing = {n.lower() for n in names}
+        dependants = self.pd.get_installed_dependants()  # dep -> [installed dependants]
+        result = list(names)
+        queue = list(names)
+        while queue:
+            md = self.pd.mod_item(queue.pop())
+            if md is None:
+                continue
+            for dep in md.dependencies:
+                if dep.lower() in removing:
+                    continue
+                dep_mod = self.pd.mod_item(dep)
+                if dep_mod is None or not dep_mod.installed:
+                    continue
+                # Only remove the dependency if every installed mod that needs it is
+                # itself being removed.
+                if all(d.lower() in removing for d in dependants.get(dep, [])):
+                    removing.add(dep.lower())
+                    result.append(dep_mod.mod_name)
+                    queue.append(dep_mod.mod_name)
+        return result
 
     def remove_mods(self, names: list[str]) -> int:
         """Remove mod definitions from the profile; return how many were removed."""
@@ -623,6 +657,10 @@ class ProfileController:
         from vaultkeeper.core import constants as C
         from vaultkeeper.core.archive import is_extractable
 
+        if group is None:
+            s = self._settings()
+            if s.move_added_mods and s.default_group:
+                group = s.default_group
         group = group or C.GROUP_NONE
         created: list[str] = []
         ignored: list[str] = []
