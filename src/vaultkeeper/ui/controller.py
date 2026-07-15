@@ -430,6 +430,10 @@ class ProfileController:
 
         if not name or name in self.pd.mod_list:
             return False
+        if group is None:
+            from vaultkeeper.config.settings import load_settings
+
+            group = load_settings(self._settings_path).default_group or None
         group = group or C.GROUP_NONE
         (self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR).mkdir(
             parents=True, exist_ok=True

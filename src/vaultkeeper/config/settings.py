@@ -79,6 +79,9 @@ class Settings:
     #: Number the Recent Mods entries instead of showing a status icon (VB
     #: ``BehaviourNumberRecentMods``).
     number_recent_mods: bool = False
+    #: Default group for newly created / added mods; empty = ungrouped (VB
+    #: ``ConfigDefaultGroup``).
+    default_group: str = ""
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default

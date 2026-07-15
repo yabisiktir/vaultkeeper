@@ -1,0 +1,82 @@
+key,status,note
+BehaviourAutoCharacter,DEFERRED,auto character restorer (restorer subsystem)
+BehaviourCloseSettings,PORTED,dialog closes on save
+BehaviourConfirmActions,MISSING,port confirms some actions; no toggle
+BehaviourConfirmSaves,MISSING,no save-confirm toggle
+BehaviourConvertBik,PORTED,convert_bik_files
+BehaviourDisplayImageFiles,MISSING,DisplayInfo shows images; no toggle
+BehaviourGamesManagerClose,DEFERRED,game manager close behaviour
+BehaviourInstallerInstall,PORTED,install_after_create
+BehaviourInstallerRestore,DEFERRED,installer restore-on-create
+BehaviourMoveAddedMods,MISSING,add-mods exists; no move-to-group-on-add toggle
+BehaviourNumberRecentMods,PORTED,number_recent_mods
+BehaviourPlayStartup,PORTED,startup_sound
+BehaviourPropertiesPanel,DIVERGENCE,Qt splitter
+BehaviourPropertiesToolTip,DIVERGENCE,Qt tooltips automatic
+BehaviourRestoreDetailsPosition,PORTED,remember_window_position (geometry)
+BehaviourRestoreNotesPosition,PORTED,remember_window_position (geometry)
+BehaviourRestoreSelections,DEFERRED,restore selection on load
+BehaviourRetainProperties,DEFERRED,retain props on rename/move
+BehaviourScreenTip,DIVERGENCE,Qt tooltips automatic
+BehaviourScreenTipChar,DIVERGENCE,Qt tooltips automatic
+BehaviourSelectGameMod,DEFERRED,select-game-mod on play
+BehaviourSelectHistory,DEFERRED,selection history
+BehaviourSelectPlayTimeFile,DEFERRED,prompt for play-time file
+BehaviourSelectTextFile,DEFERRED,prompt for text file
+BehaviourSyncNotes,DEFERRED,sync notes across shared store
+BehaviourSyncProperties,DEFERRED,sync props across shared store
+BehaviourToolTipText,DIVERGENCE,Qt tooltips automatic
+BehaviourUninstallDependencies,MISSING,dep graph + uninstall exist; no cascade toggle
+BehaviourWindows,PORTED,remember_window_position
+BehaviourWorkshop,DEFERRED,workshop enable/refresh partly deferred
+ConfigAutoDayConversionFactor,PERF,play-time day factor
+ConfigAutoLoadscreen,DEFERRED,auto loadscreen install
+ConfigCancelMode,DIVERGENCE,WinForms cancel semantics
+ConfigCharacterRestorerPrefix,DEFERRED,restorer subsystem
+ConfigCopyDebugModeOnPlay,DEFERRED,debug mode on play
+ConfigCopyOnPlay,DEFERRED,copy config on play (play-loop pref)
+ConfigDayConversionFactor,PERF,play-time day factor
+ConfigDefaultGroup,MISSING,new mods go to GROUP_NONE; no default-group setting
+ConfigDeleteLetoLogs,MISSING,remove_leto_log_files command exists; no auto toggle
+ConfigDevelopmentFolder,DEFERRED,dev folder mapping (Settings map editor)
+ConfigDisplayStdImages,MISSING,ImageViewer shows std images; no toggle
+ConfigDisplayTgaImages,MISSING,ImageViewer shows TGA; no toggle
+ConfigDoubleClickAction,DEFERRED,mod double-click action choice
+ConfigGameManagerEnabled,DEFERRED,game manager enable
+ConfigImportAction,DEFERRED,legacy import action pref
+ConfigKeyDelay,DIVERGENCE,Windows keyboard timing
+ConfigKeyDelayed,PERF,timing
+ConfigLinkProgress,DIVERGENCE,progress-dialog preference
+ConfigMaxCrcThreads,PERF,CRC thread count
+ConfigMaxIoThreads,PERF,IO thread count
+ConfigMaxLinkThreads,PERF,download link threads
+ConfigMaxRecentMods,PORTED,max_recent_mods
+ConfigMaxRtfTasks,PERF,RTF task count
+ConfigMinPlayTime,PERF,min play time to record
+ConfigPortraitDisplaySize,MISSING,PortraitManager shows 5 sizes; no default-size pref
+ConfigProgressPreferences,DIVERGENCE,port builds synchronously
+ConfigPropertiesPanelAdjust,DIVERGENCE,Qt splitter
+ConfigPropertiesPanelHeight,DEFERRED,MsPropertiesHeight (divergence)
+ConfigRecentModsCursor,DIVERGENCE,cursor state
+ConfigRestartDelay,DIVERGENCE,Windows restart timing
+ConfigRunCreateInstaller,DEFERRED,auto-run create installer
+ConfigRunDocOrganiser,DEFERRED,auto-run doc organiser
+ConfigSaveScreenCrop,DEFERRED,start-screen crop
+ConfigSavesRetention,DEFERRED,game-saves retention policy
+ConfigSavesThreshold,PERF,saves count threshold
+ConfigScreenInfoFromFile,DEFERRED,start-screen info source
+ConfigSettingsStartPage,PORTED,SettingsDialog start_tab
+ConfigShowCharStats,DIVERGENCE,CharacterViewer already shows stats
+ConfigShowDotNet,DIVERGENCE,".NET version display, N/A"
+ConfigSlideShowContinuous,DEFERRED,start-screen slideshow
+ConfigSlideShowInterval,DEFERRED,start-screen slideshow
+ConfigSplitterWidth,DIVERGENCE,"Qt splitters, not a stored width"
+ConfigSystemTrayMinimise,DIVERGENCE,Windows system tray
+ConfigToolbar,PORTED,MsShowToolbar toggle
+ConfigUseLocalRules,DEFERRED,local download rules toggle
+ConfigWizardFileThreshold,PERF,wizard file-count threshold
+FileCompressModFolder,DEFERRED,compress mod folder on op
+FileOverwrite,DEFERRED,overwrite-without-prompt policy
+FileRecycleBin,PORTED,recycle_on_delete
+FileRecycleBinForGames,DEFERRED,per-category recycle (games)
+FileRecycleBinForInstallers,DEFERRED,per-category recycle (installers)

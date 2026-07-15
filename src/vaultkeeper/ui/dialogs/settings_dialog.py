@@ -135,6 +135,10 @@ class SettingsDialog(QDialog):
         self.startup_sound = QCheckBox("Play a sound when the application starts")
         self.startup_sound.setChecked(settings.startup_sound)
         form.addRow(self.startup_sound)
+
+        self.default_group = QLineEdit(settings.default_group)
+        self.default_group.setPlaceholderText("(ungrouped)")
+        form.addRow("Default group for new mods:", self.default_group)
         return page
 
     #: QComboBox item labels for ``self.theme``, in display order, mapped to the
@@ -311,6 +315,7 @@ class SettingsDialog(QDialog):
         settings.install_after_create = self.install_after_create.isChecked()
         settings.remember_window_position = self.remember_window.isChecked()
         settings.startup_sound = self.startup_sound.isChecked()
+        settings.default_group = self.default_group.text().strip()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 
