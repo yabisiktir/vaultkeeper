@@ -8,7 +8,7 @@ AliasSectionEditor,BtDelete,?,"""Delete""",,,System.Windows.Forms.AnchorStyles.L
 AliasSectionEditor,LpMainHdg,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
 AliasSectionEditor,PicAliasEditor,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
 AliasSectionEditor,LbAliasEditor,?,"resources.GetString(""LbAliasEditor.Text"")",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
-AliasSectionEditor,BhAliasEditor,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
+AliasSectionEditor,BhAliasEditor,?,,,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/alias_section_editor.py,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
 AliasSectionEditor,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
 AliasSectionEditor,LvFolders,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/installation_analyser.py,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
 AliasSectionEditor,ChAlias,?,"""Alias""",,,,none,,Deferred,nwn.ini [Alias] editor (dead MsAliasSection)
@@ -996,7 +996,7 @@ NIT,MsCreateRestorer,?,"""Create &Restorer""",,,,strong,vaultkeeper/ui/main_wind
 NIT,MsCreateOriginalRestorers,?,"""Crea&te Original Restorers""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,Needs an unported subsystem/editor; tracked in handoff.
 NIT,MsLoadscreens,?,"""N&WN's Start Screens""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsHakPatchEditor,?,"""&Hak Patch Priority""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,"Hak Patch editor ported: controller.patch_hak_sequence/save_patch_hak_sequence (reorder PatchFileSequence.txt + regenerate nwnpatch.ini) + ui/dialogs/hak_patch_editor.py (list + Move Up/Down + Save), wired MsHakPatchEditor."
-NIT,MsAliasSection,?,"""A&lias Section (nwn.ini)""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,Needs an unported subsystem/editor; tracked in handoff.
+NIT,MsAliasSection,?,"""A&lias Section (nwn.ini)""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,"Alias section editor ported (bounded): game/nwn_folders.read_alias_section/write_alias_section (targeted [Alias] writer + nwn.ini.bak backup) + controller.alias_locations_report/save_alias_locations + ui/dialogs/alias_section_editor.py (view/edit + config-isolation confirm), wired MsAliasSection; re-opens the profile on change (VB Restart)."
 NIT,MsPublishMod,?,"""&Publish Mod""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsAnneal,?,"""&Anneal""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsRemoveIllegalModFiles,?,"""Remove Illegal Mod &Files""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)

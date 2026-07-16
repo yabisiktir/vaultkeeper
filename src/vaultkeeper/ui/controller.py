@@ -1279,6 +1279,45 @@ class ProfileController:
         if self._hpm.installed_patch_haks():
             self._hpm.create_nwn_patch_ini_file()
 
+    # -- Alias section editor (VB AliasSectionEditor) ---------------------- #
+    def alias_locations_report(self) -> dict:
+        """The ``nwn.ini`` ``[Alias]`` folder locations for the editor.
+
+        Returns ``{"rows": [{"key", "value"}], "ini_path", "exists"}`` — the raw alias
+        key/value pairs (file order), the ``nwn.ini`` path, and whether it exists.
+        """
+        from vaultkeeper.game.nwn_folders import nwn_ini_path, read_alias_section
+
+        user_dir = self.ctx.game_user_dir
+        if user_dir is None:
+            return {"rows": [], "ini_path": "", "exists": False}
+        ini = nwn_ini_path(user_dir)
+        return {
+            "rows": [{"key": k, "value": v} for k, v in read_alias_section(user_dir)],
+            "ini_path": str(ini),
+            "exists": ini.is_file(),
+        }
+
+    def save_alias_locations(self, updates: dict[str, str]) -> dict:
+        """Write changed ``[Alias]`` key values to ``nwn.ini`` (VB ``SaveNwnIniFile``).
+
+        CONFIG-ISOLATION: ``nwn.ini`` is game config — call this only after an explicit
+        user confirmation (the Alias editor prompts before invoking it). The original
+        file is backed up to ``nwn.ini.bak`` once. Returns ``{"changed", "message"}``.
+        """
+        from vaultkeeper.game.nwn_folders import write_alias_section
+
+        user_dir = self.ctx.game_user_dir
+        if user_dir is None:
+            return {"changed": 0, "message": "No game user folder is configured."}
+        changed = write_alias_section(user_dir, updates)
+        message = (
+            f"Alias folder locations updated: {changed}."
+            if changed
+            else "No changes to save."
+        )
+        return {"changed": changed, "message": message}
+
     def _bik_converter(self):
         """The BIK→WBM converter (ffmpeg by default, Fake in tests)."""
         if self._bik_backend is None:

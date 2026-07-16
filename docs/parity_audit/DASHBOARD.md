@@ -15,22 +15,22 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 | Designer controls | 1777 | 1777 (100%) | 0 |
 
 ### Methods/props — status breakdown
-- `Divergence`: 1334
-- `Ported`: 1178
-- `Deferred`: 404
+- `Divergence`: 1338
+- `Ported`: 1182
+- `Deferred`: 396
 - `N/A`: 188
 - `Partial`: 180
 
 ### Event handlers — status breakdown
-- `Divergence`: 556
-- `Ported`: 156
-- `Deferred`: 128
+- `Divergence`: 559
+- `Ported`: 159
+- `Deferred`: 122
 - `Partial`: 45
 
 ### Designer controls — status breakdown
-- `Ported`: 1029
+- `Ported`: 1030
 - `Divergence`: 371
-- `Deferred`: 275
+- `Deferred`: 274
 - `N/A`: 102
 
 ## Where to look — GAP? density by VB file (methods)

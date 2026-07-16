@@ -30,7 +30,6 @@
     "names": [
       "MsCreateOriginalRestorers",
       "MsEditStartScreenPrefixes",
-      "MsAliasSection",
       "MsFindAndRename",
       "MsRefreshWorkshopFiles",
       "RbnManageWorkshop",
@@ -499,7 +498,6 @@
     "status": "Deferred",
     "note": "handler for a command in the tracked deferred set.",
     "names": [
-      "MsAliasSection_Click",
       "MsBackupManager_Click",
       "MsCreateOriginalRestorers_Click",
       "MsEditStartScreenPrefixes_Click",
@@ -2516,19 +2514,14 @@
   },
   "sweep4_dlg_deferred": {
     "status": "Deferred",
-    "note": "CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py).",
+    "note": "CrashDumpManager (Windows crash dumps); ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py); AliasSectionEditor BOUNDED tail (reset-to-standard + game-saves shared/per-profile toggle) — the view/edit/save core is Ported (see alias_editor_ported).",
     "names": [
-      "AliasSectionEditor_Load",
-      "AliasSectionEditor_Shown",
       "AllowDisable",
       "BgOpenSupportPage_DoWork",
-      "BhAliasEditor_Click",
       "BtDeleteAll_Click",
       "BtSubmit_Click",
       "BuBrowse_Click",
       "CbDisable_CheckedChanged",
-      "ChangeFolder",
-      "CmMenuItem_Click",
       "CrashDumpManager_FormClosing",
       "CrashDumpManager_Load",
       "CrashFilesDeleted",
@@ -2539,9 +2532,7 @@
       "FileSizeAdjustment",
       "LvCrashFiles_ItemClicked",
       "LvCrashFiles_SelectedIndexChanged",
-      "LvFolders_ItemClicked",
       "MandatoryFoldersSpecified",
-      "RefreshContextMenu",
       "RestoreDefaults",
       "RestoreFolder",
       "SavesTypeSuffix",
@@ -2762,6 +2753,27 @@
     "names": [
       "LvPatchList_ItemClicked",
       "LvPatchList_SelectedIndexChanged"
+    ]
+  },
+  "alias_editor_ported": {
+    "status": "Ported",
+    "note": "Alias section editor ported (bounded): game/nwn_folders.read_alias_section/write_alias_section (targeted [Alias] writer + nwn.ini.bak backup) + controller.alias_locations_report/save_alias_locations + ui/dialogs/alias_section_editor.py (view/edit + config-isolation confirm), wired MsAliasSection; re-opens the profile on change (VB Restart).",
+    "names": [
+      "AliasSectionEditor_Load",
+      "BhAliasEditor_Click",
+      "ChangeFolder",
+      "MsAliasSection",
+      "MsAliasSection_Click"
+    ]
+  },
+  "alias_editor_divergence": {
+    "status": "Divergence",
+    "note": "AliasSectionEditor WinForms lifecycle / virtual-list / context-menu plumbing (no port equivalent).",
+    "names": [
+      "AliasSectionEditor_Shown",
+      "LvFolders_ItemClicked",
+      "CmMenuItem_Click",
+      "RefreshContextMenu"
     ]
   }
 }

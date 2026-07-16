@@ -968,6 +968,7 @@ class MainWindow(QMainWindow):
             "MsInstallationManager": self._on_installation_manager,
             "RbnInstallationManager": self._on_installation_manager,
             "MsHakPatchEditor": self._on_hak_patch_editor,
+            "MsAliasSection": self._on_alias_section,
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
@@ -1590,6 +1591,24 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.hak_patch_editor import HakPatchEditor
 
         self._hak_patch_editor = HakPatchEditor.show_for(self.controller, self)
+
+    def _on_alias_section(self) -> None:
+        """Open the Alias Section editor (edit nwn.ini [Alias] — VB MsAliasSection).
+
+        When the editor writes nwn.ini, re-open the profile so the new folder
+        locations take effect (VB Restart after an alias change).
+        """
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.alias_section_editor import AliasSectionEditor
+
+        self._alias_editor = AliasSectionEditor.show_for(self.controller, self)
+
+        def _after(_result=None):
+            if getattr(self._alias_editor, "changed", False):
+                self._reopen_with_new_paths()
+
+        self._alias_editor.finished.connect(_after)
 
     def _on_mod_explorer(self) -> None:
         if self.controller is None:
