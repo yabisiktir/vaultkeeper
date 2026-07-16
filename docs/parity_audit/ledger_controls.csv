@@ -83,7 +83,7 @@ BasicSettings,RbExtraLargeLine,?,"""Extra large line thickness""",,,,none,,Porte
 BasicSettings,LnSample,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
 BasicSettings,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
 BasicSettings,BtCancel,?,"""Cancel""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BtApply,?,"""Apply""",,,,comment,vaultkeeper/ui/dialogs/character_filter.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
+BasicSettings,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
 BasicSettings,BtAdvanced,?,"""Advanced""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
 BasicSettings,LpHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
 BasicSettings,LbHeading,?,"""Change selected Behaviour and User Interface Preferences""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/dialogs/doc_organiser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
@@ -133,7 +133,7 @@ CharacterFilter,TxLevel,?,,,System.Windows.Forms.DockStyle.Top,,strong,vaultkeep
 CharacterFilter,LbLevelHelp,?,"""Label1""",,,,none,,Ported,faithful (level + class filter)
 CharacterFilter,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (level + class filter)
 CharacterFilter,BtCancel,?,"""Cancel""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (level + class filter)
-CharacterFilter,BtApply,?,"""Apply""",,,System.Windows.Forms.AnchorStyles.Left,comment,vaultkeeper/ui/dialogs/character_filter.py,Ported,faithful (level + class filter)
+CharacterFilter,BtApply,?,"""Apply""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,faithful (level + class filter)
 CharacterFilter,MsgStatus,?,"""Status""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (level + class filter)
 CharacterFilter,BtReset,?,"""Reset""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/character_filter.py,Ported,faithful (level + class filter)
 CharacterFilter,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,faithful (level + class filter)
@@ -199,7 +199,7 @@ ClassesSkillsAndFeats,SplitterLine2,?,,,,,none,,Ported,faithful (3 searchable ta
 ClassesSkillsAndFeats,LbFeat,?,"""Description""",,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (3 searchable tabs)
 CommonFiltersDialogue,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
 CommonFiltersDialogue,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,BtApply,?,"""Apply""",,,,comment,vaultkeeper/ui/dialogs/character_filter.py,Ported,common filters ported
+CommonFiltersDialogue,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,common filters ported
 CommonFiltersDialogue,BtCancel,?,"""Cancel""",,,,none,,Ported,common filters ported
 CommonFiltersDialogue,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
 CommonFiltersDialogue,PicFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
@@ -650,12 +650,12 @@ InstallationManagerEditor,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,
 InstallationManagerEditor,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,PicHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,LbHeading,?,"""Manage your Mod Installation Sets so you can reinstall your Mods after a fresh NW"" &",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/dialogs/doc_organiser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
-InstallationManagerEditor,BhInstallationManager,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
+InstallationManagerEditor,BhInstallationManager,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/installation_manager.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,MiStatus,?,"""Info""",System.Drawing.ContentAlignment.TopRight,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,LbUpdatedHdg,?,"""Updated:""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,LbUpdated,?,"""20 Dec 2017 at 04:30:33 pm""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
-InstallationManagerEditor,BtApply,?,"""&Apply""",,,System.Windows.Forms.AnchorStyles.Left,comment,vaultkeeper/ui/dialogs/character_filter.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
+InstallationManagerEditor,BtApply,?,"""&Apply""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,BtSave,?,"""&Save""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/wizard_builder.py,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,BtCancel,?,"""Canc&el""",,,System.Windows.Forms.AnchorStyles.Left,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
 InstallationManagerEditor,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Deferred,installation-SETS/checkpoints editor (dead MsInstallationManager)
@@ -832,7 +832,7 @@ ModFindAndRename,TsUndoAll,?,"""U&ndo All""",,,,none,,Deferred,bulk find-and-ren
 ModFindAndRename,TsHelpFindAndRename,?,"""ToolStripButton6""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LbProfileName,?,"""Profile Name""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
-ModFindAndRename,BtApply,?,"""&Apply""",,,System.Windows.Forms.AnchorStyles.Left,comment,vaultkeeper/ui/dialogs/character_filter.py,Deferred,bulk find-and-rename (dead MsFindAndRename)
+ModFindAndRename,BtApply,?,"""&Apply""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,BtCancel,?,"""Cancel""",,,System.Windows.Forms.AnchorStyles.Left,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,TsStatus,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/status_bar.py,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LbMods,?,"""Mods:""",,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
@@ -1012,7 +1012,7 @@ NIT,MsCharacterExplorer,?,"""C&haracter Explorer""",,,,strong,vaultkeeper/ui/mai
 NIT,MsDocOrganiser,?,"""Documentation &Organiser""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsGameSaves,?,"""Game &Saves Manager""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsBackupManager,?,"""&Backup and Export Manager""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,"SharedNit/BackupManager network-share sync; low value single-machine, no NRBF writer."
-NIT,MsInstallationManager,?,"""Installation &Manager""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,Needs an unported subsystem/editor; tracked in handoff.
+NIT,MsInstallationManager,?,"""Installation &Manager""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,"Installation sets ported: game/installation_sets.py (data model + apply-diff + validate + JSON) + controller load/save/create_checkpoint/create_set/rename/delete/apply + ui/dialogs/installation_manager.py editor, wired MsInstallationManager/RbnInstallationManager."
 NIT,MsInstallationAnalyser,?,"""Installation &Analyser""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsWizardBuilder,?,"""Installer Wi&zard Builder""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsDependencyManager,?,"""Dependenc&y Manager""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1741,7 +1741,7 @@ WizardBuilder,LbDisplayName,?,"""Display Name:""",,,System.Windows.Forms.AnchorS
 WizardBuilder,TxDisplayName,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (authoring UI: choices/preferences/exclude + save)
 WorkshopNameEditor,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,workshop rename ported
 WorkshopNameEditor,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,workshop rename ported
-WorkshopNameEditor,BtApply,?,"""Apply""",,,,comment,vaultkeeper/ui/dialogs/character_filter.py,Ported,workshop rename ported
+WorkshopNameEditor,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,workshop rename ported
 WorkshopNameEditor,BtDefault,?,"""Default""",,,,none,,Ported,workshop rename ported
 WorkshopNameEditor,MlStatus,?,,,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,workshop rename ported
 WorkshopNameEditor,LbInstructions,?,"resources.GetString(""LbInstructions.Text"")",,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/create_missing_installers.py,Ported,workshop rename ported

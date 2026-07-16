@@ -965,7 +965,8 @@ class MainWindow(QMainWindow):
             "MsDependencyManager": self._on_dependencies,
             "RbnDependencyManager": self._on_dependencies,
             "MsInstallationAnalyser": self._on_analyse,
-            "RbnInstallationManager": self._on_analyse,
+            "MsInstallationManager": self._on_installation_manager,
+            "RbnInstallationManager": self._on_installation_manager,
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
@@ -1570,6 +1571,16 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.installation_analyser import InstallationAnalyser
 
         self._analyser = InstallationAnalyser.show_for(self.controller, self)
+
+    def _on_installation_manager(self) -> None:
+        """Open the Installation Manager (named install sets — VB MsInstallationManager)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+        self._installation_manager = InstallationManager.show_for(self.controller, self)
+        # Applying a set changes install state; refresh the main list when it closes.
+        self._installation_manager.finished.connect(self.refresh)
 
     def _on_mod_explorer(self) -> None:
         if self.controller is None:

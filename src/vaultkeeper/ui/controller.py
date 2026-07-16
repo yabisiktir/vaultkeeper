@@ -2080,6 +2080,146 @@ class ProfileController:
             "total_bytes": total,
         }
 
+    # -- Installation sets (VB InstallationManager) ------------------------ #
+    def _installation_sets_file(self) -> Path:
+        """The persisted installation-sets database (VB ``pd.SaveInstallationSets``)."""
+        return self._profile_data_dir() / "InstallationSets.json"
+
+    def installed_by_group(self) -> dict[str, list[str]]:
+        """Currently-installed mods grouped by group name, in display order.
+
+        Faithful to VB ``InstallationManager.Checkpoint``: real mods only (not group
+        rows), installed, excluding the auto-managed restorer group. Groups and mods
+        are Windows natural-sorted.
+        """
+        from functools import cmp_to_key
+
+        from vaultkeeper.core.win_sort import win_compare
+        from vaultkeeper.game.start_screen import AUTO_GROUP
+
+        buckets: dict[str, list[str]] = {}
+        for name in self.pd.mod_keys:
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item or not md.installed:
+                continue
+            if md.group == AUTO_GROUP:
+                continue
+            buckets.setdefault(md.group, []).append(md.mod_name)
+
+        key = cmp_to_key(win_compare)
+        return {g: sorted(buckets[g], key=key) for g in sorted(buckets, key=key)}
+
+    def _current_installation_set(self):
+        """Build the live "Current" set (VB ``CreateCurrent`` — always index 0)."""
+        from vaultkeeper.game.installation_sets import (
+            CURRENT_SET_NAME,
+            SET_CURRENT,
+            build_set,
+        )
+
+        return build_set(CURRENT_SET_NAME, SET_CURRENT, self.installed_by_group())
+
+    def load_installation_sets(self) -> list:
+        """Load the installation sets (VB ``LoadSets``): the live Current set first,
+        then the persisted checkpoint/user sets, with stale groups/mods pruned."""
+        from vaultkeeper.game.installation_sets import sets_from_json, validate_sets
+        from vaultkeeper.persistence.json_store import read_json
+
+        stored = sets_from_json(read_json(self._installation_sets_file(), default=[]))
+        existing_mods = {
+            md.mod_name: md.group
+            for name in self.pd.mod_keys
+            if (md := self.pd.mod_item(name)) is not None and not md.is_group_item
+        }
+        existing_groups = set(self.pd.group_keys) | {
+            md.group for md in map(self.pd.mod_item, self.pd.mod_keys) if md is not None
+        }
+        removed = validate_sets(stored, existing_mods, existing_groups)
+        if removed:
+            self.save_installation_sets(stored)
+        return [self._current_installation_set(), *stored]
+
+    def save_installation_sets(self, sets: list) -> None:
+        """Persist the checkpoint/user sets (the Current set is never written)."""
+        from vaultkeeper.game.installation_sets import sets_to_json
+        from vaultkeeper.persistence.json_store import write_json
+
+        path = self._installation_sets_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(path, sets_to_json(sets))
+
+    def create_installation_checkpoint(self) -> str:
+        """Snapshot the current install state as a checkpoint set (VB ``CreateCheckpoint``).
+
+        Returns the new set's name.
+        """
+        from vaultkeeper.game.installation_sets import (
+            SET_CHECKPOINT,
+            build_set,
+            checkpoint_name,
+        )
+
+        name = checkpoint_name()
+        stored = self.load_installation_sets()[1:]  # drop the live Current set
+        stored.append(build_set(name, SET_CHECKPOINT, self.installed_by_group()))
+        self.save_installation_sets(stored)
+        return name
+
+    def create_installation_set(self, name: str, *, from_current: bool = True) -> None:
+        """Create a user-defined set (VB ``CreateSet``).
+
+        ``from_current`` pre-fills it with the currently-installed mods (editable);
+        otherwise it starts empty.
+        """
+        from vaultkeeper.game.installation_sets import SET_USER, build_set
+
+        by_group = self.installed_by_group() if from_current else {}
+        stored = self.load_installation_sets()[1:]
+        stored.append(build_set(name, SET_USER, by_group))
+        self.save_installation_sets(stored)
+
+    def rename_installation_set(self, old_name: str, new_name: str) -> None:
+        """Rename a set (VB ``RenameSet``); no-op if the name is missing/duplicate."""
+        stored = self.load_installation_sets()[1:]
+        names = {s.name for s in stored}
+        if old_name not in names or new_name in names or not new_name.strip():
+            return
+        for s in stored:
+            if s.name == old_name:
+                s.name = new_name
+        self.save_installation_sets(stored)
+
+    def delete_installation_set(self, name: str) -> None:
+        """Remove a set (VB ``RemoveSet``)."""
+        stored = [s for s in self.load_installation_sets()[1:] if s.name != name]
+        self.save_installation_sets(stored)
+
+    def apply_installation_set(self, iset) -> str:  # noqa: ANN001
+        """Install/uninstall to reach the set's desired states (VB ``BtApply``).
+
+        Uninstalls the mods the set marks uninstalled, then installs those it marks
+        installed (VB order), for the mods in the set whose state differs from now.
+        Returns a status message.
+        """
+        from vaultkeeper.game.installation_sets import apply_diff
+
+        current = {
+            md.mod_name
+            for name in self.pd.mod_keys
+            if (md := self.pd.mod_item(name)) is not None
+            and not md.is_group_item
+            and md.installed
+        }
+        installs, uninstalls = apply_diff(iset, current)
+        messages = []
+        if uninstalls:
+            messages.append(self.uninstall(uninstalls))
+        if installs:
+            messages.append(self.install(installs))
+        if not messages:
+            return "The installation set is already applied."
+        return " ".join(m for m in messages if m)
+
     def dependencies_report(self) -> dict:
         """Each mod's declared dependencies and the mods that require it.
 

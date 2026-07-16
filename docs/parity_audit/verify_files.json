@@ -68,9 +68,9 @@
 
   "SteamWorkshop.IdInfo.vb": {"status": "Partial", "note": "id resolution ported; network title fetch (GetSteamPage/Title/ModNameFromWeb) deferred"},
 
-  "InstallationManager.GroupInfo.vb": {"status": "Deferred", "note": "installation-sets editor (dead MsInstallationManager)"},
-  "InstallationManager.ModInfo.vb": {"status": "Deferred", "note": "installation-sets editor"},
-  "InstallationManager.SetInfo.vb": {"status": "Deferred", "note": "installation-sets editor"},
+  "InstallationManager.GroupInfo.vb": {"status": "Ported", "note": "installation-sets data model -> game/installation_sets.GroupEntry"},
+  "InstallationManager.ModInfo.vb": {"status": "Ported", "note": "installation-sets data model -> game/installation_sets.ModEntry"},
+  "InstallationManager.SetInfo.vb": {"status": "Ported", "note": "installation-sets data model -> game/installation_sets.InstallationSet"},
   "DailyPlayTimeInfo.vb": {"status": "Deferred", "note": "auto day-conversion factor (deferred)"},
   "ModExport.vb": {"status": "Deferred", "note": "shared-store export (data strategy)"},
   "ModFindAndRename.ModNameInfo.vb": {"status": "Deferred", "note": "bulk find-and-rename (dead command)"},
