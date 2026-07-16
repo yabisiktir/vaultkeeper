@@ -124,6 +124,7 @@ class MainWindow(QMainWindow):
 
         self._build_menu()
         self._apply_command_availability()
+        self._apply_leto_menu_visibility()
         self.nit_status.set_info("Ready")
 
         if controller is not None:
@@ -644,7 +645,12 @@ class MainWindow(QMainWindow):
         def resolver(resref, own_folder):
             return self.controller.portrait_path(resref, extra_dirs=[own_folder])
 
-        self._character_viewer = CharacterViewer([cf], resolver, self)
+        self._character_viewer = CharacterViewer(
+            [cf],
+            resolver,
+            self,
+            portrait_size=self.controller._settings().portrait_display_size,
+        )
         self._character_viewer.show()
 
     def _on_copy_contents_name(self) -> None:
@@ -730,14 +736,35 @@ class MainWindow(QMainWindow):
         self._details.document().setModified(False)
 
     def _save_current_notes(self) -> None:
-        """Persist the currently-loaded mod's notes if the user edited them."""
+        """Persist the currently-loaded mod's notes if the user edited them.
+
+        Honours the confirm-saves preference (VB ``RttDetails.SaveChangesPrompt`` =
+        ``BehaviourConfirmSaves``): when on, ask before saving the edited notes — a
+        *No* discards them; when off, the notes are saved silently.
+        """
         if (
-            self.controller is not None
-            and self._notes_mod is not None
-            and self._details.document().isModified()
+            self.controller is None
+            or self._notes_mod is None
+            or not self._details.document().isModified()
         ):
-            self.controller.save_notes(self._notes_mod, self._details.toPlainText())
+            return
+        if self.controller._settings().confirm_saves and not self._confirm_save_notes(
+            self._notes_mod
+        ):
+            # The user declined: discard the edit rather than save it.
             self._details.document().setModified(False)
+            return
+        self.controller.save_notes(self._notes_mod, self._details.toPlainText())
+        self._details.document().setModified(False)
+
+    def _confirm_save_notes(self, mod_name: str) -> bool:
+        """Ask whether to save edited mod notes (VB BehaviourConfirmSaves). True = save."""
+        return (
+            QMessageBox.question(
+                self, "Save Notes", f"Save changes to the notes for '{mod_name}'?"
+            )
+            == QMessageBox.StandardButton.Yes
+        )
 
     # -- Ribbon / toolbar dispatch ----------------------------------------- #
     def _on_command(self, action: str) -> None:
@@ -816,9 +843,9 @@ class MainWindow(QMainWindow):
             "MsDelete": self._on_remove,
             # Cleanup.
             "MsRemoveErfs": lambda: self._remove_files("remove_erf_files", "ERF file"),
-            "MsRemoveLetoLogFiles": lambda: self._remove_files(
-                "remove_leto_log_files", "Leto log file"
-            ),
+            # Remove Leto log files across the whole profile + game folders (VB
+            # MsRemoveLetoLogFiles_Click runs the global RemoveLetoLogFiles worker).
+            "MsRemoveLetoLogFiles": self._on_remove_all_leto_logs,
             # Mods-pane clipboard: copy/cut selected mods to the clipboard, paste
             # dropped folders/archives back as new mods (VB MsCut/MsCopy/MsPaste).
             "MsCopy": self._on_mods_copy,
@@ -1018,6 +1045,34 @@ class MainWindow(QMainWindow):
         removed = sum(getattr(self.controller, method)(n) for n in names)
         self.refresh()
         self.nit_status.set_info(f"Removed {removed} {label}(s).")
+
+    def _on_remove_all_leto_logs(self) -> None:
+        """Remove Leto log files across the profile + game folders (VB MsRemoveLetoLogFiles).
+
+        Runs the global sweep (the same worker the startup auto-cleanup uses); this
+        command is only offered when auto-delete is off (see
+        ``_apply_leto_menu_visibility``).
+        """
+        if self.controller is None:
+            return
+        removed = self.controller.remove_all_leto_log_files()
+        self.refresh()
+        self.nit_status.set_info(f"Removed {removed} Leto log file(s).")
+
+    def _apply_leto_menu_visibility(self) -> None:
+        """Show the manual **Remove Leto Log Files** command only when the startup
+        auto-delete is off (VB ``MsRemoveLetoLogFiles.Visible = Not
+        ConfigDeleteLetoLogs``)."""
+        act = self.nit_menu.actions_by_id.get("MsRemoveLetoLogFiles")
+        if act is None:
+            return
+        if self.controller is not None:
+            auto = self.controller._settings().delete_leto_logs
+        else:
+            from vaultkeeper.config.settings import load_settings
+
+            auto = load_settings().delete_leto_logs
+        act.setVisible(not auto)
 
     # -- Mods-pane clipboard (VB MsCut / MsCopy / MsPaste on FvMods) -------- #
     def _on_mods_copy(self) -> None:
@@ -1615,6 +1670,8 @@ class MainWindow(QMainWindow):
             self.nit_status.set_recycle(settings.recycle_on_delete)
             # Rebuild the Web menu in case its links were edited (VB SetWebMenu).
             self.nit_menu.populate_web_menu(settings.web_links, self._open_url)
+            # Reflect the auto-delete-leto preference on the manual command's visibility.
+            self._apply_leto_menu_visibility()
             # If the game paths changed, reopen the profile so they take effect now.
             if (settings.nwn_path, settings.game_user_path) != before:
                 self._reopen_with_new_paths()

@@ -1001,7 +1001,7 @@ NIT,MsPublishMod,?,"""&Publish Mod""",,,,strong,vaultkeeper/ui/main_window.py | 
 NIT,MsAnneal,?,"""&Anneal""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsRemoveIllegalModFiles,?,"""Remove Illegal Mod &Files""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsRemoveErfs,?,"""Remove &ERF Files""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsRemoveLetoLogFiles,?,"""Remove Leto Log Files""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsRemoveLetoLogFiles,?,"""Remove Leto Log Files""",,,,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsSynchroniseMods,?,"""Synchronise Mo&ds""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,"SharedNit/BackupManager network-share sync; low value single-machine, no NRBF writer."
 NIT,MsCompact,?,"""C&ompress Mod Folder""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsInstall,?,"""&Install""",,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1150,7 +1150,7 @@ NIT,PnDetailsText,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main win
 NIT,RtDetails,?,"""""",,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,PnDetailsList,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,LpDetailsToolbar,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,RttDetails,?,"""RichTextToolbar1""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,RttDetails,?,"""RichTextToolbar1""",,,,strong,vaultkeeper/config/settings.py | vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,SpDetails,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,LpProperties,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,LbProperties,?,"""Properties""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)

@@ -95,6 +95,19 @@ class Settings:
     #: Show image files (tga/png/…) as a preview in Display Info; when off they open
     #: as text (VB ``BehaviourDisplayImageFiles`` / ``ConfigDisplayTgaImages``).
     display_image_files: bool = True
+    #: Automatically move Leto log files (``LoadITPLog.leto.txt``) to the recycle bin
+    #: when the app starts (VB ``ConfigDeleteLetoLogs`` → ``DeleteLetoLogs``, default
+    #: on). When off, the manual **Remove Leto Log Files** command is shown instead
+    #: (VB ``MsRemoveLetoLogFiles.Visible = Not ConfigDeleteLetoLogs``).
+    delete_leto_logs: bool = True
+    #: Prompt before saving edited Mod Notes when navigating away; when off, notes are
+    #: saved silently (VB ``BehaviourConfirmSaves`` → ``RttDetails.SaveChangesPrompt``,
+    #: default on).
+    confirm_saves: bool = True
+    #: Size the Character Explorer portrait preview: ``"Huge"`` | ``"Large"`` |
+    #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
+    #: default ``"Huge"``).
+    portrait_display_size: str = "Huge"
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default

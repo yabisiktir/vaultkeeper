@@ -88,7 +88,7 @@ command-level audit did not catch — are all fixed:
 
 1. **Empty groups not rendered for drag-drop** ✅ FIXED — `controller.groups()` now seeds every visible group (incl. empty), matching VB `ApplyGroupsAndStatus`.
 2. **Ribbon tabs centered, not left-aligned** ✅ FIXED — the ribbon left-aligns its tab row (`setExpanding(False)` + stylesheet).
-3. **Settings depth (content gap)** ✅ DIAGNOSED + PARTLY BUILT — VB exposes 81 real prefs vs ~10 modelled; classified (12 ported / 16 divergence / 10 perf / 33 deferred-features / 10 real add-a-setting gaps); 5 of the 10 now built + wired (see FINDING_3_SETTINGS.md).
+3. **Settings depth (content gap)** ✅ DIAGNOSED + BUILT — VB exposes 81 real prefs vs ~10 modelled; classified (12 ported / 16 divergence / 10 perf / 33 deferred-features / 10 real add-a-setting gaps); all 10 now built + wired (see FINDING_3_SETTINGS.md).
 Plus 2 MISSING methods fixed (Copy Details / Copy Level in Character Explorer), a Mod Explorer filter bar, a Mod Play Viewer end-level filter, and Portrait Prev/Next.
 
 ## Audit status — COMPLETE + VERIFIED

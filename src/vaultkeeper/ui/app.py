@@ -51,4 +51,19 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     window.show()
     if first_run:
         window.offer_legacy_import()
+
+    # Auto-move Leto log files to the recycle bin on startup, when enabled (VB
+    # DeleteLetoLogs, run from the Shown event). Best-effort: never block startup.
+    if controller is not None:
+        try:
+            from vaultkeeper.config.settings import load_settings
+
+            if load_settings().delete_leto_logs:
+                removed = controller.remove_all_leto_log_files()
+                if removed:
+                    window.refresh()
+                    window.nit_status.set_info(f"Removed {removed} Leto log file(s).")
+        except Exception:
+            logger.exception("Leto log auto-cleanup failed; continuing")
+
     return app.exec()

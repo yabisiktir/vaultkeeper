@@ -37,7 +37,18 @@ from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 
 _CHAR_ROLE = Qt.ItemDataRole.UserRole
-_PORTRAIT_BOX = 128  # px — the portrait preview is a square this size.
+_PORTRAIT_BOX = 128  # px — default fallback box for the portrait preview.
+
+#: Portrait preview box size (px) per VB ``ConfigPortraitDisplaySize`` — the VB
+#: ``Defs.PicSizes`` widths H=256 / L=128 / M=64 (portraits are taller than wide, so
+#: the image scales to fit within a box of this size keeping its aspect ratio).
+PORTRAIT_SIZES = {"Huge": 256, "Large": 128, "Medium": 64}
+DEFAULT_PORTRAIT_SIZE = "Huge"
+
+
+def portrait_box(name: str) -> int:
+    """The preview box size (px) for a ``ConfigPortraitDisplaySize`` value."""
+    return PORTRAIT_SIZES.get(name, PORTRAIT_SIZES[DEFAULT_PORTRAIT_SIZE])
 
 
 def tga_to_pixmap(path: Path, *, box: int = _PORTRAIT_BOX) -> QPixmap | None:
@@ -65,13 +76,20 @@ class CharacterViewer(QDialog):
     """Browse characters with their summary and portrait."""
 
     def __init__(
-        self, characters: list, portrait_resolver=None, parent: QWidget | None = None
+        self,
+        characters: list,
+        portrait_resolver=None,
+        parent: QWidget | None = None,
+        *,
+        portrait_size: str = DEFAULT_PORTRAIT_SIZE,
     ) -> None:
         super().__init__(parent)
         self.setWindowIcon(R.get_icon("LookupUser_16x"))
         self.resize(680, 460)
         self._characters = characters
         self._resolve_portrait = portrait_resolver
+        #: Portrait preview box (px) from Settings.portrait_display_size (VB PicSizes).
+        self._portrait_box = portrait_box(portrait_size)
         # Level/class filter (VB LcbFilter -> CharacterFilter); default shows all.
         self._filter = CharacterLevelFilter()
         self._filter_text = "1"
@@ -101,7 +119,7 @@ class CharacterViewer(QDialog):
         right = QVBoxLayout()
         self._portrait = QLabel()
         self._portrait.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._portrait.setFixedHeight(_PORTRAIT_BOX)
+        self._portrait.setFixedHeight(self._portrait_box)
         right.addWidget(self._portrait)
 
         self._tabs = QTabWidget()
@@ -300,7 +318,7 @@ class CharacterViewer(QDialog):
             return
         path = self._resolve_portrait(resref, cf.path.parent)
         if path is not None:
-            pixmap = tga_to_pixmap(path)
+            pixmap = tga_to_pixmap(path, box=self._portrait_box)
             if pixmap is not None:
                 self._portrait.setPixmap(pixmap)
 
@@ -311,6 +329,11 @@ class CharacterViewer(QDialog):
         def resolver(resref: str, own_folder: Path):
             return controller.portrait_path(resref, extra_dirs=[own_folder])
 
-        dlg = cls(controller.character_files(), resolver, parent)
+        dlg = cls(
+            controller.character_files(),
+            resolver,
+            parent,
+            portrait_size=controller._settings().portrait_display_size,
+        )
         dlg.show()
         return dlg

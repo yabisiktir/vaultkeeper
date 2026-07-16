@@ -36,13 +36,24 @@ All wired to real behaviour + tested (`tests/test_default_group.py`,
 - **`BehaviourDisplayImageFiles`** / **`ConfigDisplayTgaImages`** /
   **`ConfigDisplayStdImages`** → `Settings.display_image_files` — one toggle; when off,
   Display Info opens images as text (`MainWindow._on_display_contents_info`).
+- **`ConfigDeleteLetoLogs`** → `Settings.delete_leto_logs` (default on) — a global
+  Leto-log sweep (`controller.remove_all_leto_log_files`: every managed mod's installer
+  + each installed game folder, VB `Workers.RemoveLetoLogFiles`) auto-runs on startup
+  (`ui/app.py`, VB `DeleteLetoLogs` from the Shown event). The manual **Remove Leto Log
+  Files** command runs the same sweep and is hidden while auto-delete is on
+  (`MainWindow._apply_leto_menu_visibility`, VB `MsRemoveLetoLogFiles.Visible = Not
+  ConfigDeleteLetoLogs`).
+- **`BehaviourConfirmSaves`** → `Settings.confirm_saves` (default on) — prompts before
+  saving edited Mod Notes when navigating away; off = silent auto-save
+  (`MainWindow._save_current_notes`, VB `RttDetails.SaveChangesPrompt`). The port's one
+  editable details surface (Mod Notes) is the faithful analogue of VB's rich-text
+  details editor.
+- **`ConfigPortraitDisplaySize`** → `Settings.portrait_display_size` (default `"Huge"`;
+  Huge/Large/Medium per VB `Defs.PicSizes` H/L/M) — sizes the Character Explorer portrait
+  preview (`ui/dialogs/character_viewer.py`).
 
-## Backlog — remaining safe-MISSING settings (defer; each needs a real hook)
-
-- `BehaviourConfirmSaves` — a save-confirm prompt (the port auto-saves; low value).
-- `ConfigDeleteLetoLogs` — auto-run `remove_leto_log_files`; needs the VB auto-trigger
-  point (post-install cleanup) identified before wiring (avoid a hollow toggle).
-- `ConfigPortraitDisplaySize` — default size for the Portrait Manager preview (cosmetic).
+All ten safe-MISSING settings are now built + wired + tested
+(`tests/test_finding3_settings.py` covers the final three).
 
 ## Deferred features (33) — NOT settings gaps
 

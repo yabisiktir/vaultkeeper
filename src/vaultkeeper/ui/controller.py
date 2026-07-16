@@ -517,6 +517,56 @@ class ProfileController:
             mod_name, lambda fk: fk.filename.lower() == target
         )
 
+    def remove_all_leto_log_files(self, *, to_trash: bool = True) -> int:
+        """Sweep every managed mod's installer AND each installed game folder for
+        Leto log files, removing them (VB ``Workers.RemoveLetoLogFiles``).
+
+        This is the global sweep behind both the auto-cleanup run on startup (when
+        ``Settings.delete_leto_logs`` is on — VB ``DeleteLetoLogs``) and the manual
+        **Remove Leto Log Files** command (VB ``MsRemoveLetoLogFiles_Click`` runs the
+        same worker). Game-folder copies go to the recycle bin (VB
+        ``SendToRecycleBin``); delete failures are tolerated and skipped (VB
+        ``letoFailures``). Installer-payload copies inside the managed store are
+        removed like the other installer cleanups (permanent — they are regenerable).
+        Returns the total number of Leto log files removed.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        target = C.LETO_LOG_FILENAME.lower()
+        removed = 0
+        # 1) Managed profile mod installers (VB loop over Paths.ProfileMods).
+        for name in list(self.pd.mod_keys):
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                continue
+            installer = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
+            for fk in list(md.files):
+                if fk.filename.lower() == target:
+                    (installer / fk.folder / fk.filename).unlink(missing_ok=True)
+                    self.pd.file_list.pop(fk, None)
+                    if fk in md.files:
+                        md.files.remove(fk)
+                    self.pd.changes.file.removed(fk)
+                    removed += 1
+        # 2) Installed game folders (VB loop over Mapper.NwnFolders).
+        seen: set[Path] = set()
+        for folder in self.ctx.game_folders.values():
+            log_path = folder / C.LETO_LOG_FILENAME
+            if log_path in seen or not log_path.is_file():
+                continue
+            seen.add(log_path)
+            try:
+                fs.delete(log_path, to_trash=to_trash)
+            except Exception:  # noqa: BLE001 — VB tolerates delete failures and moves on
+                continue
+            removed += 1
+        if removed:
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+        return removed
+
     def remove_illegal_mod_files(self) -> dict:
         """Relocate every mod file that maps to no legal folder / non-NWN extension.
 

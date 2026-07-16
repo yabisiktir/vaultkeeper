@@ -350,9 +350,16 @@ def test_deselection_clears_detail_panes(qtbot, controller) -> None:
     assert win._mod_info.text() == ""
 
 
-def test_notes_edit_and_persist(qtbot, controller) -> None:
+def test_notes_edit_and_persist(qtbot, controller, monkeypatch) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
+    # Confirm-saves defaults on (VB BehaviourConfirmSaves), so switching away with
+    # edited notes prompts; accept the save.
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
     _select_mod(win, "Alpha")
     # Type a note and switch selection -> it is saved to the mod's RTF.
     # (setPlainText alone doesn't set the modified flag; a real keypress does,

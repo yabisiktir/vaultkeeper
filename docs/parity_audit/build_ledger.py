@@ -263,9 +263,9 @@ def write_dashboard(dest, members, handlers, controls):
       "seeds every visible group (incl. empty), matching VB `ApplyGroupsAndStatus`.")
     A("2. **Ribbon tabs centered, not left-aligned** ✅ FIXED — the ribbon left-aligns its "
       "tab row (`setExpanding(False)` + stylesheet).")
-    A("3. **Settings depth (content gap)** ✅ DIAGNOSED + PARTLY BUILT — VB exposes 81 real "
+    A("3. **Settings depth (content gap)** ✅ DIAGNOSED + BUILT — VB exposes 81 real "
       "prefs vs ~10 modelled; classified (12 ported / 16 divergence / 10 perf / 33 deferred-"
-      "features / 10 real add-a-setting gaps); 5 of the 10 now built + wired "
+      "features / 10 real add-a-setting gaps); all 10 now built + wired "
       "(see FINDING_3_SETTINGS.md).")
     A("Plus 2 MISSING methods fixed (Copy Details / Copy Level in Character Explorer), a Mod "
       "Explorer filter bar, a Mod Play Viewer end-level filter, and Portrait Prev/Next.\n")

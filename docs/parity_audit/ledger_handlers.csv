@@ -540,7 +540,7 @@ NIT.Menu.vb,NIT,MsPublishMod_Click,Sub,MsPublishMod.Click,NIT.Menu.vb:3654,none,
 NIT.Menu.vb,NIT,MsLoadscreens_Click,Sub,MsLoadscreens.Click,NIT.Menu.vb:3699,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsHakPatchEditor_Click,Sub,MsHakPatchEditor.Click,NIT.Menu.vb:3732,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsAliasSection_Click,Sub,MsAliasSection.Click,NIT.Menu.vb:3754,none,,Deferred,handler for a command in the tracked deferred set.
-NIT.Menu.vb,NIT,MsRemoveLetoLogFiles_Click,Sub,MsRemoveLetoLogFiles.Click,NIT.Menu.vb:3779,none,,Ported,menu command handler whose command is wired in port _command_handlers().
+NIT.Menu.vb,NIT,MsRemoveLetoLogFiles_Click,Sub,MsRemoveLetoLogFiles.Click,NIT.Menu.vb:3779,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSynchroniseMods_Click,Sub,MsSynchroniseMods.Click,NIT.Menu.vb:3816,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsCompact_Click,Sub,MsCompact.Click,NIT.Menu.vb:3857,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsRemoveIllegalModFiles_Click,Sub,MsRemoveIllegalModFiles.Click,NIT.Menu.vb:3918,none,,Ported,menu command handler whose command is wired in port _command_handlers().

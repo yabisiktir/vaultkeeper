@@ -157,11 +157,34 @@ class SettingsDialog(QDialog):
         self.display_image_files = QCheckBox("Preview image files in Display Info")
         self.display_image_files.setChecked(settings.display_image_files)
         form.addRow(self.display_image_files)
+
+        self.delete_leto_logs = QCheckBox(
+            "Move Leto log files to the recycle bin when the app starts"
+        )
+        self.delete_leto_logs.setChecked(settings.delete_leto_logs)
+        form.addRow(self.delete_leto_logs)
+
+        self.confirm_saves = QCheckBox("Ask before saving edited mod notes")
+        self.confirm_saves.setChecked(settings.confirm_saves)
+        form.addRow(self.confirm_saves)
+
+        self.portrait_display_size = QComboBox()
+        self.portrait_display_size.addItems(self._PORTRAIT_SIZE_LABELS)
+        try:
+            index = self._PORTRAIT_SIZE_LABELS.index(settings.portrait_display_size)
+        except ValueError:
+            index = 0
+        self.portrait_display_size.setCurrentIndex(index)
+        form.addRow("Character portrait size:", self.portrait_display_size)
         return page
 
     #: QComboBox item labels for ``self.theme``, in display order, mapped to the
     #: ``Settings.theme`` values in ``vaultkeeper.ui.theme.THEMES``.
     _THEME_LABELS = ("System", "Light", "Dark")
+
+    #: Character-portrait size labels (VB ``ConfigPortraitDisplaySize`` H/L/M); the
+    #: label is stored verbatim in ``Settings.portrait_display_size``.
+    _PORTRAIT_SIZE_LABELS = ("Huge", "Large", "Medium")
 
     def _build_appearance(self, settings: Settings) -> QWidget:
         """Appearance preferences: BOUNDED PORT of the VB font/colour editor.
@@ -338,6 +361,9 @@ class SettingsDialog(QDialog):
         settings.confirm_actions = self.confirm_actions.isChecked()
         settings.uninstall_dependencies = self.uninstall_dependencies.isChecked()
         settings.display_image_files = self.display_image_files.isChecked()
+        settings.delete_leto_logs = self.delete_leto_logs.isChecked()
+        settings.confirm_saves = self.confirm_saves.isChecked()
+        settings.portrait_display_size = self.portrait_display_size.currentText()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 
