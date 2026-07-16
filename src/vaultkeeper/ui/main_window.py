@@ -941,6 +941,7 @@ class MainWindow(QMainWindow):
             "MsPortraitManager": self._on_portraits,
             "MsClassesSkillsAndFeats": self._on_classes_skills_feats,
             "MsLoadscreens": self._on_loadscreens,
+            "MsEditStartScreenPrefixes": self._on_edit_start_screen_prefixes,
             "RbnPortraitManager": self._on_portraits,
             # Edit the GameMapper's remembered user responses.
             "DbGameMapUserReport": self._on_user_responses,
@@ -1485,6 +1486,14 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.start_screen_manager import StartScreenManager
 
         self._start_screen_manager = StartScreenManager.show_for(self.controller, self)
+
+    def _on_edit_start_screen_prefixes(self) -> None:
+        """Edit the Start-Screen prefix list (VB MsEditStartScreenPrefixes)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.prefix_editor import PrefixEditor
+
+        self._prefix_editor = PrefixEditor.show_for(self.controller, self)
 
     def _on_user_responses(self) -> None:
         if self.controller is None:

@@ -3105,6 +3105,32 @@ class ProfileController:
             keep = [p for p in extracted if p.name.lower() not in exclusions]
             return self.add_loadscreen_images(keep, overwrite=overwrite)
 
+    def loadscreen_prefix_text(self) -> str:
+        """The raw Start-Screen prefix file text (VB ``StartScreenPrefixFile``)."""
+        from vaultkeeper.game import start_screen as ss
+
+        path = self._profile_data_dir() / ss.PREFIX_FILENAME
+        try:
+            return path.read_text(encoding="utf-8")
+        except OSError:
+            return ""
+
+    def save_loadscreen_prefixes(self, text: str) -> None:
+        """Write the Start-Screen prefix file (VB ``MsEditStartScreenPrefixes`` edits it).
+
+        One prefix per line; a leading ``!`` keeps a prefix defined but disabled
+        (VB ``InactivePrefix``). Trailing whitespace-only lines are dropped.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        lines = [ln.rstrip() for ln in text.splitlines() if ln.strip()]
+        data_dir = self._profile_data_dir()
+        data_dir.mkdir(parents=True, exist_ok=True)
+        body = "\n".join(lines)
+        (data_dir / ss.PREFIX_FILENAME).write_text(
+            body + ("\n" if body else ""), encoding="utf-8"
+        )
+
     def delete_loadscreen_images(self, names: list[str]) -> dict:
         """Delete image files from the managed mod (VB ``RbDeleteFile`` @1340).
 

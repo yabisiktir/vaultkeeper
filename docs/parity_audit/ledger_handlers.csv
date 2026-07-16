@@ -514,7 +514,7 @@ NIT.Menu.vb,NIT,MsFindAndRename_Click,Sub,MsFindAndRename.Click,NIT.Menu.vb:2713
 NIT.Menu.vb,NIT,MsConvertRestorer_Click,Sub,MsConvertRestorer.Click,NIT.Menu.vb:2738,strong,vaultkeeper/ui/controller.py,Ported,verified: wired command handlers
 NIT.Menu.vb,NIT,MsEditWebLink_Click,Sub,MsEditWebLink.Click,NIT.Menu.vb:2812,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsCopyWebLink_Click,Sub,MsCopyWebLink.Click,NIT.Menu.vb:2847,none,,Ported,menu command handler whose command is wired in port _command_handlers().
-NIT.Menu.vb,NIT,MsEditStartScreenPrefixes_Click,Sub,MsEditStartScreenPrefixes.Click,NIT.Menu.vb:2866,none,,Deferred,handler for a command in the tracked deferred set.
+NIT.Menu.vb,NIT,MsEditStartScreenPrefixes_Click,Sub,MsEditStartScreenPrefixes.Click,NIT.Menu.vb:2866,none,,Ported,"Start-Screen prefix editor ported: controller.loadscreen_prefix_text/save_loadscreen_prefixes + ui/dialogs/prefix_editor.py (edit LoadscreenPrefixes.txt), wired MsEditStartScreenPrefixes. (StartScreen slideshow timer stays deferred = low-value.)"
 NIT.Menu.vb,NIT,MsCollapseAllGroups_Click,Sub,MsCollapseAllGroups.Click,NIT.Menu.vb:2891,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsExpandAllGroups_Click,Sub,MsExpandAllGroups.Click,NIT.Menu.vb:2912,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsCharacterSummary_Click,Sub,MsCharacterSummary.Click,NIT.Menu.vb:2933,none,,Ported,menu command handler whose command is wired in port _command_handlers().

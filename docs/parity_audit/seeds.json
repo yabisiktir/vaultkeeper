@@ -28,7 +28,6 @@
     "status": "Deferred",
     "note": "Needs an unported subsystem/editor; tracked in handoff.",
     "names": [
-      "MsEditStartScreenPrefixes",
       "MsFindAndRename",
       "MsRefreshWorkshopFiles",
       "RbnManageWorkshop",
@@ -489,7 +488,6 @@
     "note": "handler for a command in the tracked deferred set.",
     "names": [
       "MsBackupManager_Click",
-      "MsEditStartScreenPrefixes_Click",
       "MsExportMods_Click",
       "MsFindAndRename_Click",
       "MsImportMods_Click",
@@ -2786,6 +2784,14 @@
     "names": [
       "RunAutoRestorers",
       "BuildOriginalFiles"
+    ]
+  },
+  "prefix_editor_ported": {
+    "status": "Ported",
+    "note": "Start-Screen prefix editor ported: controller.loadscreen_prefix_text/save_loadscreen_prefixes + ui/dialogs/prefix_editor.py (edit LoadscreenPrefixes.txt), wired MsEditStartScreenPrefixes. (StartScreen slideshow timer stays deferred = low-value.)",
+    "names": [
+      "MsEditStartScreenPrefixes",
+      "MsEditStartScreenPrefixes_Click"
     ]
   }
 }
