@@ -28,7 +28,6 @@
     "status": "Deferred",
     "note": "Needs an unported subsystem/editor; tracked in handoff.",
     "names": [
-      "MsCreateOriginalRestorers",
       "MsEditStartScreenPrefixes",
       "MsFindAndRename",
       "MsRefreshWorkshopFiles",
@@ -75,7 +74,6 @@
     "status": "Deferred",
     "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) — grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
     "names": [
-      "RunAutoRestorers",
       "AutoDatabaseRestorer",
       "ValidateDatabaseRestorer",
       "AutoIniFileRestorer",
@@ -83,9 +81,7 @@
       "AutoNitConfigFileRestorer",
       "AutoCharacterRestorer",
       "GetCharacterList",
-      "ValidateCharacterMod",
-      "AutoOriginalRestorer",
-      "IsNotNamedOriginal"
+      "ValidateCharacterMod"
     ]
   },
   "modview_divergence_inline_props": {
@@ -329,12 +325,9 @@
     "note": "unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder.",
     "names": [
       "BuildOriginalEeFiles",
-      "BuildOriginalFiles",
       "BuildOriginalFilesDoWork",
       "CheckInstalledFiles",
       "CheckSelectedFiles",
-      "CreateOriginalEeFiles",
-      "CreateOriginalFiles",
       "DevelopmentFolder",
       "ExportedMods",
       "GetEeFolders",
@@ -362,13 +355,10 @@
       "UpdateFromVersion9",
       "UpdateOriginalEeFiles",
       "UpdateOriginalEeFilesThread",
-      "UseEeOriginal",
-      "UseNwOriginal",
       "ValidateInstalledFileData",
       "ValidateInstalledFileDataThread",
       "ValidateModAndFileData",
-      "ValidateModAndFileDataThread",
-      "ValidateOriginals"
+      "ValidateModAndFileDataThread"
     ]
   },
   "core_divergence": {
@@ -499,7 +489,6 @@
     "note": "handler for a command in the tracked deferred set.",
     "names": [
       "MsBackupManager_Click",
-      "MsCreateOriginalRestorers_Click",
       "MsEditStartScreenPrefixes_Click",
       "MsExportMods_Click",
       "MsFindAndRename_Click",
@@ -1538,8 +1527,6 @@
       "NextIndex",
       "OldInfoFilename",
       "OriginalEeSourceFiles",
-      "OriginalSourceFile",
-      "OriginalSourceFiles",
       "PicClose_Click",
       "PicClose_MouseEnter",
       "PicClose_MouseHover",
@@ -2774,6 +2761,31 @@
       "LvFolders_ItemClicked",
       "CmMenuItem_Click",
       "RefreshContextMenu"
+    ]
+  },
+  "original_restorers_ported": {
+    "status": "Ported",
+    "note": "Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers.",
+    "names": [
+      "OriginalSourceFiles",
+      "OriginalSourceFile",
+      "ValidateOriginals",
+      "AutoOriginalRestorer",
+      "CreateOriginalFiles",
+      "CreateOriginalEeFiles",
+      "UseEeOriginal",
+      "UseNwOriginal",
+      "IsNotNamedOriginal",
+      "MsCreateOriginalRestorers",
+      "MsCreateOriginalRestorers_Click"
+    ]
+  },
+  "original_restorers_partial": {
+    "status": "Partial",
+    "note": "Bounded: RunAutoRestorers auto-run-on-load is not ported (only the manual Create Original Restorers command); BuildOriginalFiles rescans the install from disk (the port uses the bundled CRC tables instead).",
+    "names": [
+      "RunAutoRestorers",
+      "BuildOriginalFiles"
     ]
   }
 }

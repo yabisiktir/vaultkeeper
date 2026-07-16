@@ -1044,6 +1044,72 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
+    def original_source_files(self) -> list:
+        """Installed files that are pristine game originals (VB ``OriginalSourceFiles``)."""
+        from vaultkeeper.game.original_files import original_source_files
+
+        return original_source_files(self.pd, self.ctx.mapper, is_ee=self.ctx.is_ee)
+
+    def create_original_restorers(self) -> dict:
+        """Back up the pristine game-original files into restorer mods.
+
+        Faithful port of ``MsCreateOriginalRestorers``: validate which installed files
+        are untouched game originals (``ValidateOriginals``), group them into the fixed
+        Core / INI / Character restorers plus a per-module restorer for each base-game
+        module (``AutoOriginalRestorer``), and build each as a restorer mod whose payload
+        is a copy of those original files. Returns ``{"created", "files", "originals",
+        "message"}``.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.original_files import (
+            restorer_buckets,
+            validate_originals,
+        )
+
+        validate_originals(self.pd, self.ctx.mapper, is_ee=self.ctx.is_ee)
+        originals = self.original_source_files()
+        buckets = restorer_buckets(originals)
+
+        created = 0
+        files = 0
+        for (group, name), fks in buckets.items():
+            installer_dir = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
+            copied = 0
+            for fk in fks:
+                folder = self.ctx.game_folders.get(fk.folder)
+                if folder is None:
+                    continue
+                src = folder / fk.filename
+                if not src.is_file():
+                    continue
+                dest = installer_dir / fk.folder / fk.filename
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dest)
+                copied += 1
+            if copied == 0:
+                continue
+            if self.pd.mod_item(name) is None:
+                self.create_mod(name, group)
+            self.create_installer(name)
+            self.create_restorer(name)
+            created += 1
+            files += copied
+
+        self.save()
+        message = (
+            f"Original restorers created: {created} ({files} file(s))."
+            if created
+            else "No pristine original files were found to restore."
+        )
+        return {
+            "created": created,
+            "files": files,
+            "originals": len(originals),
+            "message": message,
+        }
+
     def convert_restorer(self, mod_name: str) -> int:
         """Convert a Restorer into an installable Mod (VB ``MsConvertRestorer``).
 

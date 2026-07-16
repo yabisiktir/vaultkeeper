@@ -969,6 +969,7 @@ class MainWindow(QMainWindow):
             "RbnInstallationManager": self._on_installation_manager,
             "MsHakPatchEditor": self._on_hak_patch_editor,
             "MsAliasSection": self._on_alias_section,
+            "MsCreateOriginalRestorers": self._on_create_original_restorers,
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
@@ -1591,6 +1592,15 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.hak_patch_editor import HakPatchEditor
 
         self._hak_patch_editor = HakPatchEditor.show_for(self.controller, self)
+
+    def _on_create_original_restorers(self) -> None:
+        """Back up pristine game originals into restorer mods (VB MsCreateOriginalRestorers)."""
+        if self.controller is None:
+            return
+        self.nit_status.set_info("Creating original NWN installation restorers…")
+        result = self.controller.create_original_restorers()
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     def _on_alias_section(self) -> None:
         """Open the Alias Section editor (edit nwn.ini [Alias] — VB MsAliasSection).

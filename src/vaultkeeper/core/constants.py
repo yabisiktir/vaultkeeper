@@ -98,6 +98,16 @@ RESERVED_MOD_NAMES: Final = frozenset(
     }
 )
 
+# --- Original-restorer groups / mod names (ProfileData.Defs) --------------- #
+#: Group the auto-created original restorers land in (Pdc.RestorerGroup).
+RESTORER_GROUP: Final = "000.  Restorers"
+#: Group for the base-game modules NWN itself installed (Pdc.OriginalModsGroup).
+ORIGINAL_MODS_GROUP: Final = "799.  Mods Installed by NWN"
+#: The three fixed original-file restorer mod names (Pdc.*Restorer).
+CORE_FILES_RESTORER: Final = "1.  NWN Core Files Restorer"
+INI_FILES_RESTORER: Final = "2.  NWN INI Files Restorer"
+CHARACTER_FILES_RESTORER: Final = "3.  NWN Character Files Restorer"
+
 # --- Installer sentinel names (InstalledFileData.Installer values) -------- #
 #: File is an unmodified game-shipped original (Pdc.ModOriginal).
 INSTALLER_ORIGINAL: Final = "Neverwinter Nights installation"
