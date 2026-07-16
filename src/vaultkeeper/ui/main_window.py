@@ -967,6 +967,7 @@ class MainWindow(QMainWindow):
             "MsInstallationAnalyser": self._on_analyse,
             "MsInstallationManager": self._on_installation_manager,
             "RbnInstallationManager": self._on_installation_manager,
+            "MsHakPatchEditor": self._on_hak_patch_editor,
             "MsModExplorer": self._on_mod_explorer,
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
@@ -1581,6 +1582,14 @@ class MainWindow(QMainWindow):
         self._installation_manager = InstallationManager.show_for(self.controller, self)
         # Applying a set changes install state; refresh the main list when it closes.
         self._installation_manager.finished.connect(self.refresh)
+
+    def _on_hak_patch_editor(self) -> None:
+        """Open the Hak Patch editor (order patch-hak loading — VB MsHakPatchEditor)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.hak_patch_editor import HakPatchEditor
+
+        self._hak_patch_editor = HakPatchEditor.show_for(self.controller, self)
 
     def _on_mod_explorer(self) -> None:
         if self.controller is None:

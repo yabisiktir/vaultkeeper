@@ -30,7 +30,6 @@
     "names": [
       "MsCreateOriginalRestorers",
       "MsEditStartScreenPrefixes",
-      "MsHakPatchEditor",
       "MsAliasSection",
       "MsFindAndRename",
       "MsRefreshWorkshopFiles",
@@ -75,7 +74,7 @@
   "_swept_files_comment": "Rows below were classified by the sweep (evidence in git/grep). NIT.ModView.vb swept 2026-07-15 as the first demonstration file.",
   "modview_deferred_autorestorers": {
     "status": "Deferred",
-    "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) \u2014 grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
+    "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) — grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
     "names": [
       "RunAutoRestorers",
       "AutoDatabaseRestorer",
@@ -506,7 +505,6 @@
       "MsEditStartScreenPrefixes_Click",
       "MsExportMods_Click",
       "MsFindAndRename_Click",
-      "MsHakPatchEditor_Click",
       "MsImportMods_Click",
       "MsMoveToFolder_Click",
       "MsMoveToHistory_Click",
@@ -2518,22 +2516,19 @@
   },
   "sweep4_dlg_deferred": {
     "status": "Deferred",
-    "note": "CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), HakPatchEditor (MsHakPatchEditor dead; read-only model ported), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py).",
+    "note": "CrashDumpManager (Windows crash dumps), AliasSectionEditor (MsAliasSection dead), ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py).",
     "names": [
       "AliasSectionEditor_Load",
       "AliasSectionEditor_Shown",
       "AllowDisable",
       "BgOpenSupportPage_DoWork",
       "BhAliasEditor_Click",
-      "BhHelp_Click",
       "BtDeleteAll_Click",
       "BtSubmit_Click",
       "BuBrowse_Click",
       "CbDisable_CheckedChanged",
       "ChangeFolder",
       "CmMenuItem_Click",
-      "CmMoveDown_Click",
-      "CmMoveUp_Click",
       "CrashDumpManager_FormClosing",
       "CrashDumpManager_Load",
       "CrashFilesDeleted",
@@ -2542,16 +2537,10 @@
       "ExtendedDialogue_Load",
       "ExtendedEditionDialogue_Shown",
       "FileSizeAdjustment",
-      "HakPatchEditor_Load",
-      "HakPatchEditor_Shown",
       "LvCrashFiles_ItemClicked",
       "LvCrashFiles_SelectedIndexChanged",
       "LvFolders_ItemClicked",
-      "LvPatchList_ItemClicked",
-      "LvPatchList_SelectedIndexChanged",
       "MandatoryFoldersSpecified",
-      "MsMoveDown_Click",
-      "MsMoveUp_Click",
       "RefreshContextMenu",
       "RestoreDefaults",
       "RestoreFolder",
@@ -2749,6 +2738,30 @@
       "WindowHandle",
       "WorkshopIdName_Load",
       "WorkshopIdName_Shown"
+    ]
+  },
+  "hak_patch_editor_ported": {
+    "status": "Ported",
+    "note": "Hak Patch editor ported: controller.patch_hak_sequence/save_patch_hak_sequence (reorder PatchFileSequence.txt + regenerate nwnpatch.ini) + ui/dialogs/hak_patch_editor.py (list + Move Up/Down + Save), wired MsHakPatchEditor.",
+    "names": [
+      "HakPatchEditor_Load",
+      "HakPatchEditor_Shown",
+      "MsMoveUp_Click",
+      "MsMoveDown_Click",
+      "CmMoveUp_Click",
+      "CmMoveDown_Click",
+      "BhHelp_Click",
+      "MoveItem",
+      "MsHakPatchEditor",
+      "MsHakPatchEditor_Click"
+    ]
+  },
+  "hak_patch_editor_divergence": {
+    "status": "Divergence",
+    "note": "HakPatchEditor WinForms virtual-list selection plumbing (port uses QListWidget currentRowChanged).",
+    "names": [
+      "LvPatchList_ItemClicked",
+      "LvPatchList_SelectedIndexChanged"
     ]
   }
 }

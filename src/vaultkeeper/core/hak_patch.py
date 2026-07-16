@@ -89,6 +89,10 @@ class HakPatchManager:
                 haks.append(Path(ifk.filename).stem)
         return haks
 
+    def ordered_haks(self) -> list[str]:
+        """Public alias of :meth:`_ordered_haks` (the effective patch-hak order)."""
+        return self._ordered_haks()
+
     def _ordered_haks(self) -> list[str]:
         installed = self.installed_patch_haks()
         lowered = {h.lower() for h in installed}

@@ -1252,6 +1252,33 @@ class ProfileController:
         if stems:
             update_patch_sequence(self._profile_data_dir(), stems)
 
+    # -- Hak-patch editor (VB HakPatchEditor / HakPatchManager) ------------ #
+    def patch_hak_sequence(self) -> list[str]:
+        """The ordered patch-hak load sequence for the editor (VB ``HakPatchManager``).
+
+        The persisted sequence reconciled with the haks actually installed in the
+        game's ``patch`` folder: saved order first (installed only), then any newly
+        installed patch-haks appended (VB ``ValidateAll`` + ``PatchSequence``).
+        """
+        from vaultkeeper.core.hak_patch import read_patch_sequence
+
+        self._hpm.sequence = read_patch_sequence(self._profile_data_dir())
+        return self._hpm.ordered_haks()
+
+    def save_patch_hak_sequence(self, order: list[str]) -> None:
+        """Persist a new patch-hak order and regenerate ``nwnpatch.ini`` (VB ``BtSave_Click``).
+
+        The order is written to the NIT-managed ``PatchFileSequence.txt``; the game's
+        ``nwnpatch.ini`` (which NIT already owns and rebuilds on every install, backing
+        up the original once) is regenerated so the new order takes effect.
+        """
+        from vaultkeeper.core.hak_patch import save_patch_sequence
+
+        save_patch_sequence(self._profile_data_dir(), order)
+        self._hpm.sequence = list(order)
+        if self._hpm.installed_patch_haks():
+            self._hpm.create_nwn_patch_ini_file()
+
     def _bik_converter(self):
         """The BIK→WBM converter (ffmpeg by default, Fake in tests)."""
         if self._bik_backend is None:
