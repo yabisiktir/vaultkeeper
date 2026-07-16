@@ -218,7 +218,8 @@ MENUS: tuple = (
         (
             MenuItem("MsPlayNeverwinterNights", "&Neverwinter Nights", "StatusRun_16x", False),
             MenuItem("MsToolset", "Neverwinter Nights &Toolset", "Hammer_Builder_16xLG", False),
-            SEP,
+            # User-defined Run-menu programs (VB MsRunSeparator + user items) are
+            # appended dynamically by populate_run_menu, so no static separator here.
         ),
     ),
     ("&Web", "MsWeb", ()),
@@ -301,6 +302,8 @@ class NitMenuBar(QMenuBar):
         super().__init__(parent)
         self.menus: dict[str, QMenu] = {}
         self.actions_by_id: dict[str, QAction] = {}
+        #: User Run-menu program actions (incl. their separator), rebuilt on populate.
+        self._run_user_actions: list[QAction] = []
         for title, menu_id, items in MENUS:
             menu = self.addMenu(title)
             self.menus[menu_id] = menu
@@ -340,6 +343,34 @@ class NitMenuBar(QMenuBar):
             act.setToolTip(url)
             act.triggered.connect(lambda _=False, u=url: on_open(u))
             menu.addAction(act)
+
+    def populate_run_menu(self, entries, on_launch) -> None:
+        """Append the user's Run-menu programs after the fixed Play/Toolset items
+        (VB ``SetRunMenu``).
+
+        ``entries`` is a list of ``{"text", "path"}`` dicts; ``on_launch`` is called
+        with a program path when its item is triggered. A separator is shown before
+        the user items only when there are any (VB ``MsRunSeparator.Visible``); an
+        empty list leaves just the fixed entries.
+        """
+        menu = self.menus.get("MsRun")
+        if menu is None:
+            return
+        for act in self._run_user_actions:
+            menu.removeAction(act)
+        self._run_user_actions = []
+        entries = [e for e in entries if e.get("text") or e.get("path")]
+        if not entries:
+            return
+        self._run_user_actions.append(menu.addSeparator())
+        icon = R.get_icon("StatusRun_16x")
+        for entry in entries:
+            path = entry.get("path", "")
+            act = QAction(icon, entry.get("text", path), self)
+            act.setToolTip(path)
+            act.triggered.connect(lambda _=False, p=path: on_launch(p))
+            menu.addAction(act)
+            self._run_user_actions.append(act)
 
     def populate_recent_mods(self, names, on_select, *, numbered: bool = False) -> None:
         """Fill the Recent Mods submenu (VB ``MsRecentMods`` RecentItems manager).

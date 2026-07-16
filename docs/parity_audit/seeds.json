@@ -773,7 +773,6 @@
       "ExportedModsCount",
       "ForceNitUpdate",
       "GetDownloadInfo",
-      "GetRunMenuPath",
       "GetUpdateMessage",
       "ImportModsExported",
       "ImportPatchFile",
@@ -2107,16 +2106,13 @@
       "MsGetUpdatePerformClick",
       "MsGetUpdate_Click",
       "ProcessCharacterRestorer",
-      "RunMenu_Click",
       "SelectGameMod",
       "SetCreateOriginalRestorers",
       "SetDebugOptionsMenu",
-      "SetDefaultRunMenu",
       "SetDownloadMenuItems",
       "SetMoveToFolder",
       "SetNwnExePaths",
       "SetOriginalPortraitsMenuItem",
-      "SetRunMenu",
       "SetSharedNitMenuItems"
     ]
   },
@@ -2301,17 +2297,39 @@
   },
   "sweep3_deferred": {
     "status": "Deferred",
-    "note": "Run Menu (external launch programs) + screen-crop editor not ported.",
+    "note": "screen-crop editor not ported.",
+    "names": [
+      "ValidateScreenCrop"
+    ]
+  },
+  "run_menu_ported": {
+    "status": "Ported",
+    "note": "Run Menu (external launch programs) ported: Settings.run_links + menu_bar.populate_run_menu (SetRunMenu) + main_window._on_run_program launch (RunMenu_Click Case Else) + settings dialog Run Menu tab (Reset restores the empty default = SetDefaultRunMenu/ResetRunMenu).",
+    "names": [
+      "SetRunMenu",
+      "RunMenu_Click",
+      "SetDefaultRunMenu",
+      "ResetRunMenu"
+    ]
+  },
+  "run_menu_partial": {
+    "status": "Partial",
+    "note": "Run Menu editing present but bounded: the settings dialog Run Menu tab adds/edits/saves entries inline (label + Browse path) rather than via the VB MenuItemEditor dialog with icon extraction/validation.",
     "names": [
       "AddRunMenu",
-      "CmrChangeMenu_Click",
-      "CmrNewMenu_Click",
-      "ImportRunMenu",
-      "LvRunMenu_KeyPress",
-      "ResetRunMenu",
-      "ResetRunMenuItem",
       "SaveRunMenu",
-      "ValidateScreenCrop"
+      "CmrNewMenu_Click",
+      "CmrChangeMenu_Click"
+    ]
+  },
+  "run_menu_divergence": {
+    "status": "Divergence",
+    "note": "Run Menu cross-platform/framework bits N/A: GetRunMenuPath (auto-detects bundled Windows companion-tool paths — no bundled tools cross-platform), ImportRunMenu/ResetRunMenuItem (VB per-preference import/undo ListView framework), LvRunMenu_KeyPress (+/- move-keys; port uses Move Up/Down buttons).",
+    "names": [
+      "GetRunMenuPath",
+      "ImportRunMenu",
+      "ResetRunMenuItem",
+      "LvRunMenu_KeyPress"
     ]
   },
   "sweep3_divergence": {

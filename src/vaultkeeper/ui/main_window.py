@@ -197,6 +197,8 @@ class MainWindow(QMainWindow):
 
         _settings = load_settings()
         self.nit_menu.populate_web_menu(_settings.web_links, self._open_url)
+        # Populate the Run menu's user programs (VB SetRunMenu), after Play/Toolset.
+        self.nit_menu.populate_run_menu(_settings.run_links, self._on_run_program)
 
         # Recent Mods (VB MsRecentMods): most-recently-selected mod names, capped at
         # Settings.max_recent_mods, shown in a dynamic submenu. Number Recent Mods
@@ -281,6 +283,33 @@ class MainWindow(QMainWindow):
 
         QDesktopServices.openUrl(QUrl(url))
         self.nit_status.set_info(f"Opening {url}")
+
+    def _on_run_program(self, path: str) -> None:
+        """Launch an external Run-menu program (VB ``RunMenu_Click`` 'Case Else' →
+        ``RunProgram(..., UseShell)``).
+
+        A missing program is reported (VB shows "Unable to run … because the program
+        does not exist"); otherwise it is started detached in its own folder.
+        """
+        from pathlib import Path
+
+        exe = Path(path) if path else None
+        if exe is None or not exe.exists():
+            from PySide6.QtWidgets import QMessageBox
+
+            name = exe.name if exe is not None else "the program"
+            QMessageBox.warning(
+                self,
+                "Run",
+                f"Unable to run {name} because the program does not exist.",
+            )
+            return
+        from PySide6.QtCore import QProcess
+
+        if QProcess.startDetached(str(exe), [], str(exe.parent)):
+            self.nit_status.set_info(f"Launched {exe.name}.")
+        else:
+            self.nit_status.set_info(f"Could not launch {exe.name}.")
 
     def _on_toggle(self, item_id: str, checked: bool) -> None:
         """Handle checkable menu items (VB check-on-click toggles)."""
@@ -1668,8 +1697,10 @@ class MainWindow(QMainWindow):
         if settings is not None:
             # Reflect the recycle preference on the status bar toggle.
             self.nit_status.set_recycle(settings.recycle_on_delete)
-            # Rebuild the Web menu in case its links were edited (VB SetWebMenu).
+            # Rebuild the Web + Run menus in case their entries were edited (VB
+            # SetWebMenu / SetRunMenu).
             self.nit_menu.populate_web_menu(settings.web_links, self._open_url)
+            self.nit_menu.populate_run_menu(settings.run_links, self._on_run_program)
             # Reflect the auto-delete-leto preference on the manual command's visibility.
             self._apply_leto_menu_visibility()
             # If the game paths changed, reopen the profile so they take effect now.

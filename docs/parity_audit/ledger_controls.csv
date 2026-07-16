@@ -1271,7 +1271,7 @@ NIT,CmDetails,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual componen
 NIT,CmQuick,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 NIT,CmModProperties,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 NIT,ToolStripSeparator28,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
-NIT,MsRunSeparator,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
+NIT,MsRunSeparator,ToolStripSeparator,,,,,strong,vaultkeeper/ui/menu_bar.py,N/A,menu/toolbar separator
 NIT,ToolStripSeparator29,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 NIT,ToolStripSeparator30,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 NIT,ToolStripSeparator20,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator

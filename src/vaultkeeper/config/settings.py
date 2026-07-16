@@ -38,6 +38,17 @@ def default_web_links() -> list[dict[str, str]]:
     ]
 
 
+def default_run_links() -> list[dict[str, str]]:
+    """The default Run-menu programs (VB ``Defs.DefaultRunMenu`` / ``My.Settings.MenuRun``).
+
+    Empty by default: VB pre-fills two Windows-only companion tools (a console-command
+    helper and *NWVault Metadata Viewer*) whose paths it auto-detects on disk. Neither
+    is bundled cross-platform, so the port starts with no user programs and the user
+    adds their own (label + executable path) — the faithful, non-inventing default.
+    """
+    return []
+
+
 @dataclass
 class Settings:
     """The application settings model.
@@ -110,6 +121,10 @@ class Settings:
     portrait_display_size: str = "Huge"
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
+    #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the
+    #: fixed Play / Toolset entries (VB ``My.Settings.MenuRun`` / ``SetRunMenu``); empty
+    #: by default (see :func:`default_run_links`).
+    run_links: list[dict[str, str]] = field(default_factory=default_run_links)
     #: User map overrides ``{table: {key: folder}}`` merged onto the Mapper's default
     #: tables (VB My.Settings map customisations); empty = pure v21 defaults.
     map_overrides: dict[str, dict[str, str]] = field(default_factory=dict)

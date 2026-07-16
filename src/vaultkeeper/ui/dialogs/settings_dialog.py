@@ -65,6 +65,7 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(self._build_behaviour(settings), "Behaviour")
         self.tabs.addTab(self._build_appearance(settings), "Appearance")
         self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
+        self.tabs.addTab(self._build_run_menu(settings), "Run Menu")
         self.locations = self._build_locations(controller)
         if self.locations is not None:
             self.tabs.addTab(self.locations, "Locations")
@@ -289,6 +290,99 @@ class SettingsDialog(QDialog):
                 links.append({"text": text, "url": url})
         return links
 
+    def _build_run_menu(self, settings: Settings) -> QWidget:
+        """Editable Run-menu programs (VB Settings RunMenu: Menu Text / Program path).
+
+        Mirrors the Web-menu editor, but each entry is an external program to launch
+        (label + executable path); **Browse…** picks the path for the selected row.
+        """
+        page = QWidget()
+        outer = QVBoxLayout(page)
+        outer.addWidget(
+            QLabel("Programs shown in the Run menu (double-click a cell to edit):")
+        )
+
+        row = QHBoxLayout()
+        self.run_tree = QTreeWidget()
+        self.run_tree.setHeaderLabels(["Menu Text", "Program Path"])
+        self.run_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.run_tree.setRootIsDecorated(False)
+        for entry in settings.run_links:
+            self._add_run_row(entry.get("text", ""), entry.get("path", ""))
+        row.addWidget(self.run_tree, 1)
+
+        buttons = QVBoxLayout()
+        for label, slot in (
+            ("Add", self._run_add),
+            ("Browse…", self._run_browse),
+            ("Remove", self._run_remove),
+            ("Move Up", lambda: self._run_move(-1)),
+            ("Move Down", lambda: self._run_move(1)),
+            ("Reset", self._run_reset),
+        ):
+            btn = QPushButton(label)
+            btn.clicked.connect(slot)
+            buttons.addWidget(btn)
+        buttons.addStretch(1)
+        row.addLayout(buttons)
+        outer.addLayout(row)
+        return page
+
+    def _add_run_row(self, text: str, path: str) -> QTreeWidgetItem:
+        item = QTreeWidgetItem([text, path])
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        self.run_tree.addTopLevelItem(item)
+        return item
+
+    def _run_add(self) -> None:
+        item = self._add_run_row("New Program", "")
+        self.run_tree.setCurrentItem(item)
+        self.run_tree.editItem(item, 0)
+
+    def _run_browse(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+
+        item = self.run_tree.currentItem()
+        if item is None:
+            item = self._add_run_row("New Program", "")
+            self.run_tree.setCurrentItem(item)
+        path, _ = QFileDialog.getOpenFileName(self, "Select program", item.text(1))
+        if path:
+            item.setText(1, path)
+
+    def _run_remove(self) -> None:
+        index = self.run_tree.indexOfTopLevelItem(self.run_tree.currentItem())
+        if index >= 0:
+            self.run_tree.takeTopLevelItem(index)
+
+    def _run_move(self, delta: int) -> None:
+        tree = self.run_tree
+        index = tree.indexOfTopLevelItem(tree.currentItem())
+        target = index + delta
+        if index < 0 or not 0 <= target < tree.topLevelItemCount():
+            return
+        item = tree.takeTopLevelItem(index)
+        tree.insertTopLevelItem(target, item)
+        tree.setCurrentItem(item)
+
+    def _run_reset(self) -> None:
+        """Restore the default Run-menu programs (VB ResetRunMenu; empty by default)."""
+        from vaultkeeper.config.settings import default_run_links
+
+        self.run_tree.clear()
+        for entry in default_run_links():
+            self._add_run_row(entry.get("text", ""), entry.get("path", ""))
+
+    def run_links(self) -> list[dict[str, str]]:
+        """The current Run-menu programs from the tree (blank rows dropped)."""
+        entries = []
+        for i in range(self.run_tree.topLevelItemCount()):
+            item = self.run_tree.topLevelItem(i)
+            text, path = item.text(0).strip(), item.text(1).strip()
+            if text or path:
+                entries.append({"text": text, "path": path})
+        return entries
+
     def _build_locations(self, controller) -> QWidget | None:
         if controller is None:
             self.game_install_edit = None
@@ -369,6 +463,7 @@ class SettingsDialog(QDialog):
 
         settings.theme = THEMES[self.theme.currentIndex()]
         settings.web_links = self.web_links()
+        settings.run_links = self.run_links()
         if self.game_install_edit is not None:
             settings.nwn_path = self.game_install_edit.text().strip() or None
         if self.game_user_edit is not None:
