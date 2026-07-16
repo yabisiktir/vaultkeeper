@@ -28,10 +28,19 @@ _MOD_EXT = ".mod"
 #: The mod group NIT files newly-created workshop mods under (VB ``Pdc.WorkshopGroup``).
 WORKSHOP_GROUP = "820.  Steam Workshop"
 
+#: Prefix of a download-rule line that maps a Steam Workshop id to a mod name
+#: (VB ``VaultDownloadRules.MapIdText``).
+MAP_ID_TEXT = "MapId "
+
 
 def workshop_url(id_: str) -> str:
     """A Steam Workshop item's web page URL (VB ``Defs.SteamWorkshopUrl``)."""
     return f"https://steamcommunity.com/sharedfiles/filedetails/?id={id_}"
+
+
+def map_id_rule(workshop_id: str, mod_name: str) -> str:
+    """The download-rule line mapping a Workshop id to a mod (VB ``CmCopyMapIdRule``)."""
+    return f"{MAP_ID_TEXT}{workshop_id} = {mod_name}"
 
 
 @dataclass

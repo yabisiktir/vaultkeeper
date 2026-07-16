@@ -26,7 +26,9 @@ from vaultkeeper.ui.dialogs.help_viewer import help_button
 class PlayDataViewer(QDialog):
     """A read-only table of per-mod play times plus totals."""
 
-    def __init__(self, report: dict, parent: QWidget | None = None) -> None:
+    def __init__(
+        self, report: dict, parent: QWidget | None = None, *, daily: dict | None = None
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Mods Played")
         self.setWindowIcon(R.get_icon("PlayTime_16x"))
@@ -52,6 +54,10 @@ class PlayDataViewer(QDialog):
         )
         layout.addWidget(summary)
 
+        # Average hours per day (VB DailyPlayTimeInfo / GetDailyPlayInfo).
+        if daily and daily.get("recorded"):
+            layout.addWidget(QLabel(f"Average per day: {daily['average_label']}"))
+
         buttons = QHBoxLayout()
         buttons.addWidget(help_button("BhModsPlayed", self))
         buttons.addStretch(1)
@@ -63,6 +69,10 @@ class PlayDataViewer(QDialog):
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> PlayDataViewer:
         """Build and show the viewer for a controller's play report."""
-        dlg = cls(controller.play_times_report(), parent)
+        dlg = cls(
+            controller.play_times_report(),
+            parent,
+            daily=controller.daily_play_report(),
+        )
         dlg.show()
         return dlg

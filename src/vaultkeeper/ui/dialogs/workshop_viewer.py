@@ -8,7 +8,9 @@ Built on ``ProfileController.workshop_report`` / ``workshop_item_files``.
 folders against the persisted ``WorkshopContents`` database and reports newly-added
 subscriptions, subscriptions whose files changed, and unsubscribed items, persisting
 the updated database. **Rename** edits a subscription's stored mod name (VB
-``RenameMod``). The network title fetch and the "Copy MapId Rule" action are deferred.
+``RenameMod``). **Copy MapId Rule** puts a ``MapId <id> = <mod>`` download-rule line on
+the clipboard (VB ``CmCopyMapIdRule``). The network title fetch remains deferred (it needs
+a live Steam Community request).
 """
 
 from __future__ import annotations
@@ -76,11 +78,17 @@ class WorkshopViewer(QDialog):
         self.add_button.clicked.connect(self._on_add)
         self.rename_button = QPushButton("Rename…")
         self.rename_button.clicked.connect(self._on_rename)
+        self.map_id_button = QPushButton("Copy MapId Rule")
+        self.map_id_button.setToolTip(
+            "Copy a 'MapId <id> = <mod>' download-rule line to the clipboard."
+        )
+        self.map_id_button.clicked.connect(self._on_copy_map_id_rule)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         buttons.addWidget(self.refresh_button)
         buttons.addWidget(self.add_button)
         buttons.addWidget(self.rename_button)
+        buttons.addWidget(self.map_id_button)
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
@@ -126,6 +134,19 @@ class WorkshopViewer(QDialog):
         if ok and new:
             self._controller.rename_workshop_mod(workshop_id, new)
             self._scan()
+
+    def _on_copy_map_id_rule(self) -> None:
+        """Copy a 'MapId <id> = <mod>' download rule for the selection (VB ``CmCopyMapIdRule``)."""
+        current = self.items.currentItem()
+        if current is None:
+            return
+        from PySide6.QtWidgets import QApplication
+
+        from vaultkeeper.game.workshop import map_id_rule
+
+        rule = map_id_rule(current.text(0), current.text(2))
+        QApplication.clipboard().setText(rule)
+        self.summary.setText(f"Copied: {rule}")
 
     def refresh(self) -> None:
         """(Re)build the subscription list from disk (VB ``BtRefresh``)."""

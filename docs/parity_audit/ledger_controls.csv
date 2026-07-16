@@ -1771,7 +1771,7 @@ WorkshopViewer,LvWorkshop,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultk
 WorkshopViewer,ColumnHeaderPlus1,?,"""Workshop Id""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,ColumnHeaderPlus2,?,"""Managed""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,ColumnHeaderPlus3,?,"""Mod Name""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
-WorkshopViewer,CmCopyMapIdRule,?,"""Copy MapId Rule to Clipboard""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
+WorkshopViewer,CmCopyMapIdRule,?,"""Copy MapId Rule to Clipboard""",,,,strong,vaultkeeper/game/workshop.py | vaultkeeper/ui/dialogs/workshop_viewer.py,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,FvContents,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/file_view.py,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,ColumnHeaderPlus4,?,"""Subscription Contents""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,SplitterLine3,?,,,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)

@@ -2108,7 +2108,46 @@ class ProfileController:
     def process_play_session(self, started: datetime, stopped: datetime) -> dict:
         """Record a finished play session (log -> per-mod times -> persist)."""
         loop = self.play_loop
-        return loop.process_session(started, stopped) if loop is not None else {}
+        summary = loop.process_session(started, stopped) if loop is not None else {}
+        # Also accrue the session against today's daily total (VB DailyPlayTimeInfo).
+        from vaultkeeper.game.daily_play_time import session_minutes
+
+        self.record_daily_play(session_minutes(started, stopped))
+        return summary
+
+    # -- Daily play-time averages (VB DailyPlayTimeInfo) ------------------- #
+    def _daily_play_time_file(self) -> Path:
+        return self.data_dir() / "DailyPlayTime.json"
+
+    def _load_daily_play_time(self):
+        from vaultkeeper.game.daily_play_time import DailyPlayTime
+        from vaultkeeper.persistence.json_store import read_json
+
+        return DailyPlayTime.from_json(read_json(self._daily_play_time_file(), default={}))
+
+    def record_daily_play(self, minutes: int, *, day: str | None = None) -> None:
+        """Add play minutes to a day's total and persist (VB ``TodaysTime`` + ``Save``)."""
+        if minutes <= 0:
+            return
+        from vaultkeeper.persistence.json_store import write_json
+
+        daily = self._load_daily_play_time()
+        daily.add(minutes, day=day)
+        path = self._daily_play_time_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(path, daily.to_json())
+
+    def daily_play_report(self) -> dict:
+        """Average hours/day + per-day play totals (VB ``GetDailyPlayInfo``)."""
+        daily = self._load_daily_play_time()
+        average = daily.daily_average_hours()
+        rows = daily.daily_play_info()
+        return {
+            "average_hours": average,
+            "average_label": f"{average} hour" + ("s" if average != 1 else ""),
+            "days": rows,
+            "recorded": bool(rows),
+        }
 
     def mod_explorer_report(self) -> dict:
         """Every mod with its key properties, state and play time (VB ModExplorer)."""

@@ -1489,7 +1489,6 @@
       "BtAction_SizeChanged",
       "CalculateOriginalCrcs",
       "ChangeCount",
-      "CmCopyMapIdRule_Click",
       "Connect",
       "Connected",
       "CurrentFile",
@@ -2631,18 +2630,14 @@
     "names": [
       "CreateRepairList",
       "CurrentName",
-      "DailyAverage",
       "ExportFolder",
-      "GetDailyPlayInfo",
       "GetExports",
       "GetImports",
       "GetList",
       "GetSteamPage",
       "GetSteamTitle",
       "ModDataComparer",
-      "ModNameFromWeb",
-      "NitStartUp",
-      "TodaysTime"
+      "ModNameFromWeb"
     ]
   },
   "tail_divergence": {
@@ -2792,6 +2787,17 @@
     "names": [
       "MsEditStartScreenPrefixes",
       "MsEditStartScreenPrefixes_Click"
+    ]
+  },
+  "item8_ported": {
+    "status": "Ported",
+    "note": "DailyPlayTime + Copy-MapId-Rule ported: game/daily_play_time.py (DailyPlayTime avg/info, VB TodaysTime/DailyAverage/GetDailyPlayInfo/NitStartUp) + controller.record_daily_play/daily_play_report (hooked into process_play_session) surfaced in PlayDataViewer; game/workshop.map_id_rule + WorkshopViewer Copy MapId Rule (VB CmCopyMapIdRule). Steam Workshop network title fetch stays deferred (needs live Steam request).",
+    "names": [
+      "TodaysTime",
+      "DailyAverage",
+      "GetDailyPlayInfo",
+      "NitStartUp",
+      "CmCopyMapIdRule_Click"
     ]
   }
 }
