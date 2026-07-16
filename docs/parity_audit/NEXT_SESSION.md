@@ -1,85 +1,94 @@
-# Next session — continue porting Deferred features (keep proving no gap)
+# Next session — visual + help parity verification (the planned final phase)
 
 Paste-ready handoff for a fresh chat. Continues the VB.NET → Python migration of the
-"NWN Installer Tool" (port = **Vaultkeeper**). **Goal: port the remaining Deferred/Partial
-features and keep proving NO functionality gap exists.**
+"NWN Installer Tool" (port = **Vaultkeeper**).
 
 > Subagents are allowed; the main agent may use cheaper models for the mechanical work.
 
+## Status — the deferred-feature queue is COMPLETE
+
+The previous queue (items 1–8: Finding-3 settings, Run Menu, Installation Manager,
+Hak-patch + Alias editors, Original-restorers, Start-screen prefix editor, Copy-MapId +
+DailyPlayTime) is **done and merged to `main`** (commits `9466d7c..ee1cea2`). Every
+previously-dead command is now wired. The parity ledger is clean:
+
+- **0 GAP? / 0 AUTO-PORTED** across all three layers (methods / handlers / controls).
+- Method layer: **1198 Ported / 182 Partial / 378 Deferred / 1338 Divergence / 188 N/A**.
+
+The functional 1:1 feature port is effectively complete. What remains is **not** a set of
+forgotten features — it is (1) deliberate cross-platform **divergences**, (2) **data-blocked**
+network features, (3) **low-value** platform items, and (4) **Partial** ports that could be
+deepened. See "What's genuinely left" below.
+
 ## First, get context
 
-Read these memory files (full history/decisions):
-`nit-parity-audit`, `nit-vaultkeeper-handoff`, `nit-migration-project`, `nit-installed-original-tool`.
-Then read `docs/parity_audit/README.md` and `DASHBOARD.md`.
+Read these memory files: `nit-vaultkeeper-handoff`, `nit-parity-audit`,
+`nit-help-and-parity-plan`, `nit-installed-original-tool`. Then read
+`docs/parity_audit/README.md` and `DASHBOARD.md`.
+
+## GOAL this session — VISUAL + HELP PARITY VERIFICATION
+
+Now that features are ported, **prove the port looks and behaves like the original** —
+something feature-porting alone cannot show. This is the owner's planned final phase
+(`nit-help-and-parity-plan`).
+
+1. **Drive the real original** in the CrossOver bottle (`nit-installed-original-tool` has
+   the runnable `.exe` + the user-facing CHM = ground truth: 236 HTML topics + 729
+   screenshots, directly readable in the CrossOver install). Capture live screenshots of
+   each screen/dialog.
+2. **Render the corresponding Vaultkeeper screens** offscreen
+   (`QT_QPA_PLATFORM=offscreen`) and compare against the original + the CHM screenshots.
+   Log concrete visual divergences (layout, labels, control set, ordering, defaults) using
+   the same "finding" discipline that produced the three parity-audit findings.
+3. **Fix the high-value divergences** faithfully; **defer-with-note** anything that is an
+   intentional cross-platform divergence. Confirm a per-dialog **Help** button exists on
+   every dialog (the help viewer + CHM are already bundled — `ui/dialogs/help_viewer.py`).
+
+### Alternative tracks (state which you pick)
+- **(b) Deepen the 182 `Partial` ports** by value (each is noted in code + `seeds.json`).
+- **(c) The large true-LazWorks-FileView rewrite** (Contents/Details drag-drop, copy-paste,
+  rich-text, columns/sorting). **This pane divergence is intentional** — confirm the owner
+  wants pixel parity before starting; it is a big rewrite, not a bug.
+
+## What's genuinely left (all accounted for — none are unintended gaps)
+
+- **Intentional divergences:** true LazWorks FileView panes; Windows taskbar / crash-dumps /
+  auto-update / debug-options menu (cross-platform, left disabled).
+- **Data-blocked:** Steam Workshop **network title fetch** (needs a live Steam Community request).
+- **Low-value:** start-screen **slideshow** timer; shared-store / BackupManager network **sync**
+  (no NRBF writer / shared store, per the DATA STRATEGY decision).
+- **Bounded tails** of ported features (each noted): InstallationManager group-add/remove +
+  sort-by-date; Alias CustomAliasFile state machine + game-saves shared/per-profile toggle +
+  reset-to-standard; original-restorer campaign nuances + PruneAutoConfig + auto-run-on-load;
+  DailyPlayTime day-conversion consumer (no estimate consumer in the port yet).
 
 ## Where things are
 
 - **Port (edit here):** `NWN Installer Tool/vaultkeeper/src/vaultkeeper` — own git repo, on `main`.
-- **VB ground truth:** `NWN Installer Tool/NWN Installer Tool` — 203 `.vb` files, the ORIGINAL app.
+- **VB ground truth:** `NWN Installer Tool/NWN Installer Tool` — the ORIGINAL app.
+- **Runnable original + CHM:** in the CrossOver bottle (see `nit-installed-original-tool`).
 - **Audit ledger:** `NWN Installer Tool/vaultkeeper/docs/parity_audit/`.
 - Dev uses `./.venv/bin/python` (py3.13). Tests: `QT_QPA_PLATFORM=offscreen ./.venv/bin/python -m pytest`.
 - Suite is green **except 2 pre-existing real-data golden failures**
   (`test_ee_resolution_lights_up_real_installed_mods`, `test_real_import_open_shows_installed_grouped`)
-  — they fail on pristine code too (live NIT Store drift). Ignore them; do NOT "fix" by editing asserts.
+  — they fail on pristine code too (live NIT Store drift: 23 mods vs the 21 golden). Ignore them;
+  do NOT "fix" by editing asserts.
 
-## State
+## How to work
 
-The parity audit is **COMPLETE + VERIFIED** — every VB method (3284), handler (885) and control
-(1777) has an explicit status: Ported / Partial / Deferred / Divergence / N/A. **0 GAP?, 0 unverified,
-0 MISSING.** So the work now is to turn **Deferred/Partial → Ported**.
-
-## Work queue — the port's genuine feature gaps (Deferred), roughly by value
-
-Port each **faithfully** from the VB source; if a piece can't be done faithfully, **defer it with a
-note** rather than invent behaviour. These are real features — NOT the intentional cross-platform
-Divergences (Windows taskbar / crash-dumps / auto-update — leave those).
-
-1. **Finding-3 settings still unbuilt** (small, high-value): `confirm_saves`, `delete_leto_logs`
-   (VB `ConfigDeleteLetoLogs` — auto-runs `remove_leto_log_files`; find the VB trigger point),
-   `portrait_display_size`. Pattern already established: `config/settings.py` field +
-   `ui/dialogs/settings_dialog.py` Behaviour tab + a real hook + a test. See `FINDING_3_SETTINGS.md`.
-2. **Run Menu** (external launch programs) — VB `Settings.RunMenu` + `SetRunMenu`. The port has a
-   Web Menu; Run Menu is entirely absent.
-3. **Installation-sets editor** (`MsInstallationManager`) — VB `InstallationManager*.vb`
-   (checkpoints / user-defined mod sets). The install ENGINE is ported; the sets UI isn't.
-4. **Alias section editor** (`MsAliasSection` — nwn.ini `[Alias]`) + **Hak-patch editor**
-   (`MsHakPatchEditor`). Read-only models exist; editors deferred. Respect config-isolation
-   (never write game files without a confirm prompt).
-5. **Original-restorers** (`MsCreateOriginalRestorers` / `AutoOriginalRestorer` subsystem in
-   `NIT.ModView.vb` + `ProfileData.vb`: `UseNwOriginal`/`UseEeOriginal`/`BuildOriginalFiles`/
-   `ValidateOriginals`).
-6. **Start-screen**: slideshow + prefix editor (`MsEditStartScreenPrefixes`).
-7. **True LazWorks FileView** (contents/details drag-drop, copy-paste, rich-text) — large; the port
-   renders these panes structurally differently on purpose. Confirm scope before starting.
-8. **Steam Workshop** network title fetch + Copy-MapId-Rule; **DailyPlayTimeInfo** auto day factor.
-
-## How to work each item (faithful-or-defer)
-
-- Read the VB source for the feature FIRST (exact methods are in the ledger CSVs). Ground every
-  behaviour + default in the VB; verify data-contract values against the source before coding.
-- Implement headless/domain logic first (testable), then thin Qt UI. Match the port's patterns:
-  a `controller` method returning testable data + a `ui/dialogs/*.py` dialog + wire a command id.
-- Add tests. Keep ruff clean. Commit per tested increment (end the message with
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`). Ask before pushing.
-- **VALIDATE with the ledger after each feature:** move the ported methods Deferred→Ported by
-  editing `verify_files.json` (file granularity) or `seeds.json` (name), then regenerate:
+- Ground every behaviour/default/layout in the VB source or the CHM before changing the port.
+- Keep ruff clean (src+tests), add tests, and **validate with the ledger after each change**:
   ```
   cd docs/parity_audit
   python extract_vb.py "<vb src>" ./out && python build_ledger.py ./out "<port src>" .
   ```
-  Confirm `DASHBOARD.md` still shows **0 GAP? / 0 unverified** and the feature's rows are now Ported.
-  **Never mark Ported on a name match alone — confirm the port behaviour actually exists.**
-
-## Subagents (use cheaper models for the mechanical work; verify their output)
-
-- Use **haiku** subagents for READ-ONLY research/classification (e.g. "read VB file X's methods and
-  describe what each does + where a faithful port would live"). They gather EVIDENCE reliably but are
-  UNRELIABLE on the final Ported-vs-Deferred-vs-Divergence call — the **main agent must adjudicate**.
-- Do all hot-file edits (`controller.py` / `main_window.py` / `settings*.py`) yourself, SERIALLY.
-  Fan out only conflict-free NEW files to subagents; apply their proposed hot-file edits yourself.
-- Spot-check every subagent claim against the VB + port before trusting it.
+  Confirm `DASHBOARD.md` still shows **0 GAP? / 0 AUTO-PORTED**.
+- Commit per tested increment (end the message with
+  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`). Ask before pushing. Branch
+  first if on `main`.
 
 ## Start
 
-Regenerate the ledger, read the Deferred rows, pick item 1, port + test + validate it, commit, and
-continue down the queue. Say which item you're on.
+Say which track you're taking (visual/help parity verification is the recommended default).
+For the verification track: pick a handful of screens, screenshot the original + render the
+port, list divergences, fix the high-value ones, and continue screen-by-screen.
