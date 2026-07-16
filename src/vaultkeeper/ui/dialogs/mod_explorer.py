@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -24,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 
 _HEADERS = ["Mod", "Group", "State", "Rating", "Files", "Time Played", "Completed"]
 
@@ -68,6 +70,16 @@ class ModExplorer(QDialog):
 
         self._count_label = QLabel()
         layout.addWidget(self._count_label)
+
+        # Bottom bar: help (VB TsHelpExplorer) + Close.
+        buttons = QHBoxLayout()
+        buttons.addWidget(help_button("TsHelpExplorer", self))
+        buttons.addStretch(1)
+        close = QPushButton("Close")
+        close.clicked.connect(self.reject)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
+
         self._populate()
 
     def _passes(self, row: dict) -> bool:

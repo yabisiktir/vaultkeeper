@@ -14,6 +14,30 @@ from vaultkeeper.ui import help_model as H  # noqa: E402
 from vaultkeeper.ui.dialogs.help_viewer import HelpViewer  # noqa: E402
 
 
+def test_every_dialog_help_reference_resolves():
+    """Every help_button(...)/show_for_control(...) control name in the port must
+    resolve to a bundled help topic — a broken Help button is a parity regression."""
+    import re
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent / "src" / "vaultkeeper"
+    pattern = re.compile(
+        r"(?:help_button|show_for_control)\(\s*[\"']([^\"']+)[\"']"
+    )
+    controls = {
+        m.group(1)
+        for p in src.rglob("*.py")
+        for m in pattern.finditer(p.read_text())
+    }
+    assert controls, "expected to find help control references"
+    missing = [
+        c
+        for c in controls
+        if not (H.topic_for_control(c) and Path(H.topic_for_control(c)).exists())
+    ]
+    assert not missing, f"help buttons point at missing topics: {sorted(missing)}"
+
+
 def test_viewer_populates_toc_and_topic(qtbot):
     dlg = HelpViewer.show_for_control("ManageMenu")
     qtbot.addWidget(dlg)

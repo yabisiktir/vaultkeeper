@@ -60,7 +60,8 @@ class HakPatchEditor(QDialog):
         buttons = QHBoxLayout()
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
-        buttons.addWidget(help_button("BhHakPatchEditor", self))
+        # VB HakPatchEditor.BhHelp → bhhelp.htm ("Change the Hak Patch sequence").
+        buttons.addWidget(help_button("BhHelp", self))
         buttons.addStretch(1)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._on_save)

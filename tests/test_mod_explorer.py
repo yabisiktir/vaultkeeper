@@ -80,3 +80,16 @@ def test_mod_explorer_filter_bar(qtbot):
     dlg._state.setCurrentIndex(0)  # All states
     dlg._only_completed.setChecked(True)
     assert dlg.table.topLevelItemCount() == 1  # Aribeth (completed=2)
+
+
+def test_mod_explorer_has_help_button(qtbot, tmp_path):
+    # VB ModExplorer has a Help button (TsHelpExplorer → HelpFile.Open) — parity.
+    from PySide6.QtWidgets import QPushButton
+
+    dlg = ModExplorer.show_for(_controller(tmp_path))
+    qtbot.addWidget(dlg)
+    help_btn = next(
+        b for b in dlg.findChildren(QPushButton) if b.text() == "Help"
+    )
+    help_btn.click()
+    assert "tshelpexplorer.htm" in dlg._help_viewer.browser.source().toString().lower()

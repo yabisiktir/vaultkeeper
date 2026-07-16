@@ -49,7 +49,9 @@ class PrefixEditor(QDialog):
         buttons = QHBoxLayout()
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
-        buttons.addWidget(help_button("BhStartScreenManager", self))
+        # VB opened LoadscreenPrefixes.txt in a text editor (no help button); the
+        # port's dialog points at the Start Screen Manager topic (rbloadscreenhelp.htm).
+        buttons.addWidget(help_button("RbLoadscreenHelp", self))
         buttons.addStretch(1)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._on_save)

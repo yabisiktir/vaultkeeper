@@ -35,6 +35,7 @@ from vaultkeeper.core.formats.tga_reader import TGAReader
 from vaultkeeper.game.character import level_summary
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.dialogs.help_viewer import help_button
 
 _CHAR_ROLE = Qt.ItemDataRole.UserRole
 _PORTRAIT_BOX = 128  # px — default fallback box for the portrait preview.
@@ -131,8 +132,10 @@ class CharacterViewer(QDialog):
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
 
-        # Bottom bar: match count + copy actions + Close.
+        # Bottom bar: help + match count + copy actions + Close.
         bar = QHBoxLayout()
+        # VB CharacterViewer help button → HelpFile.Open("MsCharacterViewer").
+        bar.addWidget(help_button("MsCharacterViewer", self))
         self._count_label = QLabel()
         bar.addWidget(self._count_label)
         bar.addStretch(1)

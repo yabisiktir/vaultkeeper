@@ -101,6 +101,17 @@ def test_viewer_empty_state(qtbot):
     assert "No character files" in dlg._summary.toPlainText()
 
 
+def test_viewer_has_help_button(qtbot, tmp_path):
+    # VB CharacterViewer has a Help button → HelpFile.Open("MsCharacterViewer").
+    from PySide6.QtWidgets import QPushButton
+
+    dlg = CharacterViewer([_char("Hero", tmp_path / "h.bic")], None)
+    qtbot.addWidget(dlg)
+    help_btn = next(b for b in dlg.findChildren(QPushButton) if b.text() == "Help")
+    help_btn.click()
+    assert "mscharacterviewer.htm" in dlg._help_viewer.browser.source().toString().lower()
+
+
 def test_viewer_populates_skills_and_feats(qtbot, tmp_path):
     # feat 0 = Alertness, feat 1 = Ambidexterity (bundled table); skills by id.
     chars = [
