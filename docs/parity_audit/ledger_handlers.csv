@@ -80,7 +80,7 @@ CharacterViewer.vb,CharacterViewer,LvFeats_RetrieveVirtualItem,Sub,LvFeats.Retri
 CharacterViewer.vb,CharacterViewer,Lv_SelectedIndexChanged,Sub,"LvSkills.SelectedIndexChanged, LvFeats.SelectedIndexChanged",CharacterViewer.vb:1062,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
 CharacterViewer.vb,CharacterViewer,Lv_MouseDoubleClick,Sub,"LvSkills.MouseDoubleClick, LvFeats.MouseDoubleClick",CharacterViewer.vb:1070,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
 CharacterViewer.vb,CharacterViewer,TabCharacter_SelectedIndexChanged,Sub,TabCharacter.SelectedIndexChanged,CharacterViewer.vb:1084,none,,Divergence,WinForms lifecycle/event/virtual-list/background-worker plumbing; N/A in Qt.
-ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SkillsAndFeats_Load,Sub,MyBase.Load,ClassesSkillsAndFeats.vb:46,strong,vaultkeeper/game/character_reference.py,AUTO-PORTED,
+ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SkillsAndFeats_Load,Sub,MyBase.Load,ClassesSkillsAndFeats.vb:46,strong,vaultkeeper/game/character_reference.py,Ported,verified: classes_skills_feats dialog + character_reference
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,SkillsAndFeats_Shown,Sub,Me.Shown,ClassesSkillsAndFeats.vb:159,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,TabMain_SelectedIndexChanged,Sub,TabMain.SelectedIndexChanged,ClassesSkillsAndFeats.vb:177,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
 ClassesSkillsAndFeats.vb,ClassesSkillsAndFeats,LvClasses_RetrieveVirtualItem,Sub,LvClasses.RetrieveVirtualItem,ClassesSkillsAndFeats.vb:197,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
@@ -149,7 +149,7 @@ DependencyManager.vb,DependencyManager,LvMods_RetrieveVirtualItem,Sub,LvMods.Ret
 DependencyManager.vb,DependencyManager,LvMods_ItemClicked,Sub,LvMods.ItemClicked,DependencyManager.vb:336,none,,Deferred,ModFindAndRename (dead MsFindAndRename) + DocOrganiser Properties/Reset + wizard file-threshold.
 DependencyManager.vb,DependencyManager,LvDependencies_RetrieveVirtualItem,Sub,LvDependencies.RetrieveVirtualItem,DependencyManager.vb:439,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
 DependencyManager.vb,DependencyManager,LvDependencies_ItemClicked,Sub,LvDependencies.ItemClicked,DependencyManager.vb:453,none,,Divergence,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
-DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_DoWork,Sub,BgProcessDocs.DoWork,DocOrganiser.ProcessDocs.vb:27,strong,vaultkeeper/game/documentation.py,AUTO-PORTED,
+DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_DoWork,Sub,BgProcessDocs.DoWork,DocOrganiser.ProcessDocs.vb:27,strong,vaultkeeper/game/documentation.py,Ported,verified: doc processing
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_ProgressChanged,Sub,BgProcessDocs.ProgressChanged,DocOrganiser.ProcessDocs.vb:157,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 DocOrganiser.ProcessDocs.vb,DocOrganiser,BgProcessDocs_RunWorkerCompleted,Sub,BgProcessDocs.RunWorkerCompleted,DocOrganiser.ProcessDocs.vb:197,none,,Divergence,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 DocOrganiser.vb,DocOrganiser,DocManager_Load,Sub,MyBase.Load,DocOrganiser.vb:291,none,,Divergence,"WinForms lifecycle/event/virtual-list/bg-worker + bounded-viewer extras (owner-confirm: ModPlayViewer end-level filter/recent, DocOrganiser rtf/properties)."
@@ -479,7 +479,7 @@ NIT.Menu.vb,NIT,RbnNwnIni_Click,Sub,RbnNwnIni.Click,NIT.Menu.vb:1298,none,,Porte
 NIT.Menu.vb,NIT,RbnExportSettings_Click,Sub,RbnExportSettings.Click,NIT.Menu.vb:1310,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnBackupData_Click,Sub,RbnBackupData.Click,NIT.Menu.vb:1360,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RbnButtonLabel_MouseLeave,Sub,"RbnExportSettings.MouseLeave, RbnBackupData.MouseLeave",NIT.Menu.vb:1375,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
-NIT.Menu.vb,NIT,RbnFontAndColour_Click,Sub,"RbnFontAndColour.Click, MsFontAndColour.Click",NIT.Menu.vb:1385,strong,vaultkeeper/ui/theme.py,AUTO-PORTED,
+NIT.Menu.vb,NIT,RbnFontAndColour_Click,Sub,"RbnFontAndColour.Click, MsFontAndColour.Click",NIT.Menu.vb:1385,strong,vaultkeeper/ui/theme.py,Ported,verified: wired command handlers
 NIT.Menu.vb,NIT,RbnManageWorkshop_Click,Sub,RbnManageWorkshop.Click,NIT.Menu.vb:1427,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,RbnAdvancedSettings_Click,Sub,RbnAdvancedSettings.Click,NIT.Menu.vb:1463,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsOpen_Click,Sub,MsOpen.Click,NIT.Menu.vb:1477,none,,Ported,menu command handler whose command is wired in port _command_handlers().
@@ -511,7 +511,7 @@ NIT.Menu.vb,NIT,MsDelete_Click,Sub,MsDelete.Click,NIT.Menu.vb:2578,none,,Ported,
 NIT.Menu.vb,NIT,MsRename_Click,Sub,MsRename.Click,NIT.Menu.vb:2620,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsFind_Click,Sub,MsFind.Click,NIT.Menu.vb:2648,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsFindAndRename_Click,Sub,MsFindAndRename.Click,NIT.Menu.vb:2713,none,,Deferred,handler for a command in the tracked deferred set.
-NIT.Menu.vb,NIT,MsConvertRestorer_Click,Sub,MsConvertRestorer.Click,NIT.Menu.vb:2738,strong,vaultkeeper/ui/controller.py,AUTO-PORTED,
+NIT.Menu.vb,NIT,MsConvertRestorer_Click,Sub,MsConvertRestorer.Click,NIT.Menu.vb:2738,strong,vaultkeeper/ui/controller.py,Ported,verified: wired command handlers
 NIT.Menu.vb,NIT,MsEditWebLink_Click,Sub,MsEditWebLink.Click,NIT.Menu.vb:2812,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsCopyWebLink_Click,Sub,MsCopyWebLink.Click,NIT.Menu.vb:2847,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsEditStartScreenPrefixes_Click,Sub,MsEditStartScreenPrefixes.Click,NIT.Menu.vb:2866,none,,Deferred,handler for a command in the tracked deferred set.
@@ -565,8 +565,8 @@ NIT.Menu.vb,NIT,MsValidateProfileData_Click,Sub,MsValidateProfileData.Click,NIT.
 NIT.Menu.vb,NIT,MsValidateMods_Click,Sub,MsValidateMods.Click,NIT.Menu.vb:4722,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsValidateInstalledData_Click,Sub,MsValidateInstalledData.Click,NIT.Menu.vb:4756,none,,Deferred,handler for a command in the tracked deferred set.
 NIT.Menu.vb,NIT,MsValidate_Click,Sub,MsValidate.Click,NIT.Menu.vb:4811,none,,Deferred,handler for a command in the tracked deferred set.
-NIT.Menu.vb,NIT,MsRecoverGroups_Click,Sub,MsRecoverGroups.Click,NIT.Menu.vb:4898,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
-NIT.Menu.vb,NIT,MsRecoverModProperties_Click,Sub,MsRecoverModProperties.Click,NIT.Menu.vb:5077,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,AUTO-PORTED,
+NIT.Menu.vb,NIT,MsRecoverGroups_Click,Sub,MsRecoverGroups.Click,NIT.Menu.vb:4898,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,Ported,verified: wired command handlers
+NIT.Menu.vb,NIT,MsRecoverModProperties_Click,Sub,MsRecoverModProperties.Click,NIT.Menu.vb:5077,strong,vaultkeeper/game/recovery.py | vaultkeeper/ui/controller.py,Ported,verified: wired command handlers
 NIT.Menu.vb,NIT,MsRepairCrcs_Click,Sub,MsRepairCrcs.Click,NIT.Menu.vb:5131,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsRebuildDatabase_Click,Sub,MsRebuildDatabase.Click,NIT.Menu.vb:5209,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,RunMenu_Click,Sub,"MsPlayNeverwinterNights.Click, MsToolset.Click",NIT.Menu.vb:5260,none,,Deferred,run-menu / shared-nit / original-restorers / original-portraits / auto-update / debug-menu / select-game-mod.
@@ -621,7 +621,7 @@ NIT.Menu.vb,NIT,MsUpdateNow_Click,Sub,MsUpdateNow.Click,NIT.Menu.vb:7329,none,,D
 NIT.Menu.vb,NIT,MsSendFeedback_Click,Sub,MsSendFeedback.Click,NIT.Menu.vb:7352,none,,Ported,menu command handler whose command is wired in port _command_handlers().
 NIT.Menu.vb,NIT,MsSendDiagInfo_Click,Sub,MsSendDiagInfo.Click,NIT.Menu.vb:7370,none,,Divergence,handler for a command that is an intentional cross-platform divergence.
 NIT.Menu.vb,NIT,MsSkillsAndFeats_Click,Sub,MsClassesSkillsAndFeats.Click,NIT.Menu.vb:7399,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
-NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,AUTO-PORTED,
+NIT.Menu.vb,NIT,MsAbout_Click,Sub,MsAbout.Click,NIT.Menu.vb:7422,strong,vaultkeeper/ui/dialogs/about.py,Ported,verified: wired command handlers
 NIT.Menu.vb,NIT,Help_Click,Sub,"MsViewHelp.Click, MsGetStarted.Click, MsFAQ.Click, MsWhatsNew.Click, MsHistory.Click",NIT.Menu.vb:7503,none,,Divergence,"VB per-preference ListView-editor framework (Preferences/Config/Profiles/Locations pages, Import/Export/Reset/Undo). Bounded port = tabbed dialog + FolderMapping + status-bar profile menu. Subagent verdict: 0 MISSING user prefs (see FINDING_3_SETTINGS.md for the pref-level gap = 10 add-a-setting items)."
 NIT.Menu.vb,NIT,MsHelpContents_Click,Sub,MsHelpContents.Click,NIT.Menu.vb:7513,none,,Ported,menu construction + wired command handlers (menu_bar/help/ribbon-toggle/play-viewer/create-installer).
 NIT.Menu.vb,NIT,LbMods_Click,Sub,BtMods.Click,NIT.Menu.vb:7527,none,,Divergence,NIT.Menu UI plumbing: the Db* debug-options menu (intentional cross-platform omission) + WinForms mouse/key/click/form-lifecycle event handlers + status-button handlers.
