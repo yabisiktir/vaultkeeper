@@ -15,15 +15,15 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 | Designer controls | 1777 | 1777 (100%) | 0 |
 
 ### Methods/props — status breakdown
-- `Divergence`: 1338
-- `Ported`: 1198
+- `Divergence`: 1337
+- `Ported`: 1199
 - `Deferred`: 378
 - `N/A`: 188
 - `Partial`: 182
 
 ### Event handlers — status breakdown
-- `Divergence`: 559
-- `Ported`: 162
+- `Divergence`: 558
+- `Ported`: 163
 - `Deferred`: 119
 - `Partial`: 45
 

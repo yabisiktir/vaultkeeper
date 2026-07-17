@@ -593,7 +593,7 @@ HakPatchEditor,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,ha
 HakPatchEditor,LpMainHdg,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,PicHakEditor,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,LbHakEditor,?,"""Define the order in which hak patch files are applied. You only need to change th"" &",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
-HakPatchEditor,BhHelp,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
+HakPatchEditor,BhHelp,?,,,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/hak_patch_editor.py,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,LvPatchList,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,ColumnHeaderPlus1,?,"""Hak Patch Files""",,,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,CmMoveUp,?,"""Move Up""",,,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
@@ -772,7 +772,7 @@ ModExplorer,TsUndoPrefix,?,"""U&ndo Prefix Changes""",,,,none,,Divergence,bounde
 ModExplorer,TsRemovePrefix,?,"""&Remove Prefix""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TsCopyNames,?,"""Copy Mod &Names""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TsAddToRecentMods,?,"""Add to Recent Mods""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,TsHelpExplorer,?,"""ToolStripButton1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,TsHelpExplorer,?,"""ToolStripButton1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,SplitterLine2,?,,,System.Windows.Forms.DockStyle.Top,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
@@ -1093,8 +1093,8 @@ NIT,MsUpdateNow,?,"""&Update Now""",,,,strong,vaultkeeper/ui/menu_bar.py,Diverge
 NIT,MsSendFeedback,?,"""Send Feed&back""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsSendDiagInfo,?,"""Send &Diagnostic Information""",,,,strong,vaultkeeper/ui/menu_bar.py,Divergence,Intentional cross-platform / config-isolation omission; left visible-but-disabled by design.
 NIT,MsAbout,?,"""&About""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsHelpContents,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,TsbModSelector,?,"""Mod Selector""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsHelpContents,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,TsbModSelector,?,"""Mod Selector""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsGetUpdate,?,"""&NIT v2.0 is available""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsPlayedInfo,?,"""Mod played for 28 hours 34 mins""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,TsStatus,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Bottom,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1647,7 +1647,7 @@ StartScreenManager,RbClearExported,?,"""Clear Exported Start Screen Files""",,,,
 StartScreenManager,RbUninstall,?,"""Uninstall the Start Screen's Mod""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbRemove,?,"""Remove Start Screen Manager""",,,,comment,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbClose,?,"""Close""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbLoadscreenHelp,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbLoadscreenHelp,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/prefix_editor.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbSlideshow,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,LpImages,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,FvImages,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/start_screen.py,Ported,faithful (gallery/preview + install/add/delete/rename)

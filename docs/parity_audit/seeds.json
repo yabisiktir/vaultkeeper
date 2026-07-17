@@ -71,7 +71,7 @@
   "_swept_files_comment": "Rows below were classified by the sweep (evidence in git/grep). NIT.ModView.vb swept 2026-07-15 as the first demonstration file.",
   "modview_deferred_autorestorers": {
     "status": "Deferred",
-    "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) — grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
+    "note": "Auto-restorer subsystem (VB AutoOriginalRestorer family) \u2014 grep confirms not ported; = the tracked MsCreateOriginalRestorers deferral.",
     "names": [
       "AutoDatabaseRestorer",
       "ValidateDatabaseRestorer",
@@ -2174,7 +2174,6 @@
       "RbnGameSaves_MouseLeave",
       "ReportWidth",
       "SetPortraitManagerToolTip",
-      "TsbModSelector_SearchBoxClosed",
       "Tx_KeyUp",
       "Tx_MouseUp",
       "Tx_PreviewKeyDown",
@@ -2323,7 +2322,7 @@
   },
   "run_menu_divergence": {
     "status": "Divergence",
-    "note": "Run Menu cross-platform/framework bits N/A: GetRunMenuPath (auto-detects bundled Windows companion-tool paths — no bundled tools cross-platform), ImportRunMenu/ResetRunMenuItem (VB per-preference import/undo ListView framework), LvRunMenu_KeyPress (+/- move-keys; port uses Move Up/Down buttons).",
+    "note": "Run Menu cross-platform/framework bits N/A: GetRunMenuPath (auto-detects bundled Windows companion-tool paths \u2014 no bundled tools cross-platform), ImportRunMenu/ResetRunMenuItem (VB per-preference import/undo ListView framework), LvRunMenu_KeyPress (+/- move-keys; port uses Move Up/Down buttons).",
     "names": [
       "GetRunMenuPath",
       "ImportRunMenu",
@@ -2498,7 +2497,7 @@
   },
   "sweep4_dlg_deferred": {
     "status": "Deferred",
-    "note": "CrashDumpManager (Windows crash dumps); ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py); AliasSectionEditor BOUNDED tail (reset-to-standard + game-saves shared/per-profile toggle) — the view/edit/save core is Ported (see alias_editor_ported).",
+    "note": "CrashDumpManager (Windows crash dumps); ExtendedEditionDialogue (EE user-folder prompt; editions detection ported in editions.py/locations.py); AliasSectionEditor BOUNDED tail (reset-to-standard + game-saves shared/per-profile toggle) \u2014 the view/edit/save core is Ported (see alias_editor_ported).",
     "names": [
       "AllowDisable",
       "BgOpenSupportPage_DoWork",
@@ -2798,6 +2797,13 @@
       "GetDailyPlayInfo",
       "NitStartUp",
       "CmCopyMapIdRule_Click"
+    ]
+  },
+  "visual_parity_ported": {
+    "status": "Ported",
+    "note": "Ported in the visual/help-parity pass: the menu-bar Mod Selector combo selects the chosen mod (VB TsbModSelector.ItemSelected -> SelectMod), wired via MainWindow._on_mod_selector_activated.",
+    "names": [
+      "TsbModSelector_SearchBoxClosed"
     ]
   }
 }
