@@ -243,7 +243,7 @@ CreateMissingInstallers,LbInstructions,?,"""Set or clear the tick (check or unch
 CreateMissingInstallers,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (checkable mod list + create)
 CreateMissingInstallers,BtCreate,?,"""Create""",,,,strong,vaultkeeper/ui/controller.py,Ported,faithful (checkable mod list + create)
 CreateMissingInstallers,BtCancel,?,"""Cancel""",,,,none,,Ported,faithful (checkable mod list + create)
-CreateMissingInstallers,MgInfo,?,"""Info""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/status_bar.py,Ported,faithful (checkable mod list + create)
+CreateMissingInstallers,MgInfo,?,"""Info""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,faithful (checkable mod list + create)
 CreateMissingInstallers,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,faithful (checkable mod list + create)
 CreateMissingInstallers,LvModNames,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (checkable mod list + create)
 CreateMissingInstallers,ChModNames,?,"""Mods that do not have an Installer""",,,,none,,Ported,faithful (checkable mod list + create)
@@ -411,7 +411,7 @@ DownloadProject,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,
 DownloadProject,BtCancel,?,"""Cancel""",,,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
 DownloadProject,BtInstall,?,"""Install""",,,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
 DownloadProject,BtDownload,?,"""Download""",,,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
-DownloadProject,MgInfo,?,"""Status Info""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/status_bar.py,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
+DownloadProject,MgInfo,?,"""Status Info""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
 DownloadProject,LpProgress,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
 DownloadProject,LbFile,?,"""Downloading Filename""",,,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
 DownloadProject,LbProcessing,?,"""Processing Mod Folder Name""",,,,none,,Ported,rebuilt 'create or update a Mod' experience (PARITY.md verified); bg-worker/progress widgets are infra-Divergence
@@ -507,7 +507,7 @@ GameManager,LpGameManagerActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,
 GameManager,BtClose,?,"""Close""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
 GameManager,LbSavedGames,?,"""Saved Games:""",System.Drawing.ContentAlignment.MiddleRight,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
 GameManager,LbSavedGamesCount,?,"""23""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
-GameManager,MgInfo,?,"""Status Info""",System.Drawing.ContentAlignment.MiddleRight,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/status_bar.py,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
+GameManager,MgInfo,?,"""Status Info""",System.Drawing.ContentAlignment.MiddleRight,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
 GameManager,LpGameList,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
 GameManager,TsGameManager,?,"""ToolStrip1""",,,,none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
 GameManager,TsArchive,?,"""Red&uce""",,,,none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
@@ -1107,7 +1107,7 @@ NIT,BtWizardReport,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,
 NIT,BtHealth,?,"""NWN Health""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,BtFileCheckInfo,?,"""ToolStripButton1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,tsIconSeparator,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MgInfo,?,"""Info""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MgInfo,?,"""Info""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,BtModCount,?,"""0/0""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,ToolStripSeparator1,?,,,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,BtGroupHdg,?,"""Group:""",,,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
