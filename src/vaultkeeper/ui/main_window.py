@@ -1234,7 +1234,7 @@ class MainWindow(QMainWindow):
         query.addQueryItem(
             "body",
             "Please provide as much information as possible "
-            "(eg screenshots, NIT Log, etc).",
+            "(eg screenshots, Vaultkeeper Log, etc).",
         )
         url.setQuery(query)
         QDesktopServices.openUrl(url)
@@ -1954,7 +1954,7 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         specs = {
-            "MsLogFile": (self.controller.nit_log_path(), "NIT Log File"),
+            "MsLogFile": (self.controller.nit_log_path(), "Vaultkeeper Log File"),
             "MsNwnClientLogFile": (
                 self.controller.game_file_path("logs", "nwclientlog1.txt"),
                 "NWN Client Log File",

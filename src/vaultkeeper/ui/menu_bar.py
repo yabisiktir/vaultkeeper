@@ -114,9 +114,12 @@ MENUS: tuple = (
             MenuItem("MsConflicts", "&Mod File Conflicts", "Overridden", False),
             MenuItem("MsWorkshopViewer", "&Steam Workshop Subscriptions", "SteamViewer", False),
             SEP,
-            MenuItem("MsLogFile", "NIT &Log File", "NIT_Log_16x", False),
+            MenuItem("MsLogFile", "Vaultkeeper &Log File", "NIT_Log_16x", False),
             MenuItem(
-                "MsDisplaySettings", "NIT &User Config File", "CSWorkerTemplateFile_16x", False
+                "MsDisplaySettings",
+                "Vaultkeeper &User Config File",
+                "CSWorkerTemplateFile_16x",
+                False,
             ),
             MenuItem("MsOpenRulesFile", "&Download Rules File", "Notepad__", False),
             SEP,

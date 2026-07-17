@@ -83,7 +83,7 @@ def test_dialog_empty_report(qtbot) -> None:
         "images": [],
         "count": 0,
         "excluded_count": 0,
-        "summary": "NIT does not yet manage your NWN Start Screen.",
+        "summary": "Vaultkeeper does not yet manage your NWN Start Screen.",
     }
     dlg = StartScreenManager(report)
     qtbot.addWidget(dlg)

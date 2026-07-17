@@ -37,6 +37,9 @@ def _has_unscanned_mods(pd: ProfileData) -> bool:
     )
 
 
+_NO_START_SCREEN_MSG = "Vaultkeeper does not yet manage your NWN Start Screen."
+
+
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
 
@@ -2875,7 +2878,7 @@ class ProfileController:
                 "excluded_count": 0,
                 "prefix_enabled": False,
                 "prefixed_count": 0,
-                "summary": "NIT does not yet manage your NWN Start Screen.",
+                "summary": _NO_START_SCREEN_MSG,
             }
 
         data_dir = self._profile_data_dir()
@@ -3011,7 +3014,7 @@ class ProfileController:
 
         md = self.pd.mod_item(ss.LOADSCREEN_MOD)
         if md is None:
-            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+            return {"ok": False, "message": _NO_START_SCREEN_MSG}
         image_file = self._loadscreen_image_folder(md) / display_name
         if not image_file.is_file():
             return {"ok": False, "message": f"Start screen image not found: {display_name}."}
@@ -3052,7 +3055,7 @@ class ProfileController:
 
         md = self.pd.mod_item(ss.LOADSCREEN_MOD)
         if md is None:
-            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+            return {"ok": False, "message": _NO_START_SCREEN_MSG}
         self.uninstall([md.mod_name])
         return {"ok": True, "message": "Start Screen uninstalled."}
 
@@ -3183,7 +3186,7 @@ class ProfileController:
 
         md = self.pd.mod_item(ss.LOADSCREEN_MOD)
         if md is None:
-            return {"deleted": 0, "message": "NIT does not yet manage your NWN Start Screen."}
+            return {"deleted": 0, "message": _NO_START_SCREEN_MSG}
         image_folder = self._loadscreen_image_folder(md)
         data_dir = self._profile_data_dir()
         info = ss.read_start_screen_info(data_dir)
@@ -3257,7 +3260,7 @@ class ProfileController:
 
         md = self.pd.mod_item(ss.LOADSCREEN_MOD)
         if md is None:
-            return {"ok": False, "message": "NIT does not yet manage your NWN Start Screen."}
+            return {"ok": False, "message": _NO_START_SCREEN_MSG}
         image_folder = self._loadscreen_image_folder(md)
 
         # Validate against the current display names (VB ValidateName existence check).

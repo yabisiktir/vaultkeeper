@@ -68,4 +68,4 @@ def test_ribbon_variants_share_view_handlers(qtbot, tmp_path: Path) -> None:
 
     # RbnNitLog shares the NIT-log handler.
     win._on_command("RbnNitLog")
-    assert win._text_viewer.windowTitle() == "NIT Log File"
+    assert win._text_viewer.windowTitle() == "Vaultkeeper Log File"

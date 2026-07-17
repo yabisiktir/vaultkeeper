@@ -561,7 +561,7 @@ class GameMapper:
         ok, name = self.prompter.specify_mod_name(
             module_name,
             "The game you just played does not have a Mod Installer defined. "
-            "Please enter the Mod Name you will use so NIT can record play time.",
+            "Please enter the Mod Name you will use so Vaultkeeper can record play time.",
         )
         result = self.user_choices.add(
             module_name, name if ok else module_name, ResponseType.LOG
@@ -630,7 +630,7 @@ class GameMapper:
             ok, name = self.prompter.specify_mod_name(
                 save_name,
                 "A saved game does not have a Mod Installer defined in any profile. "
-                "Please enter the Mod Name you will use so NIT can record play time.",
+                "Please enter the Mod Name you will use so Vaultkeeper can record play time.",
             )
             result = self.user_choices.add(
                 save_name, name if ok else save_name, ResponseType.SAV
