@@ -53,6 +53,45 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
+def test_play_tab_install_button_toggles(qtbot, controller) -> None:
+    # VB NIT.ModView.SetInstallAvailability: the Play-tab combined button reflects
+    # Install vs Uninstall, pluralizes, and hides when neither applies.
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.show()
+    button = win.ribbon.button("RbnInstallUninstall")
+
+    # Nothing selected → button hidden, both menu actions disabled.
+    win._on_selection_changed([])
+    assert not button.isVisible()
+    assert not win._act_install.isEnabled()
+    assert not win._act_uninstall.isEnabled()
+
+    # A not-yet-installed mod (has an installer) → "Install\nSelected Mod".
+    _select_mod(win, "Alpha")
+    assert button.isVisible()
+    assert button.text() == "Install\nSelected Mod"
+    assert win._act_install.isEnabled() and not win._act_uninstall.isEnabled()
+    assert win.quick_toolbar.actions_by_id["TsInstall"].isVisible()
+    assert not win.quick_toolbar.actions_by_id["TsUninstall"].isVisible()
+
+    # After installing it → "Uninstall\nSelected Mod".
+    win._on_install()
+    _select_mod(win, "Alpha")  # install refreshes the tree, clearing selection
+    assert button.text() == "Uninstall\nSelected Mod"
+    assert win._act_uninstall.isEnabled() and not win._act_install.isEnabled()
+    assert win.quick_toolbar.actions_by_id["TsUninstall"].isVisible()
+    assert not win.quick_toolbar.actions_by_id["TsInstall"].isVisible()
+
+    # Multi-selecting both mods pluralizes the caption.
+    win._tree.clearSelection()
+    for item in _mod_items(win):
+        if item.text(0).startswith(("Alpha", "Beta")):
+            item.setSelected(True)
+    win._on_selection_changed()
+    assert button.text().endswith("Selected Mods")
+
+
 def test_install_via_ui_updates_state_and_disk(qtbot, controller, tmp_path) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)

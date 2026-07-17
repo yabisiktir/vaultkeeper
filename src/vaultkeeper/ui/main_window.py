@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.mod_data import ModData
+from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
 from vaultkeeper.ui.file_view import ContentsView, FileView
@@ -535,12 +536,58 @@ class MainWindow(QMainWindow):
         label = group if not group.startswith("......") else "No Group"
         self.nit_status.set_info(f"Moved {len(names)} mod(s) to '{label}'")
 
+    def _set_install_availability(self, names: list[str]) -> None:
+        """Set Install/Uninstall availability + the Play-tab combined button's
+        caption, icon and visibility from the current selection.
+
+        Faithful to VB ``NIT.ModView.SetInstallAvailability``: exactly one of
+        Install/Uninstall is enabled per the selected mod's installer + installed
+        state (never both), the caption reads "Install/Uninstall Selected Mod(s)"
+        and the ribbon button + its toolbar twins hide when neither applies.
+        """
+        install_enabled = False
+        uninstall_enabled = False
+        ribbon_text = "Selected Mod"
+        pd = self.controller.pd if self.controller is not None else None
+        mods = [] if pd is None else [pd.mod_item(n) for n in names]
+        mods = [m for m in mods if m is not None]
+        if len(mods) == 1:
+            md = mods[0]
+            # HasModInstaller ⟺ the state machine left it out of State.NONE.
+            if md.is_not_group_item and md.mod_state != State.NONE:
+                uninstall_enabled = md.installed
+                install_enabled = not uninstall_enabled
+        elif len(mods) > 1:
+            ribbon_text = "Selected Mods"
+            has_installer = any(m.mod_state != State.NONE for m in mods)
+            can_install = any(m.is_not_group_item and not m.installed for m in mods)
+            if has_installer:
+                install_enabled = can_install
+                uninstall_enabled = not can_install
+
+        self._act_install.setEnabled(install_enabled)
+        self._act_uninstall.setEnabled(uninstall_enabled)
+        # Toolbar twins: show the applicable one (VB qat.ToolItem(...).Visible).
+        self.quick_toolbar.set_visible(
+            "TsInstall", install_enabled or not uninstall_enabled
+        )
+        self.quick_toolbar.set_visible("TsUninstall", uninstall_enabled)
+        # Play-tab combined button (VB RbnInstallUninstall): caption/icon/visibility.
+        button = self.ribbon.button("RbnInstallUninstall")
+        if button is not None:
+            button.setVisible(install_enabled or uninstall_enabled)
+            if install_enabled:
+                button.setText(f"Install\n{ribbon_text}")
+                button.setIcon(R.get_icon("Install_Package_32x32"))
+            elif uninstall_enabled:
+                button.setText(f"Uninstall\n{ribbon_text}")
+                button.setIcon(R.get_icon("Uninstall_Package_32x32"))
+
     def _on_selection_changed(self, names: list[str] | None = None) -> None:
         if names is None:
             names = self.selected_mod_names()
         has_sel = bool(names)
-        self._act_install.setEnabled(has_sel)
-        self._act_uninstall.setEnabled(has_sel)
+        self._set_install_availability(names)
         self._act_remove.setEnabled(has_sel)
         self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
         if self._act_properties is not None:

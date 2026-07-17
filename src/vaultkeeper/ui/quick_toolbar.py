@@ -89,3 +89,9 @@ class QuickToolbar(QToolBar):
         act = self.actions_by_id.get(action)
         if act is not None:
             act.setEnabled(enabled)
+
+    def set_visible(self, action: str, visible: bool) -> None:
+        """Show/hide a toolbar button by VB control-name id (VB ToolItem.Visible)."""
+        act = self.actions_by_id.get(action)
+        if act is not None:
+            act.setVisible(visible)
