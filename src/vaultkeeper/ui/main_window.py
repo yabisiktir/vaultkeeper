@@ -126,7 +126,11 @@ class MainWindow(QMainWindow):
         self._build_menu()
         self._apply_command_availability()
         self._apply_leto_menu_visibility()
-        self.nit_status.set_info("Ready")
+        # Idle status: the accumulated-changes summary (VB MgInfo), like
+        # "Installed file and Mod changes: None."; "Ready" with no profile.
+        self.nit_status.set_info(
+            controller.change_status_line() if controller is not None else "Ready"
+        )
 
         if controller is not None:
             self._install_prompter()

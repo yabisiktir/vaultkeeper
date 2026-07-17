@@ -130,3 +130,35 @@ def test_clone_independent() -> None:
     c = cd.clone()
     c.file.added(_fk("b.hak"))
     assert cd.file.adds == 1 and c.file.adds == 2
+
+
+# --- status_line (VB ChangeData.StatusLine) ------------------------------- #
+def test_status_line_none_when_no_changes() -> None:
+    assert ChangeData().status_line() == "Installed file and Mod changes: None. "
+
+
+def test_status_line_installed_and_mod_changes() -> None:
+    cd = ChangeData()
+    cd.installed.added(_fk("a.hak"))
+    cd.installed.added(_fk("b.hak"))
+    cd.installed.removed(_fk("c.hak"))
+    cd.mods.added("New Mod")
+    cd.mods.affected("Other Mod")
+    line = cd.status_line()
+    assert line.startswith("Installed Files Added: 2. Removed: 1. ")
+    assert "Mods Added: 1. Affected: 1. " in line
+
+
+def test_status_line_affected_excludes_added_and_removed() -> None:
+    cd = ChangeData()
+    cd.mods.added("A")
+    cd.mods.affected("A")  # also added → not counted as affected
+    cd.mods.affected("B")  # genuinely affected
+    line = cd.status_line()
+    assert "Affected: 1. " in line  # only B
+
+
+def test_status_line_appends_orphaned_notes() -> None:
+    cd = ChangeData()
+    cd.orphaned_mod_notes.append("Ghost")
+    assert cd.status_line() == "Installed file and Mod changes: None. Orphaned Notes: 1. "

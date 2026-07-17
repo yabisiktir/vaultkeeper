@@ -218,6 +218,77 @@ class ChangeData:
             or self.installed.changes_detected
         )
 
+    # -- status line ------------------------------------------------------- #
+    def _status_line_none(self, text: str) -> str:
+        """``text`` with the orphaned-note count appended (VB StatusLineNone)."""
+        if not self.orphaned_mod_notes:
+            return text
+        return f"{text}Orphaned Notes: {len(self.orphaned_mod_notes):,}. "
+
+    def status_line(self) -> str:
+        """One-line summary of accumulated changes for the status bar.
+
+        Faithful to VB ``ChangeData.StatusLine`` with ``InstalledInfo | ModInfo``
+        (the main status line): "Installed file and Mod changes: None. " when
+        nothing is pending, else a breakdown of installed-file / mod / mod-file
+        adds, changes and removes (with any illegal folder/file and orphaned-note
+        counts).
+        """
+        if not self.detected:
+            return self._status_line_none("Installed file and Mod changes: None. ")
+
+        parts: list[str] = []
+        inst = self.installed
+        if inst.changes_detected:
+            parts.append("Installed Files ")
+            if inst.adds > 0:
+                parts.append(f"Added: {inst.adds:,}. ")
+            if inst.changes > 0:
+                parts.append(f"Changes: {inst.changes:,}. ")
+            if inst.removes > 0:
+                parts.append(f"Removed: {inst.removes:,}. ")
+            if inst.illegal_items:
+                parts.append("Illegal ")
+                if inst.illegal_folders:
+                    parts.append(f"Folders: {len(inst.illegal_folders):,}. ")
+                if inst.illegal_files:
+                    parts.append(f"Files: {len(inst.illegal_files):,}. ")
+
+        mods, file = self.mods, self.file
+        if mods.changes_detected or file.changes_detected:
+            # Affected count excludes mods also added or removed (VB filter).
+            affecteds = sum(
+                1
+                for name in mods.affected_list
+                if not _ci_contains(mods.added_list, name)
+                and not _ci_contains(mods.removed_list, name)
+            )
+            parts.append("Mods " if (mods.changes_detected or affecteds > 0) else "Mod ")
+            if mods.adds > 0:
+                parts.append(f"Added: {mods.adds:,}. ")
+            if mods.removes > 0:
+                parts.append(f"Removed: {mods.removes:,}. ")
+            if mods.affecteds > 0:
+                parts.append(f"Affected: {affecteds:,}. ")
+            if file.changes_detected:
+                parts.append("Files ")
+            if file.adds > 0:
+                parts.append(f"Added: {file.adds:,}. ")
+            if file.changes > 0:
+                parts.append(f"Changes: {file.changes:,}. ")
+            if file.removes > 0:
+                parts.append(f"Removed: {file.removes:,}. ")
+            if file.illegal_items:
+                parts.append("Illegal ")
+                if file.illegal_folders:
+                    parts.append(f"Folders: {len(file.illegal_folders):,}. ")
+                if file.illegal_files:
+                    parts.append(f"Files: {len(file.illegal_files):,}. ")
+
+        if self.orphaned_mod_notes:
+            parts.append(f"Orphaned Notes: {len(self.orphaned_mod_notes):,}.")
+        return "".join(parts)
+
     # -- lifecycle --------------------------------------------------------- #
     def reset_changes(self) -> None:
         self.installed = InfoFiles()

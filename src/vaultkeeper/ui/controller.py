@@ -4378,6 +4378,10 @@ class ProfileController:
         )
         return total, installed
 
+    def change_status_line(self) -> str:
+        """The status-bar change summary (VB ChangeData.StatusLine)."""
+        return self.pd.changes.status_line().strip()
+
     # -- Config-isolation guard ------------------------------------------- #
     def _config_guard(self) -> ConfigGuard | None:
         if self.ctx.game_user_dir is None:
