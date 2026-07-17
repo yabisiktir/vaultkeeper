@@ -53,6 +53,32 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
+def test_status_bar_shows_group_counts(qtbot, controller) -> None:
+    # VB NitUserInterface.DisplayGroupModCounts: the status-bar Group segment shows
+    # the selected mods' shared group + (installed/total), blank across groups.
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    win._update_group_status([])
+    assert win.nit_status.bt_group.text() == "None"
+
+    # Alpha + Beta are scanned into the hidden "No Group" bucket → reads "None"
+    # (VB Co.None for a hidden group), with the group's (installed/total) count.
+    _select_mod(win, "Alpha")
+    assert win.nit_status.bt_group.text() == "None (0/2)"
+
+    # Installing Alpha bumps the group's installed count.
+    win._on_install()
+    _select_mod(win, "Alpha")
+    assert win.nit_status.bt_group.text() == "None (1/2)"
+
+    # A named (non-hidden) group shows its own name, not "None".
+    controller.pd.mod_item("Beta").group = "Campaigns"
+    win.refresh()
+    _select_mod(win, "Beta")
+    assert win.nit_status.bt_group.text() == "Campaigns (0/1)"
+
+
 def test_mod_selector_populates_and_selects(qtbot, controller) -> None:
     # VB TsbModSelector (menu-bar right): a type-to-find combo bound to the mod
     # list that selects the chosen mod (ItemSelected → SelectMod).

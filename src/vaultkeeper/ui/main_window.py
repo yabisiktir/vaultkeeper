@@ -650,11 +650,49 @@ class MainWindow(QMainWindow):
                 button.setText(f"Uninstall\n{ribbon_text}")
                 button.setIcon(R.get_icon("Uninstall_Package_32x32"))
 
+    def _update_group_status(self, names: list[str]) -> None:
+        """Show the selected mods' shared group + installed/total count in the
+        status bar (VB NitUserInterface.DisplayGroupModCounts).
+
+        Blank ("None") when the selection is empty or spans more than one group;
+        a hidden group (No Group / Installed by NWN) reads "None (i/t)" like VB.
+        """
+        if self.controller is None:
+            self.nit_status.set_group("None")
+            return
+        selected_group: str | None = None
+        for name in names:
+            md = self.controller.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                continue
+            if selected_group is None:
+                selected_group = md.group
+            elif selected_group != md.group:
+                selected_group = None
+                break
+        if selected_group is None:
+            self.nit_status.set_group("None")
+            return
+        installed = total = 0
+        for group, mods in self.controller.groups():
+            if group == selected_group:
+                for m in mods:
+                    if m.is_not_group_item:
+                        total += 1
+                        installed += 1 if m.installed else 0
+                break
+        from vaultkeeper.core import constants as C
+
+        hidden = selected_group in (C.GROUP_INSTALLED, C.GROUP_NONE)
+        display = "None" if hidden else selected_group
+        self.nit_status.set_group(f"{display} ({installed:,}/{total:,})")
+
     def _on_selection_changed(self, names: list[str] | None = None) -> None:
         if names is None:
             names = self.selected_mod_names()
         has_sel = bool(names)
         self._set_install_availability(names)
+        self._update_group_status(names)
         self._act_remove.setEnabled(has_sel)
         self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
         if self._act_properties is not None:
