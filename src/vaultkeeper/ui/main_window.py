@@ -11,7 +11,7 @@ implemented so far and reports "not available yet" for the rest.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -210,18 +210,84 @@ class MainWindow(QMainWindow):
             act.setChecked(_settings.number_recent_mods)
         self._rebuild_recent_mods_menu()
 
-        # Right-aligned "Mod played for …" menubar item (VB MsPlayedInfo): shows the
-        # selected mod's play time and opens the play-data view when clicked.
-        from PySide6.QtWidgets import QToolButton
+        # Right-aligned menu-bar cluster, mirroring the VB menu strip's right side
+        # (TsbModSelector + MsPlayedInfo + MsHelpContents). QMenuBar allows one
+        # corner widget, so they share a container.
+        from PySide6.QtWidgets import (
+            QComboBox,
+            QCompleter,
+            QHBoxLayout,
+            QToolButton,
+        )
 
+        self._menu_corner = QWidget()  # keep a ref so Qt doesn't collect it
+        corner = self._menu_corner
+        corner_row = QHBoxLayout(corner)
+        corner_row.setContentsMargins(0, 0, 4, 0)
+        corner_row.setSpacing(4)
+
+        # Mod Selector: a type-to-find combo bound to the mod list (VB
+        # TsbModSelector, SourceListView = FvMods; ItemSelected → SelectMod).
+        self._mod_selector = QComboBox()
+        self._mod_selector.setEditable(True)
+        self._mod_selector.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self._mod_selector.setMinimumWidth(220)
+        self._mod_selector.setMaxVisibleItems(20)
+        self._mod_selector.lineEdit().setPlaceholderText("Mod Selector")
+        self._mod_selector.setToolTip("Type to find and select a mod")
+        completer = self._mod_selector.completer()
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self._mod_selector.activated.connect(self._on_mod_selector_activated)
+        corner_row.addWidget(self._mod_selector)
+
+        # "Mod played for …" (VB MsPlayedInfo): the selected mod's play time;
+        # opens the play-data view when clicked.
         self._played_info = QToolButton()
         self._played_info.setAutoRaise(True)
         self._played_info.setText("")
         self._played_info.clicked.connect(self._on_played_info)
-        self.nit_menu.setCornerWidget(self._played_info)
+        corner_row.addWidget(self._played_info)
+
+        # Help "?" quick button (VB MsHelpContents → HelpFile.Open(MsViewHelp)).
+        help_btn = QToolButton()
+        help_btn.setText("?")
+        help_btn.setAutoRaise(True)
+        help_btn.setToolTip("Help Contents")
+        help_btn.clicked.connect(self._on_help_contents)
+        corner_row.addWidget(help_btn)
+
+        self.nit_menu.setCornerWidget(corner)
+        self._populate_mod_selector()
 
         # Restore the saved window geometry (VB window-position preference).
         self._restore_geometry()
+
+    def _populate_mod_selector(self) -> None:
+        """Fill the Mod Selector combo with every mod name (VB SourceListView)."""
+        if getattr(self, "_mod_selector", None) is None:
+            return  # an early refresh() before the corner cluster is built
+        if self.controller is None:
+            self._mod_selector.clear()
+            return
+        names = [
+            md.mod_name
+            for _group, mods in self.controller.groups()
+            for md in mods
+            if md.is_not_group_item
+        ]
+        blocker = QSignalBlocker(self._mod_selector)  # don't fire activated
+        self._mod_selector.clear()
+        self._mod_selector.addItems(sorted(names, key=str.lower))
+        self._mod_selector.setCurrentIndex(-1)
+        self._mod_selector.setCurrentText("")
+        del blocker
+
+    def _on_mod_selector_activated(self, _index: int) -> None:
+        """Select the chosen mod (VB TsbModSelector.ItemSelected → SelectMod)."""
+        name = self._mod_selector.currentText().strip()
+        if name:
+            self._select_mod_by_name(name)
 
     def _on_played_info(self) -> None:
         """Open the play-data view (VB MsPlayedInfo.Click → PlayDataManager.View).
@@ -461,6 +527,7 @@ class MainWindow(QMainWindow):
             self._tree.clear()
             return
         self._tree.populate(self.controller.groups())
+        self._populate_mod_selector()
         self._update_status()
         total, _ = self.controller.counts()
         if total == 0:

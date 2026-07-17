@@ -53,6 +53,22 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
+def test_mod_selector_populates_and_selects(qtbot, controller) -> None:
+    # VB TsbModSelector (menu-bar right): a type-to-find combo bound to the mod
+    # list that selects the chosen mod (ItemSelected → SelectMod).
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    items = [win._mod_selector.itemText(i) for i in range(win._mod_selector.count())]
+    assert "Alpha" in items and "Beta" in items
+    # It starts blank (a cue, not a pre-selection) and doesn't select on populate.
+    assert win._mod_selector.currentText() == ""
+    assert win.selected_mod_names() == []
+    # Choosing an entry selects that mod in the tree.
+    win._mod_selector.setCurrentText("Beta")
+    win._on_mod_selector_activated(0)
+    assert win.selected_mod_names() == ["Beta"]
+
+
 def test_play_tab_install_button_toggles(qtbot, controller) -> None:
     # VB NIT.ModView.SetInstallAvailability: the Play-tab combined button reflects
     # Install vs Uninstall, pluralizes, and hides when neither applies.
