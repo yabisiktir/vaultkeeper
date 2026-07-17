@@ -53,6 +53,18 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
+def test_title_bar_shows_selected_mod(qtbot, controller) -> None:
+    # VB Defs sets MyNit.Text to "<AppTitle> — <mod> (<area>)" on selection.
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    assert win.windowTitle() == "Vaultkeeper"
+    _select_mod(win, "Alpha")
+    assert win.windowTitle() == "Vaultkeeper — Alpha"
+    # Clearing / multi-selecting reverts to the plain title.
+    win._on_selection_changed([])
+    assert win.windowTitle() == "Vaultkeeper"
+
+
 def test_status_bar_shows_group_counts(qtbot, controller) -> None:
     # VB NitUserInterface.DisplayGroupModCounts: the status-bar Group segment shows
     # the selected mods' shared group + (installed/total), blank across groups.

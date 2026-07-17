@@ -687,12 +687,29 @@ class MainWindow(QMainWindow):
         display = "None" if hidden else selected_group
         self.nit_status.set_group(f"{display} ({installed:,}/{total:,})")
 
+    def _update_title(self, mod_name: str | None) -> None:
+        """Show the selected mod in the title bar (VB Defs sets MyNit.Text to
+        "<AppTitle> — <mod> (<area>)" on selection).
+
+        Bounded: the "(area location)" suffix needs parsing the module file for
+        its starting area and is deferred, so only the mod name is shown.
+        """
+        if (
+            mod_name
+            and self.controller is not None
+            and self.controller.pd.mod_item(mod_name) is not None
+        ):
+            self.setWindowTitle(f"Vaultkeeper — {mod_name}")
+        else:
+            self.setWindowTitle("Vaultkeeper")
+
     def _on_selection_changed(self, names: list[str] | None = None) -> None:
         if names is None:
             names = self.selected_mod_names()
         has_sel = bool(names)
         self._set_install_availability(names)
         self._update_group_status(names)
+        self._update_title(names[0] if len(names) == 1 else None)
         self._act_remove.setEnabled(has_sel)
         self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
         if self._act_properties is not None:
