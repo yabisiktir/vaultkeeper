@@ -91,12 +91,16 @@ def test_record_daily_play_and_report(tmp_path):
 
 
 def test_process_session_records_daily(tmp_path):
+    from datetime import date
+
     ctrl = _controller(tmp_path)
     a = datetime(2026, 7, 16, 10, 0, 0)
     b = datetime(2026, 7, 16, 12, 0, 0)  # 120 min
     ctrl.process_play_session(a, b)
     daily = ctrl._load_daily_play_time()
-    assert daily.minutes_by_date.get("2026-07-16") == 120
+    # A processed session accrues to *today* (VB TodaysTime uses Now), not the
+    # session's own date — so key on today to stay date-independent.
+    assert daily.minutes_by_date.get(date.today().isoformat()) == 120
 
 
 def test_play_data_viewer_shows_daily_average(tmp_path, qtbot):
