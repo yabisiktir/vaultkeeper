@@ -76,6 +76,7 @@ class ModRenameSet:
     match_case: bool = False
     _found: list[int] = field(default_factory=list)
     _search: str = ""
+    _next_pos: int = -1
 
     @classmethod
     def from_names(
@@ -98,6 +99,7 @@ class ModRenameSet:
         when *match start* is on, otherwise ``Contains``.
         """
         self._search = search
+        self._next_pos = -1
         if not search:
             self._found = []
             return []
@@ -114,6 +116,16 @@ class ModRenameSet:
     @property
     def found_count(self) -> int:
         return len(self._found)
+
+    def find_next(self) -> int | None:
+        """Advance to the next found entry index, cycling (VB ``NextIndex``).
+
+        Returns the entry index to select, or ``None`` when nothing is found.
+        """
+        if not self._found:
+            return None
+        self._next_pos = (self._next_pos + 1) % len(self._found)
+        return self._found[self._next_pos]
 
     def select_found(self) -> None:
         """Select exactly the found entries (VB ``SelectFoundIndices``)."""
@@ -164,6 +176,12 @@ class ModRenameSet:
         if index in self._found:
             self._found.remove(index)
 
+    def undo_one(self, index: int) -> None:
+        """Revert a single entry's working name to its original (VB single Undo)."""
+        e = self.entries[index]
+        e.new_name = e.current_name
+        e.duplicated = False
+
     def reset(self) -> None:
         """Revert every working name to its original (VB Undo All)."""
         for e in self.entries:
@@ -172,6 +190,7 @@ class ModRenameSet:
             e.selected = False
         self._found = []
         self._search = ""
+        self._next_pos = -1
 
     # -- results ---------------------------------------------------------- #
     @property

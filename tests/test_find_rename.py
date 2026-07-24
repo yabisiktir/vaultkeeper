@@ -109,6 +109,33 @@ def test_duplicate_excluded_from_renames() -> None:
     assert s.renames == {}
 
 
+def test_find_next_cycles_through_matches() -> None:
+    s = _set(["Alpha One", "Alpha Two", "Alpha Three"], match_start=True)
+    s.find("Alpha")
+    # Windows-sorted: One, Three, Two -> indices 0,1,2 all match.
+    first = s.find_next()
+    second = s.find_next()
+    third = s.find_next()
+    fourth = s.find_next()  # cycles back
+    assert [first, second, third] == [0, 1, 2]
+    assert fourth == 0
+
+
+def test_find_next_none_when_no_match() -> None:
+    s = _set(["Alpha"], match_start=True)
+    s.find("zzz")
+    assert s.find_next() is None
+
+
+def test_undo_one_reverts_single_entry() -> None:
+    s = _set(["MyMod A", "MyMod B"], match_start=True)
+    s.find("MyMod ")
+    s.replace_all("New ")
+    assert s.change_count == 2
+    s.undo_one(0)
+    assert s.change_count == 1
+
+
 def test_reset_reverts_all() -> None:
     s = _set(["MyMod A", "MyMod B"], match_start=True)
     s.find("MyMod ")

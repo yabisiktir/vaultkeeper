@@ -2820,7 +2820,7 @@
  },
  "find_rename_ported": {
   "status": "Ported",
-  "note": "Bulk find/replace over mod names ported: game/find_rename.py (ModRenameSet/ModNameEntry) + controller.mod_rename_set/apply_mod_renames + ui/dialogs/find_and_rename.py; wired MsFindAndRename.",
+  "note": "Bulk find/replace over mod names ported: game/find_rename.py (ModRenameSet/ModNameEntry) + controller.mod_rename_set/apply_mod_renames + ui/dialogs/find_and_rename.py; wired MsFindAndRename. Find Next stepping (find_next) + single Undo (undo_one) also ported.",
   "names": [
    "FindMods",
    "FindStartsWith",
@@ -2853,7 +2853,10 @@
    "DisplayDuplicates",
    "TxFind_TextChanged",
    "MsFindAndRename",
-   "MsFindAndRename_Click"
+   "MsFindAndRename_Click",
+   "NextIndex",
+   "TsFindNext_Click",
+   "TsUndo_Click"
   ]
  },
  "find_rename_partial": {
@@ -2869,13 +2872,10 @@
   "status": "Divergence",
   "note": "Intentional UI-model divergence: VB virtual-list Find-Next stepping / single-Undo / double-click-to-copy / background-worker replaced by select-all-matches + synchronous apply.",
   "names": [
-   "NextIndex",
    "FoundItem",
    "FindFoundIndex",
    "IsFoundIndex",
    "UpdateFoundIndex",
-   "TsFindNext_Click",
-   "TsUndo_Click",
    "LvMods_MouseDoubleClick",
    "EnsureSelectedVisible",
    "TxFind_KeyDown",
