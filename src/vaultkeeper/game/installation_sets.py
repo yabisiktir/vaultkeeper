@@ -187,32 +187,60 @@ def apply_diff(iset: InstallationSet, current_installed: set[str]) -> tuple[list
     return installs, uninstalls
 
 
+@dataclass
+class SetsValidation:
+    """The tally of a :func:`validate_sets` housekeeping pass (VB ``ChangesInfo``)."""
+
+    removed_groups: int = 0
+    removed_mods: int = 0
+
+    @property
+    def total(self) -> int:
+        return self.removed_groups + self.removed_mods
+
+    def changes_info(self) -> str:
+        """A one-line summary of the reconciliation (VB ``InstallationManager.ChangesInfo``).
+
+        Bounded: VB also reports mods *added* and *state changed*, but the port
+        stores only a mod's desired state (its live state is recomputed each load,
+        never persisted), so there is no stale current-vs-desired divergence to
+        reconcile — those tallies do not apply to the port's model.
+        """
+        total = self.total or "no"
+        info = f"Sets updated: {total} change" + ("" if self.total == 1 else "s") + "."
+        if self.removed_groups:
+            info += f" Groups removed: {self.removed_groups:,}."
+        if self.removed_mods:
+            info += f" Mods removed: {self.removed_mods:,}."
+        return info
+
+
 def validate_sets(
     sets: list[InstallationSet],
     existing_mods: dict[str, str],
     existing_groups: set[str],
-) -> int:
+) -> SetsValidation:
     """Drop groups/mods that no longer exist (VB ``ValidateSets`` housekeeping, bounded).
 
     ``existing_mods`` maps a live mod name to its current group; ``existing_groups`` is
     the set of live group names. The current set is skipped (rebuilt fresh each load).
-    Returns the number of removed groups + mods.
+    Returns a :class:`SetsValidation` tallying removed groups and mods separately.
     """
-    removed = 0
+    result = SetsValidation()
     for iset in sets:
         if iset.set_type == SET_CURRENT:
             continue
         kept_groups: list[GroupEntry] = []
         for group in iset.groups:
             if group.name not in existing_groups:
-                removed += 1
+                result.removed_groups += 1
                 continue
             kept_mods = [m for m in group.mods if m.name in existing_mods]
-            removed += len(group.mods) - len(kept_mods)
+            result.removed_mods += len(group.mods) - len(kept_mods)
             group.mods = kept_mods
             kept_groups.append(group)
         iset.groups = kept_groups
-    return removed
+    return result
 
 
 def sets_to_json(sets: list[InstallationSet]) -> list[dict[str, Any]]:

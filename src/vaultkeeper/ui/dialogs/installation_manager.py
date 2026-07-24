@@ -95,6 +95,10 @@ class InstallationManager(QDialog):
         self.tree.itemChanged.connect(self._on_item_changed)
         body.addWidget(self.tree, 3)
 
+        # Reconciliation summary (VB ChangesInfo) — shown when a load pruned sets.
+        self._status = QLabel()
+        outer.addWidget(self._status)
+
         # Bottom: apply / save / close.
         buttons = QHBoxLayout()
         from vaultkeeper.ui.dialogs.help_viewer import help_button
@@ -119,6 +123,7 @@ class InstallationManager(QDialog):
     def _reload(self, select_name: str | None = None) -> None:
         """Reload the sets from the controller and repopulate the list."""
         self._sets = self._controller.load_installation_sets()
+        self._status.setText(self._controller.installation_sets_changes_info())
         self._installed = {
             m for mods in self._controller.installed_by_group().values() for m in mods
         }

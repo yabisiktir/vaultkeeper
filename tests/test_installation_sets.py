@@ -84,18 +84,34 @@ def test_validate_drops_deleted_groups_and_mods():
             GroupEntry("Live", [ModEntry("keep", True), ModEntry("deletedmod", True)]),
         ],
     )
-    removed = validate_sets(
+    result = validate_sets(
         [s], existing_mods={"keep": "Live"}, existing_groups={"Live"}
     )
-    assert removed == 2  # the whole "Gone" group + the deleted mod
+    assert result.total == 2  # the whole "Gone" group + the deleted mod
+    assert result.removed_groups == 1
+    assert result.removed_mods == 1
     assert [g.name for g in s.groups] == ["Live"]
     assert [m.name for m in s.groups[0].mods] == ["keep"]
 
 
 def test_validate_skips_current_set():
     s = InstallationSet("Current", SET_CURRENT, groups=[GroupEntry("Gone", [])])
-    assert validate_sets([s], existing_mods={}, existing_groups=set()) == 0
+    assert validate_sets([s], existing_mods={}, existing_groups=set()).total == 0
     assert len(s.groups) == 1
+
+
+def test_sets_validation_changes_info():
+    from vaultkeeper.game.installation_sets import SetsValidation
+
+    assert SetsValidation().changes_info() == "Sets updated: no changes."
+    assert (
+        SetsValidation(removed_groups=1, removed_mods=3).changes_info()
+        == "Sets updated: 4 changes. Groups removed: 1. Mods removed: 3."
+    )
+    assert (
+        SetsValidation(removed_mods=1).changes_info()
+        == "Sets updated: 1 change. Mods removed: 1."
+    )
 
 
 def test_json_round_trip_excludes_current():
@@ -293,3 +309,35 @@ def test_command_opens_manager_and_is_enabled(tmp_path, qtbot):
     assert win.nit_menu.actions_by_id["MsInstallationManager"].isEnabled()
     win._on_command("MsInstallationManager")
     assert win._installation_manager.isVisible()
+
+
+def test_controller_surfaces_reconciliation_summary(tmp_path):
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "Live", installed=True)
+    # A saved user set references a group that no longer exists → pruned on load.
+    stale = InstallationSet(
+        "S",
+        SET_USER,
+        groups=[
+            GroupEntry("Gone", [ModEntry("ghost", True)]),
+            GroupEntry("Live", [ModEntry("Alpha", True)]),
+        ],
+    )
+    ctrl.save_installation_sets([stale])
+    assert ctrl.installation_sets_changes_info() == ""  # nothing loaded yet
+    ctrl.load_installation_sets()
+    info = ctrl.installation_sets_changes_info()
+    assert info == "Sets updated: 1 change. Groups removed: 1."
+
+
+def test_dialog_shows_reconciliation_summary(tmp_path, qtbot):
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "Live", installed=True)
+    ctrl.save_installation_sets(
+        [InstallationSet("S", SET_USER, groups=[GroupEntry("Gone", [ModEntry("g", True)])])]
+    )
+    dlg = InstallationManager.show_for(ctrl)
+    qtbot.addWidget(dlg)
+    assert "Groups removed: 1" in dlg._status.text()

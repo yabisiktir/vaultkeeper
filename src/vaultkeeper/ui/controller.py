@@ -2362,10 +2362,16 @@ class ProfileController:
         existing_groups = set(self.pd.group_keys) | {
             md.group for md in map(self.pd.mod_item, self.pd.mod_keys) if md is not None
         }
-        removed = validate_sets(stored, existing_mods, existing_groups)
-        if removed:
+        self._sets_validation = validate_sets(stored, existing_mods, existing_groups)
+        if self._sets_validation.total:
             self.save_installation_sets(stored)
         return [self._current_installation_set(), *stored]
+
+    def installation_sets_changes_info(self) -> str:
+        """Summary of the last set-reconciliation pass (VB ``ChangesInfo``); blank
+        until :meth:`load_installation_sets` has run, or when nothing changed."""
+        result = getattr(self, "_sets_validation", None)
+        return result.changes_info() if result is not None and result.total else ""
 
     def save_installation_sets(self, sets: list) -> None:
         """Persist the checkpoint/user sets (the Current set is never written)."""
