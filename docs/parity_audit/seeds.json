@@ -1850,15 +1850,21 @@
       "MsInstallationManager_Click"
     ]
   },
-  "install_sets_partial": {
-    "status": "Partial",
-    "note": "Installation-set change-tracking counters present but bounded: the port prunes stale groups/mods on load (validate_sets) and reports a removal count, but does not compute the VB per-category Added/Removed/Changed tallies or auto-add newly-installed mods to user sets.",
+  "install_sets_reconcile_ported": {
+    "status": "Ported",
+    "note": "validate_sets returns SetsValidation (removed_groups/removed_mods) + changes_info(); the Installation Manager surfaces the reconciliation summary (VB ChangesInfo).",
     "names": [
-      "AddedMods",
-      "ChangedState",
       "ChangesInfo",
       "RemovedGroups",
       "RemovedMods"
+    ]
+  },
+  "install_sets_reconcile_divergence": {
+    "status": "Divergence",
+    "note": "The port stores only a mod's desired state (live state recomputed each load, never persisted), so VB's Added-mods / Changed-state reconciliation tallies have no stale current-vs-desired divergence to compute.",
+    "names": [
+      "AddedMods",
+      "ChangedState"
     ]
   },
   "install_divergence": {
