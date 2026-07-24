@@ -19,6 +19,75 @@ def test_dialog_reflects_settings(qtbot):
     assert dlg.startup_check.isChecked()
 
 
+def test_reset_all_restores_preference_defaults(qtbot):
+    # VB CmsResetAll: "Restore All Settings to Default Values".
+    settings = Settings(
+        recycle_on_delete=False,
+        convert_bik_files=True,
+        default_group="Adventures",
+        startup_sound=True,
+        theme="dark",
+        nwn_path="/games/NWN",
+        active_profile="My Mods",
+    )
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg._on_reset_all()
+
+    # Preferences are back at their dataclass defaults …
+    defaults = Settings()
+    assert dlg.recycle.isChecked() == defaults.recycle_on_delete
+    assert dlg.convert_bik.isChecked() == defaults.convert_bik_files
+    assert dlg.default_group.text() == defaults.default_group
+    assert dlg.startup_sound.isChecked() == defaults.startup_sound
+    # … and applying persists those defaults while identity settings are kept.
+    out = Settings(nwn_path="/games/NWN", active_profile="My Mods")
+    dlg.apply_to(out)
+    assert out.recycle_on_delete == defaults.recycle_on_delete
+    assert out.convert_bik_files == defaults.convert_bik_files
+    assert out.nwn_path == "/games/NWN"  # preserved, not defaulted
+
+
+def test_reset_preserves_identity_labels(qtbot):
+    # The General tab's read-only path/profile labels survive a reset.
+    settings = Settings(nwn_path="/games/NWN", active_profile="My Mods", recycle_on_delete=False)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg._on_reset_all()
+    # The path is shown via a QLabel; check the General page still references it.
+    from PySide6.QtWidgets import QLabel
+
+    texts = [w.text() for w in dlg.tabs.widget(0).findChildren(QLabel)]
+    assert "/games/NWN" in texts
+    assert "My Mods" in texts
+
+
+def test_reset_panel_only_resets_current_tab(qtbot):
+    # VB CmsResetPanel: restore just the current page.
+    settings = Settings(recycle_on_delete=False, convert_bik_files=True)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    # Edit the Behaviour tab, then reset only General.
+    dlg.convert_bik.setChecked(True)
+    for i in range(dlg.tabs.count()):
+        if dlg.tabs.tabText(i) == "General":
+            dlg.tabs.setCurrentIndex(i)
+    dlg._on_reset_panel()
+    assert dlg.recycle.isChecked() is True  # General reset to default
+    assert dlg.convert_bik.isChecked() is True  # Behaviour left untouched
+
+
+def test_reset_panel_label_tracks_current_tab(qtbot):
+    dlg = SettingsDialog(Settings())
+    qtbot.addWidget(dlg)
+    for i in range(dlg.tabs.count()):
+        if dlg.tabs.tabText(i) == "Appearance":
+            dlg.tabs.setCurrentIndex(i)
+    dlg._update_reset_menu()
+    assert dlg._reset_panel_action.text() == "Restore Appearance"
+    assert dlg._reset_panel_action.isEnabled()
+
+
 def test_apply_to_writes_back(qtbot):
     settings = Settings(recycle_on_delete=True, validate_game_config_on_startup=True)
     dlg = SettingsDialog(settings)

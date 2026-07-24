@@ -86,9 +86,85 @@ class SettingsDialog(QDialog):
         buttons.addButton(
             help_button("BhBasicSettings", self), QDialogButtonBox.ButtonRole.HelpRole
         )
+        # "Reset…" with the VB BtReset menu (Restore All / Restore <current page>).
+        buttons.addButton(self._build_reset_button(), QDialogButtonBox.ButtonRole.ResetRole)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+    #: Tabs whose preferences can be restored to defaults, tab title → builder.
+    #: Locations is excluded — the game paths have no meaningful default.
+    def _reset_builders(self) -> dict:
+        return {
+            "General": self._build_general,
+            "Behaviour": self._build_behaviour,
+            "Appearance": self._build_appearance,
+            "Web Menu": self._build_web_menu,
+            "Run Menu": self._build_run_menu,
+        }
+
+    def _build_reset_button(self):
+        from PySide6.QtWidgets import QMenu, QToolButton
+
+        button = QToolButton()
+        button.setText("Reset…")
+        button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        menu = QMenu(button)
+        self._reset_all_action = menu.addAction(
+            "Restore All Settings to Default Values", self._on_reset_all
+        )
+        self._reset_panel_action = menu.addAction("Restore Panel", self._on_reset_panel)
+        menu.aboutToShow.connect(self._update_reset_menu)
+        button.setMenu(menu)
+        self._reset_button = button
+        return button
+
+    def _update_reset_menu(self) -> None:
+        """Label/enable the per-page reset for the current tab (VB CmsResetPanel)."""
+        name = self.tabs.tabText(self.tabs.currentIndex())
+        resettable = name in self._reset_builders()
+        # VB: CmsResetPanel.Text = CmsResetAll.Text.Replace("All Settings", <page>).
+        self._reset_panel_action.setText(f"Restore {name}")
+        self._reset_panel_action.setEnabled(resettable)
+
+    def _reset_settings(self) -> Settings:
+        """Defaults for every editable preference, preserving identity settings.
+
+        The game paths, active profile, store root, saved geometry, recent-mods
+        counters, map overrides and any unknown keys are carried over from the
+        current settings — only the user *preferences* are defaulted.
+        """
+        reset = Settings()
+        src = self._settings
+        for name in (
+            "version", "store_root", "nwn_path", "game_user_path", "active_profile",
+            "window_geometry", "max_recent_mods", "number_recent_mods",
+            "map_overrides", "map_exclude_overrides",
+        ):
+            setattr(reset, name, getattr(src, name))
+        reset._extra = dict(src._extra)
+        return reset
+
+    def _rebuild_tab(self, name: str, settings: Settings) -> None:
+        build = self._reset_builders().get(name)
+        if build is None:
+            return
+        for index in range(self.tabs.count()):
+            if self.tabs.tabText(index) == name:
+                self.tabs.removeTab(index)
+                self.tabs.insertTab(index, build(settings), name)
+                self.tabs.setCurrentIndex(index)
+                break
+
+    def _on_reset_all(self) -> None:
+        """Restore every preference tab to defaults (VB CmsResetAll)."""
+        defaults = self._reset_settings()
+        for name in self._reset_builders():
+            self._rebuild_tab(name, defaults)
+
+    def _on_reset_panel(self) -> None:
+        """Restore only the current tab's preferences to defaults (VB CmsResetPanel)."""
+        self._rebuild_tab(self.tabs.tabText(self.tabs.currentIndex()), self._reset_settings())
 
     def _build_general(self, settings: Settings) -> QWidget:
         page = QWidget()
