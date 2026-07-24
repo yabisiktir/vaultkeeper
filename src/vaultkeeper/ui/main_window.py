@@ -1068,6 +1068,8 @@ class MainWindow(QMainWindow):
             # Find files across the profile.
             "MsFind": self._on_find,
             "TsFind": self._on_find,
+            # Bulk find-and-rename across mod names (VB MsFindAndRename).
+            "MsFindAndRename": self._on_find_and_rename,
             # Jump the mod list to a chosen group.
             "MsGoToGroup": self._on_go_to_group,
             "TsGoToGroup": self._on_go_to_group,
@@ -2163,6 +2165,20 @@ class MainWindow(QMainWindow):
         self._find_dialog = FindFilesDialog.show_for(
             self.controller, self._select_mod_by_name, self
         )
+
+    def _on_find_and_rename(self) -> None:
+        """Open the bulk find/replace-across-mod-names dialog (VB ``MsFindAndRename``)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.find_and_rename import FindAndRenameDialog
+
+        self._find_rename_dialog = FindAndRenameDialog.show_for(
+            self.controller, self._on_renames_applied, self
+        )
+
+    def _on_renames_applied(self, _report: dict) -> None:
+        """Refresh the mod list after a bulk rename (VB reselect + refresh)."""
+        self.refresh()
 
     def _select_mod_by_name(self, mod_name: str) -> None:
         """Select a mod in the list by name (VB ``SelectMod``)."""

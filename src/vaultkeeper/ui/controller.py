@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from vaultkeeper.app_paths import config_root
 from vaultkeeper.core.file_key import FileKeyInfo
@@ -23,6 +24,9 @@ from vaultkeeper.game.locations import HostOS, user_documents_dir
 from vaultkeeper.game.nwn_folders import read_alias_locations
 from vaultkeeper.persistence.profile_store import load_profile, save_profile
 from vaultkeeper.ui.play_loop import PlayLoop
+
+if TYPE_CHECKING:
+    from vaultkeeper.game.find_rename import ModRenameSet
 
 
 def _has_unscanned_mods(pd: ProfileData) -> bool:
@@ -460,6 +464,34 @@ class ProfileController:
         if ok:
             self.save()
         return ok
+
+    # -- Bulk find & rename (VB ModFindAndRename) -------------------------- #
+    def mod_rename_set(self) -> ModRenameSet:
+        """A working set of every mod name for bulk find/replace (VB ModNames.GetNames)."""
+        from vaultkeeper.game.find_rename import ModRenameSet
+
+        return ModRenameSet.from_names(self.pd.mod_keys)
+
+    def apply_mod_renames(self, renames: dict[str, str]) -> dict[str, object]:
+        """Apply a batch of mod renames (VB ModFindAndRename.BtApply_Click).
+
+        ``renames`` maps current name → new name (already duplicate-filtered).
+        Renames each mod via the single-mod path (folder + keys + identifiers in
+        installer and game folder), persists once, and returns a report with the
+        renamed count and any names that could not be renamed.
+        """
+        renamed: list[str] = []
+        failed: list[str] = []
+        for old, new in renames.items():
+            if self.pd.rename_mod(
+                old, new, self.ctx.profile_mods_dir, self.ctx.game_folders
+            ):
+                renamed.append(new)
+            else:
+                failed.append(old)
+        if renamed:
+            self.save()
+        return {"renamed": renamed, "failed": failed}
 
     # -- Mod creation ------------------------------------------------------ #
     def create_mod(self, name: str, group: str | None = None) -> bool:

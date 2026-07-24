@@ -723,7 +723,7 @@ ModExplorer,LvExplorer,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence
 ModExplorer,ChProfile,?,"""Mod Filter""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ChRating,?,"""Rating""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ChWeapon,?,"""Weapon""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,ChStart,?,"""Start""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,ChStart,?,"""Start""",,,,comment,vaultkeeper/game/find_rename.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ChEnd,?,"""End""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ChHench,?,"""Hench""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,CmCopyNames,?,"""Copy Mod Names""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
@@ -829,7 +829,7 @@ ModFindAndRename,TsReplace,?,"""&Replace""",,,,none,,Deferred,bulk find-and-rena
 ModFindAndRename,TsReplaceAll,?,"""Repla&ce All""",,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,TsUndo,?,"""&Undo""",,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,TsUndoAll,?,"""U&ndo All""",,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
-ModFindAndRename,TsHelpFindAndRename,?,"""ToolStripButton6""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
+ModFindAndRename,TsHelpFindAndRename,?,"""ToolStripButton6""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/find_and_rename.py,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LbProfileName,?,"""Profile Name""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,BtApply,?,"""&Apply""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Deferred,bulk find-and-rename (dead MsFindAndRename)
@@ -883,7 +883,7 @@ ModPlayViewer,ChModName,?,"""Mod Name""",,,,none,,Ported,faithful (columns + det
 ModPlayViewer,ChModCompleted,?,"""Completed""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ChTimePlayed,?,"""Time Played""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ChRating,?,"""Rating""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,ChStart,?,"""Start""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,ChStart,?,"""Start""",,,,comment,vaultkeeper/game/find_rename.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ChEnd,?,"""End""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,CmAddToRecentMods,?,"""Add to Recent Mods""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,CmSelect,?,"""Select""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
@@ -956,7 +956,7 @@ NIT,MsPaste,?,"""&Paste""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper
 NIT,MsDelete,?,"""&Delete""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsRename,?,"""&Rename...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsFind,?,"""&Find...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsFindAndRename,?,"""Find and Rename &Mods...""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,Needs an unported subsystem/editor; tracked in handoff.
+NIT,MsFindAndRename,?,"""Find and Rename &Mods...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,Bulk find/replace over mod names ported: game/find_rename.py (ModRenameSet/ModNameEntry) + controller.mod_rename_set/apply_mod_renames + ui/dialogs/find_and_rename.py; wired MsFindAndRename.
 NIT,MsGoToGroup,?,"""&Go to Group...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsCancelGoTo,?,"""Cancel""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsGroupNone,?,"""None""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
