@@ -2885,5 +2885,40 @@
    "BgReplaceAll_DoWork",
    "BgReplaceAll_ProgressChanged"
   ]
+ },
+ "validate_installed_ported": {
+  "status": "Ported",
+  "note": "Validate Installed Data ported: ProfileData.check_installed_files (drop vanished installed records + rescan added/changed + recompute states) + controller.validate_installed_data; wired MsValidateInstalledData.",
+  "names": [
+   "MsValidateInstalledData",
+   "MsValidateInstalledData_Click",
+   "CheckInstalledFiles"
+  ]
+ },
+ "validate_installed_partial": {
+  "status": "Partial",
+  "note": "CheckInstalledFiles fully ported; the ValidateInstalledFileData illegal-file detection + CRC/size repair of ModFileKeys is bounded (removal of orphaned records is covered by check_installed_files + update_file/mod_states).",
+  "names": [
+   "ValidateInstalledFileData",
+   "ValidateInstalledFileDataThread"
+  ]
+ },
+ "ee_dialogue_divergence": {
+  "status": "Divergence",
+  "note": "EE user-folder + library-folder specification is ported via the Settings Locations tab (editable Game Installation + Game User Folder with Browse); the VB first-run modal solicitation + disable-detection escape hatch is an intentional UX divergence (port auto-detects via nwn.ini [Alias] + auto_configure_first_run).",
+  "names": [
+   "StartItem",
+   "AllowDisable",
+   "UserFolder",
+   "LibraryFolder",
+   "DetectionDisabled",
+   "MandatoryFoldersSpecified",
+   "ExtendedDialogue_Load",
+   "ExtendedEditionDialogue_Shown",
+   "Tx_Enter",
+   "TxUserFolder_TextChanged",
+   "TxLibrary_TextChanged",
+   "CbDisable_CheckedChanged"
+  ]
  }
 }

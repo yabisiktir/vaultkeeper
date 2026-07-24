@@ -697,6 +697,34 @@ class ProfileData:
             path = self.installed_file_path(game_folders, ifk)
             ifd.file_crc = _safe_crc(path) if path is not None else 0
 
+    def check_installed_files(
+        self, game_folders: dict[str, Path], root_folder_name: str
+    ) -> dict[str, int]:
+        """Re-check the installed-file records against the live game (VB CheckInstalledFiles).
+
+        Drops installed records whose file no longer exists on disk, re-scans the
+        mapped game folders for added/changed files, and recomputes states. Returns
+        ``{"removed", "added", "changed"}`` counts. Used by the *Validate Installed
+        Data* maintenance command to re-sync after the game folder changed outside
+        the tool.
+        """
+        removed = 0
+        for ifk in list(self.installed_list):
+            path = self.installed_file_path(game_folders, ifk)
+            if path is None or not path.is_file():
+                ifd = self.installed_list.pop(ifk, None)
+                if ifd is not None:
+                    self.changes.installed.removed(ifk)
+                    removed += 1
+        before_added = len(self.changes.installed.added_list)
+        before_changed = len(self.changes.installed.changed_list)
+        self.scan_installed(game_folders, root_folder_name=root_folder_name)
+        added = len(self.changes.installed.added_list) - before_added
+        changed = len(self.changes.installed.changed_list) - before_changed
+        self.update_file_states()
+        self.update_mod_states()
+        return {"removed": removed, "added": added, "changed": changed}
+
     def rescan_installed_state(
         self, game_folders: dict[str, Path], root_folder_name: str
     ) -> None:

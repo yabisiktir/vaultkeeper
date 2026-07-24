@@ -1840,6 +1840,27 @@ class ProfileController:
         total, installed = self.counts()
         return f"Rescan complete: {installed:,} of {total:,} mods installed."
 
+    def validate_installed_data(self) -> str:
+        """Re-check + repair installed-file records vs the game (VB MsValidateInstalledData).
+
+        Runs CheckInstalledFiles: drops installed records whose file no longer
+        exists, re-scans the game folders for added/changed files, recomputes
+        states, and persists. Returns a summary of what was repaired.
+        """
+        result = self.pd.check_installed_files(
+            self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+        )
+        self.pd.changes.reset_changes()
+        self.save()
+        total = result["removed"] + result["added"] + result["changed"]
+        if total == 0:
+            return "Installed File Data validated. Problems detected: None."
+        return (
+            f"Repaired installed file records. Missing files removed: "
+            f"{result['removed']:,}. Added: {result['added']:,}. "
+            f"Changed: {result['changed']:,}."
+        )
+
     def rebuild_database(self) -> str:
         """Rebuild the profile database from disk (VB Rebuild Database)."""
         # An imported profile has mod definitions + file keys but no on-disk

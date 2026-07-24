@@ -1134,6 +1134,7 @@ class MainWindow(QMainWindow):
             "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
+            "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsExtractPortraits": self._on_extract_portraits,
             "MsClearHakPortraits": self._on_clear_hak_portraits,
