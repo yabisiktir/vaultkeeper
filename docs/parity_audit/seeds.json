@@ -2282,15 +2282,21 @@
   },
   "sweep3_partial": {
     "status": "Partial",
-    "note": "group-delete/installer-subfolder/download-target/map-exception editing present but bounded.",
+    "note": "installer-subfolder/download-target/map-exception editing present but bounded.",
     "names": [
       "AddExceptions",
       "CreateInstallerCandidates",
-      "DeleteSelectedGroups",
       "SelectDownloadsFolder",
       "SetDownloadTarget",
       "SetInstallerSubFolder",
       "ValidateException"
+    ]
+  },
+  "group_ops_ported": {
+    "status": "Ported",
+    "note": "group delete + rename via the group-header context menu (controller.delete_groups/rename_group, ProfileData.remove_group).",
+    "names": [
+      "DeleteSelectedGroups"
     ]
   },
   "sweep3_deferred": {

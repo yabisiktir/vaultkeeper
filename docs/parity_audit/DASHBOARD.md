@@ -16,10 +16,10 @@ Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <po
 
 ### Methods/props — status breakdown
 - `Divergence`: 1337
-- `Ported`: 1199
+- `Ported`: 1200
 - `Deferred`: 378
 - `N/A`: 188
-- `Partial`: 182
+- `Partial`: 181
 
 ### Event handlers — status breakdown
 - `Divergence`: 558
