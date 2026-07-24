@@ -127,6 +127,13 @@ _INSTALL = Path(
 )
 
 
+@pytest.mark.xfail(
+    reason="Owner's live NIT Store drifted from the 21-mod / 19-installed baseline "
+    "(now 23 / 21). Golden pins a snapshot of the owner's mutable store; needs an "
+    "owner re-baseline. Marked xfail (not skip) so it flags xpass if the store is "
+    "resynced. Do not bump the golden number.",
+    strict=False,
+)
 @pytest.mark.skipif(
     not (_NIT_STORE.is_dir() and _USER_DIR.is_dir() and _INSTALL.is_dir()),
     reason="No real NIT Store / NWN:EE install on this machine",
