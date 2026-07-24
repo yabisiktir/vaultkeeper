@@ -1539,6 +1539,48 @@ class ProfileController:
             self.save()
         return ok
 
+    def group_member_names(self, group: str) -> list[str]:
+        """The mod names belonging to ``group``."""
+        return [
+            md.mod_name
+            for md in self.pd.mod_list.values()
+            if md.is_not_group_item and md.group == group
+        ]
+
+    def delete_groups(self, group_names: list[str], *, uninstall: bool = True) -> dict:
+        """Delete groups and their member mods (VB ``DeleteSelectedGroups``).
+
+        Installed members are uninstalled first (when ``uninstall``), every member
+        mod is removed from the profile, then each now-empty group row is removed.
+        A group that still has members afterwards is reported as failed. Persists
+        once. Returns ``{"deleted_mods", "removed_groups", "failed_groups"}``.
+        """
+        deleted_mods = 0
+        removed_groups: list[str] = []
+        failed_groups: list[str] = []
+        for group in group_names:
+            members = self.group_member_names(group)
+            installed = [
+                n for n in members if (m := self.pd.mod_item(n)) is not None and m.installed
+            ]
+            if uninstall and installed:
+                self.uninstall(installed)
+            for name in members:
+                if self.pd.remove_mod(name):
+                    deleted_mods += 1
+            # Success if the group row was removed, or the group was implicit (no
+            # row) and now has no members left — either way it is gone.
+            gone = self.pd.remove_group(group) or (
+                group not in self.pd.mod_list and not self.group_member_names(group)
+            )
+            (removed_groups if gone else failed_groups).append(group)
+        self.save()
+        return {
+            "deleted_mods": deleted_mods,
+            "removed_groups": removed_groups,
+            "failed_groups": failed_groups,
+        }
+
     def group_names(self) -> list[str]:
         """Visible (non-reserved) group names."""
         return self.pd.group_keys

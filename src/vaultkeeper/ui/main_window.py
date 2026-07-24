@@ -588,8 +588,37 @@ class MainWindow(QMainWindow):
     def _show_mods_context_menu(self, pos) -> None:
         if self.controller is None:
             return
+        group = self._tree.group_header_at(pos)
+        if group is not None:
+            self._show_group_context_menu(group, pos)
+            return
         menu = self._build_mods_context_menu()
         menu.exec(self._tree.viewport().mapToGlobal(pos))
+
+    def _show_group_context_menu(self, group: str, pos) -> None:
+        """Right-click a group header → Rename / Delete Group (VB group actions)."""
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        menu.addAction("Rename Group…", lambda: self._on_rename_group(group))
+        menu.addAction("Delete Group…", lambda: self._on_delete_groups([group]))
+        menu.exec(self._tree.viewport().mapToGlobal(pos))
+
+    def _on_rename_group(self, group: str) -> None:
+        """Rename a group (VB rename-group). Reserved groups are not renamable."""
+        if self.controller is None:
+            return
+        new, ok = QInputDialog.getText(
+            self, "Rename Group", "New group name:", text=group
+        )
+        new = new.strip()
+        if not ok or not new or new == group:
+            return
+        if self.controller.rename_group(group, new):
+            self.refresh()
+            self.nit_status.set_info(f"Renamed group '{group}' to '{new}'.")
+        else:
+            self.nit_status.set_info(f"Could not rename group '{group}'.")
 
     def _on_mods_dropped_on_group(self, names: list[str], group: str) -> None:
         """Move dragged mods into the group they were dropped on (VB drag-drop)."""
@@ -2199,8 +2228,10 @@ class MainWindow(QMainWindow):
         return QMessageBox.question(self, title, text) == QMessageBox.StandardButton.Yes
 
     def _on_remove(self) -> None:
+        if self.controller is None:
+            return
         names = self.selected_mod_names()
-        if self.controller is None or not names:
+        if not names:
             return
         prompt = (
             f"Remove {len(names)} mod(s) from the profile?\n"
@@ -2211,3 +2242,28 @@ class MainWindow(QMainWindow):
         removed = self.controller.remove_mods(names)
         self.refresh()
         self.nit_status.set_info(f"Removed {removed} mod(s) from the profile")
+
+    def _on_delete_groups(self, groups: list[str]) -> None:
+        """Delete the selected groups and their member mods (VB DeleteSelectedGroups)."""
+        if self.controller is None:
+            return
+        members = sum(len(self.controller.group_member_names(g)) for g in groups)
+        prompt = (
+            f"Delete {len(groups)} group(s)?\n"
+            f"NOTE: all {members} mod(s) belonging to the selected group(s) will "
+            "also be removed from the profile (installed mods are uninstalled first)."
+        )
+        if not self._confirm("Delete Groups", prompt):
+            return
+        report = self.controller.delete_groups(groups)
+        self.refresh()
+        removed = len(report["removed_groups"])
+        failed = len(report["failed_groups"])
+        if failed:
+            self.nit_status.set_info(
+                f"Deleted {removed} group(s); {failed} could not be removed."
+            )
+        else:
+            self.nit_status.set_info(
+                f"Deleted {removed} group(s) and {report['deleted_mods']} mod(s)."
+            )

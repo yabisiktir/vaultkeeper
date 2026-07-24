@@ -201,6 +201,26 @@ class ProfileData:
         self.update_mod_states()
         return True
 
+    def remove_group(self, group: str) -> bool:
+        """Remove a user group's row from the database (VB group ``ModData.Remove``).
+
+        Only a non-mandatory group row can be removed, and only once it is empty —
+        its member mods must be removed first (see :meth:`remove_mod`), matching VB
+        ``DeleteSelectedGroups`` (which removes the group only when its count is 0).
+        Returns True if a group row was removed.
+        """
+        row = self.mod_list.get(group)
+        if row is None or row.is_not_group_item or group in C.MANDATORY_GROUPS:
+            return False
+        if any(
+            md.is_not_group_item and md.group == group
+            for md in self.mod_list.values()
+        ):
+            return False  # still has member mods
+        del self.mod_list[group]
+        self.groups.pop(group, None)
+        return True
+
     def rename_mod(
         self,
         old_name: str,

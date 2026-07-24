@@ -122,6 +122,70 @@ def test_status_bar_shows_group_counts(qtbot, controller) -> None:
     assert win.nit_status.bt_group.text() == "Campaigns (0/1)"
 
 
+def _grouped_controller(tmp_path):
+    from vaultkeeper.core.mod_data import ModData
+    from vaultkeeper.core.profile_data import ProfileData
+    from vaultkeeper.persistence.profile_store import save_profile
+
+    pd = ProfileData()
+    pd.add_mod(ModData(group="Adventures", mod_name="A"))
+    pd.add_mod(ModData(group="Adventures", mod_name="B"))
+    pd.add_mod(ModData(group="Campaigns", mod_name="C"))
+    pd.add_mod(ModData(group="Adventures"))  # explicit group row
+    pd.initialise_groups()
+    pd.ensure_mandatory_groups()
+    store = tmp_path / "Data" / "P.json"
+    save_profile(pd, store)
+    return ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "mods",
+        game_root=tmp_path / "NWN",
+        store_path=store,
+        game_user_dir=tmp_path / "user",
+    )
+
+
+def test_delete_group_via_ui(qtbot, tmp_path) -> None:
+    # VB DeleteSelectedGroups, offered via the group-header right-click menu.
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    win._confirm = lambda *a, **k: True  # accept the confirmation
+    win._on_delete_groups(["Adventures"])
+    assert ctrl.pd.mod_keys == ["C"]
+    assert "Adventures" not in ctrl.group_names()
+
+
+def test_rename_group_via_ui(qtbot, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Epics", True))
+    win._on_rename_group("Adventures")
+    assert "Epics" in ctrl.group_names()
+    assert "Adventures" not in ctrl.group_names()
+    assert set(ctrl.group_member_names("Epics")) == {"A", "B"}
+
+
+def test_group_header_context_menu_target(qtbot, tmp_path) -> None:
+    # A group header is detected for the group menu; a mod row is not.
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    tree = win._tree
+    for i in range(tree.topLevelItemCount()):
+        item = tree.topLevelItem(i)
+        if item.text(0) == "Adventures":
+            rect = tree.visualItemRect(item)
+            assert tree.group_header_at(rect.center()) == "Adventures"
+            # A child mod row is not a group header.
+            child_rect = tree.visualItemRect(item.child(0))
+            assert tree.group_header_at(child_rect.center()) is None
+            return
+    raise AssertionError("Adventures header not found")
+
+
 def test_mod_selector_populates_and_selects(qtbot, controller) -> None:
     # VB TsbModSelector (menu-bar right): a type-to-find combo bound to the mod
     # list that selects the chosen mod (ItemSelected → SelectMod).

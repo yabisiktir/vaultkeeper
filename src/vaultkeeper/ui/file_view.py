@@ -202,6 +202,17 @@ class FileView(QTreeWidget):
                 names.append(name)
         return names
 
+    def group_header_at(self, pos) -> str | None:
+        """The group name if ``pos`` is over a (visible) group header, else None.
+
+        Group headers carry a group name but no mod name and are not selectable,
+        so group actions are offered via their right-click menu.
+        """
+        item = self.itemAt(pos)
+        if item is None or item.data(0, _ROLE_MOD_NAME):
+            return None
+        return item.data(0, _ROLE_GROUP_NAME)
+
     def _mod_items(self):
         """Every mod row (top-level ungrouped rows + rows under group headers)."""
         for i in range(self.topLevelItemCount()):
