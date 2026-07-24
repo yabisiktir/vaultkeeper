@@ -394,7 +394,7 @@ Defs.vb,GroupUserData,TotalMods,Property,,Defs.vb:965,strong,vaultkeeper/ui/cont
 Defs.vb,GroupUserData,InstalledMods,Property,,Defs.vb:970,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_analyser.py,Ported,verified: constants/editions/helpers
 Defs.vb,GroupUserData,New,Sub,,Defs.vb:975,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
 Defs.vb,GroupUserData,New,Sub,,Defs.vb:984,strong,vaultkeeper/core/hak_patch.py | vaultkeeper/core/mapper.py | vaultkeeper/core/name_edit.py,N/A,framework/designer-generated
-Defs.vb,Defs,TitleInfo,Property,,Defs.vb:1001,none,,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
+Defs.vb,Defs,TitleInfo,Property,,Defs.vb:1001,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/play_loop.py,Ported,confirmed in port (install/uninstall/deps/erf/leto/editions/tga/skills/playdata/theme).
 Defs.vb,Defs,PlayedTodayText,Function,,Defs.vb:1113,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,DrawingEnabled,Property,,Defs.vb:1135,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,Defs,CancelImage,Property,,Defs.vb:1162,none,,Divergence,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
