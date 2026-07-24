@@ -2920,5 +2920,17 @@
    "TxLibrary_TextChanged",
    "CbDisable_CheckedChanged"
   ]
+ },
+ "msvalidate_deferred": {
+  "status": "Deferred",
+  "note": "MsValidate = scan game folders for files NIT deems illegal (foreign/untracked) then delete-to-recycle. Deferred (destructive + not groundable): faithful IsIllegalFile needs the ValidInstalledFilenames/ValidInstalledExtensions valid-set validated against real game data to avoid false-positive deletion of legitimate game files.",
+  "names": [
+   "MsValidate",
+   "MsValidate_Click",
+   "CheckForInvalidFiles",
+   "IsIllegalFile",
+   "ValidInstalledFilenames",
+   "ValidInstalledExtensions"
+  ]
  }
 }
