@@ -63,8 +63,9 @@ class ProfileController:
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
         )
         self._play_loop: PlayLoop | None = None
-        #: Optional GameMapper prompter (the app injects a Qt-backed one).
-        self.play_prompter = None
+        #: Optional GameMapper prompter (the app injects a Qt-backed one). A
+        #: property so swapping it propagates to an already-built play loop.
+        self._play_prompter = None
         #: HTTP client for Vault operations (tests inject a FakeHttpClient).
         self._http = None
         #: Archive backend for publish/extract (tests inject a FakeArchiveExtractor).
@@ -1924,6 +1925,17 @@ class ProfileController:
         return "Anneal complete."
 
     # -- Play loop (Phase 5) ---------------------------------------------- #
+    @property
+    def play_prompter(self):
+        """The GameMapper prompter; setting it updates an already-built loop."""
+        return self._play_prompter
+
+    @play_prompter.setter
+    def play_prompter(self, value) -> None:
+        self._play_prompter = value
+        if self._play_loop is not None:
+            self._play_loop.game_mapper.prompter = value
+
     @property
     def play_loop(self) -> PlayLoop | None:
         """The play-tracking loop for this profile (None if no game-user dir)."""
@@ -4381,6 +4393,17 @@ class ProfileController:
     def change_status_line(self) -> str:
         """The status-bar change summary (VB ChangeData.StatusLine)."""
         return self.pd.changes.status_line().strip()
+
+    def current_play_title(self) -> tuple[str, str]:
+        """(played mod, save location) for the title bar (VB TitleInfo).
+
+        Uses the already-built play loop so a plain refresh never forces its
+        construction (and its game-saves scan); the title reflects play state
+        once the loop exists (after playing / opening game saves), matching VB
+        setting ``TitleInfo`` at those game-state events.
+        """
+        loop = self._play_loop
+        return loop.current_play_title() if loop is not None else ("", "")
 
     # -- Config-isolation guard ------------------------------------------- #
     def _config_guard(self) -> ConfigGuard | None:

@@ -80,6 +80,19 @@ class PlayLoop:
         """Scan the NWN saves folder (VB NwGs)."""
         return GameSaves(GameSaveFolderType.SAVES, self.saves_dir)
 
+    def current_play_title(self) -> tuple[str, str]:
+        """(played mod, in-module location) for the title bar (VB TitleInfo).
+
+        Both come from the current (latest) game save; the mod is resolved from
+        the save name. Empty strings when nothing has been saved.
+        """
+        gs = self.game_saves()
+        if gs.count == 0:
+            return "", ""
+        save = gs.current_game_save
+        mod = self.game_mapper.save_name_to_mod_name(save, interactive=False) or save
+        return mod, gs.current_location
+
     def current_game_summary(self) -> str:
         """A one-line summary of the current save (mod, location, count)."""
         gs = self.game_saves()

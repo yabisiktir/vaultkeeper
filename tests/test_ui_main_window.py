@@ -53,15 +53,46 @@ def test_window_populates_from_profile(qtbot, controller) -> None:
     assert win.nit_status.bt_mod_count.text() == "0/2"
 
 
-def test_title_bar_shows_selected_mod(qtbot, controller) -> None:
-    # VB Defs sets MyNit.Text to "<AppTitle> — <mod> (<area>)" on selection.
+def test_title_bar_shows_played_mod_and_location(qtbot, tmp_path) -> None:
+    # VB TitleInfo: "Vaultkeeper — <mod currently being played> (<save location>)",
+    # both from the current game save; "Vaultkeeper" when nothing is saved.
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    user_dir = tmp_path / "user"
+    # A current save: folder starts with a 6-digit number; the .sav stem is the
+    # game/mod name; savenfo.txt holds the in-module location.
+    save = user_dir / "saves" / "000001 - Quicksave"
+    save.mkdir(parents=True)
+    (save / "Bloodright.sav").write_bytes(b"S")
+    (save / "savenfo.txt").write_text("Temple of Dergarion")
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        game_user_dir=user_dir,
+    )
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    assert win.windowTitle() == "Vaultkeeper"
-    _select_mod(win, "Alpha")
-    assert win.windowTitle() == "Vaultkeeper — Alpha"
-    # Clearing / multi-selecting reverts to the plain title.
-    win._on_selection_changed([])
+    # The play loop exists once the user plays / opens game saves; building it and
+    # refreshing surfaces the current save in the title (VB TitleInfo at load).
+    assert controller.play_loop is not None
+    win.refresh()
+    assert win.windowTitle() == "Vaultkeeper — Bloodright (Temple of Dergarion)"
+
+
+def test_title_bar_plain_when_no_saves(qtbot, tmp_path) -> None:
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        game_user_dir=tmp_path / "user",  # no saves
+    )
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    assert controller.play_loop is not None  # build the loop; still no saves
+    win.refresh()
     assert win.windowTitle() == "Vaultkeeper"
 
 

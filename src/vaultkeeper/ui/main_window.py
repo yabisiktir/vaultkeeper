@@ -533,6 +533,7 @@ class MainWindow(QMainWindow):
         self._tree.populate(self.controller.groups())
         self._populate_mod_selector()
         self._update_status()
+        self._update_title()
         total, _ = self.controller.counts()
         if total == 0:
             self._details.setHtml(
@@ -691,19 +692,22 @@ class MainWindow(QMainWindow):
         display = "None" if hidden else selected_group
         self.nit_status.set_group(f"{display} ({installed:,}/{total:,})")
 
-    def _update_title(self, mod_name: str | None) -> None:
-        """Show the selected mod in the title bar (VB Defs sets MyNit.Text to
-        "<AppTitle> — <mod> (<area>)" on selection).
+    def _update_title(self) -> None:
+        """Title bar = "Vaultkeeper — <played mod> (<save location>)" (VB TitleInfo).
 
-        Bounded: the "(area location)" suffix needs parsing the module file for
-        its starting area and is deferred, so only the mod name is shown.
+        The mod currently being played and the in-module location both come from
+        the current game save (the CHM labels these zones "Mod currently being
+        played" / "Location within the Mod being played"), so — unlike a mod-list
+        selection — this reflects game state and updates on refresh. Falls back to
+        "Vaultkeeper" when nothing has been saved.
         """
-        if (
-            mod_name
-            and self.controller is not None
-            and self.controller.pd.mod_item(mod_name) is not None
-        ):
-            self.setWindowTitle(f"Vaultkeeper — {mod_name}")
+        mod = location = ""
+        if self.controller is not None:
+            mod, location = self.controller.current_play_title()
+        if mod and location:
+            self.setWindowTitle(f"Vaultkeeper — {mod} ({location})")
+        elif mod:
+            self.setWindowTitle(f"Vaultkeeper — {mod}")
         else:
             self.setWindowTitle("Vaultkeeper")
 
@@ -713,7 +717,6 @@ class MainWindow(QMainWindow):
         has_sel = bool(names)
         self._set_install_availability(names)
         self._update_group_status(names)
-        self._update_title(names[0] if len(names) == 1 else None)
         self._act_remove.setEnabled(has_sel)
         self._act_rename.setEnabled(len(names) == 1)  # rename one at a time
         if self._act_properties is not None:
