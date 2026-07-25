@@ -2966,5 +2966,57 @@
   "names": [
    "Filters_Load"
   ]
+ },
+ "create_nwn_folder_ported": {
+  "status": "Ported",
+  "note": "CreateNwnFolder ported: game/create_nwn_folder.py (clone source install contents into a per-profile folder + classic nwn.ini) + ui/dialogs/create_nwn_folder.py + Settings Locations Create-New-Game-Folder button.",
+  "names": [
+   "TargetFolder",
+   "CreateNwnFolder_Load",
+   "CreateNwnFolder_Shown",
+   "BuTarget_Click",
+   "BuSource_Click",
+   "CreateFolder",
+   "TxTarget_TextChanged",
+   "TxSource_TextChanged"
+  ]
+ },
+ "create_nwn_folder_divergence": {
+  "status": "Divergence",
+  "note": "VB path-entry validation niceties (Enter/KeyPress live formatting, UseAsDefaultSource pref, MlErrors panel) diverge; the port validates on Create.",
+  "names": [
+   "UseAsDefaultSource",
+   "MlErrors_TextChanged",
+   "TxTarget_Enter",
+   "TxSource_Enter",
+   "EnteringPath"
+  ]
+ },
+ "action_parity_ported": {
+  "status": "Ported",
+  "note": "Command wired via a different port surface (help contents, played-info corner widget, hak-patch Move Up/Down buttons).",
+  "names": [
+   "MsHelpContents",
+   "MsPlayedInfo",
+   "MsMoveUp",
+   "MsMoveDown"
+  ]
+ },
+ "action_parity_deferred": {
+  "status": "Deferred",
+  "note": "MsGetUpdate = online self-update (cross-platform/data-blocked); MsSaveNwnInfo = recreate original NWN file info (BuildOriginalFiles dev tooling; port ships prebuilt original_files.json).",
+  "names": [
+   "MsGetUpdate",
+   "MsSaveNwnInfo"
+  ]
+ },
+ "action_parity_divergence": {
+  "status": "Divergence",
+  "note": "MsGroupNone = No-Group item folded into the group-move context menu; MsCancelGoTo = the port Go-to-Group is a modal picker (no persistent cancel-mode item); MsValidateOnActivateStatus = internal validate-on-activate toggle (port validates on load).",
+  "names": [
+   "MsGroupNone",
+   "MsCancelGoTo",
+   "MsValidateOnActivateStatus"
+  ]
  }
 }

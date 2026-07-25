@@ -484,6 +484,14 @@ class SettingsDialog(QDialog):
         form.addRow("Game User Folder:", user_row)
         outer.addLayout(form)
 
+        # Create a separate game folder for this profile (VB CreateNwnFolder).
+        create_folder = QPushButton("Create New Game Folder…")
+        create_folder.clicked.connect(self._on_create_nwn_folder)
+        create_row = QHBoxLayout()
+        create_row.addWidget(create_folder)
+        create_row.addStretch(1)
+        outer.addLayout(create_row)
+
         tree = QTreeWidget()
         tree.setHeaderLabels(["Location", "Path"])
         tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
@@ -517,6 +525,32 @@ class SettingsDialog(QDialog):
         folder = QFileDialog.getExistingDirectory(self, "Select folder", edit.text())
         if folder:
             edit.setText(folder)
+
+    def _on_create_nwn_folder(self) -> None:
+        """Create an isolated NWN game folder for this profile (VB CreateNwnFolder)."""
+        from pathlib import Path
+
+        from vaultkeeper.ui.dialogs.create_nwn_folder import CreateNwnFolderDialog
+
+        controller = self._controller
+        source = (self.game_install_edit.text() if self.game_install_edit else "").strip()
+        profile = getattr(getattr(controller, "store_path", None), "stem", "") or ""
+        parent_dir = str(Path(source).parent.parent) if source else ""
+        is_ee = getattr(getattr(controller, "ctx", None), "is_ee", True)
+        user_dir = (self.game_user_edit.text() if self.game_user_edit else "").strip()
+
+        dlg = CreateNwnFolderDialog(
+            profile_name=profile,
+            source=source,
+            parent_dir=parent_dir,
+            is_ee=is_ee,
+            config_ini_source=user_dir,
+            parent=self,
+        )
+        accepted = dlg.exec() == QDialog.DialogCode.Accepted
+        # Point this profile's Game Installation at the freshly-created folder.
+        if accepted and dlg.created_path and self.game_install_edit is not None:
+            self.game_install_edit.setText(dlg.created_path)
 
     def apply_to(self, settings: Settings) -> None:
         """Write the editable fields back into ``settings``."""

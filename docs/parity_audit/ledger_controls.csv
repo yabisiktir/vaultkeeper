@@ -606,8 +606,8 @@ HakPatchEditor,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Defer
 HakPatchEditor,LpMenu,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,LbRegistered,?,"""Registered Patch Hak Files""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
 HakPatchEditor,MsMain,?,"""MenuStrip1""",,,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
-HakPatchEditor,MsMoveDown,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
-HakPatchEditor,MsMoveUp,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Deferred,hak-patch editor (dead MsHakPatchEditor; read-only model ported)
+HakPatchEditor,MsMoveDown,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,"Command wired via a different port surface (help contents, played-info corner widget, hak-patch Move Up/Down buttons)."
+HakPatchEditor,MsMoveUp,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,"Command wired via a different port surface (help contents, played-info corner widget, hak-patch Move Up/Down buttons)."
 HakPatchEditor,CmHakPriority,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 InstallationAnalyser,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (folder browser + issues report)
@@ -958,8 +958,8 @@ NIT,MsRename,?,"""&Rename...""",,,,strong,vaultkeeper/ui/main_window.py | vaultk
 NIT,MsFind,?,"""&Find...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsFindAndRename,?,"""Find and Rename &Mods...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,Bulk find/replace over mod names ported: game/find_rename.py (ModRenameSet/ModNameEntry) + controller.mod_rename_set/apply_mod_renames + ui/dialogs/find_and_rename.py; wired MsFindAndRename. Find Next stepping (find_next) + single Undo (undo_one) also ported.
 NIT,MsGoToGroup,?,"""&Go to Group...""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsCancelGoTo,?,"""Cancel""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsGroupNone,?,"""None""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsCancelGoTo,?,"""Cancel""",,,,none,,Divergence,MsGroupNone = No-Group item folded into the group-move context menu; MsCancelGoTo = the port Go-to-Group is a modal picker (no persistent cancel-mode item); MsValidateOnActivateStatus = internal validate-on-activate toggle (port validates on load).
+NIT,MsGroupNone,?,"""None""",,,,none,,Divergence,MsGroupNone = No-Group item folded into the group-move context menu; MsCancelGoTo = the port Go-to-Group is a modal picker (no persistent cancel-mode item); MsValidateOnActivateStatus = internal validate-on-activate toggle (port validates on load).
 NIT,MsConvertRestorer,?,"""Conv&ert Restorer to Mod""",,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsEditWebLink,?,"""Edit &Link to Mod's Web Page""",,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsCopyWebLink,?,"""Copy Mod's &Web Page Link""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1054,7 +1054,7 @@ NIT,MsCustomise,?,"""C&ustomise Toolbar""",,,,strong,vaultkeeper/ui/menu_bar.py,
 NIT,MsDebugOptionsMenu,?,"""&Debug Options Menu""",,,,strong,vaultkeeper/ui/menu_bar.py,Divergence,Intentional cross-platform / config-isolation omission; left visible-but-disabled by design.
 NIT,DbEnableDevelopmentFolder,?,"""Enable &Development Folder""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,DbRedoDateCompleted,?,"""R&edo Mod Completed Dates""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsSaveNwnInfo,?,"""&Recreate original NWN file information""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsSaveNwnInfo,?,"""&Recreate original NWN file information""",,,,none,,Deferred,MsGetUpdate = online self-update (cross-platform/data-blocked); MsSaveNwnInfo = recreate original NWN file info (BuildOriginalFiles dev tooling; port ships prebuilt original_files.json).
 NIT,DbOriginalFilesReport,?,"""&Original Files Report""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,DbInstalledFilesReport,?,"""I&nstalled Files Report""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,DbModDataReport,?,"""&Mod Data Report""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1080,7 +1080,7 @@ NIT,DbShowNitAvailable,?,"""Show NIT is available""",,,,none,,Ported,main window
 NIT,DbAppDefsReport,?,"""Application Definitions File Report""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,DbOriginalFiles,?,"""Create Original Files Dictionary""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,DbEeOriginalFiles,?,"""Create EE Original Files Dictionary""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsValidateOnActivateStatus,?,"""Validate on Activate Status""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsValidateOnActivateStatus,?,"""Validate on Activate Status""",,,,none,,Divergence,MsGroupNone = No-Group item folded into the group-move context menu; MsCancelGoTo = the port Go-to-Group is a modal picker (no persistent cancel-mode item); MsValidateOnActivateStatus = internal validate-on-activate toggle (port validates on load).
 NIT,DbMethod,?,"""Debug Method""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsHelp,?,"""&Help""",,,,strong,vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsViewHelp,?,"""View &Help""",,,,strong,vaultkeeper/ui/help_model.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1093,10 +1093,10 @@ NIT,MsUpdateNow,?,"""&Update Now""",,,,strong,vaultkeeper/ui/menu_bar.py,Diverge
 NIT,MsSendFeedback,?,"""Send Feed&back""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsSendDiagInfo,?,"""Send &Diagnostic Information""",,,,strong,vaultkeeper/ui/menu_bar.py,Divergence,Intentional cross-platform / config-isolation omission; left visible-but-disabled by design.
 NIT,MsAbout,?,"""&About""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsHelpContents,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsHelpContents,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py,Ported,"Command wired via a different port surface (help contents, played-info corner widget, hak-patch Move Up/Down buttons)."
 NIT,TsbModSelector,?,"""Mod Selector""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsGetUpdate,?,"""&NIT v2.0 is available""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsPlayedInfo,?,"""Mod played for 28 hours 34 mins""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsGetUpdate,?,"""&NIT v2.0 is available""",,,,none,,Deferred,MsGetUpdate = online self-update (cross-platform/data-blocked); MsSaveNwnInfo = recreate original NWN file info (BuildOriginalFiles dev tooling; port ships prebuilt original_files.json).
+NIT,MsPlayedInfo,?,"""Mod played for 28 hours 34 mins""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/main_window.py,Ported,"Command wired via a different port surface (help contents, played-info corner widget, hak-patch Move Up/Down buttons)."
 NIT,TsStatus,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Bottom,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,BtMods,?,"""Mods:""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,BtRecycleToggle,?,"""btRecycleToggle""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/status_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
