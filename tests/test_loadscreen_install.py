@@ -214,3 +214,29 @@ def test_rename_installed_corrected_behaviour(tmp_path):
     info = ss.read_start_screen_info(c._profile_data_dir())
     assert info.active_type in ("1", "2")  # not corrupted
     assert info.active_screen == "Spring.tga"
+
+
+def test_export_loadscreen_images_copies_to_target(tmp_path):
+    # VB RbExport: copy selected start-screen images out to a chosen folder.
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    folder = c._loadscreen_image_folder(md)
+    (folder / "Winter.tga").write_bytes(b"WIN")
+    (folder / "Summer.tga").write_bytes(b"SUM")
+
+    target = tmp_path / "exported"
+    res = c.export_loadscreen_images(["Winter.tga", "Summer.tga"], target)
+    assert res["exported"] == 2
+    assert res["errors"] == 0
+    assert (target / "Winter.tga").read_bytes() == b"WIN"
+    assert (target / "Summer.tga").read_bytes() == b"SUM"
+
+
+def test_export_loadscreen_images_skips_missing(tmp_path):
+    c = _controller(tmp_path)
+    md = c.ensure_loadscreen_mod()
+    (c._loadscreen_image_folder(md) / "Winter.tga").write_bytes(b"WIN")
+    target = tmp_path / "out"
+    res = c.export_loadscreen_images(["Winter.tga", "Ghost.tga"], target)
+    assert res["exported"] == 1
+    assert not (target / "Ghost.tga").exists()

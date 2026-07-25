@@ -3286,6 +3286,40 @@ class ProfileController:
             body + ("\n" if body else ""), encoding="utf-8"
         )
 
+    def export_loadscreen_images(self, names: list[str], target: Path) -> dict:
+        """Copy the named loadscreen images out to ``target`` (VB ``RbExport``).
+
+        VB copies the selected start-screen files into a fixed ``ExportedStartScreens``
+        folder under the profile; here the caller chooses the destination. Returns
+        ``{"exported", "errors", "message"}``.
+        """
+        import shutil
+
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None:
+            return {"exported": 0, "errors": 0, "message": _NO_START_SCREEN_MSG}
+        image_folder = self._loadscreen_image_folder(md)
+        target = Path(target)
+        target.mkdir(parents=True, exist_ok=True)
+        exported = errors = 0
+        for name in names:
+            src = image_folder / name
+            if not src.is_file():
+                continue
+            try:
+                shutil.copy2(src, target / name)
+                exported += 1
+            except OSError:
+                errors += 1
+        return {
+            "exported": exported,
+            "errors": errors,
+            "message": f"Exported Start Screen Files: {exported or 'None'}."
+            + (f" Errors: {errors}." if errors else ""),
+        }
+
     def delete_loadscreen_images(self, names: list[str]) -> dict:
         """Delete image files from the managed mod (VB ``RbDeleteFile`` @1340).
 

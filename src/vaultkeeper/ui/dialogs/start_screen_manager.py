@@ -103,6 +103,10 @@ class StartScreenManager(QDialog):
         self._rename_btn.setToolTip("Rename the selected image")
         self._rename_btn.clicked.connect(self._on_rename)
         buttons.addWidget(self._rename_btn)
+        self._export_btn = QPushButton("Export…")
+        self._export_btn.setToolTip("Copy the selected start screen image(s) to a folder")
+        self._export_btn.clicked.connect(self._on_export)
+        buttons.addWidget(self._export_btn)
         self._exclude_btn = QPushButton("Toggle Auto-Exclude")
         self._exclude_btn.setToolTip(
             "Exclude/include the selected image from the slideshow and auto-select"
@@ -294,6 +298,28 @@ class StartScreenManager(QDialog):
         result = self._controller.delete_loadscreen_images(names)
         self._status(result.get("message", ""))
         self._refresh()
+
+    def _on_export(self) -> None:
+        """Export the selected image(s) to a chosen folder (VB RbExport)."""
+        if self._controller is None:
+            return
+        entries = [self._images[i.row()] for i in self._list.selectedIndexes()]
+        if not entries:
+            entry = self._current_entry()
+            entries = [entry] if entry else []
+        if not entries:
+            self._status("Select an image to export first.")
+            return
+        from pathlib import Path
+
+        from PySide6.QtWidgets import QFileDialog
+
+        target = QFileDialog.getExistingDirectory(self, "Export start screen images to…")
+        if not target:
+            return
+        names = [e["name"] for e in entries]
+        result = self._controller.export_loadscreen_images(names, Path(target))
+        self._status(result.get("message", ""))
 
     def _on_rename(self) -> None:
         """Rename the selected image (VB RbRename — validation in the controller)."""

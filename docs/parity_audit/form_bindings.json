@@ -39,7 +39,7 @@
     "CalculateCRCs": {"verdict": "FOLDED_OK", "port": "core/profile_data.calculate_checksums", "note": "CRC progress dialog folded; checksum calc is headless"},
     "MsgPicture": {"verdict": "FOLDED_OK", "port": "QMessageBox", "note": "message-with-picture folded into standard message boxes"},
     "DownloadDeleteMsg": {"verdict": "FOLDED_OK", "port": "QMessageBox confirm", "note": "download-delete confirmation folded into a confirm dialog"},
-    "NitDownload": {"verdict": "FOLDED_OK", "port": "ui/dialogs/download_project.py + controller.download_project", "note": "download action folded into the Download Project flow"},
+    "NitDownload": {"verdict": "DEFERRED", "port": "", "note": "the TOOL self-update download dialog (RbUpdate/RbVault/RbNexus/RbProjectDownload source selection) — part of the deferred online-update subsystem (NetworkManager/MsGetUpdate), NOT the project download. Confirmed by control audit 2026-07-24."},
     "RtfThemeManager": {"verdict": "THINNED", "accepted": true, "port": "config theme setting", "note": "VB recolours individual rich-text elements; port offers a single light/dark/system theme. Accepted bounded port (low value, accessibility subset)."},
     "MenuItemEditor": {"verdict": "THINNED", "accepted": true, "port": "settings_dialog.py Web/Run inline editors", "note": "VB dedicated menu-item editor (text/URL/icon/accelerator) folded into inline Web-menu / Run-menu editors; the &-accelerator + icon-picker are Windows-menu-specific. Accepted bounded (low value)."},
     "CommonFiltersDialogue": {"verdict": "DEDICATED", "port": "ui/dialogs/common_filters.py", "note": "Group + Rating include/exclude multi-select dialog, opened from the Mod Play Viewer Filters… button (fixed 2026-07-24)"},
