@@ -1791,7 +1791,9 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.installation_analyser import InstallationAnalyser
 
-        self._analyser = InstallationAnalyser.show_for(self.controller, self)
+        self._analyser = InstallationAnalyser.show_for(
+            self.controller, self._select_mod_by_name, self
+        )
 
     def _on_installation_manager(self) -> None:
         """Open the Installation Manager (named install sets — VB MsInstallationManager)."""

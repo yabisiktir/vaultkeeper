@@ -62,11 +62,17 @@ and `RbCreateInstaller` stay deferred. Original finding kept below for history.
 - **Groundable?** YES for the high-value slice: **Select-back-to-mod** (needs an `on_select`
   callback like `find_files.py` has), **Copy Mod Names** (clipboard), and a **rating filter**.
   The full multi-dimension operator filter set is lower value.
-- **PARTIALLY FIXED (2026-07-24):** Select-back-to-mod (`on_select` → `_select_mod_by_name`),
-  Copy Mod Names (clipboard), and a **Group + Rating include/exclude filter** (Filters… button
-  reusing `common_filters.py`) shipped. **Still open:** state operators (More/Less files
-  installed), prefix/text filters, Undo-Group-Changes — the lower-value tail.
-- **Fix sketch for the rest:** state operators + text-filter row + Undo-Group-Changes.
+- **FIXED + ADJUDICATED (2026-07-24):** Select-back-to-mod, Copy Mod Names, and a **Group +
+  Rating include/exclude filter** (Filters… reusing `common_filters.py`) shipped. The rest of
+  the VB filter subsystem is now judged **covered or low-value**, not a real gap:
+  name/group/rating filters = covered; `TsUndoGroups` ("Undo Group Changes") = just re-checks
+  all group filters (VB `TsUndoGroups_Click` → `PopulateGroupFilters`) = covered by the
+  common-filters *Select All*; the **state operators** (`>`/`<`/`=` on state) are marginal over
+  the state combo; the **level-start/end, henchmen, best-weapon, notes, and prefix filters**
+  (VB `NotFiltered`) filter on data the port's read-only ModExplorer does not even display
+  (no such columns), so porting them (plus the columns) is over-investment for a browser.
+  **Verdict: ModExplorer control-parity resolved** — the high-value filters shipped; the tail
+  is bounded-by-design (read-only browser).
 
 ### 3. InstallationAnalyser — action buttons + context menu absent  ·  THIN-OUT (medium)
 - **VB:** `InstallationAnalyser.vb` — `BtRefresh` "Refresh", `BtSelect` "Select",
@@ -74,8 +80,10 @@ and `RbCreateInstaller` stay deferred. Original finding kept below for history.
   `CmCharacterSummary` "Display Character Summary", `CmOpenFolder`.
 - **Port:** `ui/dialogs/installation_analyser.py` — tabbed report (Browser + Issues); no
   Refresh / Select / Converted buttons, no file context menu.
-- **Groundable?** YES for Refresh (re-run the report) + Select (jump to the file's mod).
-  Converted (nwm→converted) + shell Properties are bounded/cross-platform.
+- **FIXED (2026-07-24):** **Refresh** (re-run the analysis, VB BtRefresh) + **Select** (jump to
+  the highlighted file's installing mod, VB BtSelect) shipped; the dialog now holds the
+  controller. +2 tests. `BtConvert` (nwm→converted) + shell `Properties` / `Display Character
+  Summary` context items stay bounded/cross-platform.
 
 ### 4. StartScreenManager — Export Start Screen File absent  ·  THIN-OUT (small)  ✅ FIXED
 - **VB:** `StartScreenManager.vb` `RbExport` "Export Start Screen File" — copy the selected

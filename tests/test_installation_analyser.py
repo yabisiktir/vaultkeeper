@@ -118,3 +118,46 @@ def test_browser_dialog_populates(qtbot, tmp_path):
     assert dlg.files.topLevelItemCount() == 1
     assert dlg.files.topLevelItem(0).text(1) == "CEP"
     assert "Total installed size" in dlg.total.text()
+
+
+# -- Refresh + Select (VB BtRefresh / BtSelect) ---------------------------- #
+
+
+def test_analyser_refresh_picks_up_new_installs(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("hak", "a.hak"), installer="CEP",
+            byte_size=100, extension=".hak",
+        )
+    )
+    dlg = InstallationAnalyser.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert dlg.folders.count() == 1
+
+    # A new install appears in a different folder; Refresh surfaces it.
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("tlk", "c.tlk"), installer="CEP",
+            byte_size=25, extension=".tlk",
+        )
+    )
+    dlg.refresh()
+    assert dlg.folders.count() == 2
+
+
+def test_analyser_select_jumps_to_file_mod(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.pd.add_installed(
+        InstalledFileData(
+            key=FileKeyInfo.installed("hak", "a.hak"), installer="CEP",
+            byte_size=100, extension=".hak",
+        )
+    )
+    picked = []
+    dlg = InstallationAnalyser.show_for(controller, picked.append)
+    qtbot.addWidget(dlg)
+    dlg.files.setCurrentItem(dlg.files.topLevelItem(0))
+    dlg._on_select_mod()
+    assert picked == ["CEP"]
+    assert not dlg.isVisible()  # closes after select
