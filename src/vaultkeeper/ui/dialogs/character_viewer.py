@@ -129,6 +129,7 @@ class CharacterViewer(QDialog):
         self._tabs.addTab(self._summary, "Summary")
         self._tabs.addTab(self._build_skills_tab(), "Skills")
         self._tabs.addTab(self._build_feats_tab(), "Feats")
+        self._tabs.addTab(self._build_spells_tab(), "Spells")
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
 
@@ -255,6 +256,17 @@ class CharacterViewer(QDialog):
         splitter.setSizes([260, 120])
         return splitter
 
+    def _build_spells_tab(self) -> QWidget:
+        splitter = QSplitter(Qt.Orientation.Vertical)
+        self._spells = QListWidget()
+        self._spells.currentRowChanged.connect(self._on_spell)
+        splitter.addWidget(self._spells)
+        self._spell_desc = QTextEdit()
+        self._spell_desc.setReadOnly(True)
+        splitter.addWidget(self._spell_desc)
+        splitter.setSizes([260, 120])
+        return splitter
+
     def _on_row(self, row: int) -> None:
         item = self._list.item(row) if row >= 0 else None
         cf = item.data(_CHAR_ROLE) if item is not None else None
@@ -267,8 +279,10 @@ class CharacterViewer(QDialog):
             self._portrait.clear()
             self._skills.clear()
             self._feats.clear()
+            self._spells.clear()
             self._skill_desc.clear()
             self._feat_desc.clear()
+            self._spell_desc.clear()
             return
         self._summary.setPlainText(cf.summary(show_stats=True))
         self._show_portrait(cf)
@@ -290,16 +304,23 @@ class CharacterViewer(QDialog):
         self._skill_desc.clear()
         self._feats.clear()
         self._feat_desc.clear()
+        self._spells.clear()
+        self._spell_desc.clear()
         self._skill_rows = cf.skills() if cf.info.is_valid else []
         for name, rank, _desc in self._skill_rows:
             self._skills.addTopLevelItem(QTreeWidgetItem([name, str(rank)]))
         self._feat_rows = cf.feats() if cf.info.is_valid else []
         for name, _desc in self._feat_rows:
             self._feats.addItem(name)
+        self._spell_rows = cf.spells() if cf.info.is_valid else []
+        for name, _desc in self._spell_rows:
+            self._spells.addItem(name)
         if self._skill_rows:
             self._skills.setCurrentItem(self._skills.topLevelItem(0))
         if self._feat_rows:
             self._feats.setCurrentRow(0)
+        if self._spell_rows:
+            self._spells.setCurrentRow(0)
 
     def _on_skill(self, current, _previous=None) -> None:
         row = self._skills.indexOfTopLevelItem(current) if current is not None else -1
@@ -313,6 +334,12 @@ class CharacterViewer(QDialog):
             self._feat_desc.setPlainText(self._feat_rows[row][1])
         else:
             self._feat_desc.clear()
+
+    def _on_spell(self, row: int) -> None:
+        if 0 <= row < len(getattr(self, "_spell_rows", [])):
+            self._spell_desc.setPlainText(self._spell_rows[row][1])
+        else:
+            self._spell_desc.clear()
 
     def _show_portrait(self, cf) -> None:
         self._portrait.clear()
