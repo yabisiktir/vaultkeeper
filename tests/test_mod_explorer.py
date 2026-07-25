@@ -164,3 +164,34 @@ def test_mod_explorer_select_callback(qtbot):
     assert selected_mods == ["Alpha"]
     # Dialog should be closed
     assert not dlg.isVisible()
+
+
+def test_mod_explorer_group_and_rating_filter(qtbot):
+    # VB CommonFiltersDialogue: include/exclude by group + rating in the explorer.
+    report = {
+        "count": 3,
+        "rows": [
+            {"mod": "A", "group": "RPG", "state": "Installed", "rating": "Excellent",
+             "files": 5, "played": "", "completed": 0},
+            {"mod": "B", "group": "Puzzle", "state": "Installed", "rating": "Poor",
+             "files": 3, "played": "", "completed": 0},
+            {"mod": "C", "group": "RPG", "state": "Installed", "rating": "Poor",
+             "files": 2, "played": "", "completed": 0},
+        ],
+    }
+    dlg = ModExplorer(report)
+    qtbot.addWidget(dlg)
+    assert dlg.table.topLevelItemCount() == 3
+
+    # Exclude the Puzzle group.
+    dlg._group_filters["Puzzle"] = False
+    dlg._populate()
+    names = {dlg.table.topLevelItem(i).text(0) for i in range(dlg.table.topLevelItemCount())}
+    assert names == {"A", "C"}
+
+    # Also exclude Poor rating -> only the Excellent RPG mod remains.
+    dlg._group_filters["Puzzle"] = True
+    dlg._rating_filters["Poor"] = False
+    dlg._populate()
+    names = {dlg.table.topLevelItem(i).text(0) for i in range(dlg.table.topLevelItemCount())}
+    assert names == {"A"}

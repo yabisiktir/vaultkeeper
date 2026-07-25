@@ -43,10 +43,19 @@ class ModExplorer(QDialog):
         self.resize(760, 500)
         self._rows = list(report.get("rows", []))
         self._on_select = on_select
+        # Group + Rating include/exclude filter state (VB CommonFiltersDialogue);
+        # all included by default.
+        self._groups = sorted({r["group"] for r in self._rows if r.get("group")})
+        self._ratings = sorted(
+            {r["rating"] for r in self._rows if str(r.get("rating", "")).strip()}
+        )
+        self._group_filters: dict[str, bool] = {g: True for g in self._groups}
+        self._rating_filters: dict[str, bool] = {r: True for r in self._ratings}
 
         layout = QVBoxLayout(self)
 
-        # Filter bar (VB filter toolbar — bounded: name / state / only-completed).
+        # Filter bar (VB filter toolbar): name search + state + only-completed inline,
+        # plus a Filters… button for the shared Group + Rating include/exclude dialog.
         bar = QHBoxLayout()
         self._search = QLineEdit()
         self._search.setPlaceholderText("Filter by mod or group name…")
@@ -63,6 +72,10 @@ class ModExplorer(QDialog):
         self._only_completed = QCheckBox("Completed only")
         self._only_completed.stateChanged.connect(self._populate)
         bar.addWidget(self._only_completed)
+        self._filters_btn = QPushButton("Filters…")
+        self._filters_btn.setToolTip("Include/exclude by group and rating")
+        self._filters_btn.clicked.connect(self._open_filters)
+        bar.addWidget(self._filters_btn)
         layout.addLayout(bar)
 
         self.table = QTreeWidget()
@@ -92,12 +105,30 @@ class ModExplorer(QDialog):
 
         self._populate()
 
+    def _open_filters(self) -> None:
+        """Open the shared Group + Rating include/exclude dialog (VB CommonFiltersDialogue)."""
+        from vaultkeeper.ui.dialogs.common_filters import CommonFiltersDialog
+
+        dlg = CommonFiltersDialog(
+            self._groups, self._ratings, self._group_filters, self._rating_filters, self
+        )
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            self._group_filters = dlg.group_filters()
+            self._rating_filters = dlg.rating_filters()
+            self._populate()
+
     def _passes(self, row: dict) -> bool:
         query = self._search.text().strip().lower()
         if query and query not in row["mod"].lower() and query not in row["group"].lower():
             return False
         want_state = self._state.currentData()
         if want_state and row["state"] != want_state:
+            return False
+        group = row.get("group")
+        if group and not self._group_filters.get(group, True):
+            return False
+        rating = str(row.get("rating", "")).strip()
+        if rating and not self._rating_filters.get(rating, True):
             return False
         return not (self._only_completed.isChecked() and not row["completed"])
 

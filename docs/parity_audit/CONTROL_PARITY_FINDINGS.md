@@ -25,11 +25,17 @@ groundable — enough for another agent to pick up and fix.
 - **Missing:** the portrait-override management workflow (mark portraits excluded from the
   game's `portraits` override, apply/clear excludes, include-in-override toggle) + edit /
   create-installer / select-source.
-- **Groundable?** YES for exclude/override management (operates on the profile's portrait
-  files + the mapped `portraits` folder — same machinery as start-screen exclusions).
-  Edit-portrait (external editor) and create-installer are secondary.
-- **Fix sketch:** add `controller.portrait_override_report` / `set_portrait_excluded` and an
-  Exclude / Apply-Excludes / Include-in-Override control row on the dialog.
+- **Groundable? BLOCKED (corrected 2026-07-24).** VB's exclude/apply-excludes/create-installer
+  operate on *profile-mod portrait installer FileKeys* (add the portrait to the mod's Wizard
+  exclude set, then rebuild that mod's installer). The port's `portrait_manager.py` sources
+  portraits from `scan_portraits(portrait_search_dirs())` — **live game/hak portrait files with
+  no mod association**. So it needs the portrait viewer to browse profile-mod portrait FileKeys
+  first — the SAME restructuring deferred for the Character Explorer "Select associated mod".
+  Not a small groundable slice; building it blind would invent the mod-association model.
+- **Fix sketch (when tackled):** (1) add a profile-mod portrait source (portrait FileKeys per
+  mod), (2) mark selected portraits in the mod's `WizardInfo` exclude set, (3) rebuild the
+  installer via `build_installer_payload`. `RbEditPortrait` (external TGA editor) is
+  cross-platform-deferred.
 
 ### 2. ModExplorer — filter/action subsystem absent  ·  THIN-OUT (large)
 - **VB:** `ModExplorer.vb` (+ `.Designer.vb`) — a rich browser: **Select** (`BtSelect` → jump
@@ -44,11 +50,11 @@ groundable — enough for another agent to pick up and fix.
 - **Groundable?** YES for the high-value slice: **Select-back-to-mod** (needs an `on_select`
   callback like `find_files.py` has), **Copy Mod Names** (clipboard), and a **rating filter**.
   The full multi-dimension operator filter set is lower value.
-- **PARTIALLY FIXED (2026-07-24):** Select-back-to-mod (`on_select` → `_select_mod_by_name`)
-  and Copy Mod Names (clipboard) shipped. **Still open:** rating / state operator filters,
-  group / prefix / text filters, Undo-Group-Changes — the deeper filter subsystem.
-- **Fix sketch for the rest:** add a rating include/exclude filter (reuse `common_filters.py`),
-  state operators, and the text-filter row.
+- **PARTIALLY FIXED (2026-07-24):** Select-back-to-mod (`on_select` → `_select_mod_by_name`),
+  Copy Mod Names (clipboard), and a **Group + Rating include/exclude filter** (Filters… button
+  reusing `common_filters.py`) shipped. **Still open:** state operators (More/Less files
+  installed), prefix/text filters, Undo-Group-Changes — the lower-value tail.
+- **Fix sketch for the rest:** state operators + text-filter row + Undo-Group-Changes.
 
 ### 3. InstallationAnalyser — action buttons + context menu absent  ·  THIN-OUT (medium)
 - **VB:** `InstallationAnalyser.vb` — `BtRefresh` "Refresh", `BtSelect` "Select",
