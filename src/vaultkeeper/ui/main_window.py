@@ -1677,7 +1677,9 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
-        self._portrait_manager = PortraitManager.show_for(self.controller, self)
+        self._portrait_manager = PortraitManager.show_for(
+            self.controller, self._select_mod_by_name, self
+        )
 
     def _on_classes_skills_feats(self) -> None:
         """Open the Classes/Skills/Feats reference viewer (VB MsClassesSkillsAndFeats)."""

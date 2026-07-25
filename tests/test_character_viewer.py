@@ -208,23 +208,26 @@ def test_controller_character_files_scans_vault_and_saves(tmp_path, monkeypatch)
 
 # -- Portrait Manager ---------------------------------------------------------- #
 class _FakePortraitController:
-    def __init__(self, entries):
-        self._entries = entries
+    def __init__(self, portraits):
+        self._portraits = portraits
 
-    def portrait_entries(self):
-        return self._entries
+    def installed_portraits_report(self):
+        return {"portraits": self._portraits, "count": len(self._portraits)}
 
 
 def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
-    from vaultkeeper.game.character import PORTRAIT_SIZES, scan_portraits
+    from vaultkeeper.game.character import PORTRAIT_SIZES
     from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
-    for size in PORTRAIT_SIZES:  # a full five-size set
-        _write_tga(tmp_path / f"po_hero_{size}.tga", 8, 8)
-    entries = scan_portraits([tmp_path])
-    dlg = PortraitManager(_FakePortraitController(entries))
+    sizes = {}
+    for size in PORTRAIT_SIZES:  # a full five-size set on disk
+        path = tmp_path / f"po_hero{size}.tga"
+        _write_tga(path, 8, 8)
+        sizes[size] = path
+    portraits = [{"resref": "po_hero", "mod": "Heroes", "group": "", "sizes": sizes}]
+    dlg = PortraitManager(_FakePortraitController(portraits))
     qtbot.addWidget(dlg)
-    assert dlg._list.count() == 1
+    assert dlg._tree.topLevelItemCount() == 1
     # Title carries the count (VB "Portrait Manager — Installed Portraits: N").
     assert dlg.windowTitle() == "Portrait Manager — Installed Portraits: 1"
     # All five size thumbnails loaded for the selected portrait.
@@ -238,7 +241,7 @@ def test_portrait_manager_empty(qtbot):
 
     dlg = PortraitManager(_FakePortraitController([]))
     qtbot.addWidget(dlg)
-    assert dlg._list.count() == 0
+    assert dlg._tree.topLevelItemCount() == 0
 
 
 def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
@@ -249,8 +252,8 @@ def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
     calls = {"extracted": None}
 
     class _Ctl:
-        def portrait_entries(self):
-            return []
+        def installed_portraits_report(self):
+            return {"portraits": [], "count": 0}
 
         def extract_hak_portraits(self, hak):
             calls["extracted"] = hak

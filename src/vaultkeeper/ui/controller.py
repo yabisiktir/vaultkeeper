@@ -43,6 +43,9 @@ def _has_unscanned_mods(pd: ProfileData) -> bool:
 
 _NO_START_SCREEN_MSG = "Vaultkeeper does not yet manage your NWN Start Screen."
 
+#: Installed folder that holds portrait TGAs (VB Mapper.C.ModPortraitsFolder).
+_PORTRAIT_FOLDER = "portraits"
+
 
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
@@ -2964,6 +2967,87 @@ class ProfileController:
         from vaultkeeper.game.character import scan_portraits
 
         return scan_portraits(self.portrait_search_dirs())
+
+    def installed_portraits_report(self) -> dict:
+        """Installed portraits sourced from the profile's mods (VB PopulatePortraits).
+
+        VB's Portrait Manager lists portraits from ``pd.InstalledList`` — the files
+        the profile's mods actually installed — tagged with the mod that installed
+        them, not a blind scan of the game folders. A portrait is a ``<resref>h.tga``
+        huge file in the ``portraits`` folder; its smaller sizes present alongside
+        are collected (VB ``IsPortraitFile``). Returns ``{"portraits": [{resref, mod,
+        group, sizes: {size: path}}...], "count"}`` ordered by mod then resref.
+        """
+        from vaultkeeper.core.file_key import FileKeyInfo
+        from vaultkeeper.game.character import PORTRAIT_SIZES
+
+        game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
+        entries: list[dict] = []
+        for ifk in list(self.pd.installed_list):
+            if ifk.folder.lower() != _PORTRAIT_FOLDER or not ifk.filename.lower().endswith(
+                "h.tga"
+            ):
+                continue
+            base = ifk.filename[:-5]  # strip the "h.tga" size+ext
+            sizes: dict[str, Path] = {}
+            for size in PORTRAIT_SIZES:
+                fn = f"{base}{size}.tga"
+                installed = FileKeyInfo.installed(_PORTRAIT_FOLDER, fn) in self.pd.installed_list
+                if installed and game_portraits is not None:
+                    sizes[size] = game_portraits / fn
+            installer = self.pd.get_installer(ifk.file_key)
+            md = self.pd.mod_item(installer) if installer else None
+            entries.append(
+                {
+                    "resref": base,
+                    "mod": md.mod_name if md is not None else (installer or ""),
+                    "group": md.group if md is not None else "",
+                    "sizes": sizes,
+                }
+            )
+        entries.sort(key=lambda e: (e["mod"].lower(), e["resref"].lower()))
+        return {"portraits": entries, "count": len(entries)}
+
+    def remove_installed_portrait(self, resref: str) -> dict:
+        """Remove an installed portrait (all sizes) from the game + its mod's installer.
+
+        The port's faithful form of VB Exclude → Apply-Excludes: the selected
+        portrait is uninstalled from the game folder and dropped from the installing
+        mod's installer payload so it will not be reinstalled. Returns ``{"removed",
+        "mod", "message"}``. (Bounded vs VB: VB adds it to the mod's Wizard exclude
+        list — recoverable by un-excluding — whereas the port removes the file.)
+        """
+        from vaultkeeper.game.character import PORTRAIT_SIZES
+
+        game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
+        filenames = {f"{resref}{s}.tga".lower() for s in PORTRAIT_SIZES}
+        installer = ""
+        removed = 0
+        for ifk in list(self.pd.installed_list):
+            if ifk.folder.lower() != _PORTRAIT_FOLDER:
+                continue
+            if ifk.filename.lower() not in filenames:
+                continue
+            installer = installer or self.pd.installed_list[ifk].installer
+            if game_portraits is not None:
+                (game_portraits / ifk.filename).unlink(missing_ok=True)
+            self.pd.installed_list.pop(ifk, None)
+            self.pd.changes.installed.removed(ifk)
+            removed += 1
+        if installer and self.pd.mod_item(installer) is not None:
+            self._remove_mod_files(
+                installer,
+                lambda fk: fk.folder.lower() == _PORTRAIT_FOLDER
+                and fk.filename.lower() in filenames,
+            )
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return {
+            "removed": removed,
+            "mod": installer,
+            "message": f"Removed portrait '{resref}' ({removed} file(s)).",
+        }
 
     # -- Start Screen / Loadscreens (VB StartScreenManager) ---------------- #
     def loadscreens_report(self) -> dict:

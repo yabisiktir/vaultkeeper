@@ -24,7 +24,7 @@
     "ModPlayViewer": {"verdict": "DEDICATED", "port": "ui/dialogs/mod_play_viewer.py"},
     "PlayDataViewer": {"verdict": "DEDICATED", "port": "ui/dialogs/play_data_viewer.py"},
     "PlayDataViewPending": {"verdict": "DEDICATED", "port": "ui/dialogs/play_data_view_pending.py"},
-    "PortraitManager": {"verdict": "DEDICATED", "port": "ui/dialogs/portrait_manager.py"},
+    "PortraitManager": {"verdict": "DEDICATED", "port": "ui/dialogs/portrait_manager.py", "note": "rebuilt in place 2026-07-24 to source installed portraits from the profile's mods (VB PopulatePortraits) grouped by mod, with Select + Remove (VB RbSelect / Exclude). Remove is bounded vs VB Wizard-exclude (removes the file); Edit-portrait external editor deferred."},
     "PublishMod": {"verdict": "DEDICATED", "port": "ui/dialogs/publish_mod.py"},
     "StartScreenManager": {"verdict": "DEDICATED", "port": "ui/dialogs/start_screen_manager.py"},
     "WizardBuilder": {"verdict": "DEDICATED", "port": "ui/dialogs/wizard_builder.py"},

@@ -15,6 +15,16 @@ groundable — enough for another agent to pick up and fix.
 
 ## Open findings (ranked by user value)
 
+### 1. PortraitManager — portrait *management*  ·  ✅ REBUILT IN PLACE (2026-07-24)
+Rebuilt to source installed portraits from the profile's mods (VB `PopulatePortraits` →
+`controller.installed_portraits_report`), grouped by installing mod, with **Select** (jump
+to mod) + **Remove** (`controller.remove_installed_portrait`: uninstall the portrait from the
+game + drop it from the mod's installer). +11 tests. Bounded vs VB: Remove deletes the file
+rather than persisting a Wizard-exclude (no un-exclude); `RbEditPortrait` (external TGA editor)
+and `RbCreateInstaller` stay deferred. Original finding kept below for history.
+
+<details><summary>Original finding (superseded)</summary>
+
 ### 1. PortraitManager — portrait *management* absent  ·  THIN-OUT (large)
 - **VB:** `PortraitManager.vb` / `.Designer.vb` — ribbon: `RbExclude` "Exclude Portrait",
   `RbApplyExcludes` "Apply Excludes", `TsOverride` "Include Portraits in Override",
@@ -36,6 +46,8 @@ groundable — enough for another agent to pick up and fix.
   mod), (2) mark selected portraits in the mod's `WizardInfo` exclude set, (3) rebuild the
   installer via `build_installer_payload`. `RbEditPortrait` (external TGA editor) is
   cross-platform-deferred.
+
+</details>
 
 ### 2. ModExplorer — filter/action subsystem absent  ·  THIN-OUT (large)
 - **VB:** `ModExplorer.vb` (+ `.Designer.vb`) — a rich browser: **Select** (`BtSelect` → jump
