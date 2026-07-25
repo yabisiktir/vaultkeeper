@@ -2932,5 +2932,32 @@
    "ValidInstalledFilenames",
    "ValidInstalledExtensions"
   ]
+ },
+ "basic_settings_ported": {
+  "status": "Ported",
+  "note": "Distinct curated Basic Settings dialog ported: ui/dialogs/basic_settings.py (2 tabs Behaviour/User Interface) + 6 new settings fields; wired MsBasicSettings/RbnBasicSettings; Advanced button chains into the full SettingsDialog (VB BtAdvanced).",
+  "names": [
+   "BasicSettings_Load",
+   "CbCommon_CheckedChanged",
+   "CbInstallRestore_CheckedChanged",
+   "RbLine_CheckedChanged",
+   "BhBasicSettings_Click",
+   "BtAdvanced_Click"
+  ]
+ },
+ "basic_settings_partial": {
+  "status": "Partial",
+  "note": "DebugMode-on-play checkbox ported but the VB per-command picker sub-dialog is bounded to the fixed \"DebugMode 1\" command.",
+  "names": [
+   "CbCopyDebugModeOnPlay_CheckedChanged"
+  ]
+ },
+ "basic_settings_divergence": {
+  "status": "Divergence",
+  "note": "PicCheckBox theme context-menu -> simple theme combo; BtSelection cross-link to the main window select-text-file button omitted (Notepad++-specific).",
+  "names": [
+   "PicCheckBox_Click",
+   "BtSelection_Click"
+  ]
  }
 }

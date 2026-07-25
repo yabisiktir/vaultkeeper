@@ -1191,14 +1191,13 @@ class MainWindow(QMainWindow):
             "MsDownloadProject": self._on_download_project,
             "RbnDownloadProject": self._on_download_project,
             "TsDownloadProject": self._on_download_project,
-            # Settings. VB has two surfaces: BasicSettings (a curated behaviour/UI
-            # preferences dialog, whose Advanced button chains into the full
-            # Settings) and the full Settings browser. The port's tabbed dialog
-            # covers both, so Basic opens on the Behaviour tab, Advanced on General.
+            # Settings. VB has two distinct surfaces: BasicSettings (a small curated
+            # Behaviour/User-Interface dialog whose Advanced button chains into the
+            # full Settings) and the full per-preference Settings browser.
             "MsSettings": self._on_settings,
-            "MsBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
+            "MsBasicSettings": self._on_basic_settings,
             "RbnAdvancedSettings": self._on_settings,
-            "RbnBasicSettings": lambda: self._on_settings(start_tab="Behaviour"),
+            "RbnBasicSettings": self._on_basic_settings,
             # Appearance (font size + light/dark theme) opens Settings on that tab
             # (VB Font & Colour editor; bounded port).
             "MsFontAndColour": lambda: self._on_settings(start_tab="Appearance"),
@@ -1951,6 +1950,42 @@ class MainWindow(QMainWindow):
         # Refresh the mod list when the dialog closes (a download can create a mod).
         self._download_dialog.finished.connect(self.refresh)
         self._download_dialog.show()
+
+    def _on_basic_settings(self) -> None:
+        """Open the curated Basic Settings dialog (VB BasicSettings).
+
+        Its **Advanced** button chains into the full Settings browser, matching VB
+        ``BtAdvanced`` (``DialogResult.Yes`` → ``MsSettings.PerformClick``).
+        """
+        from vaultkeeper.ui.dialogs.basic_settings import BasicSettingsDialog
+
+        settings, advanced = BasicSettingsDialog.edit(parent=self)
+        if settings is not None:
+            self._apply_basic_settings(settings)
+            self.nit_status.set_info("Settings saved.")
+        if advanced:
+            self._on_settings()
+
+    def _apply_basic_settings(self, settings) -> None:  # noqa: ANN001
+        """Apply the live effects of the Basic Settings (splitter width + appearance)."""
+        self._apply_splitter_width(settings.splitter_width)
+        from PySide6.QtWidgets import QApplication
+
+        from vaultkeeper.ui.theme import apply_appearance
+
+        app = QApplication.instance()
+        if app is not None:
+            apply_appearance(
+                app, font_point_size=settings.font_point_size, theme=settings.theme
+            )
+
+    def _apply_splitter_width(self, width: int) -> None:
+        """Set the drag-handle thickness on the window's splitters (VB SplitterWidth)."""
+        from PySide6.QtWidgets import QSplitter
+
+        handle = max(1, int(width)) * 2 + 1
+        for splitter in self.findChildren(QSplitter):
+            splitter.setHandleWidth(handle)
 
     def _on_settings(self, start_tab: str = "") -> None:
         """Open Settings; Basic Settings starts on the Behaviour tab (VB BasicSettings)."""

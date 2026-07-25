@@ -768,22 +768,59 @@ def test_newly_wired_commands_are_enabled(qtbot, controller) -> None:
     assert win.ribbon.button("RbnFontAndColour").isEnabled()
 
 
-def test_basic_settings_opens_behaviour_tab(qtbot, controller, monkeypatch) -> None:
+def test_basic_and_advanced_settings_are_distinct_dialogs(
+    qtbot, controller, monkeypatch
+) -> None:
+    # VB has two distinct surfaces: the curated BasicSettings dialog and the full
+    # per-preference Settings browser. MsBasicSettings must open the former.
+    from vaultkeeper.ui.dialogs.basic_settings import BasicSettingsDialog
     from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    seen = {}
+    seen = {"basic": 0, "advanced": 0}
 
-    def fake_edit(settings_path=None, parent=None, *, controller=None, start_tab=""):
-        seen["start_tab"] = start_tab
-        return None  # cancelled
+    def fake_basic_edit(settings_path=None, parent=None):
+        seen["basic"] += 1
+        return None, False  # cancelled, no advanced chain
 
-    monkeypatch.setattr(SettingsDialog, "edit", staticmethod(fake_edit))
+    def fake_advanced_edit(settings_path=None, parent=None, *, controller=None, start_tab=""):
+        seen["advanced"] += 1
+        return None
+
+    monkeypatch.setattr(BasicSettingsDialog, "edit", staticmethod(fake_basic_edit))
+    monkeypatch.setattr(SettingsDialog, "edit", staticmethod(fake_advanced_edit))
+
     win._on_command("MsBasicSettings")
-    assert seen["start_tab"] == "Behaviour"
+    assert seen == {"basic": 1, "advanced": 0}
     win._on_command("MsSettings")
-    assert seen["start_tab"] == ""
+    assert seen == {"basic": 1, "advanced": 1}
+
+
+def test_basic_settings_advanced_button_chains_to_full_settings(
+    qtbot, controller, monkeypatch
+) -> None:
+    from vaultkeeper.ui.dialogs.basic_settings import BasicSettingsDialog
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    seen = {"advanced": 0}
+
+    def fake_basic_edit(settings_path=None, parent=None):
+        from vaultkeeper.config.settings import Settings
+
+        return Settings(), True  # saved + Advanced requested
+
+    def fake_advanced_edit(settings_path=None, parent=None, *, controller=None, start_tab=""):
+        seen["advanced"] += 1
+        return None
+
+    monkeypatch.setattr(BasicSettingsDialog, "edit", staticmethod(fake_basic_edit))
+    monkeypatch.setattr(SettingsDialog, "edit", staticmethod(fake_advanced_edit))
+
+    win._on_command("MsBasicSettings")
+    assert seen["advanced"] == 1  # Advanced button chained into full Settings
 
 
 # -- Web link: edit + copy (VB MsEditWebLink / MsCopyWebLink) --------------- #

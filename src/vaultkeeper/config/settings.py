@@ -84,6 +84,26 @@ class Settings:
     window_geometry: str = ""
     #: Play a sound when the application starts (VB start-up sound preference).
     startup_sound: bool = False
+    #: When auto-installing after creating an installer, only (re)install mods that
+    #: were already installed rather than every mod (VB ``BehaviourInstallerRestore``;
+    #: coupled with ``install_after_create`` — installing implies this is on).
+    installer_restore: bool = False
+    #: Select the mod being played in the list when you press Play Neverwinter Nights
+    #: (VB ``BehaviourSelectGameMod``).
+    select_game_mod: bool = False
+    #: Copy the mod name to the clipboard when starting a new Neverwinter Nights game
+    #: (VB ``ConfigCopyOnPlay``).
+    copy_mod_name_on_play: bool = False
+    #: Create Character Restorers automatically when you close Neverwinter Nights
+    #: (VB ``BehaviourAutoCharacter``).
+    auto_character: bool = False
+    #: DebugMode console command copied to the clipboard when playing an existing game
+    #: (VB ``ConfigCopyDebugModeOnPlay``; empty = off, e.g. ``"DebugMode 1"`` when on).
+    #: BOUNDED: the VB per-command picker is fixed to ``"DebugMode 1"`` here.
+    copy_debug_mode_on_play: str = ""
+    #: Thickness (1-4) of the drag handles between the main window's panels (VB
+    #: ``ConfigSplitterWidth``: Default/Medium/Large/Extra large).
+    splitter_width: int = 1
     #: Maximum number of mods shown in the Recent Mods menu (VB
     #: ``ConfigMaxRecentMods``; range 5-50, default 15).
     max_recent_mods: int = 15

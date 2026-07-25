@@ -57,39 +57,39 @@ BackupManager,ChModSize,?,"""Size""",,,,none,,Deferred,SharedNit/BackupManager n
 BackupManager,BgBackups,System.ComponentModel.BackgroundWorker,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 BackupManager,BgSettings,System.ComponentModel.BackgroundWorker,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 BackupManager,BgMods,System.ComponentModel.BackgroundWorker,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
-BasicSettings,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,TbPreferences,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,TpBehaviour,?,"""Behaviour""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LpBehaviour,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LbInstallActions,?,"""Install action to take after creating Mod Installers""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbInstallAuto,?,"""Always install Mods""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbInstallRestore,?,"""Only install Mods that were already installed""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LbStartupActions,?,"""Actions to take when you start the Installer Tool""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbWindowRestore,?,"""Restore Window position and layout""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbWindowDefault,?,"""Use default Window position and layout""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbPlayStartSound,?,"""Play NIT's start-up sound""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LbPlayNwn,?,"""Actions to take when you start and close Neverwinter Nights""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbBehaviourSelectGameMod,?,"""Select the Mod being played when you press Play Neverwinter Nights""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbBehaviourAutoCharacter,?,"""Create Character Restorers automatically when you close Neverwinter Nights""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbCopyDebugModeOnPlay,?,"""Copy DebugMode 1 to the clipboard when playing an existing Neverwinter Nights gam"" &",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,CbConfigCopyOnPlay,?,"""Copy the Mod name to the clipboard when starting a new Neverwinter Nights game""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,TpUserInterface,?,"""User Interface""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LpUserInterface,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LbSplitterLine,?,"""Thickness of line used to change panel size""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbDefaultLine,?,"""Default line thickness""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbMediumLine,?,"""Medium line thickness""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbLargeLine,?,"""Large line thickness""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,RbExtraLargeLine,?,"""Extra large line thickness""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LnSample,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BtCancel,?,"""Cancel""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BtAdvanced,?,"""Advanced""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LpHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,LbHeading,?,"""Change selected Behaviour and User Interface Preferences""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/dialogs/doc_organiser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,PicHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BhBasicSettings,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/settings_dialog.py,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
-BasicSettings,BtSelection,?,"""Selection""",,,,none,,Ported,covered by the port's tabbed Settings dialog (Behaviour tab)
+BasicSettings,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,TbPreferences,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,TpBehaviour,?,"""Behaviour""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LpBehaviour,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LbInstallActions,?,"""Install action to take after creating Mod Installers""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbInstallAuto,?,"""Always install Mods""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/basic_settings.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbInstallRestore,?,"""Only install Mods that were already installed""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/basic_settings.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LbStartupActions,?,"""Actions to take when you start the Installer Tool""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbWindowRestore,?,"""Restore Window position and layout""",,,,strong,vaultkeeper/ui/dialogs/basic_settings.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbWindowDefault,?,"""Use default Window position and layout""",,,,strong,vaultkeeper/ui/dialogs/basic_settings.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbPlayStartSound,?,"""Play NIT's start-up sound""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LbPlayNwn,?,"""Actions to take when you start and close Neverwinter Nights""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbBehaviourSelectGameMod,?,"""Select the Mod being played when you press Play Neverwinter Nights""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbBehaviourAutoCharacter,?,"""Create Character Restorers automatically when you close Neverwinter Nights""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbCopyDebugModeOnPlay,?,"""Copy DebugMode 1 to the clipboard when playing an existing Neverwinter Nights gam"" &",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,CbConfigCopyOnPlay,?,"""Copy the Mod name to the clipboard when starting a new Neverwinter Nights game""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,TpUserInterface,?,"""User Interface""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LpUserInterface,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LbSplitterLine,?,"""Thickness of line used to change panel size""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbDefaultLine,?,"""Default line thickness""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbMediumLine,?,"""Medium line thickness""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbLargeLine,?,"""Large line thickness""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,RbExtraLargeLine,?,"""Extra large line thickness""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LnSample,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,BtCancel,?,"""Cancel""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,BtAdvanced,?,"""Advanced""",,,,strong,vaultkeeper/ui/dialogs/basic_settings.py | vaultkeeper/ui/main_window.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LpHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,LbHeading,?,"""Change selected Behaviour and User Interface Preferences""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",strong,vaultkeeper/ui/dialogs/doc_organiser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,PicHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,BhBasicSettings,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/basic_settings.py | vaultkeeper/ui/dialogs/settings_dialog.py,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
+BasicSettings,BtSelection,?,"""Selection""",,,,none,,Ported,"distinct curated Basic Settings dialog (ui/dialogs/basic_settings.py), 2 tabs, Advanced chains to full Settings"
 BasicSettings,TtSettings,LazWorks.Library.Controls.ToolTipPlus,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 BasicSettings,CmTheme,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 BikToWbmDialogue,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,BIK->WBM convert ported (bik_convert.py)
@@ -1034,7 +1034,7 @@ NIT,MsToolset,?,"""Neverwinter Nights &Toolset""",,,,strong,vaultkeeper/ui/main_
 NIT,MsWeb,?,"""&Web""",,,,strong,vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsOptions,?,"""&Options""",,,,strong,vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsBasicSettings,?,"""&Basic Settings""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,MsSettings,?,"""Advanced &Settings""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
+NIT,MsSettings,?,"""Advanced &Settings""",,,,strong,vaultkeeper/ui/dialogs/basic_settings.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsFontAndColour,?,"""Text Size and The&me Colours""",,,,strong,vaultkeeper/ui/dialogs/settings_dialog.py | vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,MsOriginalPortraits,?,"""Show BioWare's Portrait Ima&ges""",,,,strong,vaultkeeper/ui/menu_bar.py,Deferred,Needs an unported subsystem/editor; tracked in handoff.
 NIT,MsNumberRecentMods,?,"""&Number Recent Mods""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/menu_bar.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
