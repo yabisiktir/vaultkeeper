@@ -29,6 +29,7 @@ Run: ``python docs/prc_feats/build_prc_classes.py [manual_root]``.
 
 from __future__ import annotations
 
+import gzip
 import html
 import json
 import re
@@ -46,48 +47,67 @@ _CORE_PC = {
 }
 
 _OUT = _REPO / "src/vaultkeeper/game/data/PRC Classes.json"
+_DESC_OUT = _REPO / "src/vaultkeeper/game/data/PRC Class Descriptions.json.gz"
 _TITLE = re.compile(r"<title>.*?::\s*Content\s*::\s*(.*?)</title>", re.S)
+_DESC = re.compile(r'div_paddedicon"\s*>.*?</div>\s*<div>(.*?)</div>', re.S)
 
 
-def _name(path: Path) -> str | None:
-    match = _TITLE.search(path.read_text(encoding="ISO-8859-1"))
-    return html.unescape(match.group(1)).strip() if match else None
+def _parse(path: Path) -> tuple[str | None, str | None]:
+    page = path.read_text(encoding="ISO-8859-1")
+    title = _TITLE.search(page)
+    name = html.unescape(title.group(1)).strip() if title else None
+    body = _DESC.search(page)
+    desc = None
+    if body:
+        text = re.sub(r"<br\s*/?>", "\n", body.group(1))
+        text = html.unescape(re.sub(r"<[^>]+>", "", text)).strip()
+        desc = re.sub(r"\n{3,}", "\n\n", text) or None
+    return name, desc
 
 
-def build(manual_root: Path) -> dict[str, str]:
+def build(manual_root: Path) -> tuple[dict[str, str], dict[str, str]]:
     content = manual_root / "english" / "content"
-    classes: dict[int, str] = {}
+    names: dict[int, str] = {}
+    descs: dict[int, str] = {}
     for directory in CLASS_DIRS:
         for page in (content / directory).glob("[0-9]*.html"):
-            if page.stem.isdigit():
-                name = _name(page)
-                if name:
-                    classes.setdefault(int(page.stem), name)
+            if not page.stem.isdigit():
+                continue
+            class_id = int(page.stem)
+            name, desc = _parse(page)
+            if name and class_id not in names:
+                names[class_id] = name
+                if desc:
+                    descs[class_id] = desc
 
     for class_id, expected in _CORE_PC.items():
-        if classes.get(class_id) != expected:
+        if names.get(class_id) != expected:
             raise SystemExit(
                 f"alignment mismatch at class id {class_id}: "
-                f"manual={classes.get(class_id)!r} expected={expected!r} — aborting"
+                f"manual={names.get(class_id)!r} expected={expected!r} — aborting"
             )
 
-    return {
-        str(class_id): classes[class_id]
-        for class_id in sorted(classes)
-        if class_id not in CLASS_NAMES
-    }
+    extension = [cid for cid in sorted(names) if cid not in CLASS_NAMES]
+    return (
+        {str(cid): names[cid] for cid in extension},
+        {str(cid): descs[cid] for cid in extension if cid in descs},
+    )
 
 
 def main(argv: list[str]) -> int:
     manual_root = Path(argv[1]) if len(argv) > 1 else Path.home() / "Downloads/manual"
     if not (manual_root / "english" / "content").is_dir():
         raise SystemExit(f"PRC manual not found under {manual_root} (need english/content)")
-    table = build(manual_root)
+    names, descs = build(manual_root)
     _OUT.write_text(
-        json.dumps(table, ensure_ascii=False, sort_keys=True, indent=0) + "\n",
+        json.dumps(names, ensure_ascii=False, sort_keys=True, indent=0) + "\n",
         encoding="utf-8",
     )
-    print(f"wrote {len(table)} PRC classes -> {_OUT}")
+    payload = json.dumps(descs, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    with gzip.open(_DESC_OUT, "wb", compresslevel=9) as fh:
+        fh.write(payload)
+    print(f"wrote {len(names)} PRC classes -> {_OUT}")
+    print(f"wrote {len(descs)} PRC class descriptions -> {_DESC_OUT}")
     return 0
 
 
