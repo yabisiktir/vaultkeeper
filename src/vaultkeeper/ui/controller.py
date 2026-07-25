@@ -1864,14 +1864,49 @@ class ProfileController:
             f"Changed: {result['changed']:,}."
         )
 
+    def _backup_profile_store(self, tag: str) -> Path | None:
+        """Copy the current profile store to Backups/ before a destructive op.
+
+        Defence-in-depth: a rebuild/import that goes wrong is recoverable from
+        the timestamped copy. Returns the backup path (or None if there's no
+        store file yet).
+        """
+        import shutil
+        from datetime import datetime
+
+        if self.store_path is None or not self.store_path.is_file():
+            return None
+        # store layout is <root>/Data/<profile>.json → back up to <root>/Backups.
+        backups = self.store_path.parent.parent / "Backups"
+        try:
+            backups.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.now().strftime("%Y-%m-%d %H%M%S")
+            dest = backups / f"{self.store_path.stem} ({tag} {stamp}).json"
+            shutil.copy2(self.store_path, dest)
+            return dest
+        except OSError:
+            return None
+
     def rebuild_database(self) -> str:
-        """Rebuild the profile database from disk (VB Rebuild Database)."""
-        # An imported profile has mod definitions + file keys but no on-disk
-        # installer folders — a full rescan would find nothing and wipe it. Refresh
-        # install state from the live game instead (keep the imported mods).
+        """Rebuild the profile database from disk (VB Rebuild Database).
+
+        Refreshes the database against reality **without ever discarding mods**.
+        A full disk rescan (``scan_mods``) rebuilds the DB purely from on-disk
+        installer folders, so any mod that has no folder — the normal shape of an
+        imported EE profile, whose content lives in the game, not a port-side
+        folder — would be wiped along with its groups. So: if *any* known mod lacks
+        an on-disk folder, keep the definitions + groups and only refresh install
+        state from the game (``rescan_installed_state``). Only when *every* mod has
+        a folder (a pure native profile) is the fresh full rescan safe.
+        """
+        self._backup_profile_store("pre-rebuild")
         mods_dir = self.ctx.profile_mods_dir
-        has_mod_folders = mods_dir.is_dir() and any(p.is_dir() for p in mods_dir.iterdir())
-        if not has_mod_folders and _has_unscanned_mods(self.pd):
+        on_disk = (
+            {p.name for p in mods_dir.iterdir() if p.is_dir()} if mods_dir.is_dir() else set()
+        )
+        would_be_lost = [name for name in self.pd.mod_keys if name not in on_disk]
+        if would_be_lost:
+            # Preserve definitions + groups; refresh install state from the game.
             return self.rescan_installed_state()
 
         self.pd = ProfileData()
