@@ -17,7 +17,7 @@
     "DownloadProject": {"verdict": "DEDICATED", "port": "ui/dialogs/download_project.py"},
     "FileConflictsViewer": {"verdict": "DEDICATED", "port": "ui/dialogs/conflicts_viewer.py"},
     "FindProfileFilesDialogue": {"verdict": "DEDICATED", "port": "ui/dialogs/find_files.py"},
-    "FindDialogue": {"verdict": "FOLDED_OK", "port": "ui/dialogs/text_viewer.py find", "note": "REVIEW: generic find-text dialog; verify the port text viewer offers find"},
+    "FindDialogue": {"verdict": "DEFERRED", "port": "", "note": "incremental find WITHIN the ActiveFileView (New FindDialogue(ActiveFileView)) — part of the documented LazWorks FileView structural divergence (Contents=flat read view / Details=property list). Profile-wide file find exists separately (MsFind -> find_files.py)."},
     "InstallationAnalyser": {"verdict": "DEDICATED", "port": "ui/dialogs/installation_analyser.py"},
     "InstallationManagerEditor": {"verdict": "DEDICATED", "port": "ui/dialogs/installation_manager.py"},
     "ModExplorer": {"verdict": "DEDICATED", "port": "ui/dialogs/mod_explorer.py"},
