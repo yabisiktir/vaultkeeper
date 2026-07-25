@@ -39,7 +39,7 @@ def _char(
         name=name,
         gender=Gender.MALE,
         race=Race.HUMAN,
-        classes=[(CharacterClass.BARD, 5)],
+        classes=[(CharacterClass.BARD.value, 5)],
         level=5,
         experience=10_000,
         alignment_good_evil=50,
@@ -296,7 +296,7 @@ def _leveled_char(name, path, level, classes=None):
         name=name,
         gender=Gender.MALE,
         race=Race.HUMAN,
-        classes=classes or [(CharacterClass.BARD, level)],
+        classes=classes or [(CharacterClass.BARD.value, level)],
         level=level,
         experience=10_000,
         alignment_good_evil=50,
@@ -334,8 +334,8 @@ def test_viewer_class_filter_applies(qtbot, tmp_path):
     from vaultkeeper.game.character_filter import CharacterLevelFilter
 
     chars = [
-        _leveled_char("Barder", tmp_path / "a.bic", 10, [(CharacterClass.BARD, 10)]),
-        _leveled_char("Wizzy", tmp_path / "b.bic", 10, [(CharacterClass.WIZARD, 10)]),
+        _leveled_char("Barder", tmp_path / "a.bic", 10, [(CharacterClass.BARD.value, 10)]),
+        _leveled_char("Wizzy", tmp_path / "b.bic", 10, [(CharacterClass.WIZARD.value, 10)]),
     ]
     dlg = CharacterViewer(chars, None)
     qtbot.addWidget(dlg)

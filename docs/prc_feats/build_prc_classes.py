@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Regenerate ``game/data/PRC Classes.json`` from the PRC8 manual.
+
+The Character Explorer names a character's classes from the base
+``character.CLASS_NAMES`` table (base NWN class ids). PRC adds ~200 prestige/base
+classes at higher ids; a ``.bic`` that has one stored a class id the port didn't
+know, so it was dropped from the class breakdown (only its levels counted). This
+builds the extension table so those classes show by name.
+
+**Source**: the owner's local PRC8 HTML manual. Class pages live in two dirs and
+share one id space (id = classes.2da row = the ``.bic`` ``Class`` field = the
+page number)::
+
+    content/base_classes/<id>.html       (Barbarian..Wizard + PRC base classes)
+    content/prestige_classes/<id>.html   (creature classes + PRC prestige classes)
+      <title> :: Content :: NAME
+
+Pass the manual root as ``argv[1]`` (default ``~/Downloads/manual``).
+
+**Alignment guard**: the core PC class ids 0-10 must read Barbarian..Wizard,
+proving the manual's class id space still lines up with the ``.bic``/base table
+before we trust ids past it. **Grounded, not invented**: names are verbatim page
+titles. Only ids *not* already in base ``CLASS_NAMES`` are written (base wins for
+its own ids — e.g. it keeps "Red Dragon Disciple" over the manual's "Dragon
+Disciple").
+
+Run: ``python docs/prc_feats/build_prc_classes.py [manual_root]``.
+"""
+
+from __future__ import annotations
+
+import html
+import json
+import re
+import sys
+from pathlib import Path
+
+_REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO / "src"))
+from vaultkeeper.game.character import CLASS_NAMES  # noqa: E402
+
+CLASS_DIRS = ("base_classes", "prestige_classes")
+_CORE_PC = {
+    0: "Barbarian", 1: "Bard", 2: "Cleric", 3: "Druid", 4: "Fighter", 5: "Monk",
+    6: "Paladin", 7: "Ranger", 8: "Rogue", 9: "Sorcerer", 10: "Wizard",
+}
+
+_OUT = _REPO / "src/vaultkeeper/game/data/PRC Classes.json"
+_TITLE = re.compile(r"<title>.*?::\s*Content\s*::\s*(.*?)</title>", re.S)
+
+
+def _name(path: Path) -> str | None:
+    match = _TITLE.search(path.read_text(encoding="ISO-8859-1"))
+    return html.unescape(match.group(1)).strip() if match else None
+
+
+def build(manual_root: Path) -> dict[str, str]:
+    content = manual_root / "english" / "content"
+    classes: dict[int, str] = {}
+    for directory in CLASS_DIRS:
+        for page in (content / directory).glob("[0-9]*.html"):
+            if page.stem.isdigit():
+                name = _name(page)
+                if name:
+                    classes.setdefault(int(page.stem), name)
+
+    for class_id, expected in _CORE_PC.items():
+        if classes.get(class_id) != expected:
+            raise SystemExit(
+                f"alignment mismatch at class id {class_id}: "
+                f"manual={classes.get(class_id)!r} expected={expected!r} — aborting"
+            )
+
+    return {
+        str(class_id): classes[class_id]
+        for class_id in sorted(classes)
+        if class_id not in CLASS_NAMES
+    }
+
+
+def main(argv: list[str]) -> int:
+    manual_root = Path(argv[1]) if len(argv) > 1 else Path.home() / "Downloads/manual"
+    if not (manual_root / "english" / "content").is_dir():
+        raise SystemExit(f"PRC manual not found under {manual_root} (need english/content)")
+    table = build(manual_root)
+    _OUT.write_text(
+        json.dumps(table, ensure_ascii=False, sort_keys=True, indent=0) + "\n",
+        encoding="utf-8",
+    )
+    print(f"wrote {len(table)} PRC classes -> {_OUT}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
