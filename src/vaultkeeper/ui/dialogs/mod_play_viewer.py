@@ -4,8 +4,9 @@ A tabular view of every mod that has a module file, ordered from the oldest last
 date completed. Selecting a mod reveals its group, best weapon, web link, notes
 and per-user play-time history. Built on ``ProfileController.mod_play_report``.
 
-Carries the VB *filter options* toolbar (Group + Only-completed) that filter the
-displayed list. The rating/end-level filters and the Select/Recent actions that drive
+Carries the VB *filter options* toolbar: a **Filters…** button opens the shared
+Group + Rating include/exclude dialog (VB ``CommonFiltersDialogue``), plus an
+Only-completed toggle and a Min-end-level box. The Select/Recent actions that drive
 the main window are deferred.
 """
 
@@ -17,7 +18,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
     QCheckBox,
-    QComboBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -37,7 +37,6 @@ from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.file_view import icon_name_for_state
 
 _ROW_ROLE = Qt.ItemDataRole.UserRole
-_ALL_GROUPS = "All Groups"
 
 
 def _end_level(row: dict) -> int:
@@ -56,6 +55,13 @@ class ModPlayViewer(QDialog):
         self.resize(760, 560)
 
         self._rows = report.get("rows", [])
+        # Include/exclude filter state (VB CommonFiltersDialogue); all included by default.
+        self._groups = sorted({r["group"] for r in self._rows if r.get("group")})
+        self._ratings = sorted(
+            {r["rating"] for r in self._rows if str(r.get("rating", "")).strip()}
+        )
+        self._group_filters: dict[str, bool] = {g: True for g in self._groups}
+        self._rating_filters: dict[str, bool] = {r: True for r in self._ratings}
 
         layout = QVBoxLayout(self)
         # VB heading (ModPlayViewer.Designer LbHeading).
@@ -67,15 +73,13 @@ class ModPlayViewer(QDialog):
         heading.setWordWrap(True)
         layout.addWidget(heading)
 
-        # -- Filter options (VB group / only-completed toolbar) ------------- #
+        # -- Filter options (VB filter toolbar) ----------------------------- #
         filters = QHBoxLayout()
-        filters.addWidget(QLabel("Group:"))
-        self.group_filter = QComboBox()
-        self.group_filter.addItem(_ALL_GROUPS)
-        for group in sorted({r["group"] for r in self._rows if r.get("group")}):
-            self.group_filter.addItem(group)
-        self.group_filter.currentIndexChanged.connect(self._populate_mods)
-        filters.addWidget(self.group_filter)
+        self.filters_button = QPushButton("Filters…")
+        self.filters_button.clicked.connect(self._open_filters)
+        filters.addWidget(self.filters_button)
+        self._filter_summary = QLabel("")
+        filters.addWidget(self._filter_summary)
         self.only_completed = QCheckBox("Only completed")
         self.only_completed.stateChanged.connect(self._populate_mods)
         filters.addWidget(self.only_completed)
@@ -142,15 +146,44 @@ class ModPlayViewer(QDialog):
 
         self._populate_mods()
 
+    def _open_filters(self) -> None:
+        """Open the shared Group + Rating include/exclude dialog (VB CommonFiltersDialogue)."""
+        from vaultkeeper.ui.dialogs.common_filters import CommonFiltersDialog
+
+        dlg = CommonFiltersDialog(
+            self._groups,
+            self._ratings,
+            self._group_filters,
+            self._rating_filters,
+            self,
+        )
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            self._group_filters = dlg.group_filters()
+            self._rating_filters = dlg.rating_filters()
+            self._populate_mods()
+
+    def _update_filter_summary(self) -> None:
+        gsel = sum(1 for v in self._group_filters.values() if v)
+        rsel = sum(1 for v in self._rating_filters.values() if v)
+        parts = []
+        if self._groups and gsel < len(self._groups):
+            parts.append(f"Groups: {gsel}/{len(self._groups)}")
+        if self._ratings and rsel < len(self._ratings):
+            parts.append(f"Ratings: {rsel}/{len(self._ratings)}")
+        self._filter_summary.setText("  ".join(parts))
+
     def _populate_mods(self, *_args) -> None:
-        """Fill the mod list, applying the group / only-completed filters."""
-        group = self.group_filter.currentText()
+        """Fill the mod list, applying the group / rating / only-completed filters."""
         only_completed = self.only_completed.isChecked()
         min_end = int(self.min_end.text()) if self.min_end.text().strip() else 0
         self.mods.clear()
         shown = 0
         for row in self._rows:
-            if group != _ALL_GROUPS and row.get("group") != group:
+            group = row.get("group")
+            if group and not self._group_filters.get(group, True):
+                continue
+            rating = str(row.get("rating", "")).strip()
+            if rating and not self._rating_filters.get(rating, True):
                 continue
             if only_completed and not row.get("completed"):
                 continue
@@ -174,6 +207,7 @@ class ModPlayViewer(QDialog):
         self.summary.setText(
             f"Shown: {shown:,}    Mods (installed/total): {self._summary_prefix}"
         )
+        self._update_filter_summary()
         if shown:
             self.mods.setCurrentItem(self.mods.topLevelItem(0))
 

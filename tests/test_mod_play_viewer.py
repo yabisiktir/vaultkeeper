@@ -109,7 +109,8 @@ def test_dialog_populates_and_selects_first(qtbot, tmp_path):
 # -- Filter toolbar (VB group / only-completed options) -------------------- #
 
 
-def test_dialog_group_filter(qtbot):
+def test_dialog_group_include_exclude_filter(qtbot):
+    # VB CommonFiltersDialogue: multi-group include/exclude (not a single combo).
     report = {
         "rows": [
             {"mod": "A", "completed": "01 Jan 2024", "play_time": "1h", "rating": "",
@@ -126,15 +127,58 @@ def test_dialog_group_filter(qtbot):
     dlg = ModPlayViewer(report)
     qtbot.addWidget(dlg)
     assert dlg.mods.topLevelItemCount() == 2
-    # Filter to the RPG group.
-    dlg.group_filter.setCurrentText("RPG")
+    # Exclude the Puzzle group (uncheck it).
+    dlg._group_filters["Puzzle"] = False
+    dlg._populate_mods()
     assert dlg.mods.topLevelItemCount() == 1
     assert dlg.mods.topLevelItem(0).text(0) == "A"
-    # Only-completed filter (back to All Groups first).
-    dlg.group_filter.setCurrentText("All Groups")
+    # Only-completed filter (re-include all groups first).
+    dlg._group_filters = {g: True for g in dlg._groups}
     dlg.only_completed.setChecked(True)
     assert dlg.mods.topLevelItemCount() == 1  # only A has a completed date
     assert dlg.mods.topLevelItem(0).text(0) == "A"
+
+
+def test_dialog_rating_filter(qtbot):
+    # The rating filter was entirely missing before (CommonFiltersDialogue thin-out).
+    report = {
+        "rows": [
+            {"mod": "Great", "completed": "", "play_time": "", "rating": "Excellent",
+             "start": "", "end": "", "state": -2, "group": "RPG",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+            {"mod": "Meh", "completed": "", "play_time": "", "rating": "Poor",
+             "start": "", "end": "", "state": -2, "group": "RPG",
+             "web_link": "", "best_weapon": "", "played_info": "", "notes": "",
+             "play_times": []},
+        ],
+        "summary": "0/2",
+    }
+    dlg = ModPlayViewer(report)
+    qtbot.addWidget(dlg)
+    assert dlg.mods.topLevelItemCount() == 2
+    dlg._rating_filters["Poor"] = False  # exclude Poor-rated mods
+    dlg._populate_mods()
+    assert dlg.mods.topLevelItemCount() == 1
+    assert dlg.mods.topLevelItem(0).text(0) == "Great"
+
+
+def test_common_filters_dialog_round_trip(qtbot):
+    from PySide6.QtCore import Qt
+
+    from vaultkeeper.ui.dialogs.common_filters import CommonFiltersDialog
+
+    dlg = CommonFiltersDialog(
+        ["RPG", "Puzzle"], ["Excellent", "Poor"],
+        {"RPG": True, "Puzzle": False}, {"Excellent": True, "Poor": True},
+    )
+    qtbot.addWidget(dlg)
+    # Initial check state reflects the passed-in include dicts.
+    assert dlg.group_filters() == {"RPG": True, "Puzzle": False}
+    # Clear All excludes everything.
+    dlg._set_all(Qt.CheckState.Unchecked)
+    assert not any(dlg.group_filters().values())
+    assert not any(dlg.rating_filters().values())
 
 
 def test_dialog_min_end_level_filter(qtbot):

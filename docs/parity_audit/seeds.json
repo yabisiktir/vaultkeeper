@@ -2959,5 +2959,12 @@
    "PicCheckBox_Click",
    "BtSelection_Click"
   ]
+ },
+ "common_filters_ported": {
+  "status": "Ported",
+  "note": "CommonFiltersDialogue ported: ui/dialogs/common_filters.py (Group+Rating include/exclude multi-select) wired into Mod Play Viewer Filters button.",
+  "names": [
+   "Filters_Load"
+  ]
  }
 }

@@ -118,7 +118,7 @@
  },
  "CommonFiltersDialogue": {
   "status": "Ported",
-  "note": "common filters ported"
+  "note": "ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
  },
  "DownloadProject": {
   "status": "Ported",

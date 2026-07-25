@@ -197,22 +197,22 @@ ClassesSkillsAndFeats,TpFeats,?,"""Feats""",,,,none,,Ported,faithful (3 searchab
 ClassesSkillsAndFeats,LpFeats,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,SplitterLine2,?,,,,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,LbFeat,?,"""Description""",,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (3 searchable tabs)
-CommonFiltersDialogue,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,common filters ported
-CommonFiltersDialogue,BtCancel,?,"""Cancel""",,,,none,,Ported,common filters ported
-CommonFiltersDialogue,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,PicFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,LbFilters,?,"""Apply filters to Mod lists. Clear the tick boxes to exclude Groups or Ratings fro"" &",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,common filters ported
-CommonFiltersDialogue,BhFilters,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,common filters ported
-CommonFiltersDialogue,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,common filters ported
-CommonFiltersDialogue,SplitterLine2,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,common filters ported
-CommonFiltersDialogue,LpFilterLists,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,LvRatingFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,ColumnHeaderPlus2,?,"""Ratings""",,,,none,,Ported,common filters ported
-CommonFiltersDialogue,SplitterLine3,?,,,,,none,,Ported,common filters ported
-CommonFiltersDialogue,LvGroupFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,common filters ported
-CommonFiltersDialogue,ColumnHeaderPlus1,?,"""Group Names""",,,,none,,Ported,common filters ported
+CommonFiltersDialogue,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,BtApply,?,"""Apply""",,,,strong,vaultkeeper/game/installation_sets.py | vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/installation_manager.py,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,BtCancel,?,"""Cancel""",,,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,PicFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LbFilters,?,"""Apply filters to Mod lists. Clear the tick boxes to exclude Groups or Ratings fro"" &",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,BhFilters,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,SplitterLine2,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LpFilterLists,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LvRatingFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,ColumnHeaderPlus2,?,"""Ratings""",,,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,SplitterLine3,?,,,,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,LvGroupFilters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
+CommonFiltersDialogue,ColumnHeaderPlus1,?,"""Group Names""",,,,none,,Ported,"ui/dialogs/common_filters.py (Group+Rating include/exclude), wired into Mod Play Viewer"
 CommonFiltersDialogue,ImDefaultCheckBox,ImageList,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 CrashDumpManager,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,Windows crash-dump manager (cross-platform N/A)
 CrashDumpManager,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,Windows crash-dump manager (cross-platform N/A)
