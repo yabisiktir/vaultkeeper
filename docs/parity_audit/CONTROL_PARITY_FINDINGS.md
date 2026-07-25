@@ -44,9 +44,11 @@ groundable — enough for another agent to pick up and fix.
 - **Groundable?** YES for the high-value slice: **Select-back-to-mod** (needs an `on_select`
   callback like `find_files.py` has), **Copy Mod Names** (clipboard), and a **rating filter**.
   The full multi-dimension operator filter set is lower value.
-- **Fix sketch:** give `ModExplorer.show_for` an `on_select` callback → `_select_mod_by_name`;
-  add a Copy-Names button (clipboard) + a rating include/exclude filter (reuse
-  `common_filters.py`).
+- **PARTIALLY FIXED (2026-07-24):** Select-back-to-mod (`on_select` → `_select_mod_by_name`)
+  and Copy Mod Names (clipboard) shipped. **Still open:** rating / state operator filters,
+  group / prefix / text filters, Undo-Group-Changes — the deeper filter subsystem.
+- **Fix sketch for the rest:** add a rating include/exclude filter (reuse `common_filters.py`),
+  state operators, and the text-filter row.
 
 ### 3. InstallationAnalyser — action buttons + context menu absent  ·  THIN-OUT (medium)
 - **VB:** `InstallationAnalyser.vb` — `BtRefresh` "Refresh", `BtSelect` "Select",

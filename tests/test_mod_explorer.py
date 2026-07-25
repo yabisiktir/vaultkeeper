@@ -93,3 +93,74 @@ def test_mod_explorer_has_help_button(qtbot, tmp_path):
     )
     help_btn.click()
     assert "tshelpexplorer.htm" in dlg._help_viewer.browser.source().toString().lower()
+
+
+def test_mod_explorer_copy_names(qtbot):
+    # Test Copy Names button copies selected mod names to clipboard.
+    from PySide6.QtWidgets import QApplication, QPushButton
+
+    report = {
+        "count": 3,
+        "rows": [
+            {"mod": "Zulu", "group": "Campaigns", "state": "Installed",
+             "rating": "", "files": 10, "played": "", "completed": 2},
+            {"mod": "Yankee", "group": "Community", "state": "Not Installed",
+             "rating": "", "files": 5, "played": "", "completed": 0},
+            {"mod": "Xray", "group": "Campaigns", "state": "Installed",
+             "rating": "", "files": 3, "played": "", "completed": 0},
+        ],
+    }
+    dlg = ModExplorer(report)
+    qtbot.addWidget(dlg)
+
+    # Select first two mods (in sorted order: Xray, Yankee, Zulu)
+    dlg.table.topLevelItem(0).setSelected(True)
+    dlg.table.topLevelItem(1).setSelected(True)
+
+    # Click Copy Names button
+    copy_btn = next(
+        b for b in dlg.findChildren(QPushButton) if b.text() == "Copy Names"
+    )
+    copy_btn.click()
+
+    # Verify clipboard contains the mod names
+    clipboard_text = QApplication.clipboard().text()
+    assert "Xray" in clipboard_text
+    assert "Yankee" in clipboard_text
+
+
+def test_mod_explorer_select_callback(qtbot):
+    # Test Select button invokes on_select callback and closes.
+    from PySide6.QtWidgets import QPushButton
+
+    report = {
+        "count": 2,
+        "rows": [
+            {"mod": "Zebra", "group": "Adv", "state": "Installed",
+             "rating": "", "files": 20, "played": "", "completed": 1},
+            {"mod": "Alpha", "group": "Adv", "state": "Not Installed",
+             "rating": "", "files": 15, "played": "", "completed": 0},
+        ],
+    }
+    selected_mods = []
+
+    def on_select(mod_name):
+        selected_mods.append(mod_name)
+
+    dlg = ModExplorer(report, on_select=on_select)
+    qtbot.addWidget(dlg)
+
+    # Select first mod in sorted order (Alpha comes before Zebra)
+    dlg.table.topLevelItem(0).setSelected(True)
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+
+    # Click Select button
+    select_btn = next(
+        b for b in dlg.findChildren(QPushButton) if b.text() == "Select"
+    )
+    select_btn.click()
+
+    # Verify callback was invoked with the first sorted mod
+    assert selected_mods == ["Alpha"]
+    # Dialog should be closed
+    assert not dlg.isVisible()

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -33,12 +34,15 @@ _HEADERS = ["Mod", "Group", "State", "Rating", "Files", "Time Played", "Complete
 class ModExplorer(QDialog):
     """A sortable, read-only table of all mods with a filter bar."""
 
-    def __init__(self, report: dict, parent: QWidget | None = None) -> None:
+    def __init__(
+        self, report: dict, on_select=None, parent: QWidget | None = None
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Mod Explorer")
         self.setWindowIcon(R.get_icon("Mod Explorer 1"))
         self.resize(760, 500)
         self._rows = list(report.get("rows", []))
+        self._on_select = on_select
 
         layout = QVBoxLayout(self)
 
@@ -71,10 +75,16 @@ class ModExplorer(QDialog):
         self._count_label = QLabel()
         layout.addWidget(self._count_label)
 
-        # Bottom bar: help (VB TsHelpExplorer) + Close.
+        # Bottom bar: help (VB TsHelpExplorer) + Copy Names + Select + Close.
         buttons = QHBoxLayout()
         buttons.addWidget(help_button("TsHelpExplorer", self))
         buttons.addStretch(1)
+        copy_names = QPushButton("Copy Names")
+        copy_names.clicked.connect(self._on_copy_names)
+        buttons.addWidget(copy_names)
+        select = QPushButton("Select")
+        select.clicked.connect(self._on_select_mod)
+        buttons.addWidget(select)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         buttons.addWidget(close)
@@ -120,8 +130,29 @@ class ModExplorer(QDialog):
             f"{shown:,} of {total:,} mod(s)." if shown != total else f"{total:,} mod(s)."
         )
 
+    def _on_copy_names(self) -> None:
+        """Copy selected mod names to clipboard, one per line."""
+        names = []
+        for i in range(self.table.topLevelItemCount()):
+            item = self.table.topLevelItem(i)
+            if item and item.isSelected():
+                names.append(item.text(0))
+        if names:
+            QApplication.clipboard().setText("\n".join(names))
+
+    def _on_select_mod(self) -> None:
+        """Jump to the selected mod in the main window and close."""
+        if not self._on_select:
+            return
+        current = self.table.currentItem()
+        if current:
+            self._on_select(current.text(0))
+            self.accept()
+
     @classmethod
-    def show_for(cls, controller, parent: QWidget | None = None) -> ModExplorer:
-        dlg = cls(controller.mod_explorer_report(), parent)
+    def show_for(
+        cls, controller, on_select=None, parent: QWidget | None = None
+    ) -> ModExplorer:
+        dlg = cls(controller.mod_explorer_report(), on_select, parent)
         dlg.show()
         return dlg

@@ -1841,7 +1841,9 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
 
-        self._mod_explorer = ModExplorer.show_for(self.controller, self)
+        self._mod_explorer = ModExplorer.show_for(
+            self.controller, self._select_mod_by_name, self
+        )
 
     def _on_backup_data(self) -> None:
         if self.controller is None:
