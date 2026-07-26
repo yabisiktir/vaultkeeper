@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
+from vaultkeeper.game.item_properties import describe_properties
 
 _ITEM_ROLE = Qt.ItemDataRole.UserRole
 
@@ -212,9 +213,6 @@ def _item_detail(item: InventoryItem) -> str:
         tags.append("Container")
     if item.stack_size > 1:
         tags.append(f"Stack of {item.stack_size}")
-    if item.property_count:
-        suffix = "y" if item.property_count == 1 else "ies"
-        tags.append(f"{item.property_count} magical propert{suffix}")
     if not item.identified:
         tags.append("unidentified")
     if item.stolen:
@@ -223,6 +221,10 @@ def _item_detail(item: InventoryItem) -> str:
         lines.append(" · ".join(tags))
     if item.tag or item.resref:
         lines.append(f"Tag: {item.tag or '—'}    ResRef: {item.resref or '—'}")
+    if item.properties:
+        lines.append("")
+        lines.append(f"Magical properties ({len(item.properties)}):")
+        lines.extend(f"  • {text}" for text in describe_properties(item.properties))
     if item.description:
         lines.append("")
         lines.append(item.description)

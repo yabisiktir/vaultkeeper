@@ -7,6 +7,7 @@ from vaultkeeper.core.formats.bic_reader import (
     EquippedItem,
     Gender,
     InventoryItem,
+    ItemProperty,
     Race,
 )
 from vaultkeeper.ui.dialogs.inventory_view import InventoryView, _count_items, _item_detail
@@ -15,7 +16,7 @@ from vaultkeeper.ui.dialogs.inventory_view import InventoryView, _count_items, _
 def _item(name: str, **kw) -> InventoryItem:
     base = dict(
         base_item=0, tag="", resref="", stack_size=1, identified=True,
-        stolen=False, description="", property_count=0, contents=[],
+        stolen=False, description="", properties=[], contents=[],
     )
     base.update(kw)
     return InventoryItem(name=name, **base)
@@ -36,12 +37,14 @@ def test_count_items_recurses_into_containers():
 
 def test_item_detail_text():
     item = _item(
-        "Amulet", tag="amul", resref="amul001", property_count=1,
+        "Amulet", tag="amul", resref="amul001",
+        properties=[ItemProperty(0, 4, 1, 8, 255, 0)],  # Ability Bonus: Wisdom +8
         description="Glows faintly.", identified=False,
     )
     text = _item_detail(item)
     assert text.startswith("Amulet")
-    assert "1 magical property" in text  # singular
+    assert "Magical properties (1):" in text
+    assert "Ability Bonus: Wisdom +8" in text
     assert "unidentified" in text
     assert "Tag: amul" in text
     assert "Glows faintly." in text
@@ -50,7 +53,7 @@ def test_item_detail_text():
 def test_inventory_view_populates_doll_and_tree(qtbot):
     view = InventoryView()
     qtbot.addWidget(view)
-    helm = _item("Helm of X", property_count=3, description="A fine helm.")
+    helm = _item("Helm of X", description="A fine helm.")
     bag = _item("Bag", contents=[_item("Sword"), _item("Shield")])
     ring = _item("Ring")
     view.set_character(_info([EquippedItem(1, "Head", helm)], [bag, ring]))
@@ -69,11 +72,15 @@ def test_inventory_view_populates_doll_and_tree(qtbot):
 def test_slot_card_click_shows_detail(qtbot):
     view = InventoryView()
     qtbot.addWidget(view)
-    helm = _item("Helm", property_count=2, description="Shiny.")
+    helm = _item(
+        "Helm", description="Shiny.",
+        properties=[ItemProperty(6, 0, 1, 5, 255, 0), ItemProperty(43, 0, 0, 0, 255, 0)],
+    )
     view.set_character(_info([EquippedItem(1, "Head", helm)], []))
     view._show_item(helm)  # what a card click does
     text = view._detail.toPlainText()
-    assert "Helm" in text and "2 magical properties" in text and "Shiny." in text
+    assert "Helm" in text and "Magical properties (2):" in text and "Shiny." in text
+    assert "Enhancement Bonus +5" in text and "Keen" in text
 
 
 def test_inventory_view_clear(qtbot):
