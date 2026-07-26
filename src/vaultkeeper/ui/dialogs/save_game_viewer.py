@@ -71,6 +71,10 @@ class SaveGameViewer(QDialog):
         self._icon_cache: dict[tuple[int, int], QIcon | None] = {}
         #: (area resref, store index, Store) for the selected store, else None.
         self._edit_target: tuple[str, int, Store] | None = None
+        #: edit session (SaveEditor) — batches changes; None until an edit is made.
+        self._session = None
+        self._editing = False
+        self._syncing_selection = False  # guard against re-entrant save switching
 
         outer = QVBoxLayout(self)
         split = QSplitter(Qt.Orientation.Horizontal)
@@ -116,12 +120,18 @@ class SaveGameViewer(QDialog):
         contents.addWidget(self._content_detail)
         contents.setSizes([440, 400])
         right_layout.addWidget(contents, 1)
+        right_layout.addWidget(self._build_pending_panel())
         split.addWidget(right)
         split.setSizes([230, 690])
 
         bar = QHBoxLayout()
         bar.addWidget(help_button("BhGameManager", self))
         bar.addStretch(1)
+        self._edit_toggle = QPushButton("Edit")
+        self._edit_toggle.setCheckable(True)
+        self._edit_toggle.setToolTip("Turn on editing to change stores (saved as a new save)")
+        self._edit_toggle.toggled.connect(self._set_edit_mode)
+        bar.addWidget(self._edit_toggle)
         self._edit_store_btn = QPushButton("Edit Store…")
         self._edit_store_btn.setEnabled(False)
         self._edit_store_btn.clicked.connect(self._edit_store)
@@ -153,20 +163,43 @@ class SaveGameViewer(QDialog):
 
     # -- save selection --------------------------------------------------- #
     def _on_select(self, row: int) -> None:
+        if self._syncing_selection:
+            return
         item = self._list.item(row) if row >= 0 else None
         save = item.data(_SAVE_ROLE) if item is not None else None
+        # Guard unsaved edits when leaving the current save.
+        if save is not self._current and self._session is not None and self._session.has_edits:
+            if not self._confirm_discard():
+                self._reselect_current()
+                return
+            self._clear_session()
         self._current = save
         self._char_btn.setEnabled(save is not None and save.player_bic is not None)
-        self._areas.clear()
         self._content_detail.clear()
         self._shot.clear()
         if save is None:
             self._detail.clear()
+            self._areas.clear()
             return
         self._show_screenshot(save)
-        info = self._module_for(save)
-        self._detail.setPlainText(_module_detail(save, info))
-        self._populate_areas(save, info)
+        self._detail.setPlainText(_module_detail(save, self._module_for(save)))
+        self._reload_areas()
+
+    def _reload_areas(self) -> None:
+        """(Re)build the top-level area/faction nodes for the current save."""
+        self._areas.clear()
+        self._edit_target = None
+        self._update_edit_store_btn()
+        if self._current is not None:
+            self._populate_areas(self._current, self._module_for(self._current))
+
+    def _reselect_current(self) -> None:
+        self._syncing_selection = True
+        for i in range(self._list.count()):
+            if self._list.item(i).data(_SAVE_ROLE) is self._current:
+                self._list.setCurrentRow(i)
+                break
+        self._syncing_selection = False
 
     def _module_for(self, save: SaveGame):
         if save.name not in self._module_cache:
@@ -216,10 +249,12 @@ class SaveGameViewer(QDialog):
             node.addChild(QTreeWidgetItem(["(contents unavailable)"]))
             return
         if area.stores:
+            pending = self._pending_store_keys()
             group = _group("Stores", len(area.stores))
             for index, store in enumerate(area.stores):
+                marker = "● " if (area.resref.lower(), index) in pending else ""
                 sn = _payload_node(
-                    f"{store.name}  ({len(store.items)} items)",
+                    f"{marker}{store.name}  ({len(store.items)} items)",
                     ("store", store, area.resref, index),
                 )
                 for it in store.items:
@@ -275,8 +310,8 @@ class SaveGameViewer(QDialog):
     def _on_content_selection(self, current: QTreeWidgetItem | None, _prev=None) -> None:
         role = current.data(0, _NODE_ROLE) if current is not None else None
         self._edit_target = None
-        self._edit_store_btn.setEnabled(False)
         if not role:
+            self._update_edit_store_btn()
             return
         kind, payload = role[0], role[1] if len(role) > 1 else None
         text = ""
@@ -286,7 +321,6 @@ class SaveGameViewer(QDialog):
             text = _store_detail(payload)
             if self._controller is not None and len(role) >= 4:
                 self._edit_target = (role[2], role[3], payload)  # area, index, Store
-                self._edit_store_btn.setEnabled(True)
         elif kind == "creature":
             text = _creature_detail(payload)
         elif kind == "container":
@@ -298,6 +332,7 @@ class SaveGameViewer(QDialog):
         elif kind == "factions":
             text = _factions_detail(payload)
         self._content_detail.setPlainText(text)
+        self._update_edit_store_btn()
 
     # -- screenshot + character ------------------------------------------- #
     def _show_screenshot(self, save: SaveGame) -> None:
@@ -310,37 +345,157 @@ class SaveGameViewer(QDialog):
         else:
             self._shot.setPixmap(pixmap)
 
+    # -- edit session ----------------------------------------------------- #
+    def _build_pending_panel(self) -> QWidget:
+        """The 'pending changes' strip: a summary list + Discard / Save buttons."""
+        panel = QFrame()
+        panel.setFrameShape(QFrame.Shape.StyledPanel)
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(6, 4, 6, 4)
+        self._pending_label = QLabel("No pending changes")
+        layout.addWidget(self._pending_label)
+        self._pending_list = QListWidget()
+        self._pending_list.setMaximumHeight(84)
+        layout.addWidget(self._pending_list)
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self._discard_btn = QPushButton("Discard All")
+        self._discard_btn.clicked.connect(self._discard_all)
+        row.addWidget(self._discard_btn)
+        self._save_btn = QPushButton("Save as New Save…")
+        self._save_btn.clicked.connect(self._save_as_new)
+        row.addWidget(self._save_btn)
+        layout.addLayout(row)
+        panel.setVisible(False)
+        self._pending_panel = panel
+        return panel
+
+    def _set_edit_mode(self, on: bool) -> None:
+        if not on and self._session is not None and self._session.has_edits:
+            if not self._confirm_discard():
+                self._edit_toggle.setChecked(True)  # stay in edit mode
+                return
+            self._clear_session()
+            self._reload_areas()
+        self._editing = on
+        self._pending_panel.setVisible(on)
+        self._update_edit_store_btn()
+
+    def _update_edit_store_btn(self) -> None:
+        self._edit_store_btn.setEnabled(self._editing and self._edit_target is not None)
+
+    def _ensure_session(self):
+        from vaultkeeper.game.save_editor import SaveEditor
+
+        if self._session is None and self._current is not None:
+            self._session = SaveEditor(self._current)
+        return self._session
+
+    def _pending_store_keys(self) -> set[tuple[str, int]]:
+        if self._session is None:
+            return set()
+        return {
+            (change.key[0].lower(), change.key[1])
+            for change in self._session.pending_changes()
+            if change.kind == "store"
+        }
+
+    def _clear_session(self) -> None:
+        if self._session is not None:
+            self._session.discard()
+        self._session = None
+        self._refresh_pending()
+
+    def _confirm_discard(self) -> bool:
+        count = len(self._session.pending_changes()) if self._session else 0
+        return (
+            QMessageBox.question(
+                self, "Discard changes",
+                f"Discard {count} unsaved change(s)?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            == QMessageBox.StandardButton.Yes
+        )
+
+    def _refresh_pending(self) -> None:
+        changes = self._session.pending_changes() if self._session else []
+        self._pending_list.clear()
+        for change in changes:
+            self._pending_list.addItem(f"{change.where}: {change.summary}")
+        count = len(changes)
+        self._pending_label.setText(
+            f"<b>● {count} pending change{'' if count == 1 else 's'}</b>"
+            if count else "No pending changes"
+        )
+        self._save_btn.setEnabled(count > 0)
+        self._discard_btn.setEnabled(count > 0)
+
     def _edit_store(self) -> None:
-        """Edit the selected store and write the result as a new save."""
-        if self._current is None or self._edit_target is None:
+        """Stage an edit to the selected store (committed later via Save as New Save)."""
+        if not self._editing or self._current is None or self._edit_target is None:
             return
-        from vaultkeeper.game.save_editor import SaveEditError, SaveEditor
+        from vaultkeeper.game.save_editor import SaveEditError
         from vaultkeeper.ui.dialogs.store_edit_dialog import StoreEditDialog
 
         area_resref, store_index, store = self._edit_target
         dialog = StoreEditDialog(store, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
+        try:
+            session = self._ensure_session()
+            session.set_store_fields(
+                area_resref, store_index,
+                where=f"{store.name} ({area_resref})", **dialog.values(),
+            )
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        self._mark_current_store()
+        self._refresh_pending()
+
+    def _mark_current_store(self) -> None:
+        """Add/remove the ● dirty marker on the selected store node."""
+        node = self._areas.currentItem()
+        if node is None or self._edit_target is None:
+            return
+        area_resref, store_index, _ = self._edit_target
+        pending = (area_resref.lower(), store_index) in self._pending_store_keys()
+        base = node.text(0).removeprefix("● ")
+        node.setText(0, ("● " + base) if pending else base)
+
+    def _discard_all(self) -> None:
+        if self._session is None or not self._session.has_edits:
+            return
+        if not self._confirm_discard():
+            return
+        self._clear_session()
+        self._reload_areas()
+
+    def _save_as_new(self) -> None:
+        if self._session is None or not self._session.has_edits or self._current is None:
+            return
+        from vaultkeeper.game.save_editor import SaveEditError
+
         name, ok = QInputDialog.getText(
-            self, "Save As New Save", "New save name:",
+            self, "Save as New Save", "New save name:",
             text=f"{_base_name(self._current.name)} (edited)",
         )
         if not ok or not name.strip():
             return
         try:
-            editor = SaveEditor(self._current)
-            editor.set_store_fields(area_resref, store_index, **dialog.values())
-            new_save = editor.save_as(
+            new_save = self._session.save_as(
                 _next_save_folder(self._current.folder.parent, name.strip())
             )
         except (SaveEditError, OSError) as exc:
-            QMessageBox.critical(self, "Edit failed", str(exc))
+            QMessageBox.critical(self, "Save failed", str(exc))
             return
         QMessageBox.information(
             self, "Saved",
             f"Saved as “{new_save.name}”.\nYour original save is unchanged.",
         )
-        self._add_save(new_save)
+        self._session = None
+        self._refresh_pending()
+        self._add_save(new_save)  # selecting it rebuilds the tree (markers cleared)
 
     def _add_save(self, save: SaveGame) -> None:
         """Insert a freshly-written save at the top of the list and select it."""
