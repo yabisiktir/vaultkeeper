@@ -23,7 +23,7 @@ def _item(name: str, **kw) -> InventoryItem:
 
 def _info(equipped, inventory) -> CharacterInfo:
     return CharacterInfo(
-        name="T", gender=Gender.MALE, race=Race.HUMAN, classes=[], level=1,
+        name="T", gender=Gender.MALE, race_id=Race.HUMAN.value, classes=[], level=1,
         experience=0, alignment_good_evil=50, alignment_lawful_chaotic=50,
         hit_points=10, equipped_items=equipped, inventory_items=inventory,
     )

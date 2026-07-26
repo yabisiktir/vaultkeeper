@@ -38,7 +38,7 @@ def _char(
     info = CharacterInfo(
         name=name,
         gender=Gender.MALE,
-        race=Race.HUMAN,
+        race_id=Race.HUMAN.value,
         classes=[(CharacterClass.BARD.value, 5)],
         level=5,
         experience=10_000,
@@ -295,7 +295,7 @@ def _leveled_char(name, path, level, classes=None):
     info = CharacterInfo(
         name=name,
         gender=Gender.MALE,
-        race=Race.HUMAN,
+        race_id=Race.HUMAN.value,
         classes=classes or [(CharacterClass.BARD.value, level)],
         level=level,
         experience=10_000,
