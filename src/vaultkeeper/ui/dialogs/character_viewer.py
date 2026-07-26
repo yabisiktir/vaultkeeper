@@ -318,8 +318,8 @@ class CharacterViewer(QDialog):
         for name, _desc in self._feat_rows:
             self._feats.addItem(name)
         self._spell_rows = cf.spells() if cf.info.is_valid else []
-        for name, _desc in self._spell_rows:
-            self._spells.addItem(name)
+        for name, _desc, level in self._spell_rows:
+            self._spells.addItem(f"{name}  (Level {level})" if level is not None else name)
         if self._skill_rows:
             self._skills.setCurrentItem(self._skills.topLevelItem(0))
         if self._feat_rows:
