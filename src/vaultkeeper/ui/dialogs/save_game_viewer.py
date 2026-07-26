@@ -11,15 +11,19 @@ Data comes from :mod:`vaultkeeper.game.save_game` + :mod:`vaultkeeper.game.save_
 
 from __future__ import annotations
 
+import re
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMessageBox,
     QPushButton,
     QSplitter,
     QTextEdit,
@@ -65,6 +69,8 @@ class SaveGameViewer(QDialog):
         self._child_viewer = None  # keep a ref so it isn't garbage-collected
         self._icons = item_icon_source(controller) if controller is not None else None
         self._icon_cache: dict[tuple[int, int], QIcon | None] = {}
+        #: (area resref, store index, Store) for the selected store, else None.
+        self._edit_target: tuple[str, int, Store] | None = None
 
         outer = QVBoxLayout(self)
         split = QSplitter(Qt.Orientation.Horizontal)
@@ -116,6 +122,10 @@ class SaveGameViewer(QDialog):
         bar = QHBoxLayout()
         bar.addWidget(help_button("BhGameManager", self))
         bar.addStretch(1)
+        self._edit_store_btn = QPushButton("Edit Store…")
+        self._edit_store_btn.setEnabled(False)
+        self._edit_store_btn.clicked.connect(self._edit_store)
+        bar.addWidget(self._edit_store_btn)
         self._char_btn = QPushButton("View Character…")
         self._char_btn.setEnabled(False)
         self._char_btn.clicked.connect(self._view_character)
@@ -207,8 +217,11 @@ class SaveGameViewer(QDialog):
             return
         if area.stores:
             group = _group("Stores", len(area.stores))
-            for store in area.stores:
-                sn = _payload_node(f"{store.name}  ({len(store.items)} items)", ("store", store))
+            for index, store in enumerate(area.stores):
+                sn = _payload_node(
+                    f"{store.name}  ({len(store.items)} items)",
+                    ("store", store, area.resref, index),
+                )
                 for it in store.items:
                     sn.addChild(self._item_node(it))
                 group.addChild(sn)
@@ -261,14 +274,19 @@ class SaveGameViewer(QDialog):
     # -- selection -> detail ---------------------------------------------- #
     def _on_content_selection(self, current: QTreeWidgetItem | None, _prev=None) -> None:
         role = current.data(0, _NODE_ROLE) if current is not None else None
+        self._edit_target = None
+        self._edit_store_btn.setEnabled(False)
         if not role:
             return
-        kind, payload = role
+        kind, payload = role[0], role[1] if len(role) > 1 else None
         text = ""
         if kind == "item" and isinstance(payload, InventoryItem):
             text = _item_detail(payload)
         elif kind == "store":
             text = _store_detail(payload)
+            if self._controller is not None and len(role) >= 4:
+                self._edit_target = (role[2], role[3], payload)  # area, index, Store
+                self._edit_store_btn.setEnabled(True)
         elif kind == "creature":
             text = _creature_detail(payload)
         elif kind == "container":
@@ -291,6 +309,47 @@ class SaveGameViewer(QDialog):
             self._shot.setText("(no screenshot)")
         else:
             self._shot.setPixmap(pixmap)
+
+    def _edit_store(self) -> None:
+        """Edit the selected store and write the result as a new save."""
+        if self._current is None or self._edit_target is None:
+            return
+        from vaultkeeper.game.save_editor import SaveEditError, SaveEditor
+        from vaultkeeper.ui.dialogs.store_edit_dialog import StoreEditDialog
+
+        area_resref, store_index, store = self._edit_target
+        dialog = StoreEditDialog(store, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        name, ok = QInputDialog.getText(
+            self, "Save As New Save", "New save name:",
+            text=f"{_base_name(self._current.name)} (edited)",
+        )
+        if not ok or not name.strip():
+            return
+        try:
+            editor = SaveEditor(self._current)
+            editor.set_store_fields(area_resref, store_index, **dialog.values())
+            new_save = editor.save_as(
+                _next_save_folder(self._current.folder.parent, name.strip())
+            )
+        except (SaveEditError, OSError) as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        QMessageBox.information(
+            self, "Saved",
+            f"Saved as “{new_save.name}”.\nYour original save is unchanged.",
+        )
+        self._add_save(new_save)
+
+    def _add_save(self, save: SaveGame) -> None:
+        """Insert a freshly-written save at the top of the list and select it."""
+        self._saves.insert(0, save)
+        label = f"{save.name}\n{save.location}" if save.location else save.name
+        item = QListWidgetItem(label)
+        item.setData(_SAVE_ROLE, save)
+        self._list.insertItem(0, item)
+        self._list.setCurrentRow(0)
 
     def _view_character(self) -> None:
         save = self._current
@@ -320,6 +379,22 @@ class SaveGameViewer(QDialog):
 # --------------------------------------------------------------------------- #
 # tree-node helpers + detail text
 # --------------------------------------------------------------------------- #
+def _base_name(folder_name: str) -> str:
+    """A save folder's display name without the ``NNNNNN - `` numeric prefix."""
+    return re.sub(r"^\d{6}\s*-\s*", "", folder_name).strip() or folder_name
+
+
+def _next_save_folder(saves_dir, name: str):
+    """The path for a new save folder ``<next-number> - <name>`` under ``saves_dir``."""
+    numbers = [
+        int(match.group(1))
+        for p in saves_dir.iterdir()
+        if p.is_dir() and (match := re.match(r"(\d{6})", p.name))
+    ]
+    number = (max(numbers) + 1) if numbers else 1
+    return saves_dir / f"{number:06d} - {_base_name(name)}"
+
+
 def _group(label: str, count: int) -> QTreeWidgetItem:
     """A non-selectable grouping node, e.g. ``Stores (2)``."""
     return QTreeWidgetItem([f"{label} ({count})"])
