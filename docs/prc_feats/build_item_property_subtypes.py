@@ -15,8 +15,10 @@ authoritative — it is newer than, and disagrees with, the Leto help's spell ch
 
 Output (subtype -> resolved name, so the runtime is self-contained):
 
-* ``game/data/Item Property Feat Subtypes.json.gz``  (iprp_feats -> feat names)
-* ``game/data/Item Property Spell Subtypes.json.gz`` (iprp_spells -> spell names)
+* ``game/data/Item Property Feat Subtypes.json.gz``   (iprp_feats -> feat names)
+* ``game/data/Item Property Spell Subtypes.json.gz``  (iprp_spells -> spell names)
+* ``game/data/Item Property OnHit Spell Subtypes.json.gz`` (iprp_onhitspell -> spell)
+* ``game/data/Item Property Spell Levels.json``       (iprp_spells -> innate level)
 
 **Grounded**: FeatIndex/SpellIndex names come from the bundled feat/spell tables;
 rows that don't resolve are dropped (a leftover ``Label`` fallback keeps the game's
@@ -41,6 +43,8 @@ from vaultkeeper.game.character_reference import default_reference  # noqa: E402
 _DATA = _REPO / "src/vaultkeeper/game/data"
 _FEAT_OUT = _DATA / "Item Property Feat Subtypes.json.gz"
 _SPELL_OUT = _DATA / "Item Property Spell Subtypes.json.gz"
+_SPELL_LEVEL_OUT = _DATA / "Item Property Spell Levels.json"
+_ONHIT_SPELL_OUT = _DATA / "Item Property OnHit Spell Subtypes.json.gz"
 _2DA = 2017
 
 
@@ -103,12 +107,28 @@ def main(argv: list[str]) -> int:
 
     feats = _resolve(hak, "iprp_feats", "FeatIndex", feat_name)
     spells = _resolve(hak, "iprp_spells", "SpellIndex", ref.spell_names.get)
+    onhit_spells = _resolve(hak, "iprp_onhitspell", "SpellIndex", ref.spell_names.get)
 
-    for out, table in ((_FEAT_OUT, feats), (_SPELL_OUT, spells)):
+    for out, table in (
+        (_FEAT_OUT, feats), (_SPELL_OUT, spells), (_ONHIT_SPELL_OUT, onhit_spells)
+    ):
         payload = json.dumps(table, ensure_ascii=False, sort_keys=True).encode("utf-8")
         with gzip.open(out, "wb", compresslevel=9) as fh:
             fh.write(payload)
         print(f"wrote {len(table)} subtypes -> {out}")
+
+    # Cast Spell subtype -> the spell's innate level (iprp_spells InnateLvl column).
+    header, rows = _read_2da(ErfReader(), hak, "iprp_spells")
+    idx = _index_of(header, "InnateLvl")
+    levels = {
+        str(sub): int(cols[idx])
+        for sub, cols in rows.items()
+        if idx < len(cols) and cols[idx].lstrip("-").isdigit()
+    }
+    _SPELL_LEVEL_OUT.write_text(
+        json.dumps(levels, sort_keys=True, indent=0) + "\n", encoding="utf-8"
+    )
+    print(f"wrote {len(levels)} spell levels -> {_SPELL_LEVEL_OUT}")
     return 0
 
 
