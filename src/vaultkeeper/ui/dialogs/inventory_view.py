@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
+from vaultkeeper.game.item_names import base_item_type
 from vaultkeeper.game.item_properties import describe_properties
 
 _ITEM_ROLE = Qt.ItemDataRole.UserRole
@@ -219,6 +220,9 @@ def _item_detail(item: InventoryItem) -> str:
         tags.append("stolen")
     if tags:
         lines.append(" · ".join(tags))
+    item_type = base_item_type(item.base_item)
+    if item_type:
+        lines.append(f"Type: {item_type}")
     if item.tag or item.resref:
         lines.append(f"Tag: {item.tag or '—'}    ResRef: {item.resref or '—'}")
     if item.properties:
