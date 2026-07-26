@@ -149,7 +149,7 @@ class SaveGameViewer(QDialog):
         from vaultkeeper.core.formats.bic_reader import BicFileReader
         from vaultkeeper.game.character import CharacterFile
         from vaultkeeper.game.item_names import resolver_for
-        from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+        from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer, item_icon_source
 
         info = BicFileReader().read_file(save.player_bic)
         if info is None:
@@ -157,7 +157,16 @@ class SaveGameViewer(QDialog):
         game_root = getattr(getattr(self._controller, "ctx", None), "game_root", None)
         resolver_for(game_root).resolve_character(info)
         character = CharacterFile(path=save.player_bic, info=info)
-        self._child_viewer = CharacterViewer([character], parent=self)
+        icon_source = item_icon_source(self._controller) if self._controller else None
+        nwn_style = getattr(self._controller._settings(), "inventory_nwn_style", False) \
+            if self._controller else False
+        self._child_viewer = CharacterViewer(
+            [character], parent=self,
+            icon_source=icon_source, inventory_nwn_style=nwn_style,
+            on_inventory_style_changed=(
+                self._controller.set_inventory_nwn_style if self._controller else None
+            ),
+        )
         self._child_viewer.show()
 
 

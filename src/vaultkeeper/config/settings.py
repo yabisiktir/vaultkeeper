@@ -139,6 +139,8 @@ class Settings:
     #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
     #: default ``"Huge"``).
     portrait_display_size: str = "Huge"
+    #: Character Explorer inventory shows the NWN-style item icon grid (vs the list).
+    inventory_nwn_style: bool = False
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the

@@ -18,14 +18,20 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
+    QCheckBox,
     QFrame,
     QGridLayout,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
     QSizePolicy,
     QSplitter,
+    QStackedWidget,
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
@@ -34,10 +40,13 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
+from vaultkeeper.core.formats.tga_reader import TGAReader
+from vaultkeeper.game.item_icons import ItemIconSource
 from vaultkeeper.game.item_names import base_item_type
 from vaultkeeper.game.item_properties import describe_properties
 
 _ITEM_ROLE = Qt.ItemDataRole.UserRole
+_ICON_PX = 32
 
 #: Paper-doll layout: (card label, candidate slot bits) laid out 3 per row. A cell
 #: with several bits (ammunition, creature weapon) shows whichever one is worn.
@@ -70,16 +79,27 @@ class _SlotCard(QFrame):
         slot_font.setPointSize(max(slot_font.pointSize() - 2, 7))
         self._slot.setFont(slot_font)
         self._slot.setStyleSheet("color: palette(mid);")
+        self._icon = QLabel()
+        self._icon.setFixedSize(_ICON_PX, _ICON_PX)
+        self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._name = QLabel("— empty —")
         name_font = self._name.font()
         name_font.setBold(True)
         self._name.setFont(name_font)
         self._name.setWordWrap(True)
         layout.addWidget(self._slot)
-        layout.addWidget(self._name)
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(6)
+        row.addWidget(self._icon)
+        row.addWidget(self._name, 1)
+        layout.addLayout(row)
 
-    def set_item(self, item: InventoryItem | None) -> None:
+    def set_item(self, item: InventoryItem | None, icon: QIcon | None = None) -> None:
         self._item = item
+        self._icon.setPixmap(
+            icon.pixmap(_ICON_PX, _ICON_PX) if icon is not None else QPixmap()
+        )
         if item is None:
             self._name.setText("— empty —")
             self._name.setStyleSheet("color: palette(mid); font-style: italic;")
@@ -97,10 +117,30 @@ class _SlotCard(QFrame):
 class InventoryView(QWidget):
     """The Inventory tab: equipment doll + carried tree + item detail pane."""
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        *,
+        icon_source: ItemIconSource | None = None,
+        nwn_style: bool = False,
+        on_style_changed: Callable[[bool], None] | None = None,
+    ) -> None:
         super().__init__(parent)
+        self._icons = icon_source
+        self._on_style_changed = on_style_changed
+        self._icon_cache: dict[tuple[int, int], QIcon | None] = {}
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
+
+        # NWN-style toggle (only meaningful when item icons are available).
+        top = QHBoxLayout()
+        top.addStretch(1)
+        self._nwn_checkbox = QCheckBox("NWN-style icon grid")
+        self._nwn_checkbox.setChecked(nwn_style)
+        self._nwn_checkbox.setEnabled(icon_source is not None and icon_source.available)
+        self._nwn_checkbox.toggled.connect(self._on_style_toggled)
+        top.addWidget(self._nwn_checkbox)
+        outer.addLayout(top)
 
         split = QSplitter(Qt.Orientation.Horizontal)
         outer.addWidget(split, 1)
@@ -132,12 +172,26 @@ class InventoryView(QWidget):
         self._tree = QTreeWidget()
         self._tree.setHeaderLabels(["Item", "Qty"])
         self._tree.setColumnCount(2)
+        self._tree.setIconSize(QSize(_ICON_PX, _ICON_PX))
         header = self._tree.header()
         header.setStretchLastSection(False)
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         self._tree.currentItemChanged.connect(self._on_tree_selection)
-        c_layout.addWidget(self._tree, 1)
+        # NWN-style icon grid (an alternative presentation of the carried items).
+        self._grid_view = QListWidget()
+        self._grid_view.setViewMode(QListWidget.ViewMode.IconMode)
+        self._grid_view.setIconSize(QSize(_ICON_PX, _ICON_PX))
+        self._grid_view.setGridSize(QSize(84, 76))
+        self._grid_view.setResizeMode(QListWidget.ResizeMode.Adjust)
+        self._grid_view.setMovement(QListWidget.Movement.Static)
+        self._grid_view.setWordWrap(True)
+        self._grid_view.currentItemChanged.connect(self._on_grid_selection)
+        self._carried_stack = QStackedWidget()
+        self._carried_stack.addWidget(self._tree)  # index 0 = list design
+        self._carried_stack.addWidget(self._grid_view)  # index 1 = NWN grid
+        self._carried_stack.setCurrentIndex(1 if nwn_style else 0)
+        c_layout.addWidget(self._carried_stack, 1)
         right.addWidget(carried)
 
         self._detail = QTextEdit()
@@ -151,6 +205,7 @@ class InventoryView(QWidget):
         for card in self._cards.values():
             card.set_item(None)
         self._tree.clear()
+        self._grid_view.clear()
         self._detail.clear()
         self._carried_label.setText("<b>Carried</b>")
 
@@ -161,12 +216,21 @@ class InventoryView(QWidget):
         self._fill_equipped(info.equipped_items)
         self._fill_carried(info.inventory_items)
 
+    # -- icons ------------------------------------------------------------ #
+    def _icon_for(self, item: InventoryItem) -> QIcon | None:
+        if self._icons is None:
+            return None
+        key = (item.base_item, item.model_part)
+        if key not in self._icon_cache:
+            self._icon_cache[key] = _load_icon(self._icons, item)
+        return self._icon_cache[key]
+
     # -- population ------------------------------------------------------- #
     def _fill_equipped(self, equipped: list[EquippedItem]) -> None:
         by_slot = {entry.slot: entry.item for entry in equipped}
         for label, bits in _DOLL:
             item = next((by_slot[bit] for bit in bits if bit in by_slot), None)
-            self._cards[label].set_item(item)
+            self._cards[label].set_item(item, self._icon_for(item) if item else None)
 
     def _fill_carried(self, items: list[InventoryItem]) -> None:
         item_count = _count_items(items)
@@ -177,6 +241,13 @@ class InventoryView(QWidget):
         self._carried_label.setText(f"<b>Carried</b> ({', '.join(parts)})")
         for item in items:
             self._tree.addTopLevelItem(self._tree_item(item))
+        for item in _flatten(items):  # NWN grid: every item as an icon tile
+            node = QListWidgetItem(item.name)
+            node.setData(_ITEM_ROLE, item)
+            icon = self._icon_for(item)
+            if icon is not None:
+                node.setIcon(icon)
+            self._grid_view.addItem(node)
 
     def _tree_item(self, item: InventoryItem) -> QTreeWidgetItem:
         qty = str(item.stack_size) if item.stack_size > 1 else ""
@@ -184,6 +255,9 @@ class InventoryView(QWidget):
             qty = f"[{_count_items(item.contents)}]"
         node = QTreeWidgetItem([item.name, qty])
         node.setData(0, _ITEM_ROLE, item)
+        icon = self._icon_for(item)
+        if icon is not None:
+            node.setIcon(0, icon)
         for child in item.contents:
             node.addChild(self._tree_item(child))
         return node
@@ -194,6 +268,16 @@ class InventoryView(QWidget):
         if isinstance(item, InventoryItem):
             self._show_item(item)
 
+    def _on_grid_selection(self, current: QListWidgetItem | None, _prev=None) -> None:
+        item = current.data(_ITEM_ROLE) if current is not None else None
+        if isinstance(item, InventoryItem):
+            self._show_item(item)
+
+    def _on_style_toggled(self, checked: bool) -> None:
+        self._carried_stack.setCurrentIndex(1 if checked else 0)
+        if self._on_style_changed is not None:
+            self._on_style_changed(checked)
+
     def _show_item(self, item: InventoryItem) -> None:
         self._detail.setPlainText(_item_detail(item))
 
@@ -201,6 +285,29 @@ class InventoryView(QWidget):
 def _count_items(items: list[InventoryItem]) -> int:
     """Total items including container contents (containers themselves count)."""
     return sum(1 + _count_items(it.contents) for it in items)
+
+
+def _flatten(items: list[InventoryItem]) -> list[InventoryItem]:
+    """Every item, containers followed by their contents (for the icon grid)."""
+    out: list[InventoryItem] = []
+    for item in items:
+        out.append(item)
+        out.extend(_flatten(item.contents))
+    return out
+
+
+def _load_icon(source: ItemIconSource, item: InventoryItem) -> QIcon | None:
+    """Decode an item's TGA inventory icon to a QIcon (None if unavailable)."""
+    data = source.icon_bytes(item.base_item, item.model_part)
+    if data is None:
+        return None
+    image = TGAReader().read_bytes(data)
+    if image is None or image.width <= 0 or image.height <= 0:
+        return None
+    qimg = QImage(image.to_rgba(), image.width, image.height, QImage.Format.Format_RGBA8888)
+    if qimg.isNull():
+        return None
+    return QIcon(QPixmap.fromImage(qimg))
 
 
 def _plural(count: int, noun: str) -> str:

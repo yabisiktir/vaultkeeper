@@ -84,8 +84,14 @@ class CharacterViewer(QDialog):
         parent: QWidget | None = None,
         *,
         portrait_size: str = DEFAULT_PORTRAIT_SIZE,
+        icon_source=None,
+        inventory_nwn_style: bool = False,
+        on_inventory_style_changed=None,
     ) -> None:
         super().__init__(parent)
+        self._icon_source = icon_source
+        self._inventory_nwn_style = inventory_nwn_style
+        self._on_inventory_style_changed = on_inventory_style_changed
         self.setWindowIcon(R.get_icon("LookupUser_16x"))
         self.resize(680, 460)
         self._characters = characters
@@ -131,7 +137,11 @@ class CharacterViewer(QDialog):
         self._tabs.addTab(self._build_skills_tab(), "Skills")
         self._tabs.addTab(self._build_feats_tab(), "Feats")
         self._tabs.addTab(self._build_spells_tab(), "Spells")
-        self._inventory = InventoryView()
+        self._inventory = InventoryView(
+            icon_source=self._icon_source,
+            nwn_style=self._inventory_nwn_style,
+            on_style_changed=self._on_inventory_style_changed,
+        )
         self._tabs.addTab(self._inventory, "Inventory")
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
@@ -364,11 +374,23 @@ class CharacterViewer(QDialog):
         def resolver(resref: str, own_folder: Path):
             return controller.portrait_path(resref, extra_dirs=[own_folder])
 
+        settings = controller._settings()
         dlg = cls(
             controller.character_files(),
             resolver,
             parent,
-            portrait_size=controller._settings().portrait_display_size,
+            portrait_size=settings.portrait_display_size,
+            icon_source=item_icon_source(controller),
+            inventory_nwn_style=settings.inventory_nwn_style,
+            on_inventory_style_changed=controller.set_inventory_nwn_style,
         )
         dlg.show()
         return dlg
+
+
+def item_icon_source(controller):
+    """An :class:`ItemIconSource` over the controller's game install (or ``None``)."""
+    from vaultkeeper.game.item_icons import ItemIconSource
+
+    game_root = getattr(getattr(controller, "ctx", None), "game_root", None)
+    return ItemIconSource(game_root)

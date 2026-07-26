@@ -93,6 +93,34 @@ def test_inventory_view_clear(qtbot):
     assert view._detail.toPlainText() == ""
 
 
+class _FakeIcons:
+    available = True
+
+    def icon_bytes(self, base_item, model_part):
+        return None  # exercise the icon path without needing the game install
+
+
+def test_nwn_style_toggle_switches_view_and_persists(qtbot):
+    changes: list[bool] = []
+    view = InventoryView(icon_source=_FakeIcons(), on_style_changed=changes.append)
+    qtbot.addWidget(view)
+    view.set_character(_info([], [_item("Bag", contents=[_item("Sword")]), _item("Ring")]))
+    assert view._nwn_checkbox.isEnabled()
+    assert view._carried_stack.currentIndex() == 0  # list design by default
+    assert view._grid_view.count() == 3  # flattened: bag + sword + ring
+    view._nwn_checkbox.setChecked(True)
+    assert view._carried_stack.currentIndex() == 1  # NWN icon grid
+    assert changes == [True]
+    view._grid_view.setCurrentRow(0)  # selecting a grid tile shows its detail
+    assert "Bag" in view._detail.toPlainText()
+
+
+def test_nwn_checkbox_disabled_without_icon_source(qtbot):
+    view = InventoryView()
+    qtbot.addWidget(view)
+    assert not view._nwn_checkbox.isEnabled()
+
+
 def test_ammunition_cell_shows_any_ammo(qtbot):
     view = InventoryView()
     qtbot.addWidget(view)

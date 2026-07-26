@@ -4568,6 +4568,14 @@ class ProfileController:
             ),
         }
 
+    def set_inventory_nwn_style(self, nwn_style: bool) -> None:
+        """Persist the Character Explorer's NWN-style inventory-grid preference."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.inventory_nwn_style = nwn_style
+        save_settings(settings, self._settings_path)
+
     # -- Map editing + persistence (VB Settings map editors, Phase 8) ------ #
     def _persist_map_overrides(self) -> None:
         from vaultkeeper.config.settings import load_settings, save_settings
