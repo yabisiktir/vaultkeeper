@@ -2898,6 +2898,7 @@ class ProfileController:
         info, possibly invalid), local vault first then saves, name-sorted.
         """
         from vaultkeeper.game.character import scan_character_files
+        from vaultkeeper.game.item_names import resolver_for
 
         user = self.ctx.game_user_dir
         if user is None:
@@ -2908,6 +2909,12 @@ class ProfileController:
             for save_dir in sorted(saves.iterdir()):
                 if save_dir.is_dir():
                     found.extend(scan_character_files(save_dir))
+        # Name base items that store their name only as a dialog.tlk StrRef.
+        resolver = resolver_for(self.ctx.game_root)
+        if resolver.available:
+            for character in found:
+                if character.info.is_valid:
+                    resolver.resolve_character(character.info)
         return found
 
     def hak_portraits_root(self) -> Path:
