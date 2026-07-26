@@ -36,6 +36,7 @@ from vaultkeeper.game.character import level_summary
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
+from vaultkeeper.ui.dialogs.inventory_view import InventoryView
 
 _CHAR_ROLE = Qt.ItemDataRole.UserRole
 _PORTRAIT_BOX = 128  # px — default fallback box for the portrait preview.
@@ -130,6 +131,8 @@ class CharacterViewer(QDialog):
         self._tabs.addTab(self._build_skills_tab(), "Skills")
         self._tabs.addTab(self._build_feats_tab(), "Feats")
         self._tabs.addTab(self._build_spells_tab(), "Spells")
+        self._inventory = InventoryView()
+        self._tabs.addTab(self._inventory, "Inventory")
         right.addWidget(self._tabs, 1)
         layout.addLayout(right, 1)
 
@@ -283,10 +286,12 @@ class CharacterViewer(QDialog):
             self._skill_desc.clear()
             self._feat_desc.clear()
             self._spell_desc.clear()
+            self._inventory.clear()
             return
         self._summary.setPlainText(cf.summary(show_stats=True))
         self._show_portrait(cf)
         self._populate_skills_and_feats(cf)
+        self._inventory.set_character(cf.info)
 
     def _on_copy_details(self) -> None:
         """Copy the selected character's full summary to the clipboard (VB TsCopyDetails)."""
