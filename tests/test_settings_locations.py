@@ -80,6 +80,7 @@ def test_dialog_has_locations_tab_with_controller(qtbot, tmp_path):
         "Appearance",
         "Web Menu",
         "Run Menu",
+        "Character / Save Viewer",
         "Locations",
     ]
     # The Locations tab now has editable game-path fields.
@@ -104,7 +105,14 @@ def test_dialog_omits_locations_tab_without_controller(qtbot):
     qtbot.addWidget(dlg)
     assert dlg.locations is None
     tab_titles = [dlg.tabs.tabText(i) for i in range(dlg.tabs.count())]
-    assert tab_titles == ["General", "Behaviour", "Appearance", "Web Menu", "Run Menu"]
+    assert tab_titles == [
+        "General",
+        "Behaviour",
+        "Appearance",
+        "Web Menu",
+        "Run Menu",
+        "Character / Save Viewer",
+    ]
 
 
 def test_settings_dialog_start_tab(qtbot):

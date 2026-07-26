@@ -99,6 +99,23 @@ def test_apply_to_writes_back(qtbot):
     assert settings.validate_game_config_on_startup is False
 
 
+def test_viewer_tab_round_trips(qtbot):
+    settings = Settings(inventory_nwn_style=True, hak_item_icons=False)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    # The dedicated Character / Save Viewer tab exists and reflects the settings.
+    assert any(
+        dlg.tabs.tabText(i) == "Character / Save Viewer" for i in range(dlg.tabs.count())
+    )
+    assert dlg.inventory_nwn_style.isChecked() is True
+    assert dlg.hak_item_icons.isChecked() is False
+    dlg.inventory_nwn_style.setChecked(False)
+    dlg.hak_item_icons.setChecked(True)
+    dlg.apply_to(settings)
+    assert settings.inventory_nwn_style is False
+    assert settings.hak_item_icons is True
+
+
 def test_edit_persists_on_accept(qtbot, tmp_path, monkeypatch):
     settings_path = tmp_path / "settings.json"
     from vaultkeeper.config.settings import save_settings

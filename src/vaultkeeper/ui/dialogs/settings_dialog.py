@@ -66,6 +66,7 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(self._build_appearance(settings), "Appearance")
         self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
         self.tabs.addTab(self._build_run_menu(settings), "Run Menu")
+        self.tabs.addTab(self._build_viewer(settings), "Character / Save Viewer")
         self.locations = self._build_locations(controller)
         if self.locations is not None:
             self.tabs.addTab(self.locations, "Locations")
@@ -101,6 +102,7 @@ class SettingsDialog(QDialog):
             "Appearance": self._build_appearance,
             "Web Menu": self._build_web_menu,
             "Run Menu": self._build_run_menu,
+            "Character / Save Viewer": self._build_viewer,
         }
 
     def _build_reset_button(self):
@@ -253,6 +255,30 @@ class SettingsDialog(QDialog):
             index = 0
         self.portrait_display_size.setCurrentIndex(index)
         form.addRow("Character portrait size:", self.portrait_display_size)
+        return page
+
+    def _build_viewer(self, settings: Settings) -> QWidget:
+        """Character Explorer / Save Game Viewer display preferences."""
+        page = QWidget()
+        form = QFormLayout(page)
+
+        self.inventory_nwn_style = QCheckBox(
+            "Show inventory as an NWN-style item icon grid (instead of a list)"
+        )
+        self.inventory_nwn_style.setChecked(settings.inventory_nwn_style)
+        form.addRow(self.inventory_nwn_style)
+
+        self.hak_item_icons = QCheckBox(
+            "Use custom item icons from installed haks (CEP/PRC)"
+        )
+        self.hak_item_icons.setChecked(settings.hak_item_icons)
+        self.hak_item_icons.setToolTip(
+            "Also search your hak folder for item icons, so custom items get their "
+            "own picture instead of a generic base-game one. The first inventory you "
+            "open scans every hak (~half a second); off by default."
+        )
+        form.addRow(self.hak_item_icons)
+
         return page
 
     #: QComboBox item labels for ``self.theme``, in display order, mapped to the
@@ -568,6 +594,8 @@ class SettingsDialog(QDialog):
         settings.delete_leto_logs = self.delete_leto_logs.isChecked()
         settings.confirm_saves = self.confirm_saves.isChecked()
         settings.portrait_display_size = self.portrait_display_size.currentText()
+        settings.inventory_nwn_style = self.inventory_nwn_style.isChecked()
+        settings.hak_item_icons = self.hak_item_icons.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 

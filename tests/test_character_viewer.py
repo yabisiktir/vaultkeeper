@@ -206,6 +206,28 @@ def test_controller_character_files_scans_vault_and_saves(tmp_path, monkeypatch)
     assert user / "portraits" in dirs
 
 
+def test_item_icon_source_respects_hak_setting(tmp_path):
+    from types import SimpleNamespace
+
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.dialogs.character_viewer import item_icon_source
+
+    user = tmp_path / "gameuser"
+    (user / "hak").mkdir(parents=True)  # ItemIconSource only keeps a real hak dir
+
+    class _Ctrl:
+        def __init__(self, hak_on):
+            self.ctx = SimpleNamespace(game_root=tmp_path / "NWN", game_user_dir=user)
+            self._hak_on = hak_on
+
+        def _settings(self):
+            return Settings(hak_item_icons=self._hak_on)
+
+    # Setting off -> no hak search; on -> the user's hak folder is searched.
+    assert item_icon_source(_Ctrl(hak_on=False))._hak_dir is None
+    assert item_icon_source(_Ctrl(hak_on=True))._hak_dir == user / "hak"
+
+
 # -- Portrait Manager ---------------------------------------------------------- #
 class _FakePortraitController:
     def __init__(self, portraits):

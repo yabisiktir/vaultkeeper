@@ -389,8 +389,18 @@ class CharacterViewer(QDialog):
 
 
 def item_icon_source(controller):
-    """An :class:`ItemIconSource` over the controller's game install (or ``None``)."""
+    """An :class:`ItemIconSource` over the controller's game install (or ``None``).
+
+    When the ``hak_item_icons`` setting is on, the user's hak folder is searched
+    too (opt-in, since the first lookup scans every hak).
+    """
     from vaultkeeper.game.item_icons import ItemIconSource
 
-    game_root = getattr(getattr(controller, "ctx", None), "game_root", None)
-    return ItemIconSource(game_root)
+    ctx = getattr(controller, "ctx", None)
+    game_root = getattr(ctx, "game_root", None)
+    hak_dir = None
+    if getattr(controller._settings(), "hak_item_icons", False):
+        user_dir = getattr(ctx, "game_user_dir", None)
+        if user_dir is not None:
+            hak_dir = user_dir / "hak"
+    return ItemIconSource(game_root, hak_dir=hak_dir)

@@ -141,6 +141,10 @@ class Settings:
     portrait_display_size: str = "Huge"
     #: Character Explorer inventory shows the NWN-style item icon grid (vs the list).
     inventory_nwn_style: bool = False
+    #: Look up custom item icons from installed haks (CEP/PRC) as well as the base
+    #: game — richer icons for custom items, at the cost of a one-time hak scan
+    #: (~0.5s) the first time an inventory is shown. Off by default (opt-in).
+    hak_item_icons: bool = False
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the
