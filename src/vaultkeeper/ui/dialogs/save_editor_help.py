@@ -37,6 +37,8 @@ edit mode.</p>
 <ul>
   <li><b>Stores:</b> area → Stores → select a store → <b>Edit Store…</b> (pricing,
       gold, black market).</li>
+  <li><b>Character details:</b> Player character → <b>Details</b> → select a field
+      (gold, XP, an ability score, alignment, age, HP, name) → <b>Edit…</b>.</li>
   <li><b>Item property:</b> select a property under one of your items → <b>Edit…</b>
       to change its subtype / value / uses from dropdowns filled by the game's
       <code>iprp_*</code> tables (only valid choices, so no corruption).</li>

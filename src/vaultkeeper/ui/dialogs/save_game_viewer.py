@@ -316,6 +316,17 @@ class SaveGameViewer(QDialog):
         except SaveEditError:
             node.addChild(QTreeWidgetItem(["(character unavailable)"]))
             return
+        char_fields = self._ensure_session().player_fields()
+        if char_fields:
+            pending_fields = self._pending_char_field_keys()
+            group = _group("Details", len(char_fields))
+            for cf in char_fields:
+                marker = "● " if cf.field in pending_fields else ""
+                shown = f'"{cf.value}"' if cf.kind == "name" else cf.value
+                group.addChild(_payload_node(
+                    f"{marker}{cf.display}: {shown}", ("char-field-node", cf)
+                ))
+            node.addChild(group)
         resolver = self._resolver()
         equipped = [it for it in items if it.slot is not None]
         carried = [it for it in items if it.slot is None]
@@ -438,6 +449,10 @@ class SaveGameViewer(QDialog):
             _, index, name, rank = role
             text = f"{name}\nRank: {rank}"
             self._edit_target = ("skill", index, name, rank)
+        elif kind == "char-field-node":
+            cf = role[1]
+            text = f"{cf.display}: {cf.value}\n\nSelect and Edit… to change it."
+            self._edit_target = ("char-field", cf)
         elif kind == "feat":
             _, _fid, name, is_base = role
             text = name if is_base else (
@@ -592,6 +607,35 @@ class SaveGameViewer(QDialog):
             self._edit_property(*self._edit_target[1:])
         elif self._edit_target[0] == "skill":
             self._edit_skill(*self._edit_target[1:])
+        elif self._edit_target[0] == "char-field":
+            self._edit_char_field(self._edit_target[1])
+
+    def _edit_char_field(self, cf) -> None:
+        from vaultkeeper.game.save_editor import SaveEditError
+        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+
+        session = self._ensure_session()
+        try:
+            if cf.kind == "int":
+                dialog = PropertyEditDialog(
+                    cf.display, f"{cf.display}:", cf.value,
+                    minimum=cf.minimum, maximum=cf.maximum, parent=self,
+                )
+                if dialog.exec() != QDialog.DialogCode.Accepted:
+                    return
+                session.set_character_field(cf.field, dialog.value(), where=cf.display)
+            else:  # a name field
+                text, ok = QInputDialog.getText(
+                    self, f"Edit {cf.display}", f"{cf.display}:", text=str(cf.value)
+                )
+                if not ok:
+                    return
+                session.set_character_name(cf.field, text.strip(), where=cf.display)
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        self._refresh_character_node()  # value shown in the label changes
+        self._refresh_pending()
 
     def _edit_store(self, area_resref: str, store_index: int, store: Store) -> None:
         from vaultkeeper.game.save_editor import SaveEditError
@@ -888,6 +932,14 @@ class SaveGameViewer(QDialog):
         return {
             change.key for change in self._session.pending_changes()
             if change.kind == "skill"
+        }
+
+    def _pending_char_field_keys(self) -> set[str]:
+        if self._session is None:
+            return set()
+        return {
+            change.key for change in self._session.pending_changes()
+            if change.kind == "char-field"
         }
 
     def _mark_current_node(self) -> None:
