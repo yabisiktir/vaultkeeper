@@ -23,8 +23,10 @@ so editing is safe to experiment with.</p>
       appears.</li>
   <li>Make changes (below). Each is <i>staged</i> (nothing is written yet) and
       listed in the panel, with a ● marker on what you changed.</li>
-  <li>Click <b>Save as New Save…</b>, name it, and a new save is written next to the
-      original.</li>
+  <li>Commit with <b>Save as New Save…</b> (writes a new save, original untouched) or
+      <b>Overwrite This Save…</b> (replaces the selected save — the old version is
+      moved to a timestamped <code>vaultkeeper_backups</code> folder first, and the
+      edited save is written &amp; verified before the old one is touched).</li>
 </ol>
 <p>Use <b>Discard All</b> to drop staged changes; turning <b>Edit</b> off asks first
 if there are unsaved changes.</p>

@@ -503,6 +503,10 @@ class SaveGameViewer(QDialog):
         self._discard_btn = QPushButton("Discard All")
         self._discard_btn.clicked.connect(self._discard_all)
         row.addWidget(self._discard_btn)
+        self._overwrite_btn = QPushButton("Overwrite This Save…")
+        self._overwrite_btn.setToolTip("Replace the selected save (a backup is kept)")
+        self._overwrite_btn.clicked.connect(self._overwrite_current)
+        row.addWidget(self._overwrite_btn)
         self._save_btn = QPushButton("Save as New Save…")
         self._save_btn.clicked.connect(self._save_as_new)
         row.addWidget(self._save_btn)
@@ -578,6 +582,7 @@ class SaveGameViewer(QDialog):
             if count else "No pending changes"
         )
         self._save_btn.setEnabled(count > 0)
+        self._overwrite_btn.setEnabled(count > 0)
         self._discard_btn.setEnabled(count > 0)
 
     def _edit_selected(self) -> None:
@@ -899,6 +904,36 @@ class SaveGameViewer(QDialog):
         self._session = None
         self._refresh_pending()
         self._add_save(new_save)  # selecting it rebuilds the tree (markers cleared)
+
+    def _overwrite_current(self) -> None:
+        """Replace the selected save with the edits (keeping a timestamped backup)."""
+        if self._session is None or not self._session.has_edits or self._current is None:
+            return
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        save = self._current
+        backup_dir = save.folder.parent.parent / "vaultkeeper_backups"
+        confirm = QMessageBox.warning(
+            self, "Overwrite save",
+            f"Replace “{save.name}” with your changes?\n\n"
+            f"The current version is backed up to:\n{backup_dir}",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            self._session.save_as(save.folder, overwrite=True, backup_dir=backup_dir)
+        except (SaveEditError, OSError) as exc:
+            QMessageBox.critical(self, "Save failed", str(exc))
+            return
+        QMessageBox.information(
+            self, "Saved",
+            f"“{save.name}” was updated.\nA backup was kept in {backup_dir.name}.",
+        )
+        self._session = None
+        self._module_cache.pop(save.name, None)  # module state may have changed
+        self._refresh_pending()
+        self._reload_areas()  # the current save now shows the edits
 
     def _add_save(self, save: SaveGame) -> None:
         """Insert a freshly-written save at the top of the list and select it."""
