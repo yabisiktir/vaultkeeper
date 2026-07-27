@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import InventoryItem
+from vaultkeeper.game.item_properties import describe_property, editable_magnitude, is_cast_spell
 from vaultkeeper.game.save_area import (
     AreaContents,
     Container,
@@ -69,8 +70,9 @@ class SaveGameViewer(QDialog):
         self._child_viewer = None  # keep a ref so it isn't garbage-collected
         self._icons = item_icon_source(controller) if controller is not None else None
         self._icon_cache: dict[tuple[int, int], QIcon | None] = {}
-        #: (area resref, store index, Store) for the selected store, else None.
-        self._edit_target: tuple[str, int, Store] | None = None
+        #: the selected editable target, discriminated by its first element:
+        #: ("store", area, index, Store) or ("property", item_path, prop_index, prop, item_name).
+        self._edit_target: tuple | None = None
         #: edit session (SaveEditor) — batches changes; None until an edit is made.
         self._session = None
         self._editing = False
@@ -132,10 +134,10 @@ class SaveGameViewer(QDialog):
         self._edit_toggle.setToolTip("Turn on editing to change stores (saved as a new save)")
         self._edit_toggle.toggled.connect(self._set_edit_mode)
         bar.addWidget(self._edit_toggle)
-        self._edit_store_btn = QPushButton("Edit Store…")
-        self._edit_store_btn.setEnabled(False)
-        self._edit_store_btn.clicked.connect(self._edit_store)
-        bar.addWidget(self._edit_store_btn)
+        self._edit_btn = QPushButton("Edit…")
+        self._edit_btn.setEnabled(False)
+        self._edit_btn.clicked.connect(self._edit_selected)
+        bar.addWidget(self._edit_btn)
         self._char_btn = QPushButton("View Character…")
         self._char_btn.setEnabled(False)
         self._char_btn.clicked.connect(self._view_character)
@@ -189,7 +191,7 @@ class SaveGameViewer(QDialog):
         """(Re)build the top-level area/faction nodes for the current save."""
         self._areas.clear()
         self._edit_target = None
-        self._update_edit_store_btn()
+        self._update_edit_btn()
         if self._current is not None:
             self._populate_areas(self._current, self._module_for(self._current))
 
@@ -207,7 +209,12 @@ class SaveGameViewer(QDialog):
         return self._module_cache[save.name]
 
     def _populate_areas(self, save: SaveGame, info) -> None:
-        """Top-level area nodes (lazy) + a factions node — no .git parsed yet."""
+        """Top-level Character + area nodes (lazy) + a factions node."""
+        if self._controller is not None and save.sav_path is not None:
+            char = QTreeWidgetItem(["Player character"])
+            char.setData(0, _NODE_ROLE, ("character", None))
+            char.addChild(QTreeWidgetItem(["…"]))  # dummy -> shows an expand arrow
+            self._areas.addTopLevelItem(char)
         if info is not None:
             for resref, name in info.areas:
                 label = f"{name}  ({resref})" if name != resref else resref
@@ -225,6 +232,11 @@ class SaveGameViewer(QDialog):
     # -- lazy area expansion ---------------------------------------------- #
     def _on_expand(self, node: QTreeWidgetItem) -> None:
         role = node.data(0, _NODE_ROLE)
+        if role and role[0] == "character":
+            node.takeChildren()
+            node.setData(0, _NODE_ROLE, ("character-loaded", None))
+            self._populate_character(node)
+            return
         if not role or role[0] != "area":
             return  # already loaded, or not an area node
         resref = role[1]
@@ -282,6 +294,46 @@ class SaveGameViewer(QDialog):
         if not (area.stores or area.creatures or area.containers):
             node.addChild(QTreeWidgetItem(["(no stores, creatures or containers)"]))
 
+    def _populate_character(self, node: QTreeWidgetItem) -> None:
+        """The player's equipped + carried items, each with editable properties."""
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        try:
+            items = self._ensure_session().player_items()
+        except SaveEditError:
+            node.addChild(QTreeWidgetItem(["(character unavailable)"]))
+            return
+        resolver = self._resolver()
+        equipped = [it for it in items if it.slot is not None]
+        carried = [it for it in items if it.slot is None]
+        pending = self._pending_prop_keys()
+        for label, group_items in (("Equipped", equipped), ("Carried", carried)):
+            if not group_items:
+                continue
+            group = _group(label, len(group_items))
+            for item in group_items:
+                group.addChild(self._char_item_node(item, resolver, pending))
+            node.addChild(group)
+
+    def _char_item_node(self, item, resolver, pending) -> QTreeWidgetItem:
+        name = item.name
+        if item.name_strref >= 0:
+            name = resolver.name_for(item.name_strref) or name
+        node = _payload_node(name, ("edit-item", item))
+        icon = self._icon_for(item)  # EditableItem duck-types base_item/model_part
+        if icon is not None:
+            node.setIcon(0, icon)
+        for prop in item.properties:
+            editable = editable_magnitude(prop.prop) or is_cast_spell(prop.prop)
+            marker = "● " if (tuple(item.path), prop.index) in pending else ""
+            desc = describe_property(prop.prop, None)
+            pnode = _payload_node(
+                f"{marker}{desc}",
+                ("property", item.path, prop.index, prop, name, editable),
+            )
+            node.addChild(pnode)
+        return node
+
     def _item_node(self, item: InventoryItem, *, prefix: str = "") -> QTreeWidgetItem:
         node = QTreeWidgetItem([prefix + item.name])
         node.setData(0, _NODE_ROLE, ("item", item))
@@ -311,7 +363,7 @@ class SaveGameViewer(QDialog):
         role = current.data(0, _NODE_ROLE) if current is not None else None
         self._edit_target = None
         if not role:
-            self._update_edit_store_btn()
+            self._update_edit_btn()
             return
         kind, payload = role[0], role[1] if len(role) > 1 else None
         text = ""
@@ -320,19 +372,30 @@ class SaveGameViewer(QDialog):
         elif kind == "store":
             text = _store_detail(payload)
             if self._controller is not None and len(role) >= 4:
-                self._edit_target = (role[2], role[3], payload)  # area, index, Store
+                self._edit_target = ("store", role[2], role[3], payload)
+        elif kind == "edit-item":
+            text = _edit_item_detail(payload)
+        elif kind == "property":
+            # role = ("property", item_path, prop_index, EditableProperty, item_name, editable)
+            _, item_path, prop_index, prop, item_name, editable = role
+            text = describe_property(prop.prop, None)
+            if editable:
+                self._edit_target = ("property", item_path, prop_index, prop, item_name)
+            else:
+                text += "\n\n(This property's value isn't a simple magnitude, so it's" \
+                        " read-only here — editing it could corrupt the item.)"
         elif kind == "creature":
             text = _creature_detail(payload)
         elif kind == "container":
             text = _container_detail(payload)
         elif kind == "area-loaded":
             text = _area_detail(payload) if payload is not None else "(contents unavailable)"
-        elif kind == "area":
-            text = "Expand to load this area's contents."
+        elif kind in ("area", "character"):
+            text = "Expand to load this."
         elif kind == "factions":
             text = _factions_detail(payload)
         self._content_detail.setPlainText(text)
-        self._update_edit_store_btn()
+        self._update_edit_btn()
 
     # -- screenshot + character ------------------------------------------- #
     def _show_screenshot(self, save: SaveGame) -> None:
@@ -379,10 +442,10 @@ class SaveGameViewer(QDialog):
             self._reload_areas()
         self._editing = on
         self._pending_panel.setVisible(on)
-        self._update_edit_store_btn()
+        self._update_edit_btn()
 
-    def _update_edit_store_btn(self) -> None:
-        self._edit_store_btn.setEnabled(self._editing and self._edit_target is not None)
+    def _update_edit_btn(self) -> None:
+        self._edit_btn.setEnabled(self._editing and self._edit_target is not None)
 
     def _ensure_session(self):
         from vaultkeeper.game.save_editor import SaveEditor
@@ -398,6 +461,15 @@ class SaveGameViewer(QDialog):
             (change.key[0].lower(), change.key[1])
             for change in self._session.pending_changes()
             if change.kind == "store"
+        }
+
+    def _pending_prop_keys(self) -> set[tuple[tuple, int]]:
+        if self._session is None:
+            return set()
+        return {
+            (tuple(change.key[0]), change.key[1])
+            for change in self._session.pending_changes()
+            if change.kind == "property"
         }
 
     def _clear_session(self) -> None:
@@ -430,36 +502,74 @@ class SaveGameViewer(QDialog):
         self._save_btn.setEnabled(count > 0)
         self._discard_btn.setEnabled(count > 0)
 
-    def _edit_store(self) -> None:
-        """Stage an edit to the selected store (committed later via Save as New Save)."""
+    def _edit_selected(self) -> None:
+        """Stage an edit to whatever editable node is selected (store or property)."""
         if not self._editing or self._current is None or self._edit_target is None:
             return
+        if self._edit_target[0] == "store":
+            self._edit_store(*self._edit_target[1:])
+        elif self._edit_target[0] == "property":
+            self._edit_property(*self._edit_target[1:])
+
+    def _edit_store(self, area_resref: str, store_index: int, store: Store) -> None:
         from vaultkeeper.game.save_editor import SaveEditError
         from vaultkeeper.ui.dialogs.store_edit_dialog import StoreEditDialog
 
-        area_resref, store_index, store = self._edit_target
         dialog = StoreEditDialog(store, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         try:
-            session = self._ensure_session()
-            session.set_store_fields(
+            self._ensure_session().set_store_fields(
                 area_resref, store_index,
                 where=f"{store.name} ({area_resref})", **dialog.values(),
             )
         except SaveEditError as exc:
             QMessageBox.critical(self, "Edit failed", str(exc))
             return
-        self._mark_current_store()
+        self._mark_current_node()
         self._refresh_pending()
 
-    def _mark_current_store(self) -> None:
-        """Add/remove the ● dirty marker on the selected store node."""
+    def _edit_property(self, item_path, prop_index, prop, item_name) -> None:
+        from vaultkeeper.game.item_properties import describe_property, is_cast_spell
+        from vaultkeeper.game.save_editor import SaveEditError
+        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+
+        label = describe_property(prop.prop, None)
+        cast = is_cast_spell(prop.prop)
+        if cast:
+            dialog = PropertyEditDialog(
+                label, "Uses per day:", prop.uses_per_day,
+                minimum=0, maximum=255, special_text="", parent=self,
+            )
+        else:
+            dialog = PropertyEditDialog(
+                label, "Magnitude (+N):", prop.prop.cost_value,
+                minimum=0, maximum=255, parent=self,
+            )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        kwargs = {"uses_per_day": dialog.value()} if cast else {"cost_value": dialog.value()}
+        try:
+            self._ensure_session().set_property_cost(
+                item_path, prop_index, where=item_name, prop_label=label, **kwargs
+            )
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        self._mark_current_node()
+        self._refresh_pending()
+
+    def _mark_current_node(self) -> None:
+        """Add/remove the ● dirty marker on the selected editable node."""
         node = self._areas.currentItem()
         if node is None or self._edit_target is None:
             return
-        area_resref, store_index, _ = self._edit_target
-        pending = (area_resref.lower(), store_index) in self._pending_store_keys()
+        if self._edit_target[0] == "store":
+            _, area_resref, store_index, _store = self._edit_target
+            pending = (area_resref.lower(), store_index) in self._pending_store_keys()
+        else:  # property
+            _, item_path, prop_index, _prop, _name = self._edit_target
+            pending = (tuple(item_path), prop_index) in self._pending_prop_keys()
         base = node.text(0).removeprefix("● ")
         node.setText(0, ("● " + base) if pending else base)
 
@@ -613,6 +723,21 @@ def _area_detail(area: AreaContents) -> str:
         lines.append(
             "    ".join(f"{label.capitalize()}: {counts[label]}" for label in counts)
         )
+    return "\n".join(lines)
+
+
+def _edit_item_detail(item) -> str:
+    """Summary for a player item node (an EditableItem) in the character tree."""
+    lines = [item.name]
+    if item.resref:
+        lines.append(f"ResRef: {item.resref}")
+    count = len(item.properties)
+    lines.append(f"{count} magical propert{'y' if count == 1 else 'ies'}")
+    if count:
+        lines.append("")
+        lines.extend(f"  • {describe_property(p.prop, None)}" for p in item.properties)
+    lines.append("")
+    lines.append("Select a property, then Edit… to change its value.")
     return "\n".join(lines)
 
 
