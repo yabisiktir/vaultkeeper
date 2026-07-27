@@ -273,7 +273,7 @@ class SaveGameViewer(QDialog):
                     ("store", store, area.resref, index),
                 )
                 for it in store.items:
-                    sn.addChild(self._item_node(it))
+                    sn.addChild(self._item_node(it, area_resref=area.resref))
                 group.addChild(sn)
             node.addChild(group)
         if area.creatures:
@@ -281,9 +281,10 @@ class SaveGameViewer(QDialog):
             for cre in area.creatures:
                 cn = _payload_node(f"{cre.name}  ({cre.item_count} items)", ("creature", cre))
                 for entry in cre.equipped:
-                    cn.addChild(self._item_node(entry.item, prefix=f"[{entry.slot_name}] "))
+                    cn.addChild(self._item_node(
+                        entry.item, prefix=f"[{entry.slot_name}] ", area_resref=area.resref))
                 for it in cre.carried:
-                    cn.addChild(self._item_node(it))
+                    cn.addChild(self._item_node(it, area_resref=area.resref))
                 group.addChild(cn)
             node.addChild(group)
         if area.containers:
@@ -291,7 +292,7 @@ class SaveGameViewer(QDialog):
             for cont in area.containers:
                 kn = _payload_node(f"{cont.name}  ({len(cont.items)} items)", ("container", cont))
                 for it in cont.items:
-                    kn.addChild(self._item_node(it))
+                    kn.addChild(self._item_node(it, area_resref=area.resref))
                 group.addChild(kn)
             node.addChild(group)
         if not (area.stores or area.creatures or area.containers):
@@ -379,14 +380,18 @@ class SaveGameViewer(QDialog):
             node.addChild(pnode)
         return node
 
-    def _item_node(self, item: InventoryItem, *, prefix: str = "") -> QTreeWidgetItem:
+    def _item_node(
+        self, item: InventoryItem, *, prefix: str = "", area_resref: str | None = None
+    ) -> QTreeWidgetItem:
         node = QTreeWidgetItem([prefix + item.name])
-        node.setData(0, _NODE_ROLE, ("item", item))
+        # area_resref (set for store/creature/container items) enables "clone to me".
+        role = ("item", item, area_resref) if area_resref else ("item", item)
+        node.setData(0, _NODE_ROLE, role)
         icon = self._icon_for(item)
         if icon is not None:
             node.setIcon(0, icon)
         for child in item.contents:  # a container item's own contents
-            node.addChild(self._item_node(child))
+            node.addChild(self._item_node(child, area_resref=area_resref))
         return node
 
     def _icon_for(self, item: InventoryItem) -> QIcon | None:
@@ -636,6 +641,11 @@ class SaveGameViewer(QDialog):
             return
         if role[0] == "edit-item":
             label, handler = "Add a copy to my inventory", lambda: self._add_item_copy(role[1])
+        elif role[0] == "item" and len(role) >= 3 and role[2] and role[1].resref:
+            # a store/creature/container item -> clone it into the player's inventory
+            label, handler = "Add a copy to my inventory", (
+                lambda: self._clone_from_area(role[2], role[1])
+            )
         elif role[0] == "feats-group":
             label, handler = "Add a feat…", self._add_feat
         elif role[0] == "feat":
@@ -740,6 +750,18 @@ class SaveGameViewer(QDialog):
 
         try:
             self._ensure_session().add_item_copy(item.path, where=item.name)
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Add failed", str(exc))
+            return
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _clone_from_area(self, area_resref: str, item: InventoryItem) -> None:
+        """Clone a store/creature/container item into the player's inventory."""
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        try:
+            self._ensure_session().add_item_from_area(area_resref, item.resref, where=item.name)
         except SaveEditError as exc:
             QMessageBox.critical(self, "Add failed", str(exc))
             return
