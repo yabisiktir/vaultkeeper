@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QMessageBox,
     QPushButton,
     QSplitter,
@@ -116,6 +117,8 @@ class SaveGameViewer(QDialog):
         self._areas.setIconSize(QSize(_ICON_PX, _ICON_PX))
         self._areas.itemExpanded.connect(self._on_expand)
         self._areas.currentItemChanged.connect(self._on_content_selection)
+        self._areas.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._areas.customContextMenuRequested.connect(self._show_context_menu)
         contents.addWidget(self._areas)
         self._content_detail = QTextEdit()
         self._content_detail.setReadOnly(True)
@@ -558,6 +561,41 @@ class SaveGameViewer(QDialog):
             return
         self._mark_current_node()
         self._refresh_pending()
+
+    def _show_context_menu(self, pos) -> None:
+        """Right-click a player item (in edit mode) to add a copy to inventory."""
+        if not self._editing:
+            return
+        node = self._areas.itemAt(pos)
+        role = node.data(0, _NODE_ROLE) if node is not None else None
+        if not role or role[0] != "edit-item":
+            return
+        menu = QMenu(self)
+        action = menu.addAction("Add a copy to my inventory")
+        if menu.exec(self._areas.viewport().mapToGlobal(pos)) is action:
+            self._add_item_copy(role[1])
+
+    def _add_item_copy(self, item) -> None:
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        try:
+            self._ensure_session().add_item_copy(item.path, where=item.name)
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Add failed", str(exc))
+            return
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _refresh_character_node(self) -> None:
+        """Rebuild the Character node's children so a newly-added item shows."""
+        for i in range(self._areas.topLevelItemCount()):
+            node = self._areas.topLevelItem(i)
+            role = node.data(0, _NODE_ROLE)
+            if role and role[0] == "character-loaded":
+                node.takeChildren()
+                self._populate_character(node)
+                node.setExpanded(True)
+                return
 
     def _mark_current_node(self) -> None:
         """Add/remove the ● dirty marker on the selected editable node."""
