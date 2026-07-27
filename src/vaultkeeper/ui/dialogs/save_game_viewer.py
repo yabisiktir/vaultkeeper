@@ -661,7 +661,8 @@ class SaveGameViewer(QDialog):
         feats = ref.all_feat_ids()
         prc = frozenset(fid for fid, _ in feats if not ref.is_base_feat(fid))
         dialog = IdPickerDialog(
-            "Add a Feat", feats, mark_ids=prc, mark_label="PRC", parent=self
+            "Add a Feat", feats, mark_ids=prc, mark_label="PRC",
+            value_header="Feat", parent=self,
         )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
@@ -685,7 +686,10 @@ class SaveGameViewer(QDialog):
         from vaultkeeper.game.character_reference import default_reference
         from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
 
-        dialog = IdPickerDialog("Add a Spell", default_reference().all_spell_ids(), parent=self)
+        dialog = IdPickerDialog(
+            "Add a Spell", default_reference().all_spell_ids(),
+            value_header="Spell", parent=self,
+        )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         spell_id = dialog.selected_id()
