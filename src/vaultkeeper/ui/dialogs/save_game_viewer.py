@@ -79,6 +79,7 @@ class SaveGameViewer(QDialog):
         self._editing = False
         self._syncing_selection = False  # guard against re-entrant save switching
         self._prop_tables = None  # ItemPropertyTables (iprp_* options), built lazily
+        self._look_tables_cache = None  # LookTables (appearance/portrait), built lazily
 
         outer = QVBoxLayout(self)
         split = QSplitter(Qt.Orientation.Horizontal)
@@ -322,7 +323,12 @@ class SaveGameViewer(QDialog):
             group = _group("Details", len(char_fields))
             for cf in char_fields:
                 marker = "● " if cf.field in pending_fields else ""
-                shown = f'"{cf.value}"' if cf.kind == "name" else cf.value
+                if cf.kind == "appearance":
+                    shown = self._look_tables().appearance_name(cf.value)
+                elif cf.kind in ("name", "resref"):
+                    shown = f'"{cf.value}"'
+                else:
+                    shown = cf.value
                 group.addChild(_payload_node(
                     f"{marker}{cf.display}: {shown}", ("char-field-node", cf)
                 ))
@@ -610,8 +616,20 @@ class SaveGameViewer(QDialog):
         elif self._edit_target[0] == "char-field":
             self._edit_char_field(self._edit_target[1])
 
+    def _look_tables(self):
+        from vaultkeeper.game.look_tables import LookTables
+
+        if self._look_tables_cache is None:
+            ctx = getattr(self._controller, "ctx", None)
+            game_root = getattr(ctx, "game_root", None)
+            user = getattr(ctx, "game_user_dir", None)
+            hak_dir = (user / "hak") if user is not None else None
+            self._look_tables_cache = LookTables.for_install(game_root, hak_dir)
+        return self._look_tables_cache
+
     def _edit_char_field(self, cf) -> None:
         from vaultkeeper.game.save_editor import SaveEditError
+        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
         from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
         session = self._ensure_session()
@@ -624,6 +642,27 @@ class SaveGameViewer(QDialog):
                 if dialog.exec() != QDialog.DialogCode.Accepted:
                     return
                 session.set_character_field(cf.field, dialog.value(), where=cf.display)
+            elif cf.kind == "appearance":
+                options = self._look_tables().appearance_options()
+                dialog = IdPickerDialog(
+                    "Appearance", list(options.items()), value_header="Appearance", parent=self
+                )
+                if dialog.exec() != QDialog.DialogCode.Accepted or dialog.selected_id() is None:
+                    return
+                session.set_character_field(
+                    "Appearance_Type", dialog.selected_id(), where=cf.display
+                )
+            elif cf.kind == "resref":  # portrait
+                resrefs = self._look_tables().portrait_resrefs()
+                dialog = IdPickerDialog(
+                    "Portrait", list(enumerate(resrefs)),
+                    value_header="Portrait resref", parent=self,
+                )
+                if dialog.exec() != QDialog.DialogCode.Accepted or dialog.selected_id() is None:
+                    return
+                session.set_character_resref(
+                    "Portrait", resrefs[dialog.selected_id()], where=cf.display
+                )
             else:  # a name field
                 text, ok = QInputDialog.getText(
                     self, f"Edit {cf.display}", f"{cf.display}:", text=str(cf.value)
