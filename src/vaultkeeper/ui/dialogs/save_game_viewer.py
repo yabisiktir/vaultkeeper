@@ -131,6 +131,9 @@ class SaveGameViewer(QDialog):
 
         bar = QHBoxLayout()
         bar.addWidget(help_button("BhGameManager", self))
+        guide = QPushButton("Editing Guide…")
+        guide.clicked.connect(self._show_editing_guide)
+        bar.addWidget(guide)
         bar.addStretch(1)
         self._edit_toggle = QPushButton("Edit")
         self._edit_toggle.setCheckable(True)
@@ -156,6 +159,11 @@ class SaveGameViewer(QDialog):
             self._list.addItem(item)
         if saves:
             self._list.setCurrentRow(0)
+
+    def _show_editing_guide(self) -> None:
+        from vaultkeeper.ui.dialogs.save_editor_help import SaveEditorHelpDialog
+
+        SaveEditorHelpDialog(self).exec()
 
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> SaveGameViewer:
@@ -639,29 +647,68 @@ class SaveGameViewer(QDialog):
         role = node.data(0, _NODE_ROLE) if node is not None else None
         if not role:
             return
-        if role[0] == "edit-item":
-            label, handler = "Add a copy to my inventory", lambda: self._add_item_copy(role[1])
-        elif role[0] == "item" and len(role) >= 3 and role[2] and role[1].resref:
-            # a store/creature/container item -> clone it into the player's inventory
-            label, handler = "Add a copy to my inventory", (
-                lambda: self._clone_from_area(role[2], role[1])
+        actions: list[tuple[str, object]] = []  # (label, handler)
+        kind = role[0]
+        if kind == "edit-item":  # a player item: clone it and/or add a property
+            actions.append(("Add a copy to my inventory", lambda: self._add_item_copy(role[1])))
+            actions.append(("Add a property…", lambda: self._add_property(role[1])))
+        elif kind == "item" and len(role) >= 3 and role[2] and role[1].resref:
+            actions.append(
+                ("Add a copy to my inventory", lambda: self._clone_from_area(role[2], role[1]))
             )
-        elif role[0] == "feats-group":
-            label, handler = "Add a feat…", self._add_feat
-        elif role[0] == "feat":
-            label, handler = "Remove this feat", lambda: self._remove_feat(role[1], role[3])
-        elif role[0] == "spell-list":
-            label, handler = "Add a spell…", lambda: self._add_spell(role[1], role[2], role[3])
-        elif role[0] == "spell":
-            label, handler = "Remove this spell", (
-                lambda: self._remove_spell(role[1], role[2], role[3], role[5])
-            )
-        else:
+        elif kind == "property":
+            actions.append(("Remove this property", lambda: self._remove_property(role)))
+        elif kind == "feats-group":
+            actions.append(("Add a feat…", self._add_feat))
+        elif kind == "feat":
+            actions.append(("Remove this feat", lambda: self._remove_feat(role[1], role[3])))
+        elif kind == "spell-list":
+            actions.append(("Add a spell…", lambda: self._add_spell(role[1], role[2], role[3])))
+        elif kind == "spell":
+            actions.append((
+                "Remove this spell",
+                lambda: self._remove_spell(role[1], role[2], role[3], role[5]),
+            ))
+        if not actions:
             return
         menu = QMenu(self)
-        action = menu.addAction(label)
-        if menu.exec(self._areas.viewport().mapToGlobal(pos)) is action:
-            handler()
+        handlers = {menu.addAction(label): handler for label, handler in actions}
+        chosen = menu.exec(self._areas.viewport().mapToGlobal(pos))
+        if chosen in handlers:
+            handlers[chosen]()
+
+    def _add_property(self, item) -> None:
+        from vaultkeeper.game.save_editor import SaveEditError
+        from vaultkeeper.ui.dialogs.add_property_dialog import AddPropertyDialog
+
+        dialog = AddPropertyDialog(self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        try:
+            self._ensure_session().add_item_property(
+                item.path, where=item.name, **dialog.result_property()
+            )
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Add failed", str(exc))
+            return
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _remove_property(self, role: tuple) -> None:
+        from vaultkeeper.game.item_properties import describe_property
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        _kind, item_path, prop_index, prop, item_name, _editable = role
+        try:
+            self._ensure_session().remove_item_property(
+                item_path, prop_index, where=item_name,
+                label=describe_property(prop.prop, None),
+            )
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Remove failed", str(exc))
+            return
+        self._refresh_character_node()
+        self._refresh_pending()
 
     def _add_feat(self) -> None:
         from vaultkeeper.game.character_reference import default_reference
