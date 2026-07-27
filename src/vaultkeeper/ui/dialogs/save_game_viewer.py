@@ -328,6 +328,15 @@ class SaveGameViewer(QDialog):
                     ("skill", skill.index, skill.name, skill.rank),
                 ))
             node.addChild(group)
+        feats = self._ensure_session().player_feats()
+        added = self._pending_feat_add_ids()
+        group = _group("Feats", len(feats))
+        group.setData(0, _NODE_ROLE, ("feats-group", None))  # right-click to add
+        for feat_id, name, is_base in feats:
+            marker = "● " if feat_id in added else ""
+            tag = "" if is_base else "  (PRC)"
+            group.addChild(_payload_node(f"{marker}{name}{tag}", ("feat", feat_id, name, is_base)))
+        node.addChild(group)
 
     def _char_item_node(self, item, resolver, pending) -> QTreeWidgetItem:
         name = item.name
@@ -393,6 +402,14 @@ class SaveGameViewer(QDialog):
             _, index, name, rank = role
             text = f"{name}\nRank: {rank}"
             self._edit_target = ("skill", index, name, rank)
+        elif kind == "feat":
+            _, _fid, name, is_base = role
+            text = name if is_base else (
+                f"{name}\n\n(PRC feat — PRC regenerates its feats, so adding/removing"
+                " it here may not persist in-game.)"
+            )
+        elif kind == "feats-group":
+            text = "Right-click to add a feat."
         elif kind == "property":
             # role = ("property", item_path, prop_index, EditableProperty, item_name, editable)
             _, item_path, prop_index, prop, item_name, editable = role
@@ -580,17 +597,65 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _show_context_menu(self, pos) -> None:
-        """Right-click a player item (in edit mode) to add a copy to inventory."""
+        """Right-click a player item / feat (in edit mode) for add/remove actions."""
         if not self._editing:
             return
         node = self._areas.itemAt(pos)
         role = node.data(0, _NODE_ROLE) if node is not None else None
-        if not role or role[0] != "edit-item":
+        if not role:
+            return
+        if role[0] == "edit-item":
+            label, handler = "Add a copy to my inventory", lambda: self._add_item_copy(role[1])
+        elif role[0] == "feats-group":
+            label, handler = "Add a feat…", self._add_feat
+        elif role[0] == "feat":
+            label, handler = "Remove this feat", lambda: self._remove_feat(role[1], role[3])
+        else:
             return
         menu = QMenu(self)
-        action = menu.addAction("Add a copy to my inventory")
+        action = menu.addAction(label)
         if menu.exec(self._areas.viewport().mapToGlobal(pos)) is action:
-            self._add_item_copy(role[1])
+            handler()
+
+    def _add_feat(self) -> None:
+        from vaultkeeper.game.character_reference import default_reference
+        from vaultkeeper.ui.dialogs.feat_picker_dialog import FeatPickerDialog
+
+        ref = default_reference()
+        dialog = FeatPickerDialog(ref.all_feat_ids(), len(ref.feat_names), self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        feat_id = dialog.selected_feat_id()
+        if feat_id is None:
+            return
+        if not ref.is_base_feat(feat_id) and not self._confirm_prc_feat("Adding"):
+            return
+        self._ensure_session().add_feat(feat_id)
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _remove_feat(self, feat_id: int, is_base: bool) -> None:
+        if not is_base and not self._confirm_prc_feat("Removing"):
+            return
+        self._ensure_session().remove_feat(feat_id)
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _confirm_prc_feat(self, verb: str) -> bool:
+        return QMessageBox.warning(
+            self, "PRC feat",
+            f"{verb} a PRC feat may not persist: PRC regenerates its feats from its "
+            "own data on rest/level-up/load. Continue anyway?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        ) == QMessageBox.StandardButton.Yes
+
+    def _pending_feat_add_ids(self) -> set[int]:
+        if self._session is None:
+            return set()
+        return {
+            change.key[1] for change in self._session.pending_changes()
+            if change.kind == "feat" and change.key[0] == "add"
+        }
 
     def _add_item_copy(self, item) -> None:
         from vaultkeeper.game.save_editor import SaveEditError
