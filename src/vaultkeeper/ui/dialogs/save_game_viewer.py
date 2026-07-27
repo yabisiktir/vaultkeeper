@@ -338,6 +338,28 @@ class SaveGameViewer(QDialog):
             group.addChild(_payload_node(f"{marker}{name}{tag}", ("feat", feat_id, name, is_base)))
         node.addChild(group)
 
+        book = self._ensure_session().player_spellbook()
+        if book:
+            added_spells = self._pending_spell_add_keys()
+            spells_group = _group("Spells", len(book))
+            for cls in book:
+                cnode = QTreeWidgetItem([cls.class_name + ("" if cls.is_base else "  (PRC)")])
+                for sl in cls.lists:
+                    list_node = _payload_node(
+                        f"{sl.kind} L{sl.level} ({len(sl.spells)})",
+                        ("spell-list", cls.class_index, sl.list_field, cls.is_base),
+                    )
+                    for spell_id, name in sorted(sl.spells, key=lambda p: p[1].lower()):
+                        key = (cls.class_index, sl.list_field, spell_id)
+                        marker = "● " if key in added_spells else ""
+                        list_node.addChild(_payload_node(
+                            f"{marker}{name}",
+                            ("spell", cls.class_index, sl.list_field, spell_id, name, cls.is_base),
+                        ))
+                    cnode.addChild(list_node)
+                spells_group.addChild(cnode)
+            node.addChild(spells_group)
+
     def _char_item_node(self, item, resolver, pending) -> QTreeWidgetItem:
         name = item.name
         if item.name_strref >= 0:
@@ -410,6 +432,14 @@ class SaveGameViewer(QDialog):
             )
         elif kind == "feats-group":
             text = "Right-click to add a feat."
+        elif kind == "spell":
+            _, _ci, _lf, _sid, name, is_base = role
+            text = name if is_base else (
+                f"{name}\n\n(PRC class — spellcasting is script-managed, so editing"
+                " its spellbook here may not persist in-game.)"
+            )
+        elif kind == "spell-list":
+            text = "Right-click to add a spell to this level."
         elif kind == "property":
             # role = ("property", item_path, prop_index, EditableProperty, item_name, editable)
             _, item_path, prop_index, prop, item_name, editable = role
@@ -610,6 +640,12 @@ class SaveGameViewer(QDialog):
             label, handler = "Add a feat…", self._add_feat
         elif role[0] == "feat":
             label, handler = "Remove this feat", lambda: self._remove_feat(role[1], role[3])
+        elif role[0] == "spell-list":
+            label, handler = "Add a spell…", lambda: self._add_spell(role[1], role[2], role[3])
+        elif role[0] == "spell":
+            label, handler = "Remove this spell", (
+                lambda: self._remove_spell(role[1], role[2], role[3], role[5])
+            )
         else:
             return
         menu = QMenu(self)
@@ -619,35 +655,73 @@ class SaveGameViewer(QDialog):
 
     def _add_feat(self) -> None:
         from vaultkeeper.game.character_reference import default_reference
-        from vaultkeeper.ui.dialogs.feat_picker_dialog import FeatPickerDialog
+        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
 
         ref = default_reference()
-        dialog = FeatPickerDialog(ref.all_feat_ids(), len(ref.feat_names), self)
+        feats = ref.all_feat_ids()
+        prc = frozenset(fid for fid, _ in feats if not ref.is_base_feat(fid))
+        dialog = IdPickerDialog(
+            "Add a Feat", feats, mark_ids=prc, mark_label="PRC", parent=self
+        )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        feat_id = dialog.selected_feat_id()
+        feat_id = dialog.selected_id()
         if feat_id is None:
             return
-        if not ref.is_base_feat(feat_id) and not self._confirm_prc_feat("Adding"):
+        if not ref.is_base_feat(feat_id) and not self._confirm_prc("feat", "Adding"):
             return
         self._ensure_session().add_feat(feat_id)
         self._refresh_character_node()
         self._refresh_pending()
 
     def _remove_feat(self, feat_id: int, is_base: bool) -> None:
-        if not is_base and not self._confirm_prc_feat("Removing"):
+        if not is_base and not self._confirm_prc("feat", "Removing"):
             return
         self._ensure_session().remove_feat(feat_id)
         self._refresh_character_node()
         self._refresh_pending()
 
-    def _confirm_prc_feat(self, verb: str) -> bool:
+    def _add_spell(self, class_index: int, list_field: str, is_base: bool) -> None:
+        from vaultkeeper.game.character_reference import default_reference
+        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
+
+        dialog = IdPickerDialog("Add a Spell", default_reference().all_spell_ids(), parent=self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        spell_id = dialog.selected_id()
+        if spell_id is None:
+            return
+        if not is_base and not self._confirm_prc("spell", "Adding"):
+            return
+        self._ensure_session().add_spell(class_index, list_field, spell_id)
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _remove_spell(
+        self, class_index: int, list_field: str, spell_id: int, is_base: bool
+    ) -> None:
+        if not is_base and not self._confirm_prc("spell", "Removing"):
+            return
+        self._ensure_session().remove_spell(class_index, list_field, spell_id)
+        self._refresh_character_node()
+        self._refresh_pending()
+
+    def _confirm_prc(self, subject: str, verb: str) -> bool:
         return QMessageBox.warning(
-            self, "PRC feat",
-            f"{verb} a PRC feat may not persist: PRC regenerates its feats from its "
-            "own data on rest/level-up/load. Continue anyway?",
+            self, f"PRC {subject}",
+            f"{verb} a PRC {subject} may not persist: PRC regenerates its "
+            f"{subject}s from its own scripted data on rest/level-up/load. "
+            "Continue anyway?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         ) == QMessageBox.StandardButton.Yes
+
+    def _pending_spell_add_keys(self) -> set[tuple[int, str, int]]:
+        if self._session is None:
+            return set()
+        return {
+            (c.key[0], c.key[1], c.key[3]) for c in self._session.pending_changes()
+            if c.kind == "spell" and c.key[2] == "add"
+        }
 
     def _pending_feat_add_ids(self) -> set[int]:
         if self._session is None:
