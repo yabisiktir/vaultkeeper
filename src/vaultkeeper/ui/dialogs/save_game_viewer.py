@@ -317,6 +317,17 @@ class SaveGameViewer(QDialog):
             for item in group_items:
                 group.addChild(self._char_item_node(item, resolver, pending))
             node.addChild(group)
+        skills = self._ensure_session().player_skills()
+        if skills:
+            pending_skills = self._pending_skill_keys()
+            group = _group("Skills", len(skills))
+            for skill in skills:
+                marker = "● " if skill.index in pending_skills else ""
+                group.addChild(_payload_node(
+                    f"{marker}{skill.name}: {skill.rank}",
+                    ("skill", skill.index, skill.name, skill.rank),
+                ))
+            node.addChild(group)
 
     def _char_item_node(self, item, resolver, pending) -> QTreeWidgetItem:
         name = item.name
@@ -378,6 +389,10 @@ class SaveGameViewer(QDialog):
                 self._edit_target = ("store", role[2], role[3], payload)
         elif kind == "edit-item":
             text = _edit_item_detail(payload)
+        elif kind == "skill":
+            _, index, name, rank = role
+            text = f"{name}\nRank: {rank}"
+            self._edit_target = ("skill", index, name, rank)
         elif kind == "property":
             # role = ("property", item_path, prop_index, EditableProperty, item_name, editable)
             _, item_path, prop_index, prop, item_name, editable = role
@@ -513,6 +528,8 @@ class SaveGameViewer(QDialog):
             self._edit_store(*self._edit_target[1:])
         elif self._edit_target[0] == "property":
             self._edit_property(*self._edit_target[1:])
+        elif self._edit_target[0] == "skill":
+            self._edit_skill(*self._edit_target[1:])
 
     def _edit_store(self, area_resref: str, store_index: int, store: Store) -> None:
         from vaultkeeper.game.save_editor import SaveEditError
@@ -597,14 +614,40 @@ class SaveGameViewer(QDialog):
                 node.setExpanded(True)
                 return
 
+    def _edit_skill(self, index: int, name: str, rank: int) -> None:
+        from vaultkeeper.game.save_editor import SaveEditError
+        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+
+        dialog = PropertyEditDialog(name, "Skill rank:", rank, minimum=0, maximum=127, parent=self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        try:
+            self._ensure_session().set_skill_rank(index, dialog.value(), where=name)
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        self._mark_current_node()
+        self._refresh_pending()
+
+    def _pending_skill_keys(self) -> set[int]:
+        if self._session is None:
+            return set()
+        return {
+            change.key for change in self._session.pending_changes()
+            if change.kind == "skill"
+        }
+
     def _mark_current_node(self) -> None:
         """Add/remove the ● dirty marker on the selected editable node."""
         node = self._areas.currentItem()
         if node is None or self._edit_target is None:
             return
-        if self._edit_target[0] == "store":
+        kind = self._edit_target[0]
+        if kind == "store":
             _, area_resref, store_index, _store = self._edit_target
             pending = (area_resref.lower(), store_index) in self._pending_store_keys()
+        elif kind == "skill":
+            pending = self._edit_target[1] in self._pending_skill_keys()
         else:  # property
             _, item_path, prop_index, _prop, _name = self._edit_target
             pending = (tuple(item_path), prop_index) in self._pending_prop_keys()
