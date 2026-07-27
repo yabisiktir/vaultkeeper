@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import InventoryItem
-from vaultkeeper.game.item_properties import describe_property, editable_magnitude, is_cast_spell
+from vaultkeeper.game.item_properties import describe_property
 from vaultkeeper.game.save_area import (
     AreaContents,
     Container,
@@ -78,6 +78,7 @@ class SaveGameViewer(QDialog):
         self._session = None
         self._editing = False
         self._syncing_selection = False  # guard against re-entrant save switching
+        self._prop_tables = None  # ItemPropertyTables (iprp_* options), built lazily
 
         outer = QVBoxLayout(self)
         split = QSplitter(Qt.Orientation.Horizontal)
@@ -378,7 +379,7 @@ class SaveGameViewer(QDialog):
         if icon is not None:
             node.setIcon(0, icon)
         for prop in item.properties:
-            editable = editable_magnitude(prop.prop) or is_cast_spell(prop.prop)
+            editable = True  # all properties are editable via the iprp_* table dialog
             marker = "● " if (tuple(item.path), prop.index) in pending else ""
             desc = describe_property(prop.prop, None)
             pnode = _payload_node(
@@ -455,13 +456,9 @@ class SaveGameViewer(QDialog):
             text = "Right-click to add a spell to this level."
         elif kind == "property":
             # role = ("property", item_path, prop_index, EditableProperty, item_name, editable)
-            _, item_path, prop_index, prop, item_name, editable = role
+            _, item_path, prop_index, prop, item_name, _editable = role
             text = describe_property(prop.prop, None)
-            if editable:
-                self._edit_target = ("property", item_path, prop_index, prop, item_name)
-            else:
-                text += "\n\n(This property's value isn't a simple magnitude, so it's" \
-                        " read-only here — editing it could corrupt the item.)"
+            self._edit_target = ("property", item_path, prop_index, prop, item_name)
         elif kind == "creature":
             text = _creature_detail(payload)
         elif kind == "container":
@@ -614,23 +611,62 @@ class SaveGameViewer(QDialog):
         self._mark_current_node()
         self._refresh_pending()
 
+    def _property_tables(self):
+        from vaultkeeper.game.item_property_tables import ItemPropertyTables
+
+        if self._prop_tables is None:
+            ctx = getattr(self._controller, "ctx", None)
+            game_root = getattr(ctx, "game_root", None)
+            user = getattr(ctx, "game_user_dir", None)
+            hak_dir = (user / "hak") if user is not None else None
+            self._prop_tables = ItemPropertyTables.for_install(game_root, hak_dir)
+        return self._prop_tables
+
     def _edit_property(self, item_path, prop_index, prop, item_name) -> None:
+        from vaultkeeper.core.formats.bic_reader import ItemProperty
+        from vaultkeeper.game.item_properties import describe_property
+        from vaultkeeper.game.save_editor import SaveEditError
+
+        tables = self._property_tables()
+        if not tables.available:  # no game data -> fall back to the magnitude quick edit
+            self._edit_property_simple(item_path, prop_index, prop, item_name)
+            return
+        from vaultkeeper.ui.dialogs.property_editor_dialog import PropertyEditorDialog
+
+        dialog = PropertyEditorDialog(prop.prop, tables, prop.uses_per_day, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        edits = dialog.result()
+        source = prop.prop
+        new = ItemProperty(
+            property_name=source.property_name,
+            subtype=edits.get("subtype", source.subtype),
+            cost_table=source.cost_table,
+            cost_value=edits.get("cost_value", source.cost_value),
+            param1=edits.get("param1", source.param1),
+            param1_value=source.param1_value,
+        )
+        try:
+            self._ensure_session().set_property(
+                item_path, prop_index, where=item_name,
+                label=describe_property(new, None), **edits,
+            )
+        except SaveEditError as exc:
+            QMessageBox.critical(self, "Edit failed", str(exc))
+            return
+        self._mark_current_node()
+        self._refresh_pending()
+
+    def _edit_property_simple(self, item_path, prop_index, prop, item_name) -> None:
         from vaultkeeper.game.item_properties import describe_property, is_cast_spell
         from vaultkeeper.game.save_editor import SaveEditError
         from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
         label = describe_property(prop.prop, None)
         cast = is_cast_spell(prop.prop)
-        if cast:
-            dialog = PropertyEditDialog(
-                label, "Uses per day:", prop.uses_per_day,
-                minimum=0, maximum=255, special_text="", parent=self,
-            )
-        else:
-            dialog = PropertyEditDialog(
-                label, "Magnitude (+N):", prop.prop.cost_value,
-                minimum=0, maximum=255, parent=self,
-            )
+        prompt, current = ("Uses per day:", prop.uses_per_day) if cast else \
+            ("Magnitude (+N):", prop.prop.cost_value)
+        dialog = PropertyEditDialog(label, prompt, current, minimum=0, maximum=255, parent=self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         kwargs = {"uses_per_day": dialog.value()} if cast else {"cost_value": dialog.value()}

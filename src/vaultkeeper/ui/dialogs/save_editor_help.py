@@ -37,8 +37,9 @@ edit mode.</p>
 <ul>
   <li><b>Stores:</b> area → Stores → select a store → <b>Edit Store…</b> (pricing,
       gold, black market).</li>
-  <li><b>Item property value:</b> select a property under one of your items →
-      <b>Edit…</b> (magnitude, or a Cast-Spell property's uses/day).</li>
+  <li><b>Item property:</b> select a property under one of your items → <b>Edit…</b>
+      to change its subtype / value / uses from dropdowns filled by the game's
+      <code>iprp_*</code> tables (only valid choices, so no corruption).</li>
   <li><b>Add / remove a property:</b> right-click an item → <b>Add a property…</b>;
       right-click a property → <b>Remove this property</b>.</li>
   <li><b>Add items:</b> right-click one of your items — or any store / creature /
