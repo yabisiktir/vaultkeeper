@@ -40,7 +40,6 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
-from vaultkeeper.core.formats.tga_reader import TGAReader
 from vaultkeeper.game.item_icons import ItemIconSource
 from vaultkeeper.game.item_names import base_item_type
 from vaultkeeper.game.item_properties import describe_properties
@@ -297,11 +296,12 @@ def _flatten(items: list[InventoryItem]) -> list[InventoryItem]:
 
 
 def _load_icon(source: ItemIconSource, item: InventoryItem) -> QIcon | None:
-    """Decode an item's TGA inventory icon to a QIcon (None if unavailable)."""
-    data = source.icon_bytes(item.base_item, item.model_part)
-    if data is None:
-        return None
-    image = TGAReader().read_bytes(data)
+    """Decode an item's inventory icon to a QIcon (None if unavailable).
+
+    The source handles both formats — a plain TGA, or a PLT coloured through the
+    game's palette textures (cloaks and other tintable parts ship those).
+    """
+    image = source.icon_image(item.base_item, item.model_part)
     if image is None or image.width <= 0 or image.height <= 0:
         return None
     qimg = QImage(image.to_rgba(), image.width, image.height, QImage.Format.Format_RGBA8888)

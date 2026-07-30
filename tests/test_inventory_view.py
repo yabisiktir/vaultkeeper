@@ -99,6 +99,9 @@ class _FakeIcons:
     def icon_bytes(self, base_item, model_part):
         return None  # exercise the icon path without needing the game install
 
+    def icon_image(self, base_item, model_part):
+        return None  # the decoded form the view actually asks for
+
 
 def test_nwn_style_toggle_switches_view_and_persists(qtbot):
     changes: list[bool] = []

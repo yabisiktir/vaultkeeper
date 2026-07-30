@@ -719,7 +719,7 @@ class SaveGameViewer(QDialog):
         dialog = PropertyEditorDialog(prop.prop, tables, prop.uses_per_day, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        edits = dialog.result()
+        edits = dialog.edits()
         source = prop.prop
         new = ItemProperty(
             property_name=source.property_name,
