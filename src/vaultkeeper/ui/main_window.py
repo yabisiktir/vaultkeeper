@@ -1158,6 +1158,7 @@ class MainWindow(QMainWindow):
             "TsGameSaves": self._on_game_saves,
             "RbnGameSaves": self._on_game_saves,
             "MsSaveGameViewer": self._on_save_game_viewer,
+            "MsSaveGameEditor": self._on_save_game_editor,
             "MsPlayNeverwinterNights": self._on_play,
             "TsPlayNeverwinterNights": self._on_play,
             "RbnPlay": self._on_play,
@@ -1679,6 +1680,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.save_game_viewer import SaveGameViewer
 
         self._save_game_viewer = SaveGameViewer.show_for(self.controller, self)
+
+    def _on_save_game_editor(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.save_editor.window import SaveEditorWindow
+
+        self._save_game_editor = SaveEditorWindow.show_for(self.controller, self)
 
     def _on_portraits(self) -> None:
         if self.controller is None:
