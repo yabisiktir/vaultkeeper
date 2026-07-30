@@ -145,6 +145,10 @@ class Settings:
     #: game — richer icons for custom items, at the cost of a one-time hak scan
     #: (~0.5s) the first time an inventory is shown. Off by default (opt-in).
     hak_item_icons: bool = False
+    #: Save Game Editor colour theme: ``"dark"`` | ``"light"`` (see
+    #: ``vaultkeeper.ui.save_editor.tokens.THEMES``). The editor is self-themed
+    #: rather than following ``theme`` above, so it carries its own preference.
+    save_editor_theme: str = "dark"
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the

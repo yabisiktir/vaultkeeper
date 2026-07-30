@@ -4576,6 +4576,14 @@ class ProfileController:
         settings.inventory_nwn_style = nwn_style
         save_settings(settings, self._settings_path)
 
+    def set_save_editor_theme(self, theme: str) -> None:
+        """Persist the Save Game Editor's light/dark choice (its toolbar toggle)."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.save_editor_theme = theme
+        save_settings(settings, self._settings_path)
+
     # -- Map editing + persistence (VB Settings map editors, Phase 8) ------ #
     def _persist_map_overrides(self) -> None:
         from vaultkeeper.config.settings import load_settings, save_settings
