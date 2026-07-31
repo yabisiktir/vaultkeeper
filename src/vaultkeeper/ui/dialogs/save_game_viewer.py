@@ -805,7 +805,7 @@ class SaveGameViewer(QDialog):
         from vaultkeeper.game.save_editor import SaveEditError
         from vaultkeeper.ui.dialogs.add_property_dialog import AddPropertyDialog
 
-        dialog = AddPropertyDialog(self)
+        dialog = AddPropertyDialog(self, tables=self._property_tables())
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         try:
