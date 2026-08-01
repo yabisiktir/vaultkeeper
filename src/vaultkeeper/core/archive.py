@@ -19,7 +19,7 @@ VB grounding (``LazWorks Library/LazWorks Library Aids/ZipManager.vb``):
   8 out of memory, 255 cancelled.
 
 Unlike the VB app, Vaultkeeper does NOT depend on 7-Zip for ERF/HAK — those are
-decoded natively (see ``core/formats/erf_reader``). This seam is only for the
+decoded natively (see ``nwnfile/formats/erf_reader``). This seam is only for the
 general compressed archives users download (zip/rar/7z/...).
 """
 

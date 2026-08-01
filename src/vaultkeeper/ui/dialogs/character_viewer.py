@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -32,7 +31,13 @@ from PySide6.QtWidgets import (
 )
 
 from nwnfile.character import level_summary
-from nwnfile.formats.tga_reader import TGAReader
+
+# The Qt conversions live with the save editor: nwnfile decodes images but
+# stays free of Qt, and Vaultkeeper depends on the editor, not the reverse.
+from nwnsaveeditor.ui.icons import (  # noqa: F401 - re-exported for callers
+    item_icon_source,
+    tga_to_pixmap,
+)
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
@@ -51,27 +56,6 @@ DEFAULT_PORTRAIT_SIZE = "Huge"
 def portrait_box(name: str) -> int:
     """The preview box size (px) for a ``ConfigPortraitDisplaySize`` value."""
     return PORTRAIT_SIZES.get(name, PORTRAIT_SIZES[DEFAULT_PORTRAIT_SIZE])
-
-
-def tga_to_pixmap(path: Path, *, box: int = _PORTRAIT_BOX) -> QPixmap | None:
-    """Load a TGA portrait as a QPixmap scaled to fit ``box`` (None on failure)."""
-    image = TGAReader().read_file(path)
-    if image is None or image.width <= 0 or image.height <= 0:
-        return None
-    qimg = QImage(
-        image.to_rgba(),
-        image.width,
-        image.height,
-        QImage.Format.Format_RGBA8888,
-    )
-    if qimg.isNull():
-        return None
-    return QPixmap.fromImage(qimg).scaled(
-        box,
-        box,
-        Qt.AspectRatioMode.KeepAspectRatio,
-        Qt.TransformationMode.SmoothTransformation,
-    )
 
 
 class CharacterViewer(QDialog):
@@ -388,19 +372,3 @@ class CharacterViewer(QDialog):
         return dlg
 
 
-def item_icon_source(controller):
-    """An :class:`ItemIconSource` over the controller's game install (or ``None``).
-
-    When the ``hak_item_icons`` setting is on, the user's hak folder is searched
-    too (opt-in, since the first lookup scans every hak).
-    """
-    from nwnfile.item_icons import ItemIconSource
-
-    ctx = getattr(controller, "ctx", None)
-    game_root = getattr(ctx, "game_root", None)
-    hak_dir = None
-    if getattr(controller._settings(), "hak_item_icons", False):
-        user_dir = getattr(ctx, "game_user_dir", None)
-        if user_dir is not None:
-            hak_dir = user_dir / "hak"
-    return ItemIconSource(game_root, hak_dir=hak_dir)

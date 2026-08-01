@@ -1684,7 +1684,7 @@ class MainWindow(QMainWindow):
     def _on_save_game_editor(self) -> None:
         if self.controller is None:
             return
-        from vaultkeeper.ui.save_editor.window import SaveEditorWindow
+        from nwnsaveeditor.ui.editor.window import SaveEditorWindow
 
         self._save_game_editor = SaveEditorWindow.show_for(self.controller, self)
 

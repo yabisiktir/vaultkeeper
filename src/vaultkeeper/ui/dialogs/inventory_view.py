@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -295,19 +295,7 @@ def _flatten(items: list[InventoryItem]) -> list[InventoryItem]:
     return out
 
 
-def _load_icon(source: ItemIconSource, item: InventoryItem) -> QIcon | None:
-    """Decode an item's inventory icon to a QIcon (None if unavailable).
-
-    The source handles both formats — a plain TGA, or a PLT coloured through the
-    game's palette textures (cloaks and other tintable parts ship those).
-    """
-    image = source.icon_image(item.base_item, item.model_part)
-    if image is None or image.width <= 0 or image.height <= 0:
-        return None
-    qimg = QImage(image.to_rgba(), image.width, image.height, QImage.Format.Format_RGBA8888)
-    if qimg.isNull():
-        return None
-    return QIcon(QPixmap.fromImage(qimg))
+from nwnsaveeditor.ui.icons import load_item_icon as _load_icon  # noqa: E402
 
 
 def _plural(count: int, noun: str) -> str:

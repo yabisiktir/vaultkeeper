@@ -6,7 +6,7 @@ shows its screenshot, the module state decoded from the ``.sav``'s ``module.ifo`
 area's *contents* — stores (with pricing + stock), creatures (with their gear),
 placeable containers (loot) and the module's factions — plus a button to open the
 save's character in the Character Explorer. Areas are parsed lazily on expand.
-Data comes from :mod:`vaultkeeper.game.save_game` + :mod:`vaultkeeper.game.save_area`.
+Data comes from :mod:`nwnsaveeditor.save_game` + :mod:`nwnsaveeditor.save_area`.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
 
 from nwnfile.formats.bic_reader import InventoryItem
 from nwnfile.item_properties import describe_property
-from vaultkeeper.game.save_area import (
+from nwnsaveeditor.save_area import (
     AreaContents,
     Container,
     CreatureRef,
@@ -45,7 +45,7 @@ from vaultkeeper.game.save_area import (
     read_area_contents,
     read_factions,
 )
-from vaultkeeper.game.save_game import SaveGame, scan_save_games
+from nwnsaveeditor.save_game import SaveGame, scan_save_games
 from vaultkeeper.ui.dialogs.character_viewer import item_icon_source, tga_to_pixmap
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.dialogs.inventory_view import _item_detail, _load_icon
@@ -310,7 +310,7 @@ class SaveGameViewer(QDialog):
 
     def _populate_character(self, node: QTreeWidgetItem) -> None:
         """The player's equipped + carried items, each with editable properties."""
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         try:
             items = self._ensure_session().player_items()
@@ -548,7 +548,7 @@ class SaveGameViewer(QDialog):
         self._edit_btn.setEnabled(self._editing and self._edit_target is not None)
 
     def _ensure_session(self):
-        from vaultkeeper.game.save_editor import SaveEditor
+        from nwnsaveeditor.save_editor import SaveEditor
 
         if self._session is None and self._current is not None:
             self._session = SaveEditor(self._current)
@@ -628,9 +628,9 @@ class SaveGameViewer(QDialog):
         return self._look_tables_cache
 
     def _edit_char_field(self, cf) -> None:
-        from vaultkeeper.game.save_editor import SaveEditError
-        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
-        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+        from nwnsaveeditor.save_editor import SaveEditError
+        from nwnsaveeditor.ui.dialogs.id_picker_dialog import IdPickerDialog
+        from nwnsaveeditor.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
         session = self._ensure_session()
         try:
@@ -677,8 +677,8 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _edit_store(self, area_resref: str, store_index: int, store: Store) -> None:
-        from vaultkeeper.game.save_editor import SaveEditError
-        from vaultkeeper.ui.dialogs.store_edit_dialog import StoreEditDialog
+        from nwnsaveeditor.save_editor import SaveEditError
+        from nwnsaveeditor.ui.dialogs.store_edit_dialog import StoreEditDialog
 
         dialog = StoreEditDialog(store, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -708,13 +708,13 @@ class SaveGameViewer(QDialog):
     def _edit_property(self, item_path, prop_index, prop, item_name) -> None:
         from nwnfile.formats.bic_reader import ItemProperty
         from nwnfile.item_properties import describe_property
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         tables = self._property_tables()
         if not tables.available:  # no game data -> fall back to the magnitude quick edit
             self._edit_property_simple(item_path, prop_index, prop, item_name)
             return
-        from vaultkeeper.ui.dialogs.property_editor_dialog import PropertyEditorDialog
+        from nwnsaveeditor.ui.dialogs.property_editor_dialog import PropertyEditorDialog
 
         dialog = PropertyEditorDialog(prop.prop, tables, prop.uses_per_day, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -742,8 +742,8 @@ class SaveGameViewer(QDialog):
 
     def _edit_property_simple(self, item_path, prop_index, prop, item_name) -> None:
         from nwnfile.item_properties import describe_property, is_cast_spell
-        from vaultkeeper.game.save_editor import SaveEditError
-        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+        from nwnsaveeditor.save_editor import SaveEditError
+        from nwnsaveeditor.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
         label = describe_property(prop.prop, None)
         cast = is_cast_spell(prop.prop)
@@ -802,8 +802,8 @@ class SaveGameViewer(QDialog):
             handlers[chosen]()
 
     def _add_property(self, item) -> None:
-        from vaultkeeper.game.save_editor import SaveEditError
-        from vaultkeeper.ui.dialogs.add_property_dialog import AddPropertyDialog
+        from nwnsaveeditor.save_editor import SaveEditError
+        from nwnsaveeditor.ui.dialogs.add_property_dialog import AddPropertyDialog
 
         dialog = AddPropertyDialog(self, tables=self._property_tables())
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -820,7 +820,7 @@ class SaveGameViewer(QDialog):
 
     def _remove_property(self, role: tuple) -> None:
         from nwnfile.item_properties import describe_property
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         _kind, item_path, prop_index, prop, item_name, _editable = role
         try:
@@ -836,7 +836,7 @@ class SaveGameViewer(QDialog):
 
     def _add_feat(self) -> None:
         from nwnfile.character_reference import default_reference
-        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
+        from nwnsaveeditor.ui.dialogs.id_picker_dialog import IdPickerDialog
 
         ref = default_reference()
         feats = ref.all_feat_ids()
@@ -865,7 +865,7 @@ class SaveGameViewer(QDialog):
 
     def _add_spell(self, class_index: int, list_field: str, is_base: bool) -> None:
         from nwnfile.character_reference import default_reference
-        from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
+        from nwnsaveeditor.ui.dialogs.id_picker_dialog import IdPickerDialog
 
         dialog = IdPickerDialog(
             "Add a Spell", default_reference().all_spell_ids(),
@@ -917,7 +917,7 @@ class SaveGameViewer(QDialog):
         }
 
     def _add_item_copy(self, item) -> None:
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         try:
             self._ensure_session().add_item_copy(item.path, where=item.name)
@@ -929,7 +929,7 @@ class SaveGameViewer(QDialog):
 
     def _clone_from_area(self, area_resref: str, item: InventoryItem) -> None:
         """Clone a store/creature/container item into the player's inventory."""
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         try:
             self._ensure_session().add_item_from_area(area_resref, item.resref, where=item.name)
@@ -951,8 +951,8 @@ class SaveGameViewer(QDialog):
                 return
 
     def _edit_skill(self, index: int, name: str, rank: int) -> None:
-        from vaultkeeper.game.save_editor import SaveEditError
-        from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
+        from nwnsaveeditor.save_editor import SaveEditError
+        from nwnsaveeditor.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
         dialog = PropertyEditDialog(name, "Skill rank:", rank, minimum=0, maximum=127, parent=self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -1009,7 +1009,7 @@ class SaveGameViewer(QDialog):
     def _save_as_new(self) -> None:
         if self._session is None or not self._session.has_edits or self._current is None:
             return
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         name, ok = QInputDialog.getText(
             self, "Save as New Save", "New save name:",
@@ -1036,7 +1036,7 @@ class SaveGameViewer(QDialog):
         """Replace the selected save with the edits (keeping a timestamped backup)."""
         if self._session is None or not self._session.has_edits or self._current is None:
             return
-        from vaultkeeper.game.save_editor import SaveEditError
+        from nwnsaveeditor.save_editor import SaveEditError
 
         save = self._current
         backup_dir = save.folder.parent.parent / "vaultkeeper_backups"

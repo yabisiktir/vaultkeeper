@@ -19,12 +19,20 @@ from datetime import datetime
 from enum import IntEnum
 from pathlib import Path
 
+# Reading a save folder belongs to the save package; the mod manager needs the
+# same answer for its save list, and imports it from there rather than the two
+# growing separate readers of the same file.
+from nwnsaveeditor.save_game import (  # noqa: F401 - re-exported for callers
+    GAME_LOCATION_FAILED,
+    SAVE_INFO_FILE,
+    _read_text_lenient,
+    get_location_in_game_save,
+)
+
 #: Game name to use when there are no saves (``GameSaves.NoSavesText``).
 NO_SAVES_TEXT = "No games have been saved"
 #: File inside a save folder holding the in-module location (``GameSaveInfo.SaveInfo``).
-SAVE_INFO_FILE = "savenfo.txt"
 #: Returned when the location can't be read (``Defs.GameLocationFailed``).
-GAME_LOCATION_FAILED = "Location in game unavailable"
 
 
 class GameSaveFolderType(IntEnum):
@@ -43,31 +51,6 @@ class GameSaveType(IntEnum):
     QUICK = 0
     AUTO = 1
     STANDARD = 2
-
-
-def _read_text_lenient(path: Path) -> str:
-    """Read a small text file, tolerating either UTF-8 or Latin-1 (savenfo etc.)."""
-    data = path.read_bytes()
-    try:
-        return data.decode("utf-8")
-    except UnicodeDecodeError:
-        return data.decode("latin-1")
-
-
-def get_location_in_game_save(save_folder: Path) -> tuple[str, str | None]:
-    """Read the in-module location from ``savenfo.txt``.
-
-    Returns ``(location, error)`` where ``error`` is ``None`` on success. Leading
-    dots and whitespace are stripped, matching ``Defs.GetLocationInGameSave``.
-    """
-    save_info = save_folder / SAVE_INFO_FILE
-    if not save_info.is_file():
-        return GAME_LOCATION_FAILED, f"{SAVE_INFO_FILE} does not exist"
-    try:
-        text = _read_text_lenient(save_info)
-        return text.lstrip(".").lstrip(), None
-    except OSError as ex:
-        return GAME_LOCATION_FAILED, str(ex)
 
 
 def _dir_size(path: Path) -> int:

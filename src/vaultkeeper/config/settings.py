@@ -146,7 +146,7 @@ class Settings:
     #: (~0.5s) the first time an inventory is shown. Off by default (opt-in).
     hak_item_icons: bool = False
     #: Save Game Editor colour theme: ``"dark"`` | ``"light"`` (see
-    #: ``vaultkeeper.ui.save_editor.tokens.THEMES``). The editor is self-themed
+    #: ``nwnsaveeditor.ui.editor.tokens.THEMES``). The editor is self-themed
     #: rather than following ``theme`` above, so it carries its own preference.
     save_editor_theme: str = "dark"
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
