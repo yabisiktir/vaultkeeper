@@ -258,7 +258,7 @@ class SettingsDialog(QDialog):
         return page
 
     def _build_viewer(self, settings: Settings) -> QWidget:
-        """Character Explorer / Save Game Viewer display preferences."""
+        """Character Explorer / Save Game Editor display preferences."""
         page = QWidget()
         form = QFormLayout(page)
 

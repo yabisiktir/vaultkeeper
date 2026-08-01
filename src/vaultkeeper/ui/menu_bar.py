@@ -185,7 +185,6 @@ MENUS: tuple = (
             MenuItem("MsDocOrganiser", "Documentation &Organiser", "VBExtension_16x", False),
             SEP,
             MenuItem("MsGameSaves", "Game &Saves Manager", "GameManager16", False),
-            MenuItem("MsSaveGameViewer", "Save Game &Viewer", "GameManager16", False),
             MenuItem("MsSaveGameEditor", "Save Game &Editor", "GameManager16", False),
             MenuItem("MsBackupManager", "&Backup and Export Manager", "DataCompare_16x", False),
             MenuItem("MsInstallationManager", "Installation &Manager", "Installed", False),

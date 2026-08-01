@@ -1157,7 +1157,6 @@ class MainWindow(QMainWindow):
             "MsGameSaves": self._on_game_saves,
             "TsGameSaves": self._on_game_saves,
             "RbnGameSaves": self._on_game_saves,
-            "MsSaveGameViewer": self._on_save_game_viewer,
             "MsSaveGameEditor": self._on_save_game_editor,
             "MsPlayNeverwinterNights": self._on_play,
             "TsPlayNeverwinterNights": self._on_play,
@@ -1674,12 +1673,6 @@ class MainWindow(QMainWindow):
 
         self._character_viewer = CharacterViewer.show_for(self.controller, self)
 
-    def _on_save_game_viewer(self) -> None:
-        if self.controller is None:
-            return
-        from vaultkeeper.ui.dialogs.save_game_viewer import SaveGameViewer
-
-        self._save_game_viewer = SaveGameViewer.show_for(self.controller, self)
 
     def _on_save_game_editor(self) -> None:
         if self.controller is None:
