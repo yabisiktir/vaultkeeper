@@ -9,8 +9,8 @@ from __future__ import annotations
 import struct
 from pathlib import Path
 
-from vaultkeeper.core.formats.erf_reader import ErfReader
-from vaultkeeper.game.character import extract_hak_portraits
+from nwnfile.character import extract_hak_portraits
+from nwnfile.formats.erf_reader import ErfReader
 from vaultkeeper.ui.controller import ProfileController
 
 _TGA = 3

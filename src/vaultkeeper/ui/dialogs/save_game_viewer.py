@@ -34,8 +34,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.core.formats.bic_reader import InventoryItem
-from vaultkeeper.game.item_properties import describe_property
+from nwnfile.formats.bic_reader import InventoryItem
+from nwnfile.item_properties import describe_property
 from vaultkeeper.game.save_area import (
     AreaContents,
     Container,
@@ -429,7 +429,7 @@ class SaveGameViewer(QDialog):
         return self._icon_cache[key]
 
     def _resolver(self):
-        from vaultkeeper.game.item_names import resolver_for
+        from nwnfile.item_names import resolver_for
 
         game_root = getattr(getattr(self._controller, "ctx", None), "game_root", None)
         return resolver_for(game_root)
@@ -617,7 +617,7 @@ class SaveGameViewer(QDialog):
             self._edit_char_field(self._edit_target[1])
 
     def _look_tables(self):
-        from vaultkeeper.game.look_tables import LookTables
+        from nwnfile.look_tables import LookTables
 
         if self._look_tables_cache is None:
             ctx = getattr(self._controller, "ctx", None)
@@ -695,7 +695,7 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _property_tables(self):
-        from vaultkeeper.game.item_property_tables import ItemPropertyTables
+        from nwnfile.item_property_tables import ItemPropertyTables
 
         if self._prop_tables is None:
             ctx = getattr(self._controller, "ctx", None)
@@ -706,8 +706,8 @@ class SaveGameViewer(QDialog):
         return self._prop_tables
 
     def _edit_property(self, item_path, prop_index, prop, item_name) -> None:
-        from vaultkeeper.core.formats.bic_reader import ItemProperty
-        from vaultkeeper.game.item_properties import describe_property
+        from nwnfile.formats.bic_reader import ItemProperty
+        from nwnfile.item_properties import describe_property
         from vaultkeeper.game.save_editor import SaveEditError
 
         tables = self._property_tables()
@@ -741,7 +741,7 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _edit_property_simple(self, item_path, prop_index, prop, item_name) -> None:
-        from vaultkeeper.game.item_properties import describe_property, is_cast_spell
+        from nwnfile.item_properties import describe_property, is_cast_spell
         from vaultkeeper.game.save_editor import SaveEditError
         from vaultkeeper.ui.dialogs.property_edit_dialog import PropertyEditDialog
 
@@ -819,7 +819,7 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _remove_property(self, role: tuple) -> None:
-        from vaultkeeper.game.item_properties import describe_property
+        from nwnfile.item_properties import describe_property
         from vaultkeeper.game.save_editor import SaveEditError
 
         _kind, item_path, prop_index, prop, item_name, _editable = role
@@ -835,7 +835,7 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _add_feat(self) -> None:
-        from vaultkeeper.game.character_reference import default_reference
+        from nwnfile.character_reference import default_reference
         from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
 
         ref = default_reference()
@@ -864,7 +864,7 @@ class SaveGameViewer(QDialog):
         self._refresh_pending()
 
     def _add_spell(self, class_index: int, list_field: str, is_base: bool) -> None:
-        from vaultkeeper.game.character_reference import default_reference
+        from nwnfile.character_reference import default_reference
         from vaultkeeper.ui.dialogs.id_picker_dialog import IdPickerDialog
 
         dialog = IdPickerDialog(
@@ -1075,8 +1075,8 @@ class SaveGameViewer(QDialog):
         save = self._current
         if save is None or save.player_bic is None:
             return
-        from vaultkeeper.core.formats.bic_reader import BicFileReader
-        from vaultkeeper.game.character import CharacterFile
+        from nwnfile.character import CharacterFile
+        from nwnfile.formats.bic_reader import BicFileReader
         from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
 
         info = BicFileReader().read_file(save.player_bic)

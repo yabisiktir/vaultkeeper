@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.core.formats.tga_reader import TGAReader
+from nwnfile.formats.tga_reader import TGAReader
 
 #: Image extensions "Display Info" can preview.
 IMAGE_EXTENSIONS = (".tga", ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".dds")

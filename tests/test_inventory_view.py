@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from vaultkeeper.core.formats.bic_reader import (
+from nwnfile.formats.bic_reader import (
     CharacterInfo,
     EquippedItem,
     Gender,

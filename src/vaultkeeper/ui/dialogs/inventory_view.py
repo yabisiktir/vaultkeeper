@@ -39,10 +39,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.core.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
-from vaultkeeper.game.item_icons import ItemIconSource
-from vaultkeeper.game.item_names import base_item_type
-from vaultkeeper.game.item_properties import describe_properties
+from nwnfile.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
+from nwnfile.item_icons import ItemIconSource
+from nwnfile.item_names import base_item_type
+from nwnfile.item_properties import describe_properties
 
 _ITEM_ROLE = Qt.ItemDataRole.UserRole
 _ICON_PX = 32

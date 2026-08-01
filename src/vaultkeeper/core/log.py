@@ -18,6 +18,11 @@ from vaultkeeper.app_paths import cache_root
 _CONFIGURED = False
 _LOG_NAME = "vaultkeeper"
 
+#: Loggers belonging to the packages Vaultkeeper sits on. They name themselves so
+#: they can be used without Vaultkeeper; when it *is* running, their output
+#: belongs in its log alongside everything else.
+ADOPTED_LOGGERS = ("nwnfile",)
+
 
 def log_file_path() -> Path:
     return cache_root() / "logs" / "vaultkeeper.log"
@@ -56,6 +61,16 @@ def configure_logging(
         console = logging.StreamHandler()
         console.setFormatter(fmt)
         logger.addHandler(console)
+
+    # The packages Vaultkeeper is built on log under their own names, so that they
+    # carry no dependency on any particular application's logging. Attaching the
+    # same handlers keeps their lines in Vaultkeeper's log where they were before.
+    for name in ADOPTED_LOGGERS:
+        adopted = logging.getLogger(name)
+        adopted.setLevel(level)
+        adopted.propagate = False
+        for handler in logger.handlers:
+            adopted.addHandler(handler)
 
     _CONFIGURED = True
 

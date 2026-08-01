@@ -83,7 +83,7 @@ class ProfileData:
     @property
     def sorted_mod_keys(self) -> list[str]:
         """Mod names in Windows-natural order."""
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         return sorted(self.mod_keys, key=cmp_to_key(win_compare))
 
@@ -342,7 +342,7 @@ class ProfileData:
 
     def get_dependants(self) -> dict[str, list[str]]:
         """Map each required mod -> sorted list of mods that depend on it."""
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         acc: CIStrDict[list[str]] = CIStrDict()
         for md in self.mod_list.values():

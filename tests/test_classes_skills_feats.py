@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from functools import cmp_to_key
 
-from vaultkeeper.core.win_sort import win_compare
-from vaultkeeper.game.character_reference import (
+from nwnfile.character_reference import (
     default_reference,
     load_class_descriptions,
 )
+from nwnfile.win_sort import win_compare
 
 _WIN_KEY = cmp_to_key(win_compare)
 

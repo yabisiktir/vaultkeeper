@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from functools import cmp_to_key
 from pathlib import Path
 
-from vaultkeeper.core.win_sort import win_compare
+from nwnfile.win_sort import win_compare
 
 #: Steam depot id for Neverwinter Nights: Enhanced Edition.
 STEAM_EE_APPID = "704450"

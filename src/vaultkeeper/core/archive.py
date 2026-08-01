@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
-from vaultkeeper.core.log import get_logger
+from nwnfile.log import get_logger
 
 logger = get_logger(__name__)
 

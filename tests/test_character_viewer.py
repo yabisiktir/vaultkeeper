@@ -12,13 +12,13 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 pytest.importorskip("PySide6")
 
-from vaultkeeper.core.formats.bic_reader import (  # noqa: E402
+from nwnfile.character import CharacterFile  # noqa: E402
+from nwnfile.formats.bic_reader import (  # noqa: E402
     CharacterClass,
     CharacterInfo,
     Gender,
     Race,
 )
-from vaultkeeper.game.character import CharacterFile  # noqa: E402
 from vaultkeeper.ui.controller import ProfileController  # noqa: E402
 from vaultkeeper.ui.dialogs.character_viewer import (  # noqa: E402
     CharacterViewer,
@@ -162,7 +162,7 @@ def test_viewer_shows_portrait_when_resolvable(qtbot, tmp_path):
     _write_tga(portraits / "hero_m.tga")
 
     def resolver(resref, own_folder):
-        from vaultkeeper.game.character import resolve_portrait
+        from nwnfile.character import resolve_portrait
 
         return resolve_portrait(resref, [portraits])
 
@@ -238,7 +238,7 @@ class _FakePortraitController:
 
 
 def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
-    from vaultkeeper.game.character import PORTRAIT_SIZES
+    from nwnfile.character import PORTRAIT_SIZES
     from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
     sizes = {}

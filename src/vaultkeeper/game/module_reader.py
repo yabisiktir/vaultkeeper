@@ -20,7 +20,7 @@ import struct
 from pathlib import Path
 from typing import BinaryIO
 
-from vaultkeeper.core.log import get_logger
+from nwnfile.log import get_logger
 from vaultkeeper.game.game_mapper import (
     READ_FAILURE_TEXT,
     UNKNOWN_SAVE_NAME,

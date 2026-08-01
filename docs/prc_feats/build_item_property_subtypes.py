@@ -37,8 +37,8 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_REPO / "src"))
-from vaultkeeper.core.formats.erf_reader import ErfReader  # noqa: E402
-from vaultkeeper.game.character_reference import default_reference  # noqa: E402
+from nwnfile.formats.erf_reader import ErfReader  # noqa: E402
+from nwnfile.character_reference import default_reference  # noqa: E402
 
 _DATA = _REPO / "src/vaultkeeper/game/data"
 _FEAT_OUT = _DATA / "Item Property Feat Subtypes.json.gz"

@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.game.character_reference import CharacterReference, default_reference
+from nwnfile.character_reference import CharacterReference, default_reference
 from vaultkeeper.ui import resources as R
 
 _DESC_ROLE = Qt.ItemDataRole.UserRole

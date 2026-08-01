@@ -21,8 +21,8 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_REPO / "src"))
-from vaultkeeper.core.formats.key_bif_reader import KeyBifReader  # noqa: E402
-from vaultkeeper.core.formats.tlk_reader import TlkReader  # noqa: E402
+from nwnfile.formats.key_bif_reader import KeyBifReader  # noqa: E402
+from nwnfile.formats.tlk_reader import TlkReader  # noqa: E402
 
 _OUT = _REPO / "src/vaultkeeper/game/data/Base Item Names.json"
 _DEFAULT_ROOT = Path.home() / (

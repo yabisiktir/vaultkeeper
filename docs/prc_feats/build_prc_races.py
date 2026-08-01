@@ -30,7 +30,7 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_REPO / "src"))
-from vaultkeeper.game.character import RACE_NAMES  # noqa: E402
+from nwnfile.character import RACE_NAMES  # noqa: E402
 
 _CORE = {
     0: "Dwarf", 1: "Elf", 2: "Gnome", 3: "Halfling",

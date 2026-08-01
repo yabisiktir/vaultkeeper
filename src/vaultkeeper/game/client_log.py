@@ -22,8 +22,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
+from nwnfile.log import get_logger
 from vaultkeeper.core.ci_dict import CIStrDict
-from vaultkeeper.core.log import get_logger
 
 log = get_logger(__name__)
 

@@ -12,7 +12,7 @@ names. This module is the headless core, faithful to the VB:
   * :meth:`label` — the ``LcbFilter.CheckedText`` shown on the filter control,
   * :attr:`is_default` — whether the filter shows every character (VB ``TitleText``).
 
-The class list itself comes from :func:`vaultkeeper.game.character.pc_class_names`.
+The class list itself comes from :func:`nwnfile.character.pc_class_names`.
 """
 
 from __future__ import annotations

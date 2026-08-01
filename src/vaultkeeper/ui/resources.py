@@ -13,7 +13,7 @@ from pathlib import Path
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon, QPixmap
 
-from vaultkeeper.core.log import get_logger
+from nwnfile.log import get_logger
 
 log = get_logger(__name__)
 

@@ -34,8 +34,8 @@ elsewhere.
 
 from __future__ import annotations
 
+from nwnfile.win_sort import win_compare
 from vaultkeeper.core import constants as C
-from vaultkeeper.core.win_sort import win_compare
 
 _SEP = C.FILEKEY_SEPARATOR  # "\\"
 

@@ -25,7 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import cmp_to_key
 
-from vaultkeeper.core.win_sort import win_compare
+from nwnfile.win_sort import win_compare
 
 
 def vb_replace(text: str, find: str, repl: str, *, count: int, case_sensitive: bool) -> str:

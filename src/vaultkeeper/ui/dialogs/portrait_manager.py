@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.game.character import PORTRAIT_SIZES
+from nwnfile.character import PORTRAIT_SIZES
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
 from vaultkeeper.ui.dialogs.help_viewer import help_button

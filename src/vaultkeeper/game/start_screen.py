@@ -14,7 +14,7 @@ This module is the **read-only** core: it locates the managed images and reports
 which one is active/installed. The *actions* — add-from-folder, add-from-hak,
 install/uninstall/anneal of the loadscreen mod, the slideshow, and the prefix
 system — are deferred (see the controller / dialog notes). The extract-from-hak
-seam is ready via :mod:`vaultkeeper.core.formats.erf_reader`.
+seam is ready via :mod:`nwnfile.formats.erf_reader`.
 
 Data contract verified against the VB source:
 
@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from functools import cmp_to_key
 from pathlib import Path
 
-from vaultkeeper.core.win_sort import win_compare
+from nwnfile.win_sort import win_compare
 
 # -- Constants (verified against the VB, see module docstring) ------------- #
 

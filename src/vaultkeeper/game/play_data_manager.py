@@ -31,6 +31,7 @@ from datetime import datetime, timedelta
 from enum import IntEnum
 from pathlib import Path
 
+from nwnfile.log import get_logger
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.ci_dict import CIStrDict
 from vaultkeeper.core.formatting import (
@@ -38,7 +39,6 @@ from vaultkeeper.core.formatting import (
     to_date_string,
     to_plural,
 )
-from vaultkeeper.core.log import get_logger
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.play_time import (
     PlayData,

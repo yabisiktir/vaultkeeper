@@ -151,7 +151,7 @@ class ProfileController:
         """Return (group_name, member mods) pairs, groups and members natural-sorted."""
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         by_group: dict[str, list[ModData]] = {}
         # Seed every existing (visible) group so empty groups still render as
@@ -189,8 +189,8 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.core.state import State
-        from vaultkeeper.core.win_sort import win_compare
 
         md = self.pd.mod_item(mod_name)
         by_folder: dict[str, list[dict]] = {}
@@ -237,8 +237,8 @@ class ProfileController:
         import re
         from functools import cmp_to_key
 
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.core import constants as C
-        from vaultkeeper.core.win_sort import win_compare
 
         rows: list[dict] = []
         if query:
@@ -1476,8 +1476,8 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.core import constants as C
-        from vaultkeeper.core.win_sort import win_compare
 
         names = [
             md.mod_name
@@ -1700,8 +1700,8 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.core import constants as C
-        from vaultkeeper.core.win_sort import win_compare
 
         if md is None or md.is_group_item or md.is_restorer() or not md.files:
             return "none"
@@ -1780,7 +1780,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         invalid_ext = ".bik" if self.ctx.is_ee else ".wbm"
         invalid = [
@@ -2359,7 +2359,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         key = cmp_to_key(win_compare)
         buckets: dict[str, list] = {}
@@ -2413,7 +2413,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.game.start_screen import AUTO_GROUP
 
         buckets: dict[str, list[str]] = {}
@@ -2589,7 +2589,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
@@ -2625,7 +2625,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
@@ -2897,8 +2897,8 @@ class ProfileController:
         Returns a list of ``game.character.CharacterFile`` (each with decoded
         info, possibly invalid), local vault first then saves, name-sorted.
         """
-        from vaultkeeper.game.character import scan_character_files
-        from vaultkeeper.game.item_names import resolver_for
+        from nwnfile.character import scan_character_files
+        from nwnfile.item_names import resolver_for
 
         user = self.ctx.game_user_dir
         if user is None:
@@ -2944,8 +2944,8 @@ class ProfileController:
         Manager. Returns ``{"count", "message"}``; a hak with no portraits leaves no
         folder behind.
         """
-        from vaultkeeper.core.formats.erf_reader import ErfReader
-        from vaultkeeper.game.character import extract_hak_portraits
+        from nwnfile.character import extract_hak_portraits
+        from nwnfile.formats.erf_reader import ErfReader
 
         hak_path = Path(hak_path)
         dest = self.hak_portraits_root() / hak_path.name
@@ -3000,13 +3000,13 @@ class ProfileController:
 
     def portrait_path(self, resref: str, *, extra_dirs=()) -> Path | None:
         """Resolve a character's portrait TGA (``extra_dirs`` searched first)."""
-        from vaultkeeper.game.character import resolve_portrait
+        from nwnfile.character import resolve_portrait
 
         return resolve_portrait(resref, [*extra_dirs, *self.portrait_search_dirs()])
 
     def portrait_entries(self) -> list:
         """Installed portraits grouped by resref (VB Portrait Manager list)."""
-        from vaultkeeper.game.character import scan_portraits
+        from nwnfile.character import scan_portraits
 
         return scan_portraits(self.portrait_search_dirs())
 
@@ -3020,8 +3020,8 @@ class ProfileController:
         are collected (VB ``IsPortraitFile``). Returns ``{"portraits": [{resref, mod,
         group, sizes: {size: path}}...], "count"}`` ordered by mod then resref.
         """
+        from nwnfile.character import PORTRAIT_SIZES
         from vaultkeeper.core.file_key import FileKeyInfo
-        from vaultkeeper.game.character import PORTRAIT_SIZES
 
         game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
         entries: list[dict] = []
@@ -3059,7 +3059,7 @@ class ProfileController:
         "mod", "message"}``. (Bounded vs VB: VB adds it to the mod's Wizard exclude
         list — recoverable by un-excluding — whereas the port removes the file.)
         """
-        from vaultkeeper.game.character import PORTRAIT_SIZES
+        from nwnfile.character import PORTRAIT_SIZES
 
         game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
         filenames = {f"{resref}{s}.tga".lower() for s in PORTRAIT_SIZES}
@@ -3374,7 +3374,7 @@ class ProfileController:
         """
         import tempfile
 
-        from vaultkeeper.core.formats.erf_reader import ErfReader
+        from nwnfile.formats.erf_reader import ErfReader
         from vaultkeeper.game import start_screen as ss
 
         hak_path = Path(hak_path)
@@ -3735,8 +3735,8 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.core.formatting import parse_date_string
-        from vaultkeeper.core.win_sort import win_compare
         from vaultkeeper.game.play_data_manager import _current_user
 
         loop = self.play_loop
@@ -4401,7 +4401,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
@@ -4433,7 +4433,7 @@ class ProfileController:
         """
         from functools import cmp_to_key
 
-        from vaultkeeper.core.win_sort import win_compare
+        from nwnfile.win_sort import win_compare
         from vaultkeeper.game.wizard import (
             WizardInfo,
             WizardPreference,

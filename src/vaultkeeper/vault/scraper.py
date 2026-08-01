@@ -13,7 +13,7 @@ import html as html_lib
 import re
 from urllib.parse import unquote, urlsplit
 
-from vaultkeeper.core.log import get_logger
+from nwnfile.log import get_logger
 from vaultkeeper.vault.download_rules import DownloadRules
 from vaultkeeper.vault.http import HttpClient, RequestsHttpClient
 from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo

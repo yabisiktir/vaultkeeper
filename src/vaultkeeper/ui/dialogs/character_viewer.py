@@ -31,8 +31,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from vaultkeeper.core.formats.tga_reader import TGAReader
-from vaultkeeper.game.character import level_summary
+from nwnfile.character import level_summary
+from nwnfile.formats.tga_reader import TGAReader
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
@@ -227,7 +227,7 @@ class CharacterViewer(QDialog):
 
     def _on_filter(self) -> None:
         """Open the level/class filter dialog and apply the result (VB LbcFilter_Click)."""
-        from vaultkeeper.game.character import pc_class_names
+        from nwnfile.character import pc_class_names
         from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
 
         dlg = CharacterFilter(
@@ -394,7 +394,7 @@ def item_icon_source(controller):
     When the ``hak_item_icons`` setting is on, the user's hak folder is searched
     too (opt-in, since the first lookup scans every hak).
     """
-    from vaultkeeper.game.item_icons import ItemIconSource
+    from nwnfile.item_icons import ItemIconSource
 
     ctx = getattr(controller, "ctx", None)
     game_root = getattr(ctx, "game_root", None)

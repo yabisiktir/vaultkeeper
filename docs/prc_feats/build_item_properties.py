@@ -13,7 +13,7 @@ plain ``<id>: <name>`` list covering base NWN + PRC item properties. Pass the
 
 **Grounded, not invented**: names are verbatim from the page. The small subtype
 tables (abilities, damage types) live as constants in
-:mod:`vaultkeeper.game.item_properties` (standard NWN reference data).
+:mod:`nwnfile.item_properties` (standard NWN reference data).
 
 Run: ``python docs/prc_feats/build_item_properties.py [leto_advanced_dir]``.
 """
