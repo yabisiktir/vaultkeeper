@@ -58,6 +58,25 @@ def test_it_is_found_from_a_frozen_layout(monkeypatch, tmp_path):
     assert R.app_icon_dir() == frozen
 
 
+def test_each_size_is_rendered_from_the_build_authored_for_it():
+    """Three authored builds, not one drawing scaled down — see source/DESIGN.txt."""
+    import sys
+
+    sys.path.insert(0, str(_ROOT / "scripts"))
+    import make_icons
+
+    assert make_icons.build_for(1024).name.endswith("vaultkeeper.svg")
+    assert make_icons.build_for(48).name.endswith("-48.svg")
+    assert make_icons.build_for(16).name.endswith("-32.svg")
+
+
+def test_the_sources_are_vendored():
+    """A build must not depend on a folder outside the repo."""
+    for name in ("vaultkeeper.svg", "vaultkeeper-48.svg", "vaultkeeper-32.svg",
+                 "DESIGN.txt"):
+        assert (_ICONS / "source" / name).is_file(), f"{name} is not vendored"
+
+
 def test_the_two_apps_share_a_look_but_not_a_mark():
     """Vaultkeeper ships the editor, so they should read as a family — and still
     be told apart in a dock."""

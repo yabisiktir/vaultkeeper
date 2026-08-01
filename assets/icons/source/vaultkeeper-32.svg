@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="plaque" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E2117"></stop>
+      <stop offset="1" stop-color="#14100C"></stop>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2D089"></stop>
+      <stop offset="1" stop-color="#A9782C"></stop>
+    </linearGradient>
+    <linearGradient id="goldsoft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8F6A28"></stop>
+      <stop offset="1" stop-color="#6B4C18"></stop>
+    </linearGradient>
+  </defs>
+  <rect x="48" y="48" width="928" height="928" rx="208" fill="url(#plaque)"></rect>
+  <rect x="69" y="69" width="886" height="886" rx="188" fill="none" stroke="#8A6524" stroke-width="26"></rect>
+  <circle cx="512" cy="512" r="298" fill="none" stroke="url(#gold)" stroke-width="84"></circle>
+  <circle cx="512" cy="512" r="232" fill="url(#goldsoft)"></circle>
+  <circle cx="512" cy="512" r="108" fill="#14100C"></circle>
+  <circle cx="512" cy="512" r="74" fill="#F2D089"></circle>
+</svg>
