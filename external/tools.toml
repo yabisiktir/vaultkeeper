@@ -1,53 +1,57 @@
-# External bundled binaries manifest.
+# Native binaries bundled with Vaultkeeper.
 #
-# Vaultkeeper shells out to a few native tools. Rather than assume they exist on
-# the user's PATH, we declare them here explicitly so the build/packaging step can
-# fetch, verify, and bundle a known-good version per platform. A fetch script
-# (scripts/fetch_tools.py, added in a later phase) consumes this manifest.
+# Vaultkeeper shells out to 7-Zip to read the archives mods ship in, and there is
+# no pure-Python fallback — without it, installing a mod fails outright. So the
+# binary travels with the app rather than being assumed on the user's PATH.
 #
-# Each tool lists per-platform download URLs + SHA-256 checksums. Licenses are
-# recorded for redistribution compliance (both are redistributable).
+# The binaries under external/bin/ are COMMITTED, not fetched during a build.
+# That keeps builds offline and reproducible, avoids pinned URLs that rot (the
+# 7-Zip download page serves several releases at once), and sidesteps a bootstrap
+# problem: the Windows build of 7-Zip is itself distributed as a .7z.
+#
+# scripts/fetch_tools.py refreshes them and prints the checksums recorded below;
+# `--check` verifies what is committed. Bump SEVENZIP_VERSION there, re-run, and
+# update the digests here.
 
 [sevenzip]
-# 7-Zip CLI ("7zz") — archive extraction/compression for installer creation,
-# publishing, exports. Replaces the VB app's dependency on 7z.exe (ZipManager).
-purpose = "archive extract/compress"
-license = "LGPL-2.1 + unRAR restriction"
-version = "24.08"
-# url/sha256 filled in by the packager per target; kept empty until pinned.
-[sevenzip.platforms.macos-arm64]
-url = ""
-sha256 = ""
-[sevenzip.platforms.macos-x86_64]
-url = ""
-sha256 = ""
-[sevenzip.platforms.windows-x86_64]
-url = ""
-sha256 = ""
-[sevenzip.platforms.linux-x86_64]
-url = ""
-sha256 = ""
+purpose = "archive extract/compress — required; mod installs fail without it"
+license = "LGPL-2.1 (+ unRAR restriction, BSD 2/3-clause for parts)"
+# "Redistributions in binary form must reproduce related license information
+# from this file" — License.txt sits beside each binary and is shipped with it.
+version = "26.02"
+# Invoked as a separate process, never linked, so this is mere aggregation
+# alongside Vaultkeeper's own GPL-3.0-or-later.
+
+[sevenzip.platforms.macos]
+# Universal binary: arm64 and x86_64 in one file.
+binary = "external/bin/macos/7zz"
+url = "https://www.7-zip.org/a/7z2602-mac.tar.xz"
+sha256 = "1cf6760579502f87e591ff5c73a005ec50b3e4d6f507e8b038382d563c3175b9"
+
+[sevenzip.platforms.linux-x64]
+binary = "external/bin/linux-x64/7zz"
+url = "https://www.7-zip.org/a/7z2602-linux-x64.tar.xz"
+sha256 = "41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e"
+
+[sevenzip.platforms.linux-arm64]
+binary = "external/bin/linux-arm64/7zz"
+url = "https://www.7-zip.org/a/7z2602-linux-arm64.tar.xz"
+sha256 = "70ea6cc737ae1495ea2d7eb20ef3120fe579bd3f1a83a9d2362b62ec5bde2bba"
+
+[sevenzip.platforms.windows-x64]
+# 7za.exe: the standalone console build, out of the "extra" package.
+binary = "external/bin/windows-x64/7za.exe"
+url = "https://www.7-zip.org/a/7z2602-extra.7z"
+sha256 = "081df9e9311dfd9c9e0e98c1c80180b99bb51e4cb24156b5f3057fe3c259d70a"
 
 [ffmpeg]
-# ffmpeg — Bik(.bik) -> WebM(.wbm) movie conversion for NWN:EE (BikToWbm feature).
-# Optional at runtime: the movie-conversion feature degrades gracefully if absent.
+# Optional: .bik -> .wbm movie conversion. The feature degrades gracefully when
+# absent, so ffmpeg is NOT bundled — it is large, and its licensing (GPL builds
+# are common) is a worse fit than 7-Zip's. Found on PATH if the user has it.
 purpose = "bik->wbm movie conversion"
-license = "LGPL-2.1+ (or GPL build; prefer LGPL to allow bundling)"
-version = "7.0"
 optional = true
-[ffmpeg.platforms.macos-arm64]
-url = ""
-sha256 = ""
-[ffmpeg.platforms.macos-x86_64]
-url = ""
-sha256 = ""
-[ffmpeg.platforms.windows-x86_64]
-url = ""
-sha256 = ""
-[ffmpeg.platforms.linux-x86_64]
-url = ""
-sha256 = ""
+bundled = false
 
-# NOTE: ERF/HAK extraction is implemented natively in Vaultkeeper (see the ported
-# erf_reader), so — unlike the VB app — we do NOT depend on an external nwhak/ERF
-# executable. Recorded here intentionally as a non-dependency.
+# NOTE: ERF/HAK extraction is implemented natively (see nwnfile's erf_reader), so
+# unlike the VB app we do NOT depend on an external nwhak/ERF executable.
+# Recorded here intentionally as a non-dependency.

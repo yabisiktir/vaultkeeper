@@ -25,8 +25,11 @@ general compressed archives users download (zip/rar/7z/...).
 
 from __future__ import annotations
 
+import os
+import platform
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
@@ -120,6 +123,46 @@ class ArchiveExtractor(Protocol):
         ...
 
 
+def bundled_dir() -> Path | None:
+    """Where the binaries we ship live, in a checkout or inside a frozen app.
+
+    PyInstaller unpacks bundled data next to the executable (``sys._MEIPASS``);
+    a source checkout has them under ``external/bin``. Both are checked so the
+    same code path serves a developer and an installed user.
+    """
+    frozen = getattr(sys, "_MEIPASS", None)
+    roots = [Path(frozen) / "external" / "bin"] if frozen else []
+    roots.append(Path(__file__).resolve().parents[3] / "external" / "bin")
+    return next((root for root in roots if root.is_dir()), None)
+
+
+def platform_slug() -> str:
+    """The ``external/bin`` subfolder for this machine."""
+    if sys.platform == "darwin":
+        return "macos"  # one universal binary covers arm64 and x86_64
+    if sys.platform.startswith("win"):
+        return "windows-x64"
+    return "linux-arm64" if platform.machine() in ("aarch64", "arm64") else "linux-x64"
+
+
+def bundled_sevenzip() -> Path | None:
+    """The 7-Zip we ship for this platform, if it is present and runnable."""
+    root = bundled_dir()
+    if root is None:
+        return None
+    folder = root / platform_slug()
+    for name in ("7zz", "7za.exe", "7z.exe"):
+        candidate = folder / name
+        if candidate.is_file():
+            if not sys.platform.startswith("win") and not os.access(candidate, os.X_OK):
+                try:
+                    candidate.chmod(0o755)  # git can lose the bit; installers too
+                except OSError:
+                    continue
+            return candidate
+    return None
+
+
 class SevenZipExtractor:
     """Default backend: shells out to the 7-Zip CLI (``7zz`` preferred, then ``7z``)."""
 
@@ -133,6 +176,16 @@ class SevenZipExtractor:
 
     @classmethod
     def _discover(cls) -> str | None:
+        """The 7-Zip to use: the one we ship first, then whatever is on PATH.
+
+        Ours first on purpose. There is no pure-Python fallback here, so a user
+        without 7-Zip installed cannot open a mod archive at all — shipping it is
+        what makes an installed build work on a clean machine. PATH is still
+        searched, so a source checkout with no bundled binary keeps working.
+        """
+        bundled = bundled_sevenzip()
+        if bundled is not None:
+            return str(bundled)
         for name in cls._CANDIDATES:
             found = shutil.which(name)
             if found:
