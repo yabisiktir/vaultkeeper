@@ -42,7 +42,8 @@ def _default_profile_data_dir() -> Path | None:
 
 def _resolve_game_folders(game: Path | None, user: Path | None) -> dict[str, Path] | None:
     """Resolve {folder: path} for the live checks from args or auto-discovery."""
-    from vaultkeeper.game.locations import discover_installs
+    from nwnfile.locations import discover_installs
+
     from vaultkeeper.ui.session import default_game_user_path
 
     if game is None:
@@ -112,8 +113,9 @@ def main(argv: list[str] | None = None) -> int:
 
 def _run_state_check(data_dir: Path, game: Path | None, user: Path | None) -> list:
     """Open the live profile from its Profiles payloads and cross-check states vs disk."""
+    from nwnfile.locations import discover_installs
+
     from vaultkeeper.game.install_verify import verify_install_states
-    from vaultkeeper.game.locations import discover_installs
     from vaultkeeper.ui.controller import ProfileController
     from vaultkeeper.ui.session import default_game_user_path
 

@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import sys
 
+from nwnfile.locations import discover_installs
+
 from vaultkeeper import __version__
 from vaultkeeper.app_paths import VaultStore, config_root
-from vaultkeeper.game.locations import discover_installs
 
 
 def _scan() -> int:

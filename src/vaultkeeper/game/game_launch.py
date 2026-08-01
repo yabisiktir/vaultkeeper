@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from vaultkeeper.game.locations import HostOS
+from nwnfile.locations import HostOS
 
 #: Per-host launcher: (bin subdir, executable name, is a macOS .app bundle).
 _EE_LAUNCHER: dict[HostOS, tuple[str, str, bool]] = {

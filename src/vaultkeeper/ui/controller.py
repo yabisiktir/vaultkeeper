@@ -12,6 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from nwnfile.locations import HostOS, user_documents_dir
+
 from vaultkeeper.app_paths import config_root
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.hak_patch import HakPatchManager
@@ -20,7 +22,6 @@ from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.game.config_guard import ConfigChange, ConfigGuard
-from vaultkeeper.game.locations import HostOS, user_documents_dir
 from vaultkeeper.game.nwn_folders import read_alias_locations
 from vaultkeeper.persistence.profile_store import load_profile, save_profile
 from vaultkeeper.ui.play_loop import PlayLoop
@@ -919,7 +920,7 @@ class ProfileController:
 
         Returns ``{"applied": n, "available": bool, "message": str}``.
         """
-        from vaultkeeper.game.locations import HostOS
+        from nwnfile.locations import HostOS
 
         if HostOS.current() is not HostOS.WINDOWS:
             return {
@@ -2238,8 +2239,9 @@ class ProfileController:
         With ``wait=True`` the argv runs a direct (awaitable) executable when one is
         available, so the caller can detect game exit and record the play session.
         """
+        from nwnfile.locations import HostOS
+
         from vaultkeeper.game.game_launch import launch_argv
-        from vaultkeeper.game.locations import HostOS
 
         return launch_argv(
             self.ctx.game_root,
@@ -2252,8 +2254,9 @@ class ProfileController:
 
     def can_await_exit(self, *, toolset: bool = False) -> bool:
         """True if the game can be launched as an awaitable process (exit detected)."""
+        from nwnfile.locations import HostOS
+
         from vaultkeeper.game.game_launch import run_binary
-        from vaultkeeper.game.locations import HostOS
 
         return run_binary(self.ctx.game_root, HostOS.current(), toolset=toolset) is not None
 

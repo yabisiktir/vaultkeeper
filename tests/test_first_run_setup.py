@@ -8,9 +8,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nwnfile.editions import Edition
+from nwnfile.locations import GameInstall
+
 from vaultkeeper.config.settings import Settings, load_settings, save_settings
-from vaultkeeper.game.editions import Edition
-from vaultkeeper.game.locations import GameInstall
 from vaultkeeper.ui.session import (
     DEFAULT_EE_PROFILE,
     DEFAULT_PROFILE,

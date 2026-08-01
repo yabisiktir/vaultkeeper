@@ -82,8 +82,9 @@ def test_install_ledger_decodes_and_matches() -> None:
 
 def test_install_states_no_ignored_or_hallucinated() -> None:
     """Real profile: no mod is ignored (present but says not-installed) or hallucinated."""
+    from nwnfile.locations import discover_installs
+
     from vaultkeeper.game.install_verify import verify_install_states
-    from vaultkeeper.game.locations import discover_installs
     from vaultkeeper.ui.controller import ProfileController
     from vaultkeeper.ui.session import default_game_user_path
 

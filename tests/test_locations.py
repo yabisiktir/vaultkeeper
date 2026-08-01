@@ -9,9 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
-from vaultkeeper.game.editions import Edition
-from vaultkeeper.game.locations import (
+from nwnfile.editions import Edition
+from nwnfile.locations import (
     GameInstall,
     HostOS,
     InstallKind,

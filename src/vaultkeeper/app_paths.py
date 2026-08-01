@@ -113,7 +113,7 @@ class VaultStore:
         return self.data / profile_name
 
     def is_network(self) -> bool:
-        from vaultkeeper.game.locations import is_network_path
+        from nwnfile.locations import is_network_path
 
         return is_network_path(self.root)
 

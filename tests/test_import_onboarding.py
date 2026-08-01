@@ -12,7 +12,7 @@ from vaultkeeper.ui import session
 def test_detect_legacy_store_none(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     docs = tmp_path / "Documents" / "Neverwinter Nights"
     monkeypatch.setattr(
-        "vaultkeeper.game.locations.user_documents_dir", lambda *a, **k: docs
+        "nwnfile.locations.user_documents_dir", lambda *a, **k: docs
     )
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     assert session.detect_legacy_store() is None
@@ -23,7 +23,7 @@ def test_detect_legacy_store_found(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     store = tmp_path / "Documents" / "NIT Store"
     (store / "Data").mkdir(parents=True)
     monkeypatch.setattr(
-        "vaultkeeper.game.locations.user_documents_dir", lambda *a, **k: docs
+        "nwnfile.locations.user_documents_dir", lambda *a, **k: docs
     )
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     assert session.detect_legacy_store() == store

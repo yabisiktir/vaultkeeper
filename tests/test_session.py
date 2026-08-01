@@ -100,7 +100,7 @@ def test_configure_profile_keeps_explicit_game_user_path(tmp_path, monkeypatch):
 
 
 def test_default_game_user_path_none_when_absent(tmp_path, monkeypatch):
-    from vaultkeeper.game import locations
+    from nwnfile import locations
     from vaultkeeper.ui import session
 
     # Point the resolver at a non-existent folder -> no auto-config.

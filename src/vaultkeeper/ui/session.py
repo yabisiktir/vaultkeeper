@@ -13,9 +13,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from nwnfile.editions import Edition
+from nwnfile.locations import GameInstall, discover_installs
+
 from vaultkeeper.config.settings import Settings, load_settings, save_settings
-from vaultkeeper.game.editions import Edition
-from vaultkeeper.game.locations import GameInstall, discover_installs
 from vaultkeeper.ui.controller import ProfileController
 
 #: Default profile names created on first run (VB ``Paths.DefaultProfile`` /
@@ -129,7 +130,7 @@ def detect_legacy_store() -> Path | None:
     first candidate that looks like a store (has a ``Data`` subfolder) so the
     import dialog can pre-fill it — a one-click migration for existing users.
     """
-    from vaultkeeper.game.locations import HostOS, user_documents_dir
+    from nwnfile.locations import HostOS, user_documents_dir
 
     documents = user_documents_dir(HostOS.current()).parent
     candidates = [documents / "NIT Store", Path.home() / "Documents" / "NIT Store"]
@@ -186,7 +187,7 @@ def default_game_user_path() -> Path | None:
     ``None`` when the standard folder isn't present — the user can still set it
     later via the Locations page, and scans fall back to the single-root layout.
     """
-    from vaultkeeper.game.locations import HostOS, user_documents_dir
+    from nwnfile.locations import HostOS, user_documents_dir
 
     candidate = user_documents_dir(HostOS.current())
     return candidate if candidate.is_dir() else None

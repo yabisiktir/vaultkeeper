@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nwnfile.locations import HostOS
+
 from vaultkeeper.game.game_launch import launch_argv, resolve_executable
-from vaultkeeper.game.locations import HostOS
 
 
 def _make_bin(root: Path, rel: str) -> Path:
