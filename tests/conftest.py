@@ -30,6 +30,21 @@ def _isolate_store(tmp_path_factory, monkeypatch) -> Iterator[None]:
     yield
 
 
+@pytest.fixture(autouse=True)
+def _fresh_install_caches() -> Iterator[None]:
+    """Empty nwnfile's install-keyed caches between tests.
+
+    The game tables are cached against the folder they were read from, so a test
+    writing different 2DA content to a path another test already used would
+    otherwise be answered from that other test's data.
+    """
+    from nwnfile import cache
+
+    cache.clear()
+    yield
+    cache.clear()
+
+
 @pytest.fixture()
 def temp_dir() -> Iterator[Path]:
     """A throwaway temp directory (used by the salvaged binary-reader tests)."""
