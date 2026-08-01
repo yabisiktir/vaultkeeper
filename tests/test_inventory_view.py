@@ -10,6 +10,7 @@ from nwnfile.formats.bic_reader import (
     ItemProperty,
     Race,
 )
+
 from vaultkeeper.ui.dialogs.inventory_view import InventoryView, _count_items, _item_detail
 
 

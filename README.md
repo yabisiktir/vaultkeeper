@@ -10,6 +10,23 @@ run natively on **macOS, Windows and Linux** (including **Wine/CrossOver** and
 > plan and phased roadmap, and [`../rehaul/04_DECISIONS_ADDENDUM.md`](../rehaul/04_DECISIONS_ADDENDUM.md)
 > for the decisions driving this repo.
 
+## Building it
+
+```
+python -m venv .venv && ./.venv/bin/pip install -e ".[dev]"
+```
+
+Vaultkeeper depends on **[nwn-save-editor](../nwn-save-editor)** — the NWN file
+formats (`nwnfile`) and the save editor (`nwnsaveeditor`), which live in their own
+repo. For development, install it from a checkout beside this one *before*
+installing Vaultkeeper:
+
+```
+./.venv/bin/pip install -e ../nwn-save-editor
+```
+
+Tools → Save Game Editor opens it; it also runs on its own as `nwn-save-editor`.
+
 ## Why a rewrite
 
 The original is ~127k lines of VB.NET + a WinForms control library and is

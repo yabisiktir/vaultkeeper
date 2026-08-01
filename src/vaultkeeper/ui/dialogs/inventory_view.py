@@ -18,6 +18,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from nwnfile.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
+from nwnfile.item_icons import ItemIconSource
+from nwnfile.item_names import base_item_type
+from nwnfile.item_properties import describe_properties
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
@@ -38,11 +42,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from nwnfile.formats.bic_reader import CharacterInfo, EquippedItem, InventoryItem
-from nwnfile.item_icons import ItemIconSource
-from nwnfile.item_names import base_item_type
-from nwnfile.item_properties import describe_properties
 
 _ITEM_ROLE = Qt.ItemDataRole.UserRole
 _ICON_PX = 32

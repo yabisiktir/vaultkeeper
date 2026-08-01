@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from nwnfile.log import get_logger
+
 from vaultkeeper.vault.http import HttpClient, RequestsHttpClient
 from vaultkeeper.vault.scraper import VaultScraper
 from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo

@@ -15,6 +15,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from nwnfile.character import PORTRAIT_SIZES
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -28,7 +29,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from nwnfile.character import PORTRAIT_SIZES
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
 from vaultkeeper.ui.dialogs.help_viewer import help_button

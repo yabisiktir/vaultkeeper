@@ -11,6 +11,7 @@ from pathlib import Path
 
 from nwnfile.character import extract_hak_portraits
 from nwnfile.formats.erf_reader import ErfReader
+
 from vaultkeeper.ui.controller import ProfileController
 
 _TGA = 3

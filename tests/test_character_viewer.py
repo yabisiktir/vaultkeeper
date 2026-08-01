@@ -19,6 +19,7 @@ from nwnfile.formats.bic_reader import (  # noqa: E402
     Gender,
     Race,
 )
+
 from vaultkeeper.ui.controller import ProfileController  # noqa: E402
 from vaultkeeper.ui.dialogs.character_viewer import (  # noqa: E402
     CharacterViewer,
@@ -239,6 +240,7 @@ class _FakePortraitController:
 
 def test_portrait_manager_lists_and_previews(qtbot, tmp_path):
     from nwnfile.character import PORTRAIT_SIZES
+
     from vaultkeeper.ui.dialogs.portrait_manager import PortraitManager
 
     sizes = {}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nwnfile.formats.tga_reader import TGAReader
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
@@ -19,8 +20,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from nwnfile.formats.tga_reader import TGAReader
 
 #: Image extensions "Display Info" can preview.
 IMAGE_EXTENSIONS = (".tga", ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".dds")

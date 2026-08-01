@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-
 from nwnfile.character import NON_PC_CLASS_REF, pc_class_names
+
 from vaultkeeper.game.character_filter import (
     FILTER_NAME,
     SHOW_ALL_TEXT,

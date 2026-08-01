@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Protocol
 
 from nwnfile.log import get_logger
+
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.profile_data import ProfileData

@@ -868,6 +868,7 @@ class MainWindow(QMainWindow):
         """Open the Character Explorer summary for a single ``.bic`` file."""
         from nwnfile.character import CharacterFile
         from nwnfile.formats.bic_reader import BicFileReader
+
         from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
 
         info = BicFileReader().read_file(path)

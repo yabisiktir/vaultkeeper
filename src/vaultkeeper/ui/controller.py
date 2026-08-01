@@ -190,6 +190,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.core.state import State
 
         md = self.pd.mod_item(mod_name)
@@ -238,6 +239,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.core import constants as C
 
         rows: list[dict] = []
@@ -1477,6 +1479,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.core import constants as C
 
         names = [
@@ -1701,6 +1704,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.core import constants as C
 
         if md is None or md.is_group_item or md.is_restorer() or not md.files:
@@ -2414,6 +2418,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.game.start_screen import AUTO_GROUP
 
         buckets: dict[str, list[str]] = {}
@@ -3021,6 +3026,7 @@ class ProfileController:
         group, sizes: {size: path}}...], "count"}`` ordered by mod then resref.
         """
         from nwnfile.character import PORTRAIT_SIZES
+
         from vaultkeeper.core.file_key import FileKeyInfo
 
         game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
@@ -3375,6 +3381,7 @@ class ProfileController:
         import tempfile
 
         from nwnfile.formats.erf_reader import ErfReader
+
         from vaultkeeper.game import start_screen as ss
 
         hak_path = Path(hak_path)
@@ -3736,6 +3743,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.core.formatting import parse_date_string
         from vaultkeeper.game.play_data_manager import _current_user
 
@@ -4434,6 +4442,7 @@ class ProfileController:
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
+
         from vaultkeeper.game.wizard import (
             WizardInfo,
             WizardPreference,

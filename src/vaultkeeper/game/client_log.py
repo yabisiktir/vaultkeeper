@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from nwnfile.log import get_logger
+
 from vaultkeeper.core.ci_dict import CIStrDict
 
 log = get_logger(__name__)

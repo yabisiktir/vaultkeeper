@@ -10,6 +10,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from nwnfile.character import level_summary
+
+# The Qt conversions live with the save editor: nwnfile decodes images but
+# stays free of Qt, and Vaultkeeper depends on the editor, not the reverse.
+from nwnsaveeditor.ui.icons import (  # noqa: F401 - re-exported for callers
+    item_icon_source,
+    tga_to_pixmap,
+)
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
@@ -30,14 +38,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from nwnfile.character import level_summary
-
-# The Qt conversions live with the save editor: nwnfile decodes images but
-# stays free of Qt, and Vaultkeeper depends on the editor, not the reverse.
-from nwnsaveeditor.ui.icons import (  # noqa: F401 - re-exported for callers
-    item_icon_source,
-    tga_to_pixmap,
-)
 from vaultkeeper.game.character_filter import CharacterLevelFilter
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
@@ -212,6 +212,7 @@ class CharacterViewer(QDialog):
     def _on_filter(self) -> None:
         """Open the level/class filter dialog and apply the result (VB LbcFilter_Click)."""
         from nwnfile.character import pc_class_names
+
         from vaultkeeper.ui.dialogs.character_filter import CharacterFilter
 
         dlg = CharacterFilter(
