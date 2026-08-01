@@ -7,6 +7,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import ProfileController
 from vaultkeeper.ui.main_window import MainWindow
 
@@ -20,6 +21,10 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     discovery; the window opens empty when nothing is configured yet.
     """
     app = QApplication.instance() or QApplication(argv or sys.argv)
+    # The taskbar and window switcher read the application's icon, not the
+    # window's, so setting only the latter leaves a generic one there.
+    app.setApplicationName("Vaultkeeper")
+    app.setWindowIcon(R.app_icon())
 
     # Apply the persisted font size + theme (VB Restart()-after-FontAndColour
     # step). Best-effort: theming must never block startup.

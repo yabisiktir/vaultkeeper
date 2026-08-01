@@ -193,9 +193,43 @@ def icon_exists(name: str) -> bool:
     return resolve_path(name) is not None
 
 
+#: Largest first: QIcon picks per context, and shipping the big ones is what
+#: stops a Retina dock scaling a small image up.
+_APP_ICON_SIZES = (1024, 512, 256, 128, 64, 48, 32, 16)
+
+
+def app_icon_dir() -> Path | None:
+    """Where the generated application icons live, in a checkout or a build.
+
+    A frozen build unpacks its data beside the executable (``sys._MEIPASS``)
+    rather than next to the source, so both are looked at.
+    """
+    import sys
+
+    frozen = getattr(sys, "_MEIPASS", None)
+    roots = [Path(frozen) / "assets" / "icons"] if frozen else []
+    roots.append(Path(__file__).resolve().parents[3] / "assets" / "icons")
+    return next((root for root in roots if root.is_dir()), None)
+
+
 def app_icon() -> QIcon:
-    """The application/window icon (``NIT Icon v5-006c``)."""
-    return get_icon("NIT Icon v5-006c")
+    """The application/window icon, at every size we ship.
+
+    This used to return a lone 16x16 PNG, which every larger context then scaled
+    up — the taskbar and the window switcher both look wrong that way. The
+    generated set (``scripts/make_icons.py``) runs 16 to 1024, so each context
+    gets a real image. Falls back to the inherited artwork if the generated
+    assets are missing, so a bare checkout still shows something.
+    """
+    root = app_icon_dir()
+    if root is None:
+        return get_icon("NIT Icon 8")  # the multi-size inherited .ico
+    icon = QIcon()
+    for size in _APP_ICON_SIZES:
+        path = root / f"icon_{size}.png"
+        if path.is_file():
+            icon.addFile(str(path))
+    return icon if not icon.isNull() else get_icon("NIT Icon 8")
 
 
 def sized_icon(name: str, size: int) -> QIcon:
