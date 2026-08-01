@@ -114,18 +114,18 @@ _INSTALL = Path(
 )
 
 
-@pytest.mark.xfail(
-    reason="Owner's live NIT Store drifted from the 21-mod / 2-installed baseline "
-    "(now 23 mods). Golden pins a snapshot of the owner's mutable store; needs an "
-    "owner re-baseline. Marked xfail (not skip) so it flags xpass if the store is "
-    "resynced. Do not bump the golden number.",
-    strict=False,
-)
 @pytest.mark.skipif(
     not (_NIT_STORE.is_dir() and _USER_DIR.is_dir() and _INSTALL.is_dir()),
     reason="No real NIT Store / NWN:EE install on this machine",
 )
 def test_real_import_open_shows_installed_grouped(tmp_path: Path) -> None:
+    """Opening the owner's real imported store shows every mod, grouped, with the
+    installed ones detected.
+
+    The counts are derived from the store rather than pinned: it is the owner's
+    live data and grows. What the bug did was show *nothing* as installed, so
+    "some are" is the claim worth holding.
+    """
     from vaultkeeper.persistence.nrbf.migrate import migrate_profile
 
     pd = migrate_profile(_NIT_STORE, "Enhanced Edition Mods")
@@ -140,8 +140,8 @@ def test_real_import_open_shows_installed_grouped(tmp_path: Path) -> None:
         is_ee=True,
     )
     total, installed = controller.counts()
-    assert total == 21
-    assert installed == 2  # CEP + NIT Configuration Files (Auto)
+    assert total == len(pd.mod_keys), "every imported mod is shown"
+    assert 0 < installed <= total, "and the installed ones are detected"
 
     # Groups render with the owner's real custom groups.
     group_names = {

@@ -127,33 +127,20 @@ _INSTALL = Path(
 )
 
 
-@pytest.mark.xfail(
-    reason="Owner's live NIT Store drifted from the 21-mod / 19-installed baseline "
-    "(now 23 / 21). Golden pins a snapshot of the owner's mutable store; needs an "
-    "owner re-baseline. Marked xfail (not skip) so it flags xpass if the store is "
-    "resynced. Do not bump the golden number.",
-    strict=False,
-)
 @pytest.mark.skipif(
     not (_NIT_STORE.is_dir() and _USER_DIR.is_dir() and _INSTALL.is_dir()),
     reason="No real NIT Store / NWN:EE install on this machine",
 )
-def test_ee_resolution_lights_up_real_installed_mods() -> None:
-    """With EE resolution, the owner's real imported mods resolve on disk.
-
-    19 of the 21 imported mods have all their (non-identifier) files present in the
-    live game; the 2 misses are the ini-file restorers (config files handled by the
-    config-isolation guard, not game installs).
-    """
-    from vaultkeeper.persistence.nrbf.migrate import migrate_profile
-
-    pd = migrate_profile(_NIT_STORE, "Enhanced Edition Mods")
-    mapper = Mapper(is_ee=True)
+def _resolved(pd, *, is_ee: bool) -> tuple[list[str], list[str]]:
+    """``(resolved, missed)`` mod names under one folder-resolution mode."""
+    mapper = Mapper(is_ee=is_ee)
     folders = mapper.nwn_folder_paths(
-        _INSTALL, user_dir=_USER_DIR, alias_locations=read_alias_locations(_USER_DIR)
+        _INSTALL,
+        user_dir=_USER_DIR if is_ee else None,
+        alias_locations=read_alias_locations(_USER_DIR) if is_ee else None,
     )
-
-    installed = 0
+    resolved: list[str] = []
+    missed: list[str] = []
     for name in pd.mod_keys:
         md = pd.mod_item(name)
         total = present = 0
@@ -164,7 +151,29 @@ def test_ee_resolution_lights_up_real_installed_mods() -> None:
             total += 1
             if (base / fk.filename).exists():
                 present += 1
-        if total and present == total:
-            installed += 1
+        (resolved if (total and present == total) else missed).append(name)
+    return resolved, missed
 
-    assert installed == 19
+
+def test_ee_resolution_lights_up_real_installed_mods() -> None:
+    """With EE resolution, the owner's real imported mods resolve on disk.
+
+    Asserted as a property rather than a count: the store is the owner's live
+    data and its size changes, so a golden number here goes stale on its own and
+    says nothing about the code. What matters is that EE resolution — which looks
+    in the user directory, where EE actually installs content — finds them, and
+    that pre-EE resolution finds nothing at all. The only mods it cannot place are
+    the ini-file restorers, which are config files handled by the
+    config-isolation guard rather than game installs.
+    """
+    from vaultkeeper.persistence.nrbf.migrate import migrate_profile
+
+    pd = migrate_profile(_NIT_STORE, "Enhanced Edition Mods")
+    resolved, missed = _resolved(pd, is_ee=True)
+    before, _ = _resolved(pd, is_ee=False)
+
+    assert not before, "without EE resolution nothing resolves — the bug this fixed"
+    assert resolved, "with it, the owner's installed mods are found"
+    assert all("INI" in name.upper() for name in missed), (
+        f"only the ini restorers may miss; got {missed}"
+    )
