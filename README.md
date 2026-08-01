@@ -27,6 +27,31 @@ installing Vaultkeeper:
 
 Tools → Save Game Editor opens it; it also runs on its own as `nwn-save-editor`.
 
+## Building an app
+
+```
+pip install pyinstaller
+python scripts/build_app.py
+```
+
+Produces a self-contained app — Python, Qt, the UI images, both packages' game
+tables and this platform's 7-Zip, all inside it. About 70 MB packaged, 129 MB
+installed. The save editor comes along, since it is a dependency.
+
+| Platform | Artifact |
+|---|---|
+| macOS | `dist/vaultkeeper-<ver>-macos-<arch>.dmg` |
+| Windows | `dist/vaultkeeper-<ver>-windows-x64.zip` |
+| Linux | `dist/vaultkeeper-<ver>-linux-<arch>.tar.gz` |
+
+**Each artifact must be built on the OS it targets** — the freeze embeds a Python
+interpreter and Qt's native libraries, so there is no cross-building. That goes
+for the CPU too: an Apple Silicon build will not launch on an Intel Mac, which is
+why the name says which. Only the current platform's 7-Zip is bundled.
+
+Nothing is signed; macOS Gatekeeper and Windows SmartScreen will warn on first
+run. The hooks for certificates are marked in `packaging/vaultkeeper.spec`.
+
 ## Why a rewrite
 
 The original is ~127k lines of VB.NET + a WinForms control library and is
