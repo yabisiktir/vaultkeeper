@@ -11,17 +11,25 @@ copy/paste, rich-text, custom-draw) are deferred.
 from __future__ import annotations
 
 from PySide6.QtCore import Signal
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.state import State
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.theme import status_colour
 
-#: State colouring (VB FileView state colours).
-_INSTALLED_BRUSH = QBrush(QColor(0x2E, 0x7D, 0x32))  # green
-_OVERRIDDEN_BRUSH = QBrush(QColor(0xB2, 0x6A, 0x00))  # amber
+
+#: State colouring (VB FileView state colours). Resolved per call rather than
+#: built once at import: the colour has to suit the palette in force, and a
+#: module-level brush is fixed before any theme is applied.
+def _installed_brush() -> QBrush:
+    return QBrush(status_colour("installed"))
+
+
+def _overridden_brush() -> QBrush:
+    return QBrush(status_colour("overridden"))
 
 #: Per-state row icon (maps the ModData mod_state to a bundled asset).
 _STATE_ICON = {
@@ -45,9 +53,9 @@ def icon_name_for_state(state: State) -> str:
 def file_state_brush(state: State) -> QBrush | None:
     """Row colour for a file's install state (green installed / amber overridden)."""
     if state in (State.OVERRIDDEN, State.INSTALLED_AND_OVERRIDDEN):
-        return _OVERRIDDEN_BRUSH
+        return _overridden_brush()
     if state > State.NOT_INSTALLED:  # installed or match-override
-        return _INSTALLED_BRUSH
+        return _installed_brush()
     return None
 
 
@@ -188,9 +196,9 @@ class FileView(QTreeWidget):
     @staticmethod
     def state_brush(md: ModData) -> QBrush | None:
         if md.mod_state in (State.OVERRIDDEN, State.INSTALLED_AND_OVERRIDDEN):
-            return _OVERRIDDEN_BRUSH
+            return _overridden_brush()
         if md.installed:
-            return _INSTALLED_BRUSH
+            return _installed_brush()
         return None
 
     # -- Selection --------------------------------------------------------- #

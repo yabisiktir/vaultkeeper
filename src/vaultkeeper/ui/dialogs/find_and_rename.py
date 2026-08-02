@@ -31,8 +31,11 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.find_rename import ModRenameSet
+from vaultkeeper.ui.theme import status_colour
 
-_DUPLICATE_COLOUR = QColor(200, 0, 0)
+
+def _duplicate_colour() -> QColor:
+    return status_colour("duplicate")
 
 
 class FindAndRenameDialog(QDialog):
@@ -155,7 +158,7 @@ class FindAndRenameDialog(QDialog):
                 f.setWeight(QFont.Weight.Bold)
                 item.setFont(f)
             if entry.duplicated:
-                item.setForeground(QBrush(_DUPLICATE_COLOUR))
+                item.setForeground(QBrush(_duplicate_colour()))
             self._list.addItem(item)
             item.setSelected(entry.selected)
         self._list.blockSignals(False)

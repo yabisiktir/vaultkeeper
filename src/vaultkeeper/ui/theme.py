@@ -22,6 +22,40 @@ from PySide6.QtWidgets import QApplication
 #: Valid ``Settings.theme`` values (also the order shown in the Appearance tab).
 THEMES = ("system", "light", "dark")
 
+#: Status colours, per background. A single colour cannot serve both: the greens
+#: and ambers originally used were picked against white and dropped to 3.2–3.9:1
+#: on the dark theme's #1e1e1e, under the 4.5:1 needed to read comfortably — and
+#: these mark whether a mod is *installed*, which is the main list's whole point.
+#: Every value below clears 4.5:1 against the background it is chosen for.
+_STATUS_COLOURS: dict[str, tuple[str, str]] = {
+    # name          on light     on dark
+    "installed": ("#2E7D32", "#66BB6A"),
+    "overridden": ("#8F5600", "#FFA726"),  # the light amber was 4.24:1 — also raised
+    "duplicate": ("#C80000", "#EF5350"),
+    "disabled": ("#6E6E6E", "#9E9E9E"),
+}
+
+
+def is_dark(palette: QPalette | None = None) -> bool:
+    """Whether the active palette is a dark one.
+
+    Read from the palette rather than the saved theme name so that "system"
+    is classified by what the OS actually gave us.
+    """
+    if palette is None:
+        app = QApplication.instance()
+        if app is None:
+            return False
+        palette = app.palette()
+    window = palette.color(QPalette.ColorRole.Window)
+    return window.lightness() < 128
+
+
+def status_colour(name: str, palette: QPalette | None = None) -> QColor:
+    """A status colour that stays legible on the current background."""
+    light, dark = _STATUS_COLOURS.get(name, ("#000000", "#FFFFFF"))
+    return QColor(dark if is_dark(palette) else light)
+
 
 def build_palette(theme: str) -> QPalette | None:
     """Build a ``QPalette`` for ``theme``, or ``None`` to mean "leave the default".

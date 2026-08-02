@@ -32,12 +32,14 @@ from PySide6.QtWidgets import (
 
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
+from vaultkeeper.ui.theme import status_colour
 
 #: The preview is scaled to fit this box; loadscreens are wide, so max dim is width.
 _PREVIEW_BOX = 480
 
 # Dimmed colour for auto-excluded images (won't be picked by the slideshow).
-_EXCLUDED_COLOUR = QColor(150, 150, 150)
+def _excluded_colour() -> QColor:
+    return status_colour("disabled")
 
 
 class StartScreenManager(QDialog):
@@ -136,7 +138,7 @@ class StartScreenManager(QDialog):
             item = QListWidgetItem(label)
             tips: list[str] = []
             if row["excluded"]:
-                item.setForeground(_EXCLUDED_COLOUR)
+                item.setForeground(_excluded_colour())
                 font = item.font()
                 font.setItalic(True)
                 item.setFont(font)

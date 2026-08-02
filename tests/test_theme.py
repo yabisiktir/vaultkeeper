@@ -7,6 +7,7 @@ size + a light/dark/system theme, not the full per-element VB
 
 from __future__ import annotations
 
+import pytest
 from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -137,3 +138,51 @@ def test_the_system_theme_keeps_the_platform_style():
         assert app.style().objectName() == original
     finally:
         app.setStyle(original)
+
+
+# -- status colours must stay legible on the background they land on ----------#
+def _relative_luminance(colour):
+    def channel(v):
+        v /= 255
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    r, g, b = colour.red(), colour.green(), colour.blue()
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+
+
+def _contrast(a, b):
+    la, lb = _relative_luminance(a), _relative_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+@pytest.mark.parametrize("theme", ["light", "dark"])
+@pytest.mark.parametrize("name", ["installed", "overridden", "duplicate", "disabled"])
+def test_status_colours_are_readable_on_their_own_theme(theme, name):
+    """These mark whether a mod is installed — the main list's whole point.
+
+    The greens and ambers this replaced were picked against white and fell to
+    3.2-3.9:1 on the dark theme's panels, under the 4.5:1 text needs; the amber
+    was only 4.24:1 even on white.
+    """
+    from vaultkeeper.ui.theme import status_colour
+
+    palette = build_palette(theme)
+    background = palette.color(QPalette.ColorRole.Base)
+    assert _contrast(status_colour(name, palette), background) >= 4.5
+
+
+def test_a_dark_palette_is_recognised_as_dark():
+    from vaultkeeper.ui.theme import is_dark
+
+    assert is_dark(build_palette("dark"))
+    assert not is_dark(build_palette("light"))
+
+
+def test_the_same_status_reads_differently_per_theme():
+    """One colour cannot serve both backgrounds; that was the bug."""
+    from vaultkeeper.ui.theme import status_colour
+
+    for name in ("installed", "overridden", "duplicate"):
+        assert status_colour(name, build_palette("light")) != status_colour(
+            name, build_palette("dark")
+        )

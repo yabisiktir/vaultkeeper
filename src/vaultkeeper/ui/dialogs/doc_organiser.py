@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
 
 from vaultkeeper.core.name_edit import validate_name
 from vaultkeeper.ui import resources as R
+from vaultkeeper.ui.theme import status_colour
 
 #: VB ``LbHeading.Text``.
 _HEADING = (
@@ -54,7 +55,8 @@ _HEADING = (
 )
 
 #: Foreground for disabled items (VB ``DisabledItemColour``).
-_DISABLED = QColor(0x80, 0x80, 0x80)
+def _disabled_colour() -> QColor:
+    return status_colour("disabled")
 
 
 class DocOrganiser(QDialog):
@@ -198,7 +200,7 @@ class DocOrganiser(QDialog):
                 item.setDisabled(True)
                 _italicise(item)
                 for col in range(item.columnCount()):
-                    item.setForeground(col, QBrush(_DISABLED))
+                    item.setForeground(col, QBrush(_disabled_colour()))
             tree.addTopLevelItem(item)
         tree.blockSignals(False)
         if tree.topLevelItemCount() > 0:
