@@ -83,7 +83,12 @@ def launch_argv(
     """
     exe = resolve_executable(game_root, host, toolset=toolset)
     if exe is None or prefer_steam:
-        if steam_app_id:
+        # The Steam fallback runs the *game*: steam://run/<id> knows nothing
+        # about the toolset. Using it for a toolset request launched Neverwinter
+        # Nights instead — which is not a degraded result but a different action
+        # than the one asked for. The EE toolset ships on Windows only, so on
+        # macOS and Linux this is the normal path, not an edge case.
+        if steam_app_id and not toolset:
             return _steam_argv(steam_app_id, host)
         if exe is None:
             return []

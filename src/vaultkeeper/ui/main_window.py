@@ -2109,7 +2109,16 @@ class MainWindow(QMainWindow):
 
         argv = self.controller.launch_argv(toolset=toolset)
         if not argv:
-            self.nit_status.set_info("Neverwinter Nights install not found.")
+            # Say which one is missing. Enhanced Edition ships the toolset on
+            # Windows only, so on macOS and Linux this is the expected answer
+            # for a perfectly good install — reporting the *game* as not found
+            # would send someone looking for a problem that is not there.
+            self.nit_status.set_info(
+                "The Neverwinter Nights toolset was not found in this install "
+                "(Enhanced Edition includes it on Windows only)."
+                if toolset
+                else "Neverwinter Nights install not found."
+            )
             return
         if QProcess.startDetached(argv[0], argv[1:]):
             self.nit_status.set_info(f"Launched {what}.")

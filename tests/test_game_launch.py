@@ -103,3 +103,44 @@ def test_run_binary_none_when_bundle_missing_inner(tmp_path):
 
     (tmp_path / "bin/macos/nwmain.app").mkdir(parents=True)  # bundle without binary
     assert run_binary(tmp_path, HostOS.MACOS) is None
+
+
+# -- the toolset is not the game ---------------------------------------------- #
+def test_a_missing_toolset_never_falls_back_to_launching_the_game(tmp_path):
+    """steam://run/<id> starts Neverwinter Nights and knows nothing of the toolset.
+
+    Using it for a toolset request opened the game instead — a different action
+    than the one asked for, not a degraded one. Enhanced Edition ships the
+    toolset on Windows only, so on macOS and Linux this is the normal path.
+    """
+    assert launch_argv(
+        tmp_path, host=HostOS.MACOS, steam_app_id="704450", toolset=True
+    ) == []
+
+
+def test_the_game_still_falls_back_to_steam(tmp_path):
+    """The fallback is right for the game; only the toolset must not use it."""
+    argv = launch_argv(tmp_path, host=HostOS.MACOS, steam_app_id="704450")
+    assert argv and "704450" in " ".join(argv)
+
+
+def test_a_toolset_that_exists_is_launched(tmp_path):
+    exe = tmp_path / "bin" / "win32" / "nwtoolset.exe"
+    exe.parent.mkdir(parents=True)
+    exe.write_text("")
+    argv = launch_argv(
+        tmp_path, host=HostOS.WINDOWS, steam_app_id="704450", toolset=True
+    )
+    assert argv[0] == str(exe)
+
+
+def test_prefer_steam_does_not_override_a_toolset_request(tmp_path):
+    exe = tmp_path / "bin" / "win32" / "nwtoolset.exe"
+    exe.parent.mkdir(parents=True)
+    exe.write_text("")
+    argv = launch_argv(
+        tmp_path, host=HostOS.WINDOWS, steam_app_id="704450",
+        prefer_steam=True, toolset=True,
+    )
+    assert "704450" not in " ".join(argv), "prefer_steam must not launch the game"
+    assert argv[0] == str(exe)
