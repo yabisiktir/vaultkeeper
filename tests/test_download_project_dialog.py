@@ -2,15 +2,27 @@
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog
 
 from vaultkeeper.core import constants as C
 from vaultkeeper.ui.controller import ProfileController
 from vaultkeeper.ui.dialogs.download_project import DownloadProjectDialog
 from vaultkeeper.vault.http import FakeHttpClient, HttpResponse
 from vaultkeeper.vault.scraper_info import VaultScraperInfo
+
+
+def _finish(qtbot, dlg, timeout: int = 10000) -> None:
+    """Wait for the dialog's background job to run its course.
+
+    Transfers happen on a worker thread now, so a click returns long before the
+    work does; every test that used to read the outcome straight after the click
+    has to wait for it.
+    """
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=timeout)
 
 _PROJECT_HTML = (
     "<h1>My Project</h1>\n"
@@ -97,6 +109,7 @@ def test_dialog_download_writes_files(qtbot, tmp_path):
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
     dlg._on_download()
+    _finish(qtbot, dlg)
     downloads = tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR
     assert (downloads / "a.zip").read_bytes() == b"DATA"
     assert "Downloaded 1 of 1" in dlg.status.text()
@@ -206,18 +219,14 @@ def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
     dlg._on_install()
+    _finish(qtbot, dlg)
     md = controller.pd.mod_item("Installed Project")
     assert md is not None and md.is_installer()
     assert "Installed 'Installed Project'" in dlg.status.text()
 
 
-def test_download_shows_byte_progress_and_locks_the_buttons(qtbot, tmp_path):
-    """A 1.2 GB file downloads on the UI thread — "part 1 of 2" is not enough.
-
-    Without per-byte progress the window simply stops repainting for many
-    minutes, which reads as a crash; and because the event loop keeps turning to
-    prevent that, a second click would land inside the first download.
-    """
+def test_download_shows_byte_progress(qtbot, tmp_path):
+    """"Downloading part 1 of 2" says nothing over the twenty minutes it takes."""
     controller = _controller(tmp_path)
     url = "http://cdn/big.zip"
     controller._http = FakeHttpClient(
@@ -226,28 +235,111 @@ def test_download_shows_byte_progress_and_locks_the_buttons(qtbot, tmp_path):
     dlg = DownloadProjectDialog(controller, default_mod="My Mod")
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(direct_url=url, filename="big.zip")])
-
     seen: list[str] = []
-    real_on_bytes = dlg._on_bytes
-
-    def spy(vsi, done, total):
-        real_on_bytes(vsi, done, total)
-        seen.append(dlg.status.text())
-        # Mid-transfer the buttons are locked, so a stray click does nothing.
-        assert dlg._busy
-        assert not dlg.download_button.isEnabled()
-        assert not dlg.install_button.isEnabled()
-        dlg._on_download()  # a second click during the first download
-
-    dlg._on_bytes = spy
+    real = dlg._on_bytes
+    dlg._on_bytes = lambda done, total: (real(done, total), seen.append(dlg.status.text()))
     dlg._on_download()
+    _finish(qtbot, dlg)
     assert seen and "9 B of 9 B" in seen[0]
-    assert not dlg._busy  # released afterwards
-    assert dlg.download_button.isEnabled()
-    # Only one transfer happened despite the re-entrant click.
     assert controller._http.streamed == [
         (url, tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR / "big.zip")
     ]
+
+
+# -- off the UI thread -------------------------------------------------------- #
+class _GatedHttpClient(FakeHttpClient):
+    """Holds a transfer open until the test lets go, so the UI can be watched."""
+
+    def __init__(self, responses):
+        super().__init__(responses)
+        self.gate = threading.Event()
+        self.started = threading.Event()
+
+    def download(self, url, dest, *, on_chunk=None, timeout=300):
+        self.started.set()
+        for index in range(1, 500):  # dribble progress while we wait
+            if on_chunk is not None:
+                on_chunk(index, 500)
+            if self.gate.wait(0.005):
+                break
+        return super().download(url, dest, on_chunk=on_chunk, timeout=timeout)
+
+
+def _gated(tmp_path):
+    controller = _controller(tmp_path)
+    url = "http://cdn/big.zip"
+    controller._http = _GatedHttpClient(
+        {url: HttpResponse(url, 200, {"Content-Length": "9"}, content=b"BIGGISH!!")}
+    )
+    dlg = DownloadProjectDialog(controller, default_mod="My Mod")
+    dlg.populate_files([VaultScraperInfo(direct_url=url, filename="big.zip")])
+    return controller, dlg
+
+
+def test_the_download_does_not_block_the_ui_thread(qtbot, tmp_path):
+    """The whole point: clicking Download returns at once and the window lives.
+
+    A gigabyte on the UI thread leaves the window unpainted for minutes, which
+    reads as a crash. Here the click returns while the transfer is still open,
+    and the event loop is free enough to deliver progress signals meanwhile.
+    """
+    controller, dlg = _gated(tmp_path)
+    qtbot.addWidget(dlg)
+    dlg._on_download()
+    assert dlg._busy  # returned with the transfer still running
+    assert controller._http.started.wait(5)
+    assert not dlg.download_button.isEnabled()
+    assert not dlg.cancel_button.isHidden()
+    # The loop is turning: progress arrives while the transfer is still held open.
+    qtbot.waitUntil(lambda: "of 500 B" in dlg.status.text(), timeout=5000)
+    controller._http.gate.set()
+    _finish(qtbot, dlg)
+    assert dlg.download_button.isEnabled()
+    assert dlg.cancel_button.isHidden()
+
+
+def test_cancelling_stops_the_transfer_and_keeps_no_part_file(qtbot, tmp_path):
+    controller, dlg = _gated(tmp_path)
+    qtbot.addWidget(dlg)
+    dlg._on_download()
+    assert controller._http.started.wait(5)
+    dlg._on_cancel()
+    _finish(qtbot, dlg)
+    assert "Cancelled" in dlg.status.text()
+    assert not (
+        tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR / "big.zip"
+    ).exists()
+
+
+def test_the_dialog_will_not_close_while_a_transfer_is_running(qtbot, tmp_path):
+    """Closing would leave the worker emitting into a deleted dialog."""
+    controller, dlg = _gated(tmp_path)
+    qtbot.addWidget(dlg)
+    dlg._on_download()
+    assert controller._http.started.wait(5)
+    dlg.reject()
+    assert dlg.result() != QDialog.DialogCode.Rejected or dlg._busy
+    assert "Cancel the download first" in dlg.status.text()
+    controller._http.gate.set()
+    _finish(qtbot, dlg)
+    dlg.reject()  # and now it closes
+
+
+def test_a_failing_job_reports_instead_of_taking_the_app_down(qtbot, tmp_path):
+    """A worker thread that raises into Qt is a crash; it has to come back as text."""
+    controller = _controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, default_mod="My Mod")
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+
+    def boom(*_a, **_k):
+        raise RuntimeError("the disk fell off")
+
+    controller.download_project = boom
+    dlg._on_download()
+    _finish(qtbot, dlg)
+    assert "the disk fell off" in dlg.status.text()
+    assert dlg.download_button.isEnabled()
 
 
 def test_dialog_download_needs_a_mod_name(qtbot, tmp_path):

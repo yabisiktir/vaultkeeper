@@ -7,6 +7,7 @@ about is never resolved without an answer.
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 import pytest
@@ -462,7 +463,87 @@ def test_installing_reports_each_step(qtbot, tmp_path):
     for index in range(dlg.plan_tree.topLevelItemCount()):
         dlg.plan_tree.topLevelItem(index).setCheckState(0, Qt.CheckState.Unchecked)
     dlg._on_install()
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)
     assert dlg.result_tree.topLevelItemCount() == 1
     assert dlg.result_tree.topLevelItem(0).text(0) == "A Call For Heroes"
     assert "is installed" in dlg.status.text()
     assert controller.pd.mod_item("A Call For Heroes").is_installer()
+
+
+# -- off the UI thread -------------------------------------------------------- #
+class _GatedHttpClient(FakeHttpClient):
+    """Holds a transfer open until the test lets go, so the UI can be watched."""
+
+    def __init__(self, responses):
+        super().__init__(responses)
+        self.gate = threading.Event()
+        self.started = threading.Event()
+
+    def download(self, url, dest, *, on_chunk=None, timeout=300):
+        self.started.set()
+        for index in range(1, 500):
+            if on_chunk is not None:
+                on_chunk(index, 500)
+            if self.gate.wait(0.005):
+                break
+        return super().download(url, dest, on_chunk=on_chunk, timeout=timeout)
+
+
+def _ready_to_install(qtbot, tmp_path):
+    """A dialog with everything answered, whose archive download can be held open."""
+    controller = _controller(tmp_path)
+    controller._http = _GatedHttpClient({
+        **_responses(),
+        download_url("1hWArchiveAA"): HttpResponse(
+            download_url("1hWArchiveAA"), 200,
+            {"Content-Type": "application/octet-stream",
+             "Content-Disposition": 'attachment; filename="heroes.7z"'},
+            content=b"7z\xbc\xaf\x27\x1cmod",
+        ),
+    })
+    dlg = _at_the_plan(qtbot, controller)
+    next(
+        b for b in dlg._choice_groups["CEP"].buttons()
+        if b.property("requirement_name") == "CEP3"
+    ).setChecked(True)
+    for index in range(dlg.plan_tree.topLevelItemCount()):
+        dlg.plan_tree.topLevelItem(index).setCheckState(0, Qt.CheckState.Unchecked)
+    return controller, dlg
+
+
+def test_installing_does_not_block_the_ui_thread(qtbot, tmp_path):
+    """These archives run to 83 MB; the window has to stay alive while one lands."""
+    controller, dlg = _ready_to_install(qtbot, tmp_path)
+    dlg._on_install()
+    assert dlg._busy  # returned with the transfer still running
+    assert controller._http.started.wait(5)
+    assert not dlg.install_button.isEnabled()
+    assert not dlg.cancel_button.isHidden()
+    qtbot.waitUntil(lambda: "of 500 B" in dlg.status.text(), timeout=5000)
+    controller._http.gate.set()
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)
+    assert dlg.cancel_button.isHidden()
+    assert "is installed" in dlg.status.text()
+
+
+def test_cancelling_an_install_keeps_no_part_file(qtbot, tmp_path):
+    controller, dlg = _ready_to_install(qtbot, tmp_path)
+    dlg._on_install()
+    assert controller._http.started.wait(5)
+    dlg._on_cancel()
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)
+    assert "Cancelled" in dlg.status.text()
+    downloads = (
+        tmp_path / "Profiles" / "P" / "A Call For Heroes" / C.DOWNLOADS_DIR
+    )
+    assert not list(downloads.glob("*")) if downloads.is_dir() else True
+
+
+def test_the_dialog_will_not_close_mid_install(qtbot, tmp_path):
+    controller, dlg = _ready_to_install(qtbot, tmp_path)
+    dlg._on_install()
+    assert controller._http.started.wait(5)
+    dlg.reject()
+    assert "Cancel the install first" in dlg.status.text()
+    controller._http.gate.set()
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)

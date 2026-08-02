@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import pytest
+
 from vaultkeeper.vault.download_rules import DownloadRules
 from vaultkeeper.vault.downloader import Downloader
-from vaultkeeper.vault.http import FakeHttpClient, HttpResponse
+from vaultkeeper.vault.http import (
+    FakeHttpClient,
+    HttpResponse,
+    TransferCancelled,
+)
 from vaultkeeper.vault.scraper import VaultScraper
 from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo
 
@@ -120,3 +126,19 @@ def test_a_failed_download_leaves_the_status_wrong_not_a_stub_file(tmp_path):
     assert not result.ok and "404" in result.error
     assert vsi.status is FileStatus.ERROR
     assert not (tmp_path / "gone.zip").exists()
+
+
+def test_cancelling_removes_the_part_file_rather_than_leaving_a_short_one(tmp_path):
+    """A half file under the archive's own name is indistinguishable from a whole one."""
+    url = "http://cdn/huge.zip"
+    http = FakeHttpClient({url: _resp(url, b"BIG" * 10)})
+    vsi = VaultScraperInfo(direct_url=url, filename="huge.zip")
+
+    def stop(_info, _done, _total):
+        raise TransferCancelled()
+
+    with pytest.raises(TransferCancelled):
+        Downloader(http, on_bytes=stop).download_file(vsi, tmp_path)
+    assert not (tmp_path / "huge.zip").exists()
+    # Nothing was kept, so the file is simply available again.
+    assert vsi.status is FileStatus.AVAILABLE

@@ -52,7 +52,10 @@ class DownloadProjectDialog(QDialog):
         self._name_touched = False
         #: Set while a transfer is running, so a second click cannot start one.
         self._busy = False
-        self._files_total = 0
+        self._job = None
+        self._on_job_done = None
+        self._release = lambda: None
+        self._files_total = 1
         self._file_index = 0
         self._file_label = ""
         self.setWindowTitle("Download Project")
@@ -150,6 +153,11 @@ class DownloadProjectDialog(QDialog):
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
         buttons.addWidget(help_button("BhDownloadProject", self))
+        self.cancel_button = QPushButton("Cancel download")
+        self.cancel_button.setToolTip("Stop the transfer and remove the part-file")
+        self.cancel_button.clicked.connect(self._on_cancel)
+        self.cancel_button.setVisible(False)
+        buttons.addWidget(self.cancel_button)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         buttons.addWidget(close_button)
@@ -254,53 +262,103 @@ class DownloadProjectDialog(QDialog):
         self.populate_files(self.controller.scrape_project(url))
         self.populate_required(self.controller.project_required_projects(url))
 
-    # -- Progress ---------------------------------------------------------- #
-    def _start_transfer(self, count: int) -> None:
-        """Show the progress bar and lock the buttons for the duration.
+    # -- Running a transfer ------------------------------------------------- #
+    def start_job(self, work, on_done) -> None:
+        """Run ``work`` on a worker thread and hand its result to ``on_done``.
 
-        The transfer runs on the UI thread, and a Vault file can be well over a
-        gigabyte, so :meth:`_on_bytes` keeps the event loop turning while it does.
-        That also means a second click would arrive *during* the first download —
-        hence the lock.
+        The window that opened this dialog is disabled for the duration: the job
+        creates mods and rewrites the store, and nothing else in the application
+        expects that to happen underneath it.
         """
+        from vaultkeeper.ui.background import BackgroundJob, claim
+
         self._busy = True
+        self._on_job_done = on_done
         for button in (self.retrieve_button, self.download_button, self.install_button):
             button.setEnabled(False)
+        self.cancel_button.setVisible(True)
+        self.cancel_button.setEnabled(True)
         self.progress.setVisible(True)
         self.progress.setRange(0, 0)  # indeterminate until the first bytes land
-        self._files_total = count
-        self._file_index = 0
+        self._release = claim(self)
 
-    def _end_transfer(self) -> None:
+        self._job = BackgroundJob(work, parent=self)
+        self._job.step.connect(self._on_step)
+        self._job.bytes_progress.connect(self._on_bytes)
+        self._job.done.connect(self._job_done)
+        self._job.failed.connect(self._job_failed)
+        self._job.cancelled_early.connect(self._job_cancelled)
+        self._job.start()
+
+    def _finish_job(self) -> None:
         self._busy = False
+        self._job = None
+        self._release()
+        self._release = lambda: None
         self.retrieve_button.setEnabled(True)
         self.download_button.setEnabled(True)
         self.install_button.setEnabled(True)
+        self.cancel_button.setVisible(False)
         self.progress.setRange(0, 1)
         self.progress.setValue(1)
 
-    def _on_file(self, index: int, total: int, vsi) -> None:
+    def _job_done(self, result) -> None:
+        handler, self._on_job_done = self._on_job_done, None
+        self._finish_job()
+        if handler is not None:
+            handler(result)
+        self._render_files()
+
+    def _job_failed(self, message: str) -> None:
+        self._on_job_done = None
+        self._finish_job()
+        self.status.setText(f"That did not work: {message}")
+        self._render_files()
+
+    def _job_cancelled(self) -> None:
+        self._on_job_done = None
+        self._finish_job()
+        self.status.setText(
+            "Cancelled. The part-downloaded file was removed; nothing else was changed."
+        )
+        self._render_files()
+
+    def _on_cancel(self) -> None:
+        if self._job is not None:
+            self._job.cancel()
+            self.cancel_button.setEnabled(False)
+            self.status.setText("Stopping…")
+
+    # -- Progress (signals, so these always arrive on the UI thread) -------- #
+    def _on_step(self, label: str, index: int, count: int) -> None:
+        self._file_label = label
         self._file_index = index
-        self._file_label = vsi.description or vsi.filename or "file"
-        self.status.setText(f"Downloading {self._file_label} ({index + 1} of {total})…")
+        self._files_total = count
+        self.progress.setRange(0, 0)
+        self.status.setText(f"Downloading {label} ({index + 1} of {count})…")
 
-    def _on_bytes(self, vsi, done: int, total: int) -> None:
-        """Report progress through one file and let the window repaint."""
-        from PySide6.QtWidgets import QApplication
-
+    def _on_bytes(self, done: int, total: int) -> None:
+        where = f"{self._file_label} ({self._file_index + 1} of {self._files_total})"
         if total > 0:
             self.progress.setRange(0, total)
             self.progress.setValue(done)
             self.status.setText(
-                f"Downloading {self._file_label} "
-                f"({self._file_index + 1} of {self._files_total}) — "
-                f"{_fmt_size(done)} of {_fmt_size(total)}"
+                f"Downloading {where} — {_fmt_size(done)} of {_fmt_size(total)}"
             )
         else:
-            self.status.setText(
-                f"Downloading {self._file_label} — {_fmt_size(done)} so far"
-            )
-        QApplication.processEvents()
+            self.status.setText(f"Downloading {where} — {_fmt_size(done)} so far")
+
+    def _job_callbacks(self, job):
+        """Progress callbacks that emit rather than touch widgets from the worker."""
+
+        def on_progress(index: int, count: int, vsi) -> None:
+            job.step.emit(vsi.description or vsi.filename or "file", index, count)
+
+        def on_bytes(vsi, done: int, total: int) -> None:
+            job.raise_if_cancelled()
+            job.bytes_progress.emit(done, total)
+
+        return on_progress, on_bytes
 
     def _on_download(self) -> None:
         if self._busy:
@@ -315,20 +373,21 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
-        self._start_transfer(len(files))
-        try:
-            results = self.controller.download_project(
-                files, mod, group=group,
-                on_progress=self._on_file, on_bytes=self._on_bytes,
+
+        def work(job):
+            on_progress, on_bytes = self._job_callbacks(job)
+            return self.controller.download_project(
+                files, mod, group=group, on_progress=on_progress, on_bytes=on_bytes
             )
-        finally:
-            self._end_transfer()
-        ok = sum(1 for r in results if r.ok)
-        verb = "Updated" if ok else "No files downloaded to"
-        self.status.setText(
-            f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
-        )
-        self._render_files()  # newly-downloaded files now show "Already downloaded"
+
+        def done(results) -> None:
+            ok = sum(1 for r in results if r.ok)
+            verb = "Updated" if ok else "No files downloaded to"
+            self.status.setText(
+                f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
+            )
+
+        self.start_job(work, done)
 
     def _on_install(self) -> None:
         """Download the ticked files, build the installer, and install the mod."""
@@ -344,21 +403,34 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
-        self._start_transfer(len(files))
-        try:
-            result = self.controller.install_downloaded_project(
-                files, mod, group=group,
-                on_progress=self._on_file, on_bytes=self._on_bytes,
+
+        def work(job):
+            on_progress, on_bytes = self._job_callbacks(job)
+            return self.controller.install_downloaded_project(
+                files, mod, group=group, on_progress=on_progress, on_bytes=on_bytes
             )
-        finally:
-            self._end_transfer()
-        if result["built"]:
-            self.status.setText(
-                f"Installed '{mod}'. {result['install_message']}"
-            )
-        else:
-            self.status.setText(
-                f"Downloaded {result['downloaded']} of {result['total']} file(s), "
-                f"but could not build the installer for '{mod}'."
-            )
-        self._render_files()
+
+        def done(result) -> None:
+            if result["built"]:
+                self.status.setText(f"Installed '{mod}'. {result['install_message']}")
+            else:
+                self.status.setText(
+                    f"Downloaded {result['downloaded']} of {result['total']} file(s), "
+                    f"but could not build the installer for '{mod}'."
+                )
+
+        self.start_job(work, done)
+
+    def closeEvent(self, event) -> None:
+        """Refuse to close mid-job — the signals would arrive at a deleted dialog."""
+        if self._busy:
+            event.ignore()
+            self.status.setText("Cancel the download first, or wait for it to finish.")
+            return
+        super().closeEvent(event)
+
+    def reject(self) -> None:
+        if self._busy:
+            self.status.setText("Cancel the download first, or wait for it to finish.")
+            return
+        super().reject()

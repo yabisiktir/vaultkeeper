@@ -32,6 +32,16 @@ _TEXTUAL = ("text/", "html", "xml", "json", "javascript", "urlencoded")
 _UNTYPED_LIMIT = 4 << 20
 
 
+class TransferCancelled(Exception):
+    """Raised from an ``on_chunk`` callback to abandon a download in progress.
+
+    A gigabyte takes long enough that "wait for it" is not an answer, and the
+    only safe place to stop is between chunks. Whatever was written is removed on
+    the way out — a half file under the archive's own name would be indistinguishable
+    from a finished one.
+    """
+
+
 def _wants_text(content_type: str, size: int) -> bool:
     """Whether a body of this type should be decoded to text at all."""
     lowered = (content_type or "").lower()
@@ -148,14 +158,18 @@ class RequestsHttpClient:
                 return response
             written = 0
             expected = response.content_length
-            with open(dest, "wb") as handle:
-                for chunk in resp.iter_content(CHUNK_SIZE):
-                    if not chunk:
-                        continue
-                    handle.write(chunk)
-                    written += len(chunk)
-                    if on_chunk is not None:
-                        on_chunk(written, expected)
+            try:
+                with open(dest, "wb") as handle:
+                    for chunk in resp.iter_content(CHUNK_SIZE):
+                        if not chunk:
+                            continue
+                        handle.write(chunk)
+                        written += len(chunk)
+                        if on_chunk is not None:
+                            on_chunk(written, expected)
+            except TransferCancelled:
+                Path(dest).unlink(missing_ok=True)
+                raise
         return response
 
     def _request(
@@ -224,5 +238,9 @@ class FakeHttpClient:
         data = response.content or response.text.encode("utf-8")
         Path(dest).write_bytes(data)
         if on_chunk is not None:
-            on_chunk(len(data), response.content_length or len(data))
+            try:
+                on_chunk(len(data), response.content_length or len(data))
+            except TransferCancelled:
+                Path(dest).unlink(missing_ok=True)
+                raise
         return response

@@ -15,7 +15,7 @@ from urllib.parse import unquote, urlsplit
 
 from nwnfile.log import get_logger
 
-from vaultkeeper.vault.http import HttpClient, RequestsHttpClient
+from vaultkeeper.vault.http import HttpClient, RequestsHttpClient, TransferCancelled
 from vaultkeeper.vault.scraper import VaultScraper
 from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo
 
@@ -88,6 +88,9 @@ class Downloader:
         try:
             dest.parent.mkdir(parents=True, exist_ok=True)
             resp = self.http.download(url, dest, on_chunk=report)
+        except TransferCancelled:
+            vsi.status = FileStatus.AVAILABLE  # nothing was kept; it can be retried
+            raise
         except OSError as ex:
             vsi.status = FileStatus.ERROR
             log.warning("Vault download failed for %s: %s", url, ex)

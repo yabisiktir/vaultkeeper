@@ -72,6 +72,8 @@ class PrcModuleDialog(QDialog):
         self._tags: tuple[str, ...] = ()
         #: Set while an install is running, so a second click cannot start one.
         self._busy = False
+        self._job = None
+        self._release = lambda: None
         self._step = (0, 1)
         self._step_label = ""
         self.setWindowTitle("Install a PRC-ified Vault Module")
@@ -106,6 +108,11 @@ class PrcModuleDialog(QDialog):
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
+        self.cancel_button = QPushButton("Cancel install")
+        self.cancel_button.setToolTip("Stop the transfer and remove the part-file")
+        self.cancel_button.clicked.connect(self._on_cancel)
+        self.cancel_button.setVisible(False)
+        buttons.addWidget(self.cancel_button)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         buttons.addWidget(close_button)
@@ -533,15 +540,14 @@ class PrcModuleDialog(QDialog):
             self._plan is not None and not self.unanswered and not self._busy
         )
 
-    def _on_bytes(self, info, done: int, total: int) -> None:
-        """Byte progress within one file, and a turn of the event loop.
+    # -- Progress (signals, so these always arrive on the UI thread) -------- #
+    def _on_step(self, label: str, index: int, count: int) -> None:
+        self._step_label = label
+        self._step = (index, count)
+        self.progress.setRange(0, 0)
+        self.status.setText(f"Installing {label} ({index + 1} of {count})…")
 
-        The transfer runs on the UI thread, and these files run to hundreds of
-        megabytes, so without this the window would simply stop repainting for
-        minutes — which reads as a crash, not as patience.
-        """
-        from PySide6.QtWidgets import QApplication
-
+    def _on_bytes(self, done: int, total: int) -> None:
         from vaultkeeper.ui.controller import _fmt_size
 
         index, count = self._step
@@ -554,7 +560,44 @@ class PrcModuleDialog(QDialog):
             )
         else:
             self.status.setText(f"Downloading {where} — {_fmt_size(done)} so far")
-        QApplication.processEvents()
+
+    def _on_cancel(self) -> None:
+        if self._job is not None:
+            self._job.cancel()
+            self.cancel_button.setEnabled(False)
+            self.status.setText("Stopping…")
+
+    def _finish_job(self) -> None:
+        self._busy = False
+        self._job = None
+        self._release()
+        self._release = lambda: None
+        self.cancel_button.setVisible(False)
+        self.progress.setRange(0, 1)
+        self.progress.setValue(1)
+        self._update_install_enabled()
+
+    def _job_done(self, steps) -> None:
+        mod = self.mod_name_edit.text().strip()
+        self._finish_job()
+        self.populate_results(steps)
+        done = sum(1 for s in steps if s["ok"])
+        module_ok = any(s["kind"] == "module" and s["ok"] for s in steps)
+        self.status.setText(
+            f"{done} of {len(steps)} step(s) succeeded. "
+            + (f"'{mod}' is installed." if module_ok else f"'{mod}' was not installed.")
+        )
+
+    def _job_failed(self, message: str) -> None:
+        self._finish_job()
+        self.status.setText(f"That did not work: {message}")
+
+    def _job_cancelled(self) -> None:
+        self._finish_job()
+        self.status.setText(
+            "Cancelled. The part-downloaded file was removed. Anything installed "
+            "before you stopped is still installed."
+        )
 
     def _on_install(self) -> None:
         if self._busy:
@@ -572,39 +615,61 @@ class PrcModuleDialog(QDialog):
             return
         requirements = self.checked_requirements()
         group = self.group_combo.currentText().strip() or None
-        self._busy = True
-        self.install_button.setEnabled(False)
-        self.progress.setVisible(True)
-        self.progress.setRange(0, 0)  # indeterminate until the first bytes land
+        file_ident, archive = self._file_ident, self._archive_name
 
-        def on_progress(index: int, count: int, label: str) -> None:
-            self._step_label = label
-            self._step = (index, count)
-            self.progress.setRange(0, 0)
-            self.status.setText(f"Installing {label} ({index + 1} of {count})…")
+        def work(job):
+            def on_progress(index: int, count: int, label: str) -> None:
+                job.step.emit(label, index, count)
 
-        try:
-            steps = self.controller.install_prc_module(
-                self._file_ident,
+            def on_bytes(info, done: int, total: int) -> None:
+                job.raise_if_cancelled()
+                job.bytes_progress.emit(done, total)
+
+            return self.controller.install_prc_module(
+                file_ident,
                 mod,
                 requirements,
                 group=group,
-                filename=self._archive_name,
+                filename=archive,
                 on_progress=on_progress,
-                on_bytes=self._on_bytes,
+                on_bytes=on_bytes,
             )
-        finally:
-            self._busy = False
-            self.install_button.setEnabled(True)
-            self.progress.setRange(0, 1)
-            self.progress.setValue(1)
-        self.populate_results(steps)
-        done = sum(1 for s in steps if s["ok"])
-        module_ok = any(s["kind"] == "module" and s["ok"] for s in steps)
-        self.status.setText(
-            f"{done} of {len(steps)} step(s) succeeded. "
-            + (f"'{mod}' is installed." if module_ok else f"'{mod}' was not installed.")
-        )
+
+        self._start_job(work)
+
+    def _start_job(self, work) -> None:
+        """Run the install on a worker thread; the window behind is taken out of play."""
+        from vaultkeeper.ui.background import BackgroundJob, claim
+
+        self._busy = True
+        self.install_button.setEnabled(False)
+        self.cancel_button.setVisible(True)
+        self.cancel_button.setEnabled(True)
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)  # indeterminate until the first bytes land
+        self._release = claim(self)
+
+        self._job = BackgroundJob(work, parent=self)
+        self._job.step.connect(self._on_step)
+        self._job.bytes_progress.connect(self._on_bytes)
+        self._job.done.connect(self._job_done)
+        self._job.failed.connect(self._job_failed)
+        self._job.cancelled_early.connect(self._job_cancelled)
+        self._job.start()
+
+    def closeEvent(self, event) -> None:
+        """Refuse to close mid-install — the signals would reach a deleted dialog."""
+        if self._busy:
+            event.ignore()
+            self.status.setText("Cancel the install first, or wait for it to finish.")
+            return
+        super().closeEvent(event)
+
+    def reject(self) -> None:
+        if self._busy:
+            self.status.setText("Cancel the install first, or wait for it to finish.")
+            return
+        super().reject()
 
     def populate_results(self, steps: list[dict]) -> None:
         """Show what each install step did, so a partial failure names itself."""

@@ -132,9 +132,15 @@ def fetch(
     A confirmation step is followed once. Anything else Drive says raises
     :class:`DriveDownloadError` with the reason, and nothing is left on disk.
     """
+    from vaultkeeper.vault.http import TransferCancelled
+
     url = download_url(file_ident)
     part = dest_dir / f".{file_ident}.part"
-    response = http.download(url, part, on_chunk=on_chunk)
+    try:
+        response = http.download(url, part, on_chunk=on_chunk)
+    except TransferCancelled:
+        _discard(part)
+        raise
     if not response.ok:
         _discard(part)
         raise DriveDownloadError(f"Google Drive answered HTTP {response.status}.")
@@ -146,7 +152,11 @@ def fetch(
         if not target:
             raise DriveDownloadError(describe_page(body))
         url = target
-        response = http.download(url, part, on_chunk=on_chunk)
+        try:
+            response = http.download(url, part, on_chunk=on_chunk)
+        except TransferCancelled:
+            _discard(part)
+            raise
         if not response.ok or _is_page_on_disk(response, part):
             body = _read_page(part) if response.ok else ""
             _discard(part)
