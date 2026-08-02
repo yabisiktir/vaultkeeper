@@ -106,11 +106,14 @@ class SettingsDialog(QDialog):
         }
 
     def _build_reset_button(self):
-        from PySide6.QtWidgets import QMenu, QToolButton
+        # A QPushButton, not a QToolButton: a tool button does not size itself
+        # for its label plus the menu arrow, so "Reset…" rendered clipped inside
+        # a box a third too narrow, next to full-size Help/Cancel/OK. A push
+        # button with a menu sizes correctly and matches the buttons beside it.
+        from PySide6.QtWidgets import QMenu, QPushButton
 
-        button = QToolButton()
-        button.setText("Reset…")
-        button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        button = QPushButton("Reset…")
+        button.setAutoDefault(False)  # Enter belongs to OK, not to opening a menu
         menu = QMenu(button)
         self._reset_all_action = menu.addAction(
             "Restore All Settings to Default Values", self._on_reset_all
