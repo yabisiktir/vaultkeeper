@@ -1193,6 +1193,8 @@ class MainWindow(QMainWindow):
             "MsDownloadProject": self._on_download_project,
             "RbnDownloadProject": self._on_download_project,
             "TsDownloadProject": self._on_download_project,
+            # Downloads (the PRC-ified Drive collection) — added by this port.
+            "RbnPrcModule": self._on_prc_module,
             # Settings. VB has two distinct surfaces: BasicSettings (a small curated
             # Behaviour/User-Interface dialog whose Advanced button chains into the
             # full Settings) and the full per-preference Settings browser.
@@ -1966,6 +1968,18 @@ class MainWindow(QMainWindow):
         # Refresh the mod list when the dialog closes (a download can create a mod).
         self._download_dialog.finished.connect(self.refresh)
         self._download_dialog.show()
+
+    def _on_prc_module(self) -> None:
+        """Install a Vault module rebuilt for PRC, from the published Drive folder."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.prc_module import PrcModuleDialog
+
+        self._prc_dialog = PrcModuleDialog(self.controller, parent=self)
+        # Installing creates mods (the module and each dependency), so the list
+        # is stale by the time the dialog closes.
+        self._prc_dialog.finished.connect(self.refresh)
+        self._prc_dialog.show()
 
     def _on_basic_settings(self) -> None:
         """Open the curated Basic Settings dialog (VB BasicSettings).

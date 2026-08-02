@@ -39,11 +39,20 @@ _SIGNIN = re.compile(r"accounts\.google\.com|sign ?in", re.IGNORECASE)
 
 @dataclass(frozen=True)
 class DriveFile:
-    """A resolved download."""
+    """A resolved download.
+
+    ``content`` carries the bytes when the resolving request already returned the
+    file — which, per the measurement above, is the normal case. Deciding whether
+    Drive answered with the archive or with a page means looking at the answer, so
+    by the time we know it is the archive we are holding it; handing it back spares
+    the caller an identical second transfer of up to 83 MB. It is empty when a
+    confirmation step was followed instead, and the caller must fetch ``url``.
+    """
 
     url: str
     filename: str = ""
     size: int = 0
+    content: bytes = b""
 
 
 class DriveDownloadError(RuntimeError):
@@ -114,24 +123,35 @@ def resolve(http, file_ident: str, *, head: bytes = b"") -> DriveFile:
     """Resolve a Drive file id to a downloadable URL.
 
     ``head`` lets a caller pass the first bytes it has already read, so a
-    response can be judged on its content rather than its status alone.
+    response can be judged on its content rather than its status alone. When it
+    is not given, the response's own first bytes are used — without that, a real
+    download is mistaken for a page, because ``requests`` decodes an archive's
+    bytes into a perfectly non-empty ``.text``.
     Raises :class:`DriveDownloadError` when Drive answered with a page.
     """
     url = download_url(file_ident)
     response = http.get(url)
     content_type = response.header("Content-Type") if hasattr(response, "header") else ""
     body = getattr(response, "text", "") or ""
+    content = getattr(response, "content", b"") or b""
+    head = head or content[:16]
 
     if is_page(content_type, head) or (body and not head):
         target = confirm_url(body, file_ident)
         if not target:
             raise DriveDownloadError(describe_page(body))
-        url = target
+        # Past a confirmation step the bytes are behind the new URL, not in hand.
+        return DriveFile(target, _suggested_name(response), _size_of(response))
 
-    return DriveFile(
-        url,
-        filename_from(
-            response.header("Content-Disposition") if hasattr(response, "header") else ""
-        ),
-        getattr(response, "content_length", 0) or 0,
+    return DriveFile(url, _suggested_name(response), _size_of(response) or len(content), content)
+
+
+def _suggested_name(response) -> str:
+    disposition = (
+        response.header("Content-Disposition") if hasattr(response, "header") else ""
     )
+    return filename_from(disposition)
+
+
+def _size_of(response) -> int:
+    return getattr(response, "content_length", 0) or 0

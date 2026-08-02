@@ -112,6 +112,46 @@ def test_a_quota_page_raises_instead_of_writing_html_as_a_7z():
         resolve(_client(response), FILE_ID)
 
 
+def test_a_real_download_is_not_mistaken_for_a_page_when_no_head_is_passed():
+    """``requests`` decodes archive bytes into a non-empty ``.text``.
+
+    Judging "did Drive answer with a page?" on that alone condemned every real
+    download: the caller has no first bytes to pass because it has not made the
+    request yet. The response's own content is the head.
+    """
+    archive = b"7z\xbc\xaf\x27\x1c" + b"\x00" * 100
+    response = HttpResponse(
+        download_url(FILE_ID), 200,
+        {"Content-Type": "application/octet-stream"},
+        text=archive.decode("latin-1"),
+        content=archive,
+    )
+    result = resolve(_client(response), FILE_ID)
+    assert result.url == download_url(FILE_ID)
+
+
+def test_the_bytes_already_fetched_come_back_so_they_are_not_fetched_twice():
+    """Knowing it is not a page means having downloaded it — up to 83 MB of it."""
+    archive = b"7z\xbc\xaf\x27\x1c" + b"payload"
+    response = HttpResponse(
+        download_url(FILE_ID), 200,
+        {"Content-Type": "application/octet-stream"},
+        content=archive,
+    )
+    result = resolve(_client(response), FILE_ID)
+    assert result.content == archive
+    assert result.size == len(archive)  # no Content-Length: measured instead
+
+
+def test_following_a_confirmation_hands_back_no_bytes():
+    """The archive is behind the confirm URL; the page's HTML must not pass for it."""
+    response = HttpResponse(
+        download_url(FILE_ID), 200, {"Content-Type": "text/html"}, CONFIRM_HTML,
+        content=CONFIRM_HTML.encode(),
+    )
+    assert resolve(_client(response), FILE_ID).content == b""
+
+
 # -- the suggested name ------------------------------------------------------ #
 def test_the_filename_comes_from_the_content_disposition():
     assert filename_from('attachment; filename="A Call for Heroes [PRC8-CEP3].7z"') == (

@@ -4,7 +4,8 @@ Ported from ``NIT.Designer.vb``: seven tabs (Play, Work with Mods, Work with
 Installers, Tools, Diagnose, Backup and Recovery, Customise), each a row of
 ``ButtonLabel`` buttons (a 32×32 image above a two-line caption). Tab titles, button
 order, captions and images are taken verbatim from the designer so the ribbon is
-identical to the original.
+identical to the original — see :data:`VB_RIBBON_TABS`. Anything this port adds on
+top lives in :data:`ADDED_BUTTONS`, separately, so the two never blur together.
 
 Each button carries the VB control name (``RbnPlay`` …) as its action id; clicking
 emits :attr:`Ribbon.action_triggered` with that id so the controller can wire the
@@ -36,7 +37,7 @@ class RibbonItem:
 
 
 #: The ribbon layout, verbatim from ``NIT.Designer.vb`` (tab title -> buttons).
-RIBBON_TABS: tuple[tuple[str, tuple[RibbonItem, ...]], ...] = (
+VB_RIBBON_TABS: tuple[tuple[str, tuple[RibbonItem, ...]], ...] = (
     ("Play", (
         RibbonItem("RbnDownloadProject", "DownloadProject_32x",
                    "Download and Install\nNeverwinter Vault Project"),
@@ -101,6 +102,38 @@ RIBBON_TABS: tuple[tuple[str, tuple[RibbonItem, ...]], ...] = (
                    "Change Text Size\nand Theme Colours"),
         RibbonItem("RbnManageWorkshop", "Steam32x", "Manage Steam\nWorkshop Content"),
     )),
+)
+
+#: Buttons this port adds beyond the VB original: ``(tab title, follows, item)``,
+#: each placed straight after the named button. Held apart from
+#: :data:`VB_RIBBON_TABS` on purpose — "verbatim from the designer" then stays a
+#: claim that can be checked, and the parity ledger's denominator is not quietly
+#: inflated by things the original tool never had.
+ADDED_BUTTONS: tuple[tuple[str, str, RibbonItem], ...] = (
+    # The PRC-ified Drive collection: a second source of installable modules, so
+    # it belongs next to the Vault one it complements.
+    ("Play", "RbnDownloadProject",
+     RibbonItem("RbnPrcModule", "0205_WebInsertHyperlink_32",
+                "Install a PRC-ified\nVault Module")),
+)
+
+
+def _with_additions(tabs, additions):
+    """``tabs`` with each addition spliced in after the button it follows."""
+    merged = {title: list(items) for title, items in tabs}
+    for title, follows, item in additions:
+        buttons = merged.get(title)
+        if buttons is None:
+            continue
+        names = [b.action for b in buttons]
+        at = names.index(follows) + 1 if follows in names else len(buttons)
+        buttons.insert(at, item)
+    return tuple((title, tuple(merged[title])) for title, _ in tabs)
+
+
+#: What the ribbon actually shows.
+RIBBON_TABS: tuple[tuple[str, tuple[RibbonItem, ...]], ...] = _with_additions(
+    VB_RIBBON_TABS, ADDED_BUTTONS
 )
 
 

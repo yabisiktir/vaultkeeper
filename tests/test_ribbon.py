@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from vaultkeeper.ui import resources as R
-from vaultkeeper.ui.ribbon import RIBBON_TABS, Ribbon
+from vaultkeeper.ui.ribbon import ADDED_BUTTONS, RIBBON_TABS, VB_RIBBON_TABS, Ribbon
 
 
 def test_seven_tabs_in_order(qtbot):
@@ -59,6 +59,21 @@ def test_set_enabled(qtbot):
     qtbot.addWidget(ribbon)
     ribbon.set_enabled("RbnToolset", False)
     assert not ribbon.button("RbnToolset").isEnabled()
+
+
+def test_added_buttons_are_kept_out_of_the_verbatim_vb_layout():
+    """"Verbatim from the designer" has to stay a claim that can be checked."""
+    vb = {item.action for _, items in VB_RIBBON_TABS for item in items}
+    added = {item.action for _, _, item in ADDED_BUTTONS}
+    assert not (vb & added)
+    assert {item.action for _, items in RIBBON_TABS for item in items} == vb | added
+
+
+def test_an_added_button_sits_beside_the_one_it_follows(qtbot):
+    """The PRC-ified Drive source belongs next to the Vault source it complements."""
+    play = dict(RIBBON_TABS)["Play"]
+    order = [item.action for item in play]
+    assert order.index("RbnPrcModule") == order.index("RbnDownloadProject") + 1
 
 
 def test_tabs_left_aligned(qtbot):

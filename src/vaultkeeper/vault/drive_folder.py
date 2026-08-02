@@ -26,6 +26,11 @@ import re
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
+#: The published collection: five subfolders (Android/.34, Base Modules, Bioware
+#: Modules, Persistent Worlds, PnP Conversions) and some sixty ``.7z`` modules.
+#: A default, not a limit — any Drive folder of the same shape can be listed.
+PRC_MODULES_FOLDER = "16p0VI7qPmIV8Zq2MYw6T0niRBEUbrvCA"
+
 #: The stable listing endpoint. ``#list`` only picks the view; the server ignores it.
 _EMBED = "https://drive.google.com/embeddedfolderview?id={id}#list"
 

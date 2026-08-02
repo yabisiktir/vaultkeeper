@@ -2097,14 +2097,20 @@ class ProfileController:
         return self._play_loop
 
     # -- Vault downloads (candidate #3) ----------------------------------- #
-    def _make_scraper(self):
-        from vaultkeeper.app_paths import data_root
-        from vaultkeeper.vault.download_rules import DownloadRules
+    def _vault_http(self):
+        """The shared HTTP client for Vault/Drive work (tests inject their own)."""
         from vaultkeeper.vault.http import RequestsHttpClient
-        from vaultkeeper.vault.scraper import VaultScraper
 
         if self._http is None:
             self._http = RequestsHttpClient()
+        return self._http
+
+    def _make_scraper(self):
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.vault.download_rules import DownloadRules
+        from vaultkeeper.vault.scraper import VaultScraper
+
+        self._vault_http()
         data_dir = self.store_path.parent if self.store_path else data_root()
         rules = self._load_download_rules(data_dir) or DownloadRules()
         return VaultScraper(rules, self._http)
@@ -2212,6 +2218,208 @@ class ProfileController:
             "built": build["ok"],
             "install_message": install_message,
         }
+
+    # -- PRC-ified modules (Google Drive + the Vault, paired) -------------- #
+    def drive_entries(self, folder: str = "") -> list:
+        """Everything in a Drive folder — subfolders first, then module archives.
+
+        ``folder`` is an id or any pasted Drive URL; empty means the published
+        PRC-ified collection. An unreadable folder lists as empty rather than
+        partially (see :mod:`~vaultkeeper.vault.drive_folder`).
+        """
+        from vaultkeeper.vault.drive_folder import PRC_MODULES_FOLDER, DriveFolder
+
+        listing = DriveFolder(self._vault_http()).list(folder or PRC_MODULES_FOLDER)
+        folders = sorted((e for e in listing if e.is_folder), key=lambda e: e.name.lower())
+        archives = sorted(
+            (e for e in listing if not e.is_folder), key=lambda e: e.title.lower()
+        )
+        return [*folders, *archives]
+
+    def find_vault_pages(self, title: str, *, limit: int = 10) -> list:
+        """Ranked Vault pages that might be ``title``'s — for the user to choose from.
+
+        Deliberately returns a list and never a decision: "A Call for Heroes"
+        matches Selendi: A Call For Heroes 1, 2 and 3 with identical scores, and no
+        amount of ranking can tell which one an archive was built from. Picking the
+        wrong page attaches the wrong dependencies, which is a broken install.
+        """
+        from vaultkeeper.vault.vault_search import VaultSearch
+
+        return VaultSearch(self._vault_http()).find(title, limit=limit)
+
+    def module_dependency_plan(self, tags, page_url: str):
+        """What a PRC-ified module needs: its build tag merged with its Vault page.
+
+        Returns a :class:`~vaultkeeper.vault.prc_dependencies.Plan` — the settled
+        requirements plus any family the two sources disagree about, which only the
+        user can resolve.
+        """
+        from vaultkeeper.vault.prc_dependencies import merge
+
+        required = self.project_required_projects(page_url) if page_url else []
+        return merge(tags, required)
+
+    def satisfied_by(self, requirement_name: str) -> str:
+        """The installed mod that already covers ``requirement_name``, or ``""``.
+
+        Matched by dependency *family*, so an installed "CEP 2.65" answers a
+        requirement written "CEP3" — same thing, different version. That is worth
+        saying out loud rather than hiding: the user is the one who knows whether
+        the version they have will do.
+        """
+        from vaultkeeper.vault.prc_dependencies import family_of
+
+        wanted = family_of(requirement_name)
+        if not wanted:
+            return ""
+        for key in self.pd.mod_keys:
+            md = self.pd.mod_item(key)
+            if md is None or md.is_group_item or not md.installed:
+                continue
+            if family_of(md.mod_name) == wanted:
+                return md.mod_name
+        return ""
+
+    def download_drive_module(
+        self, file_ident: str, mod_name: str, *, group: str | None = None, filename: str = ""
+    ):
+        """Fetch a Drive archive into ``mod_name``'s downloads, creating the mod if new.
+
+        Raises :class:`~vaultkeeper.vault.drive_download.DriveDownloadError` when
+        Drive answered with a page — a quota notice or a sign-in prompt arrives as
+        HTTP 200 with HTML, and writing that to disk under a ``.7z`` name would only
+        surface later as a corrupt archive.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.vault import drive_download
+        from vaultkeeper.vault.downloader import Downloader, DownloadResult
+        from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo
+
+        if mod_name and self.pd.mod_item(mod_name) is None:
+            self.create_mod(mod_name, group)
+        dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
+        dest.mkdir(parents=True, exist_ok=True)
+
+        resolved = drive_download.resolve(self._vault_http(), file_ident)
+        name = resolved.filename or filename or f"{file_ident}.7z"
+        info = VaultScraperInfo(
+            project_title=mod_name,
+            description=name,
+            direct_url=resolved.url,
+            filename=name,
+            byte_size=resolved.size,
+        )
+        if resolved.content:  # already in hand — don't transfer it twice
+            path = dest / name
+            try:
+                path.write_bytes(resolved.content)
+            except OSError as ex:
+                info.status = FileStatus.ERROR
+                return DownloadResult(info, error=str(ex))
+            info.local_filename = name
+            info.byte_size = len(resolved.content)
+            info.status = FileStatus.DOWNLOADED
+            return DownloadResult(info, path=path, ok=True)
+        return Downloader(self._vault_http()).download_file(info, dest)
+
+    def install_prc_module(
+        self,
+        file_ident: str,
+        mod_name: str,
+        requirements=(),
+        *,
+        group: str | None = None,
+        filename: str = "",
+        on_progress=None,
+    ) -> list[dict]:
+        """Install a PRC-ified module and the dependencies the user settled on.
+
+        Dependencies go in **first**, and each becomes its own mod rather than being
+        folded into the module's installer — CEP is shared between modules and has to
+        stay separately uninstallable. Each requirement needs a Vault URL to be
+        fetchable; one that has none (a build tag like ``PRC8`` names no page) is
+        reported as such instead of being silently dropped.
+
+        Returns one ``{"name", "kind", "ok", "message"}`` per step, in the order they
+        ran, so a partial failure says exactly which part failed.
+        """
+        steps: list[dict] = []
+        wanted = list(requirements)
+        total = len(wanted) + 1
+
+        def announce(index: int, label: str) -> None:
+            if on_progress is not None:
+                on_progress(index, total, label)
+
+        for index, requirement in enumerate(wanted):
+            name = getattr(requirement, "name", str(requirement))
+            url = getattr(requirement, "url", "")
+            announce(index, name)
+            if not url:
+                steps.append({
+                    "name": name,
+                    "kind": "dependency",
+                    "ok": False,
+                    "message": (
+                        "No Vault page is known for this one, so it cannot be "
+                        "downloaded here — install it yourself before playing."
+                    ),
+                })
+                continue
+            files = self.scrape_project(url)
+            if not files:
+                steps.append({
+                    "name": name,
+                    "kind": "dependency",
+                    "ok": False,
+                    "message": "Its Vault page listed no downloadable files.",
+                })
+                continue
+            dep_mod = self.suggested_mod_name(files[0].project_title or name) or name
+            result = self.install_downloaded_project(files, dep_mod, group=group)
+            steps.append({
+                "name": name,
+                "kind": "dependency",
+                "ok": bool(result["built"]),
+                "message": (
+                    f"Installed as '{dep_mod}'. {result['install_message']}"
+                    if result["built"]
+                    else f"Downloaded {result['downloaded']} of {result['total']} file(s), "
+                    f"but could not build the installer for '{dep_mod}'."
+                ),
+            })
+
+        announce(len(wanted), mod_name)
+        from vaultkeeper.vault.drive_download import DriveDownloadError
+
+        try:
+            download = self.download_drive_module(
+                file_ident, mod_name, group=group, filename=filename
+            )
+        except DriveDownloadError as ex:
+            steps.append(
+                {"name": mod_name, "kind": "module", "ok": False, "message": str(ex)}
+            )
+            return steps
+        if not download.ok:
+            steps.append({
+                "name": mod_name,
+                "kind": "module",
+                "ok": False,
+                "message": f"The archive could not be downloaded: {download.error}",
+            })
+            return steps
+
+        build = self.build_installer_payload(mod_name)
+        message = self.install([mod_name]) if build["ok"] else build["message"]
+        steps.append({
+            "name": mod_name,
+            "kind": "module",
+            "ok": bool(build["ok"]),
+            "message": message,
+        })
+        return steps
 
     @staticmethod
     def _load_download_rules(data_dir: Path):
