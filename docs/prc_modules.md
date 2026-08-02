@@ -51,6 +51,18 @@ Nothing in either case is decided for you.
    because CEP is shared between modules and has to stay separately uninstallable.
    Every step reports its own outcome, so a partial failure names itself.
 
+## While it is downloading
+
+The transfer runs in the background, so the window keeps painting and shows how
+many megabytes of how many have arrived. **Cancel** stops it between chunks and
+removes the part-downloaded file — nothing half-written is ever left under an
+archive's name. Anything already installed before you cancelled stays installed.
+
+The main window is disabled until the job finishes. That is deliberate: installing
+creates mods and rewrites the tool's own records, and no other screen expects that
+to happen underneath it. The dialog will not close mid-job for the same reason —
+cancel first, or wait.
+
 ## When Drive says no
 
 Google Drive answers three different failures with HTTP 200 and a web page: a
