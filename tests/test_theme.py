@@ -108,3 +108,32 @@ def test_settings_round_trips_font_and_theme(tmp_path):
     loaded = load_settings(path)
     assert loaded.font_point_size == 14
     assert loaded.theme == "dark"
+
+
+# -- the widget style, which decides whether the palette is honoured ----------#
+def test_choosing_a_theme_switches_to_fusion():
+    """The native styles paint chrome from the OS and ignore the palette.
+
+    On macOS that left the toolbar and the ribbon's tab strip dark while every
+    panel below them went light — two halves of different themes in one window.
+    Fusion honours the palette throughout, and identically on all three
+    platforms this ships on.
+    """
+    app = _app()
+    original = app.style().objectName()
+    try:
+        apply_appearance(app, font_point_size=0, theme="light")
+        assert app.style().objectName().lower() == "fusion"
+    finally:
+        app.setStyle(original)
+
+
+def test_the_system_theme_keeps_the_platform_style():
+    """"System" means the OS decides — including how widgets are drawn."""
+    app = _app()
+    original = app.style().objectName()
+    try:
+        apply_appearance(app, font_point_size=0, theme="system")
+        assert app.style().objectName() == original
+    finally:
+        app.setStyle(original)

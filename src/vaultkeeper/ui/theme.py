@@ -86,6 +86,13 @@ def apply_appearance(app: QApplication, *, font_point_size: int, theme: str) -> 
         f.setPointSize(font_point_size)
         app.setFont(f)
     if theme != "system":
+        # Switch to Fusion first. The native styles paint their chrome from the
+        # OS appearance and ignore most of an application palette: on macOS that
+        # left the toolbar and the ribbon's tab strip dark while every panel
+        # below them went light, which is not a theme so much as two halves of
+        # different ones. Fusion honours the palette throughout, and does so
+        # identically on Windows, macOS and Linux — which this ships on.
+        app.setStyle("Fusion")
         pal = build_palette(theme)
         if pal:
             app.setPalette(pal)
