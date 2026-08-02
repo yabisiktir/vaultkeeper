@@ -285,6 +285,7 @@ class DownloadProjectDialog(QDialog):
         self._job = BackgroundJob(work, parent=self)
         self._job.step.connect(self._on_step)
         self._job.bytes_progress.connect(self._on_bytes)
+        self._job.phase.connect(self._on_phase)
         self._job.done.connect(self._job_done)
         self._job.failed.connect(self._job_failed)
         self._job.cancelled_early.connect(self._job_cancelled)
@@ -348,6 +349,21 @@ class DownloadProjectDialog(QDialog):
         else:
             self.status.setText(f"Downloading {where} — {_fmt_size(done)} so far")
 
+    def _on_phase(self, label: str, done: int, total: int) -> None:
+        """What the job is doing once the downloading is over.
+
+        Extracting and installing take as long as the download and used to say
+        nothing at all, leaving the last "downloaded 1.2 GB of 1.2 GB" on screen
+        under a full bar — which looks stuck rather than busy.
+        """
+        if total > 0:
+            self.progress.setRange(0, total)
+            self.progress.setValue(done)
+            self.status.setText(f"{label} — {done:,} of {total:,}")
+        else:
+            self.progress.setRange(0, 0)  # no count to show: busy, not measurable
+            self.status.setText(f"{label}…")
+
     def _job_callbacks(self, job):
         """Progress callbacks that emit rather than touch widgets from the worker."""
 
@@ -358,7 +374,10 @@ class DownloadProjectDialog(QDialog):
             job.raise_if_cancelled()
             job.bytes_progress.emit(done, total)
 
-        return on_progress, on_bytes
+        def on_phase(label: str, done: int, total: int) -> None:
+            job.phase.emit(label, done, total)
+
+        return on_progress, on_bytes, on_phase
 
     def _on_download(self) -> None:
         if self._busy:
@@ -375,7 +394,7 @@ class DownloadProjectDialog(QDialog):
         group = self.group_combo.currentText().strip() or None
 
         def work(job):
-            on_progress, on_bytes = self._job_callbacks(job)
+            on_progress, on_bytes, _ = self._job_callbacks(job)
             return self.controller.download_project(
                 files, mod, group=group, on_progress=on_progress, on_bytes=on_bytes
             )
@@ -405,9 +424,10 @@ class DownloadProjectDialog(QDialog):
         group = self.group_combo.currentText().strip() or None
 
         def work(job):
-            on_progress, on_bytes = self._job_callbacks(job)
+            on_progress, on_bytes, on_phase = self._job_callbacks(job)
             return self.controller.install_downloaded_project(
-                files, mod, group=group, on_progress=on_progress, on_bytes=on_bytes
+                files, mod, group=group, on_progress=on_progress,
+                on_bytes=on_bytes, on_phase=on_phase,
             )
 
         def done(result) -> None:

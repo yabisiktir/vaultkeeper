@@ -561,6 +561,23 @@ class PrcModuleDialog(QDialog):
         else:
             self.status.setText(f"Downloading {where} — {_fmt_size(done)} so far")
 
+    def _on_phase(self, label: str, done: int, total: int) -> None:
+        """What the job is doing once a download is over.
+
+        Extracting the archive and installing it take as long again as fetching it,
+        and used to say nothing — leaving the last byte count on screen under a full
+        bar, which looks stuck rather than busy.
+        """
+        index, count = self._step
+        where = f"{self._step_label} ({index + 1} of {count})"
+        if total > 0:
+            self.progress.setRange(0, total)
+            self.progress.setValue(done)
+            self.status.setText(f"{label} for {where} — {done:,} of {total:,}")
+        else:
+            self.progress.setRange(0, 0)  # no count to show: busy, not measurable
+            self.status.setText(f"{label} for {where}…")
+
     def _on_cancel(self) -> None:
         if self._job is not None:
             self._job.cancel()
@@ -625,6 +642,9 @@ class PrcModuleDialog(QDialog):
                 job.raise_if_cancelled()
                 job.bytes_progress.emit(done, total)
 
+            def on_phase(label: str, done: int, total: int) -> None:
+                job.phase.emit(label, done, total)
+
             return self.controller.install_prc_module(
                 file_ident,
                 mod,
@@ -633,6 +653,7 @@ class PrcModuleDialog(QDialog):
                 filename=archive,
                 on_progress=on_progress,
                 on_bytes=on_bytes,
+                on_phase=on_phase,
             )
 
         self._start_job(work)
@@ -652,6 +673,7 @@ class PrcModuleDialog(QDialog):
         self._job = BackgroundJob(work, parent=self)
         self._job.step.connect(self._on_step)
         self._job.bytes_progress.connect(self._on_bytes)
+        self._job.phase.connect(self._on_phase)
         self._job.done.connect(self._job_done)
         self._job.failed.connect(self._job_failed)
         self._job.cancelled_early.connect(self._job_cancelled)

@@ -414,8 +414,11 @@ class ProfileController:
         return True
 
     # -- Operations -------------------------------------------------------- #
-    def install(self, names: list[str]) -> str:
-        self.engine.install_files(self.mod_files(names), anneal_mods=names)
+    def install(self, names: list[str], *, on_phase=None) -> str:
+        """Install the named mods; ``on_phase(label, done, total)`` narrates it."""
+        self.engine.install_files(
+            self.mod_files(names), anneal_mods=names, on_phase=on_phase
+        )
         return self.engine.result_message
 
     def _settings(self):
@@ -1221,6 +1224,7 @@ class ProfileController:
         convert_bik: bool | None = None,
         wizard_choice: str | None = None,
         wizard_checked: set[str] | None = None,
+        on_phase=None,
     ) -> dict:
         """Populate a mod's ``.Mod Installer`` payload from its raw/downloaded files.
 
@@ -1265,6 +1269,7 @@ class ProfileController:
         ignore = self._wizard_ignore_paths(mod_folder, mod_name, wizard_choice, wizard_checked)
 
         converted = 0
+        say = on_phase if on_phase is not None else lambda *_: None
         # Extract archives into a temp area that survives until the copy is done.
         with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
             plan = build_copy_plan(
@@ -1275,9 +1280,11 @@ class ProfileController:
                 extract_root=Path(extract_dir),
                 convert_bik=convert_bik,
                 ignore=ignore,
+                on_phase=say,
             )
             copied = 0
-            for item in plan.items:
+            total = len(plan.items)
+            for index, item in enumerate(plan.items, start=1):
                 dest = installer / item.folder / item.filename
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 try:
@@ -1285,10 +1292,13 @@ class ProfileController:
                     copied += 1
                 except OSError:
                     continue
+                finally:
+                    say("Building the installer", index, total)
 
             # BIK→WBM: convert each collected .bik and copy the .wbm into the movies
             # folder the Mapper assigns for it (VB BgConverter → WbmFiles copy).
             if convert_bik and plan.bik_files:
+                say("Converting movies", 0, 0)
                 converted = self._convert_bik_movies(plan.bik_files, installer, Path(extract_dir))
 
         # Persist the patch-hak ordering (VB UpdateSequenceFile): add this mod's
@@ -1297,6 +1307,7 @@ class ProfileController:
 
         # Mark as an installer; _create_identifier rescans the payload, recomputes
         # file/mod states and persists (like add_files_to_mod's tail).
+        say("Recording what the mod contains", 0, 0)
         self._create_identifier(mod_name, C.EXT_INSTALLER)
 
         return {
@@ -2211,6 +2222,7 @@ class ProfileController:
         group: str | None = None,
         on_progress=None,
         on_bytes=None,
+        on_phase=None,
     ) -> dict:
         """Download a project, build its installer, then install it (VB Install button).
 
@@ -2225,8 +2237,12 @@ class ProfileController:
             files, mod_name, group=group, on_progress=on_progress, on_bytes=on_bytes
         )
         downloaded = sum(1 for r in results if r.ok)
-        build = self.build_installer_payload(mod_name)
-        install_message = self.install([mod_name]) if build["ok"] else build["message"]
+        build = self.build_installer_payload(mod_name, on_phase=on_phase)
+        install_message = (
+            self.install([mod_name], on_phase=on_phase)
+            if build["ok"]
+            else build["message"]
+        )
         return {
             "downloaded": downloaded,
             "total": len(results),
@@ -2356,6 +2372,7 @@ class ProfileController:
         filename: str = "",
         on_progress=None,
         on_bytes=None,
+        on_phase=None,
     ) -> list[dict]:
         """Install a PRC-ified module and the dependencies the user settled on.
 
@@ -2402,7 +2419,7 @@ class ProfileController:
                 continue
             dep_mod = self.suggested_mod_name(files[0].project_title or name) or name
             result = self.install_downloaded_project(
-                files, dep_mod, group=group, on_bytes=on_bytes
+                files, dep_mod, group=group, on_bytes=on_bytes, on_phase=on_phase
             )
             steps.append({
                 "name": name,
@@ -2437,8 +2454,12 @@ class ProfileController:
             })
             return steps
 
-        build = self.build_installer_payload(mod_name)
-        message = self.install([mod_name]) if build["ok"] else build["message"]
+        build = self.build_installer_payload(mod_name, on_phase=on_phase)
+        message = (
+            self.install([mod_name], on_phase=on_phase)
+            if build["ok"]
+            else build["message"]
+        )
         steps.append({
             "name": mod_name,
             "kind": "module",

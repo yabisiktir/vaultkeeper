@@ -49,6 +49,10 @@ class BackgroundJob(QThread):
     step = Signal(str, int, int)
     #: Progress through the current item: (bytes done, bytes total or 0).
     bytes_progress = Signal(int, int)
+    #: What the job is doing right now: (label, done, total). A ``total`` of 0 means
+    #: the phase has no count — extracting a 2 GB archive is one opaque operation,
+    #: and a bar for it would have to invent its position.
+    phase = Signal(str, int, int)
 
     def __init__(self, work: Callable[[BackgroundJob], object], parent=None) -> None:
         super().__init__(parent)

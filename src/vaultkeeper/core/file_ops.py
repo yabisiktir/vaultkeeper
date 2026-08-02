@@ -13,6 +13,7 @@ matching how the VB engine records installed-file checksums without recomputing.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -48,17 +49,27 @@ class OpResult:
     crc: int = 0
 
 
+#: Called after each item in a batch: ``(done, total)``. A big mod installs
+#: thousands of files, and without this the caller has nothing to show for the
+#: minutes it takes — which is indistinguishable from being stuck.
+ProgressFn = Callable[[int, int], None]
+
+
 class FileOps:
     """Performs batch copies/deletes against the real filesystem, headlessly."""
 
-    def copy(self, items: list[CopyItem]) -> list[OpResult]:
+    def copy(
+        self, items: list[CopyItem], *, on_item: ProgressFn | None = None
+    ) -> list[OpResult]:
         results: list[OpResult] = []
-        for item in items:
+        for index, item in enumerate(items, start=1):
             try:
                 fs.copy_file(item.source, item.target, overwrite=True)
                 results.append(OpResult(item.key, True, crc=item.crc))
             except OSError as exc:
                 results.append(OpResult(item.key, False, message=str(exc)))
+            if on_item is not None:
+                on_item(index, len(items))
         return results
 
     def delete(self, items: list[DeleteItem], *, to_trash: bool = False) -> list[OpResult]:

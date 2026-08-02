@@ -547,3 +547,42 @@ def test_the_dialog_will_not_close_mid_install(qtbot, tmp_path):
     assert "Cancel the install first" in dlg.status.text()
     controller._http.gate.set()
     qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)
+
+
+def test_the_install_phases_report_after_the_download(qtbot, tmp_path):
+    """The archive lands, then extracting and installing it must keep talking."""
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient({
+        **_responses(),
+        download_url("1hWArchiveAA"): HttpResponse(
+            download_url("1hWArchiveAA"), 200,
+            {"Content-Type": "application/octet-stream",
+             "Content-Disposition": 'attachment; filename="heroes.7z"'},
+            content=b"7z\xbc\xaf\x27\x1cmod",
+        ),
+    })
+    controller._extractor = FakeArchiveExtractor(
+        contents={"heroes.7z": {"modules/m.mod": b"M"}}
+    )
+    dlg = _at_the_plan(qtbot, controller)
+    next(
+        b for b in dlg._choice_groups["CEP"].buttons()
+        if b.property("requirement_name") == "CEP3"
+    ).setChecked(True)
+    for index in range(dlg.plan_tree.topLevelItemCount()):
+        dlg.plan_tree.topLevelItem(index).setCheckState(0, Qt.CheckState.Unchecked)
+
+    said: list[str] = []
+    real = dlg._on_phase
+    dlg._on_phase = lambda label, done, total: (
+        real(label, done, total), said.append(label)
+    )
+    dlg._on_install()
+    qtbot.waitUntil(lambda: not dlg._busy, timeout=10000)
+    assert "Extracting heroes.7z" in said
+    assert "Building the installer" in said
+    assert "Installing files" in said
+    # The phase line names the step it belongs to, not just the phase.
+    assert "A Call For Heroes" in dlg._step_label

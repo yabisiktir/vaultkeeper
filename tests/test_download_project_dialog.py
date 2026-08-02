@@ -379,3 +379,53 @@ def test_dialog_shows_required_projects(qtbot, tmp_path):
     # Double-clicking loads the required project's URL into the fetch box.
     dlg._on_required_double_clicked(dlg.required_list.topLevelItem(0))
     assert dlg.url_edit.text() == "http://vault/cep"
+
+
+# -- the silent half: extracting and installing -------------------------------- #
+def test_the_build_and_install_phases_report_progress(qtbot, tmp_path):
+    """After the download, extracting and installing took as long and said nothing.
+
+    The last "1.2 GB of 1.2 GB" stayed on screen under a full bar for minutes,
+    which is indistinguishable from being stuck.
+    """
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/a.zip": HttpResponse("http://cdn/a.zip", 200, content=b"Z")}
+    )
+    controller._extractor = FakeArchiveExtractor(
+        contents={"a.zip": {"hak/x.hak": b"X", "override/o.2da": b"O"}}
+    )
+    dlg = DownloadProjectDialog(controller, default_mod="Phased")
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+
+    said: list[tuple[str, int, int]] = []
+    real = dlg._on_phase
+    dlg._on_phase = lambda label, done, total: (
+        real(label, done, total), said.append((label, done, total))
+    )
+    dlg._on_install()
+    _finish(qtbot, dlg)
+
+    labels = [label for label, _, _ in said]
+    assert any(label == "Extracting a.zip" for label in labels)
+    assert any(label == "Building the installer" for label in labels)
+    assert any(label == "Installing files" for label in labels)
+    # A phase with a count drives a real bar; one without asks for a busy indicator.
+    counted = [(d, t) for _, d, t in said if t > 0]
+    assert counted and all(0 < d <= t for d, t in counted)
+    assert "Installed 'Phased'" in dlg.status.text()
+
+
+def test_a_phase_without_a_count_shows_a_busy_bar_not_a_full_one(qtbot, tmp_path):
+    """Extracting a 2 GB archive is one opaque step; a bar for it would have to lie."""
+    dlg = DownloadProjectDialog(_controller(tmp_path))
+    qtbot.addWidget(dlg)
+    dlg._on_phase("Extracting cep_3.1.4.7z", 0, 0)
+    assert (dlg.progress.minimum(), dlg.progress.maximum()) == (0, 0)  # indeterminate
+    assert dlg.status.text() == "Extracting cep_3.1.4.7z…"
+    dlg._on_phase("Installing files", 40, 200)
+    assert (dlg.progress.maximum(), dlg.progress.value()) == (200, 40)
+    assert dlg.status.text() == "Installing files — 40 of 200"

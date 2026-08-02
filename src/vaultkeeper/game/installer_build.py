@@ -250,6 +250,7 @@ def build_copy_plan(
     extract_root: Path | None = None,
     convert_bik: bool = False,
     ignore: set[Path] | None = None,
+    on_phase=None,
 ) -> InstallerPlan:
     """Scan ``mod_folder`` and return the installer :class:`InstallerPlan`.
 
@@ -261,10 +262,18 @@ def build_copy_plan(
 
     ``ignore`` is a set of resolved file paths to skip (VB ``RunWizard``'s ignore
     list — files the installer wizard's SelectOne/SelectMany/exclude decisions drop).
+
+    ``on_phase(label, done, total)`` names what is happening. Extraction is the
+    longest silent stretch of an install — a gigabyte of 7-Zip takes minutes — and
+    the count is not knowable in advance, because extracted folders are rescanned
+    and can yield archives of their own. So each archive is named as it is reached
+    and ``total`` stays 0, which asks the caller for a busy indicator rather than
+    a bar that would have to lie.
     """
     plan = InstallerPlan(mod_name=mod_name)
     analyser = _Analyser(mapper)
     ignore = ignore or set()
+    say = on_phase if on_phase is not None else lambda *_: None
 
     if extract_root is None:
         extract_root = Path(tempfile.mkdtemp(prefix="vk-installer-"))
@@ -275,6 +284,7 @@ def build_copy_plan(
 
     while scan_queue:
         folder = scan_queue.popleft()
+        say("Looking through the mod's files", 0, 0)
         archives = _scan_folder(
             folder, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
         )
@@ -283,6 +293,7 @@ def build_copy_plan(
                 continue
             dest = extract_root / f"x{extract_counter:04d}"
             extract_counter += 1
+            say(f"Extracting {archive.name}", 0, 0)
             result = extractor.extract(archive, dest)
             if result.ok:
                 plan.archives_extracted += 1

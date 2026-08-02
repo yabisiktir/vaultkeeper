@@ -95,10 +95,22 @@ class ModInstallationManager:
 
     # -- InstallFiles ------------------------------------------------------ #
     def install_files(
-        self, copy_list: list[FileKeyInfo] | None, anneal_mods: list[str] | None = None
+        self,
+        copy_list: list[FileKeyInfo] | None,
+        anneal_mods: list[str] | None = None,
+        *,
+        on_phase=None,
     ) -> None:
+        """Install the listed files into the game folders.
+
+        ``on_phase(label, done, total)`` reports where it has got to; a ``total``
+        of 0 means the phase has no count to show. A large mod copies thousands of
+        files and then rescans, so a caller with nothing to report looks stuck.
+        """
         if copy_list is None:
             return
+        say = on_phase if on_phase is not None else lambda *_: None
+        say("Working out what needs installing", 0, 0)
         anneal_mods = anneal_mods or []
         pd = self.pd
 
@@ -160,7 +172,9 @@ class ModInstallationManager:
             )
             for fk in build
         ]
-        results = self.file_ops.copy(items)
+        results = self.file_ops.copy(
+            items, on_item=lambda done, total: say("Installing files", done, total)
+        )
         success = 0
         for r in results:
             if r.success:
@@ -182,6 +196,7 @@ class ModInstallationManager:
             if mdi is not None and (len(mdi.files) == count or no_errors):
                 mdi.mod_state = State.INSTALLED
 
+        say("Recording what is now installed", 0, 0)
         self.hak_patch()
         self._update_profile_data()
         # Double update: merge saved change info and update again (required for the
