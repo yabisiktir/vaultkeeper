@@ -51,12 +51,18 @@ Nothing in either case is decided for you.
    because CEP is shared between modules and has to stay separately uninstallable.
    Every step reports its own outcome, so a partial failure names itself.
 
-## While it is downloading
+## While it is working
 
-The transfer runs in the background, so the window keeps painting and shows how
-many megabytes of how many have arrived. **Cancel** stops it between chunks and
-removes the part-downloaded file — nothing half-written is ever left under an
-archive's name. Anything already installed before you cancelled stays installed.
+The whole job runs in the background, so the window keeps painting and keeps
+telling you where it is — through the download (megabytes of megabytes) and then
+through the half that takes just as long: extracting the archive, building the
+installer, and copying the files into the game. Where there is a count you get a
+real bar; where there isn't — extracting a big archive is one opaque step — the
+bar just shows it is busy and the line names what it is doing.
+
+**Cancel** stops the transfer between chunks and removes the part-downloaded file,
+so nothing half-written is ever left under an archive's name. Anything already
+installed before you cancelled stays installed.
 
 The main window is disabled until the job finishes. That is deliberate: installing
 creates mods and rewrites the tool's own records, and no other screen expects that
