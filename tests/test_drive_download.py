@@ -8,10 +8,10 @@ from vaultkeeper.vault.drive_download import (
     DriveDownloadError,
     confirm_url,
     describe_page,
+    fetch,
     filename_from,
     is_page,
     looks_like_archive,
-    resolve,
 )
 from vaultkeeper.vault.drive_folder import download_url
 from vaultkeeper.vault.http import FakeHttpClient, HttpResponse
@@ -81,75 +81,84 @@ def test_a_page_with_no_way_forward_yields_no_url():
     assert confirm_url(QUOTA_HTML) == ""
 
 
-# -- resolving --------------------------------------------------------------- #
-def test_bytes_resolve_to_the_plain_download_url():
+# -- fetching ---------------------------------------------------------------- #
+def test_an_archive_lands_under_the_name_drive_suggests(tmp_path):
     """The measured case: the folder's largest modules serve bytes immediately."""
-    response = HttpResponse(
-        download_url(FILE_ID), 200,
-        {"Content-Type": "application/octet-stream",
-         "Content-Disposition": 'attachment; filename="A Call for Heroes [PRC8-CEP3].7z"',
-         "Content-Length": "72026148"},
-    )
-    result = resolve(_client(response), FILE_ID, head=b"7z\xbc\xaf\x27\x1c")
-    assert result.url == download_url(FILE_ID)
-    assert result.filename == "A Call for Heroes [PRC8-CEP3].7z"
-    assert result.size == 72026148
-
-
-def test_a_confirmation_page_is_followed_rather_than_saved():
-    response = HttpResponse(
-        download_url(FILE_ID), 200, {"Content-Type": "text/html"}, CONFIRM_HTML
-    )
-    assert "confirm=t" in resolve(_client(response), FILE_ID).url
-
-
-def test_a_quota_page_raises_instead_of_writing_html_as_a_7z():
-    """Trusting the 200 would leave a web page on disk named .7z."""
-    response = HttpResponse(
-        download_url(FILE_ID), 200, {"Content-Type": "text/html"}, QUOTA_HTML
-    )
-    with pytest.raises(DriveDownloadError, match="too many times"):
-        resolve(_client(response), FILE_ID)
-
-
-def test_a_real_download_is_not_mistaken_for_a_page_when_no_head_is_passed():
-    """``requests`` decodes archive bytes into a non-empty ``.text``.
-
-    Judging "did Drive answer with a page?" on that alone condemned every real
-    download: the caller has no first bytes to pass because it has not made the
-    request yet. The response's own content is the head.
-    """
-    archive = b"7z\xbc\xaf\x27\x1c" + b"\x00" * 100
-    response = HttpResponse(
-        download_url(FILE_ID), 200,
-        {"Content-Type": "application/octet-stream"},
-        text=archive.decode("latin-1"),
-        content=archive,
-    )
-    result = resolve(_client(response), FILE_ID)
-    assert result.url == download_url(FILE_ID)
-
-
-def test_the_bytes_already_fetched_come_back_so_they_are_not_fetched_twice():
-    """Knowing it is not a page means having downloaded it — up to 83 MB of it."""
     archive = b"7z\xbc\xaf\x27\x1c" + b"payload"
     response = HttpResponse(
         download_url(FILE_ID), 200,
-        {"Content-Type": "application/octet-stream"},
+        {"Content-Type": "application/octet-stream",
+         "Content-Disposition": 'attachment; filename="A Call for Heroes [PRC8-CEP3].7z"'},
         content=archive,
     )
-    result = resolve(_client(response), FILE_ID)
-    assert result.content == archive
-    assert result.size == len(archive)  # no Content-Length: measured instead
+    result = fetch(_client(response), FILE_ID, tmp_path)
+    assert result.filename == "A Call for Heroes [PRC8-CEP3].7z"
+    assert result.path.read_bytes() == archive
+    assert result.size == len(archive)
 
 
-def test_following_a_confirmation_hands_back_no_bytes():
-    """The archive is behind the confirm URL; the page's HTML must not pass for it."""
-    response = HttpResponse(
-        download_url(FILE_ID), 200, {"Content-Type": "text/html"}, CONFIRM_HTML,
-        content=CONFIRM_HTML.encode(),
+def test_nothing_is_held_in_memory_to_decide_what_arrived(tmp_path):
+    """The whole point: an 83 MB archive is judged on disk, by its first bytes.
+
+    Deciding from a buffered body would mean holding the file to find out whether
+    it *is* the file — which for a big download is how an application dies rather
+    than how a download fails.
+    """
+    archive = b"7z\xbc\xaf\x27\x1c" + b"\x00" * 4096
+    client = _client(HttpResponse(
+        download_url(FILE_ID), 200, {"Content-Type": "application/octet-stream"},
+        content=archive,
+    ))
+    seen: list[tuple[int, int]] = []
+    result = fetch(client, FILE_ID, tmp_path, on_chunk=lambda d, t: seen.append((d, t)))
+    assert result.path.read_bytes() == archive
+    assert seen  # progress was reported while it streamed
+    assert [c for c in client.calls] == [("GET", download_url(FILE_ID))]  # fetched once
+
+
+def test_a_confirmation_page_is_followed_rather_than_saved(tmp_path):
+    confirmed = (
+        "https://drive.usercontent.google.com/download"
+        f"?id={FILE_ID}&export=download&confirm=t"
     )
-    assert resolve(_client(response), FILE_ID).content == b""
+    archive = b"7z\xbc\xaf\x27\x1c" + b"real"
+    client = FakeHttpClient({
+        download_url(FILE_ID): HttpResponse(
+            download_url(FILE_ID), 200, {"Content-Type": "text/html"},
+            content=CONFIRM_HTML.encode(),
+        ),
+        confirmed: HttpResponse(
+            confirmed, 200, {"Content-Type": "application/octet-stream"}, content=archive
+        ),
+    })
+    result = fetch(client, FILE_ID, tmp_path, fallback_name="heroes.7z")
+    assert result.path.read_bytes() == archive
+    assert result.filename == "heroes.7z"
+
+
+def test_a_quota_page_raises_and_leaves_nothing_on_disk(tmp_path):
+    """Trusting the 200 would leave a web page named .7z, found only much later."""
+    response = HttpResponse(
+        download_url(FILE_ID), 200, {"Content-Type": "text/html"},
+        content=QUOTA_HTML.encode(),
+    )
+    with pytest.raises(DriveDownloadError, match="too many times"):
+        fetch(_client(response), FILE_ID, tmp_path, fallback_name="heroes.7z")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_page_with_no_content_type_is_still_caught_by_its_first_byte(tmp_path):
+    response = HttpResponse(
+        download_url(FILE_ID), 200, content=b"<html>Sign in with accounts.google.com</html>"
+    )
+    with pytest.raises(DriveDownloadError, match="shared publicly"):
+        fetch(_client(response), FILE_ID, tmp_path)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_refused_request_says_so(tmp_path):
+    with pytest.raises(DriveDownloadError, match="404"):
+        fetch(FakeHttpClient({}), FILE_ID, tmp_path)
 
 
 # -- the suggested name ------------------------------------------------------ #

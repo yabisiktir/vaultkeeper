@@ -83,3 +83,40 @@ def test_download_all_skips_excluded_and_reports_progress(tmp_path):
     assert progress == [(0, 2), (1, 2)]
     assert (tmp_path / "a.zip").exists() and (tmp_path / "b.zip").exists()
     assert not (tmp_path / "c.zip").exists()
+
+
+# -- streaming: the Vault serves files well past a gigabyte -------------------- #
+def test_a_file_is_streamed_to_disk_rather_than_read_into_memory(tmp_path):
+    """CEP 3 is served as a 1.2 GB file and a 0.9 GB one.
+
+    Buffering either needs more RAM than the machine can spare before a byte
+    reaches the disk, and that does not surface as a failed download — it takes
+    the application down. So the downloader must use the streaming call, not
+    ``get``, and a client that only offers ``get`` is not enough.
+    """
+    url = "http://cdn/huge.zip"
+    http = FakeHttpClient({url: _resp(url, b"BIG" * 10)})
+    vsi = VaultScraperInfo(direct_url=url, filename="huge.zip")
+    Downloader(http).download_file(vsi, tmp_path)
+    assert http.streamed == [(url, tmp_path / "huge.zip")]
+
+
+def test_progress_is_reported_within_a_file_not_only_between_files(tmp_path):
+    """"Downloading part 1 of 2" says nothing for the twenty minutes it takes."""
+    url = "http://cdn/mod.zip"
+    http = FakeHttpClient({url: _resp(url, b"ZIPDATA")})
+    seen: list[tuple[str, int, int]] = []
+    vsi = VaultScraperInfo(direct_url=url, filename="mod.zip")
+    Downloader(
+        http, on_bytes=lambda info, done, total: seen.append((info.filename, done, total))
+    ).download_file(vsi, tmp_path)
+    assert seen == [("mod.zip", 7, 7)]
+
+
+def test_a_failed_download_leaves_the_status_wrong_not_a_stub_file(tmp_path):
+    http = FakeHttpClient({})  # 404
+    vsi = VaultScraperInfo(direct_url="http://cdn/gone.zip", filename="gone.zip")
+    result = Downloader(http).download_file(vsi, tmp_path)
+    assert not result.ok and "404" in result.error
+    assert vsi.status is FileStatus.ERROR
+    assert not (tmp_path / "gone.zip").exists()

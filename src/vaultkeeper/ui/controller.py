@@ -2129,7 +2129,13 @@ class ProfileController:
         return self._make_scraper().fetch_required_projects(url)
 
     def download_project(
-        self, files: list, mod_name: str, *, group: str | None = None, on_progress=None
+        self,
+        files: list,
+        mod_name: str,
+        *,
+        group: str | None = None,
+        on_progress=None,
+        on_bytes=None,
     ) -> list:
         """Download files into ``mod_name``'s ``_Downloads``, creating the mod if new.
 
@@ -2146,7 +2152,10 @@ class ProfileController:
         dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
         dest.mkdir(parents=True, exist_ok=True)
         downloader = Downloader(
-            self._http, scraper=self._make_scraper(), on_progress=on_progress
+            self._http,
+            scraper=self._make_scraper(),
+            on_progress=on_progress,
+            on_bytes=on_bytes,
         )
         return downloader.download_all(files, dest)
 
@@ -2195,7 +2204,13 @@ class ProfileController:
             )
 
     def install_downloaded_project(
-        self, files: list, mod_name: str, *, group: str | None = None, on_progress=None
+        self,
+        files: list,
+        mod_name: str,
+        *,
+        group: str | None = None,
+        on_progress=None,
+        on_bytes=None,
     ) -> dict:
         """Download a project, build its installer, then install it (VB Install button).
 
@@ -2207,7 +2222,7 @@ class ProfileController:
         ``{"downloaded", "total", "built", "install_message"}``.
         """
         results = self.download_project(
-            files, mod_name, group=group, on_progress=on_progress
+            files, mod_name, group=group, on_progress=on_progress, on_bytes=on_bytes
         )
         downloaded = sum(1 for r in results if r.ok)
         build = self.build_installer_payload(mod_name)
@@ -2282,7 +2297,13 @@ class ProfileController:
         return ""
 
     def download_drive_module(
-        self, file_ident: str, mod_name: str, *, group: str | None = None, filename: str = ""
+        self,
+        file_ident: str,
+        mod_name: str,
+        *,
+        group: str | None = None,
+        filename: str = "",
+        on_bytes=None,
     ):
         """Fetch a Drive archive into ``mod_name``'s downloads, creating the mod if new.
 
@@ -2293,7 +2314,7 @@ class ProfileController:
         """
         from vaultkeeper.core import constants as C
         from vaultkeeper.vault import drive_download
-        from vaultkeeper.vault.downloader import Downloader, DownloadResult
+        from vaultkeeper.vault.downloader import DownloadResult
         from vaultkeeper.vault.scraper_info import FileStatus, VaultScraperInfo
 
         if mod_name and self.pd.mod_item(mod_name) is None:
@@ -2301,27 +2322,29 @@ class ProfileController:
         dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
         dest.mkdir(parents=True, exist_ok=True)
 
-        resolved = drive_download.resolve(self._vault_http(), file_ident)
-        name = resolved.filename or filename or f"{file_ident}.7z"
-        info = VaultScraperInfo(
-            project_title=mod_name,
-            description=name,
-            direct_url=resolved.url,
-            filename=name,
-            byte_size=resolved.size,
+        info = VaultScraperInfo(project_title=mod_name, filename=filename)
+        report = (
+            (lambda done, total: on_bytes(info, done, total))
+            if on_bytes is not None
+            else None
         )
-        if resolved.content:  # already in hand — don't transfer it twice
-            path = dest / name
-            try:
-                path.write_bytes(resolved.content)
-            except OSError as ex:
-                info.status = FileStatus.ERROR
-                return DownloadResult(info, error=str(ex))
-            info.local_filename = name
-            info.byte_size = len(resolved.content)
-            info.status = FileStatus.DOWNLOADED
-            return DownloadResult(info, path=path, ok=True)
-        return Downloader(self._vault_http()).download_file(info, dest)
+        try:
+            archive = drive_download.fetch(
+                self._vault_http(),
+                file_ident,
+                dest,
+                fallback_name=filename,
+                on_chunk=report,
+            )
+        except OSError as ex:
+            info.status = FileStatus.ERROR
+            return DownloadResult(info, error=str(ex))
+
+        info.description = info.filename = info.local_filename = archive.filename
+        info.direct_url = archive.url
+        info.byte_size = archive.size
+        info.status = FileStatus.DOWNLOADED
+        return DownloadResult(info, path=archive.path, ok=True)
 
     def install_prc_module(
         self,
@@ -2332,6 +2355,7 @@ class ProfileController:
         group: str | None = None,
         filename: str = "",
         on_progress=None,
+        on_bytes=None,
     ) -> list[dict]:
         """Install a PRC-ified module and the dependencies the user settled on.
 
@@ -2377,7 +2401,9 @@ class ProfileController:
                 })
                 continue
             dep_mod = self.suggested_mod_name(files[0].project_title or name) or name
-            result = self.install_downloaded_project(files, dep_mod, group=group)
+            result = self.install_downloaded_project(
+                files, dep_mod, group=group, on_bytes=on_bytes
+            )
             steps.append({
                 "name": name,
                 "kind": "dependency",
@@ -2395,7 +2421,7 @@ class ProfileController:
 
         try:
             download = self.download_drive_module(
-                file_ident, mod_name, group=group, filename=filename
+                file_ident, mod_name, group=group, filename=filename, on_bytes=on_bytes
             )
         except DriveDownloadError as ex:
             steps.append(

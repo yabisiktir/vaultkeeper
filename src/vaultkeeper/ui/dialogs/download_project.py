@@ -50,6 +50,11 @@ class DownloadProjectDialog(QDialog):
         self._files: list = []
         self._required: list[dict] = []
         self._name_touched = False
+        #: Set while a transfer is running, so a second click cannot start one.
+        self._busy = False
+        self._files_total = 0
+        self._file_index = 0
+        self._file_label = ""
         self.setWindowTitle("Download Project")
         self.setWindowIcon(R.get_icon("DownloadProject_16x"))
         self.resize(640, 560)
@@ -249,7 +254,57 @@ class DownloadProjectDialog(QDialog):
         self.populate_files(self.controller.scrape_project(url))
         self.populate_required(self.controller.project_required_projects(url))
 
+    # -- Progress ---------------------------------------------------------- #
+    def _start_transfer(self, count: int) -> None:
+        """Show the progress bar and lock the buttons for the duration.
+
+        The transfer runs on the UI thread, and a Vault file can be well over a
+        gigabyte, so :meth:`_on_bytes` keeps the event loop turning while it does.
+        That also means a second click would arrive *during* the first download —
+        hence the lock.
+        """
+        self._busy = True
+        for button in (self.retrieve_button, self.download_button, self.install_button):
+            button.setEnabled(False)
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)  # indeterminate until the first bytes land
+        self._files_total = count
+        self._file_index = 0
+
+    def _end_transfer(self) -> None:
+        self._busy = False
+        self.retrieve_button.setEnabled(True)
+        self.download_button.setEnabled(True)
+        self.install_button.setEnabled(True)
+        self.progress.setRange(0, 1)
+        self.progress.setValue(1)
+
+    def _on_file(self, index: int, total: int, vsi) -> None:
+        self._file_index = index
+        self._file_label = vsi.description or vsi.filename or "file"
+        self.status.setText(f"Downloading {self._file_label} ({index + 1} of {total})…")
+
+    def _on_bytes(self, vsi, done: int, total: int) -> None:
+        """Report progress through one file and let the window repaint."""
+        from PySide6.QtWidgets import QApplication
+
+        if total > 0:
+            self.progress.setRange(0, total)
+            self.progress.setValue(done)
+            self.status.setText(
+                f"Downloading {self._file_label} "
+                f"({self._file_index + 1} of {self._files_total}) — "
+                f"{_fmt_size(done)} of {_fmt_size(total)}"
+            )
+        else:
+            self.status.setText(
+                f"Downloading {self._file_label} — {_fmt_size(done)} so far"
+            )
+        QApplication.processEvents()
+
     def _on_download(self) -> None:
+        if self._busy:
+            return
         files = self.checked_files()
         mod = self.mod_name_edit.text().strip()
         if not files:
@@ -260,17 +315,14 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
-        self.progress.setVisible(True)
-        self.progress.setMaximum(len(files))
-
-        def on_progress(index: int, total: int, vsi) -> None:
-            self.progress.setValue(index)
-            self.status.setText(f"Downloading {vsi.description or vsi.filename}…")
-
-        results = self.controller.download_project(
-            files, mod, group=group, on_progress=on_progress
-        )
-        self.progress.setValue(len(files))
+        self._start_transfer(len(files))
+        try:
+            results = self.controller.download_project(
+                files, mod, group=group,
+                on_progress=self._on_file, on_bytes=self._on_bytes,
+            )
+        finally:
+            self._end_transfer()
         ok = sum(1 for r in results if r.ok)
         verb = "Updated" if ok else "No files downloaded to"
         self.status.setText(
@@ -280,6 +332,8 @@ class DownloadProjectDialog(QDialog):
 
     def _on_install(self) -> None:
         """Download the ticked files, build the installer, and install the mod."""
+        if self._busy:
+            return
         files = self.checked_files()
         mod = self.mod_name_edit.text().strip()
         if not files:
@@ -290,17 +344,14 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
-        self.progress.setVisible(True)
-        self.progress.setMaximum(len(files))
-
-        def on_progress(index: int, total: int, vsi) -> None:
-            self.progress.setValue(index)
-            self.status.setText(f"Downloading {vsi.description or vsi.filename}…")
-
-        result = self.controller.install_downloaded_project(
-            files, mod, group=group, on_progress=on_progress
-        )
-        self.progress.setValue(len(files))
+        self._start_transfer(len(files))
+        try:
+            result = self.controller.install_downloaded_project(
+                files, mod, group=group,
+                on_progress=self._on_file, on_bytes=self._on_bytes,
+            )
+        finally:
+            self._end_transfer()
         if result["built"]:
             self.status.setText(
                 f"Installed '{mod}'. {result['install_message']}"

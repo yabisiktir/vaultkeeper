@@ -70,6 +70,10 @@ class PrcModuleDialog(QDialog):
         self._file_ident = ""
         self._archive_name = ""
         self._tags: tuple[str, ...] = ()
+        #: Set while an install is running, so a second click cannot start one.
+        self._busy = False
+        self._step = (0, 1)
+        self._step_label = ""
         self.setWindowTitle("Install a PRC-ified Vault Module")
         self.setWindowIcon(R.get_icon("0205_WebInsertHyperlink_32"))
         self.resize(760, 760)
@@ -525,9 +529,36 @@ class PrcModuleDialog(QDialog):
         self._name_touched = True
 
     def _update_install_enabled(self) -> None:
-        self.install_button.setEnabled(self._plan is not None and not self.unanswered)
+        self.install_button.setEnabled(
+            self._plan is not None and not self.unanswered and not self._busy
+        )
+
+    def _on_bytes(self, info, done: int, total: int) -> None:
+        """Byte progress within one file, and a turn of the event loop.
+
+        The transfer runs on the UI thread, and these files run to hundreds of
+        megabytes, so without this the window would simply stop repainting for
+        minutes — which reads as a crash, not as patience.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        from vaultkeeper.ui.controller import _fmt_size
+
+        index, count = self._step
+        where = f"{self._step_label} ({index + 1} of {count})"
+        if total > 0:
+            self.progress.setRange(0, total)
+            self.progress.setValue(done)
+            self.status.setText(
+                f"Downloading {where} — {_fmt_size(done)} of {_fmt_size(total)}"
+            )
+        else:
+            self.status.setText(f"Downloading {where} — {_fmt_size(done)} so far")
+        QApplication.processEvents()
 
     def _on_install(self) -> None:
+        if self._busy:
+            return
         mod = self.mod_name_edit.text().strip()
         if not mod:
             self.status.setText("Enter a mod folder name to install into.")
@@ -541,24 +572,32 @@ class PrcModuleDialog(QDialog):
             return
         requirements = self.checked_requirements()
         group = self.group_combo.currentText().strip() or None
-        total = len(requirements) + 1
+        self._busy = True
+        self.install_button.setEnabled(False)
         self.progress.setVisible(True)
-        self.progress.setMaximum(total)
-        self.progress.setValue(0)
+        self.progress.setRange(0, 0)  # indeterminate until the first bytes land
 
         def on_progress(index: int, count: int, label: str) -> None:
-            self.progress.setValue(index)
+            self._step_label = label
+            self._step = (index, count)
+            self.progress.setRange(0, 0)
             self.status.setText(f"Installing {label} ({index + 1} of {count})…")
 
-        steps = self.controller.install_prc_module(
-            self._file_ident,
-            mod,
-            requirements,
-            group=group,
-            filename=self._archive_name,
-            on_progress=on_progress,
-        )
-        self.progress.setValue(total)
+        try:
+            steps = self.controller.install_prc_module(
+                self._file_ident,
+                mod,
+                requirements,
+                group=group,
+                filename=self._archive_name,
+                on_progress=on_progress,
+                on_bytes=self._on_bytes,
+            )
+        finally:
+            self._busy = False
+            self.install_button.setEnabled(True)
+            self.progress.setRange(0, 1)
+            self.progress.setValue(1)
         self.populate_results(steps)
         done = sum(1 for s in steps if s["ok"])
         module_ok = any(s["kind"] == "module" and s["ok"] for s in steps)

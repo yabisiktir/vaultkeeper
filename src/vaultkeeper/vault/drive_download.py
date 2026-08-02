@@ -19,6 +19,7 @@ from __future__ import annotations
 import html as html_lib
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from vaultkeeper.vault.drive_folder import download_url
 
@@ -39,20 +40,12 @@ _SIGNIN = re.compile(r"accounts\.google\.com|sign ?in", re.IGNORECASE)
 
 @dataclass(frozen=True)
 class DriveFile:
-    """A resolved download.
-
-    ``content`` carries the bytes when the resolving request already returned the
-    file — which, per the measurement above, is the normal case. Deciding whether
-    Drive answered with the archive or with a page means looking at the answer, so
-    by the time we know it is the archive we are holding it; handing it back spares
-    the caller an identical second transfer of up to 83 MB. It is empty when a
-    confirmation step was followed instead, and the caller must fetch ``url``.
-    """
+    """A downloaded archive: where it came from, and where it landed."""
 
     url: str
     filename: str = ""
     size: int = 0
-    content: bytes = b""
+    path: Path | None = None
 
 
 class DriveDownloadError(RuntimeError):
@@ -119,39 +112,77 @@ def filename_from(disposition: str) -> str:
     return html_lib.unescape(match.group(1)).strip() if match else ""
 
 
-def resolve(http, file_ident: str, *, head: bytes = b"") -> DriveFile:
-    """Resolve a Drive file id to a downloadable URL.
+def fetch(
+    http,
+    file_ident: str,
+    dest_dir: Path,
+    *,
+    fallback_name: str = "",
+    on_chunk=None,
+) -> DriveFile:
+    """Download a Drive file into ``dest_dir``, refusing to keep a page.
 
-    ``head`` lets a caller pass the first bytes it has already read, so a
-    response can be judged on its content rather than its status alone. When it
-    is not given, the response's own first bytes are used — without that, a real
-    download is mistaken for a page, because ``requests`` decodes an archive's
-    bytes into a perfectly non-empty ``.text``.
-    Raises :class:`DriveDownloadError` when Drive answered with a page.
+    Streamed to a part-file and judged on what actually arrived, because there is
+    no way to ask Drive in advance: the confirmation, quota and sign-in responses
+    are all HTTP 200, and the only thing that distinguishes the archive is that it
+    begins ``7z``. Judging it from a buffered body instead would mean holding the
+    whole file in memory to find out, which for a big one is how an application
+    dies rather than how a download fails.
+
+    A confirmation step is followed once. Anything else Drive says raises
+    :class:`DriveDownloadError` with the reason, and nothing is left on disk.
     """
     url = download_url(file_ident)
-    response = http.get(url)
-    content_type = response.header("Content-Type") if hasattr(response, "header") else ""
-    body = getattr(response, "text", "") or ""
-    content = getattr(response, "content", b"") or b""
-    head = head or content[:16]
+    part = dest_dir / f".{file_ident}.part"
+    response = http.download(url, part, on_chunk=on_chunk)
+    if not response.ok:
+        _discard(part)
+        raise DriveDownloadError(f"Google Drive answered HTTP {response.status}.")
 
-    if is_page(content_type, head) or (body and not head):
+    if _is_page_on_disk(response, part):
+        body = _read_page(part)
         target = confirm_url(body, file_ident)
+        _discard(part)
         if not target:
             raise DriveDownloadError(describe_page(body))
-        # Past a confirmation step the bytes are behind the new URL, not in hand.
-        return DriveFile(target, _suggested_name(response), _size_of(response))
+        url = target
+        response = http.download(url, part, on_chunk=on_chunk)
+        if not response.ok or _is_page_on_disk(response, part):
+            body = _read_page(part) if response.ok else ""
+            _discard(part)
+            raise DriveDownloadError(describe_page(body))
 
-    return DriveFile(url, _suggested_name(response), _size_of(response) or len(content), content)
-
-
-def _suggested_name(response) -> str:
-    disposition = (
-        response.header("Content-Disposition") if hasattr(response, "header") else ""
+    name = (
+        filename_from(_header(response, "Content-Disposition"))
+        or fallback_name
+        or f"{file_ident}.7z"
     )
-    return filename_from(disposition)
+    final = dest_dir / name
+    part.replace(final)
+    return DriveFile(url, name, final.stat().st_size, final)
 
 
-def _size_of(response) -> int:
-    return getattr(response, "content_length", 0) or 0
+def _is_page_on_disk(response, path: Path) -> bool:
+    """Whether what landed is HTML rather than an archive."""
+    try:
+        with open(path, "rb") as handle:
+            head = handle.read(16)
+    except OSError:
+        return False
+    return is_page(_header(response, "Content-Type"), head)
+
+
+def _read_page(path: Path) -> str:
+    """A refusal page's text. Only ever called on something already known to be one."""
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def _discard(path: Path) -> None:
+    path.unlink(missing_ok=True)
+
+
+def _header(response, name: str) -> str:
+    return response.header(name) if hasattr(response, "header") else ""

@@ -211,6 +211,45 @@ def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
     assert "Installed 'Installed Project'" in dlg.status.text()
 
 
+def test_download_shows_byte_progress_and_locks_the_buttons(qtbot, tmp_path):
+    """A 1.2 GB file downloads on the UI thread — "part 1 of 2" is not enough.
+
+    Without per-byte progress the window simply stops repainting for many
+    minutes, which reads as a crash; and because the event loop keeps turning to
+    prevent that, a second click would land inside the first download.
+    """
+    controller = _controller(tmp_path)
+    url = "http://cdn/big.zip"
+    controller._http = FakeHttpClient(
+        {url: HttpResponse(url, 200, {"Content-Length": "9"}, content=b"BIGGISH!!")}
+    )
+    dlg = DownloadProjectDialog(controller, default_mod="My Mod")
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(direct_url=url, filename="big.zip")])
+
+    seen: list[str] = []
+    real_on_bytes = dlg._on_bytes
+
+    def spy(vsi, done, total):
+        real_on_bytes(vsi, done, total)
+        seen.append(dlg.status.text())
+        # Mid-transfer the buttons are locked, so a stray click does nothing.
+        assert dlg._busy
+        assert not dlg.download_button.isEnabled()
+        assert not dlg.install_button.isEnabled()
+        dlg._on_download()  # a second click during the first download
+
+    dlg._on_bytes = spy
+    dlg._on_download()
+    assert seen and "9 B of 9 B" in seen[0]
+    assert not dlg._busy  # released afterwards
+    assert dlg.download_button.isEnabled()
+    # Only one transfer happened despite the re-entrant click.
+    assert controller._http.streamed == [
+        (url, tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR / "big.zip")
+    ]
+
+
 def test_dialog_download_needs_a_mod_name(qtbot, tmp_path):
     controller = _controller(tmp_path)
     dlg = DownloadProjectDialog(controller)
