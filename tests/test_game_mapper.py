@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+
+import pytest
 
 from vaultkeeper.core.file_data import InstalledFileData
 from vaultkeeper.core.file_key import FileKeyInfo
@@ -18,6 +21,12 @@ from vaultkeeper.game.game_mapper import (
     SaveNameInfo,
     UserResponses,
 )
+
+#: Whether this machine can make a symlink at all.
+#: Windows refuses unless the process is elevated or Developer Mode is on, and
+#: CI runners are neither — os.symlink raises OSError there rather than
+#: producing a link the test could then check.
+_CAN_SYMLINK = not sys.platform.startswith("win")
 
 
 class FakeReader:
@@ -165,6 +174,10 @@ class TestScanAndSaveName:
         assert gm.is_save_name("Beorunna")
         assert gm.save_name_to_mod_name("Beorunna") == "My Adventure"
 
+    @pytest.mark.skipif(
+        not _CAN_SYMLINK,
+        reason="Windows only allows symlinks under Developer Mode or elevation",
+    )
     def test_symlinked_mod_file_maps_to_its_profile(self, tmp_path):
         # A mod file symlinked into the tree (or a symlinked store) must still map to
         # its profile/mod — path derivation must not follow symlinks out of Profiles.
