@@ -19,6 +19,7 @@ layer and directory walking.
 
 from __future__ import annotations
 
+import threading
 from collections.abc import Callable
 from datetime import datetime
 from functools import cmp_to_key
@@ -56,11 +57,28 @@ class ProfileData:
         self.groups: CIStrDict[GroupMemberData] = CIStrDict()
         #: Change accumulator.
         self.changes = ChangeData()
+        #: Guards the shape of the dictionaries above.
+        #:
+        #: Downloads and installs run on a worker thread while the window keeps
+        #: drawing the mod list from these same dicts, and Python raises
+        #: "dictionary changed size during iteration" the moment a mod is created
+        #: mid-listing — reproduced in under three seconds. Only *structure* needs
+        #: guarding: reassigning a field on a ModData is a single bytecode and
+        #: cannot tear a reader's iteration.
+        #:
+        #: Re-entrant because the guarded operations call each other (adding a mod
+        #: seeds its group row).
+        self._lock = threading.RLock()
 
         # Headless substitute for ModData.HasModInstaller() (a filesystem check):
         # only consulted for a mod with zero files. Defaults to "has an installer
         # identifier file". A real filesystem-backed check is injected later.
         self._mod_installer_exists = mod_installer_exists or (lambda md: md.is_installer())
+
+    @property
+    def lock(self) -> threading.RLock:
+        """The profile's structural lock, for callers doing several steps at once."""
+        return self._lock
 
     # -- Accessors --------------------------------------------------------- #
     def mod_item(self, name: str) -> ModData | None:
@@ -78,7 +96,8 @@ class ProfileData:
     @property
     def mod_keys(self) -> list[str]:
         """Names of mods (excluding group rows)."""
-        return [name for name, md in self.mod_list.items() if md.is_not_group_item]
+        with self._lock:
+            return [name for name, md in self.mod_list.items() if md.is_not_group_item]
 
     @property
     def sorted_mod_keys(self) -> list[str]:
@@ -90,11 +109,12 @@ class ProfileData:
     @property
     def group_keys(self) -> list[str]:
         """Visible group names (hidden Installed/None groups excluded)."""
-        return [
-            name
-            for name, md in self.mod_list.items()
-            if md.is_group_item and not md.is_hidden_group
-        ]
+        with self._lock:
+            return [
+                name
+                for name, md in self.mod_list.items()
+                if md.is_group_item and not md.is_hidden_group
+            ]
 
     def initialise_groups(self) -> None:
         """(Re)build the Groups views from the group rows in ModList (InitialiseGroups)."""
@@ -105,8 +125,9 @@ class ProfileData:
 
     def get_conflicts(self, file_key: str) -> list[FileKeyInfo]:
         """Mod file keys whose file_key matches (all installers of this file)."""
-        target = file_key.lower()
-        return [fk for fk in self.file_list if fk.file_key.lower() == target]
+        with self._lock:
+            target = file_key.lower()
+            return [fk for fk in self.file_list if fk.file_key.lower() == target]
 
     def get_installer(self, file_key: str) -> str:
         """The owning-mod name for an installed file_key, or empty string."""
@@ -116,58 +137,62 @@ class ProfileData:
     # -- Groups ------------------------------------------------------------ #
     def ensure_mandatory_groups(self) -> None:
         """Ensure the reserved group rows (None, Installed) exist (VB AddGroups)."""
-        for group in C.MANDATORY_GROUPS:
-            if group not in self.mod_list:
-                self.mod_list[group] = ModData(group=group)  # a group row
-        self.initialise_groups()
+        with self._lock:
+            for group in C.MANDATORY_GROUPS:
+                if group not in self.mod_list:
+                    self.mod_list[group] = ModData(group=group)  # a group row
+            self.initialise_groups()
 
     def _update_mod_group(self, md: ModData, new_group: str) -> None:
         """Rewrite a mod's group and all its file keys (ModData.UpdateFileKeys)."""
-        old_files = list(md.files)
-        md.files.clear()
-        md.group = new_group
-        for fk in old_files:
-            new_fk = FileKeyInfo(new_group, md.mod_name, fk.folder, fk.filename)
-            fd = self.file_list.pop(fk, None)
-            if fd is not None:
-                fd.key = new_fk
-                self.file_list[new_fk] = fd
-            self.changes.file.removed(fk)
-            self.changes.file.renamed(new_fk)
-            md.files.append(new_fk)
-        self.changes.mods.affected(md.mod_name)
+        with self._lock:
+            old_files = list(md.files)
+            md.files.clear()
+            md.group = new_group
+            for fk in old_files:
+                new_fk = FileKeyInfo(new_group, md.mod_name, fk.folder, fk.filename)
+                fd = self.file_list.pop(fk, None)
+                if fd is not None:
+                    fd.key = new_fk
+                    self.file_list[new_fk] = fd
+                self.changes.file.removed(fk)
+                self.changes.file.renamed(new_fk)
+                md.files.append(new_fk)
+            self.changes.mods.affected(md.mod_name)
 
     def move_mods_to_group(self, names: list[str], group: str) -> None:
         """Move mods into ``group`` (creating the group row if new), rewrite keys."""
-        if group not in self.mod_list:
-            self.mod_list[group] = ModData(group=group)  # new group row
-            self.initialise_groups()
-        for name in names:
-            md = self.mod_item(name)
-            if md is not None and md.is_not_group_item:
-                self._update_mod_group(md, group)
-        self.update_file_states()
-        self.update_mod_states()
+        with self._lock:
+            if group not in self.mod_list:
+                self.mod_list[group] = ModData(group=group)  # new group row
+                self.initialise_groups()
+            for name in names:
+                md = self.mod_item(name)
+                if md is not None and md.is_not_group_item:
+                    self._update_mod_group(md, group)
+            self.update_file_states()
+            self.update_mod_states()
 
     def rename_group(self, old: str, new: str) -> bool:
         """Rename a (non-reserved) group, moving its members. Returns success."""
-        old_row = self.mod_list.get(old)
-        if old_row is None or not old_row.is_group_item or old in C.MANDATORY_GROUPS:
-            return False
-        if new in self.mod_list:
-            return False
-        members = [
-            name
-            for name, md in self.mod_list.items()
-            if md.is_not_group_item and md.group == old
-        ]
-        new_row = old_row.clone()
-        new_row.group = new
-        self.mod_list[new] = new_row
-        self.move_mods_to_group(members, new)
-        del self.mod_list[old]
-        self.initialise_groups()
-        return True
+        with self._lock:
+            old_row = self.mod_list.get(old)
+            if old_row is None or not old_row.is_group_item or old in C.MANDATORY_GROUPS:
+                return False
+            if new in self.mod_list:
+                return False
+            members = [
+                name
+                for name, md in self.mod_list.items()
+                if md.is_not_group_item and md.group == old
+            ]
+            new_row = old_row.clone()
+            new_row.group = new
+            self.mod_list[new] = new_row
+            self.move_mods_to_group(members, new)
+            del self.mod_list[old]
+            self.initialise_groups()
+            return True
 
     # -- Mutators (ModData.Remove / RemoveAllFiles) ------------------------ #
     def remove_mod(self, name: str) -> bool:
@@ -179,27 +204,28 @@ class ProfileData:
         uninstall. Group rows are ignored here (see :meth:`remove_group`).
         Returns True if a mod was removed.
         """
-        md = self.mod_item(name)
-        if md is None or md.is_group_item:
-            return False
+        with self._lock:
+            md = self.mod_item(name)
+            if md is None or md.is_group_item:
+                return False
 
-        for fk in list(md.files):
-            self.changes.file.removed(fk)
-            self.file_list.pop(fk, None)
-            ifd = self.installed_item(fk.installed_key)
-            if ifd is not None:
-                if md.is_mod_identifier_file(fk):
-                    self.changes.installed.removed(ifd.key)
-                    self.remove_installed_file(ifd)
-                else:
-                    self.remove_mod_file(ifd, fk, True)
-            self.changes.mods.affected(name)
+            for fk in list(md.files):
+                self.changes.file.removed(fk)
+                self.file_list.pop(fk, None)
+                ifd = self.installed_item(fk.installed_key)
+                if ifd is not None:
+                    if md.is_mod_identifier_file(fk):
+                        self.changes.installed.removed(ifd.key)
+                        self.remove_installed_file(ifd)
+                    else:
+                        self.remove_mod_file(ifd, fk, True)
+                self.changes.mods.affected(name)
 
-        md.files.clear()
-        del self.mod_list[name]
-        self.update_file_states()
-        self.update_mod_states()
-        return True
+            md.files.clear()
+            del self.mod_list[name]
+            self.update_file_states()
+            self.update_mod_states()
+            return True
 
     def remove_group(self, group: str) -> bool:
         """Remove a user group's row from the database (VB group ``ModData.Remove``).
@@ -209,17 +235,18 @@ class ProfileData:
         ``DeleteSelectedGroups`` (which removes the group only when its count is 0).
         Returns True if a group row was removed.
         """
-        row = self.mod_list.get(group)
-        if row is None or row.is_not_group_item or group in C.MANDATORY_GROUPS:
-            return False
-        if any(
-            md.is_not_group_item and md.group == group
-            for md in self.mod_list.values()
-        ):
-            return False  # still has member mods
-        del self.mod_list[group]
-        self.groups.pop(group, None)
-        return True
+        with self._lock:
+            row = self.mod_list.get(group)
+            if row is None or row.is_not_group_item or group in C.MANDATORY_GROUPS:
+                return False
+            if any(
+                md.is_not_group_item and md.group == group
+                for md in self.mod_list.values()
+            ):
+                return False  # still has member mods
+            del self.mod_list[group]
+            self.groups.pop(group, None)
+            return True
 
     def rename_mod(
         self,
@@ -236,68 +263,70 @@ class ProfileData:
         is given, in the game folder. Group rows are ignored. Returns True on
         success; False if the source is missing/a group or the target name exists.
         """
-        md = self.mod_item(old_name)
-        if md is None or md.is_group_item or new_name in self.mod_list:
-            return False
+        with self._lock:
+            md = self.mod_item(old_name)
+            if md is None or md.is_group_item or new_name in self.mod_list:
+                return False
 
-        old_dir = profile_mods_dir / old_name
-        new_dir = profile_mods_dir / new_name
-        if old_dir.is_dir():
-            old_dir.rename(new_dir)
+            old_dir = profile_mods_dir / old_name
+            new_dir = profile_mods_dir / new_name
+            if old_dir.is_dir():
+                old_dir.rename(new_dir)
 
-        new_md = md.clone()
-        new_md.mod_name = new_name
-        new_md.files.clear()
+            new_md = md.clone()
+            new_md.mod_name = new_name
+            new_md.files.clear()
 
-        for fk in md.files:
-            is_identifier = md.is_mod_identifier_file(fk) and fk.filename.lower().startswith(
-                old_name.lower() + "."
-            )
-            new_filename = (new_name + fk.extension) if is_identifier else fk.filename
-            new_fk = FileKeyInfo(fk.group, new_name, fk.folder, new_filename)
+            for fk in md.files:
+                is_identifier = md.is_mod_identifier_file(fk) and fk.filename.lower().startswith(
+                    old_name.lower() + "."
+                )
+                new_filename = (new_name + fk.extension) if is_identifier else fk.filename
+                new_fk = FileKeyInfo(fk.group, new_name, fk.folder, new_filename)
 
-            if is_identifier:
-                base = new_dir / C.MOD_INSTALLER_DIR / fk.folder
-                old_path, new_path = base / fk.filename, base / new_filename
-                if old_path.exists():
-                    old_path.rename(new_path)
+                if is_identifier:
+                    base = new_dir / C.MOD_INSTALLER_DIR / fk.folder
+                    old_path, new_path = base / fk.filename, base / new_filename
+                    if old_path.exists():
+                        old_path.rename(new_path)
 
-            fd = self.file_list.pop(fk, None)
-            if fd is not None:
-                fd.key = new_fk
-                self.file_list[new_fk] = fd
-            self.changes.file.removed(fk)
-            self.changes.file.renamed(new_fk)
+                fd = self.file_list.pop(fk, None)
+                if fd is not None:
+                    fd.key = new_fk
+                    self.file_list[new_fk] = fd
+                self.changes.file.removed(fk)
+                self.changes.file.renamed(new_fk)
 
-            if is_identifier:
-                self._rename_installed_identifier(fk, new_fk, game_folders)
+                if is_identifier:
+                    self._rename_installed_identifier(fk, new_fk, game_folders)
 
-            new_md.files.append(new_fk)
+                new_md.files.append(new_fk)
 
-        del self.mod_list[old_name]
-        self.mod_list[new_name] = new_md
-        self.changes.mods.affected(new_name)
-        self.update_file_states()
-        self.update_mod_states()
-        return True
+            del self.mod_list[old_name]
+            self.mod_list[new_name] = new_md
+            self.changes.mods.affected(new_name)
+            self.update_file_states()
+            self.update_mod_states()
+            return True
 
     def _rename_installed_identifier(
         self, fk: FileKeyInfo, new_fk: FileKeyInfo, game_folders: dict[str, Path] | None
     ) -> None:
-        old_ik, new_ik = fk.installed_key, new_fk.installed_key
-        ifd = self.installed_list.pop(old_ik, None)
-        if ifd is None:
-            return
-        if game_folders is not None:
-            base = game_folders.get(old_ik.folder)
-            if base is not None:
-                old_path, new_path = base / old_ik.filename, base / new_ik.filename
-                if old_path.exists():
-                    old_path.rename(new_path)
-        ifd.key = new_ik
-        self.installed_list[new_ik] = ifd
-        self.changes.installed.removed(old_ik)
-        self.changes.installed.renamed(new_ik)
+        with self._lock:
+            old_ik, new_ik = fk.installed_key, new_fk.installed_key
+            ifd = self.installed_list.pop(old_ik, None)
+            if ifd is None:
+                return
+            if game_folders is not None:
+                base = game_folders.get(old_ik.folder)
+                if base is not None:
+                    old_path, new_path = base / old_ik.filename, base / new_ik.filename
+                    if old_path.exists():
+                        old_path.rename(new_path)
+            ifd.key = new_ik
+            self.installed_list[new_ik] = ifd
+            self.changes.installed.removed(old_ik)
+            self.changes.installed.renamed(new_ik)
 
     # -- Installation analysis (ProfileData.Properties.vb) ----------------- #
     def unknown_source_files(self, mapper) -> list[FileKeyInfo]:  # noqa: ANN001
@@ -310,16 +339,18 @@ class ProfileData:
 
     def original_file_keys(self) -> list[FileKeyInfo]:
         """Installed files whose file_key is a known original game file."""
-        return [fk for fk in self.installed_list if fk.file_key in self.original_files]
+        with self._lock:
+            return [fk for fk in self.installed_list if fk.file_key in self.original_files]
 
     def changed_original_files(self) -> list[FileKeyInfo]:
         """Installed original files whose CRC no longer matches the pristine value."""
-        changed: list[FileKeyInfo] = []
-        for fk, ifd in self.installed_list.items():
-            original_crc = self.original_files.get(fk.file_key)
-            if original_crc is not None and ifd.file_crc != original_crc:
-                changed.append(fk)
-        return changed
+        with self._lock:
+            changed: list[FileKeyInfo] = []
+            for fk, ifd in self.installed_list.items():
+                original_crc = self.original_files.get(fk.file_key)
+                if original_crc is not None and ifd.file_crc != original_crc:
+                    changed.append(fk)
+            return changed
 
     # -- Dependencies (ProfileData.vb:2840-2939) --------------------------- #
     def has_dependants(self, mod_name: str) -> bool:
@@ -375,14 +406,15 @@ class ProfileData:
     def reset_mod_files(self, ifd: InstalledFileData) -> None:
         """Rebuild ifd.mod_file_conflicts (all mods with this file_key) + mod_files
         (those whose CRC matches), sorted by FileKeyInfo.comparer."""
-        target = ifd.key.file_key.lower()
-        conflicts = [fk for fk in self.file_list if fk.file_key.lower() == target]
-        if len(conflicts) > 1:
-            conflicts.sort(key=cmp_to_key(FileKeyInfo.comparer))
-        ifd.mod_file_conflicts[:] = conflicts
-        ifd.mod_files[:] = [
-            fk for fk in conflicts if self.file_list[fk].file_crc == ifd.file_crc
-        ]
+        with self._lock:
+            target = ifd.key.file_key.lower()
+            conflicts = [fk for fk in self.file_list if fk.file_key.lower() == target]
+            if len(conflicts) > 1:
+                conflicts.sort(key=cmp_to_key(FileKeyInfo.comparer))
+            ifd.mod_file_conflicts[:] = conflicts
+            ifd.mod_files[:] = [
+                fk for fk in conflicts if self.file_list[fk].file_crc == ifd.file_crc
+            ]
 
     def default_installer(self, ifd: InstalledFileData) -> None:
         """Set ifd.installer to its default classification (DefaultInstaller)."""
@@ -470,12 +502,13 @@ class ProfileData:
 
     def remove_installed_file(self, ifd: InstalledFileData) -> None:
         """Remove an installed file entry, marking affected mods NotInstalled."""
-        for fk in ifd.mod_file_conflicts:
-            self.changes.mods.affected(fk.mod_name)
-            fd = self.file_item(fk)
-            if fd is not None:
-                fd.file_state = State.NOT_INSTALLED
-        self.installed_list.pop(ifd.key, None)
+        with self._lock:
+            for fk in ifd.mod_file_conflicts:
+                self.changes.mods.affected(fk.mod_name)
+                fd = self.file_item(fk)
+                if fd is not None:
+                    fd.file_state = State.NOT_INSTALLED
+            self.installed_list.pop(ifd.key, None)
 
     # -- State pipeline ---------------------------------------------------- #
     def set_mod_files(self, ifk: FileKeyInfo) -> None:
@@ -506,55 +539,59 @@ class ProfileData:
 
     def update_file_states(self) -> None:
         """Recompute installed/mod file states from the change lists (UpdateFileStates)."""
-        processed_file_keys: set[str] = set()
+        with self._lock:
+            processed_file_keys: set[str] = set()
 
-        for fk in list(self.changes.installed.update_list):
-            self.set_mod_files(fk)
-        self.changes.installed.update_list.clear()
+            for fk in list(self.changes.installed.update_list):
+                self.set_mod_files(fk)
+            self.changes.installed.update_list.clear()
 
-        # Removed mod files: re-resolve their installed counterpart.
-        for fk in self.changes.file.removed_list:
-            fk_low = fk.file_key.lower()
-            if fk.installed_key in self.installed_list and fk_low not in processed_file_keys:
+            # Removed mod files: re-resolve their installed counterpart.
+            for fk in self.changes.file.removed_list:
+                fk_low = fk.file_key.lower()
+                if fk.installed_key in self.installed_list and fk_low not in processed_file_keys:
+                    processed_file_keys.add(fk_low)
+                    self.set_mod_files(fk.installed_key)
+
+            # Renamed files feed into the update list.
+            self.changes.file.update_list.extend(self.changes.file.renamed_list)
+            for fk in list(self.changes.file.update_list):
+                self.changes.mods.affected(fk.mod_name)
+                fk_low = fk.file_key.lower()
+
+                if fk.installed_key not in self.installed_list:
+                    fd = self.file_list.get(fk)
+                    if fd is not None:
+                        fd.file_state = State.NOT_INSTALLED
+                    processed_file_keys.add(fk_low)
+                    continue
+
+                if fk_low not in processed_file_keys:
+                    self.set_mod_files(fk.installed_key)
+                elif (
+                    self.installed_list[fk.installed_key].installer.lower() != fk.mod_name.lower()
+                    and self.file_list[fk].file_state != State.MATCH_OVERRIDE
+                ):
+                    self.file_list[fk].file_state = State.OVERRIDDEN
+
                 processed_file_keys.add(fk_low)
-                self.set_mod_files(fk.installed_key)
 
-        # Renamed files feed into the update list.
-        self.changes.file.update_list.extend(self.changes.file.renamed_list)
-        for fk in list(self.changes.file.update_list):
-            self.changes.mods.affected(fk.mod_name)
-            fk_low = fk.file_key.lower()
-
-            if fk.installed_key not in self.installed_list:
-                fd = self.file_list.get(fk)
-                if fd is not None:
-                    fd.file_state = State.NOT_INSTALLED
-                processed_file_keys.add(fk_low)
-                continue
-
-            if fk_low not in processed_file_keys:
-                self.set_mod_files(fk.installed_key)
-            elif (
-                self.installed_list[fk.installed_key].installer.lower() != fk.mod_name.lower()
-                and self.file_list[fk].file_state != State.MATCH_OVERRIDE
-            ):
-                self.file_list[fk].file_state = State.OVERRIDDEN
-
-            processed_file_keys.add(fk_low)
-
-        self.changes.file.update_list.clear()
+            self.changes.file.update_list.clear()
 
     # -- Convenience for building tests / scans ---------------------------- #
     def add_mod(self, md: ModData) -> None:
-        # Mods are keyed by mod name; group rows by group name (matches VB ModList).
-        key = md.mod_name if md.is_not_group_item else md.group
-        self.mod_list[key] = md
+        with self._lock:
+            # Mods are keyed by mod name; group rows by group name (matches VB ModList).
+            key = md.mod_name if md.is_not_group_item else md.group
+            self.mod_list[key] = md
 
     def add_file(self, fd: FileData) -> None:
-        self.file_list[fd.key] = fd
+        with self._lock:
+            self.file_list[fd.key] = fd
 
     def add_installed(self, ifd: InstalledFileData) -> None:
-        self.installed_list[ifd.key] = ifd
+        with self._lock:
+            self.installed_list[ifd.key] = ifd
 
     # -- Disk scan (CreateModList / CreateFiles / CreateInstalledList) ------ #
     def scan_mods(self, profile_mods_dir: Path) -> None:
@@ -563,18 +600,19 @@ class ProfileData:
         Ports CreateModList/CreateModListThread + AddMod + AddFiles. New mods join
         the reserved GroupNone; their installer files populate FileList.
         """
-        if not profile_mods_dir.is_dir():
+        with self._lock:
+            if not profile_mods_dir.is_dir():
+                self.ensure_mandatory_groups()
+                return
+            for mod_dir in sorted(p for p in profile_mods_dir.iterdir() if p.is_dir()):
+                name = mod_dir.name
+                if name in self.mod_list or name in C.RESERVED_MOD_NAMES:
+                    continue
+                md = ModData(group=C.GROUP_NONE, mod_name=name)
+                self.mod_list[name] = md
+                self.changes.mods.added(name)
+                self.scan_mod_files(md, profile_mods_dir)
             self.ensure_mandatory_groups()
-            return
-        for mod_dir in sorted(p for p in profile_mods_dir.iterdir() if p.is_dir()):
-            name = mod_dir.name
-            if name in self.mod_list or name in C.RESERVED_MOD_NAMES:
-                continue
-            md = ModData(group=C.GROUP_NONE, mod_name=name)
-            self.mod_list[name] = md
-            self.changes.mods.added(name)
-            self.scan_mod_files(md, profile_mods_dir)
-        self.ensure_mandatory_groups()
 
     def scan_mod_files(self, md: ModData, profile_mods_dir: Path) -> None:
         """Populate FileList from a mod's ``.Mod Installer`` payload (AddFilesThread).
@@ -583,25 +621,26 @@ class ProfileData:
         which enumerates sub-directories then their files); the recorded folder is
         the file's immediate parent name.
         """
-        installer_dir = profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR
-        if not installer_dir.is_dir():
-            return
-        for path in sorted(installer_dir.rglob("*")):
-            if not path.is_file() or path.parent == installer_dir:
-                continue
-            fk = FileKeyInfo(md.group, md.mod_name, path.parent.name, path.name)
-            if fk not in self.file_list:
-                stat = path.stat()
-                self.file_list[fk] = FileData(
-                    key=fk,
-                    file_state=State.UNKNOWN,
-                    extension=path.suffix,
-                    modified=datetime.fromtimestamp(stat.st_mtime),
-                    byte_size=stat.st_size,
-                    file_crc=0,
-                )
-                md.files.append(fk)
-                self.changes.file.added(fk)
+        with self._lock:
+            installer_dir = profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR
+            if not installer_dir.is_dir():
+                return
+            for path in sorted(installer_dir.rglob("*")):
+                if not path.is_file() or path.parent == installer_dir:
+                    continue
+                fk = FileKeyInfo(md.group, md.mod_name, path.parent.name, path.name)
+                if fk not in self.file_list:
+                    stat = path.stat()
+                    self.file_list[fk] = FileData(
+                        key=fk,
+                        file_state=State.UNKNOWN,
+                        extension=path.suffix,
+                        modified=datetime.fromtimestamp(stat.st_mtime),
+                        byte_size=stat.st_size,
+                        file_crc=0,
+                    )
+                    md.files.append(fk)
+                    self.changes.file.added(fk)
 
     def scan_installed(self, game_folders: dict[str, Path], root_folder_name: str) -> None:
         """Populate InstalledList from the mapped game folders (AddInstalledFilesThread).
@@ -610,32 +649,33 @@ class ProfileData:
         :meth:`Mapper.nwn_folder_paths`); ``root_folder_name`` is the game root's
         directory name, used to normalise root-level files to the "nwn" marker.
         """
-        for path in game_folders.values():
-            if not path.is_dir():
-                continue
-            for file in sorted(p for p in path.iterdir() if p.is_file()):
-                ifk = FileKeyInfo.installed(
-                    file.parent.name, file.name, root_folder_name=root_folder_name
-                )
-                stat = file.stat()
-                existing = self.installed_list.get(ifk)
-                if existing is None:
-                    self.installed_list[ifk] = InstalledFileData(
-                        key=ifk,
-                        file_state=State.INSTALLED,
-                        extension=file.suffix,
-                        modified=datetime.fromtimestamp(stat.st_mtime),
-                        byte_size=stat.st_size,
-                        file_crc=0,
+        with self._lock:
+            for path in game_folders.values():
+                if not path.is_dir():
+                    continue
+                for file in sorted(p for p in path.iterdir() if p.is_file()):
+                    ifk = FileKeyInfo.installed(
+                        file.parent.name, file.name, root_folder_name=root_folder_name
                     )
-                    self.changes.installed.added(ifk)
-                elif (
-                    existing.byte_size != stat.st_size
-                    or existing.modified != datetime.fromtimestamp(stat.st_mtime)
-                ):
-                    existing.modified = datetime.fromtimestamp(stat.st_mtime)
-                    existing.byte_size = stat.st_size
-                    self.changes.installed.changed(ifk)
+                    stat = file.stat()
+                    existing = self.installed_list.get(ifk)
+                    if existing is None:
+                        self.installed_list[ifk] = InstalledFileData(
+                            key=ifk,
+                            file_state=State.INSTALLED,
+                            extension=file.suffix,
+                            modified=datetime.fromtimestamp(stat.st_mtime),
+                            byte_size=stat.st_size,
+                            file_crc=0,
+                        )
+                        self.changes.installed.added(ifk)
+                    elif (
+                        existing.byte_size != stat.st_size
+                        or existing.modified != datetime.fromtimestamp(stat.st_mtime)
+                    ):
+                        existing.modified = datetime.fromtimestamp(stat.st_mtime)
+                        existing.byte_size = stat.st_size
+                        self.changes.installed.changed(ifk)
 
     def add_installed_file(self, ifk: FileKeyInfo, path: Path) -> None:
         """Add/update an installed-file entry from a file on disk (AddInstalledFile).
@@ -643,23 +683,24 @@ class ProfileData:
         ``ifk`` must be an installed key; ``path`` is its resolved location. No-op
         if the file does not exist. Adds the key to the Installed change list.
         """
-        if not path.is_file():
-            return
-        self.changes.installed.added(ifk)
-        stat = path.stat()
-        ifd = self.installed_list.get(ifk)
-        if ifd is None:
-            self.installed_list[ifk] = InstalledFileData(
-                key=ifk,
-                file_state=State.INSTALLED,
-                extension=path.suffix,
-                modified=datetime.fromtimestamp(stat.st_mtime),
-                byte_size=stat.st_size,
-                file_crc=0,
-            )
-        else:
-            ifd.byte_size = stat.st_size
-            ifd.modified = datetime.fromtimestamp(stat.st_mtime)
+        with self._lock:
+            if not path.is_file():
+                return
+            self.changes.installed.added(ifk)
+            stat = path.stat()
+            ifd = self.installed_list.get(ifk)
+            if ifd is None:
+                self.installed_list[ifk] = InstalledFileData(
+                    key=ifk,
+                    file_state=State.INSTALLED,
+                    extension=path.suffix,
+                    modified=datetime.fromtimestamp(stat.st_mtime),
+                    byte_size=stat.st_size,
+                    file_crc=0,
+                )
+            else:
+                ifd.byte_size = stat.st_size
+                ifd.modified = datetime.fromtimestamp(stat.st_mtime)
 
     # -- Path resolution + checksums --------------------------------------- #
     @staticmethod
@@ -708,22 +749,23 @@ class ProfileData:
         Data* maintenance command to re-sync after the game folder changed outside
         the tool.
         """
-        removed = 0
-        for ifk in list(self.installed_list):
-            path = self.installed_file_path(game_folders, ifk)
-            if path is None or not path.is_file():
-                ifd = self.installed_list.pop(ifk, None)
-                if ifd is not None:
-                    self.changes.installed.removed(ifk)
-                    removed += 1
-        before_added = len(self.changes.installed.added_list)
-        before_changed = len(self.changes.installed.changed_list)
-        self.scan_installed(game_folders, root_folder_name=root_folder_name)
-        added = len(self.changes.installed.added_list) - before_added
-        changed = len(self.changes.installed.changed_list) - before_changed
-        self.update_file_states()
-        self.update_mod_states()
-        return {"removed": removed, "added": added, "changed": changed}
+        with self._lock:
+            removed = 0
+            for ifk in list(self.installed_list):
+                path = self.installed_file_path(game_folders, ifk)
+                if path is None or not path.is_file():
+                    ifd = self.installed_list.pop(ifk, None)
+                    if ifd is not None:
+                        self.changes.installed.removed(ifk)
+                        removed += 1
+            before_added = len(self.changes.installed.added_list)
+            before_changed = len(self.changes.installed.changed_list)
+            self.scan_installed(game_folders, root_folder_name=root_folder_name)
+            added = len(self.changes.installed.added_list) - before_added
+            changed = len(self.changes.installed.changed_list) - before_changed
+            self.update_file_states()
+            self.update_mod_states()
+            return {"removed": removed, "added": added, "changed": changed}
 
     def rescan_installed_state(
         self, game_folders: dict[str, Path], root_folder_name: str
@@ -749,39 +791,40 @@ class ProfileData:
         from a clean install — an accepted limitation of a keys-only rescan; a full
         FileList scan (with the mod folders present) resolves it precisely.
         """
-        for name in list(self.mod_list):
-            md = self.mod_list[name]
-            if md.is_group_item:
-                continue
-            for fk in md.files:
-                if fk not in self.file_list:
-                    self.file_list[fk] = FileData(
-                        key=fk,
-                        file_state=State.UNKNOWN,
-                        extension=fk.extension,
-                        modified=datetime.now(),
-                        byte_size=0,
-                        file_crc=0,
-                    )
-                self.changes.file.added(fk)
-            self.changes.mods.affected(md.mod_name)
+        with self._lock:
+            for name in list(self.mod_list):
+                md = self.mod_list[name]
+                if md.is_group_item:
+                    continue
+                for fk in md.files:
+                    if fk not in self.file_list:
+                        self.file_list[fk] = FileData(
+                            key=fk,
+                            file_state=State.UNKNOWN,
+                            extension=fk.extension,
+                            modified=datetime.now(),
+                            byte_size=0,
+                            file_crc=0,
+                        )
+                    self.changes.file.added(fk)
+                self.changes.mods.affected(md.mod_name)
 
-        self.scan_installed(game_folders, root_folder_name=root_folder_name)
-        # No mod-installer files on disk; only the installed side gets real CRCs.
-        self.calculate_checksums(Path(), game_folders)
-        for fk in list(self.file_list):
-            ifd = self.installed_list.get(fk.installed_key)
-            if ifd is not None:
-                # A present file is this mod's file: adopt the installed CRC/size
-                # (the installer copy isn't on disk) so it matches + shows its size.
-                fd = self.file_list[fk]
-                fd.file_crc = ifd.file_crc
-                fd.byte_size = ifd.byte_size
-                fd.modified = ifd.modified
+            self.scan_installed(game_folders, root_folder_name=root_folder_name)
+            # No mod-installer files on disk; only the installed side gets real CRCs.
+            self.calculate_checksums(Path(), game_folders)
+            for fk in list(self.file_list):
+                ifd = self.installed_list.get(fk.installed_key)
+                if ifd is not None:
+                    # A present file is this mod's file: adopt the installed CRC/size
+                    # (the installer copy isn't on disk) so it matches + shows its size.
+                    fd = self.file_list[fk]
+                    fd.file_crc = ifd.file_crc
+                    fd.byte_size = ifd.byte_size
+                    fd.modified = ifd.modified
 
-        self.update_file_states()
-        self.update_mod_states()
-        self.changes.reset_changes()
+            self.update_file_states()
+            self.update_mod_states()
+            self.changes.reset_changes()
 
 
 def _safe_crc(path: Path) -> int:

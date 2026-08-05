@@ -64,10 +64,10 @@ bar just shows it is busy and the line names what it is doing.
 so nothing half-written is ever left under an archive's name. Anything already
 installed before you cancelled stays installed.
 
-The main window is disabled until the job finishes. That is deliberate: installing
-creates mods and rewrites the tool's own records, and no other screen expects that
-to happen underneath it. The dialog will not close mid-job for the same reason —
-cancel first, or wait.
+**The rest of the app stays usable while it runs** — browse your mods, read a log,
+open a save. Only a second install is refused, because two at once would fight over
+the same game files. The dialog itself will not close mid-job: the transfer would
+have nowhere to report back to. Cancel first, or wait.
 
 ## When Drive says no
 
