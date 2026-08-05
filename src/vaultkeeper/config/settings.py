@@ -145,6 +145,11 @@ class Settings:
     #: game — richer icons for custom items, at the cost of a one-time hak scan
     #: (~0.5s) the first time an inventory is shown. Off by default (opt-in).
     hak_item_icons: bool = False
+    #: Work out each item's *own* inventory icon from the game files, the way
+    #: the game does — an armour's torso model, a potion's three stacked parts,
+    #: a cloak's variant. Off means every item of a type shows that type's one
+    #: default picture: uniform, and nothing to look up.
+    exact_item_icons: bool = True
     #: Save Game Editor colour theme: ``"dark"`` | ``"light"`` (see
     #: ``nwnsaveeditor.ui.editor.tokens.THEMES``). The editor is self-themed
     #: rather than following ``theme`` above, so it carries its own preference.

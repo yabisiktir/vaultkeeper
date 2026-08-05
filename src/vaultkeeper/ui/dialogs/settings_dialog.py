@@ -271,6 +271,17 @@ class SettingsDialog(QDialog):
         self.inventory_nwn_style.setChecked(settings.inventory_nwn_style)
         form.addRow(self.inventory_nwn_style)
 
+        self.exact_item_icons = QCheckBox(
+            "Show each item's own icon, worked out from the game files"
+        )
+        self.exact_item_icons.setChecked(settings.exact_item_icons)
+        self.exact_item_icons.setToolTip(
+            "Match what the game shows: a suit of armour pictured by its own "
+            "torso, a potion by its three stacked parts, a cloak by its variant. "
+            "Turn this off to give every item of a type the same default picture."
+        )
+        form.addRow(self.exact_item_icons)
+
         self.hak_item_icons = QCheckBox(
             "Use custom item icons from installed haks (CEP/PRC)"
         )
@@ -599,6 +610,7 @@ class SettingsDialog(QDialog):
         settings.portrait_display_size = self.portrait_display_size.currentText()
         settings.inventory_nwn_style = self.inventory_nwn_style.isChecked()
         settings.hak_item_icons = self.hak_item_icons.isChecked()
+        settings.exact_item_icons = self.exact_item_icons.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 

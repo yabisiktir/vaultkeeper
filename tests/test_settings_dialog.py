@@ -239,3 +239,18 @@ def test_behaviour_prefs_round_trip_through_store(tmp_path):
     loaded = load_settings(path)
     assert loaded.convert_bik_files is True
     assert loaded.install_after_create is True
+
+
+def test_exact_item_icons_round_trips(qtbot, tmp_path):
+    """The choice between each item's own picture and one default per type."""
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+    settings = Settings()
+    assert settings.exact_item_icons is True  # match the game by default
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    assert dlg.exact_item_icons.isChecked()
+    dlg.exact_item_icons.setChecked(False)
+    dlg.apply_to(settings)
+    assert settings.exact_item_icons is False
