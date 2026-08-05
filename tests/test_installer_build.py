@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tests import real_data
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.archive import FakeArchiveExtractor
 from vaultkeeper.core.mapper import Mapper
@@ -27,7 +28,7 @@ from vaultkeeper.game.installer_build import (
     process_patch_files,
 )
 
-NIT_STORE = Path("/Users/example/Documents/NIT Store")
+NIT_STORE = real_data.nit_store()
 
 
 def sf(path: str, *, size: int = 100, mtime: float = 1000.0) -> SourceFile:
@@ -240,11 +241,13 @@ def test_mod_installer_folder_not_rescanned(tmp_path: Path) -> None:
 def test_golden_cep_mod_installer_layout(tmp_path: Path) -> None:
     """Recreate a real mod's ``.Mod Installer`` files loose and confirm the builder
     maps each back to its original game folder (ground truth = the real layout)."""
+    import pytest
+
+    if NIT_STORE is None:
+        pytest.skip(real_data.REASON)
     installer = NIT_STORE / "Profiles/Enhanced Edition Mods/CEP v2.x/.Mod Installer"
     if not installer.is_dir():
-        import pytest
-
-        pytest.skip("NIT Store CEP mod not present")
+        pytest.skip("that store has no CEP mod to compare against")
 
     # Collect (filename -> expected folder) from the real installer, ignoring the
     # nitconfig identifier folder (created separately, not a scanned source).

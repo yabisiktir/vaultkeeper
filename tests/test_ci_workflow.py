@@ -150,3 +150,29 @@ def test_linux_gets_the_libraries_qt_needs(workflow):
     steps = str(workflow["jobs"]["build"]["steps"])
     for library in ("libegl1", "libxkbcommon-x11-0", "libxcb-cursor0"):
         assert library in steps
+
+
+def test_no_pytest_mark_sits_on_something_that_is_not_a_test():
+    """pytest only reads marks on test functions; elsewhere they do nothing.
+
+    A skipif guarding the owner's real NIT Store was attached to a *helper*, so
+    the test it was meant to protect ran on every CI platform and failed there —
+    asserting about a store that could not exist on a runner. A mark that does
+    nothing is worse than no mark: it reads as a guard that is present.
+    """
+    import ast
+    from pathlib import Path
+
+    offenders = []
+    for path in sorted(Path(__file__).resolve().parent.glob("test_*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef) or not node.decorator_list:
+                continue
+            if node.name.startswith("test"):
+                continue
+            for decorator in node.decorator_list:
+                rendered = ast.unparse(decorator)
+                if "pytest" in rendered and "mark" in rendered:
+                    offenders.append(f"{path.name}:{node.lineno} {node.name}()")
+    assert not offenders, "marks pytest will ignore: " + ", ".join(offenders)

@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
+from tests import real_data
 from vaultkeeper.config.settings import Settings, save_settings  # noqa: E402
 from vaultkeeper.ui.dialogs.import_legacy import ImportLegacyStore  # noqa: E402
 
-_REAL_STORE = Path("/Users/example/Documents/NIT Store")
+_REAL_STORE = real_data.nit_store()
 
 
 def test_dialog_lists_and_imports(qtbot, tmp_path, monkeypatch):
@@ -49,7 +49,7 @@ def test_dialog_lists_and_imports(qtbot, tmp_path, monkeypatch):
 
 
 @pytest.mark.skipif(
-    not (_REAL_STORE / "Data").is_dir(), reason="No real NIT Store on this machine"
+    _REAL_STORE is None or not (_REAL_STORE / "Data").is_dir(), reason=real_data.REASON
 )
 def test_dialog_lists_real_store_profiles(qtbot):
     dlg = ImportLegacyStore()

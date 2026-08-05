@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+from tests import real_data
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
@@ -107,16 +108,14 @@ def test_rebuild_database_preserves_imported_mods(tmp_path: Path) -> None:
 
 
 # --- Real-data golden (skipif absent) ------------------------------------- #
-_NIT_STORE = Path("/Users/example/Documents/NIT Store")
-_USER_DIR = Path("/Users/example/Documents/Neverwinter Nights")
-_INSTALL = Path(
-    "/Users/example/Library/Application Support/Steam/steamapps/common/Neverwinter Nights"
-)
+_NIT_STORE = real_data.nit_store()
+_USER_DIR = real_data.nwn_user_dir()
+_INSTALL = real_data.nwn_install()
 
 
 @pytest.mark.skipif(
-    not (_NIT_STORE.is_dir() and _USER_DIR.is_dir() and _INSTALL.is_dir()),
-    reason="No real NIT Store / NWN:EE install on this machine",
+    real_data.missing(_NIT_STORE, _USER_DIR, _INSTALL),
+    reason=real_data.REASON,
 )
 def test_real_import_open_shows_installed_grouped(tmp_path: Path) -> None:
     """Opening the owner's real imported store shows every mod, grouped, with the

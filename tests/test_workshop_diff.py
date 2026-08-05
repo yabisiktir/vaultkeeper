@@ -5,9 +5,9 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-_REAL_WS = Path(
-    "/Users/example/Library/Application Support/Steam/steamapps/workshop/content/704450"
-)
+from tests import real_data
+
+_REAL_WS = real_data.steam_workshop()
 
 
 def _item(content: Path, id_: str, files: dict[str, bytes]) -> None:
@@ -68,7 +68,7 @@ def test_resolve_mod_name_from_module(tmp_path):
 import pytest  # noqa: E402
 
 
-@pytest.mark.skipif(not _REAL_WS.is_dir(), reason="No real Steam Workshop content")
+@pytest.mark.skipif(_REAL_WS is None, reason=real_data.REASON)
 def test_diff_real_workshop_folder_stable():
     from vaultkeeper.game.workshop import contents_from_json, contents_to_json, diff_workshop
 

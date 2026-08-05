@@ -7,15 +7,15 @@ mappings decode genuine .NET BinaryFormatter payloads.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-_STORE = Path("/Users/example/Documents/NIT Store")
+from tests import real_data
+
+_STORE = real_data.nit_store()
 _PROFILE = "Enhanced Edition Mods"
 
 pytestmark = pytest.mark.skipif(
-    not (_STORE / "Data" / _PROFILE).is_dir(), reason="No real NIT Store on this machine"
+    _STORE is None or not (_STORE / "Data" / _PROFILE).is_dir(), reason=real_data.REASON
 )
 
 

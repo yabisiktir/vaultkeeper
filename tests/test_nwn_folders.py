@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+from tests import real_data
 from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.game.nwn_folders import read_alias_locations
 
@@ -119,18 +120,19 @@ def test_folder_paths_ee_library_override() -> None:
     assert paths["nwn"] == root
 
 
-# --- Real-data golden test (skipif absent) -------------------------------- #
-_NIT_STORE = Path("/Users/example/Documents/NIT Store")
-_USER_DIR = Path("/Users/example/Documents/Neverwinter Nights")
-_INSTALL = Path(
-    "/Users/example/Library/Application Support/Steam/steamapps/common/Neverwinter Nights"
-)
+# --- Real-data golden test (opt-in; see tests/real_data.py) --------------- #
+_NIT_STORE = real_data.nit_store()
+_USER_DIR = real_data.nwn_user_dir()
+_INSTALL = real_data.nwn_install()
 
 
-@pytest.mark.skipif(
-    not (_NIT_STORE.is_dir() and _USER_DIR.is_dir() and _INSTALL.is_dir()),
-    reason="No real NIT Store / NWN:EE install on this machine",
-)
+#: This one reads a real NIT Store and a real NWN:EE install, so it runs only
+#: where those are provided. The skipif used to sit on the helper below, where
+#: pytest does not look for marks — so the test ran everywhere and failed on
+#: every CI platform, asserting about a store that was not there.
+_HAVE_REAL_DATA = not real_data.missing(_NIT_STORE, _USER_DIR, _INSTALL)
+
+
 def _resolved(pd, *, is_ee: bool) -> tuple[list[str], list[str]]:
     """``(resolved, missed)`` mod names under one folder-resolution mode."""
     mapper = Mapper(is_ee=is_ee)
@@ -155,6 +157,7 @@ def _resolved(pd, *, is_ee: bool) -> tuple[list[str], list[str]]:
     return resolved, missed
 
 
+@pytest.mark.skipif(not _HAVE_REAL_DATA, reason=real_data.REASON)
 def test_ee_resolution_lights_up_real_installed_mods() -> None:
     """With EE resolution, the owner's real imported mods resolve on disk.
 
