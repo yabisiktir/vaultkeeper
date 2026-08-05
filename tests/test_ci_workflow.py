@@ -112,11 +112,31 @@ def test_the_editor_is_installed_before_vaultkeeper(workflow):
     assert editor < vaultkeeper
 
 
-def test_the_repo_placeholder_is_still_obvious(workflow):
-    """It cannot be filled in until the repos exist; it must not fail quietly."""
-    assert workflow["env"]["SAVE_EDITOR_REPO"].startswith("OWNER/"), (
-        "if this has been set, delete this test"
-    )
+def test_the_editor_repo_is_named_for_real(workflow):
+    """It was a placeholder until the repos existed; now it must be a real one."""
+    repo = workflow["env"]["SAVE_EDITOR_REPO"]
+    owner, _, name = repo.partition("/")
+    assert owner and name, repo
+    assert owner != "OWNER", "still the placeholder"
+    assert name == "nwn-save-editor", repo
+
+
+def test_every_editor_checkout_carries_a_token(workflow):
+    """The editor repo is private, and the automatic token cannot see it.
+
+    ``GITHUB_TOKEN`` is scoped to the repository running the workflow, so a
+    cross-repo checkout of a private repo fails with "Repository not found" —
+    which reads like the name is wrong rather than the permission.
+    """
+    for job in ("test", "build"):
+        checkouts = [
+            step for step in workflow["jobs"][job]["steps"]
+            if str(step.get("uses", "")).startswith("actions/checkout")
+            and "repository" in (step.get("with") or {})
+        ]
+        assert checkouts, f"{job} does not check the editor out"
+        for step in checkouts:
+            assert "token" in step["with"], f"{job}: cross-repo checkout without a token"
 
 
 def test_the_bundled_seven_zip_is_verified_before_a_build(workflow):

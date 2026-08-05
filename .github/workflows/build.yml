@@ -6,8 +6,9 @@ name: Build
 # build will not launch on an Intel Mac.
 #
 # Vaultkeeper depends on nwn-save-editor, which lives in its own repository, so
-# every job checks both out. Set SAVE_EDITOR_REPO below to the owner/name it
-# ends up under — the workflow fails loudly rather than silently skipping it.
+# every job checks both out and pip-installs the editor first — pip cannot
+# resolve it from PyPI. Because that repo is private, the checkout needs a token
+# the automatic GITHUB_TOKEN cannot supply: see the SAVE_EDITOR_TOKEN secret below.
 
 on:
   push:
@@ -20,8 +21,7 @@ permissions:
   contents: read
 
 env:
-  # CHANGE ME once the editor repo exists on GitHub.
-  SAVE_EDITOR_REPO: OWNER/nwn-save-editor
+  SAVE_EDITOR_REPO: yabisiktir/nwn-save-editor
   SAVE_EDITOR_REF: main
 
 jobs:
@@ -41,6 +41,12 @@ jobs:
           repository: ${{ env.SAVE_EDITOR_REPO }}
           ref: ${{ env.SAVE_EDITOR_REF }}
           path: nwn-save-editor
+          # The automatic GITHUB_TOKEN is scoped to THIS repository only, so it
+          # cannot see a private nwn-save-editor — the checkout fails with
+          # "Repository not found", which reads like a typo in the name. Set the
+          # SAVE_EDITOR_TOKEN secret to a token with read access to it. The
+          # fallback keeps this working unchanged if that repo is ever public.
+          token: ${{ secrets.SAVE_EDITOR_TOKEN || github.token }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -100,6 +106,12 @@ jobs:
           repository: ${{ env.SAVE_EDITOR_REPO }}
           ref: ${{ env.SAVE_EDITOR_REF }}
           path: nwn-save-editor
+          # The automatic GITHUB_TOKEN is scoped to THIS repository only, so it
+          # cannot see a private nwn-save-editor — the checkout fails with
+          # "Repository not found", which reads like a typo in the name. Set the
+          # SAVE_EDITOR_TOKEN secret to a token with read access to it. The
+          # fallback keeps this working unchanged if that repo is ever public.
+          token: ${{ secrets.SAVE_EDITOR_TOKEN || github.token }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
