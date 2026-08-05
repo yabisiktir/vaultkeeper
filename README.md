@@ -7,6 +7,8 @@ A mod is rarely one file. Vaultkeeper keeps a profile of every mod you have, wor
 out which of its files belong in which game folder, tracks what is installed and
 what each file overrides, and can put it all back.
 
+![The mod list grouped, with a selected mod's files and their install state](docs/images/main-window.png)
+
 ## What it does
 
 - **Mods, grouped.** A profile of your mods and groups, each with its install
@@ -20,6 +22,9 @@ what each file overrides, and can put it all back.
 - **Download from the Vault.** Fetch a project straight from Neverwinter Vault, and
   install modules from the PRC-ified Drive collection with their dependencies
   resolved. Transfers stream to disk and run in the background.
+
+  ![Browsing the PRC-ified module collection, each row showing what it was built for](docs/images/prc-module.png)
+
 - **Play tracking.** Launch the game, and see what you played and for how long.
 - **Look inside the game's files.** Characters, items, portraits, haks, ERF/GFF
   contents — the parsers are native, so nothing external is needed to read them.

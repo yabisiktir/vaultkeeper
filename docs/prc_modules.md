@@ -8,6 +8,8 @@ replace: that one takes a Vault page and downloads its files. This one takes an
 archive from Drive, then goes and finds the Vault page itself, because the two halves
 of a PRC-ified module live in different places.
 
+![The dialog: the Drive folder listed, each module showing its build tag](images/prc-module.png)
+
 ## Why it takes four steps
 
 The Drive folder holds the archive and nothing else. What the module *needs* — CEP,

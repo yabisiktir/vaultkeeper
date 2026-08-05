@@ -51,6 +51,12 @@ _PORTRAIT_FOLDER = "portraits"
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
 
+    #: What the embedded save editor calls itself. To someone who opened it from
+    #: Tools it is part of Vaultkeeper, not a separate application — and the
+    #: editor says "NWN Save Editor" when nobody claims it (see
+    #: ``nwnsaveeditor.ui.editor.host.wordmark_for``).
+    wordmark = "VAULTKEEPER"
+
     def __init__(
         self,
         pd: ProfileData,
