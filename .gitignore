@@ -18,7 +18,12 @@ env/
 
 # Packaging output
 /out/
-/external/**/bin/
+
+# NOT external/bin — the 7-Zip builds under it are committed on purpose.
+# core/archive.py has no pure-Python fallback, so a package built without them
+# installs nothing, and 7-zip.org serves several releases at once (pinned URLs
+# rot) while the Windows build itself ships as a .7z. scripts/fetch_tools.py is
+# the hand-run updater; --check verifies what is committed, and CI fails on it.
 
 # OS / editor
 .DS_Store
