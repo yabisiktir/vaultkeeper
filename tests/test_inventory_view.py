@@ -97,11 +97,17 @@ def test_inventory_view_clear(qtbot):
 class _FakeIcons:
     available = True
 
-    def icon_bytes(self, base_item, model_part):
+    def __init__(self):
+        self.asked = []
+
+    def icon_bytes(self, base_item, model_part, **variant):
         return None  # exercise the icon path without needing the game install
 
-    def icon_image(self, base_item, model_part):
-        return None  # the decoded form the view actually asks for
+    def icon_image(self, base_item, model_part, **variant):
+        # ``variant`` carries what tells one suit of armour from another; the real
+        # source needs it, so a fake that refused it would hide a wiring mistake.
+        self.asked.append((base_item, model_part, variant))
+        return None
 
 
 def test_nwn_style_toggle_switches_view_and_persists(qtbot):
@@ -132,3 +138,31 @@ def test_ammunition_cell_shows_any_ammo(qtbot):
     view.set_character(_info([EquippedItem(8192, "Bolts", bolts)], []))
     # slot 8192 (Bolts) is one of the Ammunition cell's candidate bits.
     assert view._cards["Ammunition"]._item is bolts
+
+
+def test_each_suit_of_armour_gets_its_own_icon_not_the_first_one(qtbot):
+    """Armour carries no ModelPart1 — every suit is ``(16, 0)``.
+
+    Keyed on that alone, the view's own cache handed the first suit's picture to
+    all of them, however well the layer underneath resolved them.
+    """
+    icons = _FakeIcons()
+    view = InventoryView(icon_source=icons)
+    qtbot.addWidget(view)
+    view.set_character(_info([], [
+        _item("Plate", base_item=16, armor_torso=28),
+        _item("Scale", base_item=16, armor_torso=33),
+    ]))
+    torsos = [v.get("armor_torso") for _b, _m, v in icons.asked if _b == 16]
+    assert sorted(set(torsos)) == [28, 33]  # both asked for, not one cached for both
+
+
+def test_a_womans_armour_is_asked_for_as_hers(qtbot):
+    """The same suit is a different picture on each body."""
+    icons = _FakeIcons()
+    view = InventoryView(icon_source=icons)
+    qtbot.addWidget(view)
+    info = _info([], [_item("Plate", base_item=16, armor_torso=28)])
+    info.gender = Gender.FEMALE
+    view.set_character(info)
+    assert any(v.get("female") for _b, _m, v in icons.asked)

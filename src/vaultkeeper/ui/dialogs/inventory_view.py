@@ -126,7 +126,10 @@ class InventoryView(QWidget):
         super().__init__(parent)
         self._icons = icon_source
         self._on_style_changed = on_style_changed
-        self._icon_cache: dict[tuple[int, int], QIcon | None] = {}
+        #: (base item, model part, armour torso, armour robe) -> icon.
+        self._icon_cache: dict[tuple[int, int, int, int], QIcon | None] = {}
+        #: Whose body armour icons are drawn on; set with the character.
+        self._female = False
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
@@ -211,6 +214,13 @@ class InventoryView(QWidget):
         self.clear()
         if info is None or not info.is_valid:
             return
+        from nwnfile.formats.bic_reader import Gender
+
+        # Armour is pictured as worn, so the same suit is a different icon on a
+        # woman. Remembered here because the items themselves do not know whose
+        # they are.
+        self._female = info.gender is Gender.FEMALE
+        self._icon_cache.clear()
         self._fill_equipped(info.equipped_items)
         self._fill_carried(info.inventory_items)
 
@@ -218,9 +228,11 @@ class InventoryView(QWidget):
     def _icon_for(self, item: InventoryItem) -> QIcon | None:
         if self._icons is None:
             return None
-        key = (item.base_item, item.model_part)
+        # Armour carries no ModelPart1 — every suit is (16, 0), so keying the
+        # cache on that alone would serve the first one's picture for all of them.
+        key = (item.base_item, item.model_part, item.armor_torso, item.armor_robe)
         if key not in self._icon_cache:
-            self._icon_cache[key] = _load_icon(self._icons, item)
+            self._icon_cache[key] = _load_icon(self._icons, item, female=self._female)
         return self._icon_cache[key]
 
     # -- population ------------------------------------------------------- #
