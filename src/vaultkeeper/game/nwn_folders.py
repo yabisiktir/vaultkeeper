@@ -20,6 +20,8 @@ the normal read/scan path ever writes ``nwn.ini``.
 
 from __future__ import annotations
 
+import os
+import re
 from pathlib import Path
 
 #: The ``[Alias]`` section name that holds folder locations.
@@ -35,6 +37,56 @@ _SKIP_KEYS = frozenset({"cd0", "hd0", "saves"})
 _NWM_INI_KEY = "nwmfiles"
 _NWM_FOLDER = "nwm"
 
+#: A drive letter or a UNC share — absolute to Windows, meaningless to POSIX.
+_WINDOWS_ABSOLUTE = re.compile(r"^(?:[A-Za-z]:[\\/]|\\\\)")
+#: A leading slash — absolute to POSIX, and merely *rooted* to Windows, which
+#: has no drive to root it. "//" is excluded: that is a UNC path in disguise.
+_POSIX_ABSOLUTE = re.compile(r"^/(?!/)")
+
+
+def alias_target(value: str, user_dir: Path) -> Path | None:
+    """Where an alias value points, or ``None`` if another OS wrote it.
+
+    ``nwn.ini`` stores absolute, platform-specific paths, so a user folder shared
+    between a macOS and a Windows install — a VM with the Mac's Documents folder
+    mounted, say — hands each game the other one's aliases.
+
+    Those cannot simply be joined. ``Path("/Users/x/…").is_absolute()`` is False
+    on Windows, because a leading slash without a drive is *rooted*, not
+    absolute, so the old code took the "relative" branch and produced paths like
+    ``\\\\mac\\Home\\Users\\x\\Documents\\Neverwinter Nights\\hak`` — the share
+    root with the POSIX path spliced onto it. Nothing lives there, so every mod
+    read as not-installed and rebuilding the database could not help: it was
+    scanning a folder that does not exist.
+
+    A foreign alias is therefore ignored rather than mangled, which drops the
+    caller back on the standard layout (``user_dir/<name>``) — where the files
+    actually are.
+    """
+    looks_windows = bool(_WINDOWS_ABSOLUTE.match(value))
+    looks_posix = bool(_POSIX_ABSOLUTE.match(value))
+    if looks_windows or looks_posix:
+        native = looks_windows if os.name == "nt" else looks_posix
+        return Path(value) if native else None
+    # Genuinely relative: resolved against the user dir (VB CombinePath).
+    return Path(user_dir) / value
+
+
+def foreign_alias_values(user_dir: Path) -> dict[str, str]:
+    """Alias entries written by a different operating system, for reporting.
+
+    :func:`read_alias_locations` drops these so folder resolution stays correct.
+    They are worth surfacing, though: a user folder shared between two installs
+    means whichever game ran last has rewritten the aliases, and the *game* will
+    fail to start on the other one — with its own "Failed to set up alias"
+    dialog, which is not something this app can repair by ignoring a line.
+    """
+    return {
+        key: value
+        for key, value in _alias_entries(user_dir)
+        if alias_target(value, user_dir) is None
+    }
+
 
 def read_alias_locations(user_dir: Path) -> dict[str, Path]:
     """Folder locations from ``<user_dir>/nwn.ini``'s ``[Alias]`` section.
@@ -45,13 +97,26 @@ def read_alias_locations(user_dir: Path) -> dict[str, Path]:
     matching ``FileSystem.CombinePath``). The ``NWMFiles`` key is normalised to
     the ``nwm`` folder identifier (VB ``PopulateLocations``).
     """
-    ini_path = Path(user_dir) / "nwn.ini"
-    try:
-        text = ini_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return {}
-
     locations: dict[str, Path] = {}
+    for key, value in _alias_entries(user_dir):
+        target = alias_target(value, user_dir)
+        if target is not None:  # None = written by another OS; see alias_target
+            locations[key] = target
+    return locations
+
+
+def _alias_entries(user_dir: Path) -> list[tuple[str, str]]:
+    """``(folder_key, raw_value)`` from the ``[Alias]`` section, in file order.
+
+    Missing or unreadable ``nwn.ini`` yields nothing, so callers fall back to the
+    standard folder layout.
+    """
+    try:
+        text = (Path(user_dir) / "nwn.ini").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+
+    entries: list[tuple[str, str]] = []
     in_section = False
     for raw in text.splitlines():
         line = raw.strip()
@@ -67,12 +132,8 @@ def read_alias_locations(user_dir: Path) -> dict[str, Path]:
         value = value.strip()
         if not key or not value or key in _SKIP_KEYS:
             continue
-        if key == _NWM_INI_KEY:
-            key = _NWM_FOLDER
-        # CombinePath(user_dir, value): an absolute value wins, else join.
-        candidate = Path(value)
-        locations[key] = candidate if candidate.is_absolute() else Path(user_dir) / value
-    return locations
+        entries.append((_NWM_FOLDER if key == _NWM_INI_KEY else key, value))
+    return entries
 
 
 def nwn_ini_path(user_dir: Path) -> Path:

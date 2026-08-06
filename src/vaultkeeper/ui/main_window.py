@@ -149,8 +149,16 @@ class MainWindow(QMainWindow):
         self._details.setHtml(
             "<h3>Welcome to Vaultkeeper</h3>"
             "<p>No profile is open yet.</p>"
-            "<p>Use <b>File &rarr; Load Profile</b> (or <b>Open</b>) to locate your "
-            "Neverwinter Nights folder and create a profile.</p>" + self._import_hint()
+            "<p>Use <b>File &rarr; Load Profile</b> (or <b>Open</b>) to create one. "
+            "You will be asked for your Neverwinter Nights <b>installation</b> — the "
+            "folder holding <tt>nwmain</tt>.</p>"
+            # Enhanced Edition has two folders people call "my Neverwinter Nights
+            # folder", and mods live in the other one. Saying so here saves the
+            # first wrong guess, and says where to correct it.
+            "<p>On Enhanced Edition your mods and saves live somewhere else again — "
+            "in <b>Documents &rarr; Neverwinter Nights</b>. Vaultkeeper looks for that "
+            "by itself; if it guesses wrong, set it under "
+            "<b>Options &rarr; Settings &rarr; Locations</b>.</p>" + self._import_hint()
         )
         self.nit_status.set_info("No profile — use File ▸ Load Profile")
 
@@ -443,7 +451,14 @@ class MainWindow(QMainWindow):
 
     def _on_setup(self) -> None:
         """First-run flow: locate the NWN folder, name a profile, open it."""
-        nwn_dir = QFileDialog.getExistingDirectory(self, "Locate your Neverwinter Nights folder")
+        # "installation ... where nwmain.exe is", not "your Neverwinter Nights
+        # folder": on EE there are two of those, and the other one — the user
+        # folder under Documents, where mods and saves actually live — is found
+        # automatically. Asked plainly, people pick the wrong one.
+        nwn_dir = QFileDialog.getExistingDirectory(
+            self,
+            "Locate your Neverwinter Nights installation (the folder holding nwmain)",
+        )
         if not nwn_dir:
             return
         name, ok = QInputDialog.getText(self, "Profile", "Profile name:", text="My Mods")

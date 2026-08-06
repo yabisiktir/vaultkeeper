@@ -7,13 +7,14 @@ in ``game/nwn_folders.py`` and ``Mapper.nwn_folder_paths``.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
 
 from tests import real_data
 from vaultkeeper.core.mapper import Mapper
-from vaultkeeper.game.nwn_folders import read_alias_locations
+from vaultkeeper.game.nwn_folders import foreign_alias_values, read_alias_locations
 
 # The host's own root, so the fixture's "absolute" entries really are absolute
 # wherever the suite runs. A rooted-but-driveless path like "/Users/x" is
@@ -63,6 +64,99 @@ def test_read_alias_locations_parses_section(tmp_path: Path) -> None:
 
 def test_read_alias_locations_missing_file(tmp_path: Path) -> None:
     assert read_alias_locations(tmp_path) == {}
+
+
+# --------------------------------------------------------------------------- #
+# Aliases written by the other operating system
+# --------------------------------------------------------------------------- #
+# Reported from a Windows 11 VM whose user folder was the host Mac's Documents,
+# mounted over a share. nwn.ini stores absolute, platform-specific paths, so the
+# Windows app was reading the Mac's aliases. No mod was ever found, and
+# rebuilding the database could not help: the folder being scanned did not exist.
+_FOREIGN_INI = """\
+[Alias]
+HAK={foreign}/hak
+OVERRIDE={foreign}/override
+RELHAK=relhaks
+"""
+
+_POSIX_ALIAS = "/Users/x/Documents/Neverwinter Nights"
+_WINDOWS_ALIAS = r"C:\Users\x\Documents\Neverwinter Nights"
+
+#: Whichever form the *running* host did not write.
+_FOREIGN = _POSIX_ALIAS if os.name == "nt" else _WINDOWS_ALIAS
+
+
+def test_an_alias_from_another_os_is_ignored_not_mangled(tmp_path: Path) -> None:
+    """The bug: a foreign absolute path was silently joined onto the user dir.
+
+    ``Path("/Users/x/…").is_absolute()`` is False on Windows — a leading slash
+    with no drive is rooted, not absolute — so the old code took the "relative"
+    branch and built ``\\\\mac\\Home\\Users\\x\\…``, splicing the POSIX path onto
+    the share root. The same happens in reverse: a ``C:\\…`` value on POSIX is
+    not absolute either, and would be joined just as wrongly.
+
+    Dropping the entry is what makes it right, because the caller then falls
+    back to ``user_dir/<name>`` — where the files actually are.
+    """
+    (tmp_path / "nwn.ini").write_text(
+        _FOREIGN_INI.format(foreign=_FOREIGN), encoding="utf-8"
+    )
+    locs = read_alias_locations(tmp_path)
+
+    assert "hak" not in locs, "a foreign alias must be dropped, not resolved"
+    assert "override" not in locs
+    # Specifically, it must never have been joined onto the user dir.
+    assert not any(str(p).startswith(str(tmp_path)) and "Documents" in str(p)
+                   for p in locs.values())
+    # A genuinely relative entry still resolves — only foreign ones are dropped.
+    assert locs["relhak"] == tmp_path / "relhaks"
+
+
+def test_an_alias_this_os_wrote_is_still_honoured(tmp_path: Path) -> None:
+    native = _WINDOWS_ALIAS if os.name == "nt" else _POSIX_ALIAS
+    (tmp_path / "nwn.ini").write_text(
+        _FOREIGN_INI.format(foreign=native), encoding="utf-8"
+    )
+    locs = read_alias_locations(tmp_path)
+
+    assert locs["hak"] == Path(native) / "hak"
+    assert locs["override"] == Path(native) / "override"
+
+
+def test_foreign_aliases_are_reported_so_the_user_can_be_told(tmp_path: Path) -> None:
+    # Dropping them fixes the scan, but the user still has a real problem: the
+    # two installs are fighting over one nwn.ini, and the *game* will refuse to
+    # start on whichever one did not write it last.
+    (tmp_path / "nwn.ini").write_text(
+        _FOREIGN_INI.format(foreign=_FOREIGN), encoding="utf-8"
+    )
+    foreign = foreign_alias_values(tmp_path)
+
+    assert set(foreign) == {"hak", "override"}
+    assert foreign["hak"] == f"{_FOREIGN}/hak"
+    assert foreign_alias_values(tmp_path / "nowhere") == {}
+
+
+@pytest.mark.parametrize(
+    ("value", "windows", "posix"),
+    [
+        (r"C:\Games\NWN", True, False),
+        ("C:/Games/NWN", True, False),
+        (r"\\server\share\NWN", True, False),
+        ("/Users/x/NWN", False, True),
+        ("//server/share/NWN", False, False),  # UNC in disguise: neither claims it
+        ("relhaks", False, False),
+        ("./relhaks", False, False),
+    ],
+)
+def test_which_os_a_value_belongs_to(value: str, windows: bool, posix: bool) -> None:
+    # Pinned explicitly rather than left to Path, whose idea of "absolute"
+    # changes with the host — which is the whole reason for the bug above.
+    from vaultkeeper.game.nwn_folders import _POSIX_ABSOLUTE, _WINDOWS_ABSOLUTE
+
+    assert bool(_WINDOWS_ABSOLUTE.match(value)) is windows
+    assert bool(_POSIX_ABSOLUTE.match(value)) is posix
 
 
 def test_folder_paths_standard_layout_default() -> None:
