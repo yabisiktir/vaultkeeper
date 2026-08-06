@@ -28,7 +28,11 @@ dev = [
     "pytest>=8.0",
     "pytest-qt>=4.4",
     "pyyaml>=6.0",   # test_ci_workflow.py parses the workflow
-    "ruff>=0.6",
+    # Pinned, not floated: CI installs the newest match, and a ruff release
+    # that changes a rule turns a green repository red with no commit behind
+    # it — which is exactly how "clean locally, I001 in CI" happened. Bump
+    # this deliberately, with the fixes in the same commit.
+    "ruff==0.16.1",
     "mypy>=1.11",
 ]
 
@@ -49,6 +53,17 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+# Say which packages are ours, rather than leaving ruff to infer it.
+#
+# nwnfile and nwnsaveeditor live in a separate distribution that happens to be
+# installed from a sibling checkout, and ruff versions disagreed about what that
+# makes them: one grouped them with vaultkeeper and wanted no blank line between,
+# another treated them as third-party and demanded one. The same file was
+# therefore clean locally and I001 in CI, with each side's fix breaking the other.
+known-first-party = ["vaultkeeper", "tests"]
+known-third-party = ["nwnfile", "nwnsaveeditor"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
