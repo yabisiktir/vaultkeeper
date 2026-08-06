@@ -103,5 +103,7 @@ def test_copy_puts_mod_folders_on_clipboard(qtbot, tmp_path):
 
     mime = QApplication.clipboard().mimeData()
     assert mime.hasUrls()
-    local = [u.toLocalFile() for u in mime.urls()]
-    assert str(controller.ctx.profile_mods_dir / "Alpha") in local
+    # QUrl.toLocalFile() always renders with forward slashes, even on Windows,
+    # so compare as paths rather than as strings.
+    local = [Path(u.toLocalFile()) for u in mime.urls()]
+    assert controller.ctx.profile_mods_dir / "Alpha" in local

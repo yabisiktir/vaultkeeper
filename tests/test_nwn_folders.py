@@ -15,17 +15,26 @@ from tests import real_data
 from vaultkeeper.core.mapper import Mapper
 from vaultkeeper.game.nwn_folders import read_alias_locations
 
-_ALIAS_INI = """\
+# The host's own root, so the fixture's "absolute" entries really are absolute
+# wherever the suite runs. A rooted-but-driveless path like "/Users/x" is
+# absolute on POSIX but *relative* on Windows, which has no drive to root it —
+# there the reader would (correctly) resolve it against the user dir, and the
+# test would be asserting the wrong branch rather than finding a bug.
+_ROOT = Path(Path.cwd().anchor)  # "/" on POSIX, "C:\\" on Windows
+_DOCS = _ROOT / "Users" / "x" / "Documents" / "Neverwinter Nights"
+_NWM = _ROOT / "Users" / "x" / "Library" / "NWN" / "data" / "nwm"
+
+_ALIAS_INI = f"""\
 [Settings]
 Foo=Bar
 
 [Alias]
-HD0=/Users/x/Documents/Neverwinter Nights
-SAVES=/Users/x/Documents/Neverwinter Nights/saves
-HAK=/Users/x/Documents/Neverwinter Nights/hak
-OVERRIDE=/Users/x/Documents/Neverwinter Nights/override
-MODULES=/Users/x/Documents/Neverwinter Nights/modules
-NWMFiles=/Users/x/Library/NWN/data/nwm
+HD0={_DOCS}
+SAVES={_DOCS / "saves"}
+HAK={_DOCS / "hak"}
+OVERRIDE={_DOCS / "override"}
+MODULES={_DOCS / "modules"}
+NWMFiles={_NWM}
 RELHAK=relhaks
 
 [Other]
@@ -38,11 +47,11 @@ def test_read_alias_locations_parses_section(tmp_path: Path) -> None:
     locs = read_alias_locations(tmp_path)
 
     # Moddable folders are present, keyed lower-case.
-    assert locs["hak"] == Path("/Users/x/Documents/Neverwinter Nights/hak")
-    assert locs["override"] == Path("/Users/x/Documents/Neverwinter Nights/override")
-    assert locs["modules"] == Path("/Users/x/Documents/Neverwinter Nights/modules")
+    assert locs["hak"] == _DOCS / "hak"
+    assert locs["override"] == _DOCS / "override"
+    assert locs["modules"] == _DOCS / "modules"
     # NWMFiles is normalised to the "nwm" folder identifier.
-    assert locs["nwm"] == Path("/Users/x/Library/NWN/data/nwm")
+    assert locs["nwm"] == _NWM
     # CD/HD markers and saves are skipped.
     assert "hd0" not in locs
     assert "saves" not in locs

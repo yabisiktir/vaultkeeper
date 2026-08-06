@@ -6,6 +6,7 @@ trees under tmp_path and drive the discovery/resolution helpers directly.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -76,6 +77,11 @@ def test_resolve_wine_path_default_drive_c(tmp_path: Path) -> None:
     assert resolved == prefix / "drive_c/Program Files/Neverwinter Nights"
 
 
+@pytest.mark.skipif(
+    os.name == "nt",
+    reason="a Wine prefix cannot exist on Windows: 'd:' is an illegal filename "
+    "there and symlinks need elevation",
+)
 def test_resolve_wine_path_honours_dosdevices(tmp_path: Path) -> None:
     prefix = tmp_path / "prefix"
     (prefix / "drive_c").mkdir(parents=True)

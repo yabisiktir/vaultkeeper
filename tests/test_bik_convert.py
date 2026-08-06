@@ -15,8 +15,10 @@ def test_ffmpeg_command_matches_vb():
     assert argv[:1] == ["ffmpeg"]
     assert "-c:v" in argv and "libvpx" in argv
     assert "libvorbis" in argv
-    assert argv[-3:] == ["-f", "webm", "/m/out.wbm"]
-    assert argv[1:3] == ["-i", "/m/in.bik"]
+    # str(Path(...)), not the literal: ffmpeg is handed the path as the host
+    # spells it, which is "\m\out.wbm" on Windows.
+    assert argv[-3:] == ["-f", "webm", str(Path("/m/out.wbm"))]
+    assert argv[1:3] == ["-i", str(Path("/m/in.bik"))]
 
 
 def test_converter_runs_command(tmp_path):

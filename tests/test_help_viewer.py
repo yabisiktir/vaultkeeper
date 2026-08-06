@@ -27,7 +27,9 @@ def test_every_dialog_help_reference_resolves():
     controls = {
         m.group(1)
         for p in src.rglob("*.py")
-        for m in pattern.finditer(p.read_text())
+        # encoding="utf-8", not the locale default: the sources contain em-dashes
+        # and Windows would decode them as cp1252 and raise.
+        for m in pattern.finditer(p.read_text(encoding="utf-8"))
     }
     assert controls, "expected to find help control references"
     missing = [

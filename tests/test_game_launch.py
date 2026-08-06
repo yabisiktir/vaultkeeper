@@ -49,7 +49,9 @@ def test_macos_bundle_argv_with_user_dir(tmp_path):
 def test_linux_direct_argv(tmp_path):
     exe = _make_bin(tmp_path, "bin/linux-x86/nwmain-linux")
     argv = launch_argv(tmp_path, host=HostOS.LINUX, user_dir=Path("/home/x/.local/nwn"))
-    assert argv == [str(exe), "-userDirectory", "/home/x/.local/nwn"]
+    # The user dir is passed through as the host renders it; only the argv
+    # *shape* is Linux-specific, which is what host=HostOS.LINUX pins.
+    assert argv == [str(exe), "-userDirectory", str(Path("/home/x/.local/nwn"))]
 
 
 def test_steam_fallback_when_no_executable(tmp_path):

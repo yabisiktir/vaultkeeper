@@ -39,7 +39,7 @@ def _normalise_key(file_key: str) -> str:
 
 @cache
 def _load_table(name: str) -> dict[str, int]:
-    raw = json.loads((files("vaultkeeper.game.data") / name).read_text())
+    raw = json.loads((files("vaultkeeper.game.data") / name).read_text(encoding="utf-8"))
     return {_normalise_key(k): (int(v) & _MASK) for k, v in raw.items()}
 
 

@@ -291,7 +291,7 @@ def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
     )
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
     dlg._on_extract()
-    assert str(calls["extracted"]) == "/haks/faces.hak"
+    assert str(calls["extracted"]) == str(Path("/haks/faces.hak"))
 
 
 def test_viewer_name_search_filters(qtbot, tmp_path):
