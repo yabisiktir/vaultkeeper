@@ -1,9 +1,12 @@
 name: Build
 
 # Artifacts are produced on the OS they target: a PySide6 freeze embeds a Python
-# interpreter and Qt's native libraries, so there is no cross-building. macOS is
-# built twice because PySide6 ships per-architecture wheels and an Apple Silicon
-# build will not launch on an Intel Mac.
+# interpreter and Qt's native libraries, so there is no cross-building.
+#
+# macOS is Apple Silicon only. A freeze is per-architecture — an arm64 build will
+# not launch on an Intel Mac — so an x86_64 artifact would have to be built
+# separately, and nobody is asking for one. Restore a `macos-13` entry below if
+# that changes.
 #
 # Vaultkeeper depends on nwn-save-editor, which lives in its own repository, so
 # every job checks both out and pip-installs the editor first — pip cannot
@@ -91,8 +94,6 @@ jobs:
         include:
           - os: macos-14        # Apple Silicon
             label: macOS (arm64)
-          - os: macos-13        # Intel
-            label: macOS (x86_64)
           - os: windows-latest
             label: Windows (x64)
           - os: ubuntu-latest
