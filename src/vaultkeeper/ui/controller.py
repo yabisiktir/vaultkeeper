@@ -1962,6 +1962,73 @@ class ProfileController:
 
         return self.store_path.parent if self.store_path else data_root()
 
+    def export_settings(self, *, name: str | None = None) -> dict:
+        """Write the current preferences to the store's *Exported Settings* folder.
+
+        VB ``RbnExportSettings_Click``: it first folds the live UI state — the
+        mod selections and the window/panel layout — back into the settings, then
+        writes them out, so an export captures the application as it stands
+        rather than as it was last saved. The caller is expected to have done the
+        same (see ``MainWindow._on_export_settings``, which persists geometry
+        first); this method exports whatever is on disk.
+
+        Exports are timestamped rather than overwriting, because the point is to
+        be able to go back to a *particular* known-good set. Returns
+        ``{"ok", "path", "message"}``.
+        """
+        from datetime import datetime
+
+        from vaultkeeper.config.settings import save_settings
+
+        settings = self._settings()
+        target_dir = settings.resolved_store().exported_settings
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.now().strftime("%Y-%m-%d %H%M%S")
+            target = target_dir / f"Settings {stamp}.json"
+            save_settings(settings, target)
+        except OSError as exc:
+            return {"ok": False, "path": None, "message": f"Could not export settings: {exc}"}
+        return {
+            "ok": True,
+            "path": target,
+            "message": f"Your settings have been exported to {target.name}.",
+        }
+
+    def exported_settings_files(self) -> list[Path]:
+        """Previously exported settings, newest first (VB BackupManager's tab)."""
+        folder = self._settings().resolved_store().exported_settings
+        if not folder.is_dir():
+            return []
+        return sorted(folder.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+
+    def import_settings(self, source: Path) -> dict:
+        """Load an exported settings file back over the current preferences.
+
+        The counterpart to :meth:`export_settings` — an export nobody can restore
+        is a backup in name only. The game paths and the active profile are
+        *not* taken from the file: those identify this machine, and importing a
+        colleague's or another PC's would point the app at folders that do not
+        exist here.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        if not source.is_file():
+            return {"ok": False, "message": f"{source.name} could not be read."}
+        try:
+            imported = load_settings(source)
+        except (OSError, ValueError) as exc:
+            return {"ok": False, "message": f"{source.name} could not be read: {exc}"}
+
+        current = self._settings()
+        for name in (
+            "store_root", "nwn_path", "game_user_path", "active_profile",
+            "window_geometry",
+        ):
+            setattr(imported, name, getattr(current, name))
+        save_settings(imported, self._settings_path)
+        return {"ok": True, "message": f"Settings imported from {source.name}."}
+
     def backup_data(self, dest_zip: Path) -> str:
         """Zip the whole Data directory to ``dest_zip`` (VB Backup Data)."""
         import zipfile

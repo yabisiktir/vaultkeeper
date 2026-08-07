@@ -140,7 +140,7 @@ CharacterFilter,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Port
 CharacterFilter,CmClassMenu,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 CharacterViewer,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
-CharacterViewer,BtSelect,?,"""Restorer""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
+CharacterViewer,BtSelect,?,"""Restorer""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,BtClose,?,"""Close""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,CbRanked,?,"""Only show Ranked Skills""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,BtDescription,?,"""Description""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
@@ -157,12 +157,12 @@ CharacterViewer,TabCharacter,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Port
 CharacterViewer,TabSummary,?,"""Summary""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,LbInfo,?,"""Character Info""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,TabSkills,?,"""Skills""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
-CharacterViewer,LvSkills,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/character_reference.py,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
+CharacterViewer,LvSkills,?,,,System.Windows.Forms.DockStyle.Fill,,strong,src/nwnfile/character_reference.py,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,SkillCol,?,"""Skill""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,ColumnHeaderPlus2,?,"""Rank""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,CmViewDescription,?,"""View Description""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,TabFeats,?,"""Feats""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
-CharacterViewer,LvFeats,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/character_reference.py,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
+CharacterViewer,LvFeats,?,,,System.Windows.Forms.DockStyle.Fill,,strong,src/nwnfile/character_reference.py,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,PicPortrait,?,,,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,CmOpenPortraitManager,?,"""Open in Portrait Manager""",,,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
 CharacterViewer,PnCharacters,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (list/portrait/Summary-Skills-Feats + filter + copy)
@@ -176,13 +176,13 @@ ClassesSkillsAndFeats,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Port
 ClassesSkillsAndFeats,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,BtClose,?,"""Close""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,LsbFeats,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (3 searchable tabs)
-ClassesSkillsAndFeats,LvFeats,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/character_reference.py,Ported,faithful (3 searchable tabs)
+ClassesSkillsAndFeats,LvFeats,?,,,System.Windows.Forms.DockStyle.Fill,,strong,src/nwnfile/character_reference.py,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,ColumnHeaderPlus1,?,"""Feats""",,,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,LsbSkills,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (3 searchable tabs)
-ClassesSkillsAndFeats,LvSkills,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/character_reference.py,Ported,faithful (3 searchable tabs)
+ClassesSkillsAndFeats,LvSkills,?,,,System.Windows.Forms.DockStyle.Fill,,strong,src/nwnfile/character_reference.py,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,SkillCol,?,"""Skills""",,,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,LsbClasses,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (3 searchable tabs)
-ClassesSkillsAndFeats,LvClasses,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/character_reference.py,Ported,faithful (3 searchable tabs)
+ClassesSkillsAndFeats,LvClasses,?,,,System.Windows.Forms.DockStyle.Fill,,strong,src/nwnfile/character_reference.py,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,ColumnHeaderPlus2,?,"""Classes""",,,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,TabMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (3 searchable tabs)
 ClassesSkillsAndFeats,TpClasses,?,"""Classes""",,,,none,,Ported,faithful (3 searchable tabs)
@@ -321,7 +321,7 @@ DocOrganiser,ColumnHeaderPlus1,?,"""Documents""",,,,none,,Ported,core content po
 DocOrganiser,CmVersion,?,"""Version""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,CmRename,?,"""Rename""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,CmRenameTo,?,"""Rename to            F9""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
-DocOrganiser,CmProperties,?,"""Properties""",,,,none,,Ported,core content ported (layout arrangement differs)
+DocOrganiser,CmProperties,?,"""Properties""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,CmReset,?,"""Reset""",,,,none,,Ported,core content ported (layout arrangement differs)
 DocOrganiser,BuDocs,?,"""Downloads Folder Documents""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,core content ported (layout arrangement differs)
 DocOrganiser,SplitterLine6,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,core content ported (layout arrangement differs)
@@ -332,13 +332,13 @@ DocOrganiser,TsQuick,?,"""ToolStrip1""",,,,strong,vaultkeeper/ui/quick_toolbar.p
 DocOrganiser,TsVersion,?,"""Version""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,TsRename,?,"""Rename""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/quick_toolbar.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,TsRenameTo,?,"""Rename to...""",,,,none,,Ported,core content ported (layout arrangement differs)
-DocOrganiser,TsProperties,?,"""Properties""",,,,none,,Ported,core content ported (layout arrangement differs)
+DocOrganiser,TsProperties,?,"""Properties""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,TsReset,?,"""Reset""",,,,none,,Ported,core content ported (layout arrangement differs)
 DocOrganiser,SplitterLine2,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,core content ported (layout arrangement differs)
 DocOrganiser,TsUncheck,?,"""Uncheck All""",,,,comment,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,core content ported (layout arrangement differs)
 DocOrganiser,BgProcessDocs,System.ComponentModel.BackgroundWorker,,,,,comment,vaultkeeper/game/documentation.py,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 DocOrganiser,ImCheckBox,ImageList,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
-DocOrganiser,CmDocs,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
+DocOrganiser,CmDocs,ContextMenuStrip,,,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 DocOrganiser,SepProperties,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 DownloadDeleteMsg,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,old-downloads delete/history prompt (deferred)
 DownloadDeleteMsg,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,old-downloads delete/history prompt (deferred)
@@ -476,7 +476,7 @@ FindProfileFilesDialogue,LbFind,?,"""&Find what:""",System.Drawing.ContentAlignm
 FindProfileFilesDialogue,CbxFind,?,,,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,BtClose,?,"""&Close""",,,,none,,Ported,faithful (find files + match-case/whole-word)
-FindProfileFilesDialogue,BtSelect,?,"""&Select""",,,,none,,Ported,faithful (find files + match-case/whole-word)
+FindProfileFilesDialogue,BtSelect,?,"""&Select""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,TsStatus,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/status_bar.py,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,LbFilesFoundHdg,?,"""Files Found:""",,,,none,,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,LbFilesFound,?,"""None""",,,,none,,Ported,faithful (find files + match-case/whole-word)
@@ -490,7 +490,7 @@ FindProfileFilesDialogue,ChModName,?,"""Mod Name""",,,,none,,Ported,faithful (fi
 FindProfileFilesDialogue,ChFileName,?,"""File Name""",,,,none,,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,ChFolder,?,"""Sub-Folder""",,,,none,,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,CmDisplayInfo,?,"""Display Additional Info""",,,,none,,Ported,faithful (find files + match-case/whole-word)
-FindProfileFilesDialogue,CmProperties,?,"""&Properties""",,,,none,,Ported,faithful (find files + match-case/whole-word)
+FindProfileFilesDialogue,CmProperties,?,"""&Properties""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,faithful (find files + match-case/whole-word)
 FindProfileFilesDialogue,BgGetFiles,System.ComponentModel.BackgroundWorker,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 FindProfileFilesDialogue,CmMenu,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 GameManager,LpGameManager,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (saves list + archive/reduce/restore + activate/deactivate/delete)
@@ -616,7 +616,7 @@ InstallationAnalyser,LbAnalyser,?,"""View information about the folders and file
 InstallationAnalyser,BhInstallationAnalyser,?,"""ButtonLabel1""",,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/installation_analyser.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,BtClose,?,"""&Close""",,,,none,,Ported,faithful (folder browser + issues report)
-InstallationAnalyser,BtRefresh,?,"""&Refresh""",,,,strong,vaultkeeper/ui/dialogs/workshop_viewer.py,Ported,faithful (folder browser + issues report)
+InstallationAnalyser,BtRefresh,?,"""&Refresh""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/workshop_viewer.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,TsInfo,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LbTotal,?,"""NWN:""",,,,comment,vaultkeeper/ui/dialogs/installation_analyser.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LbTotalSize,?,"""238 GB""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py,Ported,faithful (folder browser + issues report)
@@ -624,14 +624,14 @@ InstallationAnalyser,LbFilesInFolder,?,"""Override Files:""",,,,none,,Ported,fai
 InstallationAnalyser,LbFileCount,?,"""100""",,,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,MiDetails,?,"""Info""",,,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,TsMiniDumpInfo,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (folder browser + issues report)
-InstallationAnalyser,BtSelect,?,"""&Select""",,,,none,,Ported,faithful (folder browser + issues report)
+InstallationAnalyser,BtSelect,?,"""&Select""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,BtConvert,?,"""C&onverted""",,,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LpAnalyserLists,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LvFolders,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/installation_analyser.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,ChFolders,?,"""NWN Folders""",,,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,CmOpenFolder,?,"""Open Folder""",,,,none,,Ported,faithful (folder browser + issues report)
-InstallationAnalyser,CmProperties,?,"""Properties""",,,,none,,Ported,faithful (folder browser + issues report)
+InstallationAnalyser,CmProperties,?,"""Properties""",,,,strong,vaultkeeper/ui/dialogs/doc_organiser.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,CmCharacterSummary,?,"""Display Character Summary""",,,,none,,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,LvFiles,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/installation_analyser.py,Ported,faithful (folder browser + issues report)
 InstallationAnalyser,ChFileName,?,"""File Name""",,,,none,,Ported,faithful (folder browser + issues report)
@@ -727,7 +727,7 @@ ModExplorer,ChStart,?,"""Start""",,,,comment,vaultkeeper/game/find_rename.py,Div
 ModExplorer,ChEnd,?,"""End""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ChHench,?,"""Hench""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,CmCopyNames,?,"""Copy Mod Names""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,CmAddToRecentMods,?,"""Add to Recent Mods""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,CmAddToRecentMods,?,"""Add to Recent Mods""",,,,strong,vaultkeeper/ui/main_window.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ScDetails,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/main_window.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,LpNotes,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,RtbNotes,?,"""""",,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
@@ -757,7 +757,7 @@ ModExplorer,TxWeapon,?,"""Weapon Filter""",,,,none,,Divergence,bounded port: nam
 ModExplorer,TxStart,?,"""Start""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TxEnd,?,"""End""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TxHench,?,"""Hench""",,,,comment,vaultkeeper/ui/dialogs/mod_properties.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,TsClearTextFilters,?,"""Clear""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,TsClearTextFilters,?,"""Clear""",,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TxNotesFilter,?,"""Notes Filter""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TsClearNotesFilter,?,"""Clear""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TsModFiles,?,"""&Mod Files""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
@@ -776,7 +776,7 @@ ModExplorer,TsHelpExplorer,?,"""ToolStripButton1""",System.Windows.Forms.ToolStr
 ModExplorer,SplitterLine2,?,,,System.Windows.Forms.DockStyle.Top,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,SplitterLine1,?,,,System.Windows.Forms.DockStyle.Top,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,LpActions,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,BtSelect,?,"""Select""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,BtSelect,?,"""Select""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,BtClose,?,"""Close""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,TsStatus,?,"""ToolStrip1""",,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/status_bar.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,LbMods,?,"""Mods:""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
@@ -790,9 +790,9 @@ ModExplorer,TsCharacter,?,"""ToolStripButton1""",System.Windows.Forms.ToolStripI
 ModExplorer,MgStatus,?,"""Status Information""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,LbPlayedInfo,?,"""Played Info""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,CmClear,?,"""Clear""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,CmGreater,?,"""Better than""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,CmLess,?,"""Worse than""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
-ModExplorer,CmEqual,?,"""Matches""",,,,none,,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,CmGreater,?,"""Better than""",,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,CmLess,?,"""Worse than""",,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
+ModExplorer,CmEqual,?,"""Matches""",,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,bounded port: name/state/completed filter built; VB's full rating/prefix/group/operand filter subsystem + virtual-list bounded
 ModExplorer,ImDefaultCheckBox,ImageList,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 ModExplorer,ToolStripSeparator1,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 ModExplorer,ToolStripSeparator2,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
@@ -810,7 +810,7 @@ ModExplorer,ToolStripSeparator8,ToolStripSeparator,,,,,none,,N/A,menu/toolbar se
 ModExplorer,TsStateSeparator,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 ModExplorer,BgPopulate,System.ComponentModel.BackgroundWorker,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 ModExplorer,ToolStripSeparator9,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
-ModExplorer,CmExplorer,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
+ModExplorer,CmExplorer,ContextMenuStrip,,,,,strong,vaultkeeper/ui/dialogs/mod_explorer.py,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 ModExplorer,SepPlayedInfo,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 ModFindAndRename,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
 ModFindAndRename,LpFindReplace,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,bulk find-and-rename (dead MsFindAndRename)
@@ -859,7 +859,7 @@ ModPlayViewer,LbGroup,?,"""Group:""",System.Drawing.ContentAlignment.MiddleRight
 ModPlayViewer,LbGroupName,?,"""None""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,TsFilterOptions,?,"""Filter Options""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,TsOnlyShowCompleted,?,"""Only Show Completed""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,TsShowNoEndLevel,?,"""Show no End Level""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,TsShowNoEndLevel,?,"""Show no End Level""",,,,strong,vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,TsEndFilter,?,"""Show all End Level values""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,TsFilters,?,"""Group and Rating Filters...""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,TsRestoreSelected,?,"""Restore selection at start-up""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
@@ -867,9 +867,9 @@ ModPlayViewer,ToolStripSeparator3,?,,System.Windows.Forms.ToolStripItemAlignment
 ModPlayViewer,TsCharacter,?,"""ToolStripButton1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,MgStatus,?,"""Status Information""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,LbPlayedInfo,?,"""Played Info""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,BtSelect,?,"""Select""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,BtSelect,?,"""Select""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,BtClose,?,"""Close""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,BtRecent,?,"""Recent""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,BtRecent,?,"""Recent""",,,,strong,vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,LpMainHeading,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,PicModPlay,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,LbModPlay,?,"""List of Mods sorted by the last date the Mod was completed and ordered from the o"" &",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (columns + detail + filter bar incl. end-level)
@@ -885,9 +885,9 @@ ModPlayViewer,ChTimePlayed,?,"""Time Played""",,,,none,,Ported,faithful (columns
 ModPlayViewer,ChRating,?,"""Rating""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ChStart,?,"""Start""",,,,comment,vaultkeeper/game/find_rename.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ChEnd,?,"""End""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,CmAddToRecentMods,?,"""Add to Recent Mods""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,CmAddToRecentMods,?,"""Add to Recent Mods""",,,,strong,vaultkeeper/ui/main_window.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,CmSelect,?,"""Select""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
-ModPlayViewer,CmCopyName,?,"""Copy Mod Name""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
+ModPlayViewer,CmCopyName,?,"""Copy Mod Name""",,,,strong,vaultkeeper/ui/dialogs/mod_play_viewer.py,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,ScModInfo,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,LpModNotes,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
 ModPlayViewer,RttNotes,?,"""RichTextToolbar1""",,,,none,,Ported,faithful (columns + detail + filter bar incl. end-level)
@@ -1236,7 +1236,7 @@ NIT,TpBackup,?,"""Backup and Recovery""",,,,none,,Ported,main window: 3-pane lay
 NIT,LpMaintain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,RbnBackupData,?,"""Backup Installer"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Tool Information""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/ribbon.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,RbnRestoreData,?,"""Restore Installer"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Tool Information""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/ribbon.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
-NIT,RbnExportSettings,?,"""Export your"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Settings""",,,,strong,vaultkeeper/ui/ribbon.py,Deferred,"SharedNit/BackupManager network-share sync; low value single-machine, no NRBF writer."
+NIT,RbnExportSettings,?,"""Export your"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Settings""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/ribbon.py,Deferred,"SharedNit/BackupManager network-share sync; low value single-machine, no NRBF writer."
 NIT,RbnCreateRestorer,?,"""Create Restorer for"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Unregistered Files""",,,,strong,vaultkeeper/ui/main_window.py | vaultkeeper/ui/ribbon.py,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,TpCustomise,?,"""Customise""",,,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
 NIT,LpCustomise,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,main window: 3-pane layout + status bar + menu/ribbon/toolbar (dead chrome ids seeded per-name)
@@ -1360,28 +1360,28 @@ PlayDataViewer,ColumnHeaderPlus1,LazWorks.Library.ListViews.ColumnHeaderPlus,,,,
 PlayDataViewer,TtPlayTime,LazWorks.Library.Controls.ToolTipPlus,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 PlayDataViewer,ChIndent,LazWorks.Library.ListViews.ColumnHeaderPlus,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 PortraitManager,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbToolstrip,?,"""RibbonPageToolstrip1""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbPrevious,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbNext,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbExclude,?,"""Exclude"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Portrait """,System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbApplyExcludes,?,"""Apply"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Excludes""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbEditPortrait,?,"""Edit"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Portrait""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbCreateInstaller,?,"""Create"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Installer""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbSelect,?,"""Select"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Source""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbOptions,?,"""Options""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,TsOverride,?,"""Include Portraits in Override""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbToolstrip,?,"""RibbonPageToolstrip1""",,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbPrevious,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbNext,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbExclude,?,"""Exclude"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Portrait """,System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbApplyExcludes,?,"""Apply"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Excludes""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbEditPortrait,?,"""Edit"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Portrait""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbCreateInstaller,?,"""Create"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Installer""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbSelect,?,"""Select"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Source""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbOptions,?,"""Options""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,TsOverride,?,"""Include Portraits in Override""",,,,strong,vaultkeeper/ui/controller.py,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,TsAlwaysSelectNext,?,"""Always Select Next Portrait""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,TsInvalidPortraitSizes,?,"""Invalid Portrait Size Report""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,TsInvalidPortraitSizes,?,"""Invalid Portrait Size Report""",,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,TsClose,?,"""Close""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,RbPortraitManagerHelp,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,RbLink,?,"""Open Web Page""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,TsbSearch,?,"""Find Portrait""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,RbLink,?,"""Open Web Page""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,TsbSearch,?,"""Find Portrait""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,LvPortraits,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,ChPortraitName,?,"""Portrait Name""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,ChSource,?,"""Installation Source""",,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,ToolStripSeparator2,?,,System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,ScMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
-PortraitManager,LpImages,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
+PortraitManager,LpImages,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,PicHuge,?,,,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,PicMedium,?,,,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
 PortraitManager,PicLarge,?,,,,,none,,Ported,faithful (5 thumbnails + extract + prev/next)
@@ -1435,8 +1435,8 @@ Settings,TsMapFiles,?,"""Map Files""",System.Drawing.ContentAlignment.MiddleLeft
 Settings,TsMapExcludes,?,"""Map Excludes""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
 Settings,TsFontAndColor,?,"""Font and Colour""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
 Settings,TsToolbar,?,"""Toolbar""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
-Settings,TsExport,?,"""Export""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
-Settings,TsImport,?,"""Import""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
+Settings,TsExport,?,"""Export""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/settings_dialog.py,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
+Settings,TsImport,?,"""Import""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/settings_dialog.py,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
 Settings,ScSettings,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
 Settings,PnSettings,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
 Settings,PnPreferences,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Divergence,"bounded port: VB per-preference ListView-editor framework (Preferences/Config/Profiles/RunMenu/Map pages) vs the port's tabbed dialog + FolderMapping + status-bar profile menu. The real settings-VALUE gap = 10 add-a-setting items (FINDING_3_SETTINGS.md), 5 now built."
@@ -1624,16 +1624,16 @@ SlideShow,PnSlide,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Deferred,start-
 SlideShow,TtControl,LazWorks.Library.Controls.ToolTipPlus,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 SlideShow,TiShow,Timer,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 StartScreenManager,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbToolstrip,?,"""RibbonPageToolstrip1""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbPrevious,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbNext,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbAddFolders,?,"""Add Images"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""from Folders""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbAddFiles,?,"""Add Image"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Files""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbToolstrip,?,"""RibbonPageToolstrip1""",,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbPrevious,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbNext,?,Nothing,,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbAddFolders,?,"""Add Images"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""from Folders""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbAddFiles,?,"""Add Image"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Files""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbRename,?,"""Rename"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Start Screen""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbExport,?,"""Export Start"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Screen File""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbExport,?,"""Export Start"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Screen File""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbDeleteFile,?,"""Remove"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Image File""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbInstall,?,"""Install Selected"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ""Start Screen""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbOptions,?,"""Options""",System.Drawing.ContentAlignment.MiddleLeft,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbOptions,?,"""Options""",System.Drawing.ContentAlignment.MiddleLeft,,,strong,vaultkeeper/ui/dialogs/portrait_manager.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbAutoSelect,?,"""Auto-Start Screen Selection""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbShowPrefixed,?,"""Show Prefixed Images only""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbRepairPrefixed,?,"""Repair Prefixed Image Exclusions""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
@@ -1648,8 +1648,8 @@ StartScreenManager,RbUninstall,?,"""Uninstall the Start Screen's Mod""",,,,none,
 StartScreenManager,RbRemove,?,"""Remove Start Screen Manager""",,,,comment,vaultkeeper/ui/controller.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbClose,?,"""Close""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,RbLoadscreenHelp,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/prefix_editor.py | vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,RbSlideshow,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,LpImages,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,RbSlideshow,?,"""RibbonButtonSmall1""",System.Windows.Forms.ToolStripItemAlignment.Right,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,LpImages,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/ui/dialogs/portrait_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,FvImages,?,,,System.Windows.Forms.DockStyle.Fill,,strong,vaultkeeper/game/start_screen.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,ColumnHeaderPlus1,?,"""Image Files""",,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,PicScreen,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
@@ -1667,11 +1667,11 @@ StartScreenManager,LcbInstalled,?,"""Neverwinter Nights installation""",,,System
 StartScreenManager,LcbStats,?,"""Start Screens: 1/5""",,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,SplitterLine5,?,,,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,LsbImages,?,,,,,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
-StartScreenManager,BtSearch,?,,,,System.Windows.Forms.AnchorStyles.Left,none,,Ported,faithful (gallery/preview + install/add/delete/rename)
+StartScreenManager,BtSearch,?,,,,System.Windows.Forms.AnchorStyles.Left,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Ported,faithful (gallery/preview + install/add/delete/rename)
 StartScreenManager,ToolStripSeparator1,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 StartScreenManager,ToolStripSeparator2,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 StartScreenManager,ToolStripSeparator4,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
-StartScreenManager,CmImages,ContextMenuStrip,,,,,none,,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
+StartScreenManager,CmImages,ContextMenuStrip,,,,,strong,vaultkeeper/ui/dialogs/start_screen_manager.py,Divergence,WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)
 StartScreenManager,ToolStripSeparator3,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 StartScreenManager,TsSeparator,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
 StartScreenManager,ToolStripSeparator5,ToolStripSeparator,,,,,none,,N/A,menu/toolbar separator
@@ -1759,7 +1759,7 @@ WorkshopViewer,LpMain,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,fait
 WorkshopViewer,LpActionButtons,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,BtClose,?,"""Close""",,,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,MlStatus,?,"""Status Text""",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (id/managed/name + refresh diff + rename)
-WorkshopViewer,BtRefresh,?,"""Refresh""",,,,strong,vaultkeeper/ui/dialogs/workshop_viewer.py,Ported,faithful (id/managed/name + refresh diff + rename)
+WorkshopViewer,BtRefresh,?,"""Refresh""",,,,strong,vaultkeeper/ui/dialogs/installation_analyser.py | vaultkeeper/ui/dialogs/workshop_viewer.py,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,LpWorkshopHdg,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,PicWorkshop,?,,,System.Windows.Forms.DockStyle.Fill,,none,,Ported,faithful (id/managed/name + refresh diff + rename)
 WorkshopViewer,LbWorkshop,?,"""View information about your Steam Workshop Subscriptions"" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)",,,"CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)",none,,Ported,faithful (id/managed/name + refresh diff + rename)

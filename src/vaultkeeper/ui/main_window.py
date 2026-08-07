@@ -1203,6 +1203,8 @@ class MainWindow(QMainWindow):
             "MsBackupData": self._on_backup_data,
             "RbnBackupData": self._on_backup_data,
             "MsRestoreData": self._on_restore_data,
+            # VB has only the ribbon button; there is no menu id for either.
+            "RbnExportSettings": self._on_export_settings,
             "RbnRestoreData": self._on_restore_data,
             # Downloads (Vault).
             "MsDownloadProject": self._on_download_project,
@@ -1896,6 +1898,51 @@ class MainWindow(QMainWindow):
             from pathlib import Path
 
             self.nit_status.set_info(self.controller.backup_data(Path(path)))
+
+    def _on_export_settings(self) -> None:
+        """Write the current preferences to the store (VB RbnExportSettings_Click).
+
+        The geometry is folded in first, exactly as VB saves the window and panel
+        layout into the settings before exporting: otherwise the export captures
+        the app as it was last persisted rather than as it stands now, which is
+        the opposite of what somebody pressing "export" is asking for.
+        """
+        if self.controller is None:
+            return
+        self._save_geometry()
+        result = self.controller.export_settings()
+        self.nit_status.set_info(result["message"])
+        if not result["ok"]:
+            QMessageBox.warning(self, "Export Settings", result["message"])
+
+    def _on_import_settings(self) -> None:
+        """Load a previously exported settings file (the counterpart to export)."""
+        if self.controller is None:
+            return
+        exported = self.controller.exported_settings_files()
+        start = str(exported[0].parent) if exported else ""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Import Settings", start, "Exported settings (*.json);;All files (*)"
+        )
+        if not path:
+            return
+        from pathlib import Path
+
+        if (
+            QMessageBox.question(
+                self,
+                "Import Settings",
+                "Replace your current preferences with this file?\n\nYour game "
+                "folders, store location and active profile are kept — those "
+                "describe this machine, not your preferences.",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        result = self.controller.import_settings(Path(path))
+        self.nit_status.set_info(result["message"])
+        if not result["ok"]:
+            QMessageBox.warning(self, "Import Settings", result["message"])
 
     def _on_restore_data(self) -> None:
         if self.controller is None:

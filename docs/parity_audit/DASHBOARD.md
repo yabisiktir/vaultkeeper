@@ -4,12 +4,14 @@ Machine-generated denominator of the original VB app, auto-matched against the
 Python port. Every row carries a status; the audit is complete when no row is
 `GAP?` / `AUTO-PORTED` (i.e. every unit is verified or explicitly categorised).
 
-Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <port> .`
+Regenerate:
 
-`<vb>` is the original *NWN Installer Tool* VB.NET source tree, which is **not part
-of this repository** — it is the proprietary original the port was written from, and
-you need your own copy to regenerate any of this. `<port>` is `src/vaultkeeper`.
-Without the VB sources the CSVs and this page are read-only history.
+```
+python extract_vb.py <vb> ./out
+python build_ledger.py ./out ../../src/vaultkeeper:../../../nwn-save-editor/src .
+```
+
+`<vb>` is the original *NWN Installer Tool* VB.NET source tree, which is **not part of this repository** — you need your own copy. The port argument is os.pathsep-separated and must list **both** repositories: the file formats and save editor live in nwn-save-editor, and indexing only src/vaultkeeper makes every BicFileInfo / portrait / character method read as unmatched.
 
 ## Coverage
 
@@ -21,15 +23,15 @@ Without the VB sources the CSVs and this page are read-only history.
 
 ### Methods/props — status breakdown
 - `Divergence`: 1345
-- `Ported`: 1251
-- `Deferred`: 319
+- `Ported`: 1259
+- `Deferred`: 311
 - `N/A`: 188
 - `Partial`: 181
 
 ### Event handlers — status breakdown
 - `Divergence`: 561
-- `Ported`: 187
-- `Deferred`: 92
+- `Ported`: 193
+- `Deferred`: 86
 - `Partial`: 45
 
 ### Designer controls — status breakdown

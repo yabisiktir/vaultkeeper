@@ -119,10 +119,66 @@ class SettingsDialog(QDialog):
             "Restore All Settings to Default Values", self._on_reset_all
         )
         self._reset_panel_action = menu.addAction("Restore Panel", self._on_reset_panel)
+
+        # VB's Settings screen carries Export and Import beside Reset (TsExport /
+        # TsImport); on first run it even opens here and clicks Import for you
+        # when the store already holds exported settings. Both are wholesale
+        # replacements of the current preferences, which is why they sit
+        # together.
+        menu.addSeparator()
+        self._export_action = menu.addAction(
+            R.get_icon("ExportSettings_x32"), "Export Settings…", self._on_export
+        )
+        self._import_action = menu.addAction(
+            R.get_icon("Arrow_ImportOrLoad_16x_color"), "Import Settings…", self._on_import
+        )
+        for action in (self._export_action, self._import_action):
+            action.setEnabled(self._controller is not None)
+
         menu.aboutToShow.connect(self._update_reset_menu)
         button.setMenu(menu)
         self._reset_button = button
         return button
+
+    def _on_export(self) -> None:
+        """Export the preferences as they stand, including unsaved edits.
+
+        The dialog's own widgets are folded back into the settings first —
+        exporting what is on disk while the user is looking at something else on
+        screen would export the wrong thing.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        self.apply_to(self._settings)
+        from vaultkeeper.config.settings import save_settings
+
+        save_settings(self._settings, getattr(self._controller, "_settings_path", None))
+        result = self._controller.export_settings()
+        QMessageBox.information(self, "Export Settings", result["message"])
+
+    def _on_import(self) -> None:
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        exported = self._controller.exported_settings_files()
+        start = str(exported[0].parent) if exported else ""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Import Settings", start, "Exported settings (*.json);;All files (*)"
+        )
+        if not path:
+            return
+        from pathlib import Path
+
+        result = self._controller.import_settings(Path(path))
+        QMessageBox.information(self, "Import Settings", result["message"])
+        if result["ok"]:
+            # Re-open on the imported values rather than leaving stale widgets
+            # over settings that have already changed underneath them.
+            from vaultkeeper.config.settings import load_settings
+
+            imported = load_settings(getattr(self._controller, "_settings_path", None))
+            for name in self._reset_builders():
+                self._rebuild_tab(name, imported)
+            self._settings = imported
 
     def _update_reset_menu(self) -> None:
         """Label/enable the per-page reset for the current tab (VB CmsResetPanel)."""

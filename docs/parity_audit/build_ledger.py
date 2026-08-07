@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 import sys
 from collections import Counter, defaultdict
@@ -45,15 +46,23 @@ def snake(name: str) -> str:
     return s.lower()
 
 
-def build_port_index(port_src: Path):
-    """token(lower) -> set(files); plus a lowercased blob for comment/string hits."""
+def build_port_index(port_srcs: list[Path]):
+    """token(lower) -> set(files); plus a lowercased blob for comment/string hits.
+
+    Takes several roots because the port is no longer one repository: the file
+    formats and the save editor live in nwn-save-editor. Indexing only
+    src/vaultkeeper made every BicFileInfo / portrait / character method read as
+    unmatched, which is a fact about where the code moved, not about whether it
+    was ported.
+    """
     token_files: dict[str, set[str]] = defaultdict(set)
     blob_parts: list[str] = []
     tok = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
-    for py in sorted(port_src.rglob("*.py")):
+    for py in sorted(f for root in port_srcs for f in root.rglob("*.py")):
         if "__pycache__" in py.parts:
             continue
-        rel = str(py.relative_to(port_src))
+        root = next(r for r in port_srcs if r in py.parents)
+        rel = f"{root.name}/{py.relative_to(root)}"
         text = py.read_text(encoding="utf-8", errors="replace")
         low = text.lower()
         blob_parts.append(f"\n### {rel}\n{low}")
@@ -111,10 +120,11 @@ def initial_status(name, match_kind, seeds):
 
 def main():
     outdir = Path(sys.argv[1])       # denominator CSVs (from extract_vb.py)
-    port_src = Path(sys.argv[2])     # port src dir
+    # One or more port src dirs, os.pathsep-separated (the port spans two repos).
+    port_srcs = [Path(p) for p in sys.argv[2].split(os.pathsep) if p]
     dest = Path(sys.argv[3])         # where to write ledger + dashboard
     seeds = load_seeds(dest / "seeds.json")
-    token_files, blob = build_port_index(port_src)
+    token_files, blob = build_port_index(port_srcs)
 
     def read(name):
         with (outdir / name).open() as f:
@@ -210,7 +220,20 @@ def write_dashboard(dest, members, handlers, controls):
     A("Machine-generated denominator of the original VB app, auto-matched against the")
     A("Python port. Every row carries a status; the audit is complete when no row is")
     A("`GAP?` / `AUTO-PORTED` (i.e. every unit is verified or explicitly categorised).\n")
-    A("Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <port> .`\n")
+    A(
+        "Regenerate:\n\n"
+        "```\n"
+        "python extract_vb.py <vb> ./out\n"
+        "python build_ledger.py ./out "
+        "../../src/vaultkeeper:../../../nwn-save-editor/src .\n"
+        "```\n\n"
+        "`<vb>` is the original *NWN Installer Tool* VB.NET source tree, which is "
+        "**not part of this repository** — you need your own copy. The port "
+        "argument is os.pathsep-separated and must list **both** repositories: "
+        "the file formats and save editor live in nwn-save-editor, and indexing "
+        "only src/vaultkeeper makes every BicFileInfo / portrait / character "
+        "method read as unmatched.\n"
+    )
 
     A("## Coverage\n")
     A("| Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |")
