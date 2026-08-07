@@ -155,6 +155,15 @@ class Settings:
     #: portraits from a favourite image site (VB ``PathImageWebPage``). Empty =
     #: the link is hidden.
     portrait_image_web_page: str = ""
+    #: Install the next start-screen image each time the game closes, so a
+    #: different one greets you next launch (VB ``ConfigAutoLoadscreen``).
+    auto_loadscreen: bool = False
+    #: Seconds each image is held in the start-screen slide show (VB
+    #: ``ConfigSlideShowInterval``).
+    slideshow_interval: int = 5
+    #: Restart the slide show from the first image after the last, rather than
+    #: closing it (VB ``ConfigSlideShowContinuous``).
+    slideshow_continuous: bool = False
     #: Character Explorer inventory shows the NWN-style item icon grid (vs the list).
     inventory_nwn_style: bool = False
     #: Look up custom item icons from installed haks (CEP/PRC) as well as the base

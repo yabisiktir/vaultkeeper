@@ -26,7 +26,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from nwnfile.character import PORTRAIT_SIZES
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QAction, QCursor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
@@ -36,6 +36,8 @@ from PySide6.QtWidgets import (
     QMenu,
     QMessageBox,
     QPushButton,
+    QSizePolicy,
+    QToolBar,
     QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -46,7 +48,7 @@ from PySide6.QtWidgets import (
 from vaultkeeper.core.constants import INSTALLER_UNKNOWN
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
-from vaultkeeper.ui.dialogs.help_viewer import help_button
+from vaultkeeper.ui.dialogs.settings_access import SettingsAccess
 
 _SIZE_BOXES = {"t": 32, "s": 64, "m": 96, "l": 128, "h": 160}
 _SIZE_LABELS = {"t": "Tiny", "s": "Small", "m": "Medium", "l": "Large", "h": "Huge"}
@@ -57,7 +59,7 @@ _ROLE = Qt.ItemDataRole.UserRole
 _EDGE_MARGIN = 40
 
 
-class PortraitManager(QDialog):
+class PortraitManager(SettingsAccess, QDialog):
     """Manage the portraits the profile's mods installed (VB PortraitManager)."""
 
     def __init__(
@@ -69,7 +71,7 @@ class PortraitManager(QDialog):
         super().__init__(parent)
         self._controller = controller
         self._on_select = on_select
-        self._settings = getattr(controller, "settings", None)
+        self._init_settings()
         # Before any widget: the image strip installs an event filter as it is
         # built, and Qt can deliver an event to it during construction.
         self._entries: list[dict] = []
@@ -79,7 +81,7 @@ class PortraitManager(QDialog):
         self.resize(860, 560)
 
         layout = QVBoxLayout(self)
-        layout.addLayout(self._build_toolbar())
+        layout.addWidget(self._build_toolbar())
 
         panes = QHBoxLayout()
         layout.addLayout(panes, 1)
@@ -87,15 +89,9 @@ class PortraitManager(QDialog):
         panes.addLayout(self._build_images(), 1)
 
         buttons = QHBoxLayout()
-        buttons.addWidget(help_button("RbPortraitManagerHelp", self))
         buttons.addStretch(1)
-        self._apply_button = QPushButton("Apply Excludes")
-        self._apply_button.setToolTip(
-            "Write the marked portraits into their mods' installer wizards and "
-            "rebuild those installers"
-        )
-        self._apply_button.clicked.connect(self._on_apply_excludes)
-        buttons.addWidget(self._apply_button)
+        # Not in the original: kept in the footer rather than the ribbon so the
+        # ribbon stays the tool's own, and this reads as the addition it is.
         self._extract_button = QPushButton("Extract from Hak…")
         self._extract_button.setToolTip(
             "Pull a portrait set out of a .hak (not in the original tool)"
@@ -113,54 +109,100 @@ class PortraitManager(QDialog):
         self._populate()
 
     # -- Construction ------------------------------------------------------ #
-    def _build_toolbar(self) -> QHBoxLayout:
-        bar = QHBoxLayout()
-        self._prev_button = QPushButton("◀ Previous")
-        self._prev_button.clicked.connect(lambda: self._move(-1))
-        bar.addWidget(self._prev_button)
-        self._next_button = QPushButton("Next ▶")
-        self._next_button.clicked.connect(lambda: self._move(1))
-        bar.addWidget(self._next_button)
+    #: The ribbon, exactly as ``PortraitManager.Designer.vb`` builds it:
+    #: ``RbToolstrip.Items.AddRange(RbPrevious, RbNext, |, RbExclude,
+    #: RbApplyExcludes, |, RbEditPortrait, RbCreateInstaller, RbSelect,
+    #: RbOptions, RbPortraitManagerHelp, RbLink, TsbSearch)``. Each icon is the
+    #: resource that Designer's ``.Image =`` line names, so the screen is
+    #: recognisably the same tool rather than a row of text buttons that happens
+    #: to do the same things. ``None`` is a separator.
+    _TOOLBAR = (
+        ("_prev_button", "Previous", "Backwards_16x", "Select the previous portrait"),
+        ("_next_button", "Next", "Forwards_16x", "Select the next portrait"),
+        None,
+        ("_exclude_button", "Exclude", "Exclude_32x",
+         "Mark this portrait for exclusion (Del)"),
+        ("_apply_button", "Apply Excludes", "Profiles 32x32",
+         "Write the marked portraits into their mods' installer wizards and "
+         "rebuild those installers"),
+        None,
+        ("_edit_button", "Edit Portrait", "CheckBoxEdit_v2_32x",
+         "Open the five image files in your TGA editor"),
+        ("_installer_button", "Create Installer", "FolderMapping32",
+         "Re-create this portrait's source mod's installer"),
+        ("_select_button", "Select Source", "DownloadFolder_32x",
+         "Select this portrait's mod in the main window"),
+    )
 
-        self._exclude_button = QPushButton("Exclude")
-        self._exclude_button.setToolTip("Mark this portrait for exclusion (Del)")
-        self._exclude_button.clicked.connect(self._on_exclude)
-        bar.addWidget(self._exclude_button)
+    def _build_toolbar(self) -> QToolBar:
+        bar = QToolBar()
+        bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        bar.setIconSize(QSize(24, 24))
+        bar.setMovable(False)
 
-        self._edit_button = QPushButton("Edit Portrait")
-        self._edit_button.setToolTip("Open the five image files in your TGA editor")
-        self._edit_button.clicked.connect(self._on_edit)
-        bar.addWidget(self._edit_button)
-
-        self._installer_button = QPushButton("Create Installer")
-        self._installer_button.setToolTip("Re-create this portrait's source mod's installer")
-        self._installer_button.clicked.connect(self._on_create_installer)
-        bar.addWidget(self._installer_button)
-
-        self._select_button = QPushButton("Select Source")
-        self._select_button.setToolTip("Select this portrait's mod in the main window")
-        self._select_button.clicked.connect(self._on_select_mod)
-        bar.addWidget(self._select_button)
+        handlers = {
+            "_prev_button": lambda: self._move(-1),
+            "_next_button": lambda: self._move(1),
+            "_exclude_button": self._on_exclude,
+            "_apply_button": self._on_apply_excludes,
+            "_edit_button": self._on_edit,
+            "_installer_button": self._on_create_installer,
+            "_select_button": self._on_select_mod,
+        }
+        for entry in self._TOOLBAR:
+            if entry is None:
+                bar.addSeparator()
+                continue
+            attr, label, icon, tip = entry
+            button = QToolButton()
+            button.setText(label)
+            button.setIcon(R.get_icon(icon))
+            button.setToolTip(tip)
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+            button.clicked.connect(handlers[attr])
+            setattr(self, attr, button)
+            bar.addWidget(button)
 
         self._options_button = QToolButton()
         self._options_button.setText("Options")
+        self._options_button.setIcon(R.get_icon("SettingsBlueCog_32x"))
+        self._options_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         self._options_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._options_button.setMenu(self._build_options_menu())
         bar.addWidget(self._options_button)
 
-        self._link_button = QPushButton("Portrait Web Page")
+        # Help and the web link live in the ribbon in VB, not in a dialog footer.
+        self._help_button = QToolButton()
+        self._help_button.setText("Help")
+        self._help_button.setIcon(R.get_icon("HelpIcon"))
+        self._help_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self._help_button.clicked.connect(self._on_help)
+        bar.addWidget(self._help_button)
+
+        self._link_button = QToolButton()
+        self._link_button.setText("Web Page")
+        self._link_button.setIcon(R.get_icon("ASPNETWeb_16x"))
+        self._link_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self._link_button.setToolTip("Open your portrait image web page")
         self._link_button.clicked.connect(self._on_link)
         bar.addWidget(self._link_button)
 
-        bar.addStretch(1)
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        bar.addWidget(spacer)
         self._find = QLineEdit()
-        self._find.setPlaceholderText("Find Portrait")
+        self._find.setPlaceholderText("Find Portrait")  # VB TsbSearch.SearchCueText
         self._find.setClearButtonEnabled(True)
         self._find.setMaximumWidth(200)
         self._find.textChanged.connect(self._on_find)
         self._find.returnPressed.connect(lambda: self._on_find(self._find.text(), step=1))
         bar.addWidget(self._find)
         return bar
+
+    def _on_help(self) -> None:
+        from vaultkeeper.ui.dialogs.help_viewer import HelpViewer
+
+        self._help_viewer = HelpViewer.show_for_control("RbPortraitManagerHelp", self)
 
     def _build_options_menu(self) -> QMenu:
         menu = QMenu(self)
@@ -179,7 +221,7 @@ class PortraitManager(QDialog):
         menu.addAction(self._next_action)
 
         menu.addSeparator()
-        report = QAction("Invalid Portrait Size Report", self)
+        report = QAction(R.get_icon("ViewError_16x"), "Invalid Portrait Size Report", self)
         report.triggered.connect(self._on_size_report)
         menu.addAction(report)
         return menu
@@ -235,18 +277,6 @@ class PortraitManager(QDialog):
         QShortcut(QKeySequence("Del"), self, activated=self._on_exclude)
         QShortcut(QKeySequence("Ctrl+Z"), self, activated=self._on_undo_exclude)
         QShortcut(QKeySequence("Ctrl+F"), self, activated=self._find.setFocus)
-
-    # -- Settings ---------------------------------------------------------- #
-    def _setting(self, name: str, default):
-        return getattr(self._settings, name, default) if self._settings else default
-
-    def _store_setting(self, name: str, value) -> None:
-        if self._settings is None:
-            return
-        setattr(self._settings, name, value)
-        save = getattr(self._controller, "save_settings", None)
-        if callable(save):
-            save()
 
     # -- Data -------------------------------------------------------------- #
     def _load_entries(self) -> list[dict]:
