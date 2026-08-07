@@ -82,7 +82,7 @@ jobs:
 
       - name: Lint
         working-directory: vaultkeeper
-        run: ruff check src tests scripts
+        run: ruff check src tests scripts docs
 
   build:
     name: ${{ matrix.label }}

@@ -6,6 +6,11 @@ Python port. Every row carries a status; the audit is complete when no row is
 
 Regenerate: `python extract_vb.py <vb> ./out && python build_ledger.py ./out <port> .`
 
+`<vb>` is the original *NWN Installer Tool* VB.NET source tree, which is **not part
+of this repository** — it is the proprietary original the port was written from, and
+you need your own copy to regenerate any of this. `<port>` is `src/vaultkeeper`.
+Without the VB sources the CSVs and this page are read-only history.
+
 ## Coverage
 
 | Layer | Total | Accounted | Machine queue (AUTO-PORTED + GAP?) |

@@ -104,7 +104,7 @@ def main() -> int:
         rows.append((len(missing) / len(ctrls), form, ctrls, missing))
 
     rows.sort(reverse=True)
-    for frac, form, ctrls, missing in rows:
+    for _frac, form, ctrls, missing in rows:
         if not missing and not only:
             continue
         print(f"\n== {form}  ({len(ctrls) - len(missing)}/{len(ctrls)} covered) ==")

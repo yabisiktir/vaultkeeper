@@ -17,6 +17,7 @@ Emits settings_prefs.csv + a summary. NOT merged into seeds.json (those are meth
 control keyed; these are setting keys — a separate ledger for finding 3).
 """
 import csv
+from collections import Counter
 from pathlib import Path
 
 AUDIT = Path(__file__).resolve().parent
@@ -116,7 +117,6 @@ with (AUDIT / "settings_prefs.csv").open("w", newline="") as f:
     w.writeheader()
     w.writerows(rows)
 
-from collections import Counter
 c = Counter(r["status"] for r in rows)
 print(f"classified {len(rows)} VB preferences:")
 for s, n in c.most_common():

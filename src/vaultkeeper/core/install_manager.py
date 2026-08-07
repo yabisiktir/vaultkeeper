@@ -10,7 +10,8 @@ are injected so the engine runs and tests headlessly:
 * ``anneal_mods`` on install/uninstall — the "selected mods" the auto-anneal
   considers (VB reads FvMods.SelectedIndices; the caller supplies it here).
 
-Preserved invariants (see docs/PHASE_2.md): the <5121-byte always-copy CRC guard,
+Preserved invariants, each ported from ``ModInstallationManager.vb`` and covered by
+``tests/test_install_manager.py``: the <5121-byte always-copy CRC guard,
 last-by-comparer winner selection, patch-ini rebuild each op, the deliberate
 double ``update_profile_data`` around ``merge_saved_info``, the save/reset/restore
 change-info choreography around the anneal, and EE ``.sqlite3`` companion deletes.

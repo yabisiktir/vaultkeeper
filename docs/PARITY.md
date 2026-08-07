@@ -377,7 +377,13 @@ machine data during the check (34 characters, 1,495 portraits, 13 game saves, th
 folder-navigator rewrite), shared store & sync (6 — single-machine / read-only data
 strategy), and 17 cross-platform omissions, plus 13 other deferred editors/validators.
 
-**Verdict:** correctness core ~100%, ~91% overall parity, 1,134 tests green, ruff
-clean. The port matches the original's experience across the board; the one genuinely
-unintuitive screen (Download Project) is fixed and the one internal-data leak (group
-sentinel) is closed.
+**Verdict:** correctness core ~100%, ~91% overall parity, ruff clean. The port
+matches the original's experience across the board; the one genuinely unintuitive
+screen (Download Project) is fixed and the one internal-data leak (group sentinel)
+is closed.
+
+This report is a **record of the pass that was run**, not a live status board — the
+percentages describe the port as it stood when each screen was compared. The test
+count that used to sit in this line has been dropped for that reason: it went stale
+the day after it was written, and `pytest` answers it properly. For coverage that
+is regenerated rather than recounted, see [`parity_audit/`](parity_audit/).

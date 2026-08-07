@@ -89,7 +89,7 @@ def match(name: str, token_files, blob) -> tuple[str, list[str]]:
 def load_seeds(path: Path) -> dict[str, tuple[str, str]]:
     data = json.loads(path.read_text())
     out: dict[str, tuple[str, str]] = {}
-    for group, spec in data.items():
+    for _group, spec in data.items():
         if not isinstance(spec, dict) or "names" not in spec:
             continue
         for n in spec["names"]:
@@ -164,7 +164,10 @@ def main():
         elif r["ctype"] == "ToolStripSeparator":
             r["status"], r["notes"] = "N/A", "menu/toolbar separator"
         elif r["ctype"] in infra_div:
-            r["status"], r["notes"] = "Divergence", "WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)"
+            r["status"], r["notes"] = (
+                "Divergence",
+                "WinForms non-visual component (worker/timer/tooltip/imagelist/contextmenu)",
+            )
         elif r["form"] in control_forms:
             spec = control_forms[r["form"]]
             r["status"], r["notes"] = spec["status"], spec.get("note", "")
