@@ -271,20 +271,36 @@ def test_the_override_option_widens_the_list_and_is_remembered(qtbot):
 
 
 def test_actions_needing_a_configured_path_stay_hidden(qtbot):
+    """VB shows neither until a TGA editor / web page is configured.
+
+    Shown, not merely constructed: an unshown dialog hides its children anyway,
+    so the earlier version of this test passed while the buttons appeared on
+    screen. A QToolBar owns the widget through a QWidgetAction and re-shows it
+    with that action, so hiding the widget alone does not survive show() — which
+    it did not, on Windows.
+    """
     dlg = PortraitManager(_controller(_portraits()))
     qtbot.addWidget(dlg)
-    # VB shows neither until Advanced Settings names a TGA editor / a web page,
-    # rather than offering a button that cannot work.
-    # isHidden(), not isVisible(): a child of a dialog that has not been shown
-    # is never "visible", so only the explicit hide is meaningful here.
-    assert dlg._edit_button.isHidden()
-    assert dlg._link_button.isHidden()
+    dlg.show()
+    qtbot.waitExposed(dlg)
+
+    # Hidden is asserted on the widget *and* the action: the widget is what the
+    # user sees, and the action is what the fix drives.
+    assert not dlg._edit_button.isVisible()
+    assert not dlg._link_button.isVisible()
+    assert not dlg._toolbar_actions["_edit_button"].isVisible()
+    assert not dlg._toolbar_actions["_link_button"].isVisible()
 
     dlg._settings.tga_editor_path = "/usr/bin/gimp"
     dlg._settings.portrait_image_web_page = "https://example.invalid"
     dlg._refresh_actions()
-    assert not dlg._edit_button.isHidden()
-    assert not dlg._link_button.isHidden()
+
+    # Shown is asserted on the action only. Whether a ribbon entry then fits on
+    # screen is layout: on a narrower toolbar Qt moves the last entries into the
+    # overflow menu, where the widget reports itself invisible while still being
+    # perfectly available. That happens on Windows, whose UI font is wider.
+    assert dlg._toolbar_actions["_edit_button"].isVisible()
+    assert dlg._toolbar_actions["_link_button"].isVisible()
 
 
 def test_the_image_strip_zones_navigate_and_the_middle_does_not(qtbot):

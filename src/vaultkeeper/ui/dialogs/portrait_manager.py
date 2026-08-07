@@ -77,6 +77,7 @@ class PortraitManager(SettingsAccess, QDialog):
         self._entries: list[dict] = []
         self._pending: set[str] = set()  # resrefs marked for exclusion
         self._last_direction = 1  # which way "always select next" should move
+        self._toolbar_actions: dict[str, object] = {}
         self.setWindowIcon(R.get_icon("user"))
         self.resize(860, 560)
 
@@ -161,7 +162,9 @@ class PortraitManager(SettingsAccess, QDialog):
             button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             button.clicked.connect(handlers[attr])
             setattr(self, attr, button)
-            bar.addWidget(button)
+            # Keep the QWidgetAction the toolbar wraps this in: hiding the widget
+            # does not stick, because the toolbar shows it again with the action.
+            self._toolbar_actions[attr] = bar.addWidget(button)
 
         self._options_button = QToolButton()
         self._options_button.setText("Options")
@@ -185,7 +188,7 @@ class PortraitManager(SettingsAccess, QDialog):
         self._link_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         self._link_button.setToolTip("Open your portrait image web page")
         self._link_button.clicked.connect(self._on_link)
-        bar.addWidget(self._link_button)
+        self._toolbar_actions["_link_button"] = bar.addWidget(self._link_button)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -198,6 +201,16 @@ class PortraitManager(SettingsAccess, QDialog):
         self._find.returnPressed.connect(lambda: self._on_find(self._find.text(), step=1))
         bar.addWidget(self._find)
         return bar
+
+    def _show_action(self, attr: str, visible: bool) -> None:
+        """Show/hide a ribbon entry through its action, not its widget."""
+        action = self._toolbar_actions.get(attr)
+        if action is not None:
+            action.setVisible(visible)
+
+    def _action_shown(self, attr: str) -> bool:
+        action = self._toolbar_actions.get(attr)
+        return bool(action is not None and action.isVisible())
 
     def _on_help(self) -> None:
         from vaultkeeper.ui.dialogs.help_viewer import HelpViewer
@@ -357,9 +370,11 @@ class PortraitManager(SettingsAccess, QDialog):
         self._apply_button.setEnabled(bool(self._pending))
         # VB hides these entirely until the matching path is configured, rather
         # than offering a button that cannot work.
-        self._edit_button.setVisible(bool(self._setting("tga_editor_path", "")))
+        self._show_action("_edit_button", bool(self._setting("tga_editor_path", "")))
         self._edit_button.setEnabled(has)
-        self._link_button.setVisible(bool(self._setting("portrait_image_web_page", "")))
+        self._show_action(
+            "_link_button", bool(self._setting("portrait_image_web_page", ""))
+        )
 
         if entry is None:
             self._caption.setText(f"Installed portraits: {len(self._entries):,}")
@@ -432,7 +447,7 @@ class PortraitManager(SettingsAccess, QDialog):
                 zone = self._zone(event.position().x())
                 if zone:
                     self._move(zone)
-                elif not self._edit_button.isHidden():
+                elif self._action_shown("_edit_button"):
                     self._on_edit()
         return super().eventFilter(watched, event)
 
@@ -449,7 +464,7 @@ class PortraitManager(SettingsAccess, QDialog):
         zone = self._zone(x)
         if zone:
             return Qt.CursorShape.PointingHandCursor
-        if not self._edit_button.isHidden():
+        if self._action_shown("_edit_button"):
             return Qt.CursorShape.WhatsThisCursor
         return Qt.CursorShape.ArrowCursor
 
@@ -468,7 +483,7 @@ class PortraitManager(SettingsAccess, QDialog):
             if button is None:
                 menu.addSeparator()
                 continue
-            if button.isHidden() and button is self._edit_button:
+            if button is self._edit_button and not self._action_shown("_edit_button"):
                 continue
             action = menu.addAction(button.text())
             action.setEnabled(button.isEnabled())

@@ -243,7 +243,11 @@ def test_the_search_box_only_appears_past_ten_images(qtbot, tmp_path):
     many = _controller_with_images(tmp_path / "many", [f"{n:02d}.tga" for n in range(12)])
     dlg2 = StartScreenManager.show_for(many)
     qtbot.addWidget(dlg2)
-    assert not dlg2._search.isHidden()
+    # The action, not the widget: a QLineEdit inside a QToolBar is owned by a
+    # QWidgetAction, and whether the widget itself reports hidden before the
+    # toolbar has laid out differs by platform — it read as shown on macOS and
+    # hidden on Windows. The action is what the dialog actually sets.
+    assert dlg2._search_action.isVisible()
 
 
 def test_navigation_follows_the_search_filter(qtbot, tmp_path):
