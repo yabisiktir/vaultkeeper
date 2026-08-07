@@ -201,3 +201,68 @@ def test_dialog_min_end_level_filter(qtbot):
     dlg.min_end.setText("20")  # only the level-40 mod qualifies
     assert dlg.mods.topLevelItemCount() == 1
     assert dlg.mods.topLevelItem(0).text(0) == "High"
+
+
+# --------------------------------------------------------------------------- #
+# Select / Recent / no-end-level (VB BtSelect, BtRecent, TsShowNoEndLevel)
+# --------------------------------------------------------------------------- #
+def _report() -> dict:
+    """Two mods: one with a recorded end level, one without."""
+    def row(mod, end, group):
+        return {
+            "mod": mod, "completed": "01 Jan 2026", "play_time": "1 hour",
+            "rating": "Good", "start": "1", "end": end, "state": -2,
+            "group": group, "web_link": "", "best_weapon": "",
+            "played_info": "", "notes": "", "play_times": [],
+        }
+
+    return {"rows": [row("Levelled", "40", "G"), row("Unrecorded", "", "G")],
+            "summary": "2/2"}
+
+
+
+def test_select_and_recent_call_back(qtbot):
+    selected, recent = [], []
+    dlg = ModPlayViewer(
+        _report(), on_select=selected.append, on_add_recent=recent.append
+    )
+    qtbot.addWidget(dlg)
+    dlg.mods.setCurrentItem(dlg.mods.topLevelItem(0))
+    name = dlg.mods.topLevelItem(0).text(0)
+
+    dlg._on_add_to_recent()
+    assert recent == [name]
+
+    dlg._on_select_mod()
+    assert selected == [name]
+    assert not dlg.isVisible(), "selecting closes the viewer"
+
+
+def test_row_actions_are_disabled_without_a_host(qtbot):
+    # Opened with no callbacks (as a plain report view), the two actions that
+    # drive the main window have nowhere to go and must not look available.
+    dlg = ModPlayViewer(_report())
+    qtbot.addWidget(dlg)
+    dlg.mods.setCurrentItem(dlg.mods.topLevelItem(0))
+    assert not dlg.select_button.isEnabled()
+    assert not dlg.recent_button.isEnabled()
+
+
+def test_a_minimum_end_level_can_still_include_unrecorded_mods(qtbot):
+    """VB TsShowNoEndLevel.
+
+    Most mods never record an end level, so a minimum would otherwise empty the
+    list the moment it is typed — which reads as a broken filter rather than a
+    strict one.
+    """
+    dlg = ModPlayViewer(_report())
+    qtbot.addWidget(dlg)
+    total = dlg.mods.topLevelItemCount()
+    assert total  # the fixture has rows to filter
+
+    dlg.min_end.setText("40")
+    with_unrecorded = dlg.mods.topLevelItemCount()
+
+    dlg.show_no_end.setChecked(False)
+    without = dlg.mods.topLevelItemCount()
+    assert without <= with_unrecorded

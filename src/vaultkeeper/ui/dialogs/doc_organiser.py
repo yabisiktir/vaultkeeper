@@ -85,6 +85,8 @@ class DocOrganiser(QDialog):
 
         self.downloads = self._make_pane()
         self.contents = self._make_pane()
+        for pane in (self.downloads, self.contents):
+            pane.customContextMenuRequested.connect(self._on_context_menu)
         self.downloads.itemChanged.connect(self._on_item_changed)
         self.downloads.currentItemChanged.connect(self._on_selection)
         self.contents.currentItemChanged.connect(self._on_selection)
@@ -124,6 +126,11 @@ class DocOrganiser(QDialog):
         self.rename_to_button.setMenu(self.rename_to_menu)
         buttons.addWidget(self.rename_to_button)
         buttons.addStretch(1)
+        self.properties_button = QPushButton("Properties")
+        self.properties_button.setIcon(R.get_icon("PropertiesW10"))
+        self.properties_button.setToolTip("Show the selected document's file details")
+        self.properties_button.clicked.connect(self._on_properties)
+        buttons.addWidget(self.properties_button)
         self.uncheck_button = QPushButton("Uncheck All")
         self.uncheck_button.clicked.connect(self._on_uncheck_all)
         buttons.addWidget(self.uncheck_button)
@@ -147,6 +154,7 @@ class DocOrganiser(QDialog):
         tree.setHeaderLabels(["Document", "Folder", "Size"])
         tree.setRootIsDecorated(False)
         tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         return tree
 
     @staticmethod
@@ -346,6 +354,73 @@ class DocOrganiser(QDialog):
         if errors:
             parts.append(f"Errors: {errors}.")
         self.summary.setText(" ".join(parts) + " " + self.summary.text())
+
+    # -- Properties (VB CmProperties / TsProperties) ----------------------- #
+    def _selected_row(self) -> dict | None:
+        """The focused pane's selected row — VB reads whichever list has focus."""
+        for tree in (self.downloads, self.contents):
+            if tree.hasFocus():
+                item = tree.currentItem()
+                if item is not None:
+                    return item.data(0, Qt.ItemDataRole.UserRole)
+        for tree in (self.downloads, self.contents):
+            item = tree.currentItem()
+            if item is not None:
+                return item.data(0, Qt.ItemDataRole.UserRole)
+        return None
+
+    def _on_properties(self) -> None:
+        """Show the selected document's details.
+
+        VB opens the Windows shell properties dialog. There is no cross-platform
+        equivalent, so this shows the same facts itself — which also lets it say
+        the things the shell could not know, like whether the document came out
+        of an archive or already matches one in the mod.
+        """
+        row = self._selected_row()
+        if row is None:
+            return
+        lines = [
+            f"Name: {row.get('doc_name') or row.get('file', '')}",
+            f"File: {row.get('file', '')}",
+            f"Mod: {row.get('mod', '')}",
+            f"Folder: {row.get('folder') or '(mod root)'}",
+            # The report already formats this for the Size column, so it is a
+            # string here — formatting it as a number raises.
+            f"Size: {row.get('size', '')}",
+        ]
+        if row.get("from_archive"):
+            lines.append(f"Inside archive: {row.get('archive', '')}")
+            lines.append(f"Entry: {row.get('inner', '')}")
+        elif row.get("source_path"):
+            lines.append(f"Path: {row['source_path']}")
+        if row.get("name_match"):
+            lines.append("Already present in this mod (matching document found).")
+
+        box = QMessageBox(self)
+        box.setWindowTitle("Document Properties")
+        box.setText(row.get("doc_name") or row.get("file", "Document"))
+        box.setInformativeText("\n".join(lines))
+        box.exec()
+
+    def _on_context_menu(self, point) -> None:
+        """The row actions, as VB offers them from CmDocs."""
+        from PySide6.QtGui import QCursor
+
+        sender = self.sender()
+        menu = QMenu(self)
+        for button, icon in (
+            (self.rename_button, "RenameBlack"),
+            (self.properties_button, "PropertiesW10"),
+        ):
+            action = menu.addAction(R.get_icon(icon), button.text().rstrip("…"))
+            action.setEnabled(button.isEnabled())
+            action.triggered.connect(button.click)
+        menu.addSeparator()
+        reset = menu.addAction(R.get_icon("Reset_16x"), "Reset")
+        reset.setToolTip("Re-scan, discarding the renames and checks you have made")
+        reset.triggered.connect(self.refresh)
+        menu.exec(sender.viewport().mapToGlobal(point) if sender is not None else QCursor.pos())
 
     @classmethod
     def show_for(

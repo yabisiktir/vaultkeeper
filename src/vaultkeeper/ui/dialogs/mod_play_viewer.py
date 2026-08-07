@@ -6,8 +6,11 @@ and per-user play-time history. Built on ``ProfileController.mod_play_report``.
 
 Carries the VB *filter options* toolbar: a **Filters…** button opens the shared
 Group + Rating include/exclude dialog (VB ``CommonFiltersDialogue``), plus an
-Only-completed toggle and a Min-end-level box. The Select/Recent actions that drive
-the main window are deferred.
+Only-completed toggle, a Min-end-level box and its companion "include mods with
+no end level" (VB ``TsShowNoEndLevel``), without which a minimum empties the list
+for everything that never recorded one. Select, Add to Recent and Copy Name drive
+the main window through callbacks, from the buttons or the row menu (VB
+``BtSelect`` / ``BtRecent`` / ``CmCopyName``).
 """
 
 from __future__ import annotations
@@ -48,8 +51,17 @@ def _end_level(row: dict) -> int:
 class ModPlayViewer(QDialog):
     """A read-only table of mods ordered by last date completed."""
 
-    def __init__(self, report: dict, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        report: dict,
+        parent: QWidget | None = None,
+        *,
+        on_select=None,
+        on_add_recent=None,
+    ) -> None:
         super().__init__(parent)
+        self._on_select = on_select
+        self._on_add_recent = on_add_recent
         self.setWindowTitle("Mods Sorted by Date Completed")
         self.setWindowIcon(R.get_icon("Time_Green_16x"))
         self.resize(760, 560)
@@ -90,6 +102,12 @@ class ModPlayViewer(QDialog):
         self.min_end.setClearButtonEnabled(True)
         self.min_end.textChanged.connect(self._populate_mods)
         filters.addWidget(self.min_end)
+        # VB TsShowNoEndLevel: a minimum level otherwise hides every mod that
+        # never recorded one, which is most of them until you have played a few.
+        self.show_no_end = QCheckBox("Include mods with no end level")
+        self.show_no_end.setChecked(True)
+        self.show_no_end.stateChanged.connect(self._populate_mods)
+        filters.addWidget(self.show_no_end)
         filters.addStretch(1)
         layout.addLayout(filters)
 
@@ -104,6 +122,8 @@ class ModPlayViewer(QDialog):
         self.mods.setRootIsDecorated(False)
         self.mods.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.mods.currentItemChanged.connect(self._on_selection)
+        self.mods.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.mods.customContextMenuRequested.connect(self._on_context_menu)
         splitter.addWidget(self.mods)
 
         # -- Detail (bottom) ------------------------------------------------ #
@@ -139,6 +159,16 @@ class ModPlayViewer(QDialog):
         buttons = QHBoxLayout()
         buttons.addWidget(help_button("BhModsPlayed", self))
         buttons.addStretch(1)
+        self.select_button = QPushButton("Select")
+        self.select_button.setIcon(R.get_icon("SelectAll"))
+        self.select_button.setToolTip("Select this mod in the main window")
+        self.select_button.clicked.connect(self._on_select_mod)
+        buttons.addWidget(self.select_button)
+        self.recent_button = QPushButton("Add to Recent")
+        self.recent_button.setIcon(R.get_icon("History_16x"))
+        self.recent_button.setToolTip("Add this mod to the Recent Mods list")
+        self.recent_button.clicked.connect(self._on_add_to_recent)
+        buttons.addWidget(self.recent_button)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         buttons.addWidget(close)
@@ -187,8 +217,12 @@ class ModPlayViewer(QDialog):
                 continue
             if only_completed and not row.get("completed"):
                 continue
-            if min_end and _end_level(row) < min_end:
-                continue
+            if min_end:
+                level = _end_level(row)
+                if level == 0 and not self.show_no_end.isChecked():
+                    continue
+                if level and level < min_end:
+                    continue
             item = QTreeWidgetItem(
                 [
                     row["mod"],
@@ -212,6 +246,7 @@ class ModPlayViewer(QDialog):
             self.mods.setCurrentItem(self.mods.topLevelItem(0))
 
     def _on_selection(self, current: QTreeWidgetItem | None, _previous=None) -> None:
+        self._update_row_actions()
         if current is None:
             return
         row = current.data(0, _ROW_ROLE)
@@ -234,9 +269,67 @@ class ModPlayViewer(QDialog):
                 QTreeWidgetItem([pt["completed"], pt["play_time"], pt["user"]])
             )
 
+    # -- Row actions (VB BtSelect / BtRecent / CmCopyName) ----------------- #
+    def _current_mod(self) -> str:
+        item = self.mods.currentItem()
+        return item.text(0) if item is not None else ""
+
+    def _on_select_mod(self) -> None:
+        name = self._current_mod()
+        if name and self._on_select is not None:
+            self._on_select(name)
+            self.accept()
+
+    def _on_add_to_recent(self) -> None:
+        name = self._current_mod()
+        if name and self._on_add_recent is not None:
+            self._on_add_recent(name)
+
+    def _on_copy_name(self) -> None:
+        from PySide6.QtWidgets import QApplication
+
+        name = self._current_mod()
+        if name:
+            QApplication.clipboard().setText(name)
+
+    def _on_context_menu(self, point) -> None:
+        """The row actions, as VB offers them from CmModsPlayed."""
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QMenu
+
+        has_row = bool(self._current_mod())
+        menu = QMenu(self)
+        select = menu.addAction(R.get_icon("SelectAll"), "Select in the main window")
+        select.setEnabled(has_row and self._on_select is not None)
+        select.triggered.connect(self._on_select_mod)
+        recent = menu.addAction(R.get_icon("History_16x"), "Add to Recent Mods")
+        recent.setEnabled(has_row and self._on_add_recent is not None)
+        recent.triggered.connect(self._on_add_to_recent)
+        copy = menu.addAction(R.get_icon("CopyName"), "Copy Name")
+        copy.setEnabled(has_row)
+        copy.triggered.connect(self._on_copy_name)
+        menu.exec(self.mods.viewport().mapToGlobal(point) if point else QCursor.pos())
+
+    def _update_row_actions(self) -> None:
+        has_row = bool(self._current_mod())
+        self.select_button.setEnabled(has_row and self._on_select is not None)
+        self.recent_button.setEnabled(has_row and self._on_add_recent is not None)
+
     @classmethod
-    def show_for(cls, controller, parent: QWidget | None = None) -> ModPlayViewer:
+    def show_for(
+        cls,
+        controller,
+        parent: QWidget | None = None,
+        *,
+        on_select=None,
+        on_add_recent=None,
+    ) -> ModPlayViewer:
         """Build and show the viewer for a controller's mod-play report."""
-        dlg = cls(controller.mod_play_report(), parent)
+        dlg = cls(
+            controller.mod_play_report(),
+            parent,
+            on_select=on_select,
+            on_add_recent=on_add_recent,
+        )
         dlg.show()
         return dlg

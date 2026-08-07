@@ -508,3 +508,48 @@ def test_dialog_rename_to_offers_contents_names(qtbot, tmp_path):
     dlg._rename_to("Handbook.pdf")
     assert item.text(0) == "Handbook.pdf"
     assert item.checkState(0) == Qt.CheckState.Checked
+
+
+# --------------------------------------------------------------------------- #
+# Properties (VB CmProperties / TsProperties)
+# --------------------------------------------------------------------------- #
+def test_properties_describes_the_selected_document(qtbot, tmp_path, monkeypatch):
+    """VB opens the Windows shell properties dialog; there is no portable one.
+
+    So the facts are shown directly — which also lets it say what the shell
+    could not: that a document came out of an archive, or already matches one
+    in the mod.
+    """
+    from PySide6.QtWidgets import QMessageBox
+
+    shown: list[str] = []
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: shown.append(self.informativeText()))
+
+    controller = _controller(tmp_path, "Alpha")
+    _write(tmp_path / "Profiles" / "P" / "Alpha" / C.DOWNLOADS_DIR / "ReadMe.txt", b"hello")
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+
+    dlg.downloads.setCurrentItem(dlg.downloads.topLevelItem(0))
+    dlg._on_properties()
+
+    assert shown, "the properties dialog was not shown"
+    text = shown[0]
+    assert "ReadMe.txt" in text
+    assert "Alpha" in text
+    assert "Size: 5 B" in text
+    assert "_Downloads" in text  # where it came from
+
+
+def test_properties_does_nothing_without_a_selection(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    shown = []
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: shown.append(1))
+    controller = _controller(tmp_path, "Alpha")
+    controller._extractor = FakeArchiveExtractor()
+    dlg = DocOrganiser.show_for(controller, ["Alpha"])
+    qtbot.addWidget(dlg)
+    dlg._on_properties()
+    assert shown == []

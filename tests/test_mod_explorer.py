@@ -195,3 +195,96 @@ def test_mod_explorer_group_and_rating_filter(qtbot):
     dlg._populate()
     names = {dlg.table.topLevelItem(i).text(0) for i in range(dlg.table.topLevelItemCount())}
     assert names == {"A"}
+
+
+# --------------------------------------------------------------------------- #
+# The filter subsystem the audit flagged (VB CmEqual/CmGreater/CmLess + friends)
+# --------------------------------------------------------------------------- #
+def _rating_rows():
+    return {
+        "rows": [
+            {"mod": "Best", "group": "G", "state": "Installed", "rating": "Excellent",
+             "files": 1, "played": "", "completed": 0},
+            {"mod": "Mid", "group": "G", "state": "Installed", "rating": "Medium",
+             "files": 1, "played": "", "completed": 0},
+            {"mod": "Worst", "group": "G", "state": "Installed", "rating": "Abandoned",
+             "files": 1, "played": "", "completed": 0},
+        ],
+        "count": 3,
+    }
+
+
+def _shown(dlg):
+    return {dlg.table.topLevelItem(i).text(0) for i in range(dlg.table.topLevelItemCount())}
+
+
+def test_rating_comparison_operators(qtbot):
+    """=, worse-than and better-than, against the Ratings ordinal.
+
+    The enum runs best to worst (Excellent 1 … Abandoned 7), so "worse than"
+    means a *greater* ordinal. Getting that backwards would silently invert the
+    filter, which is why each direction is asserted by name.
+    """
+    dlg = ModExplorer(_rating_rows())
+    qtbot.addWidget(dlg)
+    assert _shown(dlg) == {"Best", "Mid", "Worst"}
+
+    dlg._rating_value.setCurrentIndex(dlg._rating_value.findData("Medium"))
+    dlg._rating_op.setCurrentIndex(dlg._rating_op.findData("="))
+    assert _shown(dlg) == {"Mid"}
+
+    dlg._rating_op.setCurrentIndex(dlg._rating_op.findData(">"))
+    assert _shown(dlg) == {"Worst"}, "'worse than Medium' is the higher ordinal"
+
+    dlg._rating_op.setCurrentIndex(dlg._rating_op.findData("<"))
+    assert _shown(dlg) == {"Best"}
+
+    dlg._rating_op.setCurrentIndex(dlg._rating_op.findData(""))
+    assert _shown(dlg) == {"Best", "Mid", "Worst"}, "'any' turns the comparison off"
+
+
+def test_clear_text_filters_leaves_the_include_sets_alone(qtbot):
+    # VB has separate Clear Text Filters and group/rating filter sets; clearing
+    # the text must not quietly re-include a group the user excluded.
+    dlg = ModExplorer(_rating_rows())
+    qtbot.addWidget(dlg)
+    dlg._search.setText("Mid")
+    dlg._rating_op.setCurrentIndex(dlg._rating_op.findData("="))
+    dlg._group_filters["G"] = False
+    dlg._populate()
+    assert _shown(dlg) == set()
+
+    dlg._on_clear_filters()
+    assert dlg._search.text() == ""
+    assert dlg._rating_op.currentData() == ""
+    assert dlg._group_filters["G"] is False, "the group exclusion must survive"
+
+
+def test_add_to_recent_mods_calls_back(qtbot):
+    added = []
+    dlg = ModExplorer(_rating_rows(), on_add_recent=added.append)
+    qtbot.addWidget(dlg)
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+    dlg._on_add_to_recent()
+    assert added == [dlg.table.topLevelItem(0).text(0)]
+
+
+def test_reveal_folder_opens_the_mods_own_directory(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtGui import QDesktopServices
+
+    (tmp_path / "Best").mkdir()
+    opened = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url))
+
+    dlg = ModExplorer(_rating_rows(), mods_dir=tmp_path)
+    qtbot.addWidget(dlg)
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+    assert dlg.table.currentItem().text(0) == "Best"
+    dlg._on_reveal_folder()
+    assert opened and opened[0].toLocalFile().endswith("Best")
+
+    # A mod with no folder on disk opens nothing rather than a missing path.
+    opened.clear()
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(2))  # "Worst" — no directory
+    dlg._on_reveal_folder()
+    assert opened == []

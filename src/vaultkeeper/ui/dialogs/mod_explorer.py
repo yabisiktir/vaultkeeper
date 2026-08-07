@@ -1,9 +1,18 @@
 """ModExplorer — the all-mods table dialog (VB ``ModExplorer``).
 
 A sortable table of every mod with its group, state, rating, file count, play time
-and completed count, from ``ProfileController.mod_explorer_report``, with a filter
-bar (name search / state / only-completed) — a bounded port of the VB filter
-subsystem (text + state + rating + group + prefix filters).
+and completed count, from ``ProfileController.mod_explorer_report``.
+
+The filter bar carries the VB subsystem: a name/group search, a state combo, an
+only-completed toggle, a rating **comparison** (=, worse than, better than —
+VB ``CmEqual``/``CmGreater``/``CmLess``), Clear Text Filters, and a Filters…
+dialog for the group and rating include/exclude sets. The row menu offers Select,
+Copy Names, Add to Recent Mods and Show the mod's folder (VB ``CmExplorer``).
+
+Two parts of the VB subsystem are **not** ported, and neither is a UI omission:
+the *notes* filter has nothing to filter, since ``ModData`` carries no notes
+field, and the *prefix* filters belong to a mod-name prefix feature this port
+does not have. Both need a domain change first, not a widget.
 """
 
 from __future__ import annotations
@@ -35,7 +44,13 @@ class ModExplorer(QDialog):
     """A sortable, read-only table of all mods with a filter bar."""
 
     def __init__(
-        self, report: dict, on_select=None, parent: QWidget | None = None
+        self,
+        report: dict,
+        on_select=None,
+        parent: QWidget | None = None,
+        *,
+        on_add_recent=None,
+        mods_dir=None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Mod Explorer")
@@ -43,6 +58,8 @@ class ModExplorer(QDialog):
         self.resize(760, 500)
         self._rows = list(report.get("rows", []))
         self._on_select = on_select
+        self._on_add_recent = on_add_recent
+        self._mods_dir = mods_dir
         # Group + Rating include/exclude filter state (VB CommonFiltersDialogue);
         # all included by default.
         self._groups = sorted({r["group"] for r in self._rows if r.get("group")})
@@ -72,7 +89,31 @@ class ModExplorer(QDialog):
         self._only_completed = QCheckBox("Completed only")
         self._only_completed.stateChanged.connect(self._populate)
         bar.addWidget(self._only_completed)
+
+        # Rating comparison (VB CmEqual / CmGreater / CmLess). The ratings are an
+        # ordinal enum whose numbers run best-to-worst — Excellent is 1 and
+        # Abandoned is 7 — so ">" reads as "worse than", which is why the labels
+        # say so rather than leaving a bare symbol to be guessed at.
+        bar.addWidget(QLabel("Rating:"))
+        self._rating_op = QComboBox()
+        for label, op in (("any", ""), ("is", "="), ("worse than", ">"), ("better than", "<")):
+            self._rating_op.addItem(label, op)
+        self._rating_op.currentIndexChanged.connect(self._populate)
+        bar.addWidget(self._rating_op)
+        self._rating_value = QComboBox()
+        for rating in self._ratings:
+            self._rating_value.addItem(rating, rating)
+        self._rating_value.currentIndexChanged.connect(self._populate)
+        bar.addWidget(self._rating_value)
+
+        self._clear_btn = QPushButton()
+        self._clear_btn.setIcon(R.get_icon("CancelGrey"))
+        self._clear_btn.setToolTip("Clear the text filters (VB Clear Text Filters)")
+        self._clear_btn.clicked.connect(self._on_clear_filters)
+        bar.addWidget(self._clear_btn)
+
         self._filters_btn = QPushButton("Filters…")
+        self._filters_btn.setIcon(R.get_icon("Filter_16x"))
         self._filters_btn.setToolTip("Include/exclude by group and rating")
         self._filters_btn.clicked.connect(self._open_filters)
         bar.addWidget(self._filters_btn)
@@ -83,6 +124,8 @@ class ModExplorer(QDialog):
         self.table.setRootIsDecorated(False)
         self.table.setSortingEnabled(True)
         self.table.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self._on_context_menu)
         layout.addWidget(self.table)
 
         self._count_label = QLabel()
@@ -130,7 +173,38 @@ class ModExplorer(QDialog):
         rating = str(row.get("rating", "")).strip()
         if rating and not self._rating_filters.get(rating, True):
             return False
+        if not self._passes_rating_comparison(rating):
+            return False
         return not (self._only_completed.isChecked() and not row["completed"])
+
+    def _passes_rating_comparison(self, rating: str) -> bool:
+        """Compare against the chosen rating with =, > or < (VB CmOperand_Click).
+
+        VB stores the filter as operand-plus-rating ("&gt;Good") and compares the
+        ``Ratings`` ordinals. Those run best to worst — ``EXCELLENT`` is 1 and
+        ``ABANDONED`` is 7 — so a *greater* ordinal is a *worse* rating, which is
+        what the combo's wording says out loud.
+        """
+        operand = self._rating_op.currentData()
+        wanted = self._rating_value.currentData()
+        if not operand or not wanted:
+            return True
+        order = self._rating_order()
+        if rating not in order or wanted not in order:
+            return False  # unrated rows drop out once a comparison is asked for
+        left, right = order[rating], order[wanted]
+        if operand == "=":
+            return left == right
+        if operand == ">":
+            return left > right
+        return left < right
+
+    @staticmethod
+    def _rating_order() -> dict[str, int]:
+        """Rating label → ordinal, from the domain enum rather than the display list."""
+        from vaultkeeper.core.state import Ratings
+
+        return {name.title(): member.value for name, member in Ratings.__members__.items()}
 
     def _populate(self, *_args) -> None:
         self.table.setSortingEnabled(False)
@@ -161,6 +235,60 @@ class ModExplorer(QDialog):
             f"{shown:,} of {total:,} mod(s)." if shown != total else f"{total:,} mod(s)."
         )
 
+    def _on_clear_filters(self) -> None:
+        """Reset the text filters, leaving the include/exclude sets (VB TsClearTextFilters)."""
+        self._search.clear()
+        self._state.setCurrentIndex(0)
+        self._rating_op.setCurrentIndex(0)
+        self._only_completed.setChecked(False)
+        self._populate()
+
+    def _on_context_menu(self, point) -> None:
+        """The row actions, as VB offers them from CmExplorer."""
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QMenu
+
+        current = self.table.currentItem()
+        menu = QMenu(self)
+        select = menu.addAction(R.get_icon("SelectAll"), "Select in the main window")
+        select.setEnabled(current is not None and self._on_select is not None)
+        select.triggered.connect(self._on_select_mod)
+
+        copy = menu.addAction(R.get_icon("CopyName"), "Copy Names")
+        copy.setEnabled(bool(self.table.selectedItems()))
+        copy.triggered.connect(self._on_copy_names)
+
+        recent = menu.addAction(R.get_icon("History_16x"), "Add to Recent Mods")
+        recent.setEnabled(current is not None and self._on_add_recent is not None)
+        recent.triggered.connect(self._on_add_to_recent)
+
+        menu.addSeparator()
+        reveal = menu.addAction(R.get_icon("Mod Explorer 1"), "Show the mod's folder")
+        reveal.setEnabled(current is not None and self._mods_dir is not None)
+        reveal.triggered.connect(self._on_reveal_folder)
+
+        menu.addSeparator()
+        clear = menu.addAction(R.get_icon("CancelGrey"), "Clear Text Filters")
+        clear.triggered.connect(self._on_clear_filters)
+        menu.exec(self.table.viewport().mapToGlobal(point) if point else QCursor.pos())
+
+    def _on_add_to_recent(self) -> None:
+        current = self.table.currentItem()
+        if current is not None and self._on_add_recent is not None:
+            self._on_add_recent(current.text(0))
+
+    def _on_reveal_folder(self) -> None:
+        """Open the selected mod's folder in the file manager (VB CmExplorer)."""
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        current = self.table.currentItem()
+        if current is None or self._mods_dir is None:
+            return
+        folder = self._mods_dir / current.text(0)
+        if folder.is_dir():
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+
     def _on_copy_names(self) -> None:
         """Copy selected mod names to clipboard, one per line."""
         names = []
@@ -182,8 +310,19 @@ class ModExplorer(QDialog):
 
     @classmethod
     def show_for(
-        cls, controller, on_select=None, parent: QWidget | None = None
+        cls,
+        controller,
+        on_select=None,
+        parent: QWidget | None = None,
+        *,
+        on_add_recent=None,
     ) -> ModExplorer:
-        dlg = cls(controller.mod_explorer_report(), on_select, parent)
+        dlg = cls(
+            controller.mod_explorer_report(),
+            on_select,
+            parent,
+            on_add_recent=on_add_recent,
+            mods_dir=controller.ctx.profile_mods_dir,
+        )
         dlg.show()
         return dlg

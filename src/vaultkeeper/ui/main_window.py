@@ -1751,7 +1751,12 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.mod_play_viewer import ModPlayViewer
 
-        self._mod_play_viewer = ModPlayViewer.show_for(self.controller, self)
+        self._mod_play_viewer = ModPlayViewer.show_for(
+            self.controller,
+            self,
+            on_select=self._select_mod_by_name,
+            on_add_recent=self._record_recent_mod,
+        )
 
     def _on_workshop(self) -> None:
         if self.controller is None:
@@ -1873,7 +1878,12 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.mod_explorer import ModExplorer
 
         self._mod_explorer = ModExplorer.show_for(
-            self.controller, self._select_mod_by_name, self
+            self.controller,
+            self._select_mod_by_name,
+            self,
+            # The recent list lives on the window, so the dialog is given a way
+            # in rather than a reference to it (VB CmAddToRecentMods).
+            on_add_recent=self._record_recent_mod,
         )
 
     def _on_backup_data(self) -> None:
