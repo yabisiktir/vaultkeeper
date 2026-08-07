@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from nwnfile.locations import HostOS, user_documents_dir
 
@@ -18,7 +18,7 @@ from vaultkeeper.app_paths import config_root
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.hak_patch import HakPatchManager
 from vaultkeeper.core.install_manager import InstallContext, ModInstallationManager
-from vaultkeeper.core.mapper import Mapper
+from vaultkeeper.core.mapper import FOLDER_OVERRIDE, FOLDER_OVR, Mapper
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.game.config_guard import ConfigChange, ConfigGuard
@@ -3279,7 +3279,7 @@ class ProfileController:
 
         return scan_portraits(self.portrait_search_dirs())
 
-    def installed_portraits_report(self) -> dict:
+    def installed_portraits_report(self, *, include_override: bool = False) -> dict:
         """Installed portraits sourced from the profile's mods (VB PopulatePortraits).
 
         VB's Portrait Manager lists portraits from ``pd.InstalledList`` — the files
@@ -3287,26 +3287,35 @@ class ProfileController:
         them, not a blind scan of the game folders. A portrait is a ``<resref>h.tga``
         huge file in the ``portraits`` folder; its smaller sizes present alongside
         are collected (VB ``IsPortraitFile``). Returns ``{"portraits": [{resref, mod,
-        group, sizes: {size: path}}...], "count"}`` ordered by mod then resref.
+        group, folder, sizes: {size: path}}...], "count"}`` ordered by mod then
+        resref.
+
+        ``include_override`` also lists portraits dropped into ``override`` (and
+        ``ovr`` on EE), which is VB's ``TsOverride`` option — off by default there
+        and here, because those are loose overrides rather than a mod's own
+        portraits folder.
         """
         from nwnfile.character import PORTRAIT_SIZES
 
         from vaultkeeper.core.file_key import FileKeyInfo
 
-        game_portraits = self.ctx.game_folders.get(_PORTRAIT_FOLDER)
+        folders = [_PORTRAIT_FOLDER]
+        if include_override:
+            folders += [FOLDER_OVERRIDE] + ([FOLDER_OVR] if self.ctx.mapper.is_ee else [])
+
         entries: list[dict] = []
         for ifk in list(self.pd.installed_list):
-            if ifk.folder.lower() != _PORTRAIT_FOLDER or not ifk.filename.lower().endswith(
-                "h.tga"
-            ):
+            folder = ifk.folder.lower()
+            if folder not in folders or not ifk.filename.lower().endswith("h.tga"):
                 continue
             base = ifk.filename[:-5]  # strip the "h.tga" size+ext
+            game_folder = self.ctx.game_folders.get(folder)
             sizes: dict[str, Path] = {}
             for size in PORTRAIT_SIZES:
                 fn = f"{base}{size}.tga"
-                installed = FileKeyInfo.installed(_PORTRAIT_FOLDER, fn) in self.pd.installed_list
-                if installed and game_portraits is not None:
-                    sizes[size] = game_portraits / fn
+                installed = FileKeyInfo.installed(folder, fn) in self.pd.installed_list
+                if installed and game_folder is not None:
+                    sizes[size] = game_folder / fn
             installer = self.pd.get_installer(ifk.file_key)
             md = self.pd.mod_item(installer) if installer else None
             entries.append(
@@ -3314,11 +3323,124 @@ class ProfileController:
                     "resref": base,
                     "mod": md.mod_name if md is not None else (installer or ""),
                     "group": md.group if md is not None else "",
+                    "folder": folder,
                     "sizes": sizes,
                 }
             )
         entries.sort(key=lambda e: (e["mod"].lower(), e["resref"].lower()))
         return {"portraits": entries, "count": len(entries)}
+
+    #: Every portrait size's required pixel dimensions (VB ``Defs.PortraitInfo``).
+    PORTRAIT_REQUIRED_SIZES: Final = {
+        "h": (256, 512),
+        "l": (128, 256),
+        "m": (64, 128),
+        "s": (32, 64),
+        "t": (16, 32),
+    }
+
+    def invalid_portrait_sizes(self, *, include_override: bool = False) -> dict:
+        """Portrait image files whose pixel size is wrong (VB TsInvalidPortraitSizes).
+
+        VB's rule, from ``Defs.TgaToBitmap``: a file is reported when its size is
+        neither the one its size letter requires **nor any other valid portrait
+        size**. Both halves matter. A 128×256 image named ``…h.tga`` is in the
+        wrong slot but is still a real portrait size, so it is *not* reported —
+        the check is looking for images that are no portrait at all, not for
+        misfiled ones.
+
+        Returns ``{"invalid": [{file, mod, expected, actual}...], "checked"}``.
+        """
+        from nwnfile.formats.tga_reader import read_tga_size
+
+        report = self.installed_portraits_report(include_override=include_override)
+        valid = set(self.PORTRAIT_REQUIRED_SIZES.values())
+        invalid: list[dict] = []
+        checked = 0
+        for entry in report["portraits"]:
+            for size, path in sorted(entry["sizes"].items()):
+                required = self.PORTRAIT_REQUIRED_SIZES.get(size)
+                if required is None:
+                    continue
+                checked += 1
+                try:
+                    actual = read_tga_size(path)
+                except (OSError, ValueError):
+                    continue  # unreadable is a different problem; VB skips it too
+                if actual != required and actual not in valid:
+                    invalid.append(
+                        {
+                            "file": path.name,
+                            "mod": entry["mod"],
+                            "expected": required,
+                            "actual": actual,
+                        }
+                    )
+        return {"invalid": invalid, "checked": checked}
+
+    def exclude_portraits_from_installer(self, mod_name: str, resrefs: list[str]) -> dict:
+        """Add portraits to a mod's wizard excludes and rebuild its installer.
+
+        VB's ``Exclude`` → ``Apply Excludes``: the portrait files are recorded in
+        the mod's ``.Installer Wizard.nitwiz`` ``InstallerExcludes`` and the
+        installer is re-created so the wizard takes effect. Nothing is deleted —
+        the Wizard Builder can take an exclude back out again, which is the whole
+        point of doing it this way rather than removing the files.
+
+        Returns ``{"ok", "excluded", "message"}``.
+        """
+        from nwnfile.character import PORTRAIT_SIZES
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "excluded": 0, "message": f"No such mod: {mod_name}"}
+
+        report = self.wizard_report(mod_name)
+        excludes = list(report.get("excludes", []))
+        known = {e.lower() for e in excludes}
+        # Match on the file's own name so this works whatever folder the mod's
+        # installer keeps its portraits in.
+        wanted = {
+            f"{resref}{size}.tga".lower() for resref in resrefs for size in PORTRAIT_SIZES
+        }
+        added = 0
+        for source in self.wizard_source_files(mod_name):
+            name = source.replace("\\", "/").rsplit("/", 1)[-1].lower()
+            if name in wanted and source.lower() not in known:
+                excludes.append(source)
+                known.add(source.lower())
+                added += 1
+        if not added:
+            return {
+                "ok": False,
+                "excluded": 0,
+                "message": "Those portraits are not in this mod's installer sources.",
+            }
+
+        saved = self.save_wizard_authoring(
+            mod_name,
+            title=report.get("title") or mod_name,
+            select_one_text=report.get("select_one_text", ""),
+            select_many_text=report.get("select_many_text", ""),
+            choices=report.get("choices", []),
+            preferences=report.get("preferences", []),
+            excludes=excludes,
+            extract_archives=report.get("extract_archives", False),
+        )
+        if not saved.get("ok"):
+            return {"ok": False, "excluded": 0, "message": saved.get("message", "")}
+
+        built = self.create_installer(mod_name)
+        return {
+            "ok": bool(built),
+            "excluded": added,
+            "message": (
+                f"Excluded {added} portrait file{'s' if added != 1 else ''} from "
+                f"'{mod_name}' and rebuilt its installer."
+                if built
+                else f"Wizard updated, but '{mod_name}'s installer could not be rebuilt."
+            ),
+        }
 
     def remove_installed_portrait(self, resref: str) -> dict:
         """Remove an installed portrait (all sizes) from the game + its mod's installer.

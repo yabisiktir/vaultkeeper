@@ -139,6 +139,22 @@ class Settings:
     #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
     #: default ``"Huge"``).
     portrait_display_size: str = "Huge"
+    #: Portrait Manager: also list the portraits held in ``override`` (and ``ovr``
+    #: on EE) rather than only the ``portraits`` folder (VB
+    #: ``PrivateOverridePortraits``).
+    portrait_include_override: bool = False
+    #: Portrait Manager: after excluding a portrait, select the next (or previous)
+    #: entry, following whichever direction you last moved in (VB
+    #: ``PrivateAlwaysNextPortrait``).
+    portrait_always_select_next: bool = True
+    #: An external TGA editor to open portrait images in. Empty = the Portrait
+    #: Manager's Edit action stays hidden, as in VB, where the button appears only
+    #: once a TGA File Editor is configured (VB ``TgaEditor.Path``).
+    tga_editor_path: str = ""
+    #: A web page to open from the Portrait Manager — for people who build
+    #: portraits from a favourite image site (VB ``PathImageWebPage``). Empty =
+    #: the link is hidden.
+    portrait_image_web_page: str = ""
     #: Character Explorer inventory shows the NWN-style item icon grid (vs the list).
     inventory_nwn_style: bool = False
     #: Look up custom item icons from installed haks (CEP/PRC) as well as the base

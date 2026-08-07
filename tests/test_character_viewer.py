@@ -234,7 +234,7 @@ class _FakePortraitController:
     def __init__(self, portraits):
         self._portraits = portraits
 
-    def installed_portraits_report(self):
+    def installed_portraits_report(self, *, include_override=False):
         return {"portraits": self._portraits, "count": len(self._portraits)}
 
 
@@ -276,7 +276,7 @@ def test_portrait_manager_extract_from_hak(qtbot, tmp_path, monkeypatch):
     calls = {"extracted": None}
 
     class _Ctl:
-        def installed_portraits_report(self):
+        def installed_portraits_report(self, *, include_override=False):
             return {"portraits": [], "count": 0}
 
         def extract_hak_portraits(self, hak):

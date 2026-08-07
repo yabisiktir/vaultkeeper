@@ -293,6 +293,26 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.hak_item_icons)
 
+        # Portrait Manager. VB keeps these on the Advanced Settings *Locations*
+        # page; they sit here because this is the port's viewer/tools tab and
+        # both are about what an image tool shows you.
+        self.tga_editor_path = QLineEdit(settings.tga_editor_path)
+        self.tga_editor_path.setPlaceholderText("(none — Edit Portrait stays hidden)")
+        self.tga_editor_path.setToolTip(
+            "An image editor to open a portrait's five TGA files in. The Portrait "
+            "Manager's Edit Portrait action only appears once this is set, as in "
+            "the original tool."
+        )
+        form.addRow("TGA file editor:", self.tga_editor_path)
+
+        self.portrait_image_web_page = QLineEdit(settings.portrait_image_web_page)
+        self.portrait_image_web_page.setPlaceholderText("(none — the link stays hidden)")
+        self.portrait_image_web_page.setToolTip(
+            "A site you source portrait images from; the Portrait Manager offers a "
+            "button that opens it."
+        )
+        form.addRow("Portrait image web page:", self.portrait_image_web_page)
+
         return page
 
     #: QComboBox item labels for ``self.theme``, in display order, mapped to the
@@ -610,6 +630,8 @@ class SettingsDialog(QDialog):
         settings.portrait_display_size = self.portrait_display_size.currentText()
         settings.inventory_nwn_style = self.inventory_nwn_style.isChecked()
         settings.hak_item_icons = self.hak_item_icons.isChecked()
+        settings.tga_editor_path = self.tga_editor_path.text().strip()
+        settings.portrait_image_web_page = self.portrait_image_web_page.text().strip()
         settings.exact_item_icons = self.exact_item_icons.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
