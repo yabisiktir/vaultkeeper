@@ -33,6 +33,7 @@ def default_profile_name(edition: Edition) -> str:
 def auto_configure_first_run(
     settings: Settings | None = None,
     *,
+    choices=None,
     settings_path: Path | None = None,
     discover: Callable[[], list[GameInstall]] = discover_installs,
 ) -> ProfileController | None:
@@ -45,17 +46,29 @@ def auto_configure_first_run(
     nothing is discovered (VB solicits paths) this returns ``None`` so the caller
     falls back to the manual *Set Up Profile* flow. A no-op when a profile is already
     active.
+
+    ``choices`` carries whatever the first-run screen settled — which installation,
+    and which drive the store goes on. Without it the first discovered install and
+    the platform default are used, which is what this did before that screen
+    existed and remains the behaviour when there was nothing worth asking.
     """
     settings = settings or load_settings(settings_path)
     if settings.active_profile:
         return None
     installs = discover()
-    if not installs:
+    chosen_root = getattr(choices, "game_root", "") or ""
+    if not installs and not chosen_root:
         return None
-    install = installs[0]
+
+    install = next(
+        (i for i in installs if str(i.root) == chosen_root),
+        installs[0] if installs else None,
+    )
+    edition = install.edition if install is not None else Edition.ENHANCED
     return configure_profile(
-        str(install.root),
-        default_profile_name(install.edition),
+        chosen_root or str(install.root),
+        default_profile_name(edition),
+        store_root=getattr(choices, "store_root", "") or None,
         settings=settings,
         settings_path=settings_path,
     )
@@ -197,6 +210,7 @@ def configure_profile(
     nwn_path: str,
     profile_name: str,
     *,
+    store_root: str | None = None,
     settings: Settings | None = None,
     settings_path: Path | None = None,
 ) -> ProfileController:
@@ -212,6 +226,8 @@ def configure_profile(
     settings = settings or load_settings(settings_path)
     settings.nwn_path = nwn_path
     settings.active_profile = profile_name
+    if store_root:
+        settings.store_root = store_root
     if not settings.game_user_path:
         user_dir = default_game_user_path()
         if user_dir is not None:

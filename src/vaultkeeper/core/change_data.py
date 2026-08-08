@@ -49,6 +49,18 @@ class InfoFiles:
         self.illegal_files: list[FileKeyInfo] = []
         #: Added + Changed — the files whose checksums must be recalculated.
         self.update_list: list[FileKeyInfo] = []
+        # Membership mirrors of the three deduplicated lists, and a count for the
+        # one that allows duplicates. The lists stay lists because their *order*
+        # is part of the contract; these only answer "is it in there already?".
+        #
+        # That question used to be `key not in self.added_list`, a linear scan of
+        # a list being appended to — O(n^2), and the profile scan is the caller.
+        # Measured on a real user folder of 8,642 files: 37 million FileKeyInfo
+        # comparisons, 22 seconds of a 30-second startup.
+        self._added: set[FileKeyInfo] = set()
+        self._changed: set[FileKeyInfo] = set()
+        self._renamed: set[FileKeyInfo] = set()
+        self._removed: dict[FileKeyInfo, int] = {}
 
     # -- derived ----------------------------------------------------------- #
     @property
@@ -81,27 +93,55 @@ class InfoFiles:
 
     # -- mutators ---------------------------------------------------------- #
     def added(self, key: FileKeyInfo) -> None:
-        if key not in self.added_list:
+        if key not in self._added:
+            self._added.add(key)
             self.added_list.append(key)
             self.update_list.append(key)
             self.delete_removed(key)
 
     def removed(self, key: FileKeyInfo) -> None:
         self.removed_list.append(key)
+        self._removed[key] = self._removed.get(key, 0) + 1
 
     def changed(self, key: FileKeyInfo) -> None:
-        if key not in self.changed_list:
+        if key not in self._changed:
+            self._changed.add(key)
             self.changed_list.append(key)
             self.update_list.append(key)
             self.delete_removed(key)
 
     def delete_removed(self, fk: FileKeyInfo) -> None:
-        if fk in self.removed_list:
+        # Counted rather than a set: removed() appends without a guard, so the
+        # same key can legitimately be in there twice, and this drops one.
+        count = self._removed.get(fk, 0)
+        if count:
             self.removed_list.remove(fk)
+            if count == 1:
+                del self._removed[fk]
+            else:
+                self._removed[fk] = count - 1
 
     def renamed(self, key: FileKeyInfo) -> None:
-        if key not in self.renamed_list:
+        if key not in self._renamed:
+            self._renamed.add(key)
             self.renamed_list.append(key)
+
+    def clear_changes(self) -> None:
+        """Empty the four change lists.
+
+        A method rather than four ``.clear()`` calls at the call site, because
+        each list has a membership mirror beside it and clearing one without the
+        other leaves ``added()`` silently ignoring keys it has already seen —
+        which is exactly what happened the first time this was written.
+        """
+        self.added_list.clear()
+        self.removed_list.clear()
+        self.changed_list.clear()
+        self.renamed_list.clear()
+        self._added.clear()
+        self._changed.clear()
+        self._renamed.clear()
+        self._removed.clear()
 
     def clone(self) -> InfoFiles:
         c = InfoFiles()
@@ -112,6 +152,10 @@ class InfoFiles:
         c.illegal_folders.extend(self.illegal_folders)
         c.illegal_files.extend(self.illegal_files)
         c.update_list.extend(self.update_list)
+        c._added.update(self._added)
+        c._changed.update(self._changed)
+        c._renamed.update(self._renamed)
+        c._removed.update(self._removed)
         return c
 
 
@@ -362,14 +406,8 @@ class ChangeData:
 
     def restore_saved_info(self) -> None:
         """Reset current change lists to the saved snapshot (clears then merges)."""
-        self.file.added_list.clear()
-        self.file.removed_list.clear()
-        self.file.changed_list.clear()
-        self.file.renamed_list.clear()
-        self.installed.added_list.clear()
-        self.installed.removed_list.clear()
-        self.installed.changed_list.clear()
-        self.installed.renamed_list.clear()
+        self.file.clear_changes()
+        self.installed.clear_changes()
         self.mods.added_list.clear()
         self.mods.removed_list.clear()
         self.mods.affected_list.clear()

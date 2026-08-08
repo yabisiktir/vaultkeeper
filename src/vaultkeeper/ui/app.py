@@ -48,9 +48,15 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
 
         controller = bootstrap_controller()
         if controller is None:
-            # First run: establish a default profile from the discovered install
-            # (VB auto-creates one) instead of dropping into an empty state.
-            controller = auto_configure_first_run()
+            # First run. Two things go wrong in silence if nobody is asked —
+            # which of several installations, and which drive the store lands
+            # on — so ask, but only when there is genuinely a choice. Everything
+            # else is auto-configured as before (VB auto-creates a profile
+            # rather than dropping into an empty state).
+            from vaultkeeper.ui.first_run import ask_first_run_choices
+
+            choices = ask_first_run_choices()
+            controller = auto_configure_first_run(choices=choices)
             first_run = controller is not None
     window = MainWindow(controller)
     window.show()

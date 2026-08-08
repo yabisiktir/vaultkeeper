@@ -15,7 +15,7 @@ them.
 
 | Topic | Capability | Verdict |
 |---|---|---|
-| firsttimeexecution.htm | Run the Installer Tool for the first time | **GAP — the largest found.** See below. |
+| firsttimeexecution.htm | Run the Installer Tool for the first time | **Partly closed** — the two silent-failure questions are asked; five remain, see below |
 | bhnitdownload.htm | Update the Installer Tool | GAP (see below) |
 | mstoolbareditorhelp.htm | Customise the Quick Access Toolbar | GAP (see below) |
 | syncmods.htm | Synchronise networked PC Mods | Non-goal — the shared store; mod export/import is ported instead |
@@ -57,18 +57,28 @@ edition, and offers a legacy import.
 
 | # | NIT asks | Port |
 |---|---|---|
-| 1 | Which library, when several Enhanced Edition installs are found (Steam, Beamdog, GOG) | **Takes `installs[0]` without asking** |
+| 1 | Which library, when several Enhanced Edition installs are found (Steam, Beamdog, GOG) | **Asked** — first-run screen, preselecting the first |
 | 2 | Which edition is installed, when NWN cannot be found | Falls back to a folder picker |
 | 3 | Where the EE user-files folder is, when it cannot be located — plus *Disable Enhanced Edition detection at start-up* | Auto-resolves; no prompt, no setting |
-| 4 | Which drive/folder for the store, **recommending the one with most free space** | Uses the platform default silently |
+| 4 | Which drive/folder for the store, **recommending the one with most free space** | **Asked** — preselecting the roomiest *local* volume |
 | 5 | **Player or Mod Builder**, which seeds the installer exclusion preferences | Never asked; defaults used |
 | 6 | Group Set preference, when the default profile initialises | Never asked |
 | 7 | Whether to create Restorers for the default profile | Never offered (the command exists) |
 
-Questions 1 and 4 are the ones with teeth: picking the wrong install of three
-silently attaches the profile to a game folder the user does not play, and the
-store lands on whatever drive the platform default names, which on a small SSD
-with mods on a large HDD is the wrong one.
+Questions 1 and 4 were the ones with teeth — each produced a wrong result in
+silence — so those two are now asked, on one screen, both pre-answered, and only
+when there is genuinely more than one answer. A machine with a single install
+and a single volume still sees nothing.
+
+The recommendation skips **network volumes**, however roomy. The machine this
+was built on offers three NAS shares of 493 GB each against a 26 GB system disk;
+recommending one would put the whole profile behind a mount that is not always
+there. They stay in the list for anyone who means it.
+
+The remaining five are all reachable from Settings and none of them fails
+silently: the edition and user-folder prompts have working auto-detection behind
+them, Player-vs-Builder and the group set have defaults, and *Create Restorers*
+is a command on the menu.
 
 ## Other gaps this sweep found
 
