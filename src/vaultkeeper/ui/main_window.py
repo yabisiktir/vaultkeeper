@@ -1205,6 +1205,8 @@ class MainWindow(QMainWindow):
             "MsRestoreData": self._on_restore_data,
             # VB has only the ribbon button; there is no menu id for either.
             "RbnExportSettings": self._on_export_settings,
+            "MsExportMods": self._on_export_mods,
+            "MsImportMods": self._on_import_mods,
             "RbnRestoreData": self._on_restore_data,
             # Downloads (Vault).
             "MsDownloadProject": self._on_download_project,
@@ -1943,6 +1945,70 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(result["message"])
         if not result["ok"]:
             QMessageBox.warning(self, "Import Settings", result["message"])
+
+    def _on_export_mods(self) -> None:
+        """Write the selected mods out as .vkmod archives (VB MsExportMods)."""
+        if self.controller is None:
+            return
+        names = self.selected_mod_names()
+        if not names:
+            QMessageBox.information(
+                self, "Export Mods", "Select the mods you want to export first."
+            )
+            return
+        folder = QFileDialog.getExistingDirectory(self, "Export the selected mods to")
+        if not folder:
+            return
+
+        # Asked, not assumed: _Downloads is usually the bulk of a mod, and
+        # whether the other machine needs it depends on whether it will rebuild
+        # the installer or just install it.
+        answer = QMessageBox.question(
+            self,
+            "Export Mods",
+            "Include each mod's _Downloads folder?\n\nThe original archives are "
+            "only needed to rebuild an installer, and are usually much larger "
+            "than everything else in the mod.",
+            QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.No
+            | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.No,
+        )
+        if answer == QMessageBox.StandardButton.Cancel:
+            return
+
+        from pathlib import Path
+
+        result = self.controller.export_mods(
+            names,
+            Path(folder),
+            include_downloads=answer == QMessageBox.StandardButton.Yes,
+        )
+        self.nit_status.set_info(result["message"])
+
+    def _on_import_mods(self) -> None:
+        """Bring exported mods into this profile (VB MsImportMods)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.game.mod_transfer import SUFFIX
+
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "Import Mods", "", f"Exported mods (*{SUFFIX});;All files (*)"
+        )
+        if not paths:
+            return
+        from pathlib import Path
+
+        result = self.controller.import_mods([Path(p) for p in paths])
+        self.refresh()
+        self.nit_status.set_info(result["message"])
+        if result["failed"]:
+            QMessageBox.warning(
+                self,
+                "Import Mods",
+                "These could not be imported:\n\n"
+                + "\n".join(f"{name} — {why}" for name, why in result["failed"]),
+            )
 
     def _on_restore_data(self) -> None:
         if self.controller is None:

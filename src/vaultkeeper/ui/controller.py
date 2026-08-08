@@ -1962,6 +1962,160 @@ class ProfileController:
 
         return self.store_path.parent if self.store_path else data_root()
 
+    # -- Moving mods between machines (VB ModExport + shared-store import) --- #
+    def export_mods(
+        self, names: list[str], dest_dir: Path, *, include_downloads: bool = False
+    ) -> dict:
+        """Write each named mod to ``dest_dir`` as a ``.vkmod`` archive.
+
+        The port's answer to VB's shared-store export: one file per mod that
+        carries its record, notes, play time and installer payload, movable by
+        any means. ``include_downloads`` adds ``_Downloads``, which is usually
+        the bulk of a mod and is only needed to *rebuild* an installer.
+        """
+        from vaultkeeper.game.mod_transfer import SUFFIX, export_mod
+        from vaultkeeper.persistence.profile_store import _mod_to_dict
+
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        exported, skipped = [], []
+        for name in names:
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item:
+                skipped.append(name)
+                continue
+            notes_path = self.mod_notes_path(name)
+            notes = notes_path.read_text(encoding="utf-8") if notes_path.is_file() else ""
+            result = export_mod(
+                md,
+                self.ctx.profile_mods_dir / name,
+                dest_dir / f"{name}{SUFFIX}",
+                notes=notes,
+                include_downloads=include_downloads,
+                record=_mod_to_dict(md),
+            )
+            exported.append(result)
+        message = f"Exported {len(exported):,} mod(s) to {dest_dir.name}."
+        if skipped:
+            message += f" Skipped {len(skipped):,} (not a mod)."
+        return {"exported": exported, "skipped": skipped, "message": message}
+
+    def import_mods(self, paths: list[Path]) -> dict:
+        """Bring exported mods into this profile (VB ``ImportModsExported``).
+
+        Follows VB on the two things that are easy to get wrong:
+
+        * **The local completion history wins.** An imported record carries the
+          other machine's ``date_completed`` / ``completed_count``; for a mod you
+          already have, yours are kept, and for a new one they are cleared rather
+          than inherited. Those describe *your* play, not the mod.
+        * **Play times merge rather than overwrite** — the point of moving a mod
+          between machines is to end up with both machines' history.
+
+        The mod's group is created if this profile does not have it.
+        """
+        from vaultkeeper.game.mod_transfer import describe, extract
+        from vaultkeeper.persistence.profile_store import _mod_from_dict
+
+        imported, failed = [], []
+        for path in paths:
+            info = describe(path)
+            if info is None:
+                failed.append((path.name, "not a readable export"))
+                continue
+            existing = self.pd.mod_item(info.mod_name)
+            if existing is not None and existing.is_group_item:
+                failed.append((path.name, "a group already uses that name"))
+                continue
+
+            folder = self.ctx.profile_mods_dir / info.mod_name
+            # Read this machine's play times *before* extracting: the archive
+            # carries the other machine's file and would otherwise replace them.
+            local_times = self._read_play_times(info.mod_name)
+            try:
+                record, notes = extract(path, folder)
+            except (OSError, ValueError) as exc:
+                failed.append((path.name, str(exc)))
+                continue
+
+            md = _mod_from_dict(record)
+            if existing is not None:
+                md.date_completed = existing.date_completed
+                md.completed_count = existing.completed_count
+            else:
+                from datetime import datetime
+
+                md.date_completed = datetime.min
+                md.completed_count = 0
+                if md.group and md.group not in self.pd.mod_list:
+                    self.pd.move_mods_to_group([], md.group)  # creates the group row
+
+            if existing is not None:
+                self.pd.remove_mod(info.mod_name)
+            self.pd.add_mod(md)
+            if notes:
+                # Written verbatim, not through save_notes(): notes are stored as
+                # RTF, and save_notes wraps plain text in an RTF envelope — so
+                # re-saving an exported file would wrap it a second time.
+                notes_path = self.mod_notes_path(info.mod_name)
+                notes_path.parent.mkdir(parents=True, exist_ok=True)
+                notes_path.write_text(notes, encoding="utf-8")
+            self._merge_play_times(info.mod_name, local_times)
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+            imported.append(info.mod_name)
+
+        if imported:
+            self.save()
+        message = f"Imported {len(imported):,} mod(s)."
+        if failed:
+            message += f" {len(failed):,} could not be imported."
+        return {"imported": imported, "failed": failed, "message": message}
+
+    def _play_data_manager(self):
+        """A PlayDataManager for file work, independent of the play loop.
+
+        ``play_loop`` needs a game user directory in order to watch saves and
+        logs; merging two play-time files needs neither, and a profile with no
+        game folder configured must still be able to import.
+        """
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.game.play_data_manager import PlayDataContext, PlayDataManager
+
+        data_dir = self.store_path.parent if self.store_path else data_root()
+        ctx = PlayDataContext(
+            profile_mods_dir=self.ctx.profile_mods_dir, data_dir=data_dir
+        )
+        return PlayDataManager(self.pd, ctx)
+
+    def _read_play_times(self, mod_name: str) -> list:
+        records: list = []
+        self._play_data_manager().read_play_time_file(mod_name, records)
+        return records
+
+    def _merge_play_times(self, mod_name: str, local_times: list) -> None:
+        """Combine this machine's play times with the imported ones (VB SyncPlayTimes).
+
+        VB reads both files into one list, takes the distinct entries and writes
+        the result back — so moving a mod between machines ends with both
+        machines' history, not whichever file was copied last.
+        """
+        from vaultkeeper.core.play_time import distinct_play_times
+
+        if not local_times:
+            return  # nothing of ours to lose; the imported file stands
+        manager = self._play_data_manager()
+        combined = list(local_times)
+        manager.read_play_time_file(mod_name, combined)  # appends the imported ones
+        manager._save_play_times(mod_name, distinct_play_times(combined))
+
+    def importable_mods(self, folder: Path) -> list:
+        """Exported mods found in ``folder`` (VB ``ModExport.GetImports``)."""
+        from vaultkeeper.game.mod_transfer import SUFFIX, describe
+
+        if not folder.is_dir():
+            return []
+        found = [describe(p) for p in sorted(folder.glob(f"*{SUFFIX}"))]
+        return [f for f in found if f is not None]
+
     def export_settings(self, *, name: str | None = None) -> dict:
         """Write the current preferences to the store's *Exported Settings* folder.
 
