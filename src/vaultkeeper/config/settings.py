@@ -139,6 +139,11 @@ class Settings:
     #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
     #: default ``"Huge"``).
     portrait_display_size: str = "Huge"
+    #: Character Explorer: show only skills the character has ranks in (VB
+    #: ``FilterSkillsByRank`` / the *Only show Ranked Skills* tick). A PRC
+    #: character has around forty skills and ranks in a handful, so the unranked
+    #: ones are mostly noise.
+    filter_skills_by_rank: bool = False
     #: Portrait Manager: also list the portraits held in ``override`` (and ``ovr``
     #: on EE) rather than only the ``portraits`` folder (VB
     #: ``PrivateOverridePortraits``).

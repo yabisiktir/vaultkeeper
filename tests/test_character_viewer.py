@@ -513,3 +513,64 @@ def test_escape_clears_the_name_search_without_closing_the_dialog(qtbot, tmp_pat
 
     # With the box already empty, Escape belongs to the dialog again.
     assert dlg.eventFilter(dlg._search, escape) is False
+
+
+def test_only_show_ranked_skills_hides_unranked_ones(qtbot, tmp_path):
+    """VB CbRanked → GetFilteredSkills: drop rows whose rank is 0.
+
+    A PRC character carries around forty skills and has ranks in a handful, so
+    without this the Skills tab is mostly zeroes.
+    """
+    remembered = []
+    char = _char("Hero", tmp_path / "h.bic", skill_ranks=[0, 12])  # 1 ranked, 1 not
+    dlg = CharacterViewer(
+        [char], None, on_skills_filter_changed=remembered.append
+    )
+    qtbot.addWidget(dlg)
+    assert dlg._skills.topLevelItemCount() == 2
+    assert not dlg._ranked_only.isChecked()
+
+    dlg._ranked_only.setChecked(True)
+    assert dlg._skills.topLevelItemCount() == 1
+    assert dlg._skills.topLevelItem(0).text(1) == "12"
+    assert remembered == [True], "the choice is handed back to be persisted"
+
+    dlg._ranked_only.setChecked(False)
+    assert dlg._skills.topLevelItemCount() == 2
+
+
+def test_the_ranked_filter_survives_switching_character(qtbot, tmp_path):
+    chars = [
+        _char("A", tmp_path / "a.bic", skill_ranks=[0, 5]),
+        _char("B", tmp_path / "b.bic", skill_ranks=[0, 0]),
+    ]
+    dlg = CharacterViewer(chars, None, filter_skills_by_rank=True)
+    qtbot.addWidget(dlg)
+    assert dlg._ranked_only.isChecked(), "the remembered setting is applied"
+    assert dlg._skills.topLevelItemCount() == 1
+
+    dlg._list.setCurrentRow(1)  # every skill unranked
+    assert dlg._skills.topLevelItemCount() == 0
+
+
+def test_clicking_the_portrait_opens_the_portrait_manager(qtbot, tmp_path):
+    # VB PicPortrait_Click / CmOpenPortraitManager close the Explorer and open
+    # the Portrait Manager.
+    opened = []
+    dlg = CharacterViewer(
+        [_char("Hero", tmp_path / "h.bic", resref="hero_")],
+        None,
+        on_open_portrait_manager=opened.append,
+    )
+    qtbot.addWidget(dlg)
+    dlg._on_portrait_clicked(None)
+    assert opened == ["hero_"]
+    assert not dlg.isVisible()
+
+
+def test_the_portrait_is_inert_without_a_host_to_open(qtbot, tmp_path):
+    # Opened as a plain viewer, there is nowhere to hand off to; the portrait
+    # must not look clickable.
+    dlg = CharacterViewer([_char("Hero", tmp_path / "h.bic")], None)
+    qtbot.addWidget(dlg)
+    assert not dlg._portrait.toolTip()

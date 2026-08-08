@@ -5237,6 +5237,14 @@ class ProfileController:
         settings.inventory_nwn_style = nwn_style
         save_settings(settings, self._settings_path)
 
+    def set_filter_skills_by_rank(self, ranked_only: bool) -> None:
+        """Persist the Character Explorer's *Only show Ranked Skills* tick."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.filter_skills_by_rank = ranked_only
+        save_settings(settings, self._settings_path)
+
     def set_save_editor_theme(self, theme: str) -> None:
         """Persist the Save Game Editor's light/dark choice (its toolbar toggle)."""
         from vaultkeeper.config.settings import load_settings, save_settings

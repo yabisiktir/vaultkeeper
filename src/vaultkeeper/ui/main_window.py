@@ -1693,7 +1693,13 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
 
-        self._character_viewer = CharacterViewer.show_for(self.controller, self)
+        self._character_viewer = CharacterViewer.show_for(
+            self.controller,
+            self,
+            # VB closes the Explorer and opens the Portrait Manager when the
+            # portrait is clicked (PicPortrait_Click / CmOpenPortraitManager).
+            on_open_portrait_manager=lambda _resref: self._on_portraits(),
+        )
 
 
     def _on_save_game_editor(self) -> None:

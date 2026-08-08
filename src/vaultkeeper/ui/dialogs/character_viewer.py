@@ -21,6 +21,7 @@ from nwnsaveeditor.ui.icons import (  # noqa: F401 - re-exported for callers
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -71,8 +72,14 @@ class CharacterViewer(QDialog):
         icon_source=None,
         inventory_nwn_style: bool = False,
         on_inventory_style_changed=None,
+        filter_skills_by_rank: bool = False,
+        on_skills_filter_changed=None,
+        on_open_portrait_manager=None,
     ) -> None:
         super().__init__(parent)
+        self._filter_skills_by_rank = filter_skills_by_rank
+        self._on_skills_filter_changed = on_skills_filter_changed
+        self._on_open_portrait_manager = on_open_portrait_manager
         self._icon_source = icon_source
         self._inventory_nwn_style = inventory_nwn_style
         self._on_inventory_style_changed = on_inventory_style_changed
@@ -115,6 +122,13 @@ class CharacterViewer(QDialog):
         self._portrait = QLabel()
         self._portrait.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._portrait.setFixedHeight(self._portrait_box)
+        # VB PicPortrait_Click / CmOpenPortraitManager: clicking the portrait
+        # opens the Portrait Manager, and the cursor says so. Only offered when
+        # the host supplied a way to open it.
+        if on_open_portrait_manager is not None:
+            self._portrait.setCursor(Qt.CursorShape.PointingHandCursor)
+            self._portrait.setToolTip("Open in Portrait Manager")
+            self._portrait.mouseReleaseEvent = self._on_portrait_clicked
         right.addWidget(self._portrait)
 
         self._tabs = QTabWidget()
@@ -277,17 +291,56 @@ class CharacterViewer(QDialog):
 
     def _build_skills_tab(self) -> QWidget:
         splitter = QSplitter(Qt.Orientation.Vertical)
+        top = QWidget()
+        top_layout = QVBoxLayout(top)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        # VB CbRanked, remembered in FilterSkillsByRank. A PRC character carries
+        # around forty skills and has ranks in a handful, so the unranked ones
+        # are mostly noise.
+        self._ranked_only = QCheckBox("Only show Ranked Skills")
+        self._ranked_only.setChecked(self._filter_skills_by_rank)
+        self._ranked_only.toggled.connect(self._on_ranked_only)
+        top_layout.addWidget(self._ranked_only)
         self._skills = QTreeWidget()
         self._skills.setHeaderLabels(["Skill", "Rank"])
         self._skills.setRootIsDecorated(False)
         self._skills.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self._skills.currentItemChanged.connect(self._on_skill)
-        splitter.addWidget(self._skills)
+        top_layout.addWidget(self._skills, 1)
+        splitter.addWidget(top)
         self._skill_desc = QTextEdit()
         self._skill_desc.setReadOnly(True)
         splitter.addWidget(self._skill_desc)
         splitter.setSizes([260, 120])
         return splitter
+
+    def _on_portrait_clicked(self, _event) -> None:
+        """Hand off to the Portrait Manager (VB closes this window and opens it)."""
+        if self._on_open_portrait_manager is None:
+            return
+        cf = self._current_cf
+        resref = cf.info.portrait_resref if cf is not None and cf.info.is_valid else ""
+        self._on_open_portrait_manager(resref)
+        self.accept()
+
+    def _on_ranked_only(self, checked: bool) -> None:
+        """Re-fill the skills list and remember the choice (VB CbRanked)."""
+        self._filter_skills_by_rank = checked
+        if self._on_skills_filter_changed is not None:
+            self._on_skills_filter_changed(checked)
+        if self._current_cf is not None:
+            self._fill_skills(self._current_cf)
+
+    def _fill_skills(self, cf) -> None:
+        """Skill rows for ``cf``, hiding rank-0 entries when asked (VB GetFilteredSkills)."""
+        self._skills.clear()
+        self._skill_desc.clear()
+        rows = cf.skills() if cf.info.is_valid else []
+        if self._filter_skills_by_rank:
+            rows = [row for row in rows if row[1]]
+        self._skill_rows = rows
+        for name, rank, _desc in rows:
+            self._skills.addTopLevelItem(QTreeWidgetItem([name, str(rank)]))
 
     def _build_feats_tab(self) -> QWidget:
         splitter = QSplitter(Qt.Orientation.Vertical)
@@ -352,9 +405,7 @@ class CharacterViewer(QDialog):
         self._feat_desc.clear()
         self._spells.clear()
         self._spell_desc.clear()
-        self._skill_rows = cf.skills() if cf.info.is_valid else []
-        for name, rank, _desc in self._skill_rows:
-            self._skills.addTopLevelItem(QTreeWidgetItem([name, str(rank)]))
+        self._fill_skills(cf)
         self._feat_rows = cf.feats() if cf.info.is_valid else []
         for name, _desc in self._feat_rows:
             self._feats.addItem(name)
@@ -399,7 +450,13 @@ class CharacterViewer(QDialog):
                 self._portrait.setPixmap(pixmap)
 
     @classmethod
-    def show_for(cls, controller, parent: QWidget | None = None) -> CharacterViewer:
+    def show_for(
+        cls,
+        controller,
+        parent: QWidget | None = None,
+        *,
+        on_open_portrait_manager=None,
+    ) -> CharacterViewer:
         """Build and show the viewer from a controller's character files."""
 
         def resolver(resref: str, own_folder: Path):
@@ -414,6 +471,9 @@ class CharacterViewer(QDialog):
             icon_source=item_icon_source(controller),
             inventory_nwn_style=settings.inventory_nwn_style,
             on_inventory_style_changed=controller.set_inventory_nwn_style,
+            filter_skills_by_rank=settings.filter_skills_by_rank,
+            on_skills_filter_changed=controller.set_filter_skills_by_rank,
+            on_open_portrait_manager=on_open_portrait_manager,
         )
         dlg.show()
         return dlg
