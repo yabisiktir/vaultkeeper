@@ -122,6 +122,28 @@ class InstallationManager(QDialog):
         self.tree.itemChanged.connect(self._on_item_changed)
         body.addWidget(self.tree, 3)
 
+        # The Group Selector pane (VB LvGroupSelector, behind TsGroupSelector).
+        # Ticking a group adds it whole to the set; unticking removes it. Shown
+        # only for User sets, because the others are snapshots and not editable.
+        selector = QVBoxLayout()
+        selector_header = QHBoxLayout()
+        selector_header.addWidget(QLabel("Groups"))
+        selector_header.addStretch(1)
+        self.selector_toggle = QToolButton()
+        self.selector_toggle.setText("Group Selector")
+        self.selector_toggle.setCheckable(True)
+        self.selector_toggle.setToolTip(
+            "Add or remove whole groups from this set (user sets only)"
+        )
+        self.selector_toggle.toggled.connect(self._on_toggle_selector)
+        selector_header.addWidget(self.selector_toggle)
+        selector.addLayout(selector_header)
+        self.group_selector = QListWidget()
+        self.group_selector.itemChanged.connect(self._on_group_selector_changed)
+        selector.addWidget(self.group_selector, 1)
+        self._selector_widgets = (self.group_selector,)
+        body.addLayout(selector, 2)
+
         # Reconciliation summary (VB ChangesInfo) — shown when a load pruned sets.
         self._status = QLabel()
         outer.addWidget(self._status)
@@ -189,11 +211,63 @@ class InstallationManager(QDialog):
                   reverse=self.sort_desc.isChecked())
         return pinned + rest
 
+    # -- Group Selector (VB TsGroupSelector / LvGroupSelector) -------------- #
+    def _on_toggle_selector(self, checked: bool) -> None:
+        self.group_selector.setVisible(checked)
+        if checked:
+            self._populate_group_selector(self._current_set)
+
+    def _populate_group_selector(self, iset) -> None:
+        """List every group with a tick for the ones in this set."""
+        self.group_selector.blockSignals(True)
+        self.group_selector.clear()
+        editable = iset is not None and iset.editable
+        if editable:
+            in_set = {g.name for g in iset.groups}
+            for name in sorted(self._controller.installed_by_group()):
+                item = QListWidgetItem(name)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(
+                    Qt.CheckState.Checked if name in in_set else Qt.CheckState.Unchecked
+                )
+                self.group_selector.addItem(item)
+        self.group_selector.blockSignals(False)
+        # VB enables the toggle only for a user set and collapses the pane
+        # otherwise — a checkable list you cannot change is worse than none.
+        self.selector_toggle.setEnabled(editable)
+        self.group_selector.setVisible(editable and self.selector_toggle.isChecked())
+
+    def _on_group_selector_changed(self, item) -> None:
+        """Add or remove a whole group (VB ``LvGroupSelector_ItemCheck``)."""
+        iset = self._current_set
+        if iset is None or not iset.editable:
+            return
+        from vaultkeeper.game.installation_sets import GroupEntry, ModEntry
+
+        name = item.text()
+        if item.checkState() == Qt.CheckState.Checked:
+            if any(g.name == name for g in iset.groups):
+                return
+            mods = self._controller.installed_by_group().get(name, [])
+            iset.groups.append(
+                GroupEntry(
+                    name=name,
+                    mods=[ModEntry(name=m, desired_installed=True) for m in mods],
+                )
+            )
+            iset.groups.sort(key=lambda g: g.name.lower())
+        else:
+            iset.groups[:] = [g for g in iset.groups if g.name != name]
+        # Mutating the set is the edit; Save persists it, as the mod-level
+        # checkboxes already do.
+        self._populate_tree(iset)
+
     def _on_set_selected(self, row: int) -> None:
         item = self.set_list.item(row) if row >= 0 else None
         iset = item.data(_SET_ROLE) if item is not None else None
         self._current_set = iset
         self._populate_tree(iset)
+        self._populate_group_selector(iset)
         # Apply works on any real selection (Rename/Delete guard against the Current set).
         self.apply_button.setEnabled(iset is not None)
 

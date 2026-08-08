@@ -78,8 +78,10 @@ class ModExplorer(QDialog):
         *,
         on_add_recent=None,
         mods_dir=None,
+        controller=None,
     ) -> None:
         super().__init__(parent)
+        self._controller = controller
         self.setWindowTitle("Mod Explorer")
         self.setWindowIcon(R.get_icon("Mod Explorer 1"))
         self.resize(760, 500)
@@ -93,7 +95,11 @@ class ModExplorer(QDialog):
         self._ratings = sorted(
             {r["rating"] for r in self._rows if str(r.get("rating", "")).strip()}
         )
-        self._group_filters: dict[str, bool] = {g: True for g in self._groups}
+        # VB persists the *excluded* groups to GroupNameFilters.txt and re-reads
+        # them each time the Explorer opens, so a filter you set survives the
+        # session — which is what makes "Undo Group Changes" mean anything.
+        hidden = set(controller.group_filter_excludes()) if controller else set()
+        self._group_filters: dict[str, bool] = {g: g not in hidden for g in self._groups}
         self._rating_filters: dict[str, bool] = {r: True for r in self._ratings}
 
         layout = QVBoxLayout(self)
@@ -184,6 +190,12 @@ class ModExplorer(QDialog):
         self._filters_btn.setToolTip("Include/exclude by group and rating")
         self._filters_btn.clicked.connect(self._open_filters)
         bar.addWidget(self._filters_btn)
+
+        self._undo_groups_btn = QPushButton()
+        self._undo_groups_btn.setIcon(R.get_icon("Undo_16x"))
+        self._undo_groups_btn.setToolTip("Undo Group Changes — revert to the saved group filter")
+        self._undo_groups_btn.clicked.connect(self._on_undo_group_filters)
+        bar.addWidget(self._undo_groups_btn)
         layout.addLayout(bar)
 
         self.table = QTreeWidget()
@@ -339,6 +351,32 @@ class ModExplorer(QDialog):
             f"{shown:,} of {total:,} mod(s)." if shown != total else f"{total:,} mod(s)."
         )
 
+    def _save_group_filters(self) -> None:
+        """Persist the hidden groups (VB writes these on the form closing)."""
+        if self._controller is None:
+            return
+        self._controller.save_group_filter_excludes(
+            sorted(g for g, shown in self._group_filters.items() if not shown)
+        )
+
+    def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
+        self._save_group_filters()
+        super().closeEvent(event)
+
+    def done(self, result: int) -> None:
+        # Qt dialogs usually finish through done(), not closeEvent, so the save
+        # hangs off both — otherwise clicking Close silently loses the filter.
+        self._save_group_filters()
+        super().done(result)
+
+    def _on_undo_group_filters(self) -> None:
+        """Revert the group filter to the saved set (VB ``TsUndoGroups``)."""
+        if self._controller is None:
+            return
+        hidden = set(self._controller.group_filter_excludes())
+        self._group_filters = {g: g not in hidden for g in self._groups}
+        self._populate()
+
     def _on_clear_filters(self) -> None:
         """Reset the text filters, leaving the include/exclude sets (VB TsClearTextFilters)."""
         self._search.clear()
@@ -431,6 +469,7 @@ class ModExplorer(QDialog):
             parent,
             on_add_recent=on_add_recent,
             mods_dir=controller.ctx.profile_mods_dir,
+            controller=controller,
         )
         dlg.show()
         return dlg

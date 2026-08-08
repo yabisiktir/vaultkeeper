@@ -1483,6 +1483,37 @@ class ProfileController:
         """The per-profile data folder (VB ``Paths.ProfileData``)."""
         return self.data_dir() / self.ctx.profile_mods_dir.name
 
+    def _group_filter_file(self) -> Path:
+        """Persisted Mod Explorer group filter (VB ``Paths.GroupNameFilters``)."""
+        return self._profile_data_dir() / "GroupNameFilters.txt"
+
+    def group_filter_excludes(self) -> list[str]:
+        """Group names the Mod Explorer should hide (VB ``PopulateGroupFilters``).
+
+        The file lists the *excluded* groups, one per line — so a missing file
+        means "show everything", which is the right default for a filter nobody
+        has touched yet.
+        """
+        path = self._group_filter_file()
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            return []
+        return [line.strip() for line in text.splitlines() if line.strip()]
+
+    def save_group_filter_excludes(self, excludes: list[str]) -> None:
+        """Persist the hidden groups (VB writes this on ``ModExplorer`` closing)."""
+        path = self._group_filter_file()
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                "\n".join(excludes) + ("\n" if excludes else ""), encoding="utf-8"
+            )
+        except OSError:
+            # A filter that cannot be remembered is not worth failing an action
+            # over; the dialog still works, it just forgets next time.
+            pass
+
     def _missing_installer_exclude_file(self) -> Path:
         """The persisted exclude list for Create Missing Installers (VB file name)."""
         return self._profile_data_dir() / "Exclude from missing Installers.txt"

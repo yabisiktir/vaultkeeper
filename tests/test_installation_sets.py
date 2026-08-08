@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PySide6.QtCore import Qt
+
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.state import State
 from vaultkeeper.game.installation_sets import (
@@ -398,3 +400,66 @@ def test_the_current_set_stays_at_the_top_whatever_the_sort(tmp_path, qtbot):
         for descending in (False, True):
             dlg.sort_desc.setChecked(descending)
             assert dlg._sorted_sets(sets)[0].name == "Current"
+
+
+# -- Group Selector (VB TsGroupSelector / LvGroupSelector) ------------------- #
+def _selector_dialog(tmp_path, qtbot):
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "GroupA", installed=True)
+    _add_mod(ctrl, "Beta", "GroupB", installed=True)
+    dlg = InstallationManager(ctrl)
+    qtbot.addWidget(dlg)
+    return ctrl, dlg
+
+
+def _select_set(dlg, name):
+    for i in range(dlg.set_list.count()):
+        if name in dlg.set_list.item(i).text():
+            dlg.set_list.setCurrentRow(i)
+            return dlg._current_set
+    raise AssertionError(f"no set named {name}")
+
+
+def test_group_selector_is_offered_only_for_editable_sets(tmp_path, qtbot):
+    """VB enables the toggle only for a User set.
+
+    A checkable list you cannot change is worse than no list at all.
+    """
+    ctrl, dlg = _selector_dialog(tmp_path, qtbot)
+    _select_set(dlg, "Current")  # the live state, not editable
+    assert not dlg.selector_toggle.isEnabled()
+    assert dlg.group_selector.isHidden()
+
+    ctrl.create_installation_set("Mine")
+    dlg._reload("Mine")
+    _select_set(dlg, "Mine")
+    assert dlg.selector_toggle.isEnabled()
+
+
+def test_ticking_a_group_adds_it_whole_and_unticking_removes_it(tmp_path, qtbot):
+    ctrl, dlg = _selector_dialog(tmp_path, qtbot)
+    ctrl.create_installation_set("Mine")
+    dlg._reload("Mine")
+    iset = _select_set(dlg, "Mine")
+    dlg.selector_toggle.setChecked(True)
+
+    names = [dlg.group_selector.item(i).text() for i in range(dlg.group_selector.count())]
+    assert set(names) == {"GroupA", "GroupB"}
+
+    # Everything starts in the set (it was checkpointed from what is installed).
+    before = {g.name for g in iset.groups}
+    target = dlg.group_selector.item(names.index("GroupA"))
+
+    target.setCheckState(Qt.CheckState.Unchecked)
+    assert "GroupA" not in {g.name for g in iset.groups}, "unticking must remove it"
+
+    target.setCheckState(Qt.CheckState.Checked)
+    after = {g.name for g in iset.groups}
+    assert "GroupA" in after, "ticking must add it back"
+    assert after == before
+    # ...and it comes back with its mods, not as an empty group.
+    group = next(g for g in iset.groups if g.name == "GroupA")
+    assert [m.name for m in group.mods] == ["Alpha"]
+    assert all(m.desired_installed for m in group.mods)

@@ -454,3 +454,69 @@ def test_clear_text_filters_clears_the_new_boxes_too(qtbot):
     assert dlg._end_filter.text() == ""
     assert dlg._weapon_filter.text() == ""
     assert len(_shown(dlg)) == 4
+
+
+# --------------------------------------------------------------------------- #
+# Persisted group filter + Undo Group Changes (VB GroupNameFilters / TsUndoGroups)
+# --------------------------------------------------------------------------- #
+def _real_controller(tmp_path):
+    from vaultkeeper.ui.controller import ProfileController
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    for name, group in (("Alpha", "Community"), ("Beta", "Official")):
+        controller.create_mod(name, group)
+    return controller
+
+
+def test_group_filter_survives_reopening(qtbot, tmp_path):
+    """VB writes the hidden groups on closing and re-reads them on open."""
+    controller = _real_controller(tmp_path)
+
+    dlg = ModExplorer.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert len(_shown(dlg)) == 2
+    dlg._group_filters["Community"] = False
+    dlg._populate()
+    assert _shown(dlg) == {"Beta"}
+    dlg.done(0)  # closing is what persists it
+
+    assert controller.group_filter_excludes() == ["Community"]
+
+    reopened = ModExplorer.show_for(controller)
+    qtbot.addWidget(reopened)
+    assert _shown(reopened) == {"Beta"}, "the filter did not survive"
+
+
+def test_undo_group_changes_reverts_to_the_saved_set(qtbot, tmp_path):
+    controller = _real_controller(tmp_path)
+    controller.save_group_filter_excludes(["Community"])
+
+    dlg = ModExplorer.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert _shown(dlg) == {"Beta"}
+
+    # Change it without saving, then undo.
+    dlg._group_filters["Community"] = True
+    dlg._group_filters["Official"] = False
+    dlg._populate()
+    assert _shown(dlg) == {"Alpha"}
+
+    dlg._on_undo_group_filters()
+    assert _shown(dlg) == {"Beta"}, "undo must restore the saved filter"
+    assert controller.group_filter_excludes() == ["Community"], "undo does not save"
+
+
+def test_a_missing_filter_file_shows_everything(qtbot, tmp_path):
+    # The default for a filter nobody has touched must be "show all", not "hide
+    # all" — an empty file and a missing file are different things.
+    controller = _real_controller(tmp_path)
+    assert controller.group_filter_excludes() == []
+    dlg = ModExplorer.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert len(_shown(dlg)) == 2
