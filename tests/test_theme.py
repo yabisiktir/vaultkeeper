@@ -186,3 +186,59 @@ def test_the_same_status_reads_differently_per_theme():
         assert status_colour(name, build_palette("light")) != status_colour(
             name, build_palette("dark")
         )
+
+
+# -- every palette must be legible ---------------------------------------------- #
+def _luminance(colour) -> float:
+    """Perceived brightness, 0..1 (WCAG relative luminance, sRGB linearised)."""
+
+    def channel(value: float) -> float:
+        value /= 255
+        return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+    r, g, b = colour.red(), colour.green(), colour.blue()
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+
+
+def _contrast(fore, back) -> float:
+    a, b = sorted((_luminance(fore), _luminance(back)), reverse=True)
+    return (a + 0.05) / (b + 0.05)
+
+
+@pytest.mark.parametrize("theme", ["light", "dark"])
+@pytest.mark.parametrize(
+    "text_role,base_role,minimum",
+    [
+        # WCAG AA for body text is 4.5:1.
+        ("ToolTipText", "ToolTipBase", 4.5),
+        ("WindowText", "Window", 4.5),
+        ("Text", "Base", 4.5),
+        ("ButtonText", "Button", 4.5),
+        # Selected text sits on the platform's own selection colour: white on
+        # Windows' #0078d7 measures 4.499:1, and refusing the system blue over a
+        # thousandth would be the test dictating to the platform. WCAG's 3:1 bar
+        # for UI components is the right one here, and still catches the failure
+        # this exists for — white on white is 1:1.
+        ("HighlightedText", "Highlight", 3.0),
+    ],
+)
+def test_every_foreground_is_readable_on_its_background(
+    theme, text_role, base_role, minimum
+):
+    """The dark theme once set ToolTipBase to the *text* colour.
+
+    White on white: every tooltip was a blank white rectangle, which reads as a
+    rendering glitch rather than a missing tooltip. Nothing in the suite noticed,
+    because a palette is only wrong when someone looks at it — so this looks.
+    """
+    from PySide6.QtGui import QPalette
+
+    palette = build_palette(theme)
+    assert palette is not None
+    fore = palette.color(getattr(QPalette.ColorRole, text_role))
+    back = palette.color(getattr(QPalette.ColorRole, base_role))
+    ratio = _contrast(fore, back)
+    assert ratio >= minimum, (
+        f"{theme}: {text_role} on {base_role} is {ratio:.2f}:1 "
+        f"({fore.name()} on {back.name()}) — below the {minimum}:1 threshold"
+    )

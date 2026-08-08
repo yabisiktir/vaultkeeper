@@ -76,7 +76,11 @@ def build_palette(theme: str) -> QPalette | None:
         pal.setColor(QPalette.ColorRole.WindowText, text)
         pal.setColor(QPalette.ColorRole.Base, base)
         pal.setColor(QPalette.ColorRole.AlternateBase, window)
-        pal.setColor(QPalette.ColorRole.ToolTipBase, text)
+        # ToolTipBase is the *background*. Setting it to the text colour painted a
+        # white box with white text in it — every tooltip in the dark theme was a
+        # blank rectangle. Slightly lighter than the window so the tip reads as
+        # sitting above it.
+        pal.setColor(QPalette.ColorRole.ToolTipBase, QColor(60, 60, 60))
         pal.setColor(QPalette.ColorRole.ToolTipText, text)
         pal.setColor(QPalette.ColorRole.Text, text)
         pal.setColor(QPalette.ColorRole.Button, window)

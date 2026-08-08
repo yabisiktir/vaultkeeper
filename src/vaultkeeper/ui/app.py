@@ -63,6 +63,11 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     if first_run:
         window.offer_legacy_import()
 
+    # The start-up sound (VB PlayStartupSound, from the Shown event). Held
+    # deliberately on the window: QSoundEffect stops the moment it is collected,
+    # so a local would play nothing at all.
+    window.startup_sound = _play_startup_sound(settings, controller)
+
     # Auto-move Leto log files to the recycle bin on startup, when enabled (VB
     # DeleteLetoLogs, run from the Shown event). Best-effort: never block startup.
     if controller is not None:
@@ -78,3 +83,36 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
             logger.exception("Leto log auto-cleanup failed; continuing")
 
     return app.exec()
+
+
+def _play_startup_sound(settings, controller):
+    """Play the configured start-up sound; returns the player to keep it alive.
+
+    Silent, and never fatal: a missing file, a machine with no audio device, or
+    a PySide6 built without QtMultimedia all end the same way — no sound, no
+    message, a line in the log. Holding Ctrl at start-up suppresses it, as VB
+    does, which is the escape hatch when the fanfare is the last thing you want.
+    """
+    if not getattr(settings, "startup_sound", False):
+        return None
+    try:
+        from PySide6.QtCore import Qt, QUrl
+        from PySide6.QtGui import QGuiApplication
+        from PySide6.QtMultimedia import QSoundEffect
+
+        if QGuiApplication.queryKeyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
+            return None
+        from vaultkeeper.game.startup_sound import resolve_sound
+
+        game_root = getattr(getattr(controller, "ctx", None), "game_root", None)
+        sound = resolve_sound(settings.startup_sound_path, game_root)
+        if sound is None:
+            logger.info("Start-up sound is on, but no sound file was found")
+            return None
+        effect = QSoundEffect()
+        effect.setSource(QUrl.fromLocalFile(str(sound)))
+        effect.play()
+        return effect
+    except Exception:
+        logger.exception("Could not play the start-up sound; continuing")
+        return None

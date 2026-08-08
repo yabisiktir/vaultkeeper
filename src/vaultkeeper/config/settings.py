@@ -82,8 +82,11 @@ class Settings:
     remember_window_position: bool = True
     #: Saved main-window geometry (Qt ``saveGeometry`` bytes, base64); internal.
     window_geometry: str = ""
-    #: Play a sound when the application starts (VB start-up sound preference).
+    #: Play a sound when the application starts (VB ``BehaviourPlayStartup``).
     startup_sound: bool = False
+    #: The file to play; empty means the game's own autorun fanfare, found at
+    #: start-up (VB ``PathStartupSound``, which VB likewise fills in by default).
+    startup_sound_path: str = ""
     #: When auto-installing after creating an installer, only (re)install mods that
     #: were already installed rather than every mod (VB ``BehaviourInstallerRestore``;
     #: coupled with ``install_after_create`` — installing implies this is on).

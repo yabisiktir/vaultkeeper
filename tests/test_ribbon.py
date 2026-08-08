@@ -82,3 +82,46 @@ def test_tabs_left_aligned(qtbot):
     qtbot.addWidget(ribbon)
     assert not ribbon.tabBar().expanding()
     assert "alignment: left" in ribbon.styleSheet()
+
+
+# -- a greyed button must mean "unported", not "unwired" ------------------------ #
+def test_no_ribbon_button_is_greyed_out_for_a_screen_that_exists(qtbot):
+    """Manage Steam Workshop Content was dead on the ribbon and alive on Tools.
+
+    The ribbon and the menu carry different VB ids for the same command, so
+    wiring only the menu one leaves the ribbon button disabled with "Not yet
+    available in Vaultkeeper" — a working feature advertised as missing. This
+    pairs the two by the screen they open, not by id.
+    """
+    from vaultkeeper.ui.main_window import MainWindow
+    from vaultkeeper.ui.ribbon import RIBBON_TABS
+
+    window = MainWindow(None)
+    qtbot.addWidget(window)
+    implemented = window.implemented_commands()
+    handlers = window._command_handlers()
+
+    unwired = []
+    for _title, items in RIBBON_TABS:
+        for item in items:
+            if item.action in implemented:
+                continue
+            # Is the same screen reachable under another id? Ribbon ids are
+            # "Rbn<Thing>"; the menu twin is "Ms<Thing>".
+            twin = "Ms" + item.action[3:]
+            if twin in handlers:
+                unwired.append((item.action, twin))
+    assert not unwired, (
+        "these ribbon buttons are greyed out although their command is ported: "
+        + ", ".join(f"{a} (wired as {b})" for a, b in unwired)
+    )
+
+
+def test_the_workshop_ribbon_button_opens_the_same_screen_as_the_menu(qtbot):
+    from vaultkeeper.ui.main_window import MainWindow
+
+    window = MainWindow(None)
+    qtbot.addWidget(window)
+    handlers = window._command_handlers()
+    assert handlers["RbnManageWorkshop"] == handlers["MsWorkshopViewer"]
+    assert "RbnManageWorkshop" in window.implemented_commands()

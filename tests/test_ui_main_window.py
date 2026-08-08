@@ -724,13 +724,19 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented
-    for dead_id in ("RbnManageWorkshop",):
+    # RbnDisplaySettings: genuinely unported — its menu twin MsDisplaySettings has
+    # no handler either, so a greyed button is the honest state.
+    for dead_id in ("RbnDisplaySettings",):
         button = win.ribbon.button(dead_id)
         assert button is not None and not button.isEnabled()
-    # RbnExportSettings used to be listed above: a ribbon button with no handler,
-    # which looked like parity and behaved like a dead control. It is wired now.
-    assert "RbnExportSettings" in implemented
-    assert win.ribbon.button("RbnExportSettings").isEnabled()
+    # RbnExportSettings and RbnManageWorkshop used to be listed above: ribbon
+    # buttons with no handler, which looked like parity and behaved like dead
+    # controls while the same screen worked from the menu. Both are wired now —
+    # and this assertion is why the change had to be made deliberately rather
+    # than being absorbed as "a test broke".
+    for wired in ("RbnExportSettings", "RbnManageWorkshop"):
+        assert wired in implemented
+        assert win.ribbon.button(wired).isEnabled()
     # The quick toolbar's commands are now all wired (cut/copy/paste were the last
     # dead ones), so every toolbar id is implemented.
     assert all(tid in implemented for tid in win.quick_toolbar.actions_by_id)

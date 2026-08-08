@@ -1187,6 +1187,10 @@ class MainWindow(QMainWindow):
             "RbnToolset": lambda: self._on_play(toolset=True),
             "MsModsPlayed": self._on_mods_played,
             "MsWorkshopViewer": self._on_workshop,
+            # The ribbon's own id. Without it the button greys itself out as
+            # "not yet available" while the very same screen sits on the Tools
+            # menu, working — which reads as a broken feature, not a missing one.
+            "RbnManageWorkshop": self._on_workshop,
             "MsDocOrganiser": self._on_doc_organiser,
             "RbnDocOrganise": self._on_doc_organiser,
             "MsWizardBuilder": self._on_wizard_builder,
