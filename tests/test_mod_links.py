@@ -23,6 +23,7 @@ from vaultkeeper.vault.mod_links import (
     find_candidates,
     report_text,
     search_name,
+    search_names,
     summary_line,
     validate_links,
 )
@@ -146,24 +147,41 @@ class TestFindCandidates:
         found = find_candidates(mod, FakeApi(hits, projects), _rules())
         assert [(c.title, c.matched) for c in found] == [("Almraiven Redux", "files")]
 
-    def test_a_hakpak_page_is_not_offered_for_a_module(self):
+    def test_a_page_filed_under_another_kind_still_counts_if_it_has_the_file(self):
+        """CEP 3 ships an optional module among fifteen haks, so it looks like a
+        module here while the Vault files it under hakpak — and it publishes the
+        very archive in the mod's folder. Evidence outranks the filing."""
         api = FakeApi(
-            hits=[FoundProject(2, "Almraiven Hakpack", "https://v/project/nwn1/hakpak/alm")],
-            projects=[_project(2, "Almraiven Hakpack", "https://v/project/nwn1/hakpak/alm",
-                               files=["shared.rar"])],
+            hits=[FoundProject(2, "CEP 3", "https://v/project/nwnee/hakpak/combined/cep-3")],
+            projects=[_project(2, "CEP 3", "https://v/project/nwnee/hakpak/combined/cep-3",
+                               files=["cep_3.1.4_-_part_1.7z"])],
         )
-        mod = ModLinkInput("Almraiven", filenames=("shared.rar",), is_module=True)
-        assert find_candidates(mod, api, _rules()) == []
-        assert api.fetched == []  # rejected before a request was spent on it
+        mod = ModLinkInput("CEP 3", filenames=("cep_3.1.4_-_part_1.7z",), is_module=True)
+        assert [c.matched for c in find_candidates(mod, api, _rules())] == ["files"]
 
-    def test_a_module_page_is_not_offered_for_a_hakpak(self):
+    def test_a_name_alone_must_agree_about_the_kind(self):
+        """Weak evidence keeps the guard: a module page is not a hakpak's page."""
         api = FakeApi(
             hits=[FoundProject(1, "Almraiven", "https://v/project/nwn1/module/almraiven")],
             projects=[_project(1, "Almraiven", "https://v/project/nwn1/module/almraiven",
-                               files=["shared.rar"])],
+                               files=["other.rar"])],
         )
-        mod = ModLinkInput("Almraiven Hak", filenames=("shared.rar",), is_module=False)
+        mod = ModLinkInput("Almraiven", filenames=("shared.rar",), is_module=False)
         assert find_candidates(mod, api, _rules()) == []
+
+    def test_same_kind_hits_are_opened_first(self):
+        """The lookup budget should fall on the least-likely pages, not the first."""
+        hits = [
+            FoundProject(1, "X", "https://v/project/nwn1/hakpak/x"),
+            FoundProject(2, "X", "https://v/project/nwn1/module/x"),
+        ]
+        projects = [
+            _project(1, "X", hits[0].link, files=["nope.rar"]),
+            _project(2, "X", hits[1].link, files=["nope.rar"]),
+        ]
+        api = FakeApi(hits, projects)
+        find_candidates(ModLinkInput("X", is_module=True), api, _rules())
+        assert api.fetched[0] == 2
 
     def test_filenames_match_regardless_of_case(self):
         api = FakeApi(
@@ -531,3 +549,69 @@ def test_a_name_only_match_is_never_written_by_the_batch_pass():
     assert not finding.actionable  # offered, not applied
     assert [c.matched for c in finding.candidates] == ["title"]
     assert "matched by name only" in report_text([finding], 1)
+
+
+# -- names that spell out their own abbreviation ------------------------------- #
+class TestSearchNames:
+    def test_a_spelled_out_abbreviation_is_dropped_from_the_second_try(self):
+        """The Vault matches titles by containment: "Cep 3 Community Expansion
+        Pack" finds nothing, "CEP 3" finds the page."""
+        names = search_names("Cep 3 Community Expansion Pack", _rules())
+        assert names == ["Cep 3 Community Expansion Pack", "Cep 3"]
+
+    def test_the_rule_is_about_initials_not_about_cep(self):
+        assert search_names("PRC Player Resource Consortium", _rules())[-1] == "PRC"
+
+    def test_a_name_that_spells_nothing_out_has_one_form(self):
+        assert search_names("Aielund Saga Act I", _rules()) == ["Aielund Saga Act I"]
+
+    def test_a_coincidence_is_indistinguishable_and_costs_nothing(self):
+        """"Catherine Adventure Trilogy" spells "Cat" by accident, and nothing
+        here can tell that from "Community Expansion Pack" spelling "Cep".
+
+        It does not matter: the shorter form is only a *fallback*, reached only
+        when the full name found nothing, and whatever it turns up still has to
+        publish one of the mod's files or match its name exactly.
+        """
+        assert search_names("Cat Catherine Adventure Trilogy", _rules()) == [
+            "Cat Catherine Adventure Trilogy",
+            "Cat",
+        ]
+
+    def test_a_broad_fallback_still_proves_nothing_on_its_own(self):
+        """The safety net under the rule above."""
+        hits = [FoundProject(1, "Cat Burglar", "https://v/project/nwn1/module/cat-burglar")]
+
+        class OnlyBroad:
+            def search_by_title(self, title):
+                return hits if title == "Cat" else []
+
+            def project_by_id(self, project_id, *, description=False):
+                return _project(1, "Cat Burglar", hits[0].link, files=["burglar.zip"])
+
+        mod = ModLinkInput(
+            "Cat Catherine Adventure Trilogy", filenames=("cat.zip",), is_module=True
+        )
+        assert find_candidates(mod, OnlyBroad(), _rules()) == []
+
+    def test_a_broader_name_is_only_used_when_the_specific_one_finds_nothing(self):
+        """Asking the broad name first would attach the CEP archive page instead."""
+        specific = FoundProject(1, "Cep 3 Community Expansion Pack",
+                                "https://v/project/nwnee/hakpak/cep-3")
+
+        class TwoStage:
+            def __init__(self):
+                self.asked = []
+
+            def search_by_title(self, title):
+                self.asked.append(title)
+                return [specific] if title == "Cep 3 Community Expansion Pack" else []
+
+            def project_by_id(self, project_id, *, description=False):
+                return _project(1, specific.title, specific.link, files=["cep.7z"])
+
+        api = TwoStage()
+        mod = ModLinkInput("Cep 3 Community Expansion Pack", filenames=("cep.7z",))
+        found = find_candidates(mod, api, _rules())
+        assert api.asked == ["Cep 3 Community Expansion Pack"]  # stopped at the first
+        assert [c.matched for c in found] == ["files"]

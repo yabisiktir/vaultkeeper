@@ -61,8 +61,23 @@ holds** are kept. That is evidence rather than resemblance — the mod folder
 holds `almraivenhak.rar`, and exactly one project on the Vault publishes a file
 by that name.
 
+The Vault matches titles by *containment*, so a folder name carrying one word
+the page does not use finds nothing at all rather than a near miss. A shorter
+form is therefore tried when the longer one comes back empty: a word whose
+following words spell it out is redundant, so "Cep 3 Community Expansion Pack"
+is also searched for as "Cep 3", and "PRC Player Resource Consortium" as "PRC".
+The specific name is always asked first, and the broader one only when there was
+nothing to lose by asking.
+
+How the Vault *files* a page is a preference, not a rule. CEP 3 ships one
+optional module among fifteen haks, which makes it look like a module here while
+the Vault files it under hakpak — and it publishes the very archive in the mod's
+folder. Same-kind pages are opened first, but a page holding one of the mod's
+files counts whatever it is filed as.
+
 Where no project publishes any of the mod's files, a project whose title is
-*exactly* the mod's name is offered instead, marked as matched by name only.
+*exactly* the mod's name is offered instead, marked as matched by name only —
+and that weaker match does still have to agree about the kind.
 This is the case for anything repackaged by someone else — a PRC-ified module
 arrives as `Cormyrean Nights [PRC8-CEP3].7z`, which appears on no Vault page —
 and it is a suggestion, not a finding.

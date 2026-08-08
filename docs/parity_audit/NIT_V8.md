@@ -38,6 +38,3 @@ turned out to be gaps the port had independently of v8.0.
 * **The rules file's 224 per-project blocks** (`Project … ModFolder … Group …
   ExcludeFiles … RequiredFiles`) are not parsed. They give a downloaded project
   its mod folder and group automatically; here both come from the dialog.
-* **`CEP 3`** is not found by *Find Mod's Web Page Link*: the Vault titles it
-  "CEP 3" and the mod folder is "Cep 3 Community Expansion Pack", which no name
-  reduction bridges. NIT misses it too.

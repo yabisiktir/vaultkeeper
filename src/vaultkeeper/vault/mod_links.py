@@ -30,6 +30,12 @@ from vaultkeeper.vault.download_rules import DownloadRules
 #: many mods under one page and so never matches by filename the usual way.
 PROJECT_Q_ARCHIVE = "Project Q Archive"
 
+#: How many of a search's hits are opened to see what they publish. A search for
+#: a common word can return dozens, and each is a request; the ones filed as the
+#: same sort of thing as the mod are tried first, so the cut falls on the
+#: least-likely.
+MAX_PROJECT_LOOKUPS = 15
+
 
 class Verdict(Enum):
     """What validating one mod's link concluded (VB's five report sections)."""
@@ -133,6 +139,48 @@ def search_name(mod_name: str, rules: DownloadRules | None = None) -> str:
     return name
 
 
+def search_names(mod_name: str, rules: DownloadRules | None = None) -> list[str]:
+    """Every name worth searching the Vault for, most specific first.
+
+    The Vault matches titles by *containment*, so a folder name carrying one
+    word the page does not use returns nothing at all rather than a near miss.
+    "Cep 3 Community Expansion Pack" finds nothing; "CEP 3" finds the page —
+    because the folder spells out what its own first word already abbreviates.
+
+    So a shorter form is tried when the longer one comes back empty. Order is
+    the whole point: the specific name is asked first, and the broader one only
+    when there was nothing to lose.
+    """
+    names: list[str] = []
+    for candidate in (search_name(mod_name, rules), _without_spelled_out(mod_name)):
+        cleaned = (candidate or "").strip()
+        if cleaned and cleaned.lower() not in {n.lower() for n in names}:
+            names.append(cleaned)
+    return names
+
+
+def _without_spelled_out(mod_name: str) -> str:
+    """Drop a run of words that merely spells out an abbreviation beside it.
+
+    "Cep 3 Community Expansion Pack" → "Cep 3"; "PRC Player Resource
+    Consortium" → "PRC". Nothing about CEP is written down here — the rule is
+    that a word is redundant when the letters of the words after it spell it.
+    """
+    words = (mod_name or "").split()
+    for index, word in enumerate(words):
+        letters = word.strip(".,()-")
+        if not letters.isalpha() or not 2 <= len(letters) <= 6:
+            continue
+        for start in range(index + 1, len(words)):
+            run = words[start: start + len(letters)]
+            if len(run) < len(letters):
+                break
+            initials = "".join(part[0] for part in run if part)
+            if initials.lower() == letters.lower():
+                return " ".join(words[:start] + words[start + len(letters):]).strip()
+    return ""
+
+
 def find_candidates(
     mod: ModLinkInput, api, rules: DownloadRules | None = None
 ) -> list[LinkCandidate]:
@@ -146,29 +194,43 @@ def find_candidates(
     are marked, and never written without a person agreeing to them.
     """
     rules = rules or DownloadRules()
-    title = search_name(mod.name, rules)
-    if not title:
-        return []
     held = {name.lower() for name in mod.filenames}
-    wanted = _comparable(title)
 
+    for title in search_names(mod.name, rules):
+        hits = api.search_by_title(title)
+        if not hits:
+            continue  # nothing to weigh; try a broader name
+        found = _weigh(hits, mod, api, held, _comparable(title))
+        if found:
+            return found
+    return []
+
+
+def _weigh(hits, mod: ModLinkInput, api, held: set[str], wanted: str):
+    """Sort the search hits into file matches and name matches."""
     by_file: list[LinkCandidate] = []
     by_title: list[LinkCandidate] = []
-    for hit in api.search_by_title(title):
-        # A module lives under /module/; a hakpak or tileset does not. Comparing
-        # the two facts drops most of the results before a single request.
-        if mod.is_module != ("/module/" in hit.link.lower()):
-            continue
+    for hit in sorted(hits, key=lambda h: not _same_kind(mod, h.link))[:MAX_PROJECT_LOOKUPS]:
         named = _comparable(hit.title) == wanted
         project = api.project_by_id(hit.project_id) if hit.project_id else None
         if project is None:
             continue
         url = hit.link or project.link
         if any((f.filename or "").lower() in held for f in project.files):
+            # Evidence outranks the page's filing. CEP 3 ships an optional
+            # module among fifteen haks, which makes it look like a module here
+            # while the Vault files it under hakpak — and it publishes the very
+            # archive sitting in the mod's folder.
             by_file.append(LinkCandidate(hit.title, url, "files"))
-        elif named:
+        elif named and _same_kind(mod, hit.link):
+            # A name alone is weak, so it has to agree about the kind too.
             by_title.append(LinkCandidate(hit.title, url, "title"))
     return _preferred_first(by_file) or _preferred_first(by_title)
+
+
+def _same_kind(mod: ModLinkInput, link: str) -> bool:
+    """Whether a page is filed as the same sort of thing the mod looks like."""
+    return mod.is_module == ("/module/" in (link or "").lower())
 
 
 def _comparable(title: str) -> str:
