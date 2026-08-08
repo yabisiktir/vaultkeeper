@@ -324,3 +324,146 @@ class TestRulesSource:
             "RevisionNumber = 3\n", encoding="utf-8"
         )
         assert rules_source.load_rules(tmp_path, None).revision == 3
+
+
+# -- the per-project rules ------------------------------------------------------ #
+_PROJECT_BLOCK = """
+Project = My Project
+\tModFolder = My Mod Folder
+\tGroup = 100.  Community Packs
+\tExcludes
+\t\told_hotfix.7z
+\tEnd Excludes
+\tDownloads
+\t\twanted.7z
+\tEnd Downloads
+\tRequiredProjects
+\t\thttps://neverwintervault.org/project/nwn1/hakpak/needed
+\tEnd RequiredProjects
+End Project
+"""
+
+
+class TestProjectRules:
+    def test_a_project_carries_its_folder_and_group(self):
+        rule = DownloadRules.from_text(_PROJECT_BLOCK).project_rule("My Project")
+        assert rule is not None
+        assert (rule.mod_folder, rule.group) == ("My Mod Folder", "100.  Community Packs")
+
+    def test_the_lookup_ignores_case(self):
+        rules = DownloadRules.from_text(_PROJECT_BLOCK)
+        assert rules.project_rule("my project") is not None
+        assert rules.project_rule("  MY PROJECT  ") is not None
+        assert rules.project_rule("something else") is None
+
+    def test_excluded_and_wanted_files(self):
+        rule = DownloadRules.from_text(_PROJECT_BLOCK).project_rule("My Project")
+        assert rule.is_excluded("old_hotfix.7z")
+        assert rule.is_excluded("OLD_HOTFIX.7Z")  # the file is hand-edited
+        assert not rule.is_excluded("wanted.7z")
+        assert rule.wanted("wanted.7z")
+        assert not rule.wanted("something_else.7z")
+
+    def test_with_no_downloads_block_everything_is_wanted(self):
+        rule = DownloadRules.from_text(
+            "Project = P\n\tModFolder = F\nEnd Project\n"
+        ).project_rule("P")
+        assert rule.wanted("anything.7z")
+
+    def test_extra_required_projects(self):
+        rule = DownloadRules.from_text(_PROJECT_BLOCK).project_rule("My Project")
+        assert rule.required_projects == [
+            "https://neverwintervault.org/project/nwn1/hakpak/needed"
+        ]
+
+    def test_a_block_this_port_does_not_use_is_swallowed_whole(self):
+        """Wizard authoring must not leak into the fields above it."""
+        rule = DownloadRules.from_text(
+            "Project = P\n"
+            "\tModFolder = F\n"
+            "\tSelectOne = Pick a colour.\n"
+            "\t\tarchive.rar\\blue > Blue\n"
+            "\t\tarchive.rar\\red > Red\n"
+            "\tEnd SelectOne\n"
+            "\tExcludes\n\t\tgone.7z\n\tEnd Excludes\n"
+            "End Project\n"
+        ).project_rule("P")
+        assert rule.excludes == ["gone.7z"]
+        assert rule.downloads == []
+        assert rule.mod_folder == "F"
+
+    def test_a_version_conditional_is_not_treated_as_wanted_files(self):
+        """"If 1.69 Downloads" lists files for a game this port does not target."""
+        rule = DownloadRules.from_text(
+            "Project = P\n"
+            "\tDownloads\n\t\tmain.zip\n\tEnd Downloads\n"
+            "\tIf 1.69 Downloads\n\t\tlegacy.zip\n\tEnd If\n"
+            "End Project\n"
+        ).project_rule("P")
+        assert rule.downloads == ["main.zip"]
+
+    def test_a_mistyped_end_costs_one_block_not_the_file(self):
+        """The published file really does close "Excludes" with "End Exclude"."""
+        rules = DownloadRules.from_text(
+            "Project = P\n\tExcludes\n\t\ta.7z\n\tEnd Exclude\n"
+            "\tModFolder = Still Read\n"
+            "End Project\n"
+            "Project = Q\n\tModFolder = Also Read\nEnd Project\n"
+        )
+        assert rules.project_rule("P").mod_folder == "Still Read"
+        assert rules.project_rule("Q").mod_folder == "Also Read"
+
+    def test_a_runaway_block_cannot_eat_the_rest_of_the_file(self):
+        """A project always ends at End Project, whatever is left open inside."""
+        rules = DownloadRules.from_text(
+            "Project = P\n\tExcludes\n\t\ta.7z\nEnd Project\n"
+            "RevisionNumber = 42\n"
+        )
+        assert rules.project_rule("P") is not None
+        assert rules.revision == 42
+
+    def test_two_blocks_for_one_project_are_combined(self):
+        """The published file names two projects twice, each half giving different keys."""
+        rules = DownloadRules.from_text(
+            "Project = Twice\n\tDownloads\n\t\tmain.7z\n\tEnd Downloads\nEnd Project\n"
+            "Project = Twice\n\tModFolder = The Folder\n\tGroup = The Group\nEnd Project\n"
+        )
+        rule = rules.project_rule("Twice")
+        assert rule.downloads == ["main.7z"]
+        assert (rule.mod_folder, rule.group) == ("The Folder", "The Group")
+
+    def test_project_blocks_do_not_disturb_the_rest_of_the_rules(self):
+        rules = DownloadRules.from_text(
+            "RevisionNumber = 7\n"
+            "Project = P\n\tModFolder = F\nEnd Project\n"
+            "Redirects\nFrom http://a\nTo http://b\nEnd Redirects\n"
+            "ApiUrl = https://example/api/\n"
+        )
+        assert rules.revision == 7
+        assert rules.redirects == {"http://a": "http://b"}
+        assert rules.api.base == "https://example/api/"
+        assert rules.project_rule("P").mod_folder == "F"
+
+
+class TestPublishedProjectRules:
+    """Against the real published file, not a fixture."""
+
+    def _rules(self):
+        from vaultkeeper.vault import rules_source
+
+        return DownloadRules.from_text(rules_source.bundled_rules_text())
+
+    def test_every_project_block_is_read(self):
+        # 224 blocks, two of which name a project already named — hence 222 rules.
+        assert len(self._rules().projects) == 222
+
+    def test_cep_3_knows_where_it_belongs(self):
+        rule = self._rules().project_rule("CEP 3 The Community Expansion Pack")
+        assert rule is not None
+        assert rule.mod_folder == "CEP v3.x"
+        assert rule.group == "100.  Community Packs"
+
+    def test_no_rule_swallowed_a_key_line_into_a_file_list(self):
+        for rule in self._rules().projects.values():
+            for name in rule.excludes + rule.downloads:
+                assert "=" not in name, f"{rule.title}: {name}"

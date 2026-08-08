@@ -200,6 +200,11 @@ class Settings:
     #: them current is how a Vault change is absorbed without a new release.
     #: Off means the cached, then the bundled, copy is used.
     vault_rules_online: bool = True
+    #: Apply the published rules' per-project entries: the mod folder and group a
+    #: project belongs in, which of its files are wanted, and which are superseded
+    #: and should not be offered. Off means a project is taken exactly as the
+    #: Vault presents it (VB's Download Project rule preferences).
+    vault_apply_project_rules: bool = True
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the

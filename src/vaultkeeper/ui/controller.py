@@ -2589,23 +2589,73 @@ class ProfileController:
         return self._make_scraper().fetch_project(url)
 
     def fetch_vault_project(self, url: str) -> dict:
-        """A project's files *and* its required projects, from one look at it.
+        """A project's files, its prerequisites, and where the rules say it goes.
 
-        The dialog wants both, and asking twice means two requests to the same
-        place for the same answer — which the API in particular does not deserve.
+        The dialog wants all of it, and asking twice means two requests to the
+        same place for the same answer — which the API in particular does not
+        deserve. Returns ``{"files", "required", "title", "mod_folder", "group",
+        "excluded"}``.
         """
         from vaultkeeper.vault.api import VaultApi
 
         source = self._make_scraper()
         if isinstance(source, VaultApi):
             project = source.project_for(url)
-            if project is None:
-                return {"files": [], "required": []}
-            return {"files": project.files, "required": project.required}
-        return {
-            "files": source.fetch_project(url),
-            "required": source.fetch_required_projects(url),
+            files = project.files if project else []
+            required = project.required if project else []
+            title = project.title if project else ""
+        else:
+            files = source.fetch_project(url)
+            required = source.fetch_required_projects(url)
+            title = files[0].project_title if files else ""
+        return self._apply_project_rules(title, files, required)
+
+    def _apply_project_rules(self, title: str, files: list, required: list) -> dict:
+        """Fold the published per-project rule into a fetched project.
+
+        This is the part of the rules that says a download belongs in "CEP v3.x"
+        under "100.  Community Packs" rather than a folder named after the page,
+        which of eleven attachments are the ones actually wanted, and which are
+        superseded and should not be offered at all. Published separately from
+        the application, so a project that changes shape is fixed for everyone
+        without a release.
+        """
+        result = {
+            "files": list(files),
+            "required": list(required),
+            "title": title,
+            "mod_folder": "",
+            "group": "",
+            "excluded": 0,
         }
+        if not self._settings().vault_apply_project_rules:
+            return result
+        rule = self.download_rules().project_rule(title)
+        if rule is None:
+            return result
+
+        # Both are ways of saying "not this one": Excludes names what to drop,
+        # Downloads names what to keep. Neither leaves a row behind.
+        kept = [
+            f
+            for f in files
+            if not rule.is_excluded(f.filename or f.description)
+            and rule.wanted(f.filename or f.description)
+        ]
+        result["excluded"] = len(files) - len(kept)
+        result["files"] = kept
+        result["mod_folder"] = rule.mod_folder
+        result["group"] = rule.group
+
+        known = {str(r.get("url", "")).lower() for r in result["required"]}
+        for link in rule.required_projects:
+            if link.lower() not in known:
+                from vaultkeeper.vault.scraper import _title_from_url
+
+                result["required"].append(
+                    {"title": _title_from_url(link).title(), "url": link, "type": ""}
+                )
+        return result
 
     def project_required_projects(self, url: str) -> list[dict]:
         """The projects a Vault page lists as required (VB Required-Projects field).

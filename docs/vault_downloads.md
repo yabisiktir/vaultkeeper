@@ -170,6 +170,30 @@ Pressing Play never waits on this. The play loop needs the rules' save-name map,
 and takes the cached or bundled copy immediately rather than risking a stalled
 game launch on a bad connection.
 
+### What the rules say about individual projects
+
+Beyond the addresses, the file carries an entry for each of 222 known projects.
+Four things are read from them, and all four are why a download of a known
+project needs no decisions:
+
+| | |
+|---|---|
+| **Mod folder** | Where it belongs — CEP 3 goes in `CEP v3.x`, not in a folder named after the page. A name you have typed is never overwritten. |
+| **Group** | The group that folder belongs to (`100.  Community Packs`). |
+| **Excludes** | Files never offered: superseded hotfixes, stray readmes. |
+| **Downloads** | A **whitelist**. Where a project names one, everything else it publishes is held back too — the Community Music Pack publishes fourteen files and names three; the other eleven are not choices. |
+| **RequiredProjects** | Prerequisites the Vault page itself omits. |
+
+The status line says how many files were held back, because a list quietly
+shorter than the web page is worse than one that explains itself. **Use the
+rules' per-project mod folder, group and file choices** under Settings →
+Downloads turns the lot off, taking a project exactly as the Vault presents it.
+
+Not read: the wizard authoring some entries carry (`WizardTitle`, `SelectOne`,
+`SelectMany`, `ExtractArchives`, `InstallerExcludes`) and the `If <version>`
+blocks naming files for NWN 1.68/1.69. Those blocks are parsed and discarded, so
+their contents cannot be mistaken for anything else.
+
 ### Format
 
 `V3` in the filename is the *format* version; `RevisionNumber` inside the file

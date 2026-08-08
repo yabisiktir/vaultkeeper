@@ -358,6 +358,18 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.vault_rules_online)
 
+        self.vault_apply_project_rules = QCheckBox(
+            "Use the rules' per-project mod folder, group and file choices"
+        )
+        self.vault_apply_project_rules.setChecked(settings.vault_apply_project_rules)
+        self.vault_apply_project_rules.setToolTip(
+            "The rules say which mod folder and group a known project belongs in, "
+            "which of its files are the ones wanted, and which are superseded and "
+            "should not be offered. Turn this off to take a project exactly as the "
+            "Vault presents it."
+        )
+        form.addRow(self.vault_apply_project_rules)
+
         from vaultkeeper.vault import rules_source
 
         hosts = QLabel(
@@ -748,6 +760,7 @@ class SettingsDialog(QDialog):
             self.vault_download_method.currentIndex()
         ]
         settings.vault_rules_online = self.vault_rules_online.isChecked()
+        settings.vault_apply_project_rules = self.vault_apply_project_rules.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 

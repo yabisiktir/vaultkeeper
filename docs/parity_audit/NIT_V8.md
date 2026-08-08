@@ -35,6 +35,14 @@ turned out to be gaps the port had independently of v8.0.
 
 ## Still open
 
-* **The rules file's 224 per-project blocks** (`Project … ModFolder … Group …
-  ExcludeFiles … RequiredFiles`) are not parsed. They give a downloaded project
-  its mod folder and group automatically; here both come from the dialog.
+* **The wizard authoring inside the per-project rules** — `WizardTitle`,
+  `SelectOne`, `SelectMany`, `ExtractArchives`, `InstallerExcludes` — is parsed
+  and discarded. Reading it would let a download arrive with its installer
+  wizard already authored, which the port's Wizard Builder could then edit.
+* **`If <version>` blocks** name files for NWN 1.68/1.69. Skipped: this port
+  targets Enhanced Edition, and picking between them needs a game version the
+  port does not currently establish.
+* **Nothing is pre-ticked in VB's file list.** The port ticks every file by
+  default, which on a project publishing eleven releases (CEP 3) offers 16 GB on
+  one click. Matching VB would reverse a long-standing default here, so it is
+  flagged rather than changed.

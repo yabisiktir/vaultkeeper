@@ -51,6 +51,114 @@ class ApiEndpoints:
         """``base`` + ``fragment``, with exactly one slash between them."""
         return f"{self.base.rstrip('/')}/{fragment.lstrip('/')}"
 
+@dataclass
+class ProjectRule:
+    """What the published rules say about one Vault project.
+
+    The rules file carries 224 of these. They are how a download knows it should
+    land in "CEP v3.x" under "100.  Community Packs" rather than in a folder
+    named after the page title, and which of a project's eleven attachments are
+    the ones you actually want.
+    """
+
+    title: str = ""
+    #: The mod folder this project belongs in (VB ``ModFolder``).
+    mod_folder: str = ""
+    #: The group that folder belongs to (VB ``Group``).
+    group: str = ""
+    #: Files never offered for download — superseded hotfixes, stray readmes.
+    excludes: list[str] = field(default_factory=list)
+    #: When non-empty, the only files ticked by default (VB ``Downloads``).
+    downloads: list[str] = field(default_factory=list)
+    #: Prerequisite project pages the Vault page itself does not list.
+    required_projects: list[str] = field(default_factory=list)
+
+    def merge(self, other: ProjectRule) -> None:
+        """Fold a second block for the same project into this one.
+
+        The published file names two projects twice, and in both cases the two
+        blocks carry *different* keys — one gives "The Speaker in Dreams" its mod
+        folder and the other its excludes. Taking whichever came last would
+        quietly drop half of each, so they are combined instead.
+        """
+        for name in ("mod_folder", "group"):
+            if not getattr(self, name):
+                setattr(self, name, getattr(other, name))
+        for name in ("excludes", "downloads", "required_projects"):
+            existing = getattr(self, name)
+            known = {value.lower() for value in existing}
+            existing.extend(v for v in getattr(other, name) if v.lower() not in known)
+
+    def is_excluded(self, filename: str) -> bool:
+        low = (filename or "").lower()
+        return any(low == name.lower() for name in self.excludes)
+
+    def wanted(self, filename: str) -> bool:
+        """Whether this file is offered at all.
+
+        A ``Downloads`` block is a **whitelist**, not a set of ticks: where one
+        exists, everything else the project publishes is held back exactly as an
+        ``Excludes`` entry would be (VB ``DownloadProject.Methods.vb:735`` sets
+        ``vsi.Excluded`` and skips the row). Community Music Pack publishes
+        thirty-odd files and names three; the other twenty-seven are not choices.
+        """
+        if not self.downloads:
+            return True
+        return (filename or "").lower() in {name.lower() for name in self.downloads}
+
+
+#: Keys inside a ``Project`` block that this port acts on, as ``Key = value``.
+_PROJECT_VALUES = {"modfolder": "mod_folder", "group": "group"}
+
+#: Sub-blocks inside a ``Project`` block whose lines this port collects. Anything
+#: else opened in there (wizard authoring, version conditionals) is consumed and
+#: dropped, so its contents cannot leak into the fields above.
+_PROJECT_BLOCKS = {
+    "excludes": "excludes",
+    "downloads": "downloads",
+    "requiredprojects": "required_projects",
+}
+
+
+def _parse_project(title: str, lines: list[str], index: int) -> tuple[ProjectRule, int]:
+    """Read one ``Project = …`` block; returns the rule and the line after it.
+
+    Deliberately forgiving. The rules are published by someone else and edited by
+    hand — the file in front of me opens ``Excludes`` sixty-nine times and closes
+    ``End Exclude`` twice — so a sub-block ends at *any* ``End`` line, and the
+    project itself always ends at ``End Project``. A typo then costs one block
+    rather than swallowing the rest of the file.
+    """
+    rule = ProjectRule(title=title.strip())
+    collecting: str | None = None
+    while index < len(lines):
+        line = lines[index].strip()
+        index += 1
+        if not line or line[0] in "'#;":
+            continue
+        low = line.lower()
+        if low == "end project":
+            break
+        if low.startswith("end "):
+            collecting = None
+            continue
+        if collecting is not None:
+            if collecting:  # "" means a block this port swallows whole
+                getattr(rule, collecting).append(line)
+            continue
+        key, sep, _ = line.partition("=")
+        if sep:
+            field_name = _PROJECT_VALUES.get(key.strip().lower())
+            if field_name:
+                setattr(rule, field_name, _equals_param(line))
+            continue
+        # A bare word opens a sub-block. The ones this port does not use — wizard
+        # authoring, game-version conditionals — are still entered, so their
+        # contents are swallowed rather than mistaken for the project's own keys.
+        collecting = _PROJECT_BLOCKS.get(low.split()[0], "")
+    return rule, index
+
+
 #: Section-header line -> internal section id (subset of the VB ``Statements`` map).
 _STATEMENTS: dict[str, str] = {
     "GameSaveNameMap": "save_names",
@@ -116,6 +224,9 @@ class DownloadRules:
     #: Mod-name prefixes to drop before searching the Vault for a title
     #: (VB ``FindLinkIgnorePrefixes``: cmp, ctp, cpp — packager initials).
     find_link_ignore_prefixes: list[str] = field(default_factory=list)
+    #: Per-project rules, keyed by lowercased project title (see
+    #: :class:`ProjectRule`). 224 of them in the published file.
+    projects: dict[str, ProjectRule] = field(default_factory=dict)
 
     # -- Parsing ----------------------------------------------------------- #
     @classmethod
@@ -125,9 +236,22 @@ class DownloadRules:
         section = "reset"
         from_name = ""
         from_url = ""
-        for raw in text.splitlines():
-            line = raw.strip()
+        lines = text.splitlines()
+        index = 0
+        while index < len(lines):
+            line = lines[index].strip()
+            index += 1
             if not line or line[0] in "'#;":  # blank / comment
+                continue
+            if line.lower().startswith("project ="):
+                rule, index = _parse_project(_equals_param(line), lines, index)
+                if rule.title:
+                    key = rule.title.lower()
+                    known = rules.projects.get(key)
+                    if known is None:
+                        rules.projects[key] = rule
+                    else:
+                        known.merge(rule)
                 continue
             if line in _STATEMENTS:
                 section = _STATEMENTS[line]
@@ -242,6 +366,10 @@ class DownloadRules:
     def formatted_url(self, url: str) -> str:
         """Normalise a URL for comparison (VB ``FormattedUrl``)."""
         return url.strip()
+
+    def project_rule(self, title: str) -> ProjectRule | None:
+        """The published rule for a project title, if there is one."""
+        return self.projects.get((title or "").strip().lower())
 
     def is_vault_project_url(self, url: str) -> bool:
         """True if ``url`` addresses a Vault project page (VB ``IsValidVaultUrl``).

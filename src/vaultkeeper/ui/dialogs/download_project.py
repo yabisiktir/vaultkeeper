@@ -335,9 +335,31 @@ class DownloadProjectDialog(QDialog):
         if not project["files"]:
             self.status.setText(self._nothing_found(url))
             return
+        self._apply_project_rule(project)
         self._fetched_url = url
         self._show_rules_revision()
         self._offer_web_link(url)
+
+    def _apply_project_rule(self, project: dict) -> None:
+        """Put the download where the published rules say it belongs.
+
+        The mod folder and group are *defaults*, not decisions: a name the user
+        has typed is never overwritten, and the group combo stays editable. The
+        status line says when files were held back, because a list quietly two
+        rows shorter than the web page is worse than one that explains itself.
+        """
+        folder, group = project.get("mod_folder", ""), project.get("group", "")
+        if folder and not self._name_touched:
+            self.mod_name_edit.setText(folder)
+        if group:
+            self.group_combo.setCurrentText(group)
+        held = project.get("excluded", 0)
+        if held:
+            self.status.setText(
+                f"{self.status.text()} {held} file{'s' if held != 1 else ''} the "
+                "download rules hold back (superseded or not needed) "
+                "not shown."
+            )
 
     def _nothing_found(self, url: str) -> str:
         """Why nothing came back — "No files found" blames the wrong thing.

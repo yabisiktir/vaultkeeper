@@ -731,3 +731,128 @@ def test_a_real_vault_url_with_nothing_on_it_blames_the_page(qtbot, tmp_path):
     dlg.url_edit.setText("https://neverwintervault.org/project/nwn1/module/empty")
     dlg._on_fetch()
     assert dlg.status.text() == "No downloadable files found on that project page."
+
+
+# -- the published per-project rules, applied ----------------------------------- #
+_RULED_JSON = (
+    '{"project_id": 8, "title": "CEP 3 The Community Expansion Pack", "attachments": ['
+    '{"filename": "cep_3.1.4_-_part_1.7z", "link": "http://cdn/n1.7z", "size_bytes": 9},'
+    '{"filename": "cep_3.1.3_-_part_1.7z", "link": "http://cdn/o1.7z", "size_bytes": 9},'
+    '{"filename": "extra_optional.7z", "link": "http://cdn/x.7z", "size_bytes": 9}]}'
+)
+
+_RULES_TEXT = (
+    "Project = CEP 3 The Community Expansion Pack\n"
+    "\tModFolder = CEP v3.x\n"
+    "\tGroup = 100.  Community Packs\n"
+    "\tExcludes\n\t\tcep_3.1.3_-_part_1.7z\n\tEnd Excludes\n"
+    "\tDownloads\n\t\tcep_3.1.4_-_part_1.7z\n\tEnd Downloads\n"
+    "End Project\n"
+)
+
+
+def _ruled_controller(tmp_path, *, apply_rules=True):
+    from vaultkeeper.config.settings import load_settings, save_settings
+    from vaultkeeper.vault.download_rules import DownloadRules
+
+    settings = load_settings(None)
+    settings.vault_download_method = "api"
+    settings.vault_rules_online = False
+    settings.vault_apply_project_rules = apply_rules
+    save_settings(settings, None)
+
+    controller = _controller(tmp_path)
+    url = "https://neverwintervault.org/project/nwnee/hakpak/combined/cep-3"
+    from urllib.parse import quote
+
+    query = (
+        "https://neverwintervault.org/api/v1/projects/by-url?url=" + quote(url, safe="")
+    )
+    controller._http = FakeHttpClient({query: HttpResponse(query, 200, text=_RULED_JSON)})
+    controller._download_rules = DownloadRules.from_text(_RULES_TEXT)
+    return controller, url
+
+
+def test_the_rules_choose_the_mod_folder_and_group(qtbot, tmp_path):
+    controller, url = _ruled_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert dlg.mod_name_edit.text() == "CEP v3.x"
+    assert dlg.group_combo.currentText() == "100.  Community Packs"
+
+
+def test_a_superseded_file_is_not_offered_and_the_holding_back_is_stated(qtbot, tmp_path):
+    controller, url = _ruled_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    listed = [
+        dlg.file_tree.topLevelItem(i).text(0)
+        for i in range(dlg.file_tree.topLevelItemCount())
+    ]
+    assert "cep_3.1.3_-_part_1.7z" not in listed
+    assert "2 files the download rules hold back" in dlg.status.text()
+
+
+def test_a_downloads_block_is_a_whitelist_not_a_set_of_ticks(qtbot, tmp_path):
+    """VB holds back everything a Downloads block does not name, exactly as an
+    Excludes entry would (DownloadProject.Methods.vb:735). Community Music Pack
+    publishes thirty-odd files and names three; the rest are not choices."""
+    controller, url = _ruled_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    listed = [
+        dlg.file_tree.topLevelItem(i).text(0)
+        for i in range(dlg.file_tree.topLevelItemCount())
+    ]
+    assert listed == ["cep_3.1.4_-_part_1.7z"]        # the one named
+    assert [f.filename for f in dlg.checked_files()] == ["cep_3.1.4_-_part_1.7z"]
+
+
+def test_a_typed_mod_name_is_never_overwritten_by_a_rule(qtbot, tmp_path):
+    controller, url = _ruled_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.mod_name_edit.setText("My Own Name")
+    dlg._on_name_edited("My Own Name")
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert dlg.mod_name_edit.text() == "My Own Name"
+
+
+def test_turning_the_rules_off_takes_the_project_as_the_vault_presents_it(qtbot, tmp_path):
+    controller, url = _ruled_controller(tmp_path, apply_rules=False)
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert dlg.file_tree.topLevelItemCount() == 3     # nothing held back
+    assert len(dlg.checked_files()) == 3              # nothing unticked
+    assert dlg.mod_name_edit.text() != "CEP v3.x"     # the page title, not the rule
+
+
+def test_the_rules_can_add_a_prerequisite_the_page_omits(qtbot, tmp_path):
+    from vaultkeeper.vault.download_rules import DownloadRules
+
+    controller, url = _ruled_controller(tmp_path)
+    controller._download_rules = DownloadRules.from_text(
+        "Project = CEP 3 The Community Expansion Pack\n"
+        "\tRequiredProjects\n"
+        "\t\thttps://neverwintervault.org/project/nwn1/hakpak/needed-anyway\n"
+        "\tEnd RequiredProjects\n"
+        "End Project\n"
+    )
+    dlg = DownloadProjectDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    urls = [
+        dlg.required_list.topLevelItem(i).text(1)
+        for i in range(dlg.required_list.topLevelItemCount())
+    ]
+    assert "https://neverwintervault.org/project/nwn1/hakpak/needed-anyway" in urls
