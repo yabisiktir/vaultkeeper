@@ -19,6 +19,7 @@ from nwnfile.formats.bic_reader import (  # noqa: E402
     Gender,
     Race,
 )
+from PySide6.QtCore import Qt  # noqa: E402
 
 from vaultkeeper.ui.controller import ProfileController  # noqa: E402
 from vaultkeeper.ui.dialogs.character_viewer import (  # noqa: E402
@@ -306,8 +307,11 @@ def test_viewer_name_search_filters(qtbot, tmp_path):
     # Typing filters the list case-insensitively by name.
     dlg._search.setText("hero")
     assert dlg._list.count() == 2
-    names = [dlg._list.item(i).text() for i in range(dlg._list.count())]
-    assert all("Hero" in n for n in names)
+    # Rows show the .bic file name now, so check the matches by their files and
+    # confirm the character name is still reachable, on the tooltip.
+    files = [dlg._list.item(i).text() for i in range(dlg._list.count())]
+    assert sorted(files) == ["a.bic", "c.bic"]
+    assert "Hero" in dlg._list.item(0).toolTip()
     assert "2 of 3 shown" in dlg._count_label.text()
     # Clearing restores the full list.
     dlg._search.setText("")
@@ -349,7 +353,8 @@ def test_viewer_level_filter_applies(qtbot, tmp_path):
     dlg._filter = CharacterLevelFilter.parse("=20")
     dlg._populate_list()
     assert dlg._list.count() == 1
-    assert "Mid" in dlg._list.item(0).text()
+    assert dlg._list.item(0).text() == "b.bic"      # the level-20 character's file
+    assert "Mid" in dlg._list.item(0).toolTip()
     assert "1 of 3 shown" in dlg._count_label.text()
     assert "1 of 3 files shown" in dlg.windowTitle()
 
@@ -366,7 +371,8 @@ def test_viewer_class_filter_applies(qtbot, tmp_path):
     dlg._filter = CharacterLevelFilter.parse("1", ["Bard"])
     dlg._populate_list()
     assert dlg._list.count() == 1
-    assert "Barder" in dlg._list.item(0).text()
+    assert dlg._list.item(0).text() == "a.bic"
+    assert "Barder" in dlg._list.item(0).toolTip()
 
 
 def test_viewer_filter_button_opens_dialog_and_applies(qtbot, tmp_path, monkeypatch):
@@ -390,7 +396,8 @@ def test_viewer_filter_button_opens_dialog_and_applies(qtbot, tmp_path, monkeypa
     monkeypatch.setattr(cf_mod.CharacterFilter, "exec", fake_exec)
     dlg._on_filter()
     assert dlg._list.count() == 1
-    assert "High" in dlg._list.item(0).text()
+    assert dlg._list.item(0).text() == "b.bic"
+    assert "High" in dlg._list.item(0).toolTip()
     assert dlg._filter_btn.text() == "Show Level 25 and higher"
 
 
@@ -441,3 +448,68 @@ def test_character_filter_dialog_reset(qtbot):
     assert dlg._level.text() == "1"
     assert dlg.class_names == ()
     assert dlg._classes.item(0).checkState() == Qt.CheckState.Unchecked
+
+
+def test_files_sharing_a_character_name_are_still_told_apart(qtbot, tmp_path):
+    """The bug this list had: rows showed the character name, not the file.
+
+    A real profile of the owner's holds 36 .bic files under 3 distinct character
+    names, so the list read as a screen of identical rows — and a level filter
+    that cut it from 36 to 16 looked like it had done nothing. VB's column is
+    titled "Files" and each row is the file name, with the mod on the tooltip.
+    """
+    chars = [
+        _char("Morcan Fae Noblese", tmp_path / "morcanfaenobles4.bic"),
+        _char("Morcan Fae Noblese", tmp_path / "morcanfaenoble16.bic"),
+        _char("Morcan Fae Noblese", tmp_path / "morcanfaenoble17.bic"),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+
+    rows = [dlg._list.item(i).text() for i in range(dlg._list.count())]
+    assert len(set(rows)) == 3, f"rows must be distinguishable, got {rows}"
+    assert rows == [
+        "morcanfaenobles4.bic",
+        "morcanfaenoble16.bic",
+        "morcanfaenoble17.bic",
+    ]
+    # The character name has not been lost — it is on the tooltip, as in VB.
+    assert "Morcan Fae Noblese" in dlg._list.item(0).toolTip()
+
+
+def test_the_name_search_still_finds_a_character_by_name(qtbot, tmp_path):
+    # The list shows file names, but somebody typing a character name must still
+    # find it — a file is usually named after its character, but not always.
+    chars = [
+        _char("Morcan Fae Noblese", tmp_path / "mfn4.bic"),
+        _char("Azerrynil Sursan", tmp_path / "azerrynilsursan.bic"),
+    ]
+    dlg = CharacterViewer(chars, None)
+    qtbot.addWidget(dlg)
+
+    dlg._search.setText("morcan")           # by character name
+    assert dlg._list.count() == 1
+    assert dlg._list.item(0).text() == "mfn4.bic"
+
+    dlg._search.setText("azerrynilsursan")  # by file name
+    assert dlg._list.count() == 1
+
+
+def test_escape_clears_the_name_search_without_closing_the_dialog(qtbot, tmp_path):
+    # VB: "Press the Escape key to close the search box." Escape must not reach
+    # the dialog and close it while the user is only cancelling a search.
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QKeyEvent
+
+    dlg = CharacterViewer([_char("Hero", tmp_path / "h.bic")], None)
+    qtbot.addWidget(dlg)
+    dlg._search.setText("hero")
+
+    escape = QKeyEvent(
+        QEvent.Type.KeyPress, Qt.Key.Key_Escape, Qt.KeyboardModifier.NoModifier
+    )
+    assert dlg.eventFilter(dlg._search, escape) is True, "the key must be swallowed"
+    assert dlg._search.text() == ""
+
+    # With the box already empty, Escape belongs to the dialog again.
+    assert dlg.eventFilter(dlg._search, escape) is False

@@ -99,8 +99,11 @@ class CharacterViewer(QDialog):
         self._filter_btn.clicked.connect(self._on_filter)
         left.addWidget(self._filter_btn)
         self._search = QLineEdit()
-        self._search.setPlaceholderText("Search names…")
+        self._search.setPlaceholderText("Search Names")  # VB InactiveSearchText
+        self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(lambda _=None: self._populate_list())
+        # VB: "Press the Escape key to close the search box."
+        self._search.installEventFilter(self)
         left.addWidget(self._search)
         self._list = QListWidget()
         self._list.setMinimumWidth(220)
@@ -162,12 +165,18 @@ class CharacterViewer(QDialog):
         self._list.clear()
         shown = 0
         for cf in self._characters:
-            if needle and needle not in cf.display_name.lower():
+            # The .bic file name, as VB lists it (its column is titled "Files" and
+            # each row is FileInfo.Name). Showing the *character* name instead made
+            # the list unusable on a real profile: one of the owner's holds 36
+            # files under 3 distinct names, so it read as a screen of identical
+            # rows — and a filter that cut it to 16 looked like it had done
+            # nothing at all.
+            if needle and needle not in self._searchable(cf):
                 continue
             if not self._passes_filter(cf):
                 continue
-            level = cf.info.level if cf.info.is_valid else "?"
-            item = QListWidgetItem(f"{cf.display_name}  (L{level})")
+            item = QListWidgetItem(cf.path.name)
+            item.setToolTip(self._row_tooltip(cf))
             item.setData(_CHAR_ROLE, cf)
             self._list.addItem(item)
             shown += 1
@@ -192,6 +201,43 @@ class CharacterViewer(QDialog):
             self.setWindowTitle(f"Character Explorer — {shown:,} of {total:,} {files} shown")
         else:
             self.setWindowTitle(f"Character Explorer — {total:,} {files} shown")
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Escape clears the name search (VB ``LsbCharacters.EscapeSearch``)."""
+        from PySide6.QtCore import QEvent
+
+        if (
+            watched is self._search
+            and event.type() == QEvent.Type.KeyPress
+            and event.key() == Qt.Key.Key_Escape
+            and self._search.text()
+        ):
+            self._search.clear()
+            return True  # swallowed: Escape must not also close the dialog
+        return super().eventFilter(watched, event)
+
+    @staticmethod
+    def _searchable(cf) -> str:
+        """What the name search looks in: the file name *and* the character name.
+
+        VB's search box drives the list view, so it matches what the list shows —
+        the file name. Ours also accepts the character name, because a file is
+        usually named after its character but not always, and somebody typing
+        "Morcan" expects to find it either way. A superset cannot hide a row the
+        original would have shown.
+        """
+        return f"{cf.path.name}\n{cf.display_name}".lower()
+
+    @staticmethod
+    def _row_tooltip(cf) -> str:
+        """VB shows the owning mod on hover; the name and level cost nothing more."""
+        level = cf.info.level if cf.info.is_valid else "?"
+        parts = [f"{cf.display_name} (level {level})"]
+        mod = getattr(cf, "mod_name", "")
+        if mod:
+            parts.append(mod)
+        parts.append(str(cf.path))
+        return "\n".join(parts)
 
     def _passes_filter(self, cf) -> bool:
         """True if ``cf`` satisfies the current level/class filter (VB ApplyClassFilter)."""
