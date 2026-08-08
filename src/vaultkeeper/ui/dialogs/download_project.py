@@ -35,6 +35,22 @@ from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import _fmt_size
 
 
+def _is_external(project: dict) -> bool:
+    """Whether a required project is a web page rather than a Vault project.
+
+    The API says so outright; a scraped page does not, and a link that leaves
+    the Vault is the only signal there is.
+    """
+    kind = str(project.get("type", "")).lower()
+    if kind:
+        return kind == "external"
+    # Scraped: the path is all there is to go on. A project page is
+    # ``…/project/<game>/<kind>/<slug>``; 7-Zip's home page is not.
+    from urllib.parse import urlsplit
+
+    return "/project/" not in urlsplit(str(project.get("url", ""))).path
+
+
 class DownloadProjectDialog(QDialog):
     """Retrieve a Vault project and download it into a new/updated mod."""
 
@@ -268,15 +284,33 @@ class DownloadProjectDialog(QDialog):
         self._required = projects
         self.required_list.clear()
         for proj in projects:
-            self.required_list.addTopLevelItem(
-                QTreeWidgetItem([proj["title"], proj["url"]])
-            )
+            item = QTreeWidgetItem([proj["title"], proj["url"]])
+            if _is_external(proj):
+                # Not everything a project requires is a Vault project. 7-Zip is
+                # required by name and links to its own home page; loading that
+                # into the retrieve box and fetching it finds nothing, which
+                # reads as a broken prerequisite rather than an external one.
+                item.setText(0, f"{proj['title']} (external page)")
+                item.setToolTip(0, "An external web page — opens in your browser.")
+            self.required_list.addTopLevelItem(item)
         has = bool(projects)
         self.required_label.setVisible(has)
         self.required_list.setVisible(has)
 
     def _on_required_double_clicked(self, item: QTreeWidgetItem) -> None:
-        """Load a required project's URL into the retrieve box (so it can be fetched)."""
+        """Load a required project's URL into the retrieve box (so it can be fetched).
+
+        An external page is opened in the browser instead — there is nothing
+        here that could download it.
+        """
+        index = self.required_list.indexOfTopLevelItem(item)
+        proj = self._required[index] if 0 <= index < len(self._required) else {}
+        if _is_external(proj):
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+
+            QDesktopServices.openUrl(QUrl(item.text(1)))
+            return
         self.url_edit.setText(item.text(1))
 
     def _on_name_edited(self, _text: str) -> None:
@@ -288,8 +322,9 @@ class DownloadProjectDialog(QDialog):
         if not url:
             return
         self.status.setText("Retrieving…")
-        self.populate_files(self.controller.scrape_project(url))
-        self.populate_required(self.controller.project_required_projects(url))
+        project = self.controller.fetch_vault_project(url)
+        self.populate_files(project["files"])
+        self.populate_required(project["required"])
 
     # -- Running a transfer ------------------------------------------------- #
     def start_job(self, work, on_done) -> None:

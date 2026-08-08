@@ -394,7 +394,10 @@ _REQUIRED_PAGE = (
     '<span class="file-icon"></span><a href="http://cdn/a.zip" length=100>a.zip</a>\n'
     '<div class="field field-name-field-required-projects">'
     '<div class="field-items"><div class="field-item">'
-    '<a href="http://vault/cep">CEP 2.6 <br></a></div></div></div>'
+    '<a href="http://vault/project/nwn1/hakpak/cep">CEP 2.6 <br></a></div>'
+    # Not every prerequisite is a Vault project: 7-Zip links to its own site.
+    '<div class="field-item"><a href="https://www.7-zip.org">7-Zip</a></div>'
+    "</div></div>"
     '<div class="field field-name-field-related-projects"></div>'
 )
 
@@ -412,11 +415,37 @@ def test_dialog_shows_required_projects(qtbot, tmp_path):
     dlg.url_edit.setText("http://vault/project/needs-cep")
     dlg._on_fetch()
     assert not dlg.required_list.isHidden()  # made visible on fetch
-    assert dlg.required_list.topLevelItemCount() == 1
+    assert dlg.required_list.topLevelItemCount() == 2
     assert dlg.required_list.topLevelItem(0).text(0) == "CEP 2.6"
     # Double-clicking loads the required project's URL into the fetch box.
     dlg._on_required_double_clicked(dlg.required_list.topLevelItem(0))
-    assert dlg.url_edit.text() == "http://vault/cep"
+    assert dlg.url_edit.text() == "http://vault/project/nwn1/hakpak/cep"
+
+
+def test_an_external_prerequisite_is_marked_and_not_fetched(qtbot, tmp_path, monkeypatch):
+    """7-Zip is required by name; loading its home page here would find nothing."""
+    _set_download_method("scrape")
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://vault/project/needs-cep": HttpResponse(
+            "http://vault/project/needs-cep", 200, text=_REQUIRED_PAGE
+        )}
+    )
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("http://vault/project/needs-cep")
+    dlg._on_fetch()
+    external = dlg.required_list.topLevelItem(1)
+    assert external.text(0) == "7-Zip (external page)"
+
+    opened = []
+    from PySide6.QtGui import QDesktopServices
+
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url.toString()))
+    dlg._on_required_double_clicked(external)
+    assert opened == ["https://www.7-zip.org"]
+    # The retrieve box is left alone — there is nothing here to download.
+    assert dlg.url_edit.text() == "http://vault/project/needs-cep"
 
 
 # -- the silent half: extracting and installing -------------------------------- #
@@ -467,3 +496,32 @@ def test_a_phase_without_a_count_shows_a_busy_bar_not_a_full_one(qtbot, tmp_path
     dlg._on_phase("Installing files", 40, 200)
     assert (dlg.progress.maximum(), dlg.progress.value()) == (200, 40)
     assert dlg.status.text() == "Installing files — 40 of 200"
+
+
+def test_the_api_marks_an_external_prerequisite_outright(qtbot, tmp_path):
+    """The API states the kind; the scraper had to infer it from the URL."""
+    from vaultkeeper.ui.dialogs.download_project import _is_external
+
+    assert _is_external({"type": "external", "url": "https://neverwintervault.org/x"})
+    assert not _is_external({"type": "project", "url": "https://elsewhere.example/p"})
+
+
+def test_files_and_prerequisites_come_from_one_request(qtbot, tmp_path):
+    """Asking twice meant two API calls to the same place for the same answer."""
+    _set_download_method("api")
+    controller = _controller(tmp_path)
+    query = "https://neverwintervault.org/api/v1/projects/9"
+    payload = (
+        '{"project_id": 9, "title": "P", "attachments": ['
+        '{"filename": "a.zip", "link": "http://cdn/a.zip", "size_bytes": 5}],'
+        ' "required_projects": [{"type": "external", "title": "7-Zip",'
+        ' "link": "https://www.7-zip.org"}]}'
+    )
+    controller._http = FakeHttpClient({query: HttpResponse(query, 200, text=payload)})
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("https://neverwintervault.org/project/9")
+    dlg._on_fetch()
+    assert dlg.file_tree.topLevelItemCount() == 1
+    assert dlg.required_list.topLevelItem(0).text(0) == "7-Zip (external page)"
+    assert controller._http.calls == [("GET", query)]  # one, not two

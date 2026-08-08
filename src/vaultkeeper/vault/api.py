@@ -226,7 +226,7 @@ class VaultApi:
     # -- The scraper's interface, so callers need not care which is in use --- #
     def fetch_project(self, url: str, *, title: str = "") -> list[VaultScraperInfo]:
         """The project's downloadable files (VaultScraper's method, via the API)."""
-        project = self._project_for(url)
+        project = self.project_for(url)
         if project is None:
             return []
         if title:
@@ -236,10 +236,10 @@ class VaultApi:
 
     def fetch_required_projects(self, url: str) -> list[dict[str, str]]:
         """The projects this one requires — title and URL, as the scraper returns."""
-        project = self._project_for(url)
+        project = self.project_for(url)
         return [] if project is None else project.required
 
-    def _project_for(self, url: str) -> ApiProject | None:
+    def project_for(self, url: str) -> ApiProject | None:
         """By id when the URL carries one, else by URL."""
         project_id = project_id_from_url(url)
         if project_id:

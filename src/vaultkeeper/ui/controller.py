@@ -2433,6 +2433,25 @@ class ProfileController:
         """Scrape a Vault project page into a list of downloadable files."""
         return self._make_scraper().fetch_project(url)
 
+    def fetch_vault_project(self, url: str) -> dict:
+        """A project's files *and* its required projects, from one look at it.
+
+        The dialog wants both, and asking twice means two requests to the same
+        place for the same answer — which the API in particular does not deserve.
+        """
+        from vaultkeeper.vault.api import VaultApi
+
+        source = self._make_scraper()
+        if isinstance(source, VaultApi):
+            project = source.project_for(url)
+            if project is None:
+                return {"files": [], "required": []}
+            return {"files": project.files, "required": project.required}
+        return {
+            "files": source.fetch_project(url),
+            "required": source.fetch_required_projects(url),
+        }
+
     def project_required_projects(self, url: str) -> list[dict]:
         """The projects a Vault page lists as required (VB Required-Projects field).
 
