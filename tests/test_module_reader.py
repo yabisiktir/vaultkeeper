@@ -126,11 +126,23 @@ _REAL_DIRS = [
 
 
 def _first_real_module() -> Path | None:
+    """A real module to read, or ``None`` — probing must never abort collection.
+
+    This runs at import time, inside a ``skipif``. ``iterdir`` can raise as well
+    as return nothing: macOS guards Documents behind a privacy grant, and
+    without it the probe raises ``PermissionError`` and takes the whole test
+    session down at collection. "Cannot look" and "nothing there" mean the same
+    thing to a skip, so both answer ``None``.
+    """
     for d in _REAL_DIRS:
-        if d.is_dir():
+        try:
+            if not d.is_dir():
+                continue
             for p in sorted(d.iterdir()):
                 if p.suffix.lower() in (".mod", ".nwm"):
                     return p
+        except OSError:
+            continue
     return None
 
 
