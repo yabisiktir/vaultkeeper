@@ -32,21 +32,36 @@ class DailyPlayTime:
         day = day or _today_iso()
         self.minutes_by_date[day] = self.minutes_by_date.get(day, 0) + int(minutes)
 
-    def daily_average_hours(self, *, today: str | None = None) -> int:
-        """Average whole hours per day over past non-zero days (VB ``DailyAverage``).
+    def note_day(self, *, day: str | None = None) -> bool:
+        """Record a day as *seen but not played* (VB ``NitStartUp``); True if new.
 
-        Today is excluded; the result is at least 1. With a single recorded day, that
-        day's hours are used.
+        A day with no play is a real data point — it is what makes the average
+        say "you play about an hour a day" rather than "about an hour on the
+        days you play", which are very different numbers for anyone who plays at
+        weekends. Only days the application was opened are counted; a fortnight
+        away is silence, not a fortnight of zeros.
+        """
+        day = day or _today_iso()
+        if day in self.minutes_by_date:
+            return False
+        self.minutes_by_date[day] = 0
+        return True
+
+    def daily_average_hours(self, *, today: str | None = None) -> int:
+        """Average whole hours per day (VB ``DailyAverage`` / ``DailyPlayTimeAverage``).
+
+        Over every recorded day except today, days without play included — NIT
+        v8.0's change, and the reason it can now answer zero. Before that it
+        averaged only the days played and never went below 1, which reported an
+        hour a day to someone who had not played at all.
         """
         today = today or _today_iso()
-        past = [m for d, m in self.minutes_by_date.items() if d != today and m > 0]
+        past = [m for d, m in self.minutes_by_date.items() if d != today]
         if not past:
             # Only today recorded -> use today's hours (VB single-entry branch).
             only = [m for m in self.minutes_by_date.values() if m > 0]
-            if len(only) == 1:
-                return max(1, only[0] // 60)
-            return 1
-        return max(1, round((sum(past) / len(past)) / 60))
+            return only[0] // 60 if len(only) == 1 else 0
+        return round((sum(past) / len(past)) / 60)
 
     def daily_play_info(self) -> list[dict[str, Any]]:
         """Per-day play rows, most-recent first (VB ``GetDailyPlayInfo`` display list)."""

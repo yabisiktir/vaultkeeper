@@ -57,11 +57,35 @@ def test_daily_average_and_info():
     assert info[0]["label"] == "30 mins"
 
 
-def test_daily_average_single_day_and_floor():
-    assert DailyPlayTime().daily_average_hours() == 1  # nothing recorded -> 1
+def test_daily_average_single_day_and_empty():
+    assert DailyPlayTime().daily_average_hours() == 0  # nothing recorded -> nothing
     only_today = DailyPlayTime({"2026-07-16": 200})
     # Only one day recorded -> that day's hours (200 min = 3 h).
     assert only_today.daily_average_hours(today="2026-07-16") == 3
+
+
+def test_a_day_you_did_not_play_pulls_the_average_down():
+    """NIT v8.0: the average is over recorded days, not over days played."""
+    d = DailyPlayTime()
+    d.add(240, day="2026-07-14")  # 4 h
+    d.note_day(day="2026-07-15")  # opened the app, did not play
+    assert d.daily_average_hours(today="2026-07-16") == 2  # not 4
+
+
+def test_a_day_is_only_noted_once_and_never_over_real_play():
+    d = DailyPlayTime()
+    assert d.note_day(day="2026-07-14") is True
+    d.add(60, day="2026-07-14")
+    assert d.note_day(day="2026-07-14") is False
+    assert d.minutes_by_date == {"2026-07-14": 60}
+
+
+def test_no_play_at_all_reports_zero_rather_than_an_hour():
+    """The old floor of 1 told someone who had not played that they played an hour."""
+    d = DailyPlayTime()
+    for day in ("2026-07-13", "2026-07-14", "2026-07-15"):
+        d.note_day(day=day)
+    assert d.daily_average_hours(today="2026-07-16") == 0
 
 
 def test_daily_play_time_json_round_trip():
@@ -114,3 +138,12 @@ def test_play_data_viewer_shows_daily_average(tmp_path, qtbot):
     qtbot.addWidget(dlg)
     labels = [w.text() for w in dlg.findChildren(QLabel)]
     assert any("Average per day" in t for t in labels)
+
+
+def test_note_play_day_is_recorded_once_per_day(tmp_path):
+    ctrl = _controller(tmp_path)
+    ctrl.note_play_day(day="2026-07-14")
+    ctrl.record_daily_play(90, day="2026-07-14")
+    ctrl.note_play_day(day="2026-07-14")  # must not wipe the 90 minutes
+    report = ctrl.daily_play_report()
+    assert [(r["date"], r["minutes"]) for r in report["days"]] == [("2026-07-14", 90)]

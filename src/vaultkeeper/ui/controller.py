@@ -2838,6 +2838,21 @@ class ProfileController:
         path.parent.mkdir(parents=True, exist_ok=True)
         write_json(path, daily.to_json())
 
+    def note_play_day(self, *, day: str | None = None) -> None:
+        """Record today as seen, so a day without play counts (VB ``NitStartUp``).
+
+        Called once at start-up. Writing nothing when the day is already known
+        keeps this off the disk on every launch.
+        """
+        from vaultkeeper.persistence.json_store import write_json
+
+        daily = self._load_daily_play_time()
+        if not daily.note_day(day=day):
+            return
+        path = self._daily_play_time_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(path, daily.to_json())
+
     def daily_play_report(self) -> dict:
         """Average hours/day + per-day play totals (VB ``GetDailyPlayInfo``)."""
         daily = self._load_daily_play_time()

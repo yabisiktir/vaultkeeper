@@ -444,6 +444,9 @@ class MainWindow(QMainWindow):
         """Non-modal notice if the game's config changed since we last saw it."""
         if self.controller is None:
             return
+        # Start-up housekeeping while we are here (VB NitStartUp): today counts
+        # towards the play-time average whether or not it is played.
+        self.controller.note_play_day()
         changes = self.controller.startup_config_check()
         if changes:
             names = ", ".join(sorted({c.path.name for c in changes}))
