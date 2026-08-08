@@ -288,3 +288,79 @@ def test_reveal_folder_opens_the_mods_own_directory(qtbot, tmp_path, monkeypatch
     dlg.table.setCurrentItem(dlg.table.topLevelItem(2))  # "Worst" — no directory
     dlg._on_reveal_folder()
     assert opened == []
+
+
+# --------------------------------------------------------------------------- #
+# Mod-state comparison (VB TsStateLess / TsStateEqual / TsStateGreater)
+# --------------------------------------------------------------------------- #
+def _state_rows():
+    from vaultkeeper.core.state import State
+
+    def row(mod, state):
+        return {
+            "mod": mod, "group": "G", "state": state.name.replace("_", " ").title(),
+            "state_value": int(state), "rating": "Good", "files": 1,
+            "played": "", "completed": 0,
+        }
+
+    return {
+        "rows": [
+            row("Untouched", State.NOT_INSTALLED),
+            row("Partly", State.SOME_INSTALLED),
+            row("Done", State.INSTALLED),
+            row("Clobbered", State.OVERRIDDEN),
+        ],
+        "count": 4,
+    }
+
+
+def test_state_comparison_finds_partly_installed_mods(qtbot):
+    """VB FilterState, stated positively.
+
+    "less files installed than Installed" is the only way the original answers
+    "what is half-installed?" — the plain equality combo cannot express it.
+    """
+    dlg = ModExplorer(_state_rows())
+    qtbot.addWidget(dlg)
+    assert _shown(dlg) == {"Untouched", "Partly", "Done", "Clobbered"}
+
+    dlg._state.setCurrentIndex(dlg._state.findData("Installed"))
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData("="))
+    assert _shown(dlg) == {"Done"}
+
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData("<"))
+    assert _shown(dlg) == {"Untouched", "Partly"}, "less installed than Installed"
+
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData(">"))
+    assert _shown(dlg) == {"Clobbered"}, "more installed than Installed"
+
+
+def test_all_states_ignores_the_comparison(qtbot):
+    dlg = ModExplorer(_state_rows())
+    qtbot.addWidget(dlg)
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData("<"))
+    dlg._state.setCurrentIndex(0)  # "All states"
+    assert len(_shown(dlg)) == 4
+
+
+def test_state_falls_back_to_an_exact_match_without_an_ordinal(qtbot):
+    # A report from an older controller carries no state_value; the filter must
+    # still work rather than silently showing everything.
+    report = _state_rows()
+    for row in report["rows"]:
+        del row["state_value"]
+    dlg = ModExplorer(report)
+    qtbot.addWidget(dlg)
+    dlg._state.setCurrentIndex(dlg._state.findData("Installed"))
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData(">"))
+    assert _shown(dlg) == {"Done"}
+
+
+def test_clear_text_filters_resets_the_state_comparison(qtbot):
+    dlg = ModExplorer(_state_rows())
+    qtbot.addWidget(dlg)
+    dlg._state.setCurrentIndex(dlg._state.findData("Installed"))
+    dlg._state_op.setCurrentIndex(dlg._state_op.findData("<"))
+    assert len(_shown(dlg)) == 2
+    dlg._on_clear_filters()
+    assert len(_shown(dlg)) == 4

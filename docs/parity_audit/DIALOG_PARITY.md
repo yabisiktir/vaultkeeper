@@ -19,25 +19,22 @@ the control set and `<Form>.vb` for the handlers, not the ledger's status.
 | **Character Explorer** | Clicking the portrait opens the Portrait Manager (`PicPortrait_Click` / `CmOpenPortraitManager`). |
 | **Character Explorer** | Escape clears the name search, as the help topic states. |
 
-## Confirmed absent — ranked by how much they matter
+## Built since (items 1–4 of the original list)
 
-Each verified present in VB (handler exists) and absent from the port.
+| Screen | What landed |
+|---|---|
+| **Mod Explorer** | The mod-state comparison — *matching* / *more files installed than* / *less files installed than* (`TsStateEqual`/`Greater`/`Less`). Stated positively; VB writes it as an exclusion. The only way to ask "what is half-installed?" |
+| **Game Saves Manager** | *Character Summary* (opens the character in the selected save) and *Open Folder* (`CmCharacterSummary` / `CmOpen`). |
+| **Installation Analyser** | *Open Folder* and *Properties* on a file row; the browser report now carries each file's real path. |
+| **Download Project** | *Copy File Name* and *Copy Direct File Link*, the latter enabled only when the file has one. |
 
-1. **Mod Explorer — the mod-state comparison filters.** `TsStateGreater` /
-   `TsStateLess` / `TsStateEqual`: "More files installed", "Less files
-   installed", "Matching Mod State". These answer "which mods are partly
-   installed?", which nothing else in the port does. Also absent: the Weapon /
-   Start / Hench columns and their filters, and Undo Group/Prefix Changes.
-2. **Game Saves Manager — *Display Character Summary*** (`CmCharacterSummary` /
-   `TsCharacterSummary`) and **Open with File Explorer** (`CmOpen`). The first
-   is the natural bridge from a save to the character in it.
-3. **Installation Analyser — *Open Folder* and *Properties***
-   (`CmOpenFolder` / `CmProperties`). Reaching the file you are being told about.
-4. **Download Project — *Copy File Name* / *Copy Direct File Link***
-   (`CmCopyFilename` / `CmCopyLink`). Small, and useful when a download fails.
-5. **Installation Manager — sort Ascending/Descending and the Group Selector**
+## Still absent
+
+1. **Mod Explorer** — the Weapon / Start / Hench columns and their filters, and
+   Undo Group / Undo Prefix Changes.
+2. **Installation Manager** — sort Ascending/Descending and the Group Selector
    (`TsAscending` / `TsDescending` / `TsGroupSelector`).
-6. **Start Screen Manager — *Repair Prefixed Image Exclusions***
+3. **Start Screen Manager** — *Repair Prefixed Image Exclusions*
    (`RbRepairPrefixed`). The prefix editor is ported; this repair pass is not.
 
 ## Checked and found already faithful

@@ -145,3 +145,60 @@ class TestRealSaves:
             assert info.game_save_name != ""
         # The current game should resolve to a real .sav name (not the placeholder).
         assert gs.current_game_save != NO_SAVES_TEXT
+
+
+# --------------------------------------------------------------------------- #
+# Row actions (VB CmCharacterSummary / CmOpen)
+# --------------------------------------------------------------------------- #
+def test_save_rows_carry_their_folder(tmp_path):
+    """Both row actions work from the save's own folder, as VB's do."""
+    from vaultkeeper.ui.controller import ProfileController
+
+    user = tmp_path / "user"
+    (user / "saves" / "000000 - quicksave").mkdir(parents=True)
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    controller.ctx.game_user_dir = user
+
+    rows = controller.game_saves_report()["rows"]
+    assert rows, "the fixture save should be listed"
+    assert all(r.get("path") for r in rows), "every row needs its folder"
+    assert Path(rows[0]["path"]).is_dir()
+
+
+def test_character_files_can_be_scoped_to_one_save(tmp_path):
+    # VB's Character Summary reads the selected entry, not the whole profile.
+    from vaultkeeper.ui.controller import ProfileController
+
+    user = tmp_path / "user"
+    save = user / "saves" / "000000 - quicksave"
+    save.mkdir(parents=True)
+    (user / "localvault").mkdir(parents=True)
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    controller.ctx.game_user_dir = user
+
+    # No .bic anywhere: both calls are empty, but the scoped one must not raise
+    # and must not fall back to scanning everything.
+    assert controller.character_files(save_folder=save) == []
+    assert controller.character_files() == []
+
+
+def test_the_row_actions_follow_the_saves_table(qtbot, tmp_path):
+    from vaultkeeper.ui.dialogs.game_saves_manager import GameSavesManager
+
+    dlg = GameSavesManager({"rows": [], "count": 0}, None)
+    qtbot.addWidget(dlg)
+    # Nothing selected (and no controller): neither action may look available.
+    assert not dlg.summary_button.isEnabled()
+    assert not dlg.open_button.isEnabled()

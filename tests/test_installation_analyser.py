@@ -161,3 +161,28 @@ def test_analyser_select_jumps_to_file_mod(qtbot, tmp_path):
     dlg._on_select_mod()
     assert picked == ["CEP"]
     assert not dlg.isVisible()  # closes after select
+
+
+# --------------------------------------------------------------------------- #
+# Reaching the file (VB CmOpenFolder / CmProperties)
+# --------------------------------------------------------------------------- #
+def test_browser_rows_carry_the_installed_path(tmp_path):
+    """Open Folder and Properties both need the file's real location."""
+    from vaultkeeper.ui.controller import ProfileController
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    (profile_mods / "Alpha" / ".Mod Installer" / "hak").mkdir(parents=True)
+    game = tmp_path / "NWN"
+    (game / "hak").mkdir(parents=True)
+    (game / "hak" / "a.hak").write_bytes(b"HAK")
+
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=game,
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    report = controller.installation_browser_report()
+    files = [f for folder in report["folders"] for f in folder["files"]]
+    # Whatever was picked up, every row must expose where it lives (or "" when
+    # the folder is not one we resolved) rather than omitting the key.
+    assert all("path" in f for f in files)

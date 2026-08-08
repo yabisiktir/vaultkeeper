@@ -2804,6 +2804,10 @@ class ProfileController:
                     "mod": name,
                     "group": self.group_label(md.group),
                     "state": md.mod_state.name.replace("_", " ").title(),
+                    # The ordinal too: the Mod Explorer compares states with
+                    # </=/> ("less/matching/more files installed"), and the
+                    # display string cannot be ordered.
+                    "state_value": int(md.mod_state),
                     "rating": md.rating.name.title(),
                     "files": len(md.files),
                     "played": played,
@@ -2851,6 +2855,7 @@ class ProfileController:
         from nwnfile.win_sort import win_compare
 
         key = cmp_to_key(win_compare)
+        game_folders = self.ctx.game_folders
         buckets: dict[str, list] = {}
         for fk, ifd in self.pd.installed_list.items():
             buckets.setdefault(fk.folder, []).append((fk, ifd))
@@ -2869,6 +2874,11 @@ class ProfileController:
                         "size": _fmt_size(ifd.byte_size),
                         "size_bytes": ifd.byte_size,
                         "modified": _fmt_date(ifd.modified),
+                        # Where it actually sits, so the analyser can reveal it
+                        # or describe it (VB CmOpenFolder / CmProperties).
+                        "path": str(game_folders[fk.folder] / fk.filename)
+                        if fk.folder in game_folders
+                        else "",
                     }
                 )
                 folder_size += ifd.byte_size
@@ -3226,6 +3236,10 @@ class ProfileController:
                 "location": info.location,
                 "type": info.save_type.name.title(),
                 "size": _fmt_size(info.byte_size),
+                # The folder itself, so the manager can reveal it or read the
+                # character inside (VB CmOpen / CmCharacterSummary both work
+                # from FvGameSaves.SelectedEntry.Info.FullName).
+                "path": str(info.full_name),
             }
             for info in gs.folders
         ]
@@ -3379,26 +3393,33 @@ class ProfileController:
         return {"ok": result.ok, "message": result.message}
 
     # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #
-    def character_files(self) -> list:
+    def character_files(self, *, save_folder: Path | None = None) -> list:
         """The player's characters, from the local vault and each game save.
 
         VB's Character Explorer/Summary reads ``.bic`` files; the player's real
         characters live in ``localvault`` and one ``player.bic`` per game save.
         Returns a list of ``game.character.CharacterFile`` (each with decoded
         info, possibly invalid), local vault first then saves, name-sorted.
+
+        ``save_folder`` narrows the scan to one save, which is what the Game
+        Saves Manager's *Character Summary* asks for (VB
+        ``DisplayCharacterInformation`` on the selected entry).
         """
         from nwnfile.character import scan_character_files
         from nwnfile.item_names import resolver_for
 
-        user = self.ctx.game_user_dir
-        if user is None:
-            return []
-        found = list(scan_character_files(user / "localvault"))
-        saves = user / "saves"
-        if saves.is_dir():
-            for save_dir in sorted(saves.iterdir()):
-                if save_dir.is_dir():
-                    found.extend(scan_character_files(save_dir))
+        if save_folder is not None:
+            found = list(scan_character_files(save_folder))
+        else:
+            user = self.ctx.game_user_dir
+            if user is None:
+                return []
+            found = list(scan_character_files(user / "localvault"))
+            saves = user / "saves"
+            if saves.is_dir():
+                for save_dir in sorted(saves.iterdir()):
+                    if save_dir.is_dir():
+                        found.extend(scan_character_files(save_dir))
         # Name base items that store their name only as a dialog.tlk StrRef.
         resolver = resolver_for(self.ctx.game_root)
         if resolver.available:

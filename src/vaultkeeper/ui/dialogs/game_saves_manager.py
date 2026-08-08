@@ -18,6 +18,7 @@ existing range merges into it (``on_existing="overwrite"``).
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -53,6 +54,7 @@ class GameSavesManager(QDialog):
         self.table.setHeaderLabels(["Folder", "Save Name", "Location", "Type", "Size"])
         self.table.setRootIsDecorated(False)
         self.table.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.table.currentItemChanged.connect(lambda *_: self._sync_buttons())
         layout.addWidget(self.table)
 
         self.summary = QLabel()
@@ -68,8 +70,18 @@ class GameSavesManager(QDialog):
         self.keep_spin.setSingleStep(20)
         self.keep_spin.setValue(100)
         reduce_row.addWidget(self.keep_spin)
+        self.summary_button = QPushButton("Character Summary")
+        self.summary_button.setIcon(R.get_icon("LookupUser_16x"))
+        self.summary_button.setToolTip("Show the character in the selected save")
+        self.summary_button.clicked.connect(self._on_character_summary)
+        self.open_button = QPushButton("Open Folder")
+        self.open_button.setIcon(R.get_icon("Mod Explorer 1"))
+        self.open_button.setToolTip("Open the selected save's folder")
+        self.open_button.clicked.connect(self._on_open_folder)
         self.reduce_button = QPushButton("Reduce")
         self.reduce_button.clicked.connect(self._on_reduce)
+        reduce_row.addWidget(self.summary_button)
+        reduce_row.addWidget(self.open_button)
         reduce_row.addWidget(self.reduce_button)
         layout.addLayout(reduce_row)
 
@@ -123,14 +135,58 @@ class GameSavesManager(QDialog):
         self._populate(report)
 
     # -- Rendering -------------------------------------------------------- #
+    # -- Row actions (VB CmCharacterSummary / CmOpen) ---------------------- #
+    def _selected_save(self) -> dict | None:
+        item = self.table.currentItem()
+        return item.data(0, Qt.ItemDataRole.UserRole) if item is not None else None
+
+    def _on_character_summary(self) -> None:
+        """Show the character stored in the selected save (VB CmCharacterSummary)."""
+        row = self._selected_save()
+        if row is None or self._controller is None:
+            return
+        from pathlib import Path as _Path
+
+        from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+
+        folder = _Path(row.get("path", ""))
+        characters = self._controller.character_files(save_folder=folder)
+        if not characters:
+            QMessageBox.information(
+                self,
+                "Character Summary",
+                f"No character file was found in {row['name']}.",
+            )
+            return
+        self._character_viewer = CharacterViewer(
+            characters,
+            lambda resref, own: self._controller.portrait_path(resref, extra_dirs=[own]),
+            self,
+        )
+        self._character_viewer.show()
+
+    def _on_open_folder(self) -> None:
+        """Reveal the selected save's folder (VB CmOpen — "Open with File Explorer")."""
+        from pathlib import Path as _Path
+
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        row = self._selected_save()
+        if row is None:
+            return
+        folder = _Path(row.get("path", ""))
+        if folder.is_dir():
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+
     def _populate(self, report: dict) -> None:
         self.table.clear()
         for row in report.get("rows", []):
-            self.table.addTopLevelItem(
-                QTreeWidgetItem(
-                    [row["name"], row["save"], row["location"], row["type"], row["size"]]
-                )
+            item = QTreeWidgetItem(
+                [row["name"], row["save"], row["location"], row["type"], row["size"]]
             )
+            item.setData(0, Qt.ItemDataRole.UserRole, row)
+            self.table.addTopLevelItem(item)
 
         count = report.get("count", 0)
         current = report.get("current") or "—"
@@ -171,6 +227,10 @@ class GameSavesManager(QDialog):
         has_game = bool(self._controller) and self.games.currentItem() is not None
         self.activate_button.setEnabled(has_game)
         self.delete_button.setEnabled(has_game)
+        # Both act on the selected *save*, so they follow that table, not these.
+        has_save = bool(self._controller) and self.table.currentItem() is not None
+        self.summary_button.setEnabled(has_save)
+        self.open_button.setEnabled(has_save)
 
     def _refresh(self) -> None:
         if self._controller is not None:

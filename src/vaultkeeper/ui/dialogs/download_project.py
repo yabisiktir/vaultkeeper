@@ -113,6 +113,8 @@ class DownloadProjectDialog(QDialog):
         self.file_tree = QTreeWidget()
         self.file_tree.setHeaderLabels(["File", "Size", "Status"])
         self.file_tree.setRootIsDecorated(False)
+        self.file_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.file_tree.customContextMenuRequested.connect(self._on_files_menu)
         self.file_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         config.addWidget(self.file_tree, 1)
         self.config_box.setVisible(False)
@@ -195,6 +197,33 @@ class DownloadProjectDialog(QDialog):
         self._render_files()
         self.status.setText(
             f"{len(files)} file(s) found." if files else "No files found."
+        )
+
+    def _on_files_menu(self, point) -> None:
+        """Copy the file name or its direct link (VB CmCopyFilename / CmCopyLink)."""
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QApplication, QMenu
+
+        index = self.file_tree.indexOfTopLevelItem(self.file_tree.currentItem())
+        vsi = self._files[index] if 0 <= index < len(self._files) else None
+        menu = QMenu(self)
+
+        name = menu.addAction("Copy File Name to Clipboard")
+        name.setEnabled(vsi is not None)
+        name.triggered.connect(
+            lambda: QApplication.clipboard().setText(vsi.filename if vsi else "")
+        )
+        link = menu.addAction("Copy Direct File Link to Clipboard")
+        # Only when there is a link to copy — a menu entry that silently copies
+        # an empty string is worse than one that is greyed out.
+        link.setEnabled(bool(vsi and (vsi.direct_url or vsi.counter_url)))
+        link.triggered.connect(
+            lambda: QApplication.clipboard().setText(
+                (vsi.direct_url or vsi.counter_url) if vsi else ""
+            )
+        )
+        menu.exec(
+            self.file_tree.viewport().mapToGlobal(point) if point else QCursor.pos()
         )
 
     def _render_files(self) -> None:

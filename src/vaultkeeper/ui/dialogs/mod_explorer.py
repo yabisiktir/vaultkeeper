@@ -79,10 +79,24 @@ class ModExplorer(QDialog):
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(self._populate)
         bar.addWidget(self._search, 1)
+        # State, with the comparison VB offers (TsStateLess / TsStateEqual /
+        # TsStateGreater). The State enum runs from "no installer" up through
+        # partly-installed to overridden, so "more files installed" really is a
+        # greater ordinal — which is the only way to ask "what is half-installed?"
         bar.addWidget(QLabel("State:"))
+        self._state_op = QComboBox()
+        for label, op in (
+            ("matching", "="),
+            ("more files installed than", ">"),
+            ("less files installed than", "<"),
+        ):
+            self._state_op.addItem(label, op)
+        self._state_op.currentIndexChanged.connect(self._populate)
+        bar.addWidget(self._state_op)
         self._state = QComboBox()
         self._state.addItem("All states", "")
-        for state in sorted({r["state"] for r in self._rows if r["state"]}):
+        known = {r["state"]: r.get("state_value", 0) for r in self._rows if r["state"]}
+        for state, _value in sorted(known.items(), key=lambda kv: kv[1]):
             self._state.addItem(state, state)
         self._state.currentIndexChanged.connect(self._populate)
         bar.addWidget(self._state)
@@ -164,8 +178,7 @@ class ModExplorer(QDialog):
         query = self._search.text().strip().lower()
         if query and query not in row["mod"].lower() and query not in row["group"].lower():
             return False
-        want_state = self._state.currentData()
-        if want_state and row["state"] != want_state:
+        if not self._passes_state(row):
             return False
         group = row.get("group")
         if group and not self._group_filters.get(group, True):
@@ -176,6 +189,30 @@ class ModExplorer(QDialog):
         if not self._passes_rating_comparison(rating):
             return False
         return not (self._only_completed.isChecked() and not row["completed"])
+
+    def _passes_state(self, row: dict) -> bool:
+        """Compare the row's state with the chosen one (VB ``FilterState``).
+
+        VB writes this as an *exclusion*: with ``<`` it drops anything whose
+        state is greater than or equal to the chosen one, and so on. Stated
+        positively it is the plain comparison, which is what the labels say.
+        """
+        want = self._state.currentData()
+        if not want:
+            return True
+        chosen = self._state_values().get(want)
+        value = row.get("state_value")
+        if chosen is None or value is None:
+            return row["state"] == want  # no ordinal available: exact match
+        operand = self._state_op.currentData()
+        if operand == "=":
+            return value == chosen
+        if operand == ">":
+            return value > chosen
+        return value < chosen
+
+    def _state_values(self) -> dict[str, int]:
+        return {r["state"]: r.get("state_value", 0) for r in self._rows if r["state"]}
 
     def _passes_rating_comparison(self, rating: str) -> bool:
         """Compare against the chosen rating with =, > or < (VB CmOperand_Click).
@@ -239,6 +276,7 @@ class ModExplorer(QDialog):
         """Reset the text filters, leaving the include/exclude sets (VB TsClearTextFilters)."""
         self._search.clear()
         self._state.setCurrentIndex(0)
+        self._state_op.setCurrentIndex(0)
         self._rating_op.setCurrentIndex(0)
         self._only_completed.setChecked(False)
         self._populate()
