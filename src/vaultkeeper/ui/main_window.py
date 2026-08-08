@@ -320,12 +320,21 @@ class MainWindow(QMainWindow):
 
         self._play_data_viewer = PlayDataViewer.show_for(self.controller, self)
 
-    def _update_played_info(self, mod_name: str | None) -> None:
-        """Refresh the right-aligned play-time menubar item for the selected mod."""
-        if self.controller is None or not mod_name:
+    def _update_played_info(self, mod_name: str | None = None) -> None:
+        """Refresh the right-aligned play-time readout (VB ``Defs.TitleInfo``).
+
+        It reports the *game*, not the selection — the mod name is accepted and
+        ignored so the existing selection hooks keep it current. It used to show
+        the selected mod's time and nothing otherwise, which meant most people
+        never saw it at all.
+        """
+        if self.controller is None:
             self._played_info.setText("")
+            self._played_info.setToolTip("")
             return
-        self._played_info.setText(self.controller.mod_played_info(mod_name))
+        info = self.controller.play_time_info()
+        self._played_info.setText(info["text"])
+        self._played_info.setToolTip(info["tooltip"])
 
     def _restore_geometry(self) -> None:
         """Restore the saved window size/position if the preference is on."""
@@ -552,6 +561,9 @@ class MainWindow(QMainWindow):
         self._populate_mod_selector()
         self._update_status()
         self._update_title()
+        # The play-time readout reports the game, so it is current from the
+        # moment a profile opens rather than waiting for a mod to be clicked.
+        self._update_played_info()
         total, _ = self.controller.counts()
         if total == 0:
             self._details.setHtml(

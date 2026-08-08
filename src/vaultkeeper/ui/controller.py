@@ -8,7 +8,7 @@ the whole app flow testable without Qt.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
@@ -4788,20 +4788,119 @@ class ProfileController:
                 )
         return {"rows": rows, "count": len(rows)}
 
-    def mod_played_info(self, mod_name: str) -> str:
-        """A short play-time summary for a mod (VB right-aligned ``MsPlayedInfo``).
+    def play_time_info(self) -> dict:
+        """The menu bar's play-time readout (VB ``Defs.TitleInfo``).
 
-        Returns e.g. ``"My Mod played for 3 hours 20 mins"`` or ``""`` when there is
-        no play data / no selection. Read from the mod's total tracked play time.
+        Keyed on the **game being played**, not on whatever is selected in the
+        list — the two are different questions, and the port answered the wrong
+        one, which left the readout blank for anyone who had not clicked a mod
+        with recorded time. VB is never blank once a profile is open; where it
+        has nothing better to say it says what the total is.
+
+        Returns ``{"text", "tooltip"}``.
         """
+        from vaultkeeper.core.formatting import to_date_string
+
         loop = self.play_loop
-        if loop is None or not mod_name:
-            return ""
+        if loop is None:
+            return {"text": "", "tooltip": ""}
         pdm = loop.play_data
-        span = pdm.pdi.play_times.get(mod_name)
-        if span is None or span.total_seconds() <= 0:
+        current = getattr(pdm.settings, "play_time_mod", "") or ""
+
+        text = ""
+        tooltip = ""
+        if current:
+            played = pdm.pdi.play_times.get(current) or getattr(
+                pdm.settings, "play_time", timedelta()
+            )
+            if played.total_seconds() >= 1:
+                text = pdm.format_time(played, "Played for")
+                tooltip = "\n".join(
+                    part
+                    for part in (
+                        pdm.format_days(played, "", "") if self._is_long(pdm, played) else "",
+                        self._started_info(pdm, current),
+                        self._played_today(pdm),
+                    )
+                    if part
+                )
+            else:
+                text = "Mod play time unknown"
+        elif pdm.pdi.total_played.total_seconds() == 0:
+            text = "NWN not played"
+        elif pdm.pdi.total_today.total_seconds() > 1:
+            text = f"Played for {pdm.format_time(pdm.pdi.total_today, '')} today"
+        elif pdm.pdi.last_played != to_date_string(datetime.now()):
+            text = self._played_today(pdm, prefix="Not")
+        else:
+            # The state the owner saw in the original's screenshot and could not
+            # find here: nothing else to report, so report the total.
+            text = f"Total time played: {pdm.format_time(pdm.pdi.total_played, '')}"
+            if self._is_long(pdm, pdm.pdi.total_played):
+                tooltip = pdm.format_days(pdm.pdi.total_played, "", "")
+
+        average = self._average_play_time_text()
+        if not tooltip:
+            tooltip = "\n".join(p for p in (self._started_info(pdm, current), average) if p)
+        elif average:
+            tooltip = f"{tooltip}\n\n{average}"
+        return {"text": text, "tooltip": tooltip}
+
+    @staticmethod
+    def _is_long(pdm, played) -> bool:
+        """Whether a span is worth spelling out in days/weeks as well as hours."""
+        factor = getattr(pdm.settings, "config_day_conversion_factor", 24) or 24
+        return played.days > 0 or (played.seconds // 3600) > factor
+
+    def _started_info(self, pdm, mod_name: str) -> str:
+        """"Started Today for the 2nd time." (VB's ``startInfo``)."""
+        if not mod_name:
             return ""
-        return f"{mod_name} played for {pdm.format_time(span, '')}"
+        started = pdm.start_date(mod_name)
+        if started is None:
+            return ""
+        md = self.pd.mod_item(mod_name)
+        count = ""
+        if md is not None:
+            count = f" for the {_ordinal(md.completed_count + 1)} time"
+        days = (datetime.now() - started).days
+        if days < 2:
+            when = "Today" if started.date() == date.today() else "Yesterday"
+            return f"Started {when}{count}."
+        return f"Started {started.strftime('%d %b %Y')}, {days:,} days ago{count}."
+
+    @staticmethod
+    def _played_today(pdm, prefix: str = "") -> str:
+        """How long ago NWN was last played (VB ``PlayedTodayText``)."""
+        from vaultkeeper.core.formatting import to_date_string
+
+        if not prefix and pdm.pdi.total_today.total_seconds() > 1:
+            return f"Played for {pdm.format_time(pdm.pdi.total_today, '')} today."
+        if not prefix and pdm.pdi.last_played == to_date_string(datetime.now()):
+            return "You have not played today."
+        prefix = prefix or "You have not"
+        from vaultkeeper.core.formatting import parse_date_string
+
+        last = parse_date_string(pdm.pdi.last_played or "")
+        if last is None:
+            return "Last played date corrupted"
+        days = (date.today() - last.date()).days
+        if days > 1:
+            return f"{prefix} played for {days:,} days"
+        return f"{prefix} played since yesterday"
+
+    def _average_play_time_text(self) -> str:
+        """The two average lines VB always puts in the tooltip."""
+        daily = self._load_daily_play_time()
+        average = daily.daily_average_hours()
+        loop = self.play_loop
+        factor = 24
+        if loop is not None:
+            factor = getattr(loop.play_data.settings, "config_day_conversion_factor", 24)
+        return (
+            f"Average Play Time per Day: {average} hour{'s' if average != 1 else ''}.\n"
+            f"Play Time Hours per Day: {factor} hours selected."
+        )
 
     def mod_play_report(self) -> dict:
         """Mods with a module file, oldest-completed first (VB ``ModPlayViewer``).
