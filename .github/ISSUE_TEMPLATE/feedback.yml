@@ -1,0 +1,17 @@
+name: Feedback or idea
+description: A suggestion, or something that could work better
+labels: [feedback]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you change
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: >
+        What you were trying to do when it came up. This matters more than the
+        proposed fix — it is what makes a different, better fix findable.

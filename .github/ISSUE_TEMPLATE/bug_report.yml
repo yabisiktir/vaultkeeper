@@ -1,0 +1,46 @@
+name: Bug report
+description: Something behaved differently from how it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reporting from inside the app — **Help → Send Feedback** — fills the
+        version and platform in for you.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what happened instead of what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Click …
+        3. …
+  - type: input
+    id: version
+    attributes:
+      label: Vaultkeeper version
+      description: Help → About.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: macOS 15.5 (arm64) / Windows 11 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: >
+        Optional. Help → Vaultkeeper Log. Paths in it may identify you, so read
+        it before pasting.
+      render: text

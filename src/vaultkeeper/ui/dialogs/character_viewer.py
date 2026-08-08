@@ -29,10 +29,12 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QPushButton,
     QSplitter,
     QTabWidget,
     QTextEdit,
+    QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -154,14 +156,26 @@ class CharacterViewer(QDialog):
         self._count_label = QLabel()
         bar.addWidget(self._count_label)
         bar.addStretch(1)
-        # VB TsCopyDetails / TsCopyLevel: put the selected character's summary /
-        # class-level line on the clipboard.
-        self._copy_details_btn = QPushButton("Copy Details")
-        self._copy_details_btn.clicked.connect(self._on_copy_details)
-        bar.addWidget(self._copy_details_btn)
-        self._copy_level_btn = QPushButton("Copy Level")
-        self._copy_level_btn.clicked.connect(self._on_copy_level)
-        bar.addWidget(self._copy_level_btn)
+        # One image-only clipboard button with the two copies under it, as the
+        # original has them (VB TsClipboard → TsCopyDetails / TsCopyLevel, with
+        # the CopyOffice2016 icon). Two labelled push buttons were not a port.
+        self._clipboard_btn = QToolButton()
+        self._clipboard_btn.setIcon(R.get_icon("CopyOffice2016"))
+        self._clipboard_btn.setToolTip("Copy to the Clipboard")
+        self._clipboard_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        menu = QMenu(self._clipboard_btn)
+        self._copy_details_action = menu.addAction(
+            R.get_icon("CopyPagesArrow_16x"),
+            "Copy Summary Details to the Clipboard",
+            self._on_copy_details,
+        )
+        self._copy_level_action = menu.addAction(
+            R.get_icon("CopyPageArrow_16x"),
+            "Copy Level Summary to the Clipboard",
+            self._on_copy_level,
+        )
+        self._clipboard_btn.setMenu(menu)
+        bar.addWidget(self._clipboard_btn)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         bar.addWidget(close)
@@ -369,8 +383,7 @@ class CharacterViewer(QDialog):
         cf = item.data(_CHAR_ROLE) if item is not None else None
         self._current_cf = cf
         has = cf is not None
-        self._copy_details_btn.setEnabled(has)
-        self._copy_level_btn.setEnabled(has)
+        self._clipboard_btn.setEnabled(has)
         if cf is None:
             self._summary.clear()
             self._portrait.clear()
@@ -393,10 +406,17 @@ class CharacterViewer(QDialog):
             QApplication.clipboard().setText(self._current_cf.summary(show_stats=True))
 
     def _on_copy_level(self) -> None:
-        """Copy the selected character's name + class/level line (VB TsCopyLevel)."""
+        """Copy the selected character's class/level line (VB TsCopyLevel).
+
+        The bare summary — "Level 12 (Fighter 8, Rogue 4)" — because that is what
+        VB puts on the clipboard (``LbInfo.Tag``, set from ``BicFileInfo``'s
+        ``LevelSummary``). This used to prepend the character's name, which
+        nothing in the original does and which is one more thing to delete after
+        pasting.
+        """
         cf = self._current_cf
         if cf is not None:
-            QApplication.clipboard().setText(f"{cf.display_name}: {level_summary(cf.info)}")
+            QApplication.clipboard().setText(level_summary(cf.info))
 
     def _populate_skills_and_feats(self, cf) -> None:
         self._skills.clear()

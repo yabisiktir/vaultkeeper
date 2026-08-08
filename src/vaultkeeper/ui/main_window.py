@@ -11,7 +11,7 @@ implemented so far and reports "not available yet" for the rest.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QSignalBlocker, Qt
+from PySide6.QtCore import QSignalBlocker, Qt, QUrl
 from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -1287,24 +1287,22 @@ class MainWindow(QMainWindow):
         AboutDialog.show_dialog(self)
 
     def _on_send_feedback(self) -> None:
-        """Open a feedback email draft (VB ``MsSendFeedback`` mailto).
+        """Open a new issue on the project, pre-filled (VB ``MsSendFeedback``).
 
-        The support address is the original app's (de-obfuscated from its
-        ``Application Definitions.txt``); ``mailto:`` only drafts, never sends.
+        VB drafts an email to its author's personal support address. This used to
+        copy that address verbatim, which sent Vaultkeeper's bug reports to
+        Surazal — who maintains the original, not this port, and did not sign up
+        to answer for it. Feedback belongs where the code is.
+
+        The environment block is filled in here because it is the part everyone
+        forgets and everyone gets asked for. Nothing is sent: the browser opens
+        on a pre-filled form the user can read, edit and abandon.
         """
-        from PySide6.QtCore import QUrl, QUrlQuery
         from PySide6.QtGui import QDesktopServices
 
-        url = QUrl("mailto:surazal@lazweb.net")
-        query = QUrlQuery()
-        query.addQueryItem("subject", "Vaultkeeper Feedback")
-        query.addQueryItem(
-            "body",
-            "Please provide as much information as possible "
-            "(eg screenshots, Vaultkeeper Log, etc).",
-        )
-        url.setQuery(query)
-        QDesktopServices.openUrl(url)
+        from vaultkeeper.ui.feedback import feedback_url
+
+        QDesktopServices.openUrl(QUrl(feedback_url()))
 
     def _remove_files(self, method: str, label: str) -> None:
         """Run a per-mod file-removal cleanup on the selection and report the count."""

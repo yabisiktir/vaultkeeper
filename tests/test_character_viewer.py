@@ -74,10 +74,39 @@ def test_copy_details_and_level_to_clipboard(qtbot, tmp_path):
     dlg._on_copy_details()
     assert "Alpha Hero" in QApplication.clipboard().text()
 
+    # The bare level summary, as VB copies it (LbInfo.Tag ← BicFileInfo's
+    # LevelSummary). It used to be prefixed with the character's name, which
+    # nothing in the original does and which is one more thing to delete after
+    # pasting.
     dlg._on_copy_level()
     level = QApplication.clipboard().text()
-    assert level.startswith("Alpha Hero:")
+    assert level.startswith("Level ")
+    assert "Alpha Hero" not in level
     assert "Bard 5" in level  # class/level line
+
+
+def test_the_two_copies_live_under_one_clipboard_button(qtbot, tmp_path):
+    """VB TsClipboard: an image-only drop-down, not two labelled push buttons."""
+    dlg = CharacterViewer([_char("Alpha Hero", tmp_path / "a.bic")], None)
+    qtbot.addWidget(dlg)
+    assert not dlg._clipboard_btn.icon().isNull()
+    assert dlg._clipboard_btn.text() == ""  # image only, as in the original
+    captions = [a.text() for a in dlg._clipboard_btn.menu().actions()]
+    assert captions == [
+        "Copy Summary Details to the Clipboard",
+        "Copy Level Summary to the Clipboard",
+    ]
+
+
+def test_the_clipboard_button_is_dead_until_a_character_is_picked(qtbot, tmp_path):
+    dlg = CharacterViewer([_char("Alpha Hero", tmp_path / "a.bic")], None)
+    qtbot.addWidget(dlg)
+    # Driven directly: the list already sits on row 0, so setCurrentRow(0) would
+    # be a no-op and never re-emit currentRowChanged.
+    dlg._on_row(-1)
+    assert not dlg._clipboard_btn.isEnabled()
+    dlg._on_row(0)
+    assert dlg._clipboard_btn.isEnabled()
 
 
 def test_viewer_populates_list_and_summary(qtbot, tmp_path):
