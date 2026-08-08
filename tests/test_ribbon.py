@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.ribbon import ADDED_BUTTONS, RIBBON_TABS, VB_RIBBON_TABS, Ribbon
 
@@ -125,3 +127,97 @@ def test_the_workshop_ribbon_button_opens_the_same_screen_as_the_menu(qtbot):
     handlers = window._command_handlers()
     assert handlers["RbnManageWorkshop"] == handlers["MsWorkshopViewer"]
     assert "RbnManageWorkshop" in window.implemented_commands()
+
+
+# -- right-click alternates (VB Rbn*/Ms*_MouseUp) ------------------------------- #
+def test_a_ribbon_button_reports_a_right_click(qtbot):
+    """Qt has no signal for it, and a behaviour with no signal cannot be wired."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    from vaultkeeper.ui.ribbon import Ribbon
+
+    ribbon = Ribbon()
+    qtbot.addWidget(ribbon)
+    ribbon.show()
+    seen = []
+    ribbon.action_right_clicked.connect(seen.append)
+    button = ribbon.button("RbnPlay")
+    QTest.mouseClick(button, Qt.MouseButton.RightButton)
+    assert seen == ["RbnPlay"]
+
+
+def test_a_left_click_is_still_an_ordinary_click(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    from vaultkeeper.ui.ribbon import Ribbon
+
+    ribbon = Ribbon()
+    qtbot.addWidget(ribbon)
+    ribbon.show()
+    left, right = [], []
+    ribbon.action_triggered.connect(left.append)
+    ribbon.action_right_clicked.connect(right.append)
+    QTest.mouseClick(ribbon.button("RbnPlay"), Qt.MouseButton.LeftButton)
+    assert left == ["RbnPlay"] and right == []
+
+
+def test_right_clicking_play_opens_the_start_screen_manager(qtbot, tmp_path):
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    win._on_command_right_clicked("RbnPlay")  # no controller: must not raise
+
+    opened = []
+    win.controller = object()
+    win._on_loadscreens = lambda: opened.append("loadscreens")
+    win._on_command_right_clicked("RbnPlay")
+    assert opened == ["loadscreens"]
+
+
+def test_right_clicking_portrait_manager_opens_the_portrait_site(qtbot, tmp_path):
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+
+    class Ctrl:
+        @staticmethod
+        def _settings():
+            return Settings(portrait_image_web_page="https://portraits.example")
+
+    win.controller = Ctrl()
+    urls = []
+    win._open_url = urls.append
+    win._on_command_right_clicked("MsPortraitManager")
+    assert urls == ["https://portraits.example"]
+
+
+def test_with_no_portrait_site_set_it_says_so(qtbot):
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+
+    class Ctrl:
+        @staticmethod
+        def _settings():
+            return Settings(portrait_image_web_page="")
+
+    win.controller = Ctrl()
+    win._open_url = lambda url: pytest.fail("nothing to open")
+    win._on_command_right_clicked("MsPortraitManager")
+    assert "No portrait image web page" in win.nit_status.mg_info.text()
+
+
+def test_a_command_with_no_alternate_does_nothing(qtbot):
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    win.controller = object()
+    win._on_command_right_clicked("RbnInstallUninstall")  # must not raise

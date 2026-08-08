@@ -82,3 +82,66 @@ def test_info_setter(qtbot):
     qtbot.addWidget(bar)
     bar.set_info("Installed 3 files")
     assert bar.mg_info.text() == "Installed 3 files"
+
+
+# -- the icons were dead to the click ------------------------------------------- #
+def test_a_status_icon_reports_a_right_click(qtbot):
+    """Each carries a second, related screen on the right button (VB Bt*_MouseUp)."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    bar = NitStatusBar()
+    qtbot.addWidget(bar)
+    bar.show()
+    seen = []
+    bar.character_right_clicked.connect(lambda: seen.append("character"))
+    QTest.mouseClick(bar.bt_character, Qt.MouseButton.RightButton)
+    assert seen == ["character"]
+
+
+def test_a_left_click_still_reaches_the_ordinary_signal(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    bar = NitStatusBar()
+    qtbot.addWidget(bar)
+    bar.show()
+    left, right = [], []
+    bar.character_clicked.connect(lambda: left.append(1))
+    bar.character_right_clicked.connect(lambda: right.append(1))
+    QTest.mouseClick(bar.bt_character, Qt.MouseButton.LeftButton)
+    assert left == [1] and right == []
+
+
+def test_every_clickable_icon_is_connected_to_something(qtbot):
+    """Every one but Mods emitted into the void: the icons did nothing at all.
+
+    Their tooltips promised otherwise — the pending-changes icon says it will
+    "display details about files added, removed or changed", and clicking it
+    did nothing whatsoever.
+    """
+    from PySide6.QtCore import QMetaMethod
+
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    bar = win.nit_status
+    unconnected = [
+        name
+        for name in (
+            "mods_clicked",
+            "group_clicked",
+            "info_clicked",
+            "wizard_clicked",
+            "character_clicked",
+            "health_clicked",
+            "file_check_clicked",
+            "character_right_clicked",
+            "wizard_right_clicked",
+            "select_file_right_clicked",
+            "recycle_right_clicked",
+        )
+        if not bar.isSignalConnected(QMetaMethod.fromSignal(getattr(bar, name)))
+    ]
+    assert not unconnected, f"status-bar signals nothing listens to: {unconnected}"

@@ -138,8 +138,21 @@ read to the end. Reviewed:
 | Portrait Manager command | Right-click → open the portrait image web page | **GAP** — and the setting it needs (`portrait_image_web_page`) is one nothing reads |
 | Character Explorer skills/feats | Double-click → the description | Different shape: shown in a panel beside the list |
 | Play Data Viewer game row | Right-click → set the start date | **Ported** (this session) |
-| Recycle toggle, Select Text File, Wizard Report | Right-click alternates | Not reviewed |
+| Character status icon | Right-click → Character Summary | **Ported** |
+| Play ribbon button | Right-click → Start Screen Manager | **Ported** |
+| Portrait Manager command | Right-click → the portrait image web page | **Ported** — and its setting is read at last |
+| Recycle toggle | Right-click → open the Trash | **Ported** |
+| Select Text File icon | Right-click → Documentation Organiser | **Ported** |
+| Wizard Report icon | Right-click → Wizard Builder | **Ported** |
 | Installation Analyser, Find and Rename, Portrait Manager lists | Double-click a row | Not reviewed |
+
+Reviewing those turned up something none of the three sweeps was looking for:
+**the status bar's icons were connected to nothing at all**. Ten of its eleven
+signals were emitted into the void, so every icon but *Mods* was dead to the
+click — including the pending-changes icon, whose own tooltip promises to
+"display details about files added, removed or changed". A signal with no
+receiver is the same shape of defect as a setting with no reader, and a test now
+fails if any of them goes unconnected again.
 
 ## A verdict this file got wrong
 

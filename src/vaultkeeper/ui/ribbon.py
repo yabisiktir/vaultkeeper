@@ -140,6 +140,9 @@ RIBBON_TABS: tuple[tuple[str, tuple[RibbonItem, ...]], ...] = _with_additions(
 class RibbonButton(QToolButton):
     """A ribbon button (VB ``ButtonLabel``): 32×32 image over a two-line caption."""
 
+    #: Right-click on this button (VB ``Rbn*_MouseUp``).
+    right_clicked = Signal(str)
+
     def __init__(self, item: RibbonItem, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.action_id = item.action
@@ -152,12 +155,24 @@ class RibbonButton(QToolButton):
         self.setMinimumWidth(84)
         self.setMinimumHeight(64)
 
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802 - Qt override
+        if event.button() == Qt.MouseButton.RightButton and self.rect().contains(
+            event.position().toPoint()
+        ):
+            self.right_clicked.emit(self.action_id)
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
 
 class Ribbon(QTabWidget):
     """The main window ribbon (VB ``TbRibbon``)."""
 
     #: Emitted with a button's VB control-name id when it is clicked.
     action_triggered = Signal(str)
+    #: The same, for a right-click. Several ribbon buttons carry a second,
+    #: related screen on the right button in the original (VB Rbn*_MouseUp).
+    action_right_clicked = Signal(str)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -179,6 +194,7 @@ class Ribbon(QTabWidget):
             button.clicked.connect(
                 lambda _=False, a=item.action: self.action_triggered.emit(a)
             )
+            button.right_clicked.connect(self.action_right_clicked)
             self.buttons[item.action] = button
             layout.addWidget(button)
         layout.addStretch(1)

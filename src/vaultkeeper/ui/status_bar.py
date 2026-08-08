@@ -45,8 +45,29 @@ _SELECT_TOOLTIP = {
 }
 
 
-def _icon_button(image: str, tooltip: str) -> QToolButton:
-    button = QToolButton()
+class StatusIconButton(QToolButton):
+    """A status-bar icon that reports right-clicks as well as clicks.
+
+    Every one of these has a second, related screen behind the right button in
+    the original — the Character Restorer icon opens the character summary, the
+    Wizard icon opens the Wizard Builder, and so on. Qt gives no signal for it,
+    and a behaviour with no signal is one nothing can wire.
+    """
+
+    right_clicked = Signal()
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802 - Qt override
+        if event.button() == Qt.MouseButton.RightButton and self.rect().contains(
+            event.position().toPoint()
+        ):
+            self.right_clicked.emit()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+
+def _icon_button(image: str, tooltip: str) -> StatusIconButton:
+    button = StatusIconButton()
     button.setAutoRaise(True)
     button.setIcon(R.get_icon(image))
     button.setIconSize(QSize(16, 16))
@@ -81,6 +102,10 @@ class NitStatusBar(QStatusBar):
     health_clicked = Signal()
     wizard_clicked = Signal()
     character_clicked = Signal()
+    character_right_clicked = Signal()
+    wizard_right_clicked = Signal()
+    select_file_right_clicked = Signal()
+    recycle_right_clicked = Signal()
     select_file_clicked = Signal()
     overwrite_toggled = Signal(bool)
     recycle_toggled = Signal(bool)
@@ -172,6 +197,11 @@ class NitStatusBar(QStatusBar):
         self.bt_health.clicked.connect(self.health_clicked)
         self.bt_wizard.clicked.connect(self.wizard_clicked)
         self.bt_character.clicked.connect(self.character_clicked)
+        # Right-click alternates (VB Bt*_MouseUp): each icon's second screen.
+        self.bt_character.right_clicked.connect(self.character_right_clicked)
+        self.bt_wizard.right_clicked.connect(self.wizard_right_clicked)
+        self.bt_select_file.right_clicked.connect(self.select_file_right_clicked)
+        self.bt_recycle.right_clicked.connect(self.recycle_right_clicked)
         self.bt_select_file.clicked.connect(self.select_file_clicked)
         self.bt_overwrite.clicked.connect(self._on_overwrite)
         self.bt_recycle.clicked.connect(self._on_recycle)

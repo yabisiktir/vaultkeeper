@@ -114,6 +114,7 @@ class MainWindow(QMainWindow):
         # Command chrome (faithful ports of the VB ribbon/toolbar/status bar).
         self.ribbon = Ribbon()
         self.ribbon.action_triggered.connect(self._on_command)
+        self.ribbon.action_right_clicked.connect(self._on_command_right_clicked)
         self.quick_toolbar = QuickToolbar()
         self.quick_toolbar.action_triggered.connect(self._on_command)
         self.addToolBar(self.quick_toolbar)
@@ -128,6 +129,25 @@ class MainWindow(QMainWindow):
 
         self.nit_status = NitStatusBar()
         self.nit_status.mods_clicked.connect(self._on_profile_menu)
+        # The rest of the status bar's icons emitted signals nobody listened to,
+        # so every one of them was dead to the click (VB's Status Bar topic
+        # describes them all as clickable, with a second screen on the right
+        # button — VB Bt*_MouseUp).
+        self.nit_status.group_clicked.connect(self._on_go_to_group)
+        self.nit_status.info_clicked.connect(lambda: self.nit_status.set_info(""))
+        self.nit_status.wizard_clicked.connect(self._on_wizard_builder)
+        self.nit_status.wizard_right_clicked.connect(self._on_wizard_builder)
+        self.nit_status.character_clicked.connect(self._on_characters)
+        self.nit_status.character_right_clicked.connect(self._on_characters)
+        self.nit_status.select_file_right_clicked.connect(self._on_doc_organiser)
+        self.nit_status.recycle_right_clicked.connect(self._on_open_recycle_bin)
+        self.nit_status.health_clicked.connect(
+            lambda: self._on_view_file("MsNwnClientLogFile")
+        )
+        # "Display details about files added, removed or changed in the NWN
+        # installation folder" — its own tooltip, promising something no click
+        # delivered. That report is the conflicts viewer.
+        self.nit_status.file_check_clicked.connect(self._on_conflicts)
         self.setStatusBar(self.nit_status)
 
         self._build_menu()
@@ -1652,6 +1672,60 @@ class MainWindow(QMainWindow):
         result = self.controller.remove_illegal_mod_files()
         self.refresh()
         self.nit_status.set_info(result["message"])
+
+    def _on_command_right_clicked(self, action_id: str) -> None:
+        """A command's right-click alternate (VB ``Rbn*``/``Ms*_MouseUp``).
+
+        Each of these opens the screen the command is *about* rather than the
+        one it does: right-clicking Play opens the Start Screen Manager, because
+        the start screen is the thing you see when you play.
+        """
+        if self.controller is None:
+            return
+        alternates = {
+            "RbnPlay": self._on_loadscreens,
+            "RbnPortraitManager": self._on_portrait_web_page,
+            "MsPortraitManager": self._on_portrait_web_page,
+        }
+        handler = alternates.get(action_id)
+        if handler is not None:
+            handler()
+
+    def _on_portrait_web_page(self) -> None:
+        """Open the site portraits are sourced from (VB ``MsPortraitManager`` right-click).
+
+        Silent when no site is configured, which is how VB treats it — the
+        setting existed here and nothing had ever read it.
+        """
+        page = self.controller._settings().portrait_image_web_page.strip()
+        if page:
+            self._open_url(page)
+        else:
+            self.nit_status.set_info(
+                "No portrait image web page is set (Settings → Character / Save Viewer)."
+            )
+
+    def _on_open_recycle_bin(self) -> None:
+        """Open the OS trash (VB ``BtRecycleToggle`` right-click → explorer)."""
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        try:
+            if sys.platform == "darwin":
+                subprocess.Popen(["open", str(Path.home() / ".Trash")])
+            elif sys.platform == "win32":
+                subprocess.Popen(["explorer.exe", "shell:RecycleBinFolder"])
+            else:
+                QDesktopServices.openUrl(
+                    QUrl.fromLocalFile(str(Path.home() / ".local/share/Trash/files"))
+                )
+        except OSError:
+            log.exception("Could not open the recycle bin")
+            self.nit_status.set_info("Could not open the Recycle Bin / Trash.")
 
     def _on_create_restorer(self) -> None:
         """Create a Restorer (VB ``MsCreateRestorer``).
