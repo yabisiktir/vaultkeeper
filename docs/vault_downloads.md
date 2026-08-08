@@ -95,6 +95,39 @@ Restorers, the base-game modules NWN installed, converted `.nwm` mods and the
 application's own auto-maintained mods are skipped: none has a Vault page, and
 searching for one would report two dozen problems that are nothing of the kind.
 
+## After a download: the version it replaced
+
+Downloading v1.2 over v1.1 leaves v1.1 in the mod's `_Downloads` folder for
+ever. Nothing removed it, and it mattered twice over: four versions of a 400 MB
+module take up 1.6 GB, and building the installer picks up whichever the
+extractor reaches first.
+
+So a download that appears to have replaced something offers to tidy up. Which
+files those are cannot be asked of the Vault — a project publishes what it
+publishes now and says nothing about what it used to — so it is read from the
+names, both ways mods are versioned:
+
+* a **version suffix** — `mymodule_1_1.7z` and `mymodule_1_2.7z` share the stem
+  `mymodule`;
+* a **date** — `mymodule_20250104.7z` and `mymodule_20260214.7z` are the same
+  name with the date taken out.
+
+Confident matches arrive ticked. Everything else in the folder of a matching
+kind is listed **unticked**, because the folder is easier to tidy when you can
+see all of it — and because name-matching genuinely cannot tell two versions of
+a mod from two halves of a set (`cep_3.1.4_-_part_1`).
+
+Three answers, and the order is the argument:
+
+| | |
+|---|---|
+| **Keep in _History** (default) | Moves them into the mod's `_History` folder, out of the installer's way. An old release is sometimes the last copy in existence; a folder costs nothing next to that. |
+| **Delete** | Honours your recycle-bin setting, so it is still recoverable. |
+| **Leave them** | Changes nothing. |
+
+Files already in `_History` or `_Published` are never touched, and a file being
+re-downloaded is never offered — it is about to be overwritten, not superseded.
+
 ## The download rules
 
 The rules file is **published online, not shipped with the application**, and

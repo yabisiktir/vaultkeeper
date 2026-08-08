@@ -519,6 +519,8 @@ class DownloadProjectDialog(QDialog):
             self.status.setText(
                 f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
             )
+            if ok:
+                self.offer_old_downloads(mod, [r.info for r in results if r.ok])
 
         self.start_job(work, done)
 
@@ -553,8 +555,35 @@ class DownloadProjectDialog(QDialog):
                     f"Downloaded {result['downloaded']} of {result['total']} file(s), "
                     f"but could not build the installer for '{mod}'."
                 )
+            if result["downloaded"]:
+                self.offer_old_downloads(mod, files)
 
         self.start_job(work, done)
+
+    def offer_old_downloads(self, mod: str, downloaded: list) -> None:
+        """Offer to clear out what this download appears to have replaced.
+
+        Only ever *offers*: nothing here decides that two archives are versions
+        of each other, and the previous release of a mod is sometimes the last
+        copy in existence.
+        """
+        names = [
+            (info.local_filename or info.filename)
+            for info in downloaded
+            if (info.local_filename or info.filename)
+        ]
+        old = self.controller.superseded_downloads(mod, names)
+        if not old:
+            return
+        from vaultkeeper.ui.dialogs.old_downloads import OldDownloadsDialog
+
+        dlg = OldDownloadsDialog(mod, old, self)
+        if dlg.exec() != QDialog.DialogCode.Accepted or not dlg.action:
+            return
+        result = self.controller.remove_old_downloads(
+            dlg.checked_paths(), to_history=dlg.action == "history"
+        )
+        self.status.setText(f"{self.status.text()} {result['message']}")
 
     def closeEvent(self, event) -> None:
         """Refuse to close mid-job — the signals would arrive at a deleted dialog."""

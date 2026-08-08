@@ -2657,6 +2657,75 @@ class ProfileController:
         )
         return downloader.download_all(files, dest)
 
+    def superseded_downloads(self, mod_name: str, incoming: list[str]) -> list:
+        """Files in a mod's downloads that the ones just fetched appear to replace.
+
+        Suggestions only (see :mod:`vaultkeeper.vault.old_downloads`); nothing is
+        removed until the user says which.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.vault.old_downloads import superseded
+
+        downloads = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
+        try:
+            existing = [p for p in downloads.rglob("*") if p.is_file()]
+        except OSError:
+            return []
+        return superseded(existing, list(incoming))
+
+    def remove_old_downloads(
+        self, paths: list, *, to_history: bool = False, to_trash: bool | None = None
+    ) -> dict:
+        """Delete the given downloads, or move them into the mod's ``_History``.
+
+        Keeping is the safer of the two and is offered first in the dialog: an
+        old release of a mod is sometimes the only copy left anywhere, and a
+        folder is cheaper than regretting it.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        if to_trash is None:
+            to_trash = bool(self._settings().recycle_on_delete)
+        moved = removed = 0
+        failures: list[str] = []
+        for path in [Path(p) for p in paths]:
+            try:
+                if to_history:
+                    # ``<mod>/_Downloads/…`` -> ``<mod>/_History``. Taken from the
+                    # file's own place rather than a mod name, so a file in a
+                    # subfolder of the downloads still lands in the right mod.
+                    mod_folder = path.parent
+                    while mod_folder.name and mod_folder.name != C.DOWNLOADS_DIR:
+                        mod_folder = mod_folder.parent
+                    history = mod_folder.parent / C.HISTORY_DIR
+                    history.mkdir(parents=True, exist_ok=True)
+                    target = history / path.name
+                    if target.exists():
+                        stamp = int(path.stat().st_mtime)
+                        target = history / f"{path.stem}-{stamp}{path.suffix}"
+                    path.replace(target)
+                    moved += 1
+                else:
+                    fs.delete(path, to_trash=to_trash, missing_ok=True)
+                    removed += 1
+            except OSError as ex:
+                failures.append(f"{path.name}: {ex}")
+        parts = []
+        if moved:
+            parts.append(f"Moved {moved} file{'s' if moved != 1 else ''} to _History")
+        if removed:
+            parts.append(f"Removed {removed} file{'s' if removed != 1 else ''}")
+        if failures:
+            parts.append(f"{len(failures)} could not be processed")
+        return {
+            "ok": not failures,
+            "moved": moved,
+            "removed": removed,
+            "failures": failures,
+            "message": ". ".join(parts) + "." if parts else "Nothing to do.",
+        }
+
     def suggested_mod_name(self, project_title: str) -> str:
         """A presentable mod folder name derived from a Vault project title.
 

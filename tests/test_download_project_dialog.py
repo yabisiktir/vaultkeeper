@@ -630,3 +630,66 @@ def test_the_title_names_the_download_rules_in_force(qtbot, tmp_path):
     dlg.url_edit.setText(url)
     dlg._on_fetch()
     assert "Rules revision" in dlg.windowTitle()
+
+
+def test_a_download_offers_to_clear_the_version_it_replaced(qtbot, tmp_path, monkeypatch):
+    """The folder otherwise keeps every version of a 400 MB module for ever."""
+    url = "http://vault/project/nwn1/module/mine"
+    payload = (
+        '{"project_id": 3, "title": "Mine", "attachments": ['
+        '{"filename": "mymodule_1_2.7z", "link": "http://cdn/new.7z", "size_bytes": 4}]}'
+    )
+    controller = _api_controller(tmp_path, url, payload)
+    controller._http.responses["http://cdn/new.7z"] = HttpResponse(
+        "http://cdn/new.7z", 200, content=b"NEW!"
+    )
+    controller.create_mod("My Mod")
+    downloads = tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR
+    downloads.mkdir(parents=True, exist_ok=True)
+    (downloads / "mymodule_1_1.7z").write_bytes(b"OLD")
+
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "My Mod")
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+
+    from vaultkeeper.ui.dialogs.old_downloads import OldDownloadsDialog
+
+    seen = {}
+
+    def fake_exec(self):
+        seen["names"] = [p.name for p in self.checked_paths()]
+        self.action = "history"
+        return QDialog.DialogCode.Accepted
+
+    monkeypatch.setattr(OldDownloadsDialog, "exec", fake_exec)
+    dlg._on_download()
+    _finish(qtbot, dlg)
+
+    assert seen["names"] == ["mymodule_1_1.7z"]
+    assert not (downloads / "mymodule_1_1.7z").exists()
+    assert (tmp_path / "Profiles" / "P" / "My Mod" / "_History" / "mymodule_1_1.7z").is_file()
+    assert (downloads / "mymodule_1_2.7z").read_bytes() == b"NEW!"
+
+
+def test_a_first_download_asks_nothing(qtbot, tmp_path, monkeypatch):
+    url = "http://vault/project/nwn1/module/mine"
+    payload = (
+        '{"project_id": 3, "title": "Mine", "attachments": ['
+        '{"filename": "mymodule_1_2.7z", "link": "http://cdn/new.7z", "size_bytes": 4}]}'
+    )
+    controller = _api_controller(tmp_path, url, payload)
+    controller._http.responses["http://cdn/new.7z"] = HttpResponse(
+        "http://cdn/new.7z", 200, content=b"NEW!"
+    )
+    from vaultkeeper.ui.dialogs.old_downloads import OldDownloadsDialog
+
+    monkeypatch.setattr(
+        OldDownloadsDialog, "exec", lambda self: pytest.fail("nothing was replaced")
+    )
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "Fresh")
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    dlg._on_download()
+    _finish(qtbot, dlg)
