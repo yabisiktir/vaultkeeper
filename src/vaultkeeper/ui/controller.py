@@ -2038,6 +2038,12 @@ class ProfileController:
                 continue
 
             md = _mod_from_dict(record)
+            # The record's file list describes the *other* machine's profile,
+            # and its keys embed that profile's group name. The disk is the
+            # truth once the archive is unpacked, so the list is rebuilt from it
+            # below — without clearing first, scan_mod_files appends a second
+            # copy of every file (18 files became 36 on a real mod).
+            md.files.clear()
             if existing is not None:
                 md.date_completed = existing.date_completed
                 md.completed_count = existing.completed_count

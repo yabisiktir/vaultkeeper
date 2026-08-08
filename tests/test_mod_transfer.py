@@ -41,6 +41,12 @@ def _make_mod(controller, name: str, *, group: str = "", downloads: bytes | None
         dl = folder / C.DOWNLOADS_DIR
         dl.mkdir(parents=True, exist_ok=True)
         (dl / "source.7z").write_bytes(downloads)
+    # Scan, so the mod *tracks* its files as a real profile does. Without this
+    # the exported record carries an empty file list, and an import bug that
+    # duplicates the list has nothing to duplicate.
+    controller.pd.scan_mod_files(
+        controller.pd.mod_item(name), controller.ctx.profile_mods_dir
+    )
     return folder
 
 
@@ -115,7 +121,11 @@ def test_round_trip_into_a_fresh_profile(tmp_path: Path):
     # The payload landed, and the profile knows about it.
     hak = target.ctx.profile_mods_dir / "Alpha" / C.MOD_INSTALLER_DIR / "hak" / "a.hak"
     assert hak.read_bytes() == b"HAKDATA"
-    assert any(fk.filename == "a.hak" for fk in md.files)
+    # Counted, not just "is it in there": the record carries the *other*
+    # machine's file list and the disk scan appends to it, so an import that
+    # forgets to clear first tracks every file twice. Caught on a real 18-file
+    # mod that arrived with 36 entries.
+    assert [fk.filename for fk in md.files] == ["a.hak"]
     # Byte-for-byte: notes live as RTF, so the file travels as-is rather than
     # being re-wrapped on the way in.
     assert target.read_notes("Alpha") == source.read_notes("Alpha")
@@ -277,3 +287,26 @@ def test_exporting_with_nothing_selected_says_so(qtbot, tmp_path, monkeypatch):
     qtbot.addWidget(win)
     win._on_export_mods()
     assert told and "Select the mods" in told[0]
+
+
+def test_importing_over_an_existing_mod_does_not_double_its_files(tmp_path: Path):
+    """Re-importing must replace the file list, not add to it.
+
+    The archive's record lists the source machine's files and the disk scan adds
+    what was unpacked; without clearing in between, each import appends another
+    full set. On a real 18-file mod that produced 36 entries, and a second import
+    would have produced 54.
+    """
+    source = _controller(tmp_path / "a")
+    _make_mod(source, "Alpha")
+    out = tmp_path / "carried"
+    source.export_mods(["Alpha"], out)
+    archive = out / f"Alpha{SUFFIX}"
+
+    target = _controller(tmp_path / "b")
+    target.import_mods([archive])
+    first = len(target.pd.mod_item("Alpha").files)
+    assert first == 1
+
+    target.import_mods([archive])  # again, over the top
+    assert len(target.pd.mod_item("Alpha").files) == first, "files were duplicated"
