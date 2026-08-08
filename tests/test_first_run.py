@@ -25,6 +25,17 @@ def _install(root: str, edition=Edition.ENHANCED) -> GameInstall:
     return GameInstall(root=Path(root), edition=edition)
 
 
+def _native(path: str) -> str:
+    """The path as this platform writes it.
+
+    The dialog carries ``str(Path(...))``, so on Windows these fixtures come back
+    as ``\\steam\\NWN``. Asserting the POSIX spelling passed on macOS and
+    failed on the Windows runner — the separator belongs to the platform, not to
+    the literal in the test.
+    """
+    return str(Path(path))
+
+
 def _volumes(*specs) -> list[StoreVolume]:
     return [StoreVolume(Path(p), free, is_default=d) for p, free, d in specs]
 
@@ -64,18 +75,18 @@ class TestDialog:
     def test_every_install_is_offered(self, qtbot):
         dlg = self._dialog(qtbot)
         shown = [dlg.install_combo.itemData(i) for i in range(dlg.install_combo.count())]
-        assert shown == ["/steam/NWN", "/gog/NWN"]
+        assert shown == [_native("/steam/NWN"), _native("/gog/NWN")]
 
     def test_the_first_install_is_preselected_so_continue_is_the_old_behaviour(self, qtbot):
-        assert self._dialog(qtbot).game_root == "/steam/NWN"
+        assert self._dialog(qtbot).game_root == _native("/steam/NWN")
 
     def test_the_recommended_store_is_preselected(self, qtbot):
-        assert self._dialog(qtbot).store_root == "/big/Vaultkeeper"
+        assert self._dialog(qtbot).store_root == _native("/big/Vaultkeeper")
 
     def test_the_ordinary_place_can_still_be_chosen(self, qtbot):
         dlg = self._dialog(qtbot)
-        dlg.store_combo.setCurrentIndex(dlg.store_combo.findData("/default"))
-        assert dlg.store_root == "/default"
+        dlg.store_combo.setCurrentIndex(dlg.store_combo.findData(_native("/default")))
+        assert dlg.store_root == _native("/default")
 
     def test_a_network_volume_says_so(self, qtbot):
         volumes = [
@@ -88,7 +99,7 @@ class TestDialog:
 
     def test_the_install_label_names_what_it_is(self, qtbot):
         dlg = self._dialog(qtbot, installs=[_install("/steam/NWN")])
-        assert "/steam/NWN" in dlg.install_combo.itemText(0)
+        assert _native("/steam/NWN") in dlg.install_combo.itemText(0)
         assert "Enhanced" in dlg.install_combo.itemText(0)
 
 
