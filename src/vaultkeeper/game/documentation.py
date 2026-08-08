@@ -397,6 +397,38 @@ def scan_mod_docs(
     return contents + downloads
 
 
+def _doc_members(archive: Path, extractor) -> list[str] | None:
+    """The archive's documentation members, or ``None`` if it cannot be listed.
+
+    ``None`` and ``[]`` mean different things and the caller relies on it: an
+    empty list is "listed, and there is no documentation in here", while ``None``
+    is "could not look", which falls back to extracting everything.
+    """
+    entries = _list_entries(archive, extractor)
+    if entries is None:
+        return None
+    return [e["path"] for e in entries]
+
+
+def _list_entries(archive: Path, extractor) -> list[dict] | None:
+    """Documentation members with the metadata the scan needs, straight from the index.
+
+    A 7-Zip listing carries each member's path, size **and CRC**, which is
+    everything a report row needs — so an archive's docs can be described
+    without unpacking a byte. That matters because extraction is not merely
+    slower: 7z archives are usually *solid*, so pulling one 112-byte readme out
+    of CEP's 1.2 GB part still decompresses the block, and measured at 8.7
+    seconds against 0.01 to list it.
+    """
+    lister = getattr(extractor, "list_entries", None)
+    if not callable(lister):
+        return None
+    entries = lister(archive)
+    if entries is None:
+        return None
+    return [e for e in entries if is_doc_file(PurePosixPath(e["path"]).name)]
+
+
 def _scan_archives(
     mod_name: str,
     mod_folder: Path,
@@ -404,16 +436,42 @@ def _scan_archives(
     extractor,
     remove_version: bool,
 ) -> list[DocEntry]:
-    """Extract each archive to a temp dir and collect its loose docs."""
+    """Collect the docs inside each archive, without unpacking it.
+
+    A 7-Zip listing carries each member's path, size and CRC, which is the whole
+    of what a report row needs — so the archives are described from their index.
+    This used to extract every archive in full: on a store holding CEP that took
+    twenty seconds and wrote several gigabytes of temporary files to find one
+    readme, because CEP's two parts expand to over five gigabytes between them.
+
+    Extraction is not merely slower, either. 7z archives are usually *solid*, so
+    pulling a single 112-byte readme out of the 1.2 GB part still decompresses
+    the block — measured at 8.7 seconds, against 0.01 to list it.
+
+    An archive that cannot be listed still falls back to extraction, so an odd
+    format or an older backend reports its docs rather than none.
+    """
     entries: list[DocEntry] = []
     for archive in archives:
+        rel_archive = archive.relative_to(mod_folder).as_posix()
+        # VB qualifier for extracted docs = the zip folder name, title-cased.
+        qualifier = _to_title_case_sentence(_filename_only(archive.name), "_")
+        listed = _list_entries(archive, extractor)
+
+        if listed is not None:
+            entries.extend(
+                _entry_from_listing(
+                    mod_name, archive, rel_archive, qualifier, member, remove_version
+                )
+                for member in listed
+            )
+            continue
+
+        # Could not be listed: unpack and scan as before.
         with tempfile.TemporaryDirectory(prefix="vk_docorg_") as tmp:
             result = extractor.extract(archive, Path(tmp))
             if not result.ok:
                 continue
-            rel_archive = archive.relative_to(mod_folder).as_posix()
-            # VB qualifier for extracted docs = the zip folder name, title-cased.
-            qualifier = _to_title_case_sentence(_filename_only(archive.name), "_")
             found, _ = _scan_download_tree(
                 mod_name,
                 Path(tmp),
@@ -425,3 +483,31 @@ def _scan_archives(
             )
             entries.extend(found)
     return entries
+
+
+def _entry_from_listing(
+    mod_name: str,
+    archive: Path,
+    rel_archive: str,
+    qualifier: str,
+    member: dict,
+    remove_version: bool,
+) -> DocEntry:
+    """One report row built from an archive's index rather than its contents."""
+    inner = PurePosixPath(member["path"])
+    folder = f"{rel_archive}{ARCHIVE_SEPARATOR}{inner.parent.as_posix()}"
+    doc_name, _, _ = _doc_name_for(inner.name, qualifier, True, remove_version)
+    return DocEntry(
+        mod=mod_name,
+        file_name=inner.name,
+        source="Downloads",
+        folder=folder.rstrip("."),
+        size=member.get("size", 0),
+        # The file is not on disk. ``archive!inner`` is the same shape the copy
+        # path already understands (see ``archive_source``), so it re-extracts
+        # this one member when the user actually asks for it.
+        full_path=archive.parent / f"{archive.name}{ARCHIVE_SEPARATOR}{inner}",
+        doc_name=doc_name,
+        checksum=member.get("crc", 0),
+        from_archive=True,
+    )

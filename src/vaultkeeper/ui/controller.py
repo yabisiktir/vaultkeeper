@@ -4739,8 +4739,25 @@ class ProfileController:
         from vaultkeeper.core.rtf import read_rtf_text
 
         path = Path(source_path)
-        if not source_path or not path.is_file():
+        if not source_path:
             return {"kind": "missing", "text": ""}
+        if not path.is_file():
+            # An archive doc: the scan describes these from the archive's index
+            # without unpacking anything, so the file is not on disk until
+            # somebody actually asks to read it. That is the right moment to pay
+            # for it — a solid archive can take seconds to yield one member.
+            extracted = self._extract_doc_for_preview(source_path)
+            if extracted is None:
+                return {"kind": "missing", "text": ""}
+            path, cleanup = extracted
+            try:
+                return self._preview_of(path, read_rtf_text)
+            finally:
+                cleanup()
+        return self._preview_of(path, read_rtf_text)
+
+    @staticmethod
+    def _preview_of(path: Path, read_rtf_text) -> dict:
         ext = path.suffix.lower()
         try:
             raw = path.read_text(encoding="utf-8", errors="replace")
@@ -4754,6 +4771,34 @@ class ProfileController:
             "kind": "open_with",
             "text": f"Open with the application associated with {ext} files.",
         }
+
+    def _extract_doc_for_preview(self, source_path: str):
+        """Pull one archive member out to a temp dir: ``(path, cleanup)`` or ``None``.
+
+        ``source_path`` is the ``<archive>!<inner>`` shape the scan records for a
+        doc it described from an archive index.
+        """
+        import tempfile
+
+        from vaultkeeper.game.documentation import ARCHIVE_SEPARATOR
+
+        head, sep, inner = source_path.partition(ARCHIVE_SEPARATOR)
+        if not sep or not inner:
+            return None
+        archive = Path(head)
+        if not archive.is_file():
+            return None
+        backend = self._archive_backend()
+        if not getattr(backend, "available", False):
+            return None
+
+        tmp = tempfile.TemporaryDirectory(prefix="vk_docprev_")
+        result = backend.extract_members(archive, Path(tmp.name), [inner])
+        target = Path(tmp.name) / inner
+        if not result.ok or not target.is_file():
+            tmp.cleanup()
+            return None
+        return target, tmp.cleanup
 
     def copy_docs_to_mod(self, mod_name: str, selections: list[dict]) -> dict:
         """Copy chosen Downloads docs into the mod root (VB ``BtCopy_Click``).

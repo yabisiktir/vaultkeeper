@@ -22,7 +22,7 @@ Contents doc names to reuse. A renamed doc is marked to copy.
 
 from __future__ import annotations
 
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor
@@ -70,6 +70,7 @@ class DocOrganiser(QDialog):
     ) -> None:
         super().__init__(parent)
         self._controller = controller
+        self._pending_preview = ""
         self._mod_names = mod_names
         self.setWindowTitle("Mod Documentation Organiser")
         self.setWindowIcon(R.get_icon("VBExtension_16x"))
@@ -126,6 +127,11 @@ class DocOrganiser(QDialog):
         self.rename_to_button.setMenu(self.rename_to_menu)
         buttons.addWidget(self.rename_to_button)
         buttons.addStretch(1)
+        self.read_button = QPushButton("Read Document")
+        self.read_button.setToolTip("Extract this document from its archive and show it")
+        self.read_button.setEnabled(False)
+        self.read_button.clicked.connect(self._on_read_document)
+        buttons.addWidget(self.read_button)
         self.properties_button = QPushButton("Properties")
         self.properties_button.setIcon(R.get_icon("PropertiesW10"))
         self.properties_button.setToolTip("Show the selected document's file details")
@@ -227,8 +233,40 @@ class DocOrganiser(QDialog):
         row = current.data(0, Qt.ItemDataRole.UserRole)
         if not row:
             return
+        # A doc inside an archive is not on disk: the scan describes it from the
+        # archive's index, so reading it means extracting it. That can take
+        # seconds on a solid archive, which is far too long to spend on merely
+        # moving the selection — so it is offered, not done.
+        self._pending_preview = ""
+        if row.get("from_archive") and not Path(row["source_path"]).is_file():
+            self._pending_preview = row["source_path"]
+            self.preview.setPlainText(
+                f"{row['file']} is inside {row.get('archive') or 'an archive'}.\n\n"
+                "Press Read Document to extract and show it."
+            )
+            self.read_button.setEnabled(True)
+            return
+        self.read_button.setEnabled(False)
         result = self._controller.doc_preview(row["source_path"])
         self.preview.setPlainText(result["text"])
+
+    def _on_read_document(self) -> None:
+        """Extract and show the selected archive doc (VB opens it directly)."""
+        if not self._pending_preview:
+            return
+        from PySide6.QtWidgets import QApplication
+
+        self.read_button.setEnabled(False)
+        self.preview.setPlainText("Extracting…")
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        QApplication.processEvents()
+        try:
+            result = self._controller.doc_preview(self._pending_preview)
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.preview.setPlainText(
+            result["text"] or "This document could not be read from the archive."
+        )
 
     # -- Rename (VB CmRename / CmRenameTo) -------------------------------- #
     def _download_names(self) -> list[str]:

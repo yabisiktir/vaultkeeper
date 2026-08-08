@@ -553,3 +553,99 @@ def test_properties_does_nothing_without_a_selection(qtbot, tmp_path, monkeypatc
     qtbot.addWidget(dlg)
     dlg._on_properties()
     assert shown == []
+
+
+# --------------------------------------------------------------------------- #
+# Archives are described from their index, not unpacked
+# --------------------------------------------------------------------------- #
+class _ListingExtractor:
+    """An extractor that can list, and records whether anything was extracted."""
+
+    available = True
+
+    def __init__(self, entries):
+        self._entries = entries
+        self.extract_calls: list = []
+        self.member_calls: list = []
+
+    def list_entries(self, archive):
+        return list(self._entries)
+
+    def extract(self, archive, dest):
+        self.extract_calls.append(archive)
+        from vaultkeeper.core.archive import ExtractResult
+
+        return ExtractResult(ok=False, dest=dest, exit_code=1, error="should not run")
+
+    def extract_members(self, archive, dest, members):
+        self.member_calls.append((archive, tuple(members)))
+        from vaultkeeper.core.archive import ExtractResult
+
+        return ExtractResult(ok=True, dest=dest, files=[], exit_code=0)
+
+
+def test_an_archives_docs_come_from_its_index_without_unpacking(tmp_path):
+    """The 20s → 0.04s fix: a listing carries path, size and CRC.
+
+    On the owner's store this scan extracted 2 GB to find one readme, because a
+    solid 7z still decompresses its block to yield a single 112-byte file.
+    """
+    mod = tmp_path / "Alpha"
+    _write(mod / C.DOWNLOADS_DIR / "pack.7z", b"archive bytes")
+
+    extractor = _ListingExtractor(
+        [
+            {"path": "Pack/readme.txt", "size": 112, "crc": 0xF9070A2E},
+            {"path": "Pack/data/big.hak", "size": 9_000_000, "crc": 1},
+        ]
+    )
+    entries = scan_mod_docs("Alpha", mod, extractor=extractor)
+
+    assert extractor.extract_calls == [], "nothing may be unpacked to build the report"
+    assert extractor.member_calls == [], "not even the doc member is needed"
+
+    docs = [e for e in entries if e.from_archive]
+    assert len(docs) == 1, "only the readme is documentation"
+    doc = docs[0]
+    assert doc.file_name == "readme.txt"
+    assert doc.size == 112                 # from the index
+    assert doc.checksum == 0xF9070A2E      # ditto, so CRC dedup still works
+    assert doc.folder.startswith("_Downloads/pack.7z!")
+
+
+def test_an_unlistable_archive_still_falls_back_to_extraction(tmp_path):
+    # An odd format or an older backend must report its docs, not none.
+    mod = tmp_path / "Alpha"
+    _write(mod / C.DOWNLOADS_DIR / "pack.7z", b"archive bytes")
+
+    class _NoListing(FakeArchiveExtractor):
+        def list_entries(self, archive):
+            return None
+
+    extractor = _NoListing()
+    scan_mod_docs("Alpha", mod, extractor=extractor)
+    assert extractor.extract_calls, "the fallback must still extract"
+
+
+def test_the_index_crc_still_dedupes_against_a_contents_doc(tmp_path):
+    """A doc already copied into the mod must still be recognised.
+
+    The CRC now comes from the archive index rather than from the extracted
+    bytes; if the two disagreed, every archive doc would offer itself for
+    copying again.
+    """
+    from vaultkeeper.core.crc import crc32_file
+
+    mod = tmp_path / "Alpha"
+    existing = mod / "readme.txt"
+    _write(existing, b"the same bytes")
+    _write(mod / C.DOWNLOADS_DIR / "pack.7z", b"archive bytes")
+
+    extractor = _ListingExtractor(
+        [{"path": "Pack/readme.txt", "size": 14, "crc": crc32_file(existing)}]
+    )
+    entries = scan_mod_docs("Alpha", mod, extractor=extractor)
+
+    archived = next(e for e in entries if e.from_archive)
+    assert archived.copy is False, "a CRC match must not offer to copy again"
+    assert archived.name_match

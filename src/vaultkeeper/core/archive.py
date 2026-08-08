@@ -200,6 +200,93 @@ class SevenZipExtractor:
     def available(self) -> bool:
         return self._exe is not None
 
+    def list_names(self, archive: Path) -> list[str] | None:
+        """Member paths inside ``archive``, or ``None`` if it cannot be listed."""
+        entries = self.list_entries(archive)
+        return None if entries is None else [e["path"] for e in entries]
+
+    def list_entries(self, archive: Path) -> list[dict] | None:
+        """``{path, size, crc}`` per member, or ``None`` if it cannot be listed.
+
+        Reads the index only — no data is unpacked. That difference is not
+        marginal: listing CEP's 1.1 GB part takes about 0.01s, where extracting
+        it takes ten seconds and writes 5.5 GB to disk. The CRC is in the index
+        too, so a caller that only wants to describe an archive's contents never
+        has to open them.
+        """
+        if not self.available:
+            return None
+        # l -ba -slt: bare listing, one "Path = …" per member, no header/footer.
+        try:
+            proc = subprocess.run(  # noqa: S603 - our own bundled binary
+                [self._exe, "l", "-ba", "-slt", "-p1", str(archive)],
+                capture_output=True,
+                text=True,
+                errors="replace",
+                timeout=120,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return None
+        if proc.returncode not in _SUCCESS_CODES:
+            return None
+
+        # -slt prints a blank-line-separated block per member; a directory has no
+        # CRC line, which is how they are told apart from empty files.
+        entries: list[dict] = []
+        current: dict = {}
+        for line in proc.stdout.splitlines():
+            if not line.strip():
+                if current.get("path"):
+                    entries.append(current)
+                current = {}
+                continue
+            key, sep, value = line.partition("=")
+            if not sep:
+                continue
+            key, value = key.strip(), value.strip()
+            if key == "Path":
+                current["path"] = value
+            elif key == "Size":
+                current["size"] = int(value) if value.isdigit() else 0
+            elif key == "CRC":
+                current["crc"] = int(value, 16) if value else 0
+            elif key == "Attributes":
+                current["is_dir"] = value.startswith("D")
+        if current.get("path"):
+            entries.append(current)
+        return [
+            {"path": e["path"], "size": e.get("size", 0), "crc": e.get("crc", 0)}
+            for e in entries
+            if not e.get("is_dir")
+        ]
+
+    def extract_members(self, archive: Path, dest: Path, members: list[str]) -> ExtractResult:
+        """Extract only ``members`` from ``archive`` into ``dest``.
+
+        The counterpart to :meth:`list_names`: having found the handful of files
+        that matter, unpack those rather than the whole archive.
+        """
+        if not self.available:
+            return ExtractResult(
+                ok=False, dest=dest, exit_code=-1, error="7-Zip is not available."
+            )
+        if not members:
+            return ExtractResult(ok=True, dest=dest, files=[], exit_code=0)
+        dest.mkdir(parents=True, exist_ok=True)
+        # -i!<path> selects a member; -y answers prompts; -o sets the output dir.
+        args = [self._exe, "x", str(archive), "-p1", "-y", f"-o{dest}"]
+        args += [f"-i!{name}" for name in members]
+        code = self._run(args)
+        ok = code in _SUCCESS_CODES
+        files = sorted(p for p in dest.rglob("*") if p.is_file()) if ok else []
+        return ExtractResult(
+            ok=ok,
+            dest=dest,
+            files=files,
+            exit_code=code,
+            error="" if ok else self._exit_text(code),
+        )
+
     def extract(self, archive: Path, dest: Path) -> ExtractResult:
         if not self.available:
             return ExtractResult(
