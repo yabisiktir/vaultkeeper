@@ -69,6 +69,12 @@ class AboutDialog(QDialog):
         # Credits (rich text in QTextBrowser)
         credits_text = (
             "<b>Credits</b><br/><br/>"
+            # The tool this one is a port of. It credited its own dependencies
+            # but not its author, which is the wrong way round: Surazal's NIT is
+            # where the folder mapping, the install engine and these screens
+            # come from. He asks to be credited under that pseudonym.
+            "<p>Vaultkeeper is a port of the <b>NWN Installer Tool</b> by "
+            "<b>Surazal</b>, whose design and behaviour it follows throughout.</p>"
             "<ul style='margin-left: 20px;'>"
             "<li><a href='https://neverwintervault.org/users/kevls'>BicFileReader</a> "
             "— kevL's</li>"

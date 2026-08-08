@@ -164,5 +164,12 @@ docs/              # user guides and the parity ledger
 
 ## Licence
 
-GPL-3.0-or-later. Design and behaviour follow the *NWN Installer Tool* by Louis
-(LazWorks); 7-Zip is bundled under its own licence, reproduced beside each binary.
+GPL-3.0-or-later. 7-Zip is bundled under its own licence, reproduced beside each
+binary.
+
+## Thanks
+
+To **Surazal**, author of the *NWN Installer Tool*. Vaultkeeper's design and
+behaviour follow NIT throughout — the folder mapping, the install engine's
+conflict rules and the screens themselves are ports of his work, and this is a
+much better tool for having had one to learn from.
