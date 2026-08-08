@@ -107,9 +107,17 @@ def dead_settings() -> list[str]:
         if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
         and not node.target.id.startswith("_")
     ]
+    # Both packages: the save editor reads several of Vaultkeeper's settings
+    # through its host protocol, and scanning only this one reported two of them
+    # dead when they were merely read next door.
+    roots = [SRC]
+    sibling = ROOT.parent / "nwn-save-editor" / "src"
+    if sibling.is_dir():
+        roots.append(sibling)
     bodies = {
         path: path.read_text(encoding="utf-8", errors="replace")
-        for path in SRC.rglob("*.py")
+        for root in roots
+        for path in root.rglob("*.py")
         if not any(marker in str(path) for marker in _EDITORS)
     }
     return [

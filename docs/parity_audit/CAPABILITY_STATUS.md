@@ -23,7 +23,7 @@ them.
 | compressmodfolders.htm | Compress or Uncompress Mod folders | Ported (Manage menu) |
 | createrestorers.htm | Create Restorers | Ported |
 | originalrestorers.htm | Create Original Restorers | Ported |
-| createcharrestorers.htm | Create Character Restorers | Ported |
+| createcharrestorers.htm | Create Character Restorers | **GAP — this verdict was wrong.** See below |
 | workwithinstallationsets.htm | Work with Installation Sets | Ported (Installation Manager) |
 | anneal.htm | Validate conflicting files (Anneal) | Ported |
 | removeerffiles.htm | Remove ERF Files | Ported |
@@ -141,17 +141,33 @@ read to the end. Reviewed:
 | Recycle toggle, Select Text File, Wizard Report | Right-click alternates | Not reviewed |
 | Installation Analyser, Find and Rename, Portrait Manager lists | Double-click a row | Not reviewed |
 
+## A verdict this file got wrong
+
+`createcharrestorers.htm` was recorded as Ported. It is not: there is no way to
+create a Character Restorer here at all. The evidence that convinced me was a
+grep for `character_restorer`, which matched **a constant** —
+`CHARACTER_FILES_RESTORER`, one of the three original-file restorers — and not
+the feature. Grep evidence is weak in both directions, and this file exists to
+hold verdicts, so a wrong one is worse than an unreviewed one.
+
+It matters twice over: the `auto_character` preference below cannot be wired
+until the feature it switches on exists.
+
 ## Settings that do nothing
 
 `--settings` lists preferences this port writes and never reads. A preference
 someone can tick that changes nothing is worse than a missing one, because it
 lies. It found `startup_sound` (since fixed) and, still open, **eight**:
 
-`validate_game_config_on_startup`, `installer_restore`, `select_game_mod`,
-`copy_mod_name_on_play`, `auto_character`, `copy_debug_mode_on_play`,
-`hak_item_icons`, `exact_item_icons`.
+**Five are now wired**: `validate_game_config_on_startup` (the startup check ran
+unconditionally, so the box could not be unticked), `select_game_mod`,
+`copy_mod_name_on_play`, `copy_debug_mode_on_play` (all three read when Play is
+pressed) and `installer_restore` (rebuilding an installed mod's payload now puts
+it back, so the game stops running the files that were just replaced).
 
-The last two are the sharpest: both are documented as controlling how item icons
-are resolved in the Character Explorer, and the icon source consults neither.
-`validate_game_config_on_startup` is the other kind — the startup check runs
-unconditionally, so the box cannot be unticked in any meaningful sense.
+**One is blocked**: `auto_character` switches on a feature that does not exist —
+see the wrong verdict above.
+
+`hak_item_icons` and `exact_item_icons` were a **false positive**: both are read
+by the save editor through its host protocol, and the sweep scanned only this
+package. Fixed — it reads both now.

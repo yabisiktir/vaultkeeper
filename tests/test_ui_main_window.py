@@ -1143,3 +1143,75 @@ def test_go_to_group_selects_group(qtbot, controller) -> None:
         win._on_command("MsGoToGroup")
     assert "Alpha" in win.selected_mod_names()
     assert win.nit_menu.action("MsGoToGroup").isEnabled()
+
+
+# -- double-click a mod to install it (VB FvMods_MouseDoubleClick) ------------- #
+def _first_mod_item(win, name: str):
+    for index in range(win._tree.topLevelItemCount()):
+        item = win._tree.topLevelItem(index)
+        if win._tree.mod_name_of(item) == name:
+            return item
+        for child in range(item.childCount()):
+            kid = item.child(child)
+            if win._tree.mod_name_of(kid) == name:
+                return kid
+    raise AssertionError(f"{name} is not in the tree")
+
+
+def test_double_clicking_a_mod_installs_it(qtbot, controller) -> None:
+    """The everyday interaction the port had never had."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    item = _first_mod_item(win, "Alpha")
+    win._tree.setCurrentItem(item)
+    assert not controller.pd.mod_item("Alpha").installed
+
+    win._on_mod_double_clicked(item)
+    assert controller.pd.mod_item("Alpha").installed
+
+
+def test_double_clicking_an_installed_mod_uninstalls_it(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    item = _first_mod_item(win, "Alpha")
+    win._tree.setCurrentItem(item)
+    win._on_mod_double_clicked(item)
+    assert controller.pd.mod_item("Alpha").installed
+
+    item = _first_mod_item(win, "Alpha")   # the tree was rebuilt by the install
+    win._tree.setCurrentItem(item)
+    win._on_mod_double_clicked(item)
+    assert not controller.pd.mod_item("Alpha").installed
+
+
+def test_double_clicking_a_group_header_does_not_install(qtbot, controller) -> None:
+    """Groups expand and collapse, which is what VB's DoubleClickAction guard does."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    header = None
+    for index in range(win._tree.topLevelItemCount()):
+        candidate = win._tree.topLevelItem(index)
+        if not win._tree.mod_name_of(candidate) and candidate.childCount():
+            header = candidate
+            break
+    if header is None:
+        pytest.skip("this fixture has no grouped mods")
+    before = {n: controller.pd.mod_item(n).installed for n in ("Alpha", "Beta")}
+    win._on_mod_double_clicked(header)
+    assert {n: controller.pd.mod_item(n).installed for n in ("Alpha", "Beta")} == before
+
+
+def test_double_click_never_does_what_the_buttons_refuse(qtbot, controller) -> None:
+    """It asks the same question the toolbar does, so the two cannot disagree."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    item = _first_mod_item(win, "Alpha")
+    win._tree.setCurrentItem(item)
+    win._act_install.setEnabled(False)
+    win._act_uninstall.setEnabled(False)
+    win._on_mod_double_clicked(item)
+    assert not controller.pd.mod_item("Alpha").installed

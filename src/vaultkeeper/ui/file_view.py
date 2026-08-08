@@ -210,6 +210,11 @@ class FileView(QTreeWidget):
                 names.append(name)
         return names
 
+    @staticmethod
+    def mod_name_of(item) -> str:
+        """The mod a row stands for, or "" for a group header."""
+        return "" if item is None else (item.data(0, _ROLE_MOD_NAME) or "")
+
     def group_header_at(self, pos) -> str | None:
         """The group name if ``pos`` is over a (visible) group header, else None.
 

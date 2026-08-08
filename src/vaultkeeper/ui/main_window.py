@@ -11,6 +11,7 @@ implemented so far and reports "not available yet" for the rest.
 
 from __future__ import annotations
 
+from nwnfile.log import get_logger
 from PySide6.QtCore import QSignalBlocker, Qt, QUrl
 from PySide6.QtWidgets import (
     QDialog,
@@ -37,6 +38,8 @@ from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
 from vaultkeeper.ui.status_bar import NitStatusBar
 
+log = get_logger(__name__)
+
 
 class MainWindow(QMainWindow):
     """The Vaultkeeper main window."""
@@ -52,6 +55,10 @@ class MainWindow(QMainWindow):
 
         self._tree = FileView("Mods")
         self._tree.selection_changed.connect(self._on_selection_changed)
+        # Double-click a mod to install it, or uninstall it if it is installed
+        # (VB FvMods_MouseDoubleClick). Groups keep Qt's expand/collapse, which
+        # is what VB's DoubleClickAction guard leaves them.
+        self._tree.itemDoubleClicked.connect(self._on_mod_double_clicked)
         self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
@@ -465,6 +472,10 @@ class MainWindow(QMainWindow):
         # Start-up housekeeping while we are here (VB NitStartUp): today counts
         # towards the play-time average whether or not it is played.
         self.controller.note_play_day()
+        # The check ran unconditionally, so "Check the game configuration for
+        # changes on startup" could be unticked and changed nothing.
+        if not self.controller._settings().validate_game_config_on_startup:
+            return
         changes = self.controller.startup_config_check()
         if changes:
             names = ", ".join(sorted({c.path.name for c in changes}))
@@ -1515,7 +1526,12 @@ class MainWindow(QMainWindow):
         copied = 0
         built = 0
         last_message = ""
+        settings = self.controller._settings()
         for name in names:
+            # Whether it was installed *before* the rebuild: afterwards the game
+            # is holding the old payload, which is what installer_restore exists
+            # to put right (VB BehaviourInstallerRestore).
+            was_installed = self.controller._mod_installed(name)
             # RunWizard: present the installer wizard's choices before building.
             choice, checked = self._run_installer_wizard(name)
             result = self.controller.build_installer_payload(
@@ -1524,8 +1540,13 @@ class MainWindow(QMainWindow):
             if result["ok"]:
                 built += 1
                 copied += result["copied"]
-                # Install-after-create preference (VB): auto-install the built mod.
-                if self._install_after_create() and not self.controller._mod_installed(name):
+                # Install-after-create preference (VB BehaviourInstallerInstall).
+                if self._install_after_create():
+                    if not was_installed:
+                        self.controller.install([name])
+                elif settings.installer_restore and was_installed:
+                    # Only put back what was already installed, so the game stops
+                    # running the payload that was just replaced.
                     self.controller.install([name])
             last_message = result["message"]
         self.refresh()
@@ -2282,6 +2303,8 @@ class MainWindow(QMainWindow):
         from PySide6.QtCore import QProcess
 
         what = "Toolset" if toolset else "Neverwinter Nights"
+        if not toolset:
+            self._apply_play_preferences()
 
         # Awaitable launch: record the session on exit (only for the game, not toolset).
         if not toolset and self.controller.can_await_exit():
@@ -2312,6 +2335,44 @@ class MainWindow(QMainWindow):
         else:
             self.nit_status.set_info(f"Could not launch {what}.")
 
+    def _apply_play_preferences(self) -> None:
+        """The three "when you press Play" preferences (VB ``MsPlayNeverwinterNights``).
+
+        All three were settings the port stored, offered in two screens and
+        never read, so ticking any of them did nothing at all.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        settings = self.controller._settings()
+        loop = self.controller.play_loop
+        current_mod = loop.current_play_title()[0] if loop is not None else ""
+
+        # Select the mod the current game belongs to (VB BehaviourSelectGameMod).
+        if settings.select_game_mod and current_mod:
+            self._select_mod_by_name(current_mod)
+
+        # The DebugMode console command, ready to paste in-game (VB
+        # ConfigCopyDebugModeOnPlay). VB will not overwrite a clipboard that
+        # already holds a dm_ command, so neither does this.
+        clipboard = QApplication.clipboard()
+        if settings.copy_debug_mode_on_play:
+            try:
+                if "dm_" not in (clipboard.text() or ""):
+                    clipboard.setText(settings.copy_debug_mode_on_play.split("(")[0].strip())
+            except Exception:
+                log.exception("Could not copy the DebugMode command")
+
+        # The selected mod's name, for typing into the new-game screen (VB
+        # ConfigCopyOnPlay). Only when there is *no* game in progress and one
+        # mod is selected — starting a new game is the case it exists for.
+        if settings.copy_mod_name_on_play and not current_mod:
+            names = self.selected_mod_names()
+            if len(names) == 1:
+                try:
+                    clipboard.setText(names[0])
+                except Exception:
+                    log.exception("Could not copy the mod name")
+
     def _on_game_exited(self) -> None:
         """Process a finished play session (VB post-play exit processing)."""
         from datetime import datetime
@@ -2331,6 +2392,22 @@ class MainWindow(QMainWindow):
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")
+
+    def _on_mod_double_clicked(self, item, _column: int = 0) -> None:
+        """Install the double-clicked mod, or uninstall it (VB ``FvMods``).
+
+        Whichever of Install/Uninstall is the one currently offered — the same
+        test the buttons use, so a double-click can never do something the
+        toolbar would refuse. A group header is left to expand and collapse.
+        """
+        if self.controller is None or item is None:
+            return
+        if not self._tree.mod_name_of(item):
+            return  # a group header: Qt's expand/collapse is the right action
+        if self._act_install.isEnabled():
+            self._on_install()
+        elif self._act_uninstall.isEnabled():
+            self._on_uninstall()
 
     def _on_install(self) -> None:
         names = self.selected_mod_names()
