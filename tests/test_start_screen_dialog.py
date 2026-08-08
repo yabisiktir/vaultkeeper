@@ -310,6 +310,7 @@ def test_the_options_menu_carries_the_documented_entries(qtbot, tmp_path):
         "View Information Report",
         "Continuous Slide Show",
         "Slide Show Interval…",
+        "Repair Prefixed Image Exclusions",
         "Prefixed Start Screens…",
         "Uninstall the Start Screen's Mod",
     ]
@@ -356,3 +357,33 @@ def test_options_persist_through_the_real_controller(qtbot, tmp_path):
     reloaded = load_settings(controller._settings_path)
     assert reloaded.auto_loadscreen is True
     assert reloaded.slideshow_interval == 9
+
+
+def test_repair_prefixed_excludes_the_ones_that_slipped(tmp_path):
+    """VB RbRepairPrefixed.
+
+    A prefixed image is meant to stay out of the automatic cycle. One can fall
+    out of the exclusion list — a rename, an image added while the prefix list
+    differed — and there is no spotting that by eye in a folder of hundreds.
+    """
+    controller = _controller_with_images(tmp_path, ["Set A.tga", "Set B.tga", "Plain.tga"])
+    controller.save_loadscreen_prefixes("Set")
+    controller.add_loadscreen_exclusion("Set A.tga")  # only one of the two
+
+    before = {r["name"]: r for r in controller.loadscreens_report()["images"]}
+    assert before["Set B.tga"]["prefixed"] and not before["Set B.tga"]["excluded"]
+
+    result = controller.repair_prefixed_exclusions()
+    assert result["repaired"] == 1
+    assert "1 prefixed image was not excluded" in result["message"]
+
+    after = {r["name"]: r for r in controller.loadscreens_report()["images"]}
+    assert after["Set B.tga"]["excluded"], "the stray prefixed image is excluded now"
+    assert not after["Plain.tga"]["excluded"], "an unprefixed image is left alone"
+
+
+def test_repair_prefixed_says_so_when_there_is_nothing_to_do(tmp_path):
+    controller = _controller_with_images(tmp_path, ["Plain.tga"])
+    result = controller.repair_prefixed_exclusions()
+    assert result["repaired"] == 0
+    assert "already excluded" in result["message"]

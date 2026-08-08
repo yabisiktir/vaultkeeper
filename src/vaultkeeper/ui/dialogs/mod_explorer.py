@@ -37,7 +37,34 @@ from PySide6.QtWidgets import (
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
-_HEADERS = ["Mod", "Group", "State", "Rating", "Files", "Time Played", "Completed"]
+_HEADERS = [
+    "Mod", "Group", "State", "Rating", "Files", "Time Played", "Completed",
+    # VB ChWeapon / ChStart / ChEnd / ChHench.
+    "Weapon", "Start", "End", "Hench",
+]
+
+
+def _passes_number(value, filter_text: str) -> bool:
+    """VB ``FilterNumber``, stated positively.
+
+    The text is a number optionally prefixed with ``>``, ``=`` or ``<``; a bare
+    number means "greater than", and a bare operand means "-1", the value shown
+    as a hyphen for *not recorded*. VB writes the test as an exclusion; this is
+    the same rule the other way round, which is how the tooltip describes it.
+    """
+    text = (filter_text or "").strip()
+    if not text or value is None:
+        return True
+    operand, rest = (text[0], text[1:]) if text[0] in "><=" else (">", text)
+    try:
+        wanted = int(rest) if rest.strip() else -1
+    except ValueError:
+        return True  # not a number yet: do not filter mid-typing
+    if operand == "=":
+        return value == wanted
+    if operand == "<":
+        return value < wanted
+    return value > wanted
 
 
 class ModExplorer(QDialog):
@@ -126,6 +153,32 @@ class ModExplorer(QDialog):
         self._clear_btn.clicked.connect(self._on_clear_filters)
         bar.addWidget(self._clear_btn)
 
+        # The numeric filters VB puts beside the name box (TxStart / TxEnd /
+        # TxHench) and the weapon text filter (TxWeapon). Each accepts a bare
+        # number, or one prefixed with > = < — see _passes_number.
+        for attr, label, width in (
+            ("_start_filter", "Start", 52),
+            ("_end_filter", "End", 52),
+            ("_hench_filter", "Hench", 52),
+        ):
+            bar.addWidget(QLabel(f"{label}:"))
+            box = QLineEdit()
+            box.setFixedWidth(width)
+            box.setPlaceholderText(">0")
+            box.setToolTip(
+                f"{label} level filter: a number, optionally prefixed with "
+                f"> = or < (a bare number means 'greater than')."
+            )
+            box.textChanged.connect(self._populate)
+            setattr(self, attr, box)
+            bar.addWidget(box)
+
+        self._weapon_filter = QLineEdit()
+        self._weapon_filter.setPlaceholderText("Weapon")
+        self._weapon_filter.setFixedWidth(90)
+        self._weapon_filter.textChanged.connect(self._populate)
+        bar.addWidget(self._weapon_filter)
+
         self._filters_btn = QPushButton("Filters…")
         self._filters_btn.setIcon(R.get_icon("Filter_16x"))
         self._filters_btn.setToolTip("Include/exclude by group and rating")
@@ -180,6 +233,16 @@ class ModExplorer(QDialog):
             return False
         if not self._passes_state(row):
             return False
+        weapon = self._weapon_filter.text().strip().lower()
+        if weapon and weapon not in str(row.get("weapon", "")).lower():
+            return False
+        for box, key in (
+            (self._start_filter, "start_value"),
+            (self._end_filter, "end_value"),
+            (self._hench_filter, "hench_value"),
+        ):
+            if not _passes_number(row.get(key), box.text()):
+                return False
         group = row.get("group")
         if group and not self._group_filters.get(group, True):
             return False
@@ -260,6 +323,10 @@ class ModExplorer(QDialog):
                     f"{row['files']:,}",
                     row["played"],
                     f"{row['completed']:,}" if row["completed"] else "",
+                    row.get("weapon", ""),
+                    row.get("start", ""),
+                    row.get("end", ""),
+                    row.get("hench", ""),
                 ]
             )
             item.setData(4, Qt.ItemDataRole.UserRole, row["files"])
@@ -277,6 +344,9 @@ class ModExplorer(QDialog):
         self._search.clear()
         self._state.setCurrentIndex(0)
         self._state_op.setCurrentIndex(0)
+        for box in (self._start_filter, self._end_filter, self._hench_filter):
+            box.clear()
+        self._weapon_filter.clear()
         self._rating_op.setCurrentIndex(0)
         self._only_completed.setChecked(False)
         self._populate()

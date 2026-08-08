@@ -364,3 +364,93 @@ def test_clear_text_filters_resets_the_state_comparison(qtbot):
     assert len(_shown(dlg)) == 2
     dlg._on_clear_filters()
     assert len(_shown(dlg)) == 4
+
+
+# --------------------------------------------------------------------------- #
+# Weapon / Start / End / Hench (VB ChWeapon, TxStart, TxEnd, TxHench)
+# --------------------------------------------------------------------------- #
+def _detail_rows():
+    def row(mod, weapon, start, end, hench):
+        return {
+            "mod": mod, "group": "G", "state": "Installed", "state_value": 11,
+            "rating": "Good", "files": 1, "played": "", "completed": 0,
+            "weapon": weapon,
+            "start": "-" if start < 0 else str(start), "start_value": start,
+            "end": "-" if end < 0 else str(end), "end_value": end,
+            "hench": "-" if hench < 0 else str(hench), "hench_value": hench,
+        }
+
+    return {
+        "rows": [
+            row("Low", "Long Sword", 1, 8, 0),
+            row("Mid", "Katana", 10, 20, 2),
+            row("High", "Long Sword", 20, 40, 4),
+            row("Unset", "None", -1, -1, -1),
+        ],
+        "count": 4,
+    }
+
+
+def test_the_detail_columns_are_shown(qtbot):
+    dlg = ModExplorer(_detail_rows())
+    qtbot.addWidget(dlg)
+    headers = [dlg.table.headerItem().text(i) for i in range(dlg.table.columnCount())]
+    assert headers[-4:] == ["Weapon", "Start", "End", "Hench"]
+    row0 = dlg.table.topLevelItem(0)
+    assert row0.text(headers.index("Weapon")) == "Long Sword"
+    # An unrecorded value shows as a hyphen, as VB's ToHyphenIfNegative does.
+    unset = next(
+        dlg.table.topLevelItem(i)
+        for i in range(dlg.table.topLevelItemCount())
+        if dlg.table.topLevelItem(i).text(0) == "Unset"
+    )
+    assert unset.text(headers.index("Start")) == "-"
+
+
+def test_numeric_filters_accept_a_bare_number_and_an_operand(qtbot):
+    """VB FilterNumber: a bare number means "greater than"."""
+    dlg = ModExplorer(_detail_rows())
+    qtbot.addWidget(dlg)
+
+    dlg._end_filter.setText("20")            # bare == ">20"
+    assert _shown(dlg) == {"High"}
+
+    dlg._end_filter.setText("=20")
+    assert _shown(dlg) == {"Mid"}
+
+    dlg._end_filter.setText("<20")
+    assert _shown(dlg) == {"Low", "Unset"}   # -1 counts as less than 20
+
+    dlg._end_filter.setText("")
+    assert len(_shown(dlg)) == 4
+
+
+def test_a_half_typed_filter_does_not_empty_the_list(qtbot):
+    # Typing ">" then a digit must not blank the table in between.
+    dlg = ModExplorer(_detail_rows())
+    qtbot.addWidget(dlg)
+    dlg._start_filter.setText(">")
+    assert _shown(dlg) == {"Low", "Mid", "High"}, "bare operand means > -1"
+    dlg._start_filter.setText("not a number")
+    assert len(_shown(dlg)) == 4, "unparseable text filters nothing"
+
+
+def test_the_weapon_filter_matches_on_text(qtbot):
+    dlg = ModExplorer(_detail_rows())
+    qtbot.addWidget(dlg)
+    dlg._weapon_filter.setText("long")
+    assert _shown(dlg) == {"Low", "High"}
+    dlg._weapon_filter.setText("KATANA")     # case-insensitive
+    assert _shown(dlg) == {"Mid"}
+
+
+def test_clear_text_filters_clears_the_new_boxes_too(qtbot):
+    dlg = ModExplorer(_detail_rows())
+    qtbot.addWidget(dlg)
+    dlg._end_filter.setText("=20")
+    dlg._weapon_filter.setText("katana")
+    assert len(_shown(dlg)) == 1
+    dlg._on_clear_filters()
+    assert dlg._end_filter.text() == ""
+    assert dlg._weapon_filter.text() == ""
+    assert len(_shown(dlg)) == 4

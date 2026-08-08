@@ -28,14 +28,22 @@ the control set and `<Form>.vb` for the handlers, not the ledger's status.
 | **Installation Analyser** | *Open Folder* and *Properties* on a file row; the browser report now carries each file's real path. |
 | **Download Project** | *Copy File Name* and *Copy Direct File Link*, the latter enabled only when the file has one. |
 
+## Built since (the rest of the list)
+
+| Screen | What landed |
+|---|---|
+| **Mod Explorer** | The Weapon / Start / End / Hench columns, with VB's numeric filters (`>`, `=`, `<`, bare number meaning "greater than") and a weapon text filter. |
+| **Installation Manager** | Sort the set list by Name / Created / Updated, ascending or descending. *Current* stays pinned at the top — it is the live state, not a snapshot. |
+| **Start Screen Manager** | *Repair Prefixed Image Exclusions* — excludes every prefixed image that is not excluded, which cannot be spotted by eye in a folder of hundreds. |
+
 ## Still absent
 
-1. **Mod Explorer** — the Weapon / Start / Hench columns and their filters, and
-   Undo Group / Undo Prefix Changes.
-2. **Installation Manager** — sort Ascending/Descending and the Group Selector
-   (`TsAscending` / `TsDescending` / `TsGroupSelector`).
-3. **Start Screen Manager** — *Repair Prefixed Image Exclusions*
-   (`RbRepairPrefixed`). The prefix editor is ported; this repair pass is not.
+1. **Mod Explorer** — Undo Group Changes / Undo Prefix Changes. The prefix half
+   needs the mod-name prefix feature the port does not have; the group half is an
+   undo stack over group moves, which nothing else in the port has either.
+2. **Installation Manager** — the Group Selector (`TsGroupSelector`), a
+   second pane for adding and removing whole groups within a set. The dialog's
+   docstring already records this as a bounded port.
 
 ## Checked and found already faithful
 

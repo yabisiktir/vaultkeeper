@@ -2808,6 +2808,16 @@ class ProfileController:
                     # </=/> ("less/matching/more files installed"), and the
                     # display string cannot be ordered.
                     "state_value": int(md.mod_state),
+                    # The Mod Explorer's remaining columns and their filters
+                    # (VB ChWeapon / ChStart / ChEnd / ChHench). -1 renders as
+                    # "-" and means "not recorded", which the filters honour.
+                    "weapon": _to_weapon_text(md.best_weapon),
+                    "start": _hyphen_if_negative(md.level_start),
+                    "start_value": md.level_start,
+                    "end": _hyphen_if_negative(md.level_end),
+                    "end_value": md.level_end,
+                    "hench": _hyphen_if_negative(md.hench_count),
+                    "hench_value": md.hench_count,
                     "rating": md.rating.name.title(),
                     "files": len(md.files),
                     "played": played,
@@ -3807,6 +3817,42 @@ class ProfileController:
             "prefix_enabled": bool(prefixes),
             "prefixed_count": prefixed_count,
             "summary": summary,
+        }
+
+    def repair_prefixed_exclusions(self) -> dict:
+        """Exclude every prefixed start screen that is not excluded yet.
+
+        VB ``RbRepairPrefixed``: a prefixed image is one the user has marked as
+        belonging to a set, and those are meant to stay out of the automatic
+        cycle. They can fall out of the exclusion list — a rename, an image
+        added while the prefix list was different — and there is no way to spot
+        that by eye in a folder of hundreds. Returns ``{"repaired", "message"}``.
+        """
+        from vaultkeeper.game import start_screen as ss
+
+        report = self.loadscreens_report()
+        missing = [
+            row["name"]
+            for row in report.get("images", [])
+            if row.get("prefixed") and not row.get("excluded")
+        ]
+        if not missing:
+            return {
+                "repaired": 0,
+                "message": "All of the prefixed images are already excluded.",
+            }
+        data_dir = self._profile_data_dir()
+        excludes = ss.read_auto_excludes(data_dir)
+        excludes.extend(missing)
+        ss.save_auto_excludes(data_dir, excludes)
+        count = len(missing)
+        return {
+            "repaired": count,
+            "message": (
+                f"{count:,} prefixed image{'s were' if count != 1 else ' was'} not "
+                f"excluded. {'They have' if count != 1 else 'It has'} now been "
+                f"excluded."
+            ),
         }
 
     def add_loadscreen_exclusion(self, name: str) -> None:

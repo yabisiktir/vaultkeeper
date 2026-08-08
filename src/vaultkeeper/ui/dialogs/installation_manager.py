@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QHBoxLayout,
     QInputDialog,
@@ -27,6 +28,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QPushButton,
+    QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -34,6 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.installation_sets import (
+    SET_CURRENT,
     STATE_INSTALLED,
     STATE_SOME,
     STATE_UNINSTALLED,
@@ -75,6 +78,30 @@ class InstallationManager(QDialog):
 
         # Left: the set list + create/rename/delete buttons.
         left = QVBoxLayout()
+        # VB sorts the set list by Created / Updated / Set Name, ascending or
+        # descending (TsCreated / TsUpdated / TsSetName + TsAscending /
+        # TsDescending). Sets accumulate, and the one you want is usually the
+        # newest — which is exactly the order you cannot get without this.
+        sort_row = QHBoxLayout()
+        sort_row.addWidget(QLabel("Sort:"))
+        self.sort_key = QComboBox()
+        for label, key in (("Name", "name"), ("Created", "created"), ("Updated", "updated")):
+            self.sort_key.addItem(label, key)
+        self.sort_key.currentIndexChanged.connect(lambda *_: self._reload(self._selected_name()))
+        sort_row.addWidget(self.sort_key)
+        self.sort_desc = QToolButton()
+        self.sort_desc.setCheckable(True)
+        self.sort_desc.setText("▼")
+        self.sort_desc.setToolTip("Descending (newest or last, first)")
+        self.sort_desc.toggled.connect(
+            lambda checked: (
+                self.sort_desc.setText("▲" if checked else "▼"),
+                self._reload(self._selected_name()),
+            )
+        )
+        sort_row.addWidget(self.sort_desc)
+        sort_row.addStretch(1)
+        left.addLayout(sort_row)
         self.set_list = QListWidget()
         self.set_list.currentRowChanged.connect(self._on_set_selected)
         left.addWidget(self.set_list, 1)
@@ -127,6 +154,7 @@ class InstallationManager(QDialog):
         self._installed = {
             m for mods in self._controller.installed_by_group().values() for m in mods
         }
+        self._sets = self._sorted_sets(self._sets)
         self.set_list.blockSignals(True)
         self.set_list.clear()
         target_row = 0
@@ -142,6 +170,24 @@ class InstallationManager(QDialog):
         self.set_list.blockSignals(False)
         if self.set_list.count():
             self.set_list.setCurrentRow(target_row)
+
+    def _selected_name(self) -> str | None:
+        """The selected set's name, so a re-sort can keep it selected."""
+        return self._current_set.name if self._current_set is not None else None
+
+    def _sorted_sets(self, sets: list) -> list:
+        """Order the sets by the chosen key and direction (VB SortSets).
+
+        The *Current* set stays pinned at the top whatever the sort: it is the
+        live state rather than a saved snapshot, and burying it under a date
+        order would make the list read as if it were missing.
+        """
+        key = self.sort_key.currentData() or "name"
+        rest = [s for s in sets if s.set_type != SET_CURRENT]
+        pinned = [s for s in sets if s.set_type == SET_CURRENT]
+        rest.sort(key=lambda s: (getattr(s, key, "") or "", s.name.lower()),
+                  reverse=self.sort_desc.isChecked())
+        return pinned + rest
 
     def _on_set_selected(self, row: int) -> None:
         item = self.set_list.item(row) if row >= 0 else None

@@ -341,3 +341,60 @@ def test_dialog_shows_reconciliation_summary(tmp_path, qtbot):
     dlg = InstallationManager.show_for(ctrl)
     qtbot.addWidget(dlg)
     assert "Groups removed: 1" in dlg._status.text()
+
+
+# -- sorting the set list (VB TsCreated / TsUpdated / TsSetName + TsAscending) -- #
+def _sort_dialog(tmp_path, qtbot):
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "GroupA", installed=True)
+    dlg = InstallationManager(ctrl)
+    qtbot.addWidget(dlg)
+    return dlg
+
+
+def _named_sets():
+    from vaultkeeper.game.installation_sets import SET_CURRENT, InstallationSet
+
+    return [
+        InstallationSet(name="Current", set_type=SET_CURRENT, created="2026-09-09"),
+        InstallationSet(name="Beta", set_type="user", created="2026-01-02"),
+        InstallationSet(name="Alpha", set_type="user", created="2026-03-09"),
+        InstallationSet(name="Gamma", set_type="user", created="2026-02-05"),
+    ]
+
+
+def test_sets_sort_by_the_chosen_key_and_direction(tmp_path, qtbot):
+    dlg = _sort_dialog(tmp_path, qtbot)
+    sets = _named_sets()
+
+    dlg.sort_key.setCurrentIndex(dlg.sort_key.findData("name"))
+    assert [s.name for s in dlg._sorted_sets(sets)] == [
+        "Current", "Alpha", "Beta", "Gamma",
+    ]
+
+    dlg.sort_key.setCurrentIndex(dlg.sort_key.findData("created"))
+    assert [s.name for s in dlg._sorted_sets(sets)] == [
+        "Current", "Beta", "Gamma", "Alpha",
+    ], "oldest first"
+
+    dlg.sort_desc.setChecked(True)
+    assert [s.name for s in dlg._sorted_sets(sets)] == [
+        "Current", "Alpha", "Gamma", "Beta",
+    ], "newest first"
+
+
+def test_the_current_set_stays_at_the_top_whatever_the_sort(tmp_path, qtbot):
+    """It is the live state, not a snapshot.
+
+    Sorting it into the middle of a date order would make the list read as if
+    the live state had gone missing.
+    """
+    dlg = _sort_dialog(tmp_path, qtbot)
+    sets = _named_sets()
+    for key in ("name", "created", "updated"):
+        dlg.sort_key.setCurrentIndex(dlg.sort_key.findData(key))
+        for descending in (False, True):
+            dlg.sort_desc.setChecked(descending)
+            assert dlg._sorted_sets(sets)[0].name == "Current"

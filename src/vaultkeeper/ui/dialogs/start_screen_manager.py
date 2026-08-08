@@ -267,6 +267,14 @@ class StartScreenManager(SettingsAccess, QDialog):
         menu.addAction(interval)
 
         menu.addSeparator()
+        repair = QAction(
+            R.get_icon("Hammer_Builder_16xLG"), "Repair Prefixed Image Exclusions", self
+        )
+        repair.setToolTip(
+            "Exclude every prefixed image that is not excluded from the automatic cycle"
+        )
+        repair.triggered.connect(self._on_repair_prefixed)
+        menu.addAction(repair)
         prefixes = QAction(R.get_icon("Hammer_Builder_16xLG"), "Prefixed Start Screens…", self)
         prefixes.triggered.connect(self._on_edit_prefixes)
         menu.addAction(prefixes)
@@ -460,6 +468,15 @@ class StartScreenManager(SettingsAccess, QDialog):
         result = self._controller.uninstall_loadscreen()
         self._refresh()
         self._status(result.get("message", "Uninstalled."))
+
+    def _on_repair_prefixed(self) -> None:
+        """Re-exclude prefixed images that slipped out of the list (VB RbRepairPrefixed)."""
+        if self._controller is None:
+            return
+        result = self._controller.repair_prefixed_exclusions()
+        self._refresh()
+        self._status(result["message"])
+        QMessageBox.information(self, "Repair Prefixed Images", result["message"])
 
     def _on_edit_prefixes(self) -> None:
         if self._controller is None:
