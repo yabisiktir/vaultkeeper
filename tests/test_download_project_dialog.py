@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
+import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog
 
@@ -525,3 +526,107 @@ def test_files_and_prerequisites_come_from_one_request(qtbot, tmp_path):
     assert dlg.file_tree.topLevelItemCount() == 1
     assert dlg.required_list.topLevelItem(0).text(0) == "7-Zip (external page)"
     assert controller._http.calls == [("GET", query)]  # one, not two
+
+
+# -- remembering where a mod came from ------------------------------------------ #
+def _api_controller(tmp_path, url, payload):
+    _set_download_method("api")
+    controller = _controller(tmp_path)
+    from urllib.parse import quote
+
+    query = (
+        "https://neverwintervault.org/api/v1/projects/by-url?url=" + quote(url, safe="")
+    )
+    controller._http = FakeHttpClient({query: HttpResponse(query, 200, text=payload)})
+    return controller
+
+
+def test_a_new_mod_downloaded_from_a_page_remembers_it(qtbot, tmp_path):
+    """Without this, Check for Mod Updates has nothing to check."""
+    url = "http://vault/project/nwn1/module/mine"
+    controller = _api_controller(tmp_path, url, _PROJECT_JSON)
+    controller._http.responses["http://cdn/a.zip"] = HttpResponse(
+        "http://cdn/a.zip", 200, content=b"A"
+    )
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    dlg.mod_name_edit.setText("Brand New")
+    dlg._on_download()
+    _finish(qtbot, dlg)
+    assert controller.mod_web_link("Brand New") == url
+
+
+def test_an_existing_mods_link_is_not_replaced_without_asking(qtbot, tmp_path, monkeypatch):
+    url = "http://vault/project/nwn1/module/mine"
+    controller = _api_controller(tmp_path, url, _PROJECT_JSON)
+    controller.create_mod("My Mod")
+    controller.set_mod_web_link("My Mod", "http://vault/project/nwn1/module/old")
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "My Mod")
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtWidgets import QMessageBox
+
+    asked = []
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        lambda *a, **k: (asked.append(a[2]), QMessageBox.StandardButton.No)[1],
+    )
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert asked, "an existing, different link must be a question"
+    assert controller.mod_web_link("My Mod").endswith("/old")
+
+
+def test_saying_yes_replaces_the_link_and_is_only_asked_once(qtbot, tmp_path, monkeypatch):
+    url = "http://vault/project/nwn1/module/mine"
+    controller = _api_controller(tmp_path, url, _PROJECT_JSON)
+    controller.create_mod("My Mod")
+    controller.set_mod_web_link("My Mod", "http://vault/project/nwn1/module/old")
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "My Mod")
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtWidgets import QMessageBox
+
+    asked = []
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        lambda *a, **k: (asked.append(1), QMessageBox.StandardButton.Yes)[1],
+    )
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    dlg._on_fetch()  # retrieving twice must not ask twice
+    assert len(asked) == 1
+    assert controller.mod_web_link("My Mod") == url
+
+
+def test_an_empty_link_is_filled_in_without_a_question(qtbot, tmp_path, monkeypatch):
+    url = "http://vault/project/nwn1/module/mine"
+    controller = _api_controller(tmp_path, url, _PROJECT_JSON)
+    controller.create_mod("My Mod")
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "My Mod")
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: pytest.fail("nothing to ask about")
+    )
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert controller.mod_web_link("My Mod") == url
+
+
+def test_the_title_names_the_download_rules_in_force(qtbot, tmp_path):
+    """Which rules answered matters when a download behaves oddly."""
+    url = "http://vault/project/nwn1/module/mine"
+    controller = _api_controller(tmp_path, url, _PROJECT_JSON)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    assert dlg.windowTitle() == "Download Project"  # nothing loaded yet
+    dlg.url_edit.setText(url)
+    dlg._on_fetch()
+    assert "Rules revision" in dlg.windowTitle()

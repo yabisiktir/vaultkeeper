@@ -2622,6 +2622,7 @@ class ProfileController:
         mod_name: str,
         *,
         group: str | None = None,
+        page_url: str = "",
         on_progress=None,
         on_bytes=None,
     ) -> list:
@@ -2631,12 +2632,21 @@ class ProfileController:
         ``mod_name`` isn't yet a managed mod it is created (under ``group``) so the
         Vault download lands in a real, ready-to-build mod; an existing mod is just
         updated. Returns the per-file download results.
+
+        ``page_url`` is recorded as the mod's web page when it has none — a mod
+        that came from a page has one, and remembering it is what makes *Check
+        for Mod Updates* possible later. An existing link is left alone.
         """
         from vaultkeeper.core import constants as C
         from vaultkeeper.vault.downloader import Downloader
 
         if mod_name and self.pd.mod_item(mod_name) is None:
             self.create_mod(mod_name, group)
+        if page_url and mod_name:
+            md = self.pd.mod_item(mod_name)
+            if md is not None and not md.is_group_item and not md.web_link:
+                md.web_link = page_url
+                self.save()
         dest = self.ctx.profile_mods_dir / mod_name / C.DOWNLOADS_DIR
         dest.mkdir(parents=True, exist_ok=True)
         downloader = Downloader(
@@ -2697,6 +2707,7 @@ class ProfileController:
         mod_name: str,
         *,
         group: str | None = None,
+        page_url: str = "",
         on_progress=None,
         on_bytes=None,
         on_phase=None,
@@ -2711,7 +2722,12 @@ class ProfileController:
         ``{"downloaded", "total", "built", "install_message"}``.
         """
         results = self.download_project(
-            files, mod_name, group=group, on_progress=on_progress, on_bytes=on_bytes
+            files,
+            mod_name,
+            group=group,
+            page_url=page_url,
+            on_progress=on_progress,
+            on_bytes=on_bytes,
         )
         downloaded = sum(1 for r in results if r.ok)
         build = self.build_installer_payload(mod_name, on_phase=on_phase)

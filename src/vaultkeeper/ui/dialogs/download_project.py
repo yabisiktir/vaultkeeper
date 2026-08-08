@@ -74,6 +74,11 @@ class DownloadProjectDialog(QDialog):
         self._files_total = 1
         self._file_index = 0
         self._file_label = ""
+        #: The project URL the current file list came from, so a mod created by
+        #: downloading it can be given its page.
+        self._fetched_url = ""
+        #: Mods already asked about this sitting (VB ``WebLinkMessages``).
+        self._link_asked: set[str] = set()
         self.setWindowTitle("Download Project")
         self.setWindowIcon(R.get_icon("DownloadProject_16x"))
         self.resize(640, 560)
@@ -325,6 +330,49 @@ class DownloadProjectDialog(QDialog):
         project = self.controller.fetch_vault_project(url)
         self.populate_files(project["files"])
         self.populate_required(project["required"])
+        self._fetched_url = url
+        self._show_rules_revision()
+        self._offer_web_link(url)
+
+    def _show_rules_revision(self) -> None:
+        """Name the download rules in force, now that they have been loaded.
+
+        Which revision answered matters when a download behaves oddly, and the
+        rules are published separately from the application — so the number is
+        worth stating rather than leaving someone to guess. Not shown before the
+        first fetch: reading it is what loads them.
+        """
+        revision = getattr(self.controller.download_rules(), "revision", 0)
+        if revision:
+            self.setWindowTitle(f"Download Project  —  Rules revision {revision}")
+
+    def _offer_web_link(self, url: str) -> None:
+        """Record this project as the mod's web page (VB ``UpdateWebLink``).
+
+        A mod that was downloaded from a page has a page, and remembering it is
+        what lets *Check for Mod Updates* work later. An existing, different link
+        is never overwritten without asking, and asking twice for the same mod in
+        one sitting is asking once too often.
+        """
+        mod = self.mod_name_edit.text().strip()
+        if not mod or mod in self._link_asked:
+            return
+        md = self.controller.pd.mod_item(mod)
+        if md is None or md.is_group_item or md.web_link == url:
+            return
+        self._link_asked.add(mod)
+        if md.web_link:
+            from PySide6.QtWidgets import QMessageBox
+
+            answer = QMessageBox.question(
+                self,
+                "Mod's Web Page",
+                f"Update the web page link for '{mod}'?\n\n"
+                f"Old: {md.web_link}\nNew: {url}",
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        self.controller.set_mod_web_link(mod, url)
 
     # -- Running a transfer ------------------------------------------------- #
     def start_job(self, work, on_done) -> None:
@@ -456,11 +504,13 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
+        page_url = self._fetched_url
 
         def work(job):
             on_progress, on_bytes, _ = self._job_callbacks(job)
             return self.controller.download_project(
-                files, mod, group=group, on_progress=on_progress, on_bytes=on_bytes
+                files, mod, group=group, page_url=page_url,
+                on_progress=on_progress, on_bytes=on_bytes,
             )
 
         def done(results) -> None:
@@ -486,12 +536,13 @@ class DownloadProjectDialog(QDialog):
             self.mod_name_edit.setFocus()
             return
         group = self.group_combo.currentText().strip() or None
+        page_url = self._fetched_url
 
         def work(job):
             on_progress, on_bytes, on_phase = self._job_callbacks(job)
             return self.controller.install_downloaded_project(
-                files, mod, group=group, on_progress=on_progress,
-                on_bytes=on_bytes, on_phase=on_phase,
+                files, mod, group=group, page_url=page_url,
+                on_progress=on_progress, on_bytes=on_bytes, on_phase=on_phase,
             )
 
         def done(result) -> None:
