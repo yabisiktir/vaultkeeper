@@ -13,6 +13,8 @@ is mockable and the population/selection logic is directly testable.
 
 from __future__ import annotations
 
+from urllib.parse import urlsplit
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
@@ -330,9 +332,35 @@ class DownloadProjectDialog(QDialog):
         project = self.controller.fetch_vault_project(url)
         self.populate_files(project["files"])
         self.populate_required(project["required"])
+        if not project["files"]:
+            self.status.setText(self._nothing_found(url))
+            return
         self._fetched_url = url
         self._show_rules_revision()
         self._offer_web_link(url)
+
+    def _nothing_found(self, url: str) -> str:
+        """Why nothing came back — "No files found" blames the wrong thing.
+
+        A Nexus address is the common case, and it is not a failure anything here
+        can fix: Nexus answers 403 to programs, by policy. Saying so, and saying
+        what to do instead, is the difference between a dead end and a detour.
+        """
+        rules = self.controller.download_rules()
+        host = urlsplit(url).netloc.lower()
+        if "nexusmods." in host:
+            return (
+                "Nexus Mods does not allow other programs to read its pages, so "
+                "nothing here can fetch this. Download the files in your browser, "
+                "then use Add Files to Mod."
+            )
+        if not rules.is_vault_project_url(url) and not rules.is_rolovault_url(url):
+            return (
+                "That is not a Neverwinter Vault project address. Paste the "
+                "project's page URL — it looks like "
+                "https://neverwintervault.org/project/…"
+            )
+        return "No downloadable files found on that project page."
 
     def _show_rules_revision(self) -> None:
         """Name the download rules in force, now that they have been loaded.

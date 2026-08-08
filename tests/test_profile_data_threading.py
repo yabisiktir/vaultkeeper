@@ -8,6 +8,7 @@ during iteration". These tests hold that shut.
 
 from __future__ import annotations
 
+import itertools
 import threading
 import time
 
@@ -88,13 +89,18 @@ def test_walking_a_mods_files_while_an_install_rewrites_them_is_safe(tmp_path):
         f"p{i}.zip": {f"override/o{i}_{j}.2da": b"O" for j in range(8)}
         for i in range(30)
     })
-    installs = iter(range(30))
+    # The hammer runs for a fixed *time*, so the supply of work must not run out:
+    # a runner fast enough to get through thirty installs in two seconds would
+    # otherwise see StopIteration recorded as a writer error. The thirty fixtures
+    # are cycled; each install still goes to a mod of its own.
+    installs = itertools.count()
 
     def write():
         index = next(installs)
+        fixture = index % 30
         controller.install_downloaded_project(
-            [VaultScraperInfo(direct_url=f"http://cdn/p{index}.zip",
-                              filename=f"p{index}.zip")],
+            [VaultScraperInfo(direct_url=f"http://cdn/p{fixture}.zip",
+                              filename=f"p{fixture}.zip")],
             f"Job Mod {index}",
         )
 

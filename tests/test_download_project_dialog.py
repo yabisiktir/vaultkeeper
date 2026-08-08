@@ -693,3 +693,41 @@ def test_a_first_download_asks_nothing(qtbot, tmp_path, monkeypatch):
     dlg._on_fetch()
     dlg._on_download()
     _finish(qtbot, dlg)
+
+
+# -- saying why nothing came back ----------------------------------------------- #
+def _empty_controller(tmp_path):
+    _set_download_method("api")
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient({})  # every request 404s
+    return controller
+
+
+def test_a_nexus_url_says_nexus_refuses_rather_than_no_files(qtbot, tmp_path):
+    """Nexus answers 403 to programs by policy. "No files found" blames us."""
+    controller = _empty_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("https://www.nexusmods.com/neverwinter/mods/824")
+    dlg._on_fetch()
+    text = dlg.status.text()
+    assert "Nexus Mods does not allow" in text
+    assert "Add Files to Mod" in text  # and what to do instead
+
+
+def test_a_non_vault_url_says_so(qtbot, tmp_path):
+    controller = _empty_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("https://example.com/some/page")
+    dlg._on_fetch()
+    assert "not a Neverwinter Vault project address" in dlg.status.text()
+
+
+def test_a_real_vault_url_with_nothing_on_it_blames_the_page(qtbot, tmp_path):
+    controller = _empty_controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("https://neverwintervault.org/project/nwn1/module/empty")
+    dlg._on_fetch()
+    assert dlg.status.text() == "No downloadable files found on that project page."
