@@ -51,6 +51,9 @@ datas = [
     (str(SRC / "vaultkeeper" / "ui" / "resources"), "vaultkeeper/ui/resources"),
     # Read by path relative to their own module.
     (str(SRC / "vaultkeeper" / "game" / "data"), "vaultkeeper/game/data"),
+    # The published Vault download rules, as the floor under the online copy: a
+    # frozen app with no network still needs a complete rule set.
+    (str(SRC / "vaultkeeper" / "vault" / "data"), "vaultkeeper/vault/data"),
     # The save editor's game tables, same arrangement, from its package.
     # Located through the installed package rather than a fixed path: it may be
     # an editable install beside this repo, or site-packages on a CI runner.

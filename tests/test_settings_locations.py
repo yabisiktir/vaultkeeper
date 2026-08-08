@@ -77,6 +77,7 @@ def test_dialog_has_locations_tab_with_controller(qtbot, tmp_path):
     assert tab_titles == [
         "General",
         "Behaviour",
+        "Downloads",
         "Appearance",
         "Web Menu",
         "Run Menu",
@@ -108,6 +109,7 @@ def test_dialog_omits_locations_tab_without_controller(qtbot):
     assert tab_titles == [
         "General",
         "Behaviour",
+        "Downloads",
         "Appearance",
         "Web Menu",
         "Run Menu",

@@ -1,0 +1,2549 @@
+
+' Best viewed with Notepad++ using NIT's DownloadRules v2.0 as the language.
+'
+' Note:
+'		The Installer Tool does NOT perform any validation on the Download Rules.
+'		If you make a change and the Installer Tool crashes, then there is a problem
+'		with the Rule syntax you added or changed.
+
+#Region "Configuration Information"
+
+' Increment the Revision Number when you edit the Rules so you can confirm that Download Project
+' is applying your changes.
+RevisionNumber = 213
+
+' This defines the default Group name used when creating Mod Folders. Specify DefaultName to use
+' NIT's default Group name ("810.  Evaluating").
+' You can change the group defined by DefaultName on the Configuration page in Advanced Settings
+' (NIT v5.6.12 and higher).
+DefaultGroup = DefaultName
+
+' PHP statement that is prefixed to file URLs to ensure the download count is incremented.
+' This is ignored by NIT Version 8.0 and higher.
+CountPhp = https://neverwintervault.org/sites/all/modules/pubdlcnt/pubdlcnt.php?file
+
+' Prefix added to file name identifiers when using the download count PHP statement.
+FileIdPrefix = fid
+
+' Set to True to apply RoloVault file downloads counts, otherwise set to False.
+' The new FID parameter for pubdlcnt.php, currently causes an issue when downloading RoloVault files.
+' Setting this to False means that file download counts for RoloVault files will not be updated, but
+' avoids the RoloVault file download issue.
+' This is ignored by NIT Version 8.0 and higher.
+CountRoloVaultDownloads = False
+
+' Specifies the Base URL for the Vault's API.
+ApiUrl = https://neverwintervault.org/api/v1/
+
+' Specifies the Vault's API query to retrieve information using the Project's URL.
+ApiByUrl = projects/by-url?url=
+
+' Specifies the Vault's API query to retrieve information using the Project's Identifier.
+ApiById = projects/
+
+' Specifies the Vault's API query to Search by Project Title.
+ApiSearchByTitle = projects/by-title?title=
+
+' Specifies the Vault's API query to retrieve information using the File Identifier.
+ApiByFid = files/by-fid
+
+' Specifies Mod Name prefixes that should be removed when using the Mod Name to find
+' the web link.
+FindLinkIgnorePrefixes = cmp,ctp,ctp,cpp
+
+' URL validation definitions.
+VaultDomain = //neverwintervault.org/project
+OldVaultDomain = //neverwintervault.net/project
+RoloVaultDomain = //neverwintervault.org/rolovault
+
+' Specifies the valid Project Types that are appended to the VaultDomain to form Project page URLs.
+VaultProjectTypes
+	nwn1
+	nwnee
+End VaultProjectTypes
+
+' Specifies valid Vault Project URLs that do not comply with the standard URL structure.
+ExceptionUrls
+	https://neverwintervault.org/cep
+End ExceptionUrls
+
+' String appended to Project Title.
+VaultTitleId = " | The Neverwinter Vault"
+
+#End Region
+
+#Region "Game Map Rules"
+
+' Characters that NWN removes from the Game Save Name when the .SAV file is created.
+SaveNameRemovedChars = ()&
+
+' All Game Map Rules statements must precede the GameSaveNameMap statement otherwise
+' they will be ignored on the initial load.
+
+' Maps NWN's Game Save filename to the name recorded in the Mod's header information.
+' These rules help to reduce the number of prompts for Mod names when a new Game Save is detected.
+GameSaveNameMap
+
+	From Dark Energy v1.00
+	To   Dark Energy v1.06
+		
+End GameSaveNameMap
+
+#End Region
+
+#Region "Steam Workshop Rules"
+
+' These Rules define the relationship between Steam's Workshop identifiers and the Mod Folder name
+' that NIT should use.
+'
+' Prior to version v6.6, NIT used the first module file name that it detected to determine the
+' folder name. The release of NIT version 6.6 automated the conversion of Steam Workshop
+' identifiers to mod names.
+'
+' You should no longer need to define rules for Workshop items, although it will reduce the time
+' taken to determine the Mod name by avoiding the access of the item's web page.
+
+WorkshopIdMap
+	
+	MapId 1305626894 = Advanced Combat Animations v4
+	MapId 1463123910 = Beamdog Enhanced Aribeth
+	MapId 1463124277 = Beamdog Enhanced Great Axes
+	MapId 1480376318 = Beamdog Enhanced Greatswords
+	MapId 1463124598 = Beamdog Enhanced Hall of Justice
+	MapId 1463125045 = Beamdog Enhanced Kukris
+	MapId 1463125375 = Beamdog Enhanced Long Swords
+	MapId 1463125790 = Beamdog Enhanced Player Showcase
+	MapId 1463126121 = Beamdog Enhanced Rapiers
+	MapId 1463126402 = Beamdog Enhanced TowerShields
+	MapId 1312882397 = CEP v2.65
+	MapId 2611575441 = CEP v2.x
+	MapId 1776926647 = Generic Hak Compilation
+	MapId 1296314805 = Neverwinter Nights Facelift Haks
+	MapId 1557248549 = NWN Portrait Pack
+	MapId 1849297485 = Project Q Enhanced Edition
+	MapId 1305686512 = Quality Fantasy Portrait Pack
+	MapId 1312465682 = Real Skies Lite
+	MapId 1717999721 = Rogue or Assassin Portrait
+	MapId 2028829035 = Stolen Statue Overhaul
+	MapId 1342401238 = The Aielund Saga
+	
+End WorkshopIdMap
+
+#End Region
+
+#Region "Rules that apply to all projects"
+
+' Defines Projects that NIT does not support due to incorrect results or those that
+' cause NIT to crash.
+'
+' This section can also be used to specify a message that is displayed when Download Projects needs to be disabled.
+' The message can be multiple lines. Use the caret symbol (^) to specify a blank line.
+UnsupportedProjects
+
+	' Every attempt will be made to remove any Projects from this list, but an update
+	' to NIT will be required.
+
+End UnsupportedProjects
+
+' Defines Project URLs that should be redirected to improved or updated Projects.
+Redirects
+
+	' Recommended version for CEP v1.x compatibility
+	From https://neverwintervault.org/project/nwn1/hakpak/combined/cep-v1x-installer
+	To   https://neverwintervault.org/cep
+	
+	' Recommended version for CEP v1.x compatibility does not require CEP 1.68 Update
+	From https://neverwintervault.org/project/nwn1/hakpak/combined/cep-168
+	To   https://neverwintervault.org/cep
+	
+	' CEP v1.52 URL no longer exists
+	From https://neverwintervault.org/project/nwn1/hakpak/combined/cep-152
+	To   https://neverwintervault.org/cep
+	
+	' CEP v1.x Complete URL no longer exists
+	From https://neverwintervault.org/project/nwn1/hakpak/cep1-complete
+	To   https://neverwintervault.org/cep
+	
+	' Latest version of CEP includes CEP v260 Fixes
+	From https://neverwintervault.org/project/nwn1/hakpak/cep-v260-fixes
+	To   https://neverwintervault.org/cep
+	
+	' Latest version of CEP is compatible with previous versions starting with v2.1
+	From https://neverwintervault.org/project/nwn1/hakpak/combined/cep-23-cep-24
+	To   https://neverwintervault.org/cep
+	
+	' Improved and fixed version of the Abyss Tileset
+	From https://neverwintervault.org/project/nwn1/hakpak/tileset/abyss-tileset
+	To   https://neverwintervault.org/project/nwn1/hakpak/tileset/abyss-tileset-redux
+	
+	' Latest version of Shadows of Darkmoon: Echoes
+	From https://neverwintervault.org/project/nwn1/module/shadows-darkmoon-echoes-102-ee-only
+	To   https://neverwintervault.org/project/nwnee/module/shadows-darkmoon-echoes-109-ee-only
+	From https://neverwintervault.org/project/nwnee/module/shadows-darkmoon-echoes-108-ee-only
+	To   https://neverwintervault.org/project/nwnee/module/shadows-darkmoon-echoes-109-ee-only
+
+	' Converts old format link to valid new format links
+	From https://neverwintervault.org/sites/neverwintervault.org/files/project/4232/files/le_batard_lions_hak_mus.rar&amp;nid=4232
+	To   https://neverwintervault.org/sites/neverwintervault.org/files/project/4232/files/le_batard_lions_hak_mus.rar
+	From https://neverwintervault.org/sites/neverwintervault.org/files/project/4233/files/le_batard5haksmusique25avr.rar&amp;nid=4233
+	To   https://neverwintervault.org/sites/neverwintervault.org/files/project/4233/files/le_batard5haksmusique25avr.rar
+	
+End Redirects
+
+' Do not create Mod Installers for these Projects
+NoInstallerProjects
+	1.69 Critical Rebuild (English)
+	Aurora Hak Explorer
+	Aurora TLK Explorer
+	AuroraServerVault - NWNX4 server vault synchronization plugin
+	CharacterBuildCalculator (CBC)
+	ERF Utility v1.2.2 & Erf.wcx
+	Image Conversion Tool EE
+	Image Explorer
+	Leto 1.69
+	Leto (PRC Version)
+	Neverblender 2.8
+	Neverblender 2.7
+	Neverblender 4.0
+	Neverwinter Nights Mod Installer Tool - NIT
+	NWN Console Commands
+	NWN Crunch
+	NWN Explorer
+	nwnexplorer
+	NWN Explorer Reborn
+	NWN Installer Tool
+	NWN Portrait File Reference
+	NWVault Metadata Viewer
+	Set File Editor
+	Surazal's Source Code
+	Taro94's premium module fixes and mods
+	The Hitchhiker's Guide to Color Tokens
+	Visual Studio Code For NWN Builders
+	xp_bugfix NWNX4 Plugin
+End NoInstallerProjects
+
+' Defines rules used to exclude files from all Projects.
+ExcludeRules
+
+	' Any file DESCRIPTION that CONTAINS one of the specified strings will be excluded
+	' from the Project Download list.
+	' Use the double quote character (") to specify strings that contain spaces.
+	
+	Contains
+		outdated
+		obsolete
+		"Do not use"
+		"(old version"
+		" old version"
+		"_old version"
+		"(older version"
+		" older version"
+		"Do not download"
+		"old, don't use"
+		"OLD Download"
+		"(previous version"
+		" previous version"
+		"(No longer needed"
+		(older)
+		Linux
+		(Mac)
+		"<span class="
+		"not to be used"
+		"No longer needed"
+	End Contains
+	
+	' Any file DESCRIPTION that STARTS WITH one of the specified strings will be excluded
+	' from the Project Download list.
+	' Use the double quote character (") to specify strings that contain spaces.
+	
+	StartsWith
+		"old "
+		"old version"
+		"(Old) "
+		"Mac "
+		"OLD: "
+		
+		' Exclude Project Q Archive and Builder files.
+		"ARCHIVE - QV"
+		"ARCHIVE - Q v2.0 Full Package"
+		"ARCHIVE - Hotfix"
+		"BUILDER - "
+	End StartsWith
+	
+	' Any file DESCRIPTION that ENDS WITH one of the specified strings will be excluded
+	' from the Project Download list.
+	' Use the double quote character (") to specify strings that contain spaces.
+	
+	EndsWith
+		" old"
+		" old."
+		" Mac"
+		" Mac."
+	End EndsWith
+	
+	' Any file NAME that has one of the extensions specified below will be excluded
+	' from the Project Download list.
+	'
+	' You can use the IncludeExtensions statement to override the exclusion for specific
+	' Projects.
+	'
+	' Note:
+	' You must include the leading period (eg .txt).
+	
+	Extensions
+		' .txt excluded because most text files are included in the main download.
+		.txt
+	End Extensions
+	
+	' List of file names that will be excluded from the Project Download list.
+	
+	' Test module not needed for players.
+	ExcludeFiles From Arena Tileset
+		arena.mod
+	End ExcludeFiles
+	
+	' Trailer movie not required.
+	ExcludeFiles From Bioware Premium Modules
+		trailer_infinite_dungeons_large.wmv_.7z
+	End ExcludeFiles
+	
+	' Source files not required.
+	ExcludeFiles From CCC June 2011: Poor Folk Stuff
+		ccc06_2011v2.rar
+	End ExcludeFiles
+	
+	' This file is intended for Mod builders rather than players.
+	ExcludeFiles From CODI - Daggerdale Swamp Set
+		tbh_swamp1b5a.zip
+	End ExcludeFiles
+	
+	' Exclude older versions.
+	ExcludeFiles From Coldhearth
+		coldhearth_v22.zip
+	End ExcludeFiles
+	
+	' Source file not needed for players.
+	ExcludeFiles From Custom Content Challenge June 2015: A Song of Ice and Fire / A Game of Thrones
+		ccc_2015_06_source.7z
+	End ExcludeFiles
+	
+	' Exclude the EXE file so that the 7-Zip file is used.
+	ExcludeFiles From Exotic Islands 'n Undersea Caves by BioWare
+		bioware_nwn167_tilesets_full.exe
+	End ExcludeFiles
+	
+	' Hak not required to play.
+	ExcludeFiles From Eye of the Beholder I Mk2 (+ EOB_HAK_ver5_.7z)
+		eob_hak_ver5_.7z
+	End ExcludeFiles
+	
+	' Don't download uncompressed Mod file.
+	ExcludeFiles From Neverwinter Raids - Kobold Cave (1)
+		neverwinter_raids_-_kobold_cave_1.mod
+	End ExcludeFiles
+	
+	' This ensures that shipinteriortga.rar is downloaded.
+	ExcludeFiles From Ship Interior Tileset
+		shipinteriordds.rar
+	End ExcludeFiles
+	
+	' This is missing a HAK requirement (All Sounds.HAK).
+	' A placeholder HAK has been bundled with the download in order to make it playable,
+	' but this comes with a lack of music and ambient sounds.
+	ExcludeFiles From Terosal Prison
+		prison.rar
+	End ExcludeFiles
+	
+	' Ignore the uncompressed HAK file
+	ExcludeFiles From Winter 6
+		winter_6.hak
+	End ExcludeFiles
+	
+	' Exclude older versions.
+	ExcludeFiles From Wizard's Challenge (HHQ2)
+		hhq2_v16.zip
+	End ExcludeFiles
+	
+End ExcludeRules
+
+' Filenames specified in this list will be be prefixed by the Project Title
+' to ensure that the downloaded filenames are unique.
+' Extension names must not be included.
+PrefixFilenames
+	WalkThrough
+	Walk Through
+	ReadMe
+	Manual
+	Guide
+	Hints
+End PrefixFilenames
+
+#End Region
+
+#Region "Project Rule Definition Help"
+
+' Project Rules Syntax
+'
+' Project = <The Neverwinter Vault Project Title>
+'	ModFolder = <NIT Mod Folder name>
+'	Group = <NIT Group name>
+'	IgnoreExcludes
+'	<Type Keyword>
+'		<parameter 1>
+'		<parameter 2...>
+'	<End ListType>
+'	[Installer Wizard Definitions]
+' End Project
+'
+' The ModFolder statement can be used on all Condition Statements except for the "If ERF Downloads".
+' Omit the ModFolder statement to use the Project's Title as the default ModFolder name.
+'
+' Omit the Group statement to use "810.  Evaluating" as the default Group name.
+'
+' Use the IgnoreExcludes statement to suppress Exclusions for the Project being defined.
+'
+' Type Keywords and Parameters:
+'
+' These are listed in the recommended sequence.
+'
+' 	Downloads
+'		<file name portion of attatchment URL 1>
+'		<file name portion of attatchment URL 2...>
+'	End Downloads
+'
+'	RoloVaultFiles
+'		<address of RoloVault file [&Filename Identifier 1]>
+'		<address of RoloVault file [&Filename Identifier 2]...>
+'	End RoloVaultFiles
+'
+'	ExternalFiles
+'		<address of external file 1>
+'		<address of external file 2...>
+'	End ExternalFiles
+'
+'	If <condition keyword> Downloads
+'		[ModFolder = <NIT Mod Folder name>]
+'		<file name portion of attatchment URL 1>
+'		<file name portion of attatchment URL 2...>
+'		[<external keyword> = <file URL 1>]
+'		[<external keyword> = <file URL 2...>]
+'	End If
+'
+'	Excludes
+'		<file name portion of attatchment URL 1>
+'		<file name portion of attatchment URL 2...>
+'	End Excludes
+'
+' 	ExcludeRequiredProjects
+'		<The Neverwinter Vault Project Title 1>
+'		<The Neverwinter Vault Project Title 2...>
+'	End ExcludeRequiredProjects
+'
+'	ExcludeDirectLinks
+'		<address of required file 1>
+'		<address of required file 2...>
+'	End ExcludeDirectLinks
+'
+'	RequiredProjects
+'		<Project Page URL 1>
+'		<Project Page URL 2...>
+'	End RequiredProjects
+'
+'	RequiredFiles From <The Neverwinter Vault Project Title>
+'		<file name portion of attatchment URL 1>
+'		<file name portion of attatchment URL 2...>
+'	End RequiredFiles
+'
+'	IncludeExtensions
+'		<file extension name 1 (including the leading period)>
+'		<file extension name 2 (including the leading period)...>
+'	End IncludeExtensions
+'
+' Omit the Downloads statement to include all Project files.
+'
+' Use the RoloVaultFiles statement to specify files that need to be included from RoloVault.
+' For example, the main file for Dragon Dominant is listed in the Project's description as a
+' direct link. This is how you would specify this link...
+'
+'	RoloVaultFiles
+'		https://neverwintervault.org/rolovault/projects/nwn1/modules/5132/DragonDominant.exe&fid=7122
+'	End RoloVaultFiles
+'
+' Note: RoloVaultFiles links are case sensitive.
+'
+' Use the "If <condition keyword> Downloads" to specify criteria for Project file selection.
+'
+' The Downloads statement must preceed "If <condition keyword> Downloads" statements.
+'
+' If the Downloads statement is omitted and all "If <condition keyword> Downloads" statements are False,
+' all Project files will be included as well as the ones that should have been excluded by the If
+' statements. In this situation, you need to specify which Project files should always be included using
+' the Downloads statement.
+'
+' Condition Keywords:
+'
+'   1.68 - Only download the specified files if NWN's version is 1.68
+'   1.69 - Only download the specified files if NWN's version is 1.69
+'          or the Enhanced Edition is being used.
+'   NWN  - Only download if the Neverwinter Nights original edition is being used.
+'   EE   - Only download if the Neverwinter Nights Enhanced Edition is being used.
+'   ERF  - Only download if the "Exclude non-Texturepacks ERF files when creating installers"
+'          has been Disabled on NIT's Preferences page in Settings.
+'
+' External Keywords:
+'
+' These can be used on all Condition Statements except for the "If ERF Downloads".
+'
+'   RoloVaultFile - Specifies the URL of a RoloVault file.
+'   ExternalFile  - Specifies the URL of an externally hosted file.
+'
+' Use the Excludes statement to specify which files should be excluded from the download list.
+' For example birthright_of_the_north.doc is available for download, but is already included in
+' the Birthright.zip's archive.
+'
+' Use the ExcludeRequiredProjects statement to remove Required Projects and their associated files
+' from the list.
+'
+' Use the "RequiredFiles From" statement to specify which files should be downloaded from a Required
+' Project (ie specify when a Project does not need to use all Required Project files). This statement
+' is ignored if the files defined by the rule for the Required Project have already been downloaded. 
+'
+' Use the RequiredProjects statement to specify Project Page URLs that have been omitted from the
+' Vault's list of Required Projects.
+'
+' Use IncludeExtensions to specify file extension names that will be included even if the extension
+' is specified in the ExcludeRules Extensions list.
+
+#End Region
+
+#Region "Installer Wizard Definition Help"
+
+' Installer Wizard Rules Syntax
+'
+' Project = <The Neverwinter Vault Project Title>
+'	[Project Rule Definitions]
+'	[WizardTitle = <Text to display in the Wizard's window title bar>]
+'	[ExtractArchives}
+'	<Type Keyword [= <Keyword description>]>
+'		<parameter 1>
+'		<parameter 2...>
+'	<End ListType>
+' End Project
+'
+' Use ExtractArchives when one or more of the Type Keyword items is the contents of an Extracted File.
+'
+' Type Keywords and Parameters:
+'
+' These are listed in the recommended sequence.
+'
+' 	SelectOne [= Choices text you want displayed in the Wizard's dialogue]
+'		<folder or file name portion of item 1[ > Display Name]>
+'		<folder or file name portion of item 2[ > Display Name]...>
+'	End SelectOne
+'
+' 	SelectMany [= File preferences text you want displayed in the Wizard's dialogue]
+'		<folder or file name portion of item 1[ > Display Name][ = Checked or Unchecked]>
+'		<folder or file name portion of item 2[ > Display Name][ = Checked or Unchecked]...>
+'	End SelectOne
+'
+' 	InstallerExcludes
+'		<folder or file name portion of item 1>
+'		<folder or file name portion of item 2...>
+'	End InstallerExcludes
+'
+' Use the SelectOne statement when only one of a number of files should be used by the
+' Create Installer operation.
+'
+' Use the SelectMany statement when all the files are optional. Only files selected during
+' the Create Installer operation will be processed.
+'
+' Use the InstallerExcludes statement to specify files that should be ignored by the Create
+' Installer operation.
+
+#End Region
+
+#Region "Shared Resources Projects"
+
+Project = Alternative Ki Strike VFX Overrides
+	ModFolder = Alternative Ki Strikes	
+	WizardTitle = Alternative Ki Strikes Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which Ki Strike colour you want to use.
+		aenea_monk_ki_overrides.rar\blue_dark > Dark Blue
+		aenea_monk_ki_overrides.rar\green > Green
+		aenea_monk_ki_overrides.rar\orange > Orange
+		aenea_monk_ki_overrides.rar\purple > Purple
+		aenea_monk_ki_overrides.rar\red > Red
+		aenea_monk_ki_overrides.rar\redtoblue > Red to Blue
+		aenea_monk_ki_overrides.rar\white > White
+		aenea_monk_ki_overrides.rar\yellow > Yellow
+	End SelectOne
+End Project
+
+Project = CEP 2.x (Community Expansion Pack)
+    ModFolder = CEP v2.x
+    Group = 100.  Community Packs
+	Excludes
+		cep_2.71_hotfix_1_rockymountains.7z
+	End Excludes
+End Project
+
+Project = CEP 3 The Community Expansion Pack
+	ModFolder = CEP v3.x
+    Group = 100.  Community Packs
+End Project
+
+Project = Community Music Pack
+	ModFolder = CMP Community Music Pack
+    Group = 100.  Community Packs
+    Downloads
+		cmp_v1.0.full_.zip
+		mus_cmp143.bmu
+		mus_cmp266.bmu
+    End Downloads
+	If 1.69 Downloads
+    	cmp_hak_169.zip
+	End If
+	If 1.68 Downloads
+    	cmp_hak.zip
+	End If
+End Project
+
+Project = D20 Modern Haks Version 2.2
+	Downloads
+		mdrn22_full.7z
+	End Downloads
+End Project
+
+Project = ERF Utility v1.2.2 & Erf.wcx
+	ModFolder = ERF Utility
+	Group = 110.  Utility Mods
+	Excludes
+		erfwcx_0.9.7z
+		erfwcx_far.7z
+		erf1.4.0.7z
+		erf121.rar
+	End Excludes
+End Project
+
+Project = The Community Creature Project v2.2 (CCP v2.2) and older versions
+	ModFolder = CCP Community Creature Project
+    Group = 100.  Community Packs
+	Downloads
+		the_ccp2_2_0.zip
+    End Downloads
+End Project
+
+Project = Community Tileset Project
+	ModFolder = CTP Community Tileset Project
+    Group = 100.  Community Packs
+    Downloads
+		ctp_bio_fix.7z
+		ctp_combined_04072009.7z
+    End Downloads
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+	End RequiredProjects
+End Project
+
+Project = Fixed CTP Loadscreens that show missing Babylon loadscreens
+	ModFolder = CTP Community Tileset Project
+    Group = 100.  Community Packs
+End Project
+
+Project = Community Patch 1.72
+    Group = 100.  Community Packs
+	If NWN Downloads
+		ModFolder = CPP Community Patch
+    	nwncommunitypatch172_169-latest.7z
+	End If
+	If EE Downloads
+		ModFolder = CPP Community Patch (EE)
+    	nwncommunitypatch172_nwn-ee-latest.7z
+	End If
+End Project
+
+Project = Community Patch Project	
+    Group = 100.  Community Packs
+	If NWN Downloads
+		ModFolder = CPP v1.72
+    	nwnpatch172_en_rc5.7z
+	End If
+	If EE Downloads
+		ModFolder = CPP v1.72 Enhanced Edition
+    	nwnunofficialpatch172rc5_nwn-ee.7z
+	End If
+End Project
+
+Project = Community Skybox Pack (CSP) v2.1
+	ModFolder = CSP Community Skybox Pack
+    Group = 100.  Community Packs
+    Downloads
+		csp_v2.1.7z
+    End Downloads
+End Project
+
+Project = CTP Babylon
+	ModFolder = CTP Babylon
+    Group = 100.  Community Packs
+End Project
+
+Project = CTP Generic Doors
+	ModFolder = CTP Generic Doors
+    Group = 100.  Community Packs
+	Excludes
+		ctp_generic_doors.rar
+		ctp_generic_doors_r1_documentation.pdf
+	End Excludes
+End Project
+
+Project = Custom Menus
+	Group = 140.  Common Resources
+	Downloads
+		aribeth.zip
+		aribeth_3_0.7z
+		aribeth_4.7z
+		aribeth_newer_169.7z
+		fantasy_fairy.zip
+		fantasy_forest.zip
+		fantasy_wood.zip
+	End Downloads
+	If EE Downloads
+		8191_overrides.7z
+		aribeth_new_hd.7z
+		aribeth_3.7z
+		castle_hd.7z
+		fantasyforest_hd.7z
+		fantasyfairy_hd.7z
+		fairytales_kids_hd.7z
+	End If
+	WizardTitle = Custom Menus Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which custom menu screen you want to use. Note: 8191 Overrides is excluded, because it needs manual installation (see instructions)
+		aribeth.zip > Aribeth
+		aribeth_3_0.7z > Aribeth 3
+		aribeth_4.7z\override_1.69-1.78.8190 > Aribeth 4
+		aribeth_newer_169.7z > Aribeth New
+		fantasy_fairy.zip > Fantasy Fairy
+		fantasy_forest.zip > Fantasy Forest
+		fantasy_wood.zip > Fantasy Wood
+		aribeth_4.7z\override_1.79.8191+ > Aribeth 4 (Enhanced Edition)
+		aribeth_new_hd.7z > High Definition Aribeth
+		castle_hd.7z > High Definition Castle
+		fairytales_kids_hd.7z > High Definition Fairytales Kids
+		fantasyfairy_hd.7z > High Definition Fantasy Fairy
+		fantasyforest_hd.7z > High Definition Fantasy Forest
+	End SelectOne
+	InstallerExcludes
+		8191_overrides.7z
+		icons_and_artwork.7z
+	End InstallerExcludes
+End Project
+
+Project = D20 Modern 1.3/1.4 Classic (IGN Vault Backup)
+	ModFolder = D20 Modern v1.3, v1.4
+	Downloads
+		d20_modern_classic_-_aio.7z
+	End Downloads
+End Project
+
+Project = D20 Modern Haks Version 2.1
+	ModFolder = D20 Modern Haks v2.1
+    Group = 140.  Common Resources
+End Project
+
+Project = Early Winter
+	Group = 140.  Common Resources
+	WizardTitle = Early Winter Installer Wizard
+	SelectMany = Select which versions to use.
+		mountainsnow_6.7z > Uncompiled = Checked
+		mountainsnow3_2.7z > Compiled (You have to rename the hak to mountainsnow.hak) = Unchecked
+	End SelectMany
+End Project
+
+Project = D20 Modern Haks Version 2.2
+	ModFolder = D20 Modern Haks v2.2
+    Group = 140.  Common Resources
+	If ERF Downloads
+		d20_modern_update_erf.rar
+	End If
+End Project
+
+Project = Henchman Inventory & Battle AI Mod
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = High Heel walk and run phenotype100 with heels included
+	Excludes
+		karpad_highheel.rar
+		karpad_highheel_v2.rar
+		karpad_highheel_v2_alt.rar
+		karpad_highheel_v3_alt.rar
+		karpad_highheel_override.zip
+		karpad_hh_wedge.rar
+		wedge_override.rar
+	End Excludes
+	WizardTitle = High Heel walk and run Installer Wizard
+	ExtractArchives
+	SelectMany = Choose whether to install the Override and/or Hak versions
+		karpad_higheel_ultimate.rar > Hak Version = Unchecked
+		karpad_hh_override_ultimate.zip > Override Version = Checked
+	End SelectMany
+	InstallerExcludes
+		karpad_higheel_ultimate.rar\DEMO_karpad_highheel.mod
+		video_demo.rar
+	End InstallerExcludes
+End Project
+
+Project = Inventory Sort
+	Group = 110.  Utility Mods
+End Project
+
+Project = Male bow run animation fix for increased movement speed
+	Excludes
+		fixed_male_bow_run_a_ba.zip
+	End Excludes
+End Project
+
+Project = Mountainous forest
+	Excludes
+		forest_test_1.7z
+		mountainforest_6.7z
+	End Excludes
+End Project
+
+Project = Mountains and more
+	Excludes
+		rural_test_1.7z
+		medievalrural_9.7z
+		medievalrural_11.7z
+		medievalrural_14.7z
+	End Excludes
+	WizardTitle = Mountains and More Installer Wizard
+	SelectMany = Select whether you want to use a few models that replace Thallion Stellani's halfling homes.
+		hobbitholes.7z > Tiles that replace Thallion Stellani's halfling homes = Unchecked
+	End SelectMany
+
+End Project
+
+Project = More Doors
+	Downloads
+		moredoorsv4.1.rar
+	End Downloads
+End Project
+
+Project = Neverwinter Nights facelift haks
+	Mod = Neverwinter Nights Facelift Haks
+	Excludes
+		userpatch.7z
+	End Excludes
+	WizardTitle = Neverwinter Nights Facelift Haks Installer Wizard
+	SelectMany = Select Patch Files to create a Hak Patch. Leave unchecked to use with Mods that require the Haks.
+		biomines_1.7z > Default Mines Texture = Checked
+		biomines2.7z > Mines Tileset with different textures. Rename to biomines.hak to replace the default one. = Unchecked
+		patchfiles_1.7z > Patch Files = Unchecked
+	End SelectMany
+	InstallerExcludes
+		userpatch.7z
+	End InstallerExcludes
+End Project
+
+Project = Neverwinter Nights Mod Installer Tool - NIT
+	Mod = NWN Installer Tool
+	Group = 110.  Utility
+End Project
+
+Project = NWN Enhanced Depth and Contrast - Custom shaders for NWShader
+	ModFolder = NWN Custom Shaders
+	RequiredFiles From NWShader
+		bahamut_0214.rar
+	End RequiredFiles
+	WizardTitle = NWN Custom Shaders Installer Wizard
+	InstallerExcludes
+		bahamut_0214.rar
+		nwn-edcshaders_v11.zip
+		nwn-edcshaders_v121.zip
+	End InstallerExcludes
+End Project
+
+Project = Old SF Files
+	IgnoreExcludes
+End Project
+
+Project = Placeables from the game The Witcher 1
+	Downloads
+		witcher_12.7z
+	End Downloads
+	If NWN Downloads
+		placeables.7z
+	End If
+	If EE Downloads
+		witcher_9.7z
+	End If
+	Excludes
+		witcher_catalogue_1.7z
+	End Excludes
+End Project
+
+Project = Project Q
+    ModFolder = Project Q
+    Group = 140.  Common Resources
+End Project
+
+Project = Project Q Archive
+	ModFolder = Project Q Archive
+	Group = 140.  Common Resources
+	IgnoreExcludes
+	Downloads
+		' Enhanced Edition.
+		qv3_core_0.7z
+		projectq_v3.1.7z
+		q_trees.7z
+		low_hands.7z
+		q_creatures_1.7z
+		q_shields.7z
+		q_tno_ee_8193-17.7z
+		
+		' NWN 1.69
+		q2.2_full.7z
+		qv2.2.1_patch.7z
+		qv2.2.2_patch.7z
+		qv2.2.3_patch.7z	
+	End Downloads
+	WizardTitle = Project Q Archive Installer Wizard
+	SelectMany = Select all Q2 items to install Project Q v2.2, otherwise tick all Mandatory Q3 items to install Project Q v3.1 (Enhanced Edition). I recommend creating one Mod folder for each version of Project Q so you can manage dependencies more easily.
+		q2.2_full.7z > Q2.2 Full = Unchecked
+		qv2.2.1_patch.7z > Q2.2.1 Patch = Unchecked
+		qv2.2.2_patch.7z > Q2.2.2 Patch = Unchecked
+		qv2.2.3_patch.7z > Q2.2.3 Patch = Unchecked
+		qv3_core_0.7z > Q3.1 Mandatory Core = Unchecked
+		projectq_v3.1.7z > Q3.1 Mandatory Patch = Unchecked
+		q_tno_ee_8193-17.7z > Q3.1 Mandatory Compatibility Update to TNO01.SET = Unchecked
+		q_creatures_1.7z > Q3.1 Optional creatures override for selected creatures = Unchecked
+		low_hands.7z > Q3.1 Optional hands override for vanilla models only = Unchecked
+		q_shields.7z > Q3.1 Optional shields override for vanilla models only = Unchecked
+		q_trees.7z > Q3.1 Optional Trees override for TNO tileset and TNP placeables = Unchecked
+	End SelectMany
+End Project
+
+Project = Project Q Enhanced Edition
+    ModFolder = Project Q Enhanced Edition
+    Group = 140.  Common Resources
+	WizardTitle = Project Q Enhanced Edition Installer Wizard
+	SelectMany = Optional override for BioWare shields (only needed if not using q_items.hak).
+		q_shields_or.7z > Project Q Shields Override = Unchecked
+	End SelectMany
+End Project
+
+Project = Ravick's Looting System Enhanced (LSE)
+	WizardTitle = Ravick's Looting System Installer Wizard
+	ExtractArchives
+	SelectMany = Specify whether you want to include the developer's source files.
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\source > Source for developers (not needed for players) = Unchecked
+	End SelectMany
+	InstallerExcludes
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\.Mod Installer
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\.Mod Installer\nitconfig
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\.Mod Installer\override
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\images
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\workshop
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\workshop\Ravick's Looting System Enhanced (LSE)
+		ravicks_looting_system_enhanced_lse_1.1_0.zip\workshop\Ravick's Looting System Enhanced (LSE)\override
+	End InstallerExcludes
+End Project
+
+Project = Real Skies
+	Group = 140.  Common Resources
+	If NWN Downloads
+		real_skies169.rar
+	End If
+	If EE Downloads
+		real_skies_102.rar
+	End If
+	IgnoreExcludes
+End Project
+
+Project = Reborn UI
+	WizardTitle = Reborn UI Installer Wizard
+	SelectMany = Select any optional files you want to use.
+		optional-2x_loading_screens.zip > 2x Loading Screens = Unchecked
+		optional-2x_portraits.zip > 2x Portraits = Unchecked
+		optional-2x_portraits-3extra.zip > 2x Portraits - 3 extra = Unchecked
+		rebornui_altmenubkgnd.zip > Alternative Main Menu background = Unchecked
+		muteannoyingsounds.zip > Mute Annoying Sounds = Unchecked
+		optional-nwn2_dialogue_font.zip > NWN 2 Dialogue Font = Unchecked
+	End SelectMany
+End Project
+
+Project = Senemenelas Interior Tilesets
+	Excludes
+		sen_underdark_testmod.7z
+	End Excludes
+End Project
+
+Project = Smoking Sourcelights
+	Excludes
+		smokingsourcelights.7z
+		smokingsourcelights_v2.7z
+	End Excludes	
+	WizardTitle = Smoking Sourcelights Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which smoke effects you want to use.
+		smokingsourcelights_v3.zip\SmokingSourceLights\AllColorSmoke\Flare > All Colours with Lens Flares
+		smokingsourcelights_v3.zip\SmokingSourceLights\AllColorSmoke\NoFlare > All Colours without Lens Flares
+		smokingsourcelights_v3.zip\SmokingSourceLights\YellowOnlySmoke\Flare > Yellow with Natural Smoke and Lens Flare, No Smoke for other Colours
+		smokingsourcelights_v3.zip\SmokingSourceLights\YellowOnlySmoke\NoFlare > Yellow with Natural Smoke and no Lens Flare, No Smoke for other colours
+	End SelectOne
+	InstallerExcludes
+		smokingsourcelights_v3.zip\SmokingSourceLights\AllColorSmoke\Flare\ascii
+		smokingsourcelights_v3.zip\SmokingSourceLights\AllColorSmoke\NoFlare\ascii
+		smokingsourcelights_v3.zip\SmokingSourceLights\YellowOnlySmoke\Flare\ascii
+		smokingsourcelights_v3.zip\SmokingSourceLights\YellowOnlySmoke\NoFlare\ascii
+	End InstallerExcludes
+End Project
+
+Project = Stonehammer's Miscellaneous Medium COMPLETE
+	ModFolder = Stonehammer's Miscellaneous Medium
+	Excludes
+		sh_demo_miscmedium.zip
+	End Excludes
+	WizardTitle = Stonehammer's Miscellaneous Medium Installer Wizard
+	SelectMany = Use the Override version, unless another Mod needs the Hak version or you want to make a Hak Patch.
+		sh_miscmed_hak.zip > Hak Version = Unchecked
+		sh_miscmed_override.zip > Override Version = Checked
+	End SelectMany
+End Project
+
+Project = Streamlined User Interface
+	WizardTitle = Streamlined User Interface Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which installation method you want to use.
+		streamlined_user_interface_1.1.7z\override > Override Method
+		streamlined_user_interface_1.1.7z\patch > Patch Hak Method
+	End SelectOne
+	SelectMany = Select to apply Menu Fog Removal.
+		menu_fog_removal.zip > Disable the blue/red swirling fog menu backdrop = Unchecked
+	End SelectMany
+End Project
+
+Project = Swirling Background Replacer
+	WizardTitle = Swirling Background Replacer Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which background colour you want to use.
+		swirling_background_replacer_v1.7z\Black > Black
+		swirling_background_replacer_v1.7z\Dark Blue > Dark Blue
+		swirling_background_replacer_v1.7z\Dark Green > Dark Green
+		swirling_background_replacer_v1.7z\Dark Grey > Dark Grey
+		swirling_background_replacer_v1.7z\Dark Orange > Dark Orange
+		swirling_background_replacer_v1.7z\Dark Red > Dark Red
+	End SelectOne
+End Project
+
+Project = The Ravenloft Core - Persistent Ravenloft Module Series Required Files
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+	RequiredFiles From Sen's Seasonal Workshop - Tilesets based onto WoRm's Seasonal Forest
+		wrm_sf10senadds.7z
+	End RequiredFiles
+End Project
+
+Project = TheCapulet's Verdant Wilderness Override Pack
+	WizardTitle = Verdant Wilderness Override Pack Installer Wizard
+	SelectOne = Choose the type of grass you want to use.
+		verdantwildernessovrfixed.7z > Lush grass
+		verdantwildernessovrfixedscrub.7z > Original grass ('scrubland' look)
+	End SelectOne
+End Project
+
+Project = Underdark Spidercaves
+	Excludes
+		dia_udrkspid3.rar
+		dia_underdark025b.rar
+	End Excludes
+End Project
+
+Project = Wild Woods [v0.7] & Wild Lands Tilesets
+	ModFolder = Wild Woods and Lands Tilesets
+	Group = 140.  Common Resources	
+End Project
+
+Project = Witching NWN1 - A Witcher area conversion project for NWN1 - Rural set
+	Excludes
+		tw1_thedemomod.zip
+		the_witcher_1_rural_nwn1_tileset_guide_version_1_-_june_2016.pdf
+		thewitcher1ruralnwn1tilesetguidev1.zip
+	End Excludes
+End Project
+
+#End Region
+
+#Region "Playable Mods Projects"
+
+' See Aribeth's Redemption - Chapters One, Two and Three for an example of how to ensure that
+' all Mods in a series are downloaded.
+'
+' The key is to include links under RequiredProjects for each of the other Mods in the series
+' as well as the links to the other Mod's Required Projects.
+
+#Region "3rd Edition Adventure Series"
+
+Project = 3rd Edition Adventure Series - The Sunless Citadel
+	ModFolder = 3rd Edition Adventure Series
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/3rd-edition-adventure-series-forge-fury
+		https://neverwintervault.org/project/nwn1/module/standing-stone-0
+		https://neverwintervault.org/project/nwn1/module/speaker-dreams
+		https://neverwintervault.org/project/nwn1/module/heart-nightfang-spire-0
+	End RequiredProjects
+End Project
+
+Project = 3rd Edition Adventure Series - The Forge of Fury
+	ModFolder = 3rd Edition Adventure Series
+End Project
+
+Project = The Standing Stone
+	ModFolder = 3rd Edition Adventure Series
+	Excludes
+		the_standing_stone_v1.zip
+		the_standing_stone_v11.zip
+	End Excludes
+End Project
+
+Project = The Speaker in Dreams
+	ModFolder = 3rd Edition Adventure Series
+End Project
+
+Project = Heart of Nightfang Spire
+	ModFolder = 3rd Edition Adventure Series
+End Project
+
+#End Region
+
+Project = A Dance with Rogues Part 1 2.0 (EE Compatible)
+	WizardTitle = A Dance with Rogues (EE) Installer Wizard
+	SelectMany = Specify your preferences.
+		adwrhak3_0.zip > Check if you are NOT using CEP v2.66 or higher = Unchecked
+		acag109_patch_nofood.zip > No Food Restrictions = Checked
+		adwrhak3.zip > Check if you are NOT using CEP v2.66 or higher (old version) = Unchecked
+		acag108_patch_nofood.zip > No Food Restrictions (old version) = Unchecked
+	End SelectMany
+End Project
+
+Project = A Dance With Spies
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = A Harper's Tale - Prelude v 1.10 (Overhauled)
+	ModFolder = A Harper's Tale
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/harpers-tale-1-escort-duty-v110-overhauled
+		https://neverwintervault.org/project/nwn1/module/harpers-tale-2-hooknose-crag-v110-overhauled
+		https://neverwintervault.org/project/nwn1/module/harpers-tale-3-selgaunt-v103
+	End RequiredProjects
+End Project
+
+Project = A Harper's Tale 1 - Escort Duty v1.10 (Overhauled)
+	ModFolder = A Harper's Tale
+End Project
+
+Project = A Harper's Tale 2 - Hooknose Crag v1.10 (Overhauled)
+	ModFolder = A Harper's Tale
+End Project
+
+Project = A Harper's Tale 3 - Selgaunt v1.03
+	ModFolder = A Harper's Tale
+End Project
+
+Project = A mercenarys luck 1 (Formerly Tales of Ardara I)
+	Excludes
+		tales1hak_0.zip
+	End Excludes
+End Project
+
+Project = A New Journey Begins - v.2.0 - NWN: EE-SUPPORTED (Enhanced Edition released 6th of Febuary 2022 // Original released 6th of August 2004)
+	ModFolder = A New Journey Begins
+	Excludes
+		erik_karlsson_berra1091739952437anjb_music_installer.rar
+		erik_karlsson_berra1091742245781anjb_utm_music_files.rar
+	End Excludes
+End Project
+
+Project = After Aielund 1.1
+	Excludes
+		after_aielund_release_1_01.zip
+		after_aielund_release_1_02.zip
+		after_aielund_release_1_03.zip
+	End Excludes
+End Project
+
+Project = American Revolution
+	Excludes
+		rev_hak.part01.rar
+		rev_hak.part02.rar
+		rev_hak.part03.rar
+		rev_erf.rar
+		rev_tlk.rar
+		rev_localvault.rar
+		rev_override.rar
+		rev_module.rar
+		rev_docs.rar
+	End Excludes
+End Project
+
+Project = N1 - Against the Cult of the Reptile God
+	ModFolder = Against the Cult of the Reptile God
+	WizardTitle = Against the Cult of the Reptile God Installer Wizard
+	ExtractArchives
+	SelectOne = Choose which version of NWN you want to use to play this Mod.
+		against_the_cult_of_the_reptile_god_2.zip\Against the Cult of the Reptile God\NWN EE > Enhanced Edition
+		against_the_cult_of_the_reptile_god_2.zip\Against the Cult of the Reptile God\NWN 1.69 > NWN 1.69
+	End SelectOne
+End Project
+
+Project = Aftermath - Red Alliance Demo
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/old-sf-files
+	End RequiredProjects
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/1385/files/wrm_seasonalv10.7z
+	End ExcludeDirectLinks
+End Project
+
+Project = AI-Enhanced Underdark Portrait Pack
+	WizardTitle = Enhanced Underdark Portraits Installer Wizard
+	SelectOne = Choose eye option.
+		i_want_natural_red_eyes.zip > Natural Red Eyes
+		no_i_dont_wanty_want_red_eyes.zip > Normal Eyes
+		i_want_red_eyes.zip > Red Eyes
+	End SelectOne
+End Project
+
+Project = AL1: Siege of Shadowdale (Canceled Premium Module)
+	ModFolder = AL Series
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/al2-crimson-tides-tethyr-canceled-premium-module
+		https://neverwintervault.org/project/nwn1/module/al3-tyrants-moonsea-canceled-premium-module
+	End RequiredProjects
+End Project
+
+Project = AL2: Crimson Tides of Tethyr (Canceled Premium Module)
+	ModFolder = AL Series
+End Project
+
+Project = AL3: Tyrants of the Moonsea (Canceled Premium Module)
+	ModFolder = AL Series
+End Project
+
+Project = Amnesia Chapter I
+	Excludes
+		amnesiav14.hak
+	End Excludes
+End Project
+
+Project = Angel Falls - Prelude
+	Excludes
+		angel_falls_prelude_v24.zip
+	End Excludes
+End Project
+
+Project = Aribeth's Redemption - Chapter One
+	ModFolder = Aribeths Redemption
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/aribeths-redemption-chapter-two
+		https://neverwintervault.org/project/nwn1/module/aribeths-redemption-chapter-three
+		
+		' Required by Chapter 3
+		https://neverwintervault.org/cep
+	End RequiredProjects
+End Project
+
+Project = Aribeth's Redemption - Chapter Two
+	ModFolder = Aribeths Redemption
+End Project
+
+Project = Aribeth's Redemption - Chapter Three
+	ModFolder = Aribeths Redemption
+End Project
+
+Project = Army of One - Extended
+	Excludes
+		army_of_one_-_walkthrough_ex.zip
+		army_of_one_-_extended.zip
+	End Excludes
+End Project
+
+Project = B1-12 - In Search of Adventure
+	Excludes
+		in_search_of_adventurev51.zip
+		in_search_of_adventurev52.zip
+		in_search_of_adventurev53.zip
+		in_search_of_adventurev54_0.zip
+	End Excludes
+End Project
+
+Project = Bastard of Kosigan - English Version
+	ModFolder = The Bastard of Kosigan
+End Project
+
+Project = Birthright of the North
+	Excludes
+		birthright_of_the_north.doc
+	End Excludes
+End Project
+
+Project = Blackguard I - Dreams of Destruction
+	ModFolder = Blackguard
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/blackguard-ii-innocents-blood
+		https://neverwintervault.org/project/nwn1/module/blackguard-iii-doom-yartar
+		https://neverwintervault.org/project/nwn1/other/blackguard-trilogy-walkthroughs
+	End RequiredProjects
+End Project
+
+Project = Blackguard II - The Innocents' Blood
+	ModFolder = Blackguard
+End Project
+
+Project = Blackguard III - The Doom of Yartar
+	ModFolder = Blackguard
+End Project
+
+Project = Blackguard trilogy walkthroughs
+	ModFolder = Blackguard
+End Project
+
+Project = Bloodfeud V3 - New and probably the final Release !
+	Excludes
+		bloodfeud_v31.7z
+	End Excludes
+End Project
+
+Project = Bloodright - The Blood Royal
+	ModFolder = Bloodright
+	RequiredFiles From NWAlleys
+		nwalleys11.7z
+	End RequiredFiles
+End Project
+
+Project = BRI - The Fall of Ullad
+	ModFolder = The Beggar's Rattle
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/beggars-rattle-ii-olo-newtslayer
+	End RequiredProjects
+End Project
+
+Project = The Beggar's Rattle II - Olo the Newtslayer
+	ModFolder = The Beggar's Rattle
+End Project
+
+Project = By the Word and the Blade (Bastard of Kosigan, episode 5)
+	ModFolder = The Bastard of Kosigan Episode 5
+End Project
+
+Project = Calm Before the Storm [REMAKE] - v.1.3 - NWN: EE-SUPPORTED (Enhanced Edition released 5th of January 2022 // REMAKE released 30th of June 2008 // Original released 8th of August 2003)
+	ModFolder = Calm Before the Storm
+	Excludes
+		calm_before_the_storm_remake_-_hak.exe
+		cbts_remake-hak_light_version.rar
+		cbts_-_music_pack_1.rar
+		cbts_-_music_pack_2.rar
+		cbts_-_music_pack_3.rar
+		cbts_-_music_pack_4.rar
+	End Excludes
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/new-journey-begins-v20-nwn-ee-supported-enhanced-edition-released-6th-febuary
+	End RequiredProjects
+End Project
+
+Project = CC1 - Gates of Myth Drannor
+	ModFolder = Claw Chronicles
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/cc2-sorrow-faerun
+	End RequiredProjects
+End Project
+
+Project = CC2 - Sorrow of Faerun
+	ModFolder = Claw Chronicles
+End Project
+
+Project = Coldhearth
+	WizardTitle = Coldhearth Installer 
+	ExtractArchives
+	InstallerExcludes
+		coldhearth_eev22.zip\cmp.hak
+	End InstallerExcludes
+	Excludes
+		coldhearth_eev21.zip
+		coldhearth_eev2.zip
+		coldhearth_v23.zip
+		coldhearth_ee.zip
+		coldhearth_v24.zip
+	End Excludes
+End Project
+
+Project = Companions of the Hall in Myth Drannor
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = ConteXt
+	Excludes
+		context_0.zip
+	End Excludes
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_fantasyint.7z
+	End RequiredFiles
+End Project
+
+Project = Damsel In Distress
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/hakpak/original-hakpak/full-rideable-horses
+		https://neverwintervault.org/project/nwn1/other/patch/rideable-horses-cep-anatomy-update
+	End RequiredProjects
+End Project
+
+Project = Dark Energy
+	RequiredFiles From Custom Menus
+		fantasy_wood.zip
+	End RequiredFiles
+End Project
+
+Project = Desert Rose
+	Excludes
+		desertrose_v41.zip
+		desertrose_v42.zip
+		desertrose_v43.zip
+		desertrose_v43b.zip
+	End Excludes
+End Project
+
+Project = Desert Rose 2 - Petals of War
+	Excludes
+		desert_rose_2_v2.zip
+		desert_rose_2_v21.zip
+		desert_rose_2_v22.zip
+		desert_rose_2_v23.zip
+	End Excludes
+End Project
+
+Project = Desert Rose: A Captain Blossoms
+	Excludes
+		desert_rose_3.zip
+	End Excludes
+End Project
+
+Project = Disciples 2: Modification
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = Dragon Dominant
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+	Excludes
+		dragon_dominant.rar
+		dragondominantlite.exe
+		dragon_dominant.zip
+	End Excludes
+End Project
+
+Project = Eye of the Beholder
+	Excludes
+		eob_2_0.zip
+	End Excludes
+	WizardTitle = Eye of the Beholder I (EE) Installer Wizard
+	SelectMany = Select if you want to use the Spanish version of the mod.
+		eob1-es-ver.zip > Spanish version of the mod = Unchecked
+	End SelectMany
+End Project
+
+Project = Eye of the Beholder II
+	Excludes
+		eob2_v2.zip
+	End Excludes
+End Project
+
+Project = Earthshaker! (CM4)
+	Excludes
+		earthshaker_cm4_v11.zip
+		earthshaker_cm4_v12.zip
+		earthshaker_cm4_v13.zip
+	End Excludes
+End Project
+
+Project = Fern HD (EE Only)
+	ModFolder = Fern HD (EE)
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/hakpak/original-hakpak/lisa’s-clothes-horse-hotu-padded
+	End RequiredProjects
+End Project
+
+Project = Gladiatrix
+	ModFolder = Gladiatrix
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/gladiatrix-ii-shadows-darkness
+		https://neverwintervault.org/project/nwn1/module/gladiatrix-iii-hand-destiny
+	End RequiredProjects
+End Project
+
+Project = Gladiatrix II - In the Shadows of Darkness
+	ModFolder = Gladiatrix
+End Project
+
+Project = Gladiatrix III - The Hand of Destiny
+	ModFolder = Gladiatrix
+End Project
+
+Project = Greenlaw
+	RequiredFiles From Mountains and more
+		medievalrural_9.7z
+	End RequiredFiles
+End Project
+
+Project = HHQ1 - Fighter's Challenge
+	ModFolder = Fighter's Challenge
+	Excludes
+		hhq1.zip
+	End Excludes
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/hhq5-fighters-challenge-ii
+	End RequiredProjects
+End Project
+
+Project = HHQ5 - Fighter's Challenge II
+	ModFolder = Fighter's Challenge
+	Excludes
+		hhq5.zip
+	End Excludes
+End Project
+
+Project = Horzen
+	WizardTitle = Horzen Installer Wizard
+	InstallerExcludes
+		horzen_v111_mobile.zip
+		horzen_v111a_mobile.zip
+		horzen_v112_mobile.zip
+		horzen_v113_mobile.zip
+		horzen_v113a_mobile.zip
+	End InstallerExcludes
+End Project
+
+Project = Image Conversion Tool EE
+	Excludes
+		image_conversion_tool_setup_3.7z
+		image_conversion_tool_setup_2.7z
+		image_conversion_tool_setup_7.exe
+		image_conversion_tool_setup_1.7z
+		image_conversion_tool_setup_6.exe
+		image_conversion_tool_setup_0.7z
+		image_conversion_tool_setup_5.exe
+		image_conversion_tool_setup.7z
+	End Excludes
+End Project
+
+Project = Insania Fabula + Puppet Masters - DEMO versions - NWN: EE-SUPPORTED (First developed in 2008)
+	ModFolder = Insania Fabula and Puppet Masters
+End Project
+
+Project = Jason's PnP
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+	End RequiredProjects
+End Project
+
+Project = Kevin's Module Cycle
+	Excludes
+		kmc_-_1st_4_mods.zip
+	End Excludes
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = Kingdom of Cylax
+	Excludes
+		kingdomofcylax_2_28.rar
+	End Excludes
+End Project
+
+Project = Kissmet Social Module HAKs
+	ModFolder = Kissmet
+End Project
+
+Project = Legacy
+	Excludes
+		legacy.zip
+		legacy_0.zip
+	End Excludes
+	ExcludeRequiredProjects
+		Mocap Animations
+	End ExcludeRequiredProjects
+End Project
+
+Project = Lords of Darkness 1 - The Fugitive (V3.0)
+	ModFolder = Lords of Darkness
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/lords-darkness-2-dark-age-arboril-v30
+		https://neverwintervault.org/project/nwn1/module/lords-darkness-3-alanyas-secret-v20
+		https://neverwintervault.org/project/nwn1/module/lords-darkness-4-crown-and-country-v12
+	End RequiredProjects
+End Project
+
+Project = Lords of Darkness 2 - The Dark Age of Arboril (V3.0)
+	ModFolder = Lords of Darkness
+End Project
+
+Project = Lords of Darkness 3 - Alanya's Secret (V2.0)
+	ModFolder = Lords of Darkness
+End Project
+
+Project = Lords of Darkness 4 - For Crown and Country (V1.2)
+	ModFolder = Lords of Darkness
+End Project
+
+Project = REF5 - Lords of Darkness
+	Excludes
+		lod.zip
+		lod_111923.zip
+		lod_011825.zip
+	End Excludes
+End Project
+
+Project = Midwinter Festival
+	ModFolder = Mid-Winter-Summer-Night Series
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/midsummer-knights-dream
+		https://neverwintervault.org/project/nwn1/module/midnight-calling
+	End RequiredProjects
+End Project
+
+Project = Midsummer Knights' Dream
+	ModFolder = Mid-Winter-Summer-Night Series
+End Project
+
+Project = Midnight Calling
+	ModFolder = Mid-Winter-Summer-Night Series
+End Project
+
+Project = Mortari Riseth (module)
+	ModFolder = Mortari Riseth
+	Excludes
+		mortari_riseth.zip
+		mortari_riseth_1.1__0.zip
+		mortari_riseth_1.2.zip
+	End Excludes
+End Project
+
+Project = Murder in Mireford
+	ModFolder = Murder in Mireford
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/amergilus-legacy
+	End RequiredProjects
+End Project
+
+Project = Narcopolis
+	Excludes
+		narcopolis.zip
+	End Excludes
+End Project
+
+Project = Paladin - Twilight and Midnight
+	ModFolder = Rick Burton Paladin Series
+	WizardTitle = Rick Burton Paladin Series Installer Wizard
+	ExtractArchives
+	InstallerExcludes
+		drider_v1.5.zip\Alternate Animation Sets
+		drider_v1.5.zip\Alternate Animation Sets\Creature_Set
+		drider_v1.5.zip\Alternate Animation Sets\one hand-pole-throwing_set
+		drider_v1.5.zip\Alternate Portraits
+		drider_v1.5.zip\PG-rated
+		drider_v1.5.zip\Template
+	End InstallerExcludes
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/other/midnight-spoilers
+	End RequiredProjects
+End Project
+
+Project = Pool of Radiance
+	ModFolder = Pool of Radiance (Darth Shiv)
+	Downloads
+		porv120alpha1_20110322.zip	
+	End Downloads
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/pool-radiance-0
+	End RequiredProjects
+	RequiredFiles From Pool of Radiance
+		porr_journal_chapter_1.pdf
+	End RequiredFiles
+End Project	
+
+#Region "Prophet Chapter I"
+
+Project = The Cave of Songs
+	ModFolder = Prophet Chapter I - It Cannot be Denied
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/honor-among-thieves
+		https://neverwintervault.org/project/nwn1/module/prophet-prologue-it-cannot-be-denied
+		https://neverwintervault.org/project/nwn1/module/prophet-chapter-i-will-kings-and-mortals
+		
+		' Required by Prophet - Prologue - It Cannot Be Denied
+		https://neverwintervault.org/cep
+		https://neverwintervault.org/project/nwn1/hakpak/haks-and-music-prophet-series
+	End RequiredProjects
+End Project
+
+Project = Honor Among Thieves
+	ModFolder = Prophet Chapter I - It Cannot be Denied	
+End Project
+
+Project = Prophet - Prologue - It Cannot Be Denied
+	ModFolder = Prophet Chapter I - It Cannot be Denied
+	
+	' No longer required because the TLK file is included in CEP v2.x
+	Excludes
+		cep.tlk_.zip	
+	End Excludes
+End Project	
+
+Project = Prophet - Chapter I - By the Will of Kings and Mortals
+	ModFolder = Prophet Chapter I - It Cannot be Denied
+End Project
+
+#End Region
+
+Project = Queen's Quests
+	Excludes
+		queens_quests_v992.rar
+	End Excludes
+End Project
+
+Project = Red Moon Rising
+	Excludes
+		' Included in the downloaded archive.
+		red_moon_rising_players_guide.pdf
+	End Excludes
+End Project
+
+Project = Resurrection Gone Wronger, Romancing the Bob
+	ModFolder = Resurrection Gone Wronger
+	WizardTitle = Resurrection Gone Wronger Installer Wizard
+	SelectOne = Choose whether you want to play the normal or adult version of the game.
+		resurrection_gone_wronger_i_see_silly_people.zip > Resurrection Gone Wronger
+		resurrection_gone_wronger_romancing_the_bob.zip > Resurrection Gone Wronger (Adult Version)
+	End SelectOne
+End Project
+
+Project = Return to Ravenloft
+	ModFolder = Ravenloft by Firestarter
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/ravenloft-beyond-gate
+	End RequiredProjects
+End Project
+
+Project = Ravenloft - Beyond the Gate
+	ModFolder = Ravenloft by Firestarter
+	Excludes
+		ravenloft_beyond_the_gate_final12_0.zip
+	End Excludes
+End Project
+
+Project = Rogue Trader - Legends and Lies (A D20 Modern Campaign)
+	ModFolder = Rogue Trader - Legends and Lies
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = Rogue Trader - Whispers on the Storm (A D20 Modern Campaign)
+	ModFolder = Rogue Trader - Whispers on the Storm
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = Ruby and the Last Unicorn
+	ModFolder = Ruby and the Last Unicorn
+	RequiredFiles From Mountains and more
+		medruralcomp_3.7z
+	End RequiredFiles
+	RequiredFiles From Placeables from the game The Witcher 1
+		witcher_12.7z
+	End RequiredFiles
+	WizardTitle = Ruby and the Last Unicorn Installer Wizard
+	InstallerExcludes
+		biomines2.7z
+		patchfiles_1.7z
+	End InstallerExcludes
+End Project
+
+Project = Runes of Blood
+	If NWN Downloads
+		runesofbloodu11.zip
+		runesofbloodhaku8.zip
+		runesmovies1.zip
+		runesmovies2.zip
+		runesmusic.zip
+	End If
+	If EE Downloads
+		runesofbloodu11ee.zip
+	End If
+End Project
+
+Project = Temple, Tower, and Tomb (Enhanced Edition)
+	WizardTitle = Temple, Tower and Tomb Installer Wizard
+	InstallerExcludes
+		triple_t169mobile.zip
+	End InstallerExcludes
+End Project
+
+Project = Thief's Challenge II: Beacon Point
+	Excludes
+		thiefs_challenge_ii_beacon_point.zip
+	End Excludes
+End Project
+
+Project = Saleron's Gambit - Chapter One
+	ModFolder = Saleron's Gambit
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/salerons-gambit-chapter-two
+		https://neverwintervault.org/project/nwn1/module/salerons-gambit-chapter-three
+		https://neverwintervault.org/project/nwn1/module/salerons-gambit-chapter-four
+		https://neverwintervault.org/project/nwn1/module/salerons-gambit-chapter-five
+		
+		' Required by other chapters.
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/ashteferes-gothic-city
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/doa-city-rural-gloomy-reskin
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/nwalleys
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/codi-daggerdale-swamp-set
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/dungeonlike-dungeon
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/jacobys-jungle
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/rl-gothic-interior-estates-gardens-addon
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/city-exterior-northern-european-style
+	End RequiredProjects
+	RequiredFiles From NWAlleys
+		nwalleys11.7z
+	End RequiredFiles
+	RequiredFiles From RL Gothic Interior, Estates & Gardens Addon
+		rl_gothic_int_1_5.7z
+		rl_gothic_intfix.7z
+	End RequiredFiles
+End Project
+
+Project = Saleron's Gambit - Chapter Two
+	ModFolder = Saleron's Gambit
+End Project
+
+Project = Saleron's Gambit - Chapter Three
+	ModFolder = Saleron's Gambit
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/800/files/nwalleys11.7z
+	End ExcludeDirectLinks
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/nwalleys
+	End RequiredProjects
+	RequiredFiles From NWAlleys
+		nwalleys11.7z
+	End RequiredFiles
+End Project
+
+Project = Saleron's Gambit - Chapter Four
+	ModFolder = Saleron's Gambit
+End Project
+
+Project = Saleron's Gambit - Chapter Five
+	ModFolder = Saleron's Gambit
+	RequiredFiles From RL Gothic Interior, Estates & Gardens Addon
+		rl_gothic_int_1_5.7z
+		rl_gothic_intfix.7z
+	End RequiredFiles
+End Project
+
+Project = Sanctum of the Archmage - The Sight and The Quest
+	Downloads
+		sanctumv50_ms_hak.7z
+		sanctumv50_3p_hak.7z
+		sanctumv50_sound.7z
+		sanctumv50-downloads_1.pdf
+	End Downloads
+	If NWN Downloads
+		ModFolder = Sanctum of the Archmage
+		ExternalFile = http://andarian.com/AndarianNet/Download/sanctumv50_mod.7z
+	End If
+	If EE Downloads
+		ModFolder = Sanctum of the Archmage (EE)
+		ExternalFile = http://andarian.com/AndarianNet/Download/sanctumeev50_mod.7z
+	End If
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/audio/music/community-music-pack
+		https://neverwintervault.org/project/nwn1/hakpak/combined/community-skybox-pack-csp-v21
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/community-tileset-project
+		http://neverwintervault.org/project/nwn1/hakpak/tileset/ctp-generic-doors
+		https://neverwintervault.org/project/nwn1/hakpak/nwncq-project-v13
+	End RequiredProjects
+	' Individual files are not required if you have downloaded the full Community Tileset
+	RequiredFiles From Community Tileset Project
+		ctp_common_04072009.7z
+		ctp_loadscreens_04_07_2009.7z
+		ctp_cave_ruins.rar
+		ctp_elf_interior.rar
+	End RequiredFiles
+	RequiredFiles From NWNCQ Project
+		nwncq_hak_by_chico400.7z
+		nwncq_hak_patch.7z
+	End RequiredFiles
+End Project
+
+Project = Sands of Fate 1 - Shadows over Heliopolis
+	ModFolder = Sands of Fate
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/sands-fate-2-gem-tower
+		https://neverwintervault.org/project/nwn1/module/sands-fate-3-pyramid-ancients
+		
+		' Required by Sands of Fate 2 - Gem Tower
+		https://neverwintervault.org/project/nwn1/hakpak/combined/drylands-desert-city-combo-hak
+	End RequiredProjects
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/2802/files/sands_of_fate_3_pyramid_of_the_ancients_hak.zip
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/2801/files/gemtowerhakfiles.zip
+	End ExcludeDirectLinks
+End Project
+
+Project = Sands of Fate 2 - Gem Tower
+	ModFolder = Sands of Fate
+	Excludes
+		' This file duplicates the one available from Drylands & Desert City Combo HAK
+		DrylandsDesertCityHakFile.ZIP
+	End Excludes
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/sands-fate-1-shadows-over-heliopolis
+		https://neverwintervault.org/project/nwn1/module/sands-fate-3-pyramid-ancients
+		https://neverwintervault.org/project/nwn1/hakpak/combined/drylands-desert-city-combo-hak
+	End RequiredProjects
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/2802/files/sands_of_fate_3_pyramid_of_the_ancients_hak.zip
+	End ExcludeDirectLinks
+End Project
+
+Project = Sands of Fate 3 - Pyramid of the Ancients
+	ModFolder = Sands of Fate
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/sands-fate-1-shadows-over-heliopolis
+		https://neverwintervault.org/project/nwn1/module/sands-fate-2-gem-tower
+		
+		' Required by Sands of Fate 2 - Gem Tower
+		https://neverwintervault.org/project/nwn1/hakpak/combined/drylands-desert-city-combo-hak
+	End RequiredProjects
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/2801/files/gemtowerhakfiles.zip
+	End ExcludeDirectLinks
+End Project
+
+Project = Sea of Shadow
+	If NWN Downloads
+		sea_of_shadow-non_ee.7z
+	End If
+	If EE Downloads
+		sea_of_shadow_0.7z
+	End If
+End Project
+
+Project = Shadow Tower Ordeal
+	RequiredFiles From Wild Woods [v0.7] & Wild Lands Tilesets
+		winterwildlands055.7z
+	End RequiredFiles
+End Project
+
+Project = Shadowlords, Dreamcatcher, and Demon Campaigns
+	ModFolder = Shadowlords, Dreamcatcher and Demon
+	Excludes
+		shadowlordsdreamcatcherdemon.exe
+		shadowlordsdreamcatcherdemon.zip
+	End Excludes
+End Project
+
+Project = Shadows of a King's Justice (Director's Cut)
+	Excludes
+		soakj_c2_nomap_v103.rar
+	End Excludes
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = Shinto
+	Excludes
+		shinto_v36.zip
+		shinto_v37.zip
+		shinto_v38.zip
+	End Excludes
+End Project
+
+Project = Siege of Shadowdale Enhanced Edition
+	Excludes
+		malauntyr002.erf
+	End Excludes
+End Project
+
+Project = Sinister Inc. - Dilating Dimensions (Episode One)
+	ModFolder = Sinister Inc
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/sinister-inc-2-hail-king
+		
+		' Required by Sinister Inc 2.
+		https://neverwintervault.org/cep
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/community-tileset-project
+	End RequiredProjects
+	RequiredFiles From Community Tileset Project
+		ctp_elf_interior.rar
+	End RequiredFiles
+End Project
+
+Project = Sinister Inc. 2 - Hail To The King
+	ModFolder = Sinister Inc
+	ExcludeDirectLinks
+		https://neverwintervault.org/sites/neverwintervault.org/files/project/582/files/ctp_elf_interior.rar
+	End ExcludeDirectLinks
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/community-tileset-project
+	End RequiredProjects
+	RequiredFiles From Community Tileset Project
+		ctp_elf_interior.rar
+	End RequiredFiles
+End Project
+
+Project = Sinister Sweetwater Cider
+	Excludes
+		sinister_sweetwater_cider.zip
+		sinister_sweetwater_cider_v1.1.zip
+		sinister_sweetwater_cider_v1.1.2.zip
+	End Excludes
+	IncludeExtensions
+		.txt
+	End IncludeExtensions
+End Project
+
+Project = Six-Realms 0 - The Road to Whittershins
+	ModFolder = Six-Realms
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/six-realms-1-whittershins
+		https://neverwintervault.org/project/nwn1/module/six-realms-2-south-therford
+		https://neverwintervault.org/project/nwn1/module/six-realms-3-return-whittershins
+	End RequiredProjects
+End Project
+
+Project = Six-Realms 1, Whittershins
+	ModFolder = Six-Realms
+End Project
+
+Project = Six-Realms 2, South Therford
+	ModFolder = Six-Realms
+End Project
+
+Project = Six-Realms 3, Return to Whittershins
+	ModFolder = Six-Realms
+End Project
+
+Project = SKS01 Ruins of Tcheou Cherng v2 for NWN1 EE
+	ModFolder = SKS01 Ruins of Tcheou Cherng
+	RequiredFiles From Oriental Heads
+		oriheads_11a.zip
+	End RequiredFiles
+	RequiredFiles From CEP 2.65 | Additional Races Fix
+		cep265_races.hak
+	End RequiredFiles
+End Project
+
+Project = Snow Hunt
+	RequiredFiles From CCC 2011 Dec: Winter
+		ccc122011modulehakv2.rar
+	End RequiredFiles
+	RequiredFiles From Senemenelas Interior Tilesets
+		sen_icycaverns.7z
+	End RequiredFiles
+	RequiredFiles From Wild Woods [v0.7] & Wild Lands Tilesets
+		winterwildlands055.7z
+	End RequiredFiles
+End Project
+
+Project = Soul Shaker
+	Excludes
+		' Included in main download file.
+		soul_shaker_manuals_0.7z
+		pdf_manuals_guides_0.7z
+	End Excludes
+End Project
+
+Project = Sunlight Requiem
+	WizardTitle = Sunlight Requiem Installer Wizard
+	ExtractArchives
+	InstallerExcludes
+		Lands of Reville.bmp
+		Sunlight_Requiem.rar\Lands of Reville.bmp
+	End InstallerExcludes
+End Project
+
+Project = Sunken Cemetery Redux - Tales of the Hullack Forest (CEP Version)
+	ModFolder = Sunken Cemetery
+	RequiredFiles From Classic Roleplaying Adaptation Project - Base HAK
+		crp_base_haks.rar
+	End RequiredFiles
+End Project
+
+Project = Surviving Horror 1 [REMAKE] - v.3.1 - NWN: EE-SUPPORTED (REMAKE released 22th of December 2023 // Original released 19th of October 2003)
+	ModFolder = Surviving Horror 1
+	Downloads
+		wizard_school_lockdown_by_birger_tales.pdf
+	End Downloads
+	If NWN Downloads
+		surviving_horror_v.2.2_by_erik_karlsson_berra.zip
+	End If
+	If EE Downloads
+		sh1_ee_3_1_0.rar
+	End If
+End Project
+
+Project = Surviving Horror 2 - v.2.6 (Created 9th of February 2006)
+	ModFolder = Surviving Horror 2
+	RequiredProjects
+		https://neverwintervault.org/cep
+	End RequiredProjects
+End Project
+
+Project = Swordflight Chapter One
+	ModFolder = Swordflight
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/swordflight-chapter-two
+		https://neverwintervault.org/project/nwn1/module/swordflight-chapter-three
+		https://neverwintervault.org/project/nwn1/module/swordflight-chapter-four
+		https://neverwintervault.org/project/nwn1/module/swordflight-chapter-five
+		
+		' Required Projects for Chapters 2, 3 and 4
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/community-tileset-project
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/ctp-babylon
+		https://neverwintervault.org/project/nwn1/hakpak/lord-worms-tilesets-and-arbor-falls-pw-server-haks
+		https://neverwintervault.org/project/nwn1/hakpak/tileset/senemenelas-interior-tilesets
+	End RequiredProjects
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+	RequiredFiles From Senemenelas Interior Tilesets
+		senunderdark.7z
+	End RequiredFiles
+End Project
+
+Project = Swordflight Chapter Two
+	ModFolder = Swordflight
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+	End RequiredProjects
+End Project
+
+Project = Swordflight Chapter Three
+	ModFolder = Swordflight
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+	End RequiredProjects
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = Swordflight Chapter Four
+	ModFolder = Swordflight	
+	RequiredFiles From Swordflight Chapter Three
+		swordflight_hakb.zip
+	End RequiredFiles
+	RequiredProjects
+		' Not really needed, but Swordflight Chapter Three causes CTP to be downloaded, which needs this fix.
+		https://neverwintervault.org/project/nwn1/images/loadscreens/fixed-ctp-loadscreens-show-missing-babylon-loadscreens
+	End RequiredProjects
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+	RequiredFiles From Senemenelas Interior Tilesets
+		senunderdark.7z
+	End RequiredFiles
+End Project
+
+Project = Swordflight Chapter Five
+	ModFolder = Swordflight
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = Tales of Arterra - The Lost
+	ModFolder = 
+	Downloads
+		ToA_The_Lost_1.08.zip
+	End Downloads
+	If NWN Downloads
+		ModFolder = Tales of Arterra
+	End If
+	If EE Downloads
+		ModFolder = Tales of Arterra (EE)
+		toa_the_lost_unofficial_ee_compatibility_patch.7z
+	End If
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/tales-arterra-awakening
+	End RequiredProjects
+End Project
+
+Project = The Accursed Tower
+	ModFolder = The Accursed Tower
+	RequiredFiles From Wild Woods [v0.7] & Wild Lands Tilesets
+		winterwildlands055.7z
+	End RequiredFiles
+End Project
+
+Project = The Aielund Saga Act I - Nature Abhors A Vacuum
+	ModFolder = The Aielund Saga
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/aielund-saga-act-ii-defender-crown
+		https://neverwintervault.org/project/nwn1/module/aielund-saga-act-iii-return-ironlord
+		https://neverwintervault.org/project/nwn1/module/aielund-saga-act-iv-fall-aielund-part-one
+		https://neverwintervault.org/project/nwn1/module/aielund-saga-act-iv-fall-aielund-part-two
+		https://neverwintervault.org/project/nwn1/module/aielund-saga-act-iv-fall-aielund-part-three
+		
+		' Required Project for other chapters
+		https://neverwintervault.org/project/nwn1/prefab/placeable/112-placeable-paintings
+	End RequiredProjects
+End Project
+
+Project = The Aielund Saga Act II - Defender of the Crown
+	ModFolder = The Aielund Saga
+End Project
+
+Project = The Aielund Saga Act III - Return of the Ironlord
+	ModFolder = The Aielund Saga
+	Excludes
+		the_aielund_saga_act_iii_return_of_the_ironlord_313.rar
+	End Exclude
+End Project
+
+Project = The Aielund Saga Act IV - The Fall of Aielund (Part One)
+	ModFolder = The Aielund Saga
+End Project
+
+Project = The Aielund Saga Act IV - The Fall of Aielund (Part Two)
+	ModFolder = The Aielund Saga
+	Excludes
+		the_aielund_saga_act_iv_the_fall_of_aielund_pt2_308_0.rar
+	End Exclude
+End Project
+
+Project = The Aielund Saga Act IV - The Fall of Aielund (Part Three)
+	ModFolder = The Aielund Saga
+End Project
+
+Project = The Art of Death - Back in Black
+	Excludes
+		cepv168manual.rar
+	End Excludes
+End Project
+
+Project = The Crypt Of Istaris
+	WizardTitle = The Crypt of Istaris Installer Wizard
+	SelectOne = Choose whether you to play the mod with or without custom music.
+		the_crypt_of_istaris_custom_music_2b.mod_.zip > With Custom Music
+		the_crypt_of_istaris_final_4b.mod_.zip > Without Custom Music
+	End SelectOne
+	InstallerExcludes
+		istarisxtramusic.hak_.zip
+	End InstallerExcludes
+End Project
+
+Project = The Demons of Tyrbas
+	Excludes
+		demons_of_tyrbas_v_100_fixed.zip
+		demons_of_tyrbas_v101.zip
+	End Excludes
+End Project
+
+Project = The Dragon's Teeth
+	RequiredFiles From Alternate Combat Animations Pack (ACP v4.0)
+		acp_release_v30a.rar
+	End RequiredFiles
+	RequiredFiles From Ixion Coastline Beta 0.52 + Arkangyl's Coastal v55 update + Coastal Ships
+		markrendl1097597796625coastalships.rar
+	End RequiredFiles
+End Project
+
+Project = The Gates of Firestorm Peak (Revisited)
+	WizardTitle = The Gates of Firestorm Peak Installer Wizard
+	InstallerExcludes
+		the_gates_of_firestorm_peak_revisited_1.69mobile.zip
+	End InstallerExcludes
+End Project
+
+Project = The Hero of Neverwinter I - The Challenge of a Champion
+	ModFolder = The Hero of Neverwinter
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/hero-neverwinter-ii-fall-champion-venture-underdark
+		https://neverwintervault.org/project/nwn1/module/hero-neverwinter-iii-legend-champion
+	End RequiredProjects
+End Project
+
+Project = The Hero of Neverwinter II - The Fall of a Champion - Venture into the Underdark!
+	ModFolder = The Hero of Neverwinter
+End Project
+
+Project = The Hero of Neverwinter III - The Legend of a Champion
+	ModFolder = The Hero of Neverwinter
+End Project
+
+Project = S4 - The Lost Caverns of Tsojcanth
+	WizardTitle = The Lost Caverns of Tsojcanth Installer Wizard
+	InstallerExcludes
+		cep3.1.2.zip
+		s4_mobile.zip
+		s4_-mobile.zip
+		s4-_mobile.zip
+	End InstallerExcludes
+End Project
+
+Project = The Obsidian Legend
+	Excludes
+		modules.zip
+    End Excludes
+	RequiredProjects
+		https://neverwintervault.org/cep
+	End RequiredProjects
+	WizardTitle = The Obsidian Legend
+	ExtractArchives
+	InstallerExcludes
+		the_obsidian_legend_0.zip\The Obsidian Legend\modules\The Obsidian Legend v2_1.mod
+		the_obsidian_legend_0.zip\The Obsidian Legend\tlk\cep23_v1.tlk
+	End InstallerExcludes
+End Project
+
+Project = The Icemaiden - Prelude
+	ModFolder = The Icemaiden
+	Excludes
+		the_icemaiden_preludev2.0.7z
+    End Excludes
+End Project
+
+Project = The Level Up Colosseum v4.2.2
+	ModFolder = The Level Up Colosseum
+	Excludes
+		the_level_up_colosseum_v422.zip
+	End Excludes
+End Project
+
+Project = The New World: Part 1
+	IgnoreExcludes
+End Project
+
+Project = The Ravenloft Core - R1 Wolfsong
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+	RequiredFiles From Sen's Seasonal Workshop - Tilesets based onto WoRm's Seasonal Forest
+		wrm_sf10senadds.7z
+	End RequiredFiles
+End Project
+
+Project = The Rogues of Quinn part 1 - In The Service Of Quinn
+	ModFolder = The Rogues of Quinn
+End Project
+
+Project = The Rogues of Quinn 2 - The Avenger of Quinn
+	ModFolder = The Rogues of Quinn
+	
+	' ReadMe is included in Mod archive.
+	Excludes
+		taliesinttlg17the_rogues_of_quinn_part_two_read_me.doc
+	End Excludes
+End Project
+
+Project = The Rogues of Quinn 3 - Quinn's Infiltrator
+	ModFolder = The Rogues of Quinn
+End Project
+
+Project = The Rogues of Quinn 4 - Quinn Revisited
+	ModFolder = The Rogues of Quinn 4 - Revisited
+End Project
+
+Project = The Rogues of Quinn 4 - Return to Jaral
+	ModFolder = The Rogues of Quinn
+	ExcludeRequiredProjects
+		' The Mod works without this override, which only seems to be needed for the
+		' author's semi-persistant world.
+		OJH Override Pack HotU v3.1
+	End ExcludeRequiredProjects
+End Project
+
+Project = The Rogues of Quinn 5 - By Order of the King
+	ModFolder = The Rogues of Quinn
+End Project
+
+Project = The Ruin of Tyrbas
+	Excludes
+		the_ruin_of_tyrbas_v100.zip
+		the_ruin_of_tyrbas_v101.zip
+		the_ruin_of_tyrbas_v102_0.zip
+    End Excludes
+End Project
+
+Project = The Shield Lands
+	Excludes
+		shield_lands_mod.zip
+		shieldlands_1_22_e86d3d_0.7z
+		shieldlands_1_22_e86d3d_shoff.7z
+		shld_q_ccoh841.zip
+		shieldlands_1_23_c146b9.zip
+    End Excludes
+	ExcludeRequiredProjects
+		Shield Lands HAKs
+	End ExcludeRequiredProjects
+End Project
+
+Project = The Sinister Secret of Saltmarsh
+	RequiredFiles From Medieval City tileset
+		medievalcomp_1.7z
+	End RequiredFiles
+	RequiredFiles From Mountains and more
+		medruralcomp_2.7z
+	End RequiredFiles
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = The Speaker in Dreams
+	Excludes
+		the_speaker_in_dreams_beta.zip
+		the_speaker_in_dreams_v1.zip
+	End Excludes
+End Project
+
+Project = The Wanderer (CEP Version)
+	ModFolder = The Wanderer
+	RequiredProjects
+		https://neverwintervault.org/project/nwn1/module/wanderer-ii-cep-version
+	End RequiredProjects
+	Excludes
+		the_wanderer.doc
+	End Excludes
+End Project
+
+Project = The Wanderer II (CEP Version)
+	ModFolder = The Wanderer
+End Project
+
+Project = The Wink and Kiss Part 2
+	IgnoreExcludes
+End Project
+
+Project = The Texts of Thaan - Chapter 1
+	ModFolder = The Texts of Thaan
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+		wrm_undersea.7z
+		mirkv16.7z
+		wrm_extreme.rar
+	End RequiredFiles
+	RequiredFiles From Mirkwood v1.6 fixes
+		mirkwoodv16_fix.zip
+	End RequiredFiles
+End Project
+
+Project = Texts of Thaan Chapter 2 - Journey to Immol
+	RequiredFiles From Lord of Worms Tilesets and Arbor Falls PW Server Haks
+		wrm_seasonalv10.7z
+	End RequiredFiles
+End Project
+
+Project = The World of Avlis
+	Downloads
+		avlis_allinone_201811.7z
+	End Downloads
+End Project
+
+Project = Tortured Hearts I.
+	ModFolder = Tortured Hearts I
+	WizardTitle = Tortured Hearts I Installer Wizard
+	SelectMany = Select if you want to include the Bonus Portraits.
+		TH1_BonusPortraits.rar = Unchecked
+	End SelectMany
+End Project
+
+Project = Tortured Hearts II.
+	ModFolder = Tortured Hearts II
+	' ReavMe included in the downloaded file.
+	Excludes
+		readme_1240a.doc
+	End Excludes
+	WizardTitle = Tortured Hearts II Installer Wizard
+	ExtractArchives
+	SelectMany = Select if you want to include the Bonus Portraits.
+		subbassman_-_th2_mod_v1_24.rar\TH2_Bonus_Portraits.zip = Unchecked
+	End SelectMany
+	InstallerExcludes
+		' These CEP hak files are superseded by CEP v2.x
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cep1patch.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cep1patch150.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cep1patch152.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cep2da.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cepanatomy.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cepbaseitem.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cepcreature.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cepplace.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\cepportrait.hak
+		subbassman_-_th2_mod_v1_24.rar\TH2_hakpaks.rar\ceptexture.hak
+	End InstallerExcludes
+End Project
+
+Project = Tupilak
+	ExcludeRequiredProjects
+		* OPTIONAL * Real Skies Lite on Steam
+	End ExcludeRequiredProjects
+End Project
+
+Project = VYRRHAL
+	WizardTitle = Vyrrhal Installer Wizard
+	ExtractArchives
+	SelectMany = Select which files, if any, you want to use.
+		level_progression.rar\localvault\undead.bic > Author defined start character (Undead) = Unchecked
+		level_progression_0.rar\localvault\undead.bic > Author defined start character (Undead) = Unchecked
+	End SelectMany
+End Project
+
+Project = World of Greyhawk PW, Mithral Enhanced Edition
+	ModFolder = World of Greyhawk PW (EE)
+	RequiredFiles From Early Winter
+		mountainsnow3_2.7z
+	End RequiredFiles
+	RequiredFiles From Medieval City tileset
+		medievalcomp_1.7z
+	End RequiredFiles
+	RequiredFiles From Mountains and more
+		medruralcomp_3.7z
+	End RequiredFiles
+End Project
+
+Project = World of Rhun (Updated for 2009)
+	ModFolder = World of Rhun
+End Project
+
+#End Region
+
+#Region "Developer Resources"
+
+Project = Named Color Token System
+	Downloads
+		named_color_token_system_1.2.7z
+	End Downloads
+End Project
+
+#End Region

@@ -21,7 +21,9 @@ what each file overrides, and can put it all back.
   payload.
 - **Download from the Vault.** Fetch a project straight from Neverwinter Vault, and
   install modules from the PRC-ified Drive collection with their dependencies
-  resolved. Transfers stream to disk and run in the background.
+  resolved. Transfers stream to disk and run in the background. Projects are read
+  through the Vault's own API, with page scraping kept as a fallback — see
+  [docs/vault_downloads.md](docs/vault_downloads.md).
 
   ![Browsing the PRC-ified module collection, each row showing what it was built for](docs/images/prc-module.png)
 
@@ -155,7 +157,8 @@ src/vaultkeeper/
   game/            # NWN specifics: install discovery, editions, installers,
                    # play tracking, character and portrait tools
   persistence/     # the native store, and importing a legacy one
-  vault/           # Neverwinter Vault + Google Drive download sources
+  vault/           # Neverwinter Vault (API + scraper) + Google Drive sources,
+                   # and the published download rules that address them
   ui/              # PySide6: main window, ribbon, dialogs
 tests/             # headless unit tests
 external/          # bundled-binary manifest and binaries

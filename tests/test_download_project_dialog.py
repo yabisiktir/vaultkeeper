@@ -43,7 +43,27 @@ def _controller(tmp_path: Path) -> ProfileController:
     )
 
 
+_PROJECT_JSON = (
+    '{"project_id": 7, "title": "My Project", "attachments": ['
+    '{"description": "a.zip", "filename": "a.zip", "link": "http://cdn/a.zip",'
+    ' "size_bytes": 100},'
+    '{"description": "b.hak", "filename": "b.hak", "link": "http://cdn/b.hak",'
+    ' "size_bytes": 200}]}'
+)
+
+
+def _set_download_method(method: str) -> None:
+    """Choose how the controller reads a Vault project (the Downloads setting)."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings(None)
+    settings.vault_download_method = method
+    settings.vault_rules_online = False  # never reach for the published rules here
+    save_settings(settings, None)
+
+
 def test_controller_scrape_project(qtbot, tmp_path):
+    _set_download_method("scrape")
     controller = _controller(tmp_path)
     controller._http = FakeHttpClient(
         {"http://vault/project/my-project": HttpResponse(
@@ -52,6 +72,21 @@ def test_controller_scrape_project(qtbot, tmp_path):
     )
     files = controller.scrape_project("http://vault/project/my-project")
     assert [f.description for f in files] == ["a.zip", "b.hak"]
+
+
+def test_controller_reads_the_project_through_the_api_by_default(qtbot, tmp_path):
+    """The default source is the Vault's API, as in NIT v8.0."""
+    _set_download_method("api")
+    controller = _controller(tmp_path)
+    url = "http://vault/project/nwn1/module/my-project"
+    query = (
+        "https://neverwintervault.org/api/v1/projects/by-url?url="
+        "http%3A%2F%2Fvault%2Fproject%2Fnwn1%2Fmodule%2Fmy-project"
+    )
+    controller._http = FakeHttpClient({query: HttpResponse(query, 200, text=_PROJECT_JSON)})
+    files = controller.scrape_project(url)
+    # Sizes come with the listing — the scraper had to ask per file.
+    assert [(f.filename, f.byte_size) for f in files] == [("a.zip", 100), ("b.hak", 200)]
 
 
 def test_controller_download_project(qtbot, tmp_path):
@@ -74,6 +109,7 @@ def test_controller_download_project(qtbot, tmp_path):
 
 
 def test_dialog_fetch_and_populate(qtbot, tmp_path):
+    _set_download_method("scrape")  # this fixture is a project *page*
     controller = _controller(tmp_path)
     controller._http = FakeHttpClient(
         {"http://vault/p": HttpResponse("http://vault/p", 200, text=_PROJECT_HTML)}
@@ -142,6 +178,7 @@ def test_suggested_mod_name_sanitises_title(tmp_path):
 
 
 def test_dialog_prefills_mod_name_from_project_title(qtbot, tmp_path):
+    _set_download_method("scrape")  # this fixture is a project *page*
     controller = _controller(tmp_path)
     url = "http://vault/project/my-project"
     controller._http = FakeHttpClient(
@@ -363,6 +400,7 @@ _REQUIRED_PAGE = (
 
 
 def test_dialog_shows_required_projects(qtbot, tmp_path):
+    _set_download_method("scrape")  # this fixture is a project *page*
     controller = _controller(tmp_path)
     controller._http = FakeHttpClient(
         {"http://vault/project/needs-cep": HttpResponse(

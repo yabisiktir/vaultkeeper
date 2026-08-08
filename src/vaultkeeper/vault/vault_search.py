@@ -18,7 +18,7 @@ import html as html_lib
 import re
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 _BASE = "https://neverwintervault.org"
 _SEARCH = _BASE + "/search/node/{query}"
@@ -30,8 +30,10 @@ _RESULT = re.compile(
     r'<a[^>]+href="(/project/nwn1/[^"#?]+)"[^>]*>(.*?)</a>', re.IGNORECASE | re.DOTALL
 )
 
-#: ``/project/nwn1/module/…`` -> "module". What kind of thing a result is.
-_KIND = re.compile(r"^/project/nwn1/([^/]+)", re.IGNORECASE)
+#: ``/project/nwn1/module/…`` -> "module". What kind of thing a result is. The
+#: game segment is not pinned to ``nwn1``: the API answers with ``nwnee`` pages
+#: too, and an Enhanced Edition module is still a module.
+_KIND = re.compile(r"^/project/[^/]+/([^/]+)", re.IGNORECASE)
 
 #: A module is what we are looking for; the rest are usually its dependencies.
 _PREFERRED_KINDS = ("module",)
@@ -113,10 +115,17 @@ def rank(query: str, candidates) -> list[Candidate]:
 
 
 class VaultSearch:
-    """Searches the Vault through an injected HTTP client."""
+    """Searches the Vault through an injected HTTP client.
 
-    def __init__(self, http) -> None:
+    Given an ``api`` it asks the Vault's own title search instead of reading a
+    results page. The ranking above is applied either way — the Vault's order is
+    what it is, and the reason this class exists is that it cannot be trusted to
+    put the right module first.
+    """
+
+    def __init__(self, http, api=None) -> None:
         self._http = http
+        self._api = api
 
     def find(self, title: str, *, limit: int = 10) -> list[Candidate]:
         """Ranked candidates for ``title``; empty when the search cannot be read.
@@ -126,6 +135,8 @@ class VaultSearch:
         query = (title or "").strip()
         if not query:
             return []
+        if self._api is not None:
+            return rank(query, self._api_candidates(query))[:limit]
         try:
             response = self._http.get(search_url(query))
         except Exception:
@@ -133,3 +144,13 @@ class VaultSearch:
         if not getattr(response, "ok", False):
             return []
         return rank(query, parse_results(getattr(response, "text", "") or ""))[:limit]
+
+    def _api_candidates(self, query: str) -> list[Candidate]:
+        """Title-search hits from the API, in the shape the ranking expects."""
+        found = []
+        for hit in self._api.search_by_title(query):
+            kind_match = _KIND.match(urlsplit(hit.link).path or "")
+            found.append(
+                Candidate(hit.title, hit.link, kind_match.group(1) if kind_match else "")
+            )
+        return found

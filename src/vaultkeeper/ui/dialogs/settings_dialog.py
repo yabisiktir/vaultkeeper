@@ -63,6 +63,7 @@ class SettingsDialog(QDialog):
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_general(settings), "General")
         self.tabs.addTab(self._build_behaviour(settings), "Behaviour")
+        self.tabs.addTab(self._build_downloads(settings), "Downloads")
         self.tabs.addTab(self._build_appearance(settings), "Appearance")
         self.tabs.addTab(self._build_web_menu(settings), "Web Menu")
         self.tabs.addTab(self._build_run_menu(settings), "Run Menu")
@@ -99,6 +100,7 @@ class SettingsDialog(QDialog):
         return {
             "General": self._build_general,
             "Behaviour": self._build_behaviour,
+            "Downloads": self._build_downloads,
             "Appearance": self._build_appearance,
             "Web Menu": self._build_web_menu,
             "Run Menu": self._build_run_menu,
@@ -314,6 +316,59 @@ class SettingsDialog(QDialog):
             index = 0
         self.portrait_display_size.setCurrentIndex(index)
         form.addRow("Character portrait size:", self.portrait_display_size)
+        return page
+
+    #: How a Vault project is read, in display order, mapped to the
+    #: ``Settings.vault_download_method`` values.
+    _DOWNLOAD_METHODS = ("api", "scrape")
+    _DOWNLOAD_METHOD_LABELS = (
+        "The Vault's API (recommended)",
+        "Read the project's web page",
+    )
+
+    def _build_downloads(self, settings: Settings) -> QWidget:
+        """How Vault projects are read, and where the download rules come from."""
+        page = QWidget()
+        form = QFormLayout(page)
+
+        self.vault_download_method = QComboBox()
+        self.vault_download_method.addItems(self._DOWNLOAD_METHOD_LABELS)
+        try:
+            index = self._DOWNLOAD_METHODS.index(
+                (settings.vault_download_method or "api").lower()
+            )
+        except ValueError:
+            index = 0
+        self.vault_download_method.setCurrentIndex(index)
+        self.vault_download_method.setToolTip(
+            "The API states each file's real name and size in one request, and "
+            "keeps working when the Vault redesigns its pages — which is why the "
+            "original tool moved to it. Reading the page is the older method, "
+            "kept as a fallback."
+        )
+        form.addRow("Read Vault projects using:", self.vault_download_method)
+
+        self.vault_rules_online = QCheckBox("Keep the Vault download rules up to date")
+        self.vault_rules_online.setChecked(settings.vault_rules_online)
+        self.vault_rules_online.setToolTip(
+            "The download rules are published online, and carry the Vault's API "
+            "addresses and per-project fixes. Fetching them (at most once a day) "
+            "is how a change at the Vault is picked up without a new release. "
+            "Turn this off to use only the copy already on this machine."
+        )
+        form.addRow(self.vault_rules_online)
+
+        from vaultkeeper.vault import rules_source
+
+        hosts = QLabel(
+            "Published at:<br>"
+            + "<br>".join(
+                f"&nbsp;&nbsp;{name}: {url}" for name, url in rules_source.rules_urls()
+            )
+        )
+        hosts.setWordWrap(True)
+        hosts.setEnabled(False)  # informational, not editable
+        form.addRow(hosts)
         return page
 
     def _build_viewer(self, settings: Settings) -> QWidget:
@@ -689,6 +744,10 @@ class SettingsDialog(QDialog):
         settings.tga_editor_path = self.tga_editor_path.text().strip()
         settings.portrait_image_web_page = self.portrait_image_web_page.text().strip()
         settings.exact_item_icons = self.exact_item_icons.isChecked()
+        settings.vault_download_method = self._DOWNLOAD_METHODS[
+            self.vault_download_method.currentIndex()
+        ]
+        settings.vault_rules_online = self.vault_rules_online.isChecked()
         settings.font_point_size = self.font_size.value()
         from vaultkeeper.ui.theme import THEMES
 

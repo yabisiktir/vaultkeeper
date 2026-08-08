@@ -18,6 +18,39 @@ from dataclasses import dataclass, field
 #: Default characters stripped from save names (VB ``SaveNameRemovedChars``).
 DEFAULT_REMOVED_CHARS = "()&"
 
+#: The Vault's API, as the rules file ships it. These are *defaults* only — the
+#: point of the rules carrying them is that the Vault can move its API without
+#: anyone shipping a new Vaultkeeper, so the parsed values always win.
+DEFAULT_API_URL = "https://neverwintervault.org/api/v1/"
+DEFAULT_API_BY_URL = "projects/by-url?url="
+DEFAULT_API_BY_ID = "projects/"
+DEFAULT_API_BY_FID = "files/by-fid"
+DEFAULT_API_SEARCH_BY_TITLE = "projects/by-title?title="
+
+#: Query appended to a by-id request to ask for the project's description. NIT
+#: holds this in its NwVault assembly rather than in the rules file, so it is a
+#: constant here too.
+API_FULL_DESCRIPTION = "?include_description=1"
+
+
+@dataclass
+class ApiEndpoints:
+    """Where the Vault's API lives and how each query is spelled.
+
+    A value straight out of the rules file: ``base`` is absolute, the rest are
+    fragments appended to it (VB ``NwVault.Definitions.Api*``).
+    """
+
+    base: str = DEFAULT_API_URL
+    by_url: str = DEFAULT_API_BY_URL
+    by_id: str = DEFAULT_API_BY_ID
+    by_fid: str = DEFAULT_API_BY_FID
+    search_by_title: str = DEFAULT_API_SEARCH_BY_TITLE
+
+    def query(self, fragment: str) -> str:
+        """``base`` + ``fragment``, with exactly one slash between them."""
+        return f"{self.base.rstrip('/')}/{fragment.lstrip('/')}"
+
 #: Section-header line -> internal section id (subset of the VB ``Statements`` map).
 _STATEMENTS: dict[str, str] = {
     "GameSaveNameMap": "save_names",
@@ -60,6 +93,12 @@ class DownloadRules:
     message_lines: list[str] = field(default_factory=list)
     #: URL query key that marks a download counter link (VB ``FileIdPrefix``).
     file_id_prefix: str = ""
+    #: The Vault API addresses this rules file specifies (defaults when it says
+    #: nothing, so an old cached file still leaves a usable client).
+    api: ApiEndpoints = field(default_factory=ApiEndpoints)
+    #: ``RevisionNumber`` — bumped by whoever edits the published rules. Shown so
+    #: a user can tell which rules are in force; 0 when the file omits it.
+    revision: int = 0
 
     # -- Parsing ----------------------------------------------------------- #
     @classmethod
@@ -83,6 +122,8 @@ class DownloadRules:
             if line.lower().startswith("fileidprefix"):
                 rules.file_id_prefix = _equals_param(line)
                 continue
+            if rules._settle_keyword(line):
+                continue
 
             if section == "save_names":
                 from_name = rules._from_to(line, from_name, rules.save_name_rules)
@@ -101,6 +142,37 @@ class DownloadRules:
                 else:
                     rules.message_lines.append(line)
         return rules
+
+    def _settle_keyword(self, line: str) -> bool:
+        """Apply a top-level ``Keyword = value`` line; True when one was recognised.
+
+        Only the keywords the port acts on. The rest of the file — 224 per-project
+        blocks giving each Vault project its mod folder and group — is not parsed
+        here, and unknown lines are left to the section handling below.
+        """
+        key, sep, _ = line.partition("=")
+        if not sep:
+            return False
+        name = key.strip().lower()
+        value = _equals_param(line)
+        if name == "apiurl":
+            self.api.base = value
+        elif name == "apibyurl":
+            self.api.by_url = value
+        elif name == "apibyid":
+            self.api.by_id = value
+        elif name == "apibyfid":
+            self.api.by_fid = value
+        elif name == "apisearchbytitle":
+            self.api.search_by_title = value
+        elif name == "revisionnumber":
+            try:
+                self.revision = int(value)
+            except ValueError:
+                self.revision = 0
+        else:
+            return False
+        return True
 
     @staticmethod
     def _from_to(line: str, pending: str, target: dict[str, str]) -> str:

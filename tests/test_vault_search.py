@@ -112,3 +112,51 @@ def test_a_failed_search_yields_nothing_rather_than_raising():
 
 def test_the_query_is_url_encoded():
     assert "A%20Call%20for%20Heroes" in search_url("A Call for Heroes")
+
+
+# -- searching through the API instead of the results page --------------------- #
+class _FakeApi:
+    """The title-search half of :class:`~vaultkeeper.vault.api.VaultApi`."""
+
+    def __init__(self, hits):
+        self._hits = hits
+        self.queried = []
+
+    def search_by_title(self, title):
+        self.queried.append(title)
+        return self._hits
+
+
+def _hit(project_id, title, link):
+    from vaultkeeper.vault.api import FoundProject
+
+    return FoundProject(project_id=project_id, title=title, link=link)
+
+
+def test_the_api_search_is_used_when_one_is_supplied():
+    api = _FakeApi(
+        [
+            _hit(2, "Heroes Music Pack", "https://v.org/project/nwn1/hakpak/heroes-music"),
+            _hit(1, "Almraiven", "https://v.org/project/nwn1/module/almraiven"),
+        ]
+    )
+    found = VaultSearch(None, api).find("Almraiven")
+    assert api.queried == ["Almraiven"]
+    # Still ranked here: the Vault's own order put the music pack first.
+    assert found[0].title == "Almraiven"
+
+
+def test_an_enhanced_edition_module_still_ranks_as_a_module():
+    """The API answers with ``nwnee`` pages, which the page scraper never saw."""
+    api = _FakeApi(
+        [_hit(1, "Almraiven EE", "https://v.org/project/nwnee/module/almraiven-ee")]
+    )
+    assert VaultSearch(None, api).find("Almraiven")[0].kind == "module"
+
+
+def test_the_api_search_returns_nothing_rather_than_raising_when_the_vault_is_down():
+    class Down:
+        def search_by_title(self, title):
+            return []
+
+    assert VaultSearch(None, Down()).find("Almraiven") == []

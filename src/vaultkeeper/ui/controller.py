@@ -82,6 +82,8 @@ class ProfileController:
         self._play_prompter = None
         #: HTTP client for Vault operations (tests inject a FakeHttpClient).
         self._http = None
+        #: The Vault download rules, once loaded (see :meth:`download_rules`).
+        self._download_rules = None
         #: Archive backend for publish/extract (tests inject a FakeArchiveExtractor).
         self._extractor = None
         #: BIK→WBM converter (tests inject a FakeBikConverter).
@@ -2367,7 +2369,7 @@ class ProfileController:
             log_path=self.ctx.game_user_dir / "logs" / "nwclientlog1.txt",
             on_save=self.save,
             prompter=self.play_prompter,
-            download_rules=self._load_download_rules(data_dir),
+            download_rules=self.download_rules(network=False),
         )
         return self._play_loop
 
@@ -2381,14 +2383,51 @@ class ProfileController:
         return self._http
 
     def _make_scraper(self):
-        from vaultkeeper.app_paths import data_root
-        from vaultkeeper.vault.download_rules import DownloadRules
+        """The Vault project source: the API, or the page scraper.
+
+        Both answer ``fetch_project`` / ``fetch_required_projects`` /
+        ``resolve_direct_url``, so nothing above here knows which it got — which
+        is what makes the choice a setting rather than a rewrite.
+        """
+        from vaultkeeper.vault.api import VaultApi
         from vaultkeeper.vault.scraper import VaultScraper
 
         self._vault_http()
+        rules = self.download_rules()
+        method = (self._settings().vault_download_method or "api").lower()
+        if method == "scrape":
+            return VaultScraper(rules, self._http)
+        return VaultApi(rules, self._http)
+
+    def download_rules(self, *, refresh: bool = False, network: bool = True):
+        """The Vault download rules in force, fetching them when allowed.
+
+        Cached for the session — the rules drive every Vault interaction, and
+        re-reading (or re-fetching) them per call would be a request per file.
+
+        ``network=False`` takes the cached or bundled copy without ever waiting
+        on a request: callers on a path the user is watching (pressing Play) get
+        rules immediately rather than a stalled game launch on a bad connection.
+        """
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.vault import rules_source
+
+        if self._download_rules is not None and not refresh:
+            return self._download_rules
         data_dir = self.store_path.parent if self.store_path else data_root()
-        rules = self._load_download_rules(data_dir) or DownloadRules()
-        return VaultScraper(rules, self._http)
+        wanted = bool(self._settings().vault_rules_online)
+        online = network and wanted
+        rules = rules_source.load_rules(
+            data_dir,
+            self._vault_http() if online else None,
+            refresh=refresh,
+        )
+        if online == wanted:
+            # Only a load that was allowed everything it asked for is worth
+            # keeping: caching a deliberately-offline read would stop the next
+            # caller ever fetching.
+            self._download_rules = rules
+        return rules
 
     def scrape_project(self, url: str) -> list:
         """Scrape a Vault project page into a list of downloadable files."""
@@ -2539,9 +2578,12 @@ class ProfileController:
         amount of ranking can tell which one an archive was built from. Picking the
         wrong page attaches the wrong dependencies, which is a broken install.
         """
+        from vaultkeeper.vault.api import VaultApi
         from vaultkeeper.vault.vault_search import VaultSearch
 
-        return VaultSearch(self._vault_http()).find(title, limit=limit)
+        source = self._make_scraper()
+        api = source if isinstance(source, VaultApi) else None
+        return VaultSearch(self._vault_http(), api).find(title, limit=limit)
 
     def module_dependency_plan(self, tags, page_url: str):
         """What a PRC-ified module needs: its build tag merged with its Vault page.
@@ -2731,21 +2773,6 @@ class ProfileController:
             "message": message,
         })
         return steps
-
-    @staticmethod
-    def _load_download_rules(data_dir: Path):
-        """Load the cached Vault download rules (for GameMapper save-name rules)."""
-        from vaultkeeper.vault.download_rules import DownloadRules
-
-        rules_file = data_dir / "DownloadRules.txt"
-        if rules_file.is_file():
-            try:
-                return DownloadRules.from_text(
-                    rules_file.read_text(encoding="utf-8", errors="replace")
-                )
-            except OSError:
-                return None
-        return None
 
     def current_game_summary(self) -> str:
         """One-line description of the current game save (or a placeholder)."""

@@ -254,3 +254,38 @@ def test_exact_item_icons_round_trips(qtbot, tmp_path):
     dlg.exact_item_icons.setChecked(False)
     dlg.apply_to(settings)
     assert settings.exact_item_icons is False
+
+
+# -- Downloads tab ------------------------------------------------------------- #
+def test_the_downloads_tab_reflects_the_chosen_method(qtbot):
+    dlg = SettingsDialog(Settings(vault_download_method="scrape", vault_rules_online=False))
+    qtbot.addWidget(dlg)
+    assert dlg.vault_download_method.currentText().startswith("Read the project")
+    assert not dlg.vault_rules_online.isChecked()
+
+
+def test_the_api_is_the_default_method(qtbot):
+    dlg = SettingsDialog(Settings())
+    qtbot.addWidget(dlg)
+    assert dlg.vault_download_method.currentText().startswith("The Vault's API")
+    assert dlg.vault_rules_online.isChecked()
+
+
+def test_an_unknown_stored_method_falls_back_to_the_api(qtbot):
+    """A hand-edited settings file must not leave the combo showing something else."""
+    dlg = SettingsDialog(Settings(vault_download_method="carrier pigeon"))
+    qtbot.addWidget(dlg)
+    settings = Settings()
+    dlg.apply_to(settings)
+    assert settings.vault_download_method == "api"
+
+
+def test_choosing_page_scraping_is_written_back(qtbot):
+    settings = Settings()
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg.vault_download_method.setCurrentIndex(1)
+    dlg.vault_rules_online.setChecked(False)
+    dlg.apply_to(settings)
+    assert settings.vault_download_method == "scrape"
+    assert settings.vault_rules_online is False

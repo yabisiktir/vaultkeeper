@@ -87,8 +87,22 @@ def _responses() -> dict:
 
 def _wired(tmp_path: Path, extra: dict | None = None) -> ProfileController:
     controller = _controller(tmp_path)
+    # These fixtures are Vault *pages* (a search result list and a project page),
+    # so the controller is pointed at the scraper rather than the API. The PRC
+    # flow itself is the same either way — it only ever asks for a requirement
+    # list, and both sources answer with one.
+    _use_page_scraping()
     controller._http = FakeHttpClient({**_responses(), **(extra or {})})
     return controller
+
+
+def _use_page_scraping() -> None:
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings(None)
+    settings.vault_download_method = "scrape"
+    settings.vault_rules_online = False
+    save_settings(settings, None)
 
 
 def _at_the_plan(qtbot, controller) -> PrcModuleDialog:
@@ -491,6 +505,7 @@ class _GatedHttpClient(FakeHttpClient):
 
 def _ready_to_install(qtbot, tmp_path):
     """A dialog with everything answered, whose archive download can be held open."""
+    _use_page_scraping()  # the fixtures below are Vault pages
     controller = _controller(tmp_path)
     controller._http = _GatedHttpClient({
         **_responses(),
@@ -553,6 +568,7 @@ def test_the_install_phases_report_after_the_download(qtbot, tmp_path):
     """The archive lands, then extracting and installing it must keep talking."""
     from vaultkeeper.core.archive import FakeArchiveExtractor
 
+    _use_page_scraping()  # the fixtures below are Vault pages
     controller = _controller(tmp_path)
     controller._http = FakeHttpClient({
         **_responses(),

@@ -189,6 +189,17 @@ class Settings:
     #: ``nwnsaveeditor.ui.editor.tokens.THEMES``). The editor is self-themed
     #: rather than following ``theme`` above, so it carries its own preference.
     save_editor_theme: str = "dark"
+    #: How a Vault project's file list is obtained: ``"api"`` asks the Vault's own
+    #: API (what NIT v8.0 moved to, and what survives the site's redesign),
+    #: ``"scrape"`` reads the project page's HTML as before. The API is the
+    #: default because it is the one the Vault intends to keep answering; the
+    #: scraper stays as the fallback for as long as the pages exist.
+    vault_download_method: str = "api"
+    #: Fetch the published Vault download rules rather than using only a local
+    #: copy. The rules carry the API addresses and per-project fixes, so keeping
+    #: them current is how a Vault change is absorbed without a new release.
+    #: Off means the cached, then the bundled, copy is used.
+    vault_rules_online: bool = True
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the
