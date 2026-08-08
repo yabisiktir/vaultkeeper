@@ -99,6 +99,11 @@ class ModExplorer(QDialog):
         # them each time the Explorer opens, so a filter you set survives the
         # session — which is what makes "Undo Group Changes" mean anything.
         hidden = set(controller.group_filter_excludes()) if controller else set()
+        # Name-prefix filters (VB LvPrefixFilters / FilterPrefixList), persisted
+        # in settings. An *unticked* prefix hides mods whose name starts with it.
+        self._prefix_filters: list[dict] = list(
+            controller._settings().mod_prefix_filters if controller else []
+        )
         self._group_filters: dict[str, bool] = {g: g not in hidden for g in self._groups}
         self._rating_filters: dict[str, bool] = {r: True for r in self._ratings}
 
@@ -196,6 +201,14 @@ class ModExplorer(QDialog):
         self._undo_groups_btn.setToolTip("Undo Group Changes — revert to the saved group filter")
         self._undo_groups_btn.clicked.connect(self._on_undo_group_filters)
         bar.addWidget(self._undo_groups_btn)
+
+        self._undo_prefix_btn = QPushButton()
+        self._undo_prefix_btn.setIcon(R.get_icon("Undo_16x"))
+        self._undo_prefix_btn.setToolTip(
+            "Undo Prefix Changes — revert to the saved name-prefix filters"
+        )
+        self._undo_prefix_btn.clicked.connect(self._on_undo_prefix_filters)
+        bar.addWidget(self._undo_prefix_btn)
         layout.addLayout(bar)
 
         self.table = QTreeWidget()
@@ -232,11 +245,18 @@ class ModExplorer(QDialog):
         from vaultkeeper.ui.dialogs.common_filters import CommonFiltersDialog
 
         dlg = CommonFiltersDialog(
-            self._groups, self._ratings, self._group_filters, self._rating_filters, self
+            self._groups,
+            self._ratings,
+            self._group_filters,
+            self._rating_filters,
+            self,
+            prefixes=self._prefix_filters,
         )
         if dlg.exec() == QDialog.DialogCode.Accepted:
             self._group_filters = dlg.group_filters()
             self._rating_filters = dlg.rating_filters()
+            self._prefix_filters = dlg.prefix_filters()
+            self._save_prefix_filters()
             self._populate()
 
     def _passes(self, row: dict) -> bool:
@@ -261,6 +281,11 @@ class ModExplorer(QDialog):
         rating = str(row.get("rating", "")).strip()
         if rating and not self._rating_filters.get(rating, True):
             return False
+        name = row["mod"].lower()
+        for entry in self._prefix_filters:
+            prefix = str(entry.get("prefix", "")).lower()
+            if prefix and not entry.get("included", True) and name.startswith(prefix):
+                return False
         if not self._passes_rating_comparison(rating):
             return False
         return not (self._only_completed.isChecked() and not row["completed"])
@@ -368,6 +393,23 @@ class ModExplorer(QDialog):
         # hangs off both — otherwise clicking Close silently loses the filter.
         self._save_group_filters()
         super().done(result)
+
+    def _save_prefix_filters(self) -> None:
+        """Persist the prefix list (VB ``SavePrefixFilters``, into My.Settings)."""
+        if self._controller is None:
+            return
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._controller._settings_path)
+        settings.mod_prefix_filters = list(self._prefix_filters)
+        save_settings(settings, self._controller._settings_path)
+
+    def _on_undo_prefix_filters(self) -> None:
+        """Revert the prefix list to the saved one (VB ``TsUndoPrefix``)."""
+        if self._controller is None:
+            return
+        self._prefix_filters = list(self._controller._settings().mod_prefix_filters)
+        self._populate()
 
     def _on_undo_group_filters(self) -> None:
         """Revert the group filter to the saved set (VB ``TsUndoGroups``)."""

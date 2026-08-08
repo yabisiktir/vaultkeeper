@@ -36,14 +36,24 @@ the control set and `<Form>.vb` for the handlers, not the ledger's status.
 | **Installation Manager** | Sort the set list by Name / Created / Updated, ascending or descending. *Current* stays pinned at the top — it is the live state, not a snapshot. |
 | **Start Screen Manager** | *Repair Prefixed Image Exclusions* — excludes every prefixed image that is not excluded, which cannot be spotted by eye in a folder of hundreds. |
 
-## Still absent
+## Built after the owner's decisions (all three: be faithful)
 
-1. **Mod Explorer** — Undo Group Changes / Undo Prefix Changes. The prefix half
-   needs the mod-name prefix feature the port does not have; the group half is an
-   undo stack over group moves, which nothing else in the port has either.
-2. **Installation Manager** — the Group Selector (`TsGroupSelector`), a
-   second pane for adding and removing whole groups within a set. The dialog's
-   docstring already records this as a bounded port.
+| Screen | What landed |
+|---|---|
+| **Mod Explorer** | The group filter now persists (VB `GroupNameFilters.txt`, written on close) with *Undo Group Changes* reverting to the saved set. |
+| **Mod Explorer** | Name-prefix filters and *Undo Prefix Changes* — add/edit/remove prefixes in the Filters dialog; unticking one hides every mod whose name starts with it. |
+| **Installation Manager** | The Group Selector pane (`LvGroupSelector`): tick a group to add it to the set whole, untick to remove. User sets only. |
+
+**Two things I had recorded wrongly, corrected by reading the VB:**
+
+* *Undo Group Changes* is **not** an undo stack over group moves. It re-reads the
+  group-filter tick-boxes from their file, discarding unsaved changes.
+* A **prefix is not a field on a mod.** `ModData` has no prefix in VB either — a
+  prefix is just user-entered text matched with `StartsWith` against the mod
+  name. I had scoped this as "a domain change touching the store format", and it
+  needed no domain change at all.
+
+Nothing from the original sweep is now outstanding.
 
 ## Checked and found already faithful
 

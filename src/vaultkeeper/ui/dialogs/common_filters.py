@@ -45,6 +45,8 @@ class CommonFiltersDialog(QDialog):
         group_included: dict[str, bool],
         rating_included: dict[str, bool],
         parent: QWidget | None = None,
+        *,
+        prefixes: list[dict] | None = None,
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Filters")
@@ -64,6 +66,30 @@ class CommonFiltersDialog(QDialog):
         self._ratings = _checkable_list(ratings, rating_included)
         rating_col.addWidget(self._ratings)
         lists.addLayout(rating_col)
+
+        # Name prefixes (VB LvPrefixFilters). A prefix is only matched text —
+        # unticking one hides every mod whose *name starts with it*. There is no
+        # prefix field on a mod, in VB either, so this list is the whole feature.
+        prefix_col = QVBoxLayout()
+        prefix_col.addWidget(QLabel("Name prefixes"))
+        self._prefixes = QListWidget()
+        for entry in prefixes or []:
+            self._add_prefix_row(entry.get("prefix", ""), entry.get("included", True))
+        self._prefixes.setToolTip(
+            "Untick a prefix to hide every mod whose name starts with it."
+        )
+        prefix_col.addWidget(self._prefixes)
+        prefix_buttons = QHBoxLayout()
+        for label, slot in (
+            ("Add…", self._on_add_prefix),
+            ("Edit…", self._on_edit_prefix),
+            ("Remove", self._on_remove_prefix),
+        ):
+            btn = QPushButton(label)
+            btn.clicked.connect(slot)
+            prefix_buttons.addWidget(btn)
+        prefix_col.addLayout(prefix_buttons)
+        lists.addLayout(prefix_col)
         layout.addLayout(lists)
 
         bar = QHBoxLayout()
@@ -82,8 +108,74 @@ class CommonFiltersDialog(QDialog):
         bar.addWidget(cancel)
         layout.addLayout(bar)
 
+    # -- Prefixes (VB TsAddPrefix / TsEditPrefix / TsRemovePrefix) ---------- #
+    #: Punctuation a prefix is often made of, named so the row is readable
+    #: (VB ``CharDescriptions``).
+    _CHAR_NAMES = {
+        ".": "Period", ",": "Comma", "'": "Single Quote",
+        "-": "Hyphen", "_": "Underscore", "~": "Tilde",
+    }
+
+    def _add_prefix_row(self, prefix: str, included: bool) -> None:
+        label = prefix
+        if prefix in self._CHAR_NAMES:
+            label = f"{prefix} ({self._CHAR_NAMES[prefix]})"
+        item = QListWidgetItem(label)
+        item.setData(Qt.ItemDataRole.UserRole, prefix)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+        item.setCheckState(
+            Qt.CheckState.Checked if included else Qt.CheckState.Unchecked
+        )
+        self._prefixes.addItem(item)
+
+    def _ask_prefix(self, title: str, initial: str = "") -> str:
+        from PySide6.QtWidgets import QInputDialog
+
+        text, ok = QInputDialog.getText(self, title, "Name prefix:", text=initial)
+        return text.strip() if ok else ""
+
+    def _on_add_prefix(self) -> None:
+        prefix = self._ask_prefix("Add Prefix")
+        if not prefix or prefix in self.prefix_values():
+            return
+        self._add_prefix_row(prefix, True)
+
+    def _on_edit_prefix(self) -> None:
+        item = self._prefixes.currentItem()
+        if item is None:
+            return
+        current = item.data(Qt.ItemDataRole.UserRole)
+        prefix = self._ask_prefix("Edit Prefix", current)
+        if not prefix or prefix == current:
+            return
+        checked = item.checkState()
+        row = self._prefixes.row(item)
+        self._prefixes.takeItem(row)
+        self._add_prefix_row(prefix, checked == Qt.CheckState.Checked)
+
+    def _on_remove_prefix(self) -> None:
+        item = self._prefixes.currentItem()
+        if item is not None:
+            self._prefixes.takeItem(self._prefixes.row(item))
+
+    def prefix_values(self) -> list[str]:
+        return [
+            self._prefixes.item(i).data(Qt.ItemDataRole.UserRole)
+            for i in range(self._prefixes.count())
+        ]
+
+    def prefix_filters(self) -> list[dict]:
+        """``[{"prefix", "included"}]`` for persisting (VB ``SavePrefixFilters``)."""
+        return [
+            {
+                "prefix": self._prefixes.item(i).data(Qt.ItemDataRole.UserRole),
+                "included": self._prefixes.item(i).checkState() == Qt.CheckState.Checked,
+            }
+            for i in range(self._prefixes.count())
+        ]
+
     def _set_all(self, state: Qt.CheckState) -> None:
-        for lst in (self._groups, self._ratings):
+        for lst in (self._groups, self._ratings, self._prefixes):
             for i in range(lst.count()):
                 lst.item(i).setCheckState(state)
 

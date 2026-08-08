@@ -520,3 +520,92 @@ def test_a_missing_filter_file_shows_everything(qtbot, tmp_path):
     dlg = ModExplorer.show_for(controller)
     qtbot.addWidget(dlg)
     assert len(_shown(dlg)) == 2
+
+
+# --------------------------------------------------------------------------- #
+# Name-prefix filters (VB LvPrefixFilters / FilterPrefixList / TsUndoPrefix)
+# --------------------------------------------------------------------------- #
+def test_an_unticked_prefix_hides_mods_whose_name_starts_with_it(qtbot):
+    """A prefix is matched text, not a field on the mod — VB has none either."""
+    rows = {
+        "rows": [
+            {"mod": "_Old Alpha", "group": "G", "state": "Installed", "state_value": 11,
+             "rating": "Good", "files": 1, "played": "", "completed": 0},
+            {"mod": "Beta", "group": "G", "state": "Installed", "state_value": 11,
+             "rating": "Good", "files": 1, "played": "", "completed": 0},
+            {"mod": "_Old Gamma", "group": "G", "state": "Installed", "state_value": 11,
+             "rating": "Good", "files": 1, "played": "", "completed": 0},
+        ],
+        "count": 3,
+    }
+    dlg = ModExplorer(rows)
+    qtbot.addWidget(dlg)
+    assert len(_shown(dlg)) == 3
+
+    dlg._prefix_filters = [{"prefix": "_", "included": False}]
+    dlg._populate()
+    assert _shown(dlg) == {"Beta"}, "the underscore-prefixed mods are hidden"
+
+    dlg._prefix_filters = [{"prefix": "_", "included": True}]
+    dlg._populate()
+    assert len(_shown(dlg)) == 3, "a ticked prefix hides nothing"
+
+
+def test_prefix_matching_is_case_insensitive_and_anchored(qtbot):
+    rows = {
+        "rows": [
+            {"mod": "PRC Alpha", "group": "G", "state": "Installed", "state_value": 11,
+             "rating": "Good", "files": 1, "played": "", "completed": 0},
+            {"mod": "My PRC Beta", "group": "G", "state": "Installed", "state_value": 11,
+             "rating": "Good", "files": 1, "played": "", "completed": 0},
+        ],
+        "count": 2,
+    }
+    dlg = ModExplorer(rows)
+    qtbot.addWidget(dlg)
+    dlg._prefix_filters = [{"prefix": "prc", "included": False}]
+    dlg._populate()
+    # Anchored: only the mod whose name *starts* with it goes.
+    assert _shown(dlg) == {"My PRC Beta"}
+
+
+def test_prefix_filters_persist_and_undo_reverts_to_them(qtbot, tmp_path):
+    controller = _real_controller(tmp_path)
+    controller.create_mod("_Retired", "Community")
+
+    dlg = ModExplorer.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert len(_shown(dlg)) == 3
+
+    # Applying through the dialog persists (as VB saves on the filter change).
+    dlg._prefix_filters = [{"prefix": "_", "included": False}]
+    dlg._save_prefix_filters()
+    dlg._populate()
+    assert "_Retired" not in _shown(dlg)
+    assert controller._settings().mod_prefix_filters == [
+        {"prefix": "_", "included": False}
+    ]
+
+    # Change without saving, then undo.
+    dlg._prefix_filters = [{"prefix": "_", "included": True}]
+    dlg._populate()
+    assert "_Retired" in _shown(dlg)
+    dlg._on_undo_prefix_filters()
+    assert "_Retired" not in _shown(dlg), "undo must restore the saved prefixes"
+
+
+def test_the_filters_dialog_round_trips_prefixes(qtbot):
+    from vaultkeeper.ui.dialogs.common_filters import CommonFiltersDialog
+
+    dlg = CommonFiltersDialog(
+        ["G"], ["Good"], {"G": True}, {"Good": True},
+        prefixes=[{"prefix": "_", "included": False}, {"prefix": "zz", "included": True}],
+    )
+    qtbot.addWidget(dlg)
+    assert dlg.prefix_values() == ["_", "zz"]
+    assert dlg.prefix_filters() == [
+        {"prefix": "_", "included": False},
+        {"prefix": "zz", "included": True},
+    ]
+    # Punctuation is named so the row reads, as VB's CharDescriptions does.
+    assert "Underscore" in dlg._prefixes.item(0).text()

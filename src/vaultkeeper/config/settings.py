@@ -139,6 +139,11 @@ class Settings:
     #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
     #: default ``"Huge"``).
     portrait_display_size: str = "Huge"
+    #: Mod Explorer name-prefix filters (VB ``FilterPrefixList``). Each entry is
+    #: ``{"prefix": str, "included": bool}``; an *unchecked* prefix hides every
+    #: mod whose name starts with it. A prefix is only matched text — there is no
+    #: prefix field on a mod, in VB either.
+    mod_prefix_filters: list[dict] = field(default_factory=list)
     #: Character Explorer: show only skills the character has ranks in (VB
     #: ``FilterSkillsByRank`` / the *Only show Ranked Skills* tick). A PRC
     #: character has around forty skills and ranks in a handful, so the unranked
