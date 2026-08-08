@@ -118,3 +118,40 @@ Everything else. `capability_sweep.py` lists them; the remaining topics are
 mostly per-screen guidance already covered by `DIALOG_PARITY.md`, but that is an
 expectation rather than a finding, which is exactly the distinction this file
 exists to keep.
+
+## The behaviour sweep — what a command diff cannot see
+
+`behaviour_sweep.py`, added after the play-time readout turned out to be missing
+and the command diff had called the port 197/209 complete. A command diff reads
+a menu item's id. It cannot see a behaviour with **no caption, no menu entry and
+no help button** — a right-click, a double-click, a keypress — and four gaps had
+by then been found by hand and none by a tool.
+
+`--behaviours` lists every such handler in the original: **32**, small enough to
+read to the end. Reviewed:
+
+| Where | Behaviour | Port |
+|---|---|---|
+| Mod list | **Double-click a mod → Install, or Uninstall if installed** | **GAP** — everyday interaction, entirely absent |
+| Character status icon | Right-click → Character Summary | **GAP** |
+| Play ribbon button | Right-click → Start Screen Manager (Ctrl: preview the installed screen; Shift: auto loadscreen) | **GAP** |
+| Portrait Manager command | Right-click → open the portrait image web page | **GAP** — and the setting it needs (`portrait_image_web_page`) is one nothing reads |
+| Character Explorer skills/feats | Double-click → the description | Different shape: shown in a panel beside the list |
+| Play Data Viewer game row | Right-click → set the start date | **Ported** (this session) |
+| Recycle toggle, Select Text File, Wizard Report | Right-click alternates | Not reviewed |
+| Installation Analyser, Find and Rename, Portrait Manager lists | Double-click a row | Not reviewed |
+
+## Settings that do nothing
+
+`--settings` lists preferences this port writes and never reads. A preference
+someone can tick that changes nothing is worse than a missing one, because it
+lies. It found `startup_sound` (since fixed) and, still open, **eight**:
+
+`validate_game_config_on_startup`, `installer_restore`, `select_game_mod`,
+`copy_mod_name_on_play`, `auto_character`, `copy_debug_mode_on_play`,
+`hak_item_icons`, `exact_item_icons`.
+
+The last two are the sharpest: both are documented as controlling how item icons
+are resolved in the Character Explorer, and the icon source consults neither.
+`validate_game_config_on_startup` is the other kind — the startup check runs
+unconditionally, so the box cannot be unticked in any meaningful sense.

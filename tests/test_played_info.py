@@ -26,14 +26,14 @@ from vaultkeeper.ui.main_window import MainWindow  # noqa: E402
 
 def _controller(tmp_path: Path) -> ProfileController:
     profile_mods = tmp_path / "Profiles" / "P"
-    (profile_mods / "Adventure" / C.MOD_INSTALLER_DIR).mkdir(parents=True)
+    (profile_mods / "Adventure" / C.MOD_INSTALLER_DIR).mkdir(parents=True, exist_ok=True)
     controller = ProfileController.open_profile(
         profile_mods_dir=profile_mods,
         game_root=tmp_path / "NWN",
         store_path=tmp_path / "Data" / "P.json",
     )
     controller.ctx.game_user_dir = tmp_path / "gameuser"
-    (tmp_path / "gameuser" / "saves").mkdir(parents=True)
+    (tmp_path / "gameuser" / "saves").mkdir(parents=True, exist_ok=True)
     return controller
 
 
@@ -150,3 +150,88 @@ class TestTheMenuBar:
         qtbot.addWidget(win)
         win._update_played_info()
         assert win._played_info.text() == ""
+
+
+# -- setting a start date after the fact (VB EditStartTime) --------------------- #
+class TestStartDate:
+    def test_recording_when_a_game_began(self, tmp_path):
+        controller = _controller(tmp_path)
+        when = datetime(2024, 1, 5, 17, 4, 31)
+        result = controller.set_play_start_date("Adventure", when)
+        assert result["ok"]
+        assert controller.play_start_date("Adventure") == when
+
+    def test_a_start_date_in_the_future_is_refused(self, tmp_path):
+        """Hours already recorded cannot have been earned tomorrow."""
+        controller = _controller(tmp_path)
+        result = controller.set_play_start_date(
+            "Adventure", datetime.now() + timedelta(days=1)
+        )
+        assert not result["ok"] and "future" in result["message"]
+
+    def test_it_survives_a_reload(self, tmp_path):
+        controller = _controller(tmp_path)
+        when = datetime(2024, 1, 5, 17, 4, 31)
+        controller.set_play_start_date("Adventure", when)
+        again = _controller(tmp_path)
+        assert again.play_start_date("Adventure") == when
+
+    def test_no_game_named(self, tmp_path):
+        assert not _controller(tmp_path).set_play_start_date("", datetime.now())["ok"]
+
+
+class TestStartDateParsing:
+    """VB's format: 05 Jan 24, 05:04:31 pm."""
+
+    def test_the_documented_form(self):
+        from vaultkeeper.ui.dialogs.play_data_viewer import _parse_started
+
+        assert _parse_started("05 Jan 24, 05:04:31 pm") == datetime(2024, 1, 5, 17, 4, 31)
+
+    def test_the_time_is_optional(self):
+        from vaultkeeper.ui.dialogs.play_data_viewer import _parse_started
+
+        assert _parse_started("05 Jan 24") == datetime(2024, 1, 5)
+
+    def test_a_four_digit_year_is_accepted_too(self):
+        from vaultkeeper.ui.dialogs.play_data_viewer import _parse_started
+
+        assert _parse_started("05 Jan 2024") == datetime(2024, 1, 5)
+
+    def test_nonsense_is_refused_rather_than_guessed_at(self):
+        from vaultkeeper.ui.dialogs.play_data_viewer import _parse_started
+
+        assert _parse_started("last Tuesday") is None
+        assert _parse_started("") is None
+
+
+class TestTheDailyReport:
+    def test_ctrl_click_opens_straight_onto_it(self, qtbot, tmp_path):
+        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+
+        controller = _controller(tmp_path)
+        controller.record_daily_play(90, day="2026-08-01")
+        dlg = PlayDataViewer.show_for(controller, show_report=True)
+        qtbot.addWidget(dlg)
+        assert dlg.report.isVisible()
+        assert dlg.report.topLevelItemCount() == 1
+
+    def test_otherwise_it_is_a_button_away(self, qtbot, tmp_path):
+        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+
+        controller = _controller(tmp_path)
+        controller.record_daily_play(90, day="2026-08-01")
+        dlg = PlayDataViewer.show_for(controller)
+        qtbot.addWidget(dlg)
+        assert not dlg.report.isVisible()
+        dlg.report_button.click()
+        assert dlg.report.isVisible()
+        assert dlg.report_button.text() == "Hide Daily Report"
+
+    def test_the_viewer_still_opens_without_a_controller(self, qtbot):
+        """It is constructed straight from a report in a couple of places."""
+        from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
+
+        dlg = PlayDataViewer({"rows": []})
+        qtbot.addWidget(dlg)
+        assert dlg.table.topLevelItemCount() == 0

@@ -4788,6 +4788,36 @@ class ProfileController:
                 )
         return {"rows": rows, "count": len(rows)}
 
+    def set_play_start_date(self, mod_name: str, started) -> dict:
+        """Record when a game was started, after the fact (VB ``EditStartTime``).
+
+        Play tracking begins when you launch through Vaultkeeper, so a campaign
+        started before that — or outside it — has hours recorded and no start.
+        This is how that gets filled in; the Game Saves Manager's earliest save
+        is where the date usually comes from.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "message": "No play data for this profile."}
+        if not mod_name:
+            return {"ok": False, "message": "Select a game first."}
+        if started > datetime.now():
+            return {"ok": False, "message": "A start date cannot be in the future."}
+        pdm = loop.play_data
+        pdm.set_start_date(mod_name, started)
+        pdm.save_mods_started()
+        from vaultkeeper.core.formatting import to_date_string
+
+        return {
+            "ok": True,
+            "message": f"{mod_name} started {to_date_string(started)}.",
+        }
+
+    def play_start_date(self, mod_name: str):
+        """When a game was started, or ``None``."""
+        loop = self.play_loop
+        return None if loop is None else loop.play_data.start_date(mod_name)
+
     def play_time_info(self) -> dict:
         """The menu bar's play-time readout (VB ``Defs.TitleInfo``).
 

@@ -309,7 +309,14 @@ class MainWindow(QMainWindow):
         """
         if self.controller is None:
             return
-        if self.controller.pending_play_report()["count"] > 0:
+        # Ctrl+click opens straight onto the per-day report (VB reads
+        # CtrlKeyDown and passes it to PlayDataManager.View as showReport).
+        from PySide6.QtWidgets import QApplication
+
+        wants_report = bool(
+            QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier
+        )
+        if not wants_report and self.controller.pending_play_report()["count"] > 0:
             from vaultkeeper.ui.dialogs.play_data_view_pending import (
                 PlayDataViewPending,
             )
@@ -318,7 +325,9 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.play_data_viewer import PlayDataViewer
 
-        self._play_data_viewer = PlayDataViewer.show_for(self.controller, self)
+        self._play_data_viewer = PlayDataViewer.show_for(
+            self.controller, self, show_report=wants_report
+        )
 
     def _update_played_info(self, mod_name: str | None = None) -> None:
         """Refresh the right-aligned play-time readout (VB ``Defs.TitleInfo``).
