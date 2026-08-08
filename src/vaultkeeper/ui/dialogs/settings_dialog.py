@@ -653,7 +653,10 @@ class SettingsDialog(QDialog):
         page = QWidget()
         outer = QVBoxLayout(page)
         outer.addWidget(
-            QLabel("Edit the game paths (Browse to a folder); other rows are resolved:")
+            QLabel(
+                "Edit the paths below with Browse; the rows underneath are resolved "
+                "from them and shown for reference."
+            )
         )
 
         form = QFormLayout()
@@ -665,6 +668,21 @@ class SettingsDialog(QDialog):
             by_location.get("Game User Folder", "")
         )
         form.addRow("Game User Folder:", user_row)
+
+        # VB Locations, Installer Tool group: "NIT Start-up Sound", a *.wav file
+        # picker whose Reset default is the game's own launcher fanfare.
+        self.startup_sound_edit, sound_row = self._path_editor(
+            self._settings.startup_sound_path, file_filter="Sound files (*.wav)"
+        )
+        self.startup_sound_edit.setPlaceholderText(
+            self._default_startup_sound(controller) or "(no sound file found)"
+        )
+        self.startup_sound_edit.setToolTip(
+            "The sound to play when Vaultkeeper starts. Leave blank for the one "
+            "the Neverwinter Nights launcher plays. Only used when “Play a "
+            "sound when the application starts” is ticked, under Behaviour."
+        )
+        form.addRow("Start-up sound:", sound_row)
         outer.addLayout(form)
 
         # Create a separate game folder for this profile (VB CreateNwnFolder).
@@ -690,11 +708,27 @@ class SettingsDialog(QDialog):
         outer.addWidget(tree, 1)
         return page
 
-    def _path_editor(self, value: str):
-        """A read/edit path field + Browse button; returns (QLineEdit, row widget)."""
+    @staticmethod
+    def _default_startup_sound(controller) -> str:
+        """The game's own fanfare, shown as the placeholder (VB's Reset default)."""
+        from vaultkeeper.game.startup_sound import default_sound
+
+        game_root = getattr(getattr(controller, "ctx", None), "game_root", None)
+        found = default_sound(game_root)
+        return str(found) if found else ""
+
+    def _path_editor(self, value: str, *, file_filter: str = ""):
+        """A read/edit path field + Browse button; returns (QLineEdit, row widget).
+
+        With ``file_filter`` the Browse button picks a *file* rather than a
+        folder — VB distinguishes these as ``LocType.File`` and ``LocType.Path``.
+        """
         edit = QLineEdit(value)
         browse = QPushButton("Browse…")
-        browse.clicked.connect(lambda: self._browse_into(edit))
+        if file_filter:
+            browse.clicked.connect(lambda: self._browse_file_into(edit, file_filter))
+        else:
+            browse.clicked.connect(lambda: self._browse_into(edit))
         row = QWidget()
         rl = QHBoxLayout(row)
         rl.setContentsMargins(0, 0, 0, 0)
@@ -708,6 +742,15 @@ class SettingsDialog(QDialog):
         folder = QFileDialog.getExistingDirectory(self, "Select folder", edit.text())
         if folder:
             edit.setText(folder)
+
+    def _browse_file_into(self, edit: QLineEdit, file_filter: str) -> None:
+        from PySide6.QtWidgets import QFileDialog
+
+        chosen, _ = QFileDialog.getOpenFileName(
+            self, "Select file", edit.text(), file_filter
+        )
+        if chosen:
+            edit.setText(chosen)
 
     def _on_create_nwn_folder(self) -> None:
         """Create an isolated NWN game folder for this profile (VB CreateNwnFolder)."""
@@ -771,6 +814,17 @@ class SettingsDialog(QDialog):
             settings.nwn_path = self.game_install_edit.text().strip() or None
         if self.game_user_edit is not None:
             settings.game_user_path = self.game_user_edit.text().strip() or None
+        if getattr(self, "startup_sound_edit", None) is not None:
+            # VB Settings.Locations:173 skips PathStartupSound when the file does
+            # not exist, rather than saving a path to nothing. Blank is different
+            # from wrong, and means "use the game's own".
+            from pathlib import Path
+
+            chosen = self.startup_sound_edit.text().strip()
+            if not chosen:
+                settings.startup_sound_path = ""
+            elif Path(chosen).is_file():
+                settings.startup_sound_path = chosen
 
     @classmethod
     def edit(

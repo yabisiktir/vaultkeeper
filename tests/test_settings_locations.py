@@ -128,3 +128,64 @@ def test_settings_dialog_start_tab(qtbot):
     dlg2 = SettingsDialog(Settings(), start_tab="Nope")
     qtbot.addWidget(dlg2)
     assert dlg2.tabs.currentIndex() == 0
+
+
+# -- the start-up sound file (VB Locations: "NIT Start-up Sound") --------------- #
+def _sound_dialog(qtbot, tmp_path, configured: str = ""):
+    from vaultkeeper.config.settings import Settings
+
+    settings = Settings(startup_sound_path=configured)
+    dlg = SettingsDialog(settings, controller=_controller(tmp_path))
+    qtbot.addWidget(dlg)
+    return dlg, settings
+
+
+def test_the_locations_page_offers_a_start_up_sound(qtbot, tmp_path):
+    dlg, _ = _sound_dialog(qtbot, tmp_path)
+    assert dlg.startup_sound_edit is not None
+
+
+def test_choosing_a_sound_saves_it(qtbot, tmp_path):
+    sound = tmp_path / "fanfare.wav"
+    sound.write_bytes(b"RIFF....WAVE")
+    dlg, settings = _sound_dialog(qtbot, tmp_path)
+    dlg.startup_sound_edit.setText(str(sound))
+    dlg.apply_to(settings)
+    assert settings.startup_sound_path == str(sound)
+
+
+def test_a_path_to_nothing_is_refused_rather_than_saved(qtbot, tmp_path):
+    """VB Settings.Locations:173 skips the value when the file does not exist."""
+    sound = tmp_path / "real.wav"
+    sound.write_bytes(b"RIFF")
+    dlg, settings = _sound_dialog(qtbot, tmp_path, configured=str(sound))
+    dlg.startup_sound_edit.setText(str(tmp_path / "gone.wav"))
+    dlg.apply_to(settings)
+    assert settings.startup_sound_path == str(sound)  # the good one survives
+
+
+def test_clearing_it_means_use_the_games_own(qtbot, tmp_path):
+    """Blank is a real answer — different from a wrong path, which is refused."""
+    sound = tmp_path / "real.wav"
+    sound.write_bytes(b"RIFF")
+    dlg, settings = _sound_dialog(qtbot, tmp_path, configured=str(sound))
+    dlg.startup_sound_edit.setText("   ")
+    dlg.apply_to(settings)
+    assert settings.startup_sound_path == ""
+
+
+def test_the_placeholder_names_the_games_own_sound(qtbot, tmp_path):
+    """So an empty box says what it will actually play, rather than nothing."""
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog as SD
+
+    controller = _controller(tmp_path)
+    game = controller.ctx.game_root / "data" / "mus"
+    game.mkdir(parents=True, exist_ok=True)
+    (game / "mus_autorun.wav").write_bytes(b"RIFF")
+    assert SD._default_startup_sound(controller).endswith("mus_autorun.wav")
+
+
+def test_no_game_sound_says_so_rather_than_naming_a_missing_file(qtbot, tmp_path):
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog as SD
+
+    assert SD._default_startup_sound(_controller(tmp_path)) == ""
