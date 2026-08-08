@@ -136,8 +136,14 @@ seconds:
 ```bash
 scripts/win_test.sh --setup   # once: create the bottle, install Python and Qt
 scripts/win_test.sh           # run the tests as Windows sees them
+scripts/win_test.sh --all     # every test file, Qt ones included (~2 min)
 scripts/win_test.sh --shot    # render the main window as Windows draws it
 ```
+
+Use `--all` before pushing anything that touches a dialog. The default run skips
+Qt tests for speed, and a dialog's tests are exactly where a hardcoded `/` slips
+through: five separator assertions once passed here and failed on the Windows
+runner while the default run stayed green.
 
 `scripts/window_shot.py` is that last one, and it runs natively too, so the same
 command on two platforms gives two screenshots of the same window to compare. It

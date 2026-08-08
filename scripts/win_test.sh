@@ -43,8 +43,14 @@
 # -----
 #   scripts/win_test.sh --setup        # once: create the bottle, install Python
 #   scripts/win_test.sh                # run this repo's non-Qt tests
+#   scripts/win_test.sh --all          # every test file, Qt ones included
 #   scripts/win_test.sh -k some_test   # extra args go to pytest
 #   scripts/win_test.sh --shot         # render the main window as Windows draws it
+#
+# Use --all before pushing anything that touches a dialog. Five separator
+# assertions in a first-run dialog's tests passed on macOS and failed on the
+# Windows runner while the default run stayed green, because the default run
+# does not open those files.
 #
 # --setup also installs PySide6, which is what makes --shot (and the Qt tests,
 # if you point pytest at them) possible: Qt loads under Wine with its native
@@ -152,14 +158,26 @@ fi
 # Run the tests
 # --------------------------------------------------------------------------- #
 
+# --all includes the Qt tests. They do run under Wine — Qt loads with its real
+# "windows" platform plugin — they are just slower, which is the only reason the
+# default leaves them out.
+all_tests=false
+if [ "${1:-}" = "--all" ]; then
+    all_tests=true
+    shift
+fi
+
 args=()
 for f in "$REPO"/tests/test_*.py; do
-    grep -q "PySide6\|nwnsaveeditor\|qtbot\|vaultkeeper\.ui" "$f" && continue
+    if ! $all_tests; then
+        grep -q "PySide6\|nwnsaveeditor\|qtbot\|vaultkeeper\.ui" "$f" && continue
+    fi
     args+=("$(win_path "$REPO")\\tests\\$(basename "$f")")
 done
-[ ${#args[@]} -gt 0 ] || die "no non-Qt test files found under $REPO/tests"
+[ ${#args[@]} -gt 0 ] || die "no test files found under $REPO/tests"
 
-echo "bottle: $BOTTLE   repo: $(basename "$REPO")   non-Qt test files: ${#args[@]}"
+kind=$($all_tests && echo "test files" || echo "non-Qt test files")
+echo "bottle: $BOTTLE   repo: $(basename "$REPO")   $kind: ${#args[@]}"
 echo
 
 # rootdir is pinned so pyproject's pythonpath and ini options still apply, and
