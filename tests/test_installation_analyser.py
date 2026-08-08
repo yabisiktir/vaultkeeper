@@ -186,3 +186,54 @@ def test_browser_rows_carry_the_installed_path(tmp_path):
     # Whatever was picked up, every row must expose where it lives (or "" when
     # the folder is not one we resolved) rather than omitting the key.
     assert all("path" in f for f in files)
+
+
+def test_selecting_a_large_folder_stays_fast(qtbot):
+    """A row must carry its own data, not the folder holding every other row.
+
+    Attaching the folder dict to each item — which this briefly did, to reach
+    it from the Properties action — hands PySide6 a structure containing every
+    file in the folder and it converts the whole thing once per row. On the
+    owner's 6,392-file override folder that took 40 seconds and looked like a
+    freeze; the row alone takes a fraction of a second.
+
+    Asserted as a shape, not a stopwatch: no row may reference a container of
+    other rows, which is the property that made it quadratic.
+    """
+    from types import SimpleNamespace
+
+    from vaultkeeper.ui.dialogs.installation_analyser import (
+        _FILE_ROLE,
+        InstallationAnalyser,
+    )
+
+    count = 400
+    files = [
+        {"filename": f"f{i}.tga", "source": "M", "size": "1 KB",
+         "modified": "01 Jan 2026", "path": f"/x/f{i}.tga"}
+        for i in range(count)
+    ]
+    browser = {
+        "folders": [
+            {"name": "override", "count": count, "size": "1 MB",
+             "size_bytes": 1, "files": files}
+        ],
+        "total_size": "1 MB",
+    }
+    controller = SimpleNamespace(
+        installation_report=lambda: {"rows": [], "summary": "", "counts": {}},
+        installation_browser_report=lambda: browser,
+    )
+    dlg = InstallationAnalyser(controller)
+    qtbot.addWidget(dlg)
+    dlg._on_folder(0)
+    assert dlg.files.topLevelItemCount() == count
+
+    stored = dlg.files.topLevelItem(0).data(0, _FILE_ROLE)
+    assert stored["filename"] == "f0.tga"
+    assert "path" in stored, "Properties and Open Folder need the path"
+    for value in stored.values():
+        assert not isinstance(value, (list, dict)), (
+            f"a row must not carry a collection ({value!r:.40}) — that is what "
+            "made selecting a large folder quadratic"
+        )

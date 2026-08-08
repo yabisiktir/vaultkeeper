@@ -142,7 +142,11 @@ class InstallationAnalyser(QDialog):
         for f in folders[row]["files"]:
             item = QTreeWidgetItem([f["filename"], f["source"], f["size"], f["modified"]])
             item.setData(0, _SOURCE_ROLE, f["source"])
-            item.setData(0, _FILE_ROLE, {**f, "folder": folders[row]})
+            # The row only. Attaching the *folder* here — as this briefly did —
+            # hands PySide6 a dict holding every file in it, once per row, and
+            # it converts the whole structure each time: 40 seconds for the
+            # owner's 6,392-file override folder, against 0.13 for the row alone.
+            item.setData(0, _FILE_ROLE, f)
             self.files.addTopLevelItem(item)
 
     def _on_files_menu(self, point) -> None:
