@@ -1318,6 +1318,104 @@ class ProfileController:
             "message": message,
         }
 
+    def unowned_characters(self) -> list:
+        """Installed character files no mod owns, gathered per character.
+
+        These are the characters *you* made: rolled in the game, installed in the
+        user folder, belonging to nothing Vaultkeeper put there. See
+        :mod:`vaultkeeper.game.character_restorer`.
+        """
+        from vaultkeeper.game.character_restorer import (
+            CHARACTER_EXTENSION,
+            group_characters,
+        )
+
+        keys = [
+            fk
+            for fk, ifd in self.pd.installed_list.items()
+            if ifd.is_unknown_installer
+            and ifd.extension.lower() == CHARACTER_EXTENSION
+        ]
+        return group_characters(keys)
+
+    def create_character_restorer(
+        self, name: str, file_keys, *, group: str | None = None
+    ) -> dict:
+        """Build a restorer mod holding those character files (VB ``CreateRestorer``).
+
+        The files are *copied* into the mod's installer payload and the mod then
+        owns them, so a later Restore puts these characters back exactly as they
+        are now. Nothing is removed from the game.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        name = (name or "").strip()
+        if not name:
+            return {"ok": False, "files": 0, "message": "Name the restorer first."}
+        if self.pd.mod_item(name) is not None:
+            return {
+                "ok": False,
+                "files": 0,
+                "message": f"'{name}' already exists — choose another name.",
+            }
+
+        installer_dir = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
+        copied = 0
+        for fk in file_keys:
+            folder = self.ctx.game_folders.get(fk.folder)
+            if folder is None:
+                continue
+            source = folder / fk.filename
+            if not source.is_file():
+                continue
+            dest = installer_dir / fk.folder / fk.filename
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, dest)
+            copied += 1
+        if copied == 0:
+            return {
+                "ok": False,
+                "files": 0,
+                "message": "None of those character files could be read.",
+            }
+
+        self.create_mod(name, group or C.CHARACTER_RESTORER_GROUP)
+        self.create_installer(name)
+        self.create_restorer(name)
+        self.save()
+        return {
+            "ok": True,
+            "files": copied,
+            "message": f"Created '{name}' with {copied} character file(s).",
+        }
+
+    def auto_character_restorers(self, played_mod: str = "") -> dict:
+        """Create restorers for unowned characters (VB ``AutoCharacterRestorer``).
+
+        Only acts when there is exactly one character to save, because that is
+        the case with no question in it: the mod just played names it. Several
+        characters means several mods, and only the user knows which is which —
+        those are left for *Create Character Restorer* to ask about.
+        """
+        from vaultkeeper.game.character_restorer import restorer_name
+
+        groups = self.unowned_characters()
+        if len(groups) != 1:
+            return {"created": 0, "files": 0, "pending": len(groups), "message": ""}
+        prefix = self._settings().character_restorer_prefix
+        name = restorer_name(prefix, played_mod or groups[0].name)
+        if self.pd.mod_item(name) is not None:
+            return {"created": 0, "files": 0, "pending": 1, "message": ""}
+        result = self.create_character_restorer(name, groups[0].files)
+        return {
+            "created": 1 if result["ok"] else 0,
+            "files": result["files"],
+            "pending": 0,
+            "message": result["message"] if result["ok"] else "",
+        }
+
     def convert_restorer(self, mod_name: str) -> int:
         """Convert a Restorer into an installable Mod (VB ``MsConvertRestorer``).
 

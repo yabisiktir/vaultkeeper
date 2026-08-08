@@ -23,7 +23,7 @@ them.
 | compressmodfolders.htm | Compress or Uncompress Mod folders | Ported (Manage menu) |
 | createrestorers.htm | Create Restorers | Ported |
 | originalrestorers.htm | Create Original Restorers | Ported |
-| createcharrestorers.htm | Create Character Restorers | **GAP — this verdict was wrong.** See below |
+| createcharrestorers.htm | Create Character Restorers | Ported — after this file recorded it wrongly once; see below |
 | workwithinstallationsets.htm | Work with Installation Sets | Ported (Installation Manager) |
 | anneal.htm | Validate conflicting files (Anneal) | Ported |
 | removeerffiles.htm | Remove ERF Files | Ported |
@@ -150,8 +150,9 @@ grep for `character_restorer`, which matched **a constant** —
 the feature. Grep evidence is weak in both directions, and this file exists to
 hold verdicts, so a wrong one is worse than an unreviewed one.
 
-It matters twice over: the `auto_character` preference below cannot be wired
-until the feature it switches on exists.
+It mattered twice over: `auto_character` could not be wired until the feature it
+switches on existed. Both are done now — the wrong verdict is left here on
+purpose, because how it was reached is the useful part.
 
 ## Settings that do nothing
 
@@ -165,8 +166,10 @@ unconditionally, so the box could not be unticked), `select_game_mod`,
 pressed) and `installer_restore` (rebuilding an installed mod's payload now puts
 it back, so the game stops running the files that were just replaced).
 
-**One is blocked**: `auto_character` switches on a feature that does not exist —
-see the wrong verdict above.
+`auto_character` is wired too, now that Character Restorers exist: closing the
+game saves the character just played, but only when there is exactly one with no
+owner. Several is a question about which build belongs to which mod, and that is
+not a question to put to somebody who has just shut the game down.
 
 `hak_item_icons` and `exact_item_icons` were a **false positive**: both are read
 by the save editor through its host protocol, and the sweep scanned only this

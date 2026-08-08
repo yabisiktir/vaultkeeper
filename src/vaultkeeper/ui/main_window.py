@@ -1654,13 +1654,64 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(result["message"])
 
     def _on_create_restorer(self) -> None:
+        """Create a Restorer (VB ``MsCreateRestorer``).
+
+        VB offers "Create NWN character Restorer" inside the naming dialog, and
+        only when there are character files no mod owns. Same rule here: those
+        are offered first, because having just finished a game is when this is
+        wanted and a mod need not be selected for it.
+        """
+        if self.controller is None:
+            return
+        if self._offer_character_restorer():
+            return
         names = self.selected_mod_names()
-        if self.controller is None or not names:
+        if not names:
             self.nit_status.set_info("Select a mod first.")
             return
         made = sum(1 for n in names if self.controller.create_restorer(n))
         self.refresh()
         self.nit_status.set_info(f"Created restorer for {made} mod(s).")
+
+    def _offer_character_restorer(self) -> bool:
+        """Offer to save unowned characters; True when that is what happened."""
+        from PySide6.QtWidgets import QMessageBox
+
+        groups = self.controller.unowned_characters()
+        if not groups:
+            return False
+        total = sum(g.count for g in groups)
+        answer = QMessageBox.question(
+            self,
+            "Create Restorer",
+            f"{total} character file(s) in your game belong to no mod.\n\n"
+            "Create a Character Restorer to keep those builds?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return False  # fall through to the ordinary selection-based restorer
+
+        from vaultkeeper.ui.dialogs.character_restorer import CharacterRestorerDialog
+
+        prefix = self.controller._settings().character_restorer_prefix
+        dialog = CharacterRestorerDialog(groups, prefix, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return True  # asked and answered: do not also do the other thing
+        created = files = 0
+        problems = []
+        for name, keys in dialog.chosen():
+            result = self.controller.create_character_restorer(name, keys)
+            if result["ok"]:
+                created += 1
+                files += result["files"]
+            else:
+                problems.append(result["message"])
+        self.refresh()
+        message = f"Created {created} character restorer(s) ({files} file(s))."
+        if problems:
+            message = f"{message} {problems[0]}"
+        self.nit_status.set_info(message if created or problems else "Nothing created.")
+        return True
 
     def _on_convert_restorer(self) -> None:
         """Convert the selected Restorer into an installable Mod (VB MsConvertRestorer)."""
@@ -2382,13 +2433,31 @@ class MainWindow(QMainWindow):
         if self.controller is None or started is None:
             return
         summary = self.controller.process_play_session(started, datetime.now())
+        note = self._auto_character_restorer(summary)
         self.refresh()
         mods = summary.get("mods", {})
         if mods:
             names = ", ".join(sorted(mods))
-            self.nit_status.set_info(f"Recorded play time for: {names}")
+            self.nit_status.set_info(f"Recorded play time for: {names}.{note}")
         else:
-            self.nit_status.set_info("Finished playing (no play time recorded).")
+            self.nit_status.set_info(f"Finished playing (no play time recorded).{note}")
+
+    def _auto_character_restorer(self, summary: dict) -> str:
+        """Save the character just played, when asked to (VB ``BehaviourAutoCharacter``).
+
+        Only when there is one character with no owner — several is a question
+        about which belongs to what, and a question is not something to ask
+        somebody who has just closed the game.
+        """
+        if not self.controller._settings().auto_character:
+            return ""
+        played = next(iter(sorted(summary.get("mods", {}))), "")
+        try:
+            result = self.controller.auto_character_restorers(played)
+        except Exception:
+            log.exception("Could not create a character restorer")
+            return ""
+        return f" {result['message']}" if result.get("created") else ""
 
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")

@@ -100,6 +100,10 @@ class Settings:
     #: Create Character Restorers automatically when you close Neverwinter Nights
     #: (VB ``BehaviourAutoCharacter``).
     auto_character: bool = False
+    #: Name prefix for a generated Character Restorer (VB
+    #: ``ConfigCharacterRestorerPrefix``). The hyphen is the original's own
+    #: convention: it makes the name unique and sorts them together.
+    character_restorer_prefix: str = "-"
     #: DebugMode console command copied to the clipboard when playing an existing game
     #: (VB ``ConfigCopyDebugModeOnPlay``; empty = off, e.g. ``"DebugMode 1"`` when on).
     #: BOUNDED: the VB per-command picker is fixed to ``"DebugMode 1"`` here.
