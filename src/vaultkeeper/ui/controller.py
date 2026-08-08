@@ -377,6 +377,161 @@ class ProfileController:
         message = f"Web link {'set' if url else 'cleared'} for {mod_name}."
         return {"ok": True, "message": message}
 
+    # -- Finding and validating a mod's Vault page (VB FindLinkFromName) ---- #
+    def _mod_link_input(self, md):
+        """Gather what deciding a mod's Vault page needs (see ``vault.mod_links``)."""
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.vault.mod_links import ModLinkInput
+
+        names: list[str] = []
+        mod_dir = self.ctx.profile_mods_dir / md.mod_name
+        try:
+            for path in mod_dir.rglob("*"):
+                # The installer payload is this application's own copy of the
+                # files; matching it against the Vault would match the mod
+                # against itself.
+                if C.MOD_INSTALLER_DIR in path.parts or not path.is_file():
+                    continue
+                names.append(path.name)
+        except OSError:
+            pass
+
+        is_module = any(
+            fk.folder.lower() in (C.MOD_FOLDER, C.MOD_NWM_FOLDER)
+            and "demo" not in fk.filename.lower()
+            for fk in md.files
+        )
+        return ModLinkInput(
+            name=md.mod_name,
+            web_link=md.web_link,
+            filenames=tuple(names),
+            is_module=is_module,
+            eligible=self._worth_finding_a_link(md),
+        )
+
+    @staticmethod
+    def _worth_finding_a_link(md) -> bool:
+        """Whether a missing link is worth going to look for (VB's excluded groups).
+
+        A restorer holds the game's own files and a base-game module shipped with
+        it; neither has a Vault page, and searching for one wastes a request per
+        mod and reports a "problem" that is nothing of the kind.
+        """
+        from vaultkeeper.core import constants as C
+
+        if md.group in C.GENERATED_GROUPS:
+            return False
+        if md.mod_name in (
+            C.CORE_FILES_RESTORER,
+            C.INI_FILES_RESTORER,
+            C.CHARACTER_FILES_RESTORER,
+        ):
+            return False
+        return md.is_installer and bool(md.files)
+
+    def find_mod_web_link(self, mod_name: str) -> dict:
+        """Vault pages that publish a file this mod holds (VB ``MsFindWebLink``).
+
+        Returns ``{"ok", "candidates", "message"}``. Never picks for the user:
+        one candidate is an answer, several are a question, none is a "not found".
+        """
+        from vaultkeeper.vault.api import VaultApi
+        from vaultkeeper.vault.mod_links import find_candidates
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "candidates": [], "message": f"Unknown mod: {mod_name}"}
+        source = self._make_scraper()
+        if not isinstance(source, VaultApi):
+            return {
+                "ok": False,
+                "candidates": [],
+                "message": (
+                    "Finding a mod's page needs the Vault's API. Choose it under "
+                    "Settings → Downloads."
+                ),
+            }
+        rules = self.download_rules()
+        candidates = find_candidates(self._mod_link_input(md), source, rules)
+        if not candidates:
+            return {
+                "ok": False,
+                "candidates": [],
+                "message": (
+                    f"No Vault project publishes a file that '{mod_name}' holds."
+                ),
+            }
+        return {
+            "ok": True,
+            "candidates": candidates,
+            "message": (
+                f"Found {len(candidates)} Vault page"
+                f"{'s' if len(candidates) != 1 else ''} for '{mod_name}'."
+            ),
+        }
+
+    def validate_mod_web_links(self, *, on_progress=None) -> dict:
+        """Check every mod's recorded Vault link (VB ``ValidateModLinks``).
+
+        Returns ``{"ok", "findings", "report", "summary", "total", "message"}``.
+        Changes nothing — applying the revisions is a separate, explicit step.
+        """
+        from vaultkeeper.vault.api import VaultApi
+        from vaultkeeper.vault.mod_links import report_text, summary_line, validate_links
+
+        source = self._make_scraper()
+        if not isinstance(source, VaultApi):
+            return {
+                "ok": False,
+                "findings": [],
+                "report": "",
+                "summary": "",
+                "total": 0,
+                "message": (
+                    "Validating mod links needs the Vault's API. Choose it under "
+                    "Settings → Downloads."
+                ),
+            }
+        mods = [self.pd.mod_item(name) for name in self.pd.sorted_mod_keys]
+        inputs = [
+            self._mod_link_input(md)
+            for md in mods
+            if md is not None and not md.is_group_item
+        ]
+        rules = self.download_rules()
+        findings = validate_links(inputs, source, rules, on_progress=on_progress)
+        return {
+            "ok": True,
+            "findings": findings,
+            "report": report_text(findings, len(inputs)),
+            "summary": summary_line(findings, len(inputs)),
+            "total": len(inputs),
+            "message": summary_line(findings, len(inputs)),
+        }
+
+    def apply_mod_link_revisions(self, findings) -> dict:
+        """Write the suggested links back (VB's report "Update" action).
+
+        Only findings that actually carry a different address are applied, so
+        this is safe to hand the whole report.
+        """
+        applied = 0
+        for finding in findings:
+            if not getattr(finding, "actionable", False):
+                continue
+            md = self.pd.mod_item(finding.mod)
+            if md is None or md.is_group_item:
+                continue
+            md.web_link = finding.suggested
+            applied += 1
+        if applied:
+            self.save()
+        return {
+            "ok": True,
+            "applied": applied,
+            "message": f"Updated {applied} mod web link{'s' if applied != 1 else ''}.",
+        }
+
     def mod_properties(self, mod_name: str) -> dict | None:
         """Current editable metadata for a mod (VB TlModProperties), or None."""
         md = self.pd.mod_item(mod_name)
@@ -2695,6 +2850,7 @@ class ProfileController:
         *,
         group: str | None = None,
         filename: str = "",
+        page_url: str = "",
         on_progress=None,
         on_bytes=None,
         on_phase=None,
@@ -2778,6 +2934,16 @@ class ProfileController:
                 "message": f"The archive could not be downloaded: {download.error}",
             })
             return steps
+
+        # The user picked this module's Vault page a few clicks ago, to settle its
+        # dependencies. Record it: a PRC-ified archive is a repack, so its files
+        # are named nothing like the Vault's, and nothing could work the page out
+        # again afterwards — which is exactly what Validate Mod Web Links reports.
+        if page_url:
+            md = self.pd.mod_item(mod_name)
+            if md is not None and not md.is_group_item and not md.web_link:
+                md.web_link = page_url
+                self.save()
 
         build = self.build_installer_payload(mod_name, on_phase=on_phase)
         message = (

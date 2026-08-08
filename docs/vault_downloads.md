@@ -39,6 +39,62 @@ Four queries, all addressed from the download rules rather than from the code:
 A counter link is still followed to the file when the download starts: the API
 describes files, it does not serve them.
 
+## Keeping a mod's Vault page attached to it
+
+Three commands, all of them the API's doing — none was practical against a
+scraped page.
+
+| Where | Command | What it does |
+|---|---|---|
+| Edit menu | **Find Mod's Web Page Link** | Works out which Vault project a mod came from, and offers to save it. |
+| Edit menu | **Check for Mod Updates** | Opens Download Project on the mod's own link, already fetched, so its current files can be compared with what was downloaded. |
+| Tools menu | **Validate Mod Web Links** | Checks every recorded link at once and reports what has gone stale. |
+
+### How a page is identified
+
+Searching the Vault for a mod's name is not enough: "A Call for Heroes" matches
+three Selendi modules and a music pack, and nothing about the titles says which.
+
+So the title search is only the shortlist. Each candidate project is then asked
+what files it publishes, and the ones publishing a **file the mod already
+holds** are kept. That is evidence rather than resemblance — the mod folder
+holds `almraivenhak.rar`, and exactly one project on the Vault publishes a file
+by that name.
+
+Where no project publishes any of the mod's files, a project whose title is
+*exactly* the mod's name is offered instead, marked as matched by name only.
+This is the case for anything repackaged by someone else — a PRC-ified module
+arrives as `Cormyrean Nights [PRC8-CEP3].7z`, which appears on no Vault page —
+and it is a suggestion, not a finding.
+
+### What gets written, and what does not
+
+**Validate Mod Web Links** changes nothing by itself. Its *Update* button writes
+back only the unambiguous corrections: a link the Vault answered with a
+different address for, or a single project publishing one of the mod's own
+files. Everything else is listed with its candidates and left alone, because a
+batch that writes one wrong link writes it to every mod at once.
+
+Name-only matches and several-candidate cases are settled one mod at a time
+through **Find Mod's Web Page Link**, where the choice is shown and confirmed.
+
+### The report
+
+Five sections, matching the original's:
+
+* **Revised** — the Vault answers with a different address (usually the
+  `neverwintervault.net` → `.org` migration).
+* **Non-migrated Rolovault** — a live Rolo Vault address, which has no project
+  page at all.
+* **Invalid** — a Vault project address the Vault does not recognise.
+* **No web link** — a mod that could have one and has not.
+* **Non-Vault** — a Nexus or forum link. Left alone; it is not wrong, it is
+  just not a Vault page.
+
+Restorers, the base-game modules NWN installed, converted `.nwm` mods and the
+application's own auto-maintained mods are skipped: none has a Vault page, and
+searching for one would report two dozen problems that are nothing of the kind.
+
 ## The download rules
 
 The rules file is **published online, not shipped with the application**, and

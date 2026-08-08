@@ -602,3 +602,53 @@ def test_the_install_phases_report_after_the_download(qtbot, tmp_path):
     assert "Installing files" in said
     # The phase line names the step it belongs to, not just the phase.
     assert "A Call For Heroes" in dlg._step_label
+
+
+def test_installing_records_the_vault_page_the_user_chose(qtbot, tmp_path):
+    """A PRC repack's files are named nothing like the Vault's, so nothing could
+    work the page out later — and Validate Mod Web Links would report it missing."""
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    _use_page_scraping()
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient({
+        **_responses(),
+        download_url("1hWArchiveAA"): HttpResponse(
+            download_url("1hWArchiveAA"), 200,
+            {"Content-Type": "application/octet-stream",
+             "Content-Disposition": 'attachment; filename="heroes.7z"'},
+            content=b"7z\xbc\xaf\x27\x1cmod",
+        ),
+    })
+    controller._extractor = FakeArchiveExtractor(
+        contents={"heroes.7z": {"modules/m.mod": b"M"}}
+    )
+    controller.install_prc_module(
+        "1hWArchiveAA", "Call for Heroes", (), page_url=PAGE_URL
+    )
+    assert controller.mod_web_link("Call for Heroes") == PAGE_URL
+
+
+def test_an_existing_link_is_not_overwritten_by_an_install(qtbot, tmp_path):
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    _use_page_scraping()
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient({
+        **_responses(),
+        download_url("1hWArchiveAA"): HttpResponse(
+            download_url("1hWArchiveAA"), 200,
+            {"Content-Type": "application/octet-stream",
+             "Content-Disposition": 'attachment; filename="heroes.7z"'},
+            content=b"7z\xbc\xaf\x27\x1cmod",
+        ),
+    })
+    controller._extractor = FakeArchiveExtractor(
+        contents={"heroes.7z": {"modules/m.mod": b"M"}}
+    )
+    controller.create_mod("Call for Heroes")
+    controller.set_mod_web_link("Call for Heroes", "https://chosen.example/page")
+    controller.install_prc_module(
+        "1hWArchiveAA", "Call for Heroes", (), page_url=PAGE_URL
+    )
+    assert controller.mod_web_link("Call for Heroes") == "https://chosen.example/page"

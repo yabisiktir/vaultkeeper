@@ -633,6 +633,7 @@ class PrcModuleDialog(QDialog):
         requirements = self.checked_requirements()
         group = self.group_combo.currentText().strip() or None
         file_ident, archive = self._file_ident, self._archive_name
+        page_url = self._page_url
 
         def work(job):
             def on_progress(index: int, count: int, label: str) -> None:
@@ -651,6 +652,7 @@ class PrcModuleDialog(QDialog):
                 requirements,
                 group=group,
                 filename=archive,
+                page_url=page_url,
                 on_progress=on_progress,
                 on_bytes=on_bytes,
                 on_phase=on_phase,

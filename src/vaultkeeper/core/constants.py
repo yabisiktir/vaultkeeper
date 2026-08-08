@@ -103,6 +103,21 @@ RESERVED_MOD_NAMES: Final = frozenset(
 RESTORER_GROUP: Final = "000.  Restorers"
 #: Group for the base-game modules NWN itself installed (Pdc.OriginalModsGroup).
 ORIGINAL_MODS_GROUP: Final = "799.  Mods Installed by NWN"
+#: Group holding the per-character restorers (Pdc.CharacterRestorerGroup).
+CHARACTER_RESTORER_GROUP: Final = "010.  Character Restorers"
+#: Group of restorers the application maintains itself (Pdc.AutoGroup).
+AUTO_GROUP: Final = "ZZZ.  NIT Managed Restorers (Auto)"
+#: Group of premium ``.nwm`` modules converted to installable mods (Pdc.NwmGroup).
+NWM_GROUP: Final = "ZZZ.  NIT Converted NWM Mods"
+#: The groups whose contents are the application's or the game's own files rather
+#: than anything downloaded — nothing in them has a Vault page.
+GENERATED_GROUPS: Final = (
+    RESTORER_GROUP,
+    CHARACTER_RESTORER_GROUP,
+    ORIGINAL_MODS_GROUP,
+    AUTO_GROUP,
+    NWM_GROUP,
+)
 #: The three fixed original-file restorer mod names (Pdc.*Restorer).
 CORE_FILES_RESTORER: Final = "1.  NWN Core Files Restorer"
 INI_FILES_RESTORER: Final = "2.  NWN INI Files Restorer"

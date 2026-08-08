@@ -1081,6 +1081,8 @@ class MainWindow(QMainWindow):
             # Web link (edit / copy to clipboard).
             "MsEditWebLink": self._on_edit_web_link,
             "MsCopyWebLink": self._on_copy_web_link,
+            "MsFindWebLink": self._on_find_web_link,
+            "MsCheckForUpdates": self._on_check_for_mod_updates,
             # Copy the selected mod name(s) to the clipboard.
             "MsCopyName": self._on_copy_name,
             "TsCopyName": self._on_copy_name,
@@ -1153,6 +1155,7 @@ class MainWindow(QMainWindow):
             "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
+            "MsValidateModWebLinks": self._on_validate_mod_web_links,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsExtractPortraits": self._on_extract_portraits,
@@ -2377,6 +2380,113 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_details(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_find_web_link(self) -> None:
+        """Find the selected mod's Vault page (VB ``MsFindWebLink``).
+
+        Identified by the files the mod already holds, not by its name. One match
+        is offered for saving; several are offered as a choice, because the wrong
+        page attaches the wrong prerequisites to everything downstream.
+        """
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            self.nit_status.set_info("Select a single mod first.")
+            return
+        mod = names[0]
+        from PySide6.QtWidgets import QApplication
+
+        self.nit_status.set_info(f"Searching the Neverwinter Vault for '{mod}'…")
+        # A handful of requests, not a pass over the whole store — short enough
+        # to wait for, long enough that the pointer should say so.
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        QApplication.processEvents()
+        try:
+            result = self.controller.find_mod_web_link(mod)
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.nit_status.set_info(result["message"])
+        if not result["ok"]:
+            QMessageBox.information(self, "Find Mod's Web Page Link", result["message"])
+            return
+
+        candidates = result["candidates"]
+        chosen = candidates[0]
+        if len(candidates) > 1:
+            labels = [f"{c.title} — {c.url}" for c in candidates]
+            label, ok = QInputDialog.getItem(
+                self,
+                "Find Mod's Web Page Link",
+                f"{len(candidates)} Vault pages publish a file '{mod}' holds.\n"
+                "Choose the right one:",
+                labels,
+                0,
+                False,
+            )
+            if not ok:
+                return
+            chosen = candidates[labels.index(label)]
+
+        current = self.controller.mod_web_link(mod)
+        question = (
+            f"{chosen.title}\n{chosen.url}\n\nSave this as '{mod}'s web page link?"
+        )
+        if current and current != chosen.url:
+            question = f"{chosen.title}\n{chosen.url}\n\nReplace:\n{current}"
+        answer = QMessageBox.question(
+            self,
+            "Find Mod's Web Page Link",
+            question,
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Open
+            | QMessageBox.StandardButton.Cancel,
+        )
+        if answer == QMessageBox.StandardButton.Open:
+            self._open_url(chosen.url)
+            return
+        if answer != QMessageBox.StandardButton.Save:
+            return
+        saved = self.controller.set_mod_web_link(mod, chosen.url)
+        self.nit_status.set_info(saved["message"])
+        md = self.controller.pd.mod_item(mod)
+        if md is not None:
+            self._show_details(md)
+
+    def _on_check_for_mod_updates(self) -> None:
+        """Open the selected mod's Vault page in Download Project (VB ``MsCheckForUpdates``).
+
+        The way to know whether a mod has a newer file is to look at what its
+        project publishes now and compare it with what was downloaded — so this
+        is Download Project, opened on the mod's own link and already fetched.
+        """
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            self.nit_status.set_info("Select a single mod first.")
+            return
+        mod = names[0]
+        link = self.controller.mod_web_link(mod)
+        if not link:
+            self.nit_status.set_info(
+                f"'{mod}' has no web page link — use Find Mod's Web Page Link first."
+            )
+            return
+        from vaultkeeper.ui.dialogs.download_project import DownloadProjectDialog
+
+        self._download_dialog = DownloadProjectDialog(
+            self.controller, default_mod=mod, parent=self
+        )
+        self._download_dialog.finished.connect(self.refresh)
+        self._download_dialog.show()
+        self._download_dialog.url_edit.setText(link)
+        self._download_dialog._on_fetch()
+
+    def _on_validate_mod_web_links(self) -> None:
+        """Check every mod's Vault link and report (VB ``MsValidateModWebLinks``)."""
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        from vaultkeeper.ui.dialogs.mod_links_report import ModLinksReportDialog
+
+        self._links_report = ModLinksReportDialog.show_for(self.controller, self)
 
     def _on_find(self) -> None:
         """Open the profile file-search dialog (VB ``MsFind`` on the mod list)."""

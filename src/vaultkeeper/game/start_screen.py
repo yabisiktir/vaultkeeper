@@ -38,12 +38,14 @@ from pathlib import Path
 
 from nwnfile.win_sort import win_compare
 
+from vaultkeeper.core import constants as C
+
 # -- Constants (verified against the VB, see module docstring) ------------- #
 
 #: The NIT-managed mod holding the loadscreen images (``Pdc.AutoLoadscreen``).
 LOADSCREEN_MOD = "NWN Loadscreens (NIT Managed)"
 #: The auto group the loadscreen mod is created under (``Pdc.AutoGroup``).
-AUTO_GROUP = "ZZZ.  NIT Managed Restorers (Auto)"
+AUTO_GROUP = C.AUTO_GROUP
 #: The folder inside the mod that contains the image files (``ScreenFolder``).
 SCREEN_FOLDER = "Loadscreen Images"
 #: NWN's start-screen filename in the game ``override`` folder.

@@ -65,6 +65,10 @@ _STATEMENTS: dict[str, str] = {
     "End Redirects": "reset",
     "UnsupportedProjects": "unsupported",
     "End UnsupportedProjects": "reset",
+    "VaultProjectTypes": "project_types",
+    "End VaultProjectTypes": "reset",
+    "ExceptionUrls": "exception_urls",
+    "End ExceptionUrls": "reset",
 }
 
 
@@ -99,6 +103,19 @@ class DownloadRules:
     #: ``RevisionNumber`` — bumped by whoever edits the published rules. Shown so
     #: a user can tell which rules are in force; 0 when the file omits it.
     revision: int = 0
+    #: What a Vault project address looks like (VB ``VaultDomain`` /
+    #: ``OldVaultDomain`` / ``RoloVaultDomain``). Scheme-less on purpose — the
+    #: rules match on the host and path, not on http vs https.
+    vault_domain: str = "//neverwintervault.org/project"
+    old_vault_domain: str = "//neverwintervault.net/project"
+    rolovault_domain: str = "//neverwintervault.org/rolovault"
+    #: The game segments a project URL may carry (``nwn1``, ``nwnee``).
+    vault_project_types: list[str] = field(default_factory=list)
+    #: Vault project pages that do not follow the standard URL shape.
+    exception_urls: list[str] = field(default_factory=list)
+    #: Mod-name prefixes to drop before searching the Vault for a title
+    #: (VB ``FindLinkIgnorePrefixes``: cmp, ctp, cpp — packager initials).
+    find_link_ignore_prefixes: list[str] = field(default_factory=list)
 
     # -- Parsing ----------------------------------------------------------- #
     @classmethod
@@ -135,6 +152,10 @@ class DownloadRules:
                 rules.exclude_extensions.append(line.lower())
             elif section == "no_installer":
                 rules.no_installer_projects.append(line)
+            elif section == "project_types":
+                rules.vault_project_types.append(line)
+            elif section == "exception_urls":
+                rules.exception_urls.append(line)
             elif section == "unsupported":
                 low = line.lower()
                 if low.startswith(("http", "ftp")):
@@ -170,6 +191,16 @@ class DownloadRules:
                 self.revision = int(value)
             except ValueError:
                 self.revision = 0
+        elif name == "vaultdomain":
+            self.vault_domain = value
+        elif name == "oldvaultdomain":
+            self.old_vault_domain = value
+        elif name == "rolovaultdomain":
+            self.rolovault_domain = value
+        elif name == "findlinkignoreprefixes":
+            self.find_link_ignore_prefixes = [
+                p.strip() for p in value.split(",") if p.strip()
+            ]
         else:
             return False
         return True
@@ -211,6 +242,35 @@ class DownloadRules:
     def formatted_url(self, url: str) -> str:
         """Normalise a URL for comparison (VB ``FormattedUrl``)."""
         return url.strip()
+
+    def is_vault_project_url(self, url: str) -> bool:
+        """True if ``url`` addresses a Vault project page (VB ``IsValidVaultUrl``).
+
+        A project page is ``<vault domain>/<game>/…`` for one of the game types
+        the rules name, plus the handful of pages listed as exceptions because
+        they predate that shape.
+        """
+        low = (url or "").strip().lower()
+        if not low:
+            return False
+        if any(low == e.strip().lower() for e in self.exception_urls):
+            return True
+        domains = [d for d in (self.vault_domain, self.old_vault_domain) if d]
+        types = self.vault_project_types or ["nwn1", "nwnee"]
+        return any(
+            f"{domain.lower()}/{kind.lower()}" in low
+            for domain in domains
+            for kind in types
+        )
+
+    def is_rolovault_url(self, url: str) -> bool:
+        """True if ``url`` points into the Rolo Vault archive (VB ``IsRolovaultUrl``).
+
+        A live address, but not a project page — the archive was never migrated,
+        so these have no API record and have to be looked up by name instead.
+        """
+        domain = (self.rolovault_domain or "").lower()
+        return bool(domain) and domain in (url or "").lower()
 
     def get_final_url(self, url: str) -> str:
         """Apply any configured redirect for ``url`` (VB ``GetFinalUrl``)."""

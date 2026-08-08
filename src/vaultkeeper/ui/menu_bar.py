@@ -99,6 +99,12 @@ MENUS: tuple = (
                 "MsEditWebLink", "Edit &Link to Mod's Web Page", "WebInsertHyperlinkHS", False
             ),
             MenuItem("MsCopyWebLink", "Copy Mod's &Web Page Link", "CopyUrlLink_16x", False),
+            MenuItem(
+                "MsFindWebLink", "Find Mod's Web Page Lin&k", "DynamicWebSite_16x", False
+            ),
+            MenuItem(
+                "MsCheckForUpdates", "Check for Mod &Updates", "DownloadProject_16x", False
+            ),
             MenuItem("MsEditStartScreenPrefixes", "Edit Start Screen Prefixes", "Edit_16x", False),
         ),
     ),
@@ -207,6 +213,12 @@ MENUS: tuple = (
                 "MsValidateProfileData", "&Validate Profile Data", "DatabaseProperty_16x", False
             ),
             MenuItem("MsValidateMods", "Validate &Mods", "ValidateModsV5", False),
+            MenuItem(
+                "MsValidateModWebLinks",
+                "Validate Mod Web &Links",
+                "DynamicWebSite_16x",
+                False,
+            ),
             MenuItem("MsValidateInstalledData", "Validate Installed &Data", "", False),
             MenuItem("MsValidate", "Validate &Neverwinter Nights", "FindinFiles_6299", False),
             SEP,
