@@ -37,6 +37,17 @@ them.
 | bhdownloadproject.htm | Download and install Vault Projects | Ported — see `docs/vault_downloads.md` |
 | exportedmods.htm | Export and Import Mods | Ported (`.vkmod`) |
 | exportedsettings.htm | Export and Import Settings | Ported |
+| newtopic46.htm | Use the Mod Selector to navigate to a Mod | Ported (`main_window.py:243`) |
+| newtopic65.htm | Reset Window Layout | Ported (`MsResetWindow`) |
+| newtopic73.htm | Show BioWare's Portrait Images | Ported (`MsOriginalPortraits`) |
+| newtopic76.htm | Clear Extracted Hak Portraits | Ported (`MsClearHakPortraits`) |
+| newtopic55.htm | Move files to the Development folder | Ported (`MsMoveToDev`) |
+| newtopic12.htm | View Download Rules | Ported (`MsOpenRulesFile`) |
+| newtopic2.htm | Create NIT Mods from Restorers | Ported (`MsConvertRestorer`) |
+| bhworkshop.htm | Manage Steam Workshop Subscriptions | Ported (`MsWorkshopViewer`) |
+| saveinifiles.htm | Save your customised INI files | Ported (the five Ini File commands) |
+| newtopic58.htm | Import Map Settings | Deferred — recorded in DIALOG_PARITY as the map pages' import context menu |
+| newtopic35.htm | Quick Access Toolbar | GAP — see above |
 
 ## The first-run gap, in detail
 
@@ -66,6 +77,30 @@ with mods on a large HDD is the wrong one.
   distributed as a GitHub release, but it was never *decided*, only absent.
 * **Quick Access Toolbar customisation** (`mstoolbareditorhelp.htm`) — the port
   has a fixed ribbon and toolbar.
+
+## The command sweep — 197 of 209
+
+Every command in the original carries a control id (`MsInstall`, `TsFind`, …),
+and the port carries the same ids, so the two sets can simply be diffed. Pulled
+from `NIT.Designer.vb`: **209 commands, 197 present in the port.** The twelve
+absent:
+
+| Absent | What it is |
+|---|---|
+| `TsQuick`, `TsStatus` | Toolbar containers — the designer's `ToolStrip1` placeholder captions, not commands |
+| `MsCancelGoTo`, `TsSelectGroupName` | *Cancel* buttons on two dialogs |
+| `MsGroupNone`, `MsPlayedInfo` | Runtime-filled labels (*None*, *Mod played for 28 hours*), not commands |
+| `TsbModSelector` | **Present** — a combo box, not a menu item, so the id-based diff missed it (`main_window.py:243`) |
+| `MsGetUpdate` | Self-update. A real gap, above |
+| `MsCopyToShared` | Shared NIT Store — non-goal |
+| `MsTitleBarColour` | A Win32 DWM attribute |
+| `MsValidateOnActivateStatus` | Status-bar toggle for validate-on-activate |
+| `MsSaveNwnInfo` | *Recreate original NWN file information* — regenerates the bundled original-file checksum table from a clean, unmodded install. A maintainer's tool; the port ships the table as JSON and cannot rebuild it |
+
+So at the command level the port is effectively complete, and the two
+instruments cover different things: this one finds missing **commands**, the
+help-topic sweep finds missing **flows and behaviours**. The first-run gap has
+no command, which is precisely why it needed the other one.
 
 ## Not yet reviewed
 
