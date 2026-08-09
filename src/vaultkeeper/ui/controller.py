@@ -6700,14 +6700,27 @@ class ProfileController:
             "message": f"No installer wizard to delete for {mod_name}.",
         }
 
-    def wizard_source_files(self, mod_name: str) -> list[str]:
-        """Eligible installer files for wizard authoring (VB ``PopulateFiles``/``RefreshFiles``).
+    #: The wizard source views (VB ``ExtractType``). "files" lists the mod's
+    #: loose files; the other two look *inside* its archives, which is the only
+    #: way to author a wizard for a mod that ships one archive of alternatives
+    #: (``newtopic21.htm`` — Alternative Ki Strikes and its one folder per
+    #: colour).
+    WIZARD_VIEW_FILES = "files"
+    WIZARD_VIEW_FOLDERS = "folders"
+    WIZARD_VIEW_FOLDER_FILES = "folder_files"
 
-        Scans the mod's real files through the installer's mapping predicate and
-        returns the Windows-sorted relative-path keys — the *source list* the user
-        transfers into the Choices / Preferences / Exclude lists. Bounded: this is the
-        loose-file view (VB ``ExtractType.Files``); the archive-extraction views
-        (Folders / FolderFiles) are not surfaced.
+    def wizard_source_files(
+        self, mod_name: str, *, view: str = "files"
+    ) -> list[str]:
+        """Eligible installer entries for wizard authoring (VB ``PopulateFiles``).
+
+        The *source list* the user transfers into the Choices / Preferences /
+        Exclude lists, Windows-sorted. ``view`` picks what is listed:
+
+        * ``files`` — the mod's loose files (VB ``ExtractType.Files``);
+        * ``folders`` — the sub-folders inside its archives, one entry each,
+          which is what a "pick one of these" wizard is built from;
+        * ``folder_files`` — every file inside its archives.
         """
         from functools import cmp_to_key
 
@@ -6718,7 +6731,43 @@ class ProfileController:
             return []
         mod_folder = self.ctx.profile_mods_dir / mod_name
         result = self._scan_wizard_sources(mod_folder)
-        return sorted(result.source_files.keys(), key=cmp_to_key(win_compare))
+        if view == self.WIZARD_VIEW_FILES:
+            keys = result.source_files.keys()
+        else:
+            keys = self._archive_entries(result, mod_folder, view)
+        return sorted(keys, key=cmp_to_key(win_compare))
+
+    def _archive_entries(self, result, mod_folder: Path, view: str) -> set[str]:
+        """What is inside the mod's archives, as wizard source keys.
+
+        Extraction is real work and a mod may carry a gigabyte of archives, so
+        it happens only when one of these views is asked for — never on the way
+        into the dialog.
+        """
+        from vaultkeeper.game.wizard import extract_archives
+
+        mapper = self.ctx.mapper
+        before = set(result.source_files)
+        try:
+            extract_archives(
+                result,
+                extractor=self._archive_backend(),
+                is_installable=lambda p: mapper.get_mapped_folder(p, erf_check=True) != "",
+            )
+        except Exception:
+            return set()
+        added = set(result.source_files) - before
+        if view == self.WIZARD_VIEW_FOLDER_FILES:
+            return added
+        # One entry per folder inside an archive: "<archive>\<folder>". A file
+        # sitting at an archive's root has no folder to offer and is left out —
+        # that is the loose-file view's job.
+        folders = set()
+        for key in added:
+            parts = key.replace("/", "\\").split("\\")
+            if len(parts) >= 3:
+                folders.add("\\".join(parts[:2]))
+        return folders
 
     def save_wizard_authoring(
         self,

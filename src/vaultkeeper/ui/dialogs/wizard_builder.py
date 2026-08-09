@@ -9,15 +9,18 @@ the instruction texts, and **Save**s. Built on ``ProfileController.wizard_report
 ``wizard_source_files`` / ``save_wizard_authoring``, plus the earlier Validate/Delete
 actions. Captions come from ``WizardBuilder.Designer.vb``.
 
-Bounded (see the handoff): the source list is the loose-file view (VB
-``ExtractType.Files``); the archive-extraction Folders/FolderFiles views and the
-download-rules wizard source are deferred.
+The **View** box picks what the source list shows (VB ``ExtractType``): the
+mod's own files, the sub-folders inside its archives, or every file inside them.
+The archive views are what a "pick one of these" wizard is built from — a mod
+that ships a single archive of alternatives has none of them as loose files
+(``newtopic21.htm``). Bounded: the download-rules wizard source is deferred.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QFormLayout,
     QGroupBox,
@@ -69,6 +72,26 @@ class WizardBuilder(QDialog):
 
         source_box = QVBoxLayout()
         source_box.addWidget(QLabel("Items Processed by Installer"))
+        # VB's View box. A mod that ships one archive of alternatives — one
+        # folder per option — cannot be given a wizard from the loose-file view,
+        # because none of its options are loose files (newtopic21.htm).
+        view_row = QHBoxLayout()
+        view_row.addWidget(QLabel("View:"))
+        self.view_combo = QComboBox()
+        for label, value in (
+            ("Files", "files"),
+            ("Archive Sub-Folders", "folders"),
+            ("Archive Folder Files", "folder_files"),
+        ):
+            self.view_combo.addItem(label, value)
+        self.view_combo.setToolTip(
+            "Files: the mod's own files.\n"
+            "Archive Sub-Folders: one entry per folder inside its archives.\n"
+            "Archive Folder Files: every file inside its archives."
+        )
+        self.view_combo.currentIndexChanged.connect(lambda _i: self._reload_sources())
+        view_row.addWidget(self.view_combo, 1)
+        source_box.addLayout(view_row)
         self.source_list = QListWidget()
         self.source_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         source_box.addWidget(self.source_list, 1)
@@ -181,12 +204,7 @@ class WizardBuilder(QDialog):
         for name in report["excludes"]:
             self._add_target_item(self.excludes, name, name)
 
-        # Source list = eligible files minus those already in a target list.
-        assigned = self._all_target_keys()
-        self.source_list.clear()
-        for key in self._controller.wizard_source_files(self._mod_name):
-            if key.lower() not in assigned:
-                self._add_source_item(key)
+        self._reload_sources()
 
         has_wizard = report["has_wizard"]
         self.validate_button.setEnabled(has_wizard)
@@ -217,6 +235,29 @@ class WizardBuilder(QDialog):
         return [
             target.item(i).data(_KEY_ROLE) for i in range(target.count())
         ]
+
+    def _reload_sources(self) -> None:
+        """Fill the source list from the chosen view, minus what is already used.
+
+        Extracting archives takes a moment, so the cursor says so — the Files
+        view is instant and the other two are not, and a dialog that appears to
+        hang is one people click again.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        view = self.view_combo.currentData() or "files"
+        assigned = self._all_target_keys()
+        self.source_list.clear()
+        if view != "files":
+            QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            keys = self._controller.wizard_source_files(self._mod_name, view=view)
+        finally:
+            if view != "files":
+                QApplication.restoreOverrideCursor()
+        for key in keys:
+            if key.lower() not in assigned:
+                self._add_source_item(key)
 
     def _all_target_keys(self) -> set[str]:
         keys: set[str] = set()

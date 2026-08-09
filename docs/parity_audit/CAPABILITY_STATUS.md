@@ -99,6 +99,11 @@ them.
 | addanewmod.htm | Add a new Mod | **Ported bar the group choice**, now added |
 | filterbyrating.htm | Filter by Rating | Ported — Matches / Worse than / Better than |
 | newtopic6.htm / newtopic14.htm | Download and Install files / Wizard for Custom Menus | Ported |
+| newtopic21.htm | Build a Wizard using Archive Folders | **Was a GAP, now closed** — the View box's archive views |
+| newtopic25.htm / newtopic26.htm | Windows Title Bar / Menu Bar | Ported — including the play-time hover, click, right-click and Ctrl+click |
+| managemodfileconflicts.htm | Manage Mod file conflicts | Ported — list order decides, and uninstall re-anneals |
+| makemodnotesandrecordinformation.htm | Make Mod notes | Ported (Mod Properties + Notes) |
+| newtopic1.htm | Create Restorers to backup installed Files | Ported |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
