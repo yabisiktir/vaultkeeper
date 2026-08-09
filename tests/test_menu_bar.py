@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import sys
+
+import pytest
+
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.menu_bar import MENUS, NitMenuBar
 
@@ -131,3 +135,74 @@ def test_the_window_owns_the_shortcut_actions(qtbot):
     owned = {a.text() for a in win.actions()}
     for action_id in SHORTCUTS:
         assert win.nit_menu.action(action_id).text() in owned, action_id
+
+
+# -- macOS: what Qt cannot fix by itself ---------------------------------------- #
+def test_ctrl_becomes_command_without_our_help(qtbot):
+    """The one Mac-ism that needs no code: Qt maps portable Ctrl to ⌘ itself."""
+    from PySide6.QtGui import QKeySequence
+
+    native = QKeySequence("Ctrl+G").toString(QKeySequence.SequenceFormat.NativeText)
+    assert native == ("⌘G" if sys.platform == "darwin" else "Ctrl+G")
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS conventions")
+def test_the_function_keys_gain_a_mac_alternative(qtbot):
+    """F1 and F2 are media keys on Apple keyboards unless the user has turned on
+    "Use F1, F2, etc. as standard function keys" — off by default — so for most
+    Mac users those two shortcuts never fire at all."""
+    from PySide6.QtGui import QKeySequence
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    rename = [
+        s.toString(QKeySequence.SequenceFormat.NativeText)
+        for s in bar.action("MsRename").shortcuts()
+    ]
+    assert "F2" in rename, "the documented key is kept, not replaced"
+    assert "↵" in rename, "Finder renames with Return; so should this"
+
+    # Help asks StandardKey rather than naming a key, so each platform gets its
+    # own answer. What that answer *is* cannot be asserted here: under the
+    # offscreen platform StandardKey.HelpContents comes back as "F1" rather than
+    # the real ⌘?, so this would be measuring the platform again. Checked on a
+    # live cocoa QApplication instead, where MsViewHelp carries ['F1', '⌘?'].
+    from vaultkeeper.ui.menu_bar import MAC_EXTRA_SHORTCUTS
+
+    assert MAC_EXTRA_SHORTCUTS["MsViewHelp"] is QKeySequence.StandardKey.HelpContents
+    assert len(bar.action("MsViewHelp").shortcuts()) == 2
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS conventions")
+def test_only_one_settings_item_claims_the_preferences_slot(qtbot):
+    """macOS picks Preferences out of the menus by caption, and *two* of ours say
+    "Settings" — left to the heuristic, both could be pulled out of Options."""
+    from PySide6.QtGui import QAction
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    assert bar.action("MsSettings").menuRole() == QAction.MenuRole.PreferencesRole
+    assert bar.action("MsBasicSettings").menuRole() == QAction.MenuRole.NoRole
+
+
+def test_the_documented_key_is_first_on_every_platform(qtbot):
+    """A Mac alternative is *added*; the help topic's key stays the primary one."""
+    from PySide6.QtGui import QKeySequence
+
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    for action_id, key in SHORTCUTS.items():
+        assert bar.action(action_id).shortcut() == QKeySequence(key)
+
+
+def test_no_hand_rolled_quit_or_preferences_key(qtbot):
+    """Qt attaches ⌘Q and ⌘, itself once a role is set; adding them by hand
+    would double-bind on macOS and be wrong on Windows, where Ctrl+Q means
+    nothing."""
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    assert "MsExit" not in SHORTCUTS
+    assert "MsSettings" not in SHORTCUTS
+    assert "MsBasicSettings" not in SHORTCUTS

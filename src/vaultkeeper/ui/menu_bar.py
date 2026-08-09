@@ -11,6 +11,7 @@ the user's web links (empty here until Phase 6).
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 
 from PySide6.QtCore import Qt, Signal
@@ -313,6 +314,10 @@ MENUS: tuple = (
 #: Ctrl+O is deliberately absent: VB's "Open the selected folder or file with
 #: its associated program" acts on the Contents pane, and binding it window-wide
 #: would fire it with a mod selected and nothing to open.
+#:
+#: Qt maps portable ``Ctrl`` to Command on macOS by itself, so ``Ctrl+G`` is
+#: already ⌘G there and nothing needs translating. What Qt cannot fix is a key
+#: that macOS never delivers — see :data:`MAC_EXTRA_SHORTCUTS`.
 SHORTCUTS: dict[str, str] = {
     "MsSelectAll": "Ctrl+A",
     "MsCopyName": "Ctrl+Alt+C",
@@ -328,6 +333,30 @@ SHORTCUTS: dict[str, str] = {
     "MsExpandAllGroups": "Ctrl++",
     "MsRename": "F2",
     "MsViewHelp": "F1",
+}
+
+#: Extra shortcuts added on macOS, where the documented ones do not reach the
+#: application. F1 and F2 are media keys on Apple keyboards unless "Use F1, F2,
+#: etc. as standard function keys" is turned on, which it is not by default — so
+#: for most Mac users those two shortcuts simply never fire.
+#:
+#: These are *added*, not substituted: someone who has enabled function keys
+#: keeps the documented key, and gains the one their platform expects. Return is
+#: what Finder uses to rename; ⌘? is what macOS uses for help, and asking
+#: ``StandardKey`` for it gives the right answer per platform rather than a
+#: guess.
+MAC_EXTRA_SHORTCUTS: dict[str, object] = {
+    "MsRename": "Return",
+    "MsViewHelp": QKeySequence.StandardKey.HelpContents,
+}
+
+#: macOS moves About / Quit / Preferences into the application menu, choosing
+#: them from the caption. Two of ours say "Settings" — "Basic Settings" and
+#: "Advanced Settings" — so the heuristic has two candidates for one slot and
+#: could empty both out of the Options menu. Saying which is which settles it.
+MAC_MENU_ROLES: dict[str, str] = {
+    "MsSettings": "PreferencesRole",
+    "MsBasicSettings": "NoRole",
 }
 
 
@@ -364,11 +393,20 @@ class NitMenuBar(QMenuBar):
                     )
                 key = SHORTCUTS.get(item.action)
                 if key:
-                    act.setShortcut(QKeySequence(key))
+                    keys = [QKeySequence(key)]
+                    if sys.platform == "darwin":
+                        extra = MAC_EXTRA_SHORTCUTS.get(item.action)
+                        if extra is not None:
+                            keys.append(QKeySequence(extra))
+                    act.setShortcuts(keys)
                     # The menu bar is always alive, so its actions can own the
                     # window's shortcuts; a dialog with focus still gets first
                     # refusal on the key.
                     act.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
+                if sys.platform == "darwin" and item.action in MAC_MENU_ROLES:
+                    act.setMenuRole(
+                        getattr(QAction.MenuRole, MAC_MENU_ROLES[item.action])
+                    )
                 menu.addAction(act)
                 self.actions_by_id[item.action] = act
 

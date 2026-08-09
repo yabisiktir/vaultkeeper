@@ -121,6 +121,31 @@ that already existed; only Ctrl+O is left out, because VB's "open the selected
 file with its associated program" acts on the Contents pane and a window-wide
 binding would fire it with a mod selected and nothing to open.
 
+### On macOS
+
+Qt maps portable `Ctrl` to Command by itself, so `Ctrl+G` is already ⌘G and
+nothing needed translating. Two things it cannot fix were handled explicitly:
+
+* **F1 and F2 never reach the application** on a default Mac — they are media
+  keys unless "Use F1, F2, etc. as standard function keys" is on, which it is
+  not by default. So `MAC_EXTRA_SHORTCUTS` *adds* Return for Rename (Finder's
+  convention) and `StandardKey.HelpContents` for Help (⌘?). Added, not
+  substituted: whoever has enabled function keys keeps the documented key.
+* **Two menu items say "Settings"** — Basic and Advanced. macOS picks its
+  Preferences entry out of the menus by caption, so the heuristic had two
+  candidates for one slot and could have emptied both out of the Options menu.
+  `MAC_MENU_ROLES` names Advanced Settings as Preferences and leaves Basic
+  Settings where it is.
+
+⌘Q and ⌘, are deliberately **not** bound by hand: Qt attaches them once a role
+is set, and `Ctrl+Q` means nothing on Windows.
+
+Not changed, though flagged: ⌘M (New Mod) collides with the system Minimize
+idiom, ⌘G (New Group) with Find Next, and ⌘±  with Zoom. Nothing in this
+application competes for any of them, and all three are in the original's
+documented shortcut table — deviating from documented behaviour to chase an
+idiom costs more than it buys.
+
 Worth knowing for anyone testing these: **Qt does not deliver shortcuts under
 the offscreen platform**, so the suite can only assert the binding. Firing was
 checked on a real platform through the CrossOver bottle.
