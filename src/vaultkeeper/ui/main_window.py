@@ -37,7 +37,20 @@ from vaultkeeper.ui.file_view import ContentsView, FileView
 from vaultkeeper.ui.menu_bar import NitMenuBar
 from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
-from vaultkeeper.ui.status_bar import NitStatusBar
+from vaultkeeper.ui.status_bar import (
+    SELECT_HISTORY,
+    SELECT_PLAY_TIME,
+    SELECT_TEXT_FILE,
+    NitStatusBar,
+)
+
+#: The status-bar icon state for each selection preference. Two vocabularies for
+#: one idea, kept apart because one is a picture and the other is a setting.
+_STATUS_SELECT_STATE = {
+    "history": SELECT_HISTORY,
+    "play_time": SELECT_PLAY_TIME,
+    "text_file": SELECT_TEXT_FILE,
+}
 
 log = get_logger(__name__)
 
@@ -80,6 +93,9 @@ class MainWindow(QMainWindow):
         # Cut/Copy/Paste clipboard for Contents files: (mod, folder, filename, is_cut).
         self._file_clipboard: tuple | None = None
         self._contents.itemDoubleClicked.connect(self._on_view_contents_file)
+        # Remember what was picked, so "whatever was selected last time" means
+        # something the next time this mod is opened.
+        self._contents.itemSelectionChanged.connect(self._remember_contents_selection)
         self._contents.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._contents.customContextMenuRequested.connect(
             self._show_contents_context_menu
@@ -154,6 +170,9 @@ class MainWindow(QMainWindow):
 
         self.nit_status = NitStatusBar()
         self.nit_status.mods_clicked.connect(self._on_profile_menu)
+        # Both of these were emitting into the void (newtopic34).
+        self.nit_status.mod_count_clicked.connect(self._on_mod_count_clicked)
+        self.nit_status.select_file_clicked.connect(self._on_selection_preferences)
         # The rest of the status bar's icons emitted signals nobody listened to,
         # so every one of them was dead to the click (VB's Status Bar topic
         # describes them all as clickable, with a second screen on the right
@@ -642,6 +661,44 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(f"Profile '{name.strip()}' ready")
 
     # -- Profile switching ------------------------------------------------- #
+    def _on_mod_count_clicked(self) -> None:
+        """The installed/total count opens the Mod Explorer (VB ``BtModCount``).
+
+        The number is a summary of the whole list; the Explorer is where that
+        list can be sorted and filtered, so that is what the summary leads to.
+        """
+        self._on_mod_explorer()
+
+    def _on_selection_preferences(self) -> None:
+        """Choose which file a mod's Contents pane opens on (VB Selection Prefs)."""
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QMenu
+
+        from vaultkeeper.config.settings import load_settings, save_settings
+        from vaultkeeper.ui import selection_prefs
+
+        settings = load_settings()
+        menu = QMenu(self)
+        menu.addAction("When a mod is selected, open its Contents on:").setEnabled(False)
+        menu.addSeparator()
+        actions = {}
+        for value in selection_prefs.PREFERENCES:
+            act = menu.addAction(selection_prefs.LABELS[value])
+            act.setCheckable(True)
+            act.setChecked(settings.selection_preference == value)
+            actions[act] = value
+        chosen = menu.exec(QCursor.pos())
+        if chosen is None or chosen not in actions:
+            return
+        settings.selection_preference = actions[chosen]
+        save_settings(settings)
+        self.nit_status.set_select_state(_STATUS_SELECT_STATE[actions[chosen]])
+        if self._contents_mod is not None:
+            self._apply_selection_preference(self._contents_mod)
+        self.nit_status.set_info(
+            f"Contents opens on: {selection_prefs.LABELS[actions[chosen]].lower()}."
+        )
+
     def _on_profile_menu(self) -> None:
         """Show the profile selector (VB BtMods) and switch on choice."""
         from PySide6.QtGui import QCursor
@@ -1091,6 +1148,36 @@ class MainWindow(QMainWindow):
             return
         self._contents_mod = md.mod_name
         self._contents.populate(self.controller.mod_contents_report(md.mod_name))
+        self._apply_selection_preference(md.mod_name)
+
+    def _apply_selection_preference(self, mod_name: str) -> None:
+        """Open the Contents pane on whatever the Selection Preferences icon says."""
+        from vaultkeeper.config.settings import load_settings
+        from vaultkeeper.ui import selection_prefs
+
+        settings = load_settings()
+        remembered = settings.contents_selection.get(mod_name)
+        chosen = selection_prefs.choose(
+            settings.selection_preference,
+            self._contents.files(),
+            remembered=tuple(remembered.split("/", 1)) if remembered else None,
+        )
+        if chosen is not None:
+            self._contents.select_file(chosen)
+
+    def _remember_contents_selection(self) -> None:
+        """Note what is selected, so "last time" means something next time."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        selected = self._contents.selected_file()
+        if self._contents_mod is None or selected is None:
+            return
+        settings = load_settings()
+        key = f"{selected[0]}/{selected[1]}"
+        if settings.contents_selection.get(self._contents_mod) == key:
+            return
+        settings.contents_selection[self._contents_mod] = key
+        save_settings(settings)
 
     def _show_contents_context_menu(self, pos) -> None:
         """Right-click a Contents file to View or Delete it (VB CmContents)."""
@@ -2496,10 +2583,22 @@ class MainWindow(QMainWindow):
         )
 
     def _on_clear_selection_history(self) -> None:
-        """Empty the Recent Mods list (VB ``MsClearSelectionHistory``)."""
-        self._recent_mods = []
-        self._rebuild_recent_mods_menu()
-        self.nit_status.set_info("Recent Mods cleared.")
+        """Forget what was selected in each mod (VB ``MsClearSelectionHistory``).
+
+        ``newtopic63.htm``: "delete Mod selection information for the Contents
+        Panel and Details Panel". This used to clear the *Recent Mods* list,
+        which is a different list reached by a different command — an easy
+        confusion, since both are called history.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        count = len(settings.contents_selection)
+        settings.contents_selection = {}
+        save_settings(settings)
+        self.nit_status.set_info(
+            f"Cleared the remembered selection for {count:,} mod(s)."
+        )
 
     def _on_open_recycle_bin(self) -> None:
         """Open the OS trash (VB ``BtRecycleToggle`` right-click → explorer)."""

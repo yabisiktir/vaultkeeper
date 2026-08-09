@@ -113,6 +113,29 @@ class ContentsView(QTreeWidget):
             return None
         return item.data(0, _ROLE_FILE_KEY)
 
+    def files(self) -> list[tuple[str, str]]:
+        """Every ``(folder, filename)`` currently listed, in display order."""
+        out: list[tuple[str, str]] = []
+        for i in range(self.topLevelItemCount()):
+            folder_item = self.topLevelItem(i)
+            for j in range(folder_item.childCount()):
+                key = folder_item.child(j).data(0, _ROLE_FILE_KEY)
+                if key:
+                    out.append(key)
+        return out
+
+    def select_file(self, key: tuple[str, str]) -> bool:
+        """Select ``(folder, filename)`` if it is listed. True when found."""
+        for i in range(self.topLevelItemCount()):
+            folder_item = self.topLevelItem(i)
+            for j in range(folder_item.childCount()):
+                child = folder_item.child(j)
+                if child.data(0, _ROLE_FILE_KEY) == key:
+                    self.setCurrentItem(child)
+                    self.scrollToItem(child)
+                    return True
+        return False
+
 
 class FileView(QTreeWidget):
     """A grouped, state-coloured mod list (echoes VB ``FvMods``)."""

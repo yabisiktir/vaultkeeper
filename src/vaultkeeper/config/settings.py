@@ -134,6 +134,12 @@ class Settings:
     #: Per-extension filename-prefix exceptions that send a file to its
     #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
     map_exception_prefixes: dict[str, list] = field(default_factory=dict)
+    #: Which file a mod's Contents pane opens on (VB Selection Preferences):
+    #: "history" | "play_time" | "text_file".
+    selection_preference: str = "text_file"
+    #: Per-mod memory of what was selected in Contents, "mod" → "folder/filename".
+    #: Cleared by *Clear Selection History* (``newtopic63.htm``).
+    contents_selection: dict[str, str] = field(default_factory=dict)
     #: Mods pinned in the Recent Mods list — they stay however long ago they
     #: were last used (VB's Pin/Unpin, ``newtopic47``).
     pinned_recent_mods: list[str] = field(default_factory=list)

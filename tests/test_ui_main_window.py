@@ -1254,14 +1254,28 @@ def test_clearing_wait_cursors_with_none_set_says_so(qtbot, controller) -> None:
     assert "No wait cursor" in win.nit_status.mg_info.text()
 
 
-def test_clearing_selection_history_empties_recent_mods(qtbot, controller) -> None:
+def test_clearing_selection_history_forgets_contents_selections(qtbot, controller) -> None:
+    """This used to clear the *Recent Mods* list, and this test pinned that.
+
+    newtopic63.htm: Clear Selection History deletes "Mod selection information
+    for the Contents Panel and Details Panel" — a different list, reached by a
+    different command. Both being called history is the whole of the confusion.
+    """
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.contents_selection = {"Alpha": "hak/a.hak"}
+    save_settings(settings)
+
     win = MainWindow(controller)
     qtbot.addWidget(win)
     win._record_recent_mod("Alpha")
     win._record_recent_mod("Beta")
-    assert win._recent_mods
+
     win._on_clear_selection_history()
-    assert win._recent_mods == []
+
+    assert load_settings().contents_selection == {}
+    assert win._recent_mods == ["Beta", "Alpha"], "Recent Mods is not this command's"
 
 
 def test_resetting_the_layout_forgets_the_saved_geometry(qtbot, controller) -> None:
