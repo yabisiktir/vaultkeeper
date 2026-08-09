@@ -13,8 +13,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from PySide6.QtCore import Signal
-from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import QMenu, QMenuBar, QWidget
 
 from vaultkeeper.ui import resources as R
@@ -306,6 +306,31 @@ MENUS: tuple = (
 )
 
 
+#: Keyboard shortcuts, verbatim from the original's ``Keyboard Shortcuts`` help
+#: topic. Every command they name was already here; none of them had a key, so
+#: the topic documented a set of shortcuts the port did not have.
+#:
+#: Ctrl+O is deliberately absent: VB's "Open the selected folder or file with
+#: its associated program" acts on the Contents pane, and binding it window-wide
+#: would fire it with a mod selected and nothing to open.
+SHORTCUTS: dict[str, str] = {
+    "MsSelectAll": "Ctrl+A",
+    "MsCopyName": "Ctrl+Alt+C",
+    "MsCopy": "Ctrl+C",
+    "MsCut": "Ctrl+X",
+    "MsPaste": "Ctrl+V",
+    "MsFind": "Ctrl+F",
+    "MsNewGroup": "Ctrl+G",
+    "MsNewMod": "Ctrl+M",
+    "MsCreateInstaller": "Ctrl+L",
+    "MsModExplorer": "Ctrl+R",
+    "MsCollapseAllGroups": "Ctrl+-",
+    "MsExpandAllGroups": "Ctrl++",
+    "MsRename": "F2",
+    "MsViewHelp": "F1",
+}
+
+
 class NitMenuBar(QMenuBar):
     """The main window menu bar (VB ``MsMenu``)."""
 
@@ -337,8 +362,23 @@ class NitMenuBar(QMenuBar):
                     act.triggered.connect(
                         lambda _=False, a=item.action: self.action_triggered.emit(a)
                     )
+                key = SHORTCUTS.get(item.action)
+                if key:
+                    act.setShortcut(QKeySequence(key))
+                    # The menu bar is always alive, so its actions can own the
+                    # window's shortcuts; a dialog with focus still gets first
+                    # refusal on the key.
+                    act.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
                 menu.addAction(act)
                 self.actions_by_id[item.action] = act
+
+    def shortcut_actions(self) -> list[QAction]:
+        """The actions carrying a keyboard shortcut, for the window to adopt."""
+        return [
+            act
+            for action_id, act in self.actions_by_id.items()
+            if action_id in SHORTCUTS
+        ]
 
     def populate_web_menu(self, links, on_open) -> None:
         """Fill the Web menu with the user's links (VB ``SetWebMenu``).

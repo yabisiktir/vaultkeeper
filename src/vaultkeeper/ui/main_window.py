@@ -207,6 +207,13 @@ class MainWindow(QMainWindow):
         """Install the faithful VB menu bar and bind the selection-driven items."""
         self.nit_menu = NitMenuBar()
         self.setMenuBar(self.nit_menu)
+        # Give the window the shortcut-bearing actions directly. A QAction in a
+        # menu bar resolves its shortcut through the menu bar's window, which is
+        # this one — but only once the platform has made the window active, and
+        # relying on that made Ctrl+G do nothing on a window that had not been
+        # clicked yet. Adding them here puts them in scope from the start.
+        for act in self.nit_menu.shortcut_actions():
+            self.addAction(act)
         self.nit_menu.action_triggered.connect(self._on_command)
         self.nit_menu.action_toggled.connect(self._on_toggle)
 

@@ -67,3 +67,67 @@ def test_set_enabled(qtbot):
     qtbot.addWidget(bar)
     bar.set_enabled("MsUninstall", False)
     assert not bar.action("MsUninstall").isEnabled()
+
+
+# -- keyboard shortcuts (VB's Keyboard Shortcuts help topic) -------------------- #
+def test_the_documented_shortcuts_are_bound(qtbot):
+    """The topic listed fourteen; the port had none, so it documented fiction.
+
+    Binding is all this can check: **Qt does not deliver shortcuts under the
+    offscreen platform at all** — a minimal QAction on a bare QWidget does not
+    fire either — so a test that pressed the keys would be measuring the
+    platform. Firing was verified on a real one, through the CrossOver bottle:
+    Ctrl+G, Ctrl+L and Ctrl+R triggered their commands, and F2 correctly did
+    not until a mod was selected, because Rename is selection-gated.
+    """
+    from PySide6.QtGui import QKeySequence
+
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    for action_id, key in SHORTCUTS.items():
+        act = bar.action(action_id)
+        assert act is not None, f"{action_id} is not on the menus"
+        assert act.shortcut() == QKeySequence(key), f"{action_id} should be {key}"
+
+
+def test_every_shortcut_names_a_real_command(qtbot):
+    """A key bound to an id that does not exist is a key that does nothing."""
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    unknown = [a for a in SHORTCUTS if bar.action(a) is None]
+    assert not unknown, f"shortcuts for commands that do not exist: {unknown}"
+
+
+def test_no_two_commands_share_a_key(qtbot):
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    keys = list(SHORTCUTS.values())
+    assert len(keys) == len(set(keys)), "two commands claim the same shortcut"
+
+
+def test_the_shortcuts_match_the_original(qtbot):
+    """Spot-checked against the help topic's own table."""
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    assert SHORTCUTS["MsCreateInstaller"] == "Ctrl+L"
+    assert SHORTCUTS["MsNewGroup"] == "Ctrl+G"
+    assert SHORTCUTS["MsNewMod"] == "Ctrl+M"
+    assert SHORTCUTS["MsModExplorer"] == "Ctrl+R"
+    assert SHORTCUTS["MsCopyName"] == "Ctrl+Alt+C"
+    assert SHORTCUTS["MsRename"] == "F2"
+
+
+def test_the_window_owns_the_shortcut_actions(qtbot):
+    """In scope from the start, rather than once the window has been clicked."""
+    from vaultkeeper.ui.main_window import MainWindow
+    from vaultkeeper.ui.menu_bar import SHORTCUTS
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    owned = {a.text() for a in win.actions()}
+    for action_id in SHORTCUTS:
+        assert win.nit_menu.action(action_id).text() in owned, action_id

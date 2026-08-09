@@ -112,6 +112,19 @@ instruments cover different things: this one finds missing **commands**, the
 help-topic sweep finds missing **flows and behaviours**. The first-run gap has
 no command, which is precisely why it needed the other one.
 
+## Keyboard shortcuts
+
+`keyboardshortcuts.htm` documents fifteen main-window shortcuts. The port had
+**none** — the topic shipped with the application describing keys that did
+nothing. Fourteen are now bound in `menu_bar.SHORTCUTS`, every one to a command
+that already existed; only Ctrl+O is left out, because VB's "open the selected
+file with its associated program" acts on the Contents pane and a window-wide
+binding would fire it with a mod selected and nothing to open.
+
+Worth knowing for anyone testing these: **Qt does not deliver shortcuts under
+the offscreen platform**, so the suite can only assert the binding. Firing was
+checked on a real platform through the CrossOver bottle.
+
 ## Not yet reviewed
 
 Everything else. `capability_sweep.py` lists them; the remaining topics are
