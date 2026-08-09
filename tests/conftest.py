@@ -27,6 +27,19 @@ def _isolate_store(tmp_path_factory, monkeypatch) -> Iterator[None]:
     """
     home = tmp_path_factory.mktemp("home")
     monkeypatch.setattr("vaultkeeper.app_paths._home", lambda: home)
+    # ★ Patching _home() is not enough off macOS. config_root/data_root/cache_root
+    # prefer the platform's environment variables and only fall back to the home
+    # directory, so on Windows every test shared — and wrote into — the machine's
+    # real %APPDATA%. It stayed hidden until a test saved a setting that a later
+    # test read back (Recent Mods pinning), which then failed only on Windows.
+    for name, sub in (
+        ("APPDATA", "Roaming"),
+        ("LOCALAPPDATA", "Local"),
+        ("XDG_CONFIG_HOME", ".config"),
+        ("XDG_DATA_HOME", ".local/share"),
+        ("XDG_CACHE_HOME", ".cache"),
+    ):
+        monkeypatch.setenv(name, str(home / sub))
     yield
 
 
