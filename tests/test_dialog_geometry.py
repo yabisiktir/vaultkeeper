@@ -142,11 +142,11 @@ def test_each_dialog_is_remembered_separately(qtbot, remembering):
     assert set(load_settings().dialog_geometry) == {"TestTabbed"}
 
 
-def test_the_settings_dialog_shows_all_seven_tabs(qtbot):
+def test_the_settings_dialog_shows_all_its_tabs(qtbot):
     """The screen that was actually reported."""
     from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
     dlg = _shown(qtbot, SettingsDialog(load_settings(), None))
     tabs = dlg.findChild(QTabWidget)
-    assert tabs.count() == 7
+    assert tabs.count() == 8
     _assert_tabs_fit(dlg, tabs)

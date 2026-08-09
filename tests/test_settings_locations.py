@@ -83,6 +83,7 @@ def test_dialog_has_locations_tab_with_controller(qtbot, tmp_path):
         "Run Menu",
         "Character / Save Viewer",
         "Locations",
+        "Profiles",
     ]
     # The Locations tab now has editable game-path fields.
     assert dlg.game_install_edit is not None
@@ -114,6 +115,9 @@ def test_dialog_omits_locations_tab_without_controller(qtbot):
         "Web Menu",
         "Run Menu",
         "Character / Save Viewer",
+        # Profiles is there with or without a controller: it reads the settings,
+        # not the open profile.
+        "Profiles",
     ]
 
 

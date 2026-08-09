@@ -113,6 +113,8 @@ class SettingsDialog(QDialog):
         geometry.remember(self, "SettingsDialog", 560, 380)
         self._settings = settings
         self._controller = controller
+        #: Profile → new game folder, from the Profiles page; applied on Save.
+        self._profile_folder_edits: dict[str, str] = {}
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
@@ -126,6 +128,7 @@ class SettingsDialog(QDialog):
         self.locations = self._build_locations(controller)
         if self.locations is not None:
             self.tabs.addTab(self.locations, "Locations")
+        self.tabs.addTab(self._build_profiles(settings), "Profiles")
         layout.addWidget(self.tabs, 1)
         # Open on a named tab (VB SettingsStartPage — e.g. Basic Settings opens the
         # behaviour/UI preferences, Advanced opens the full settings).
@@ -734,6 +737,81 @@ class SettingsDialog(QDialog):
                 entries.append({"text": text, "path": path})
         return entries
 
+    def _build_profiles(self, settings: Settings) -> QWidget:
+        """The Profiles page (VB Settings ``LvProfiles``).
+
+        What each profile is *for*: which Neverwinter Nights it plays, and which
+        edition it was made as. The folder is editable here because a test
+        installation moves; the edition is not, because "You cannot change the
+        Profile Type after the Profile has been created" — every file key the
+        profile holds was written against the layout it chose.
+        """
+        from vaultkeeper.ui.session import list_profiles
+
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        note = QLabel(
+            "Each profile plays a specific Neverwinter Nights installation, so a "
+            "test or development copy need not disturb the one you play."
+        )
+        note.setWordWrap(True)
+        layout.addWidget(note)
+
+        self.profiles_tree = QTreeWidget()
+        self.profiles_tree.setHeaderLabels(["Profile", "Edition", "Neverwinter Nights"])
+        self.profiles_tree.setRootIsDecorated(False)
+        self.profiles_tree.header().setSectionResizeMode(
+            2, QHeaderView.ResizeMode.Stretch
+        )
+        for name in list_profiles(settings):
+            is_ee = (settings.profile_editions or {}).get(name, True)
+            folder = (settings.profile_game_paths or {}).get(name) or settings.nwn_path or ""
+            item = QTreeWidgetItem(
+                [name, "Enhanced Edition" if is_ee else "Neverwinter Nights", folder]
+            )
+            if name == settings.active_profile:
+                font = item.font(0)
+                font.setBold(True)
+                item.setFont(0, font)
+                item.setToolTip(0, "The profile currently loaded")
+            self.profiles_tree.addTopLevelItem(item)
+        self.profiles_tree.itemSelectionChanged.connect(self._sync_profile_buttons)
+        layout.addWidget(self.profiles_tree, 1)
+
+        row = QHBoxLayout()
+        self.profile_folder_button = QPushButton("Neverwinter Nights Folder…")
+        self.profile_folder_button.setToolTip(
+            "Point this profile at a different installation"
+        )
+        self.profile_folder_button.clicked.connect(self._on_change_profile_folder)
+        row.addWidget(self.profile_folder_button)
+        row.addStretch(1)
+        layout.addLayout(row)
+        self._sync_profile_buttons()
+        return page
+
+    def _sync_profile_buttons(self) -> None:
+        self.profile_folder_button.setEnabled(
+            self.profiles_tree.currentItem() is not None
+        )
+
+    def _on_change_profile_folder(self) -> None:
+        """Repoint one profile at another installation, leaving the rest alone."""
+        item = self.profiles_tree.currentItem()
+        if item is None:
+            return
+        from PySide6.QtWidgets import QFileDialog
+
+        chosen = QFileDialog.getExistingDirectory(
+            self,
+            f"Neverwinter Nights installation for '{item.text(0)}'",
+            item.text(2),
+        )
+        if not chosen:
+            return
+        item.setText(2, chosen)
+        self._profile_folder_edits[item.text(0)] = chosen
+
     def _build_locations(self, controller) -> QWidget | None:
         if controller is None:
             self.game_install_edit = None
@@ -872,6 +950,16 @@ class SettingsDialog(QDialog):
 
     def apply_to(self, settings: Settings) -> None:
         """Write the editable fields back into ``settings``."""
+        # Per-profile folders edited on the Profiles page. Only the ones that
+        # were actually changed, so an untouched profile keeps whatever it had.
+        if self._profile_folder_edits:
+            settings.profile_game_paths = {
+                **settings.profile_game_paths,
+                **self._profile_folder_edits,
+            }
+            active = settings.active_profile
+            if active in self._profile_folder_edits:
+                settings.nwn_path = self._profile_folder_edits[active]
         settings.recycle_on_delete = self.recycle.isChecked()
         settings.recycle_game_saves = self.recycle_saves.isChecked()
         settings.validate_game_config_on_startup = self.startup_check.isChecked()
