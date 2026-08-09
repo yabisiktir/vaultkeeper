@@ -1768,6 +1768,7 @@ class MainWindow(QMainWindow):
             # "not yet available" while the very same screen sits on the Tools
             # menu, working — which reads as a broken feature, not a missing one.
             "RbnManageWorkshop": self._on_workshop,
+            "MsStopManagingWorkshop": self._on_stop_managing_workshop,
             "MsDocOrganiser": self._on_doc_organiser,
             "RbnDocOrganise": self._on_doc_organiser,
             "MsWizardBuilder": self._on_wizard_builder,
@@ -3011,6 +3012,58 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.workshop_viewer import WorkshopViewer
 
         self._workshop_viewer = WorkshopViewer.show_for(self.controller, self)
+
+    def _on_stop_managing_workshop(self) -> None:
+        """Hand the Workshop subscriptions back to Steam (VB ``newtopic22``).
+
+        "You are asked what you want to do with the Tool's version of each
+        Workshop Subscription" — kept as ordinary mods, or deleted. The question
+        is asked once for all of them, which is what VB's "take the same action
+        for all managed Workshop Mods" amounts to.
+        """
+        if self.controller is None:
+            return
+        managed = self.controller.managed_workshop_mods()
+        if not managed:
+            QMessageBox.information(
+                self,
+                "Stop Managing Workshop Content",
+                "No mods here came from a Steam Workshop subscription.",
+            )
+            return
+
+        box = QMessageBox(self)
+        box.setWindowTitle("Stop Managing Workshop Content")
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setText(
+            f"{len(managed)} mod(s) came from Steam Workshop subscriptions.\n\n"
+            "What should happen to this tool's copy of them?\n\n"
+            "Steam keeps its own copies either way, and the subscription records "
+            "are kept so turning management back on remembers which mod each "
+            "item was."
+        )
+        keep = box.addButton("Keep them as ordinary mods", QMessageBox.ButtonRole.AcceptRole)
+        delete = box.addButton("Delete them", QMessageBox.ButtonRole.DestructiveRole)
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.exec()
+        clicked = box.clickedButton()
+        if clicked not in (keep, delete):
+            return
+        if clicked is delete and (
+            QMessageBox.question(
+                self,
+                "Stop Managing Workshop Content",
+                f"Delete {len(managed)} mod(s) and everything in them?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+
+        result = self.controller.stop_managing_workshop(keep=clicked is keep)
+        self.refresh()
+        self.nit_status.set_info(result["message"])
 
     def _on_doc_organiser(self) -> None:
         if self.controller is None:

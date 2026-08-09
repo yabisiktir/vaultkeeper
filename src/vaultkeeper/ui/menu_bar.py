@@ -208,6 +208,15 @@ MENUS: tuple = (
             SEP,
             MenuItem("MsUpdateEeFiles", "&Update Enhanced Edition Files", "UpdateEeFiles", False),
             MenuItem("MsRefreshWorkshopFiles", "Refresh Steam &Workshop Files", "Steam", False),
+            # VB puts "Stop Managing Steam Workshop Content" on the ribbon's
+            # Customise tab. The ribbon can be hidden, and this is the only way
+            # out of Workshop management, so it is on the menu as well.
+            MenuItem(
+                "MsStopManagingWorkshop",
+                "Stop Managing Steam Workshop Content",
+                "Steam",
+                False,
+            ),
             SEP,
             MenuItem("MsValidateMovieFiles", "Validate Movie &Files", "Video", False),
             MenuItem(

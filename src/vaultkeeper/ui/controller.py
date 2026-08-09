@@ -6242,6 +6242,59 @@ class ProfileController:
                 )
         return files
 
+    def managed_workshop_mods(self) -> list[str]:
+        """Mods this tool created from a Steam Workshop subscription."""
+        return sorted(
+            md.mod_name
+            for md in self.pd.mod_list.values()
+            if md.is_not_group_item and md.workshop_id
+        )
+
+    def stop_managing_workshop(self, *, keep: bool) -> dict:
+        """Hand the Workshop subscriptions back to Steam (VB ``newtopic22``).
+
+        ``keep`` decides what happens to this tool's copy of each managed mod:
+        kept as an ordinary mod, or deleted. Either way the Steam link is cut,
+        because a mod that still claims a workshop id would be picked up as
+        managed again the next time subscriptions are detected.
+
+        The *subscription* records are left alone, as VB leaves them: "Steam
+        Workshop Subscription information is retained so that Identifier to Mod
+        Name mapping preferences are available in case you enable management
+        again" — the mapping is the part that was tedious to establish.
+        """
+        names = self.managed_workshop_mods()
+        removed, kept = 0, 0
+        for name in names:
+            md = self.pd.mod_item(name)
+            if md is None:
+                continue
+            if keep:
+                md.workshop_id = ""
+                # The web link points at the Steam item folder, which is not this
+                # mod's home any more.
+                md.web_link = ""
+                kept += 1
+        if not keep:
+            removed = self.remove_mods([n for n in names if self.pd.mod_item(n)])
+        if names:
+            self.save()
+        verb = (
+            f"kept {kept} as ordinary mod(s)" if keep else f"deleted {removed} mod(s)"
+        )
+        return {
+            "ok": True,
+            "kept": kept,
+            "removed": removed,
+            "message": (
+                f"Stopped managing Steam Workshop content: {verb}. "
+                "The subscription records are kept, so turning management back "
+                "on remembers which mod each item was."
+                if names
+                else "No Workshop mods are managed."
+            ),
+        }
+
     def add_workshop_mod(
         self, workshop_id: str, *, build_installer: bool = True
     ) -> dict:

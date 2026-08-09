@@ -119,7 +119,7 @@ them.
 | deletearchives.htm | Delete archived Game Saves | Ported (Restore Archived Saves) |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
-| newtopic22.htm | Disable Workshop management | **Still a GAP** — the Stop Managing toggle; the viewer is there |
+| newtopic22.htm | Disable Workshop management | **Was a GAP, now closed** — Stop Managing, keeping or deleting the copies |
 | createmodinstallationsets.htm / uninstallinstallationsetdefinedm.htm | Installation Sets | Ported (Installation Manager) |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
