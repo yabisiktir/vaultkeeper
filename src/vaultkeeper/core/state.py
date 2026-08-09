@@ -30,6 +30,21 @@ class State(IntEnum):
     INSTALLED_AND_OVERRIDDEN = 13  # some installed, some overridden
     OVERRIDDEN = 14         # overridden by another mod
 
+    def describe(self, *, of_file: bool = False) -> str:
+        """What this state means, in words (VB ``statusicons.htm``).
+
+        The original shows these in the Mod Properties and Details panels; the
+        port was showing the enum name title-cased, so a mod sat there saying
+        "Some And Overridden", which is a label rather than an explanation.
+
+        Mods and files differ in wording where the same state means a slightly
+        different thing about each — a file is overridden by *a* file, a mod by
+        the files of other mods.
+        """
+        return (_FILE_DESCRIPTIONS if of_file else _MOD_DESCRIPTIONS).get(
+            self, self.name.replace("_", " ").title()
+        )
+
     @property
     def is_file_installed(self) -> bool:
         """File-level "installed?" test (FileData.Installed = state > NotInstalled)."""
@@ -123,3 +138,47 @@ class GroupStatus(StrEnum):
 
     EXPANDED = "expanded"
     COLLAPSED = "collapsed"
+
+
+#: What each state means for a **mod**, from ``statusicons.htm``.
+_MOD_DESCRIPTIONS: dict[State, str] = {
+    State.NONE: "This mod does not have a Mod Installer.",
+    State.UNKNOWN: "This mod's install state has not been worked out yet.",
+    State.NOT_INSTALLED: "This mod is not installed.",
+    State.SOME_INSTALLED: (
+        "This mod is not installed, but some of its files already exist in the "
+        "Neverwinter Nights installation or User Files folders."
+    ),
+    State.SOME_AND_MATCH: (
+        "This mod is not installed, but some of its files already exist in the "
+        "Neverwinter Nights installation or User Files folders and would be "
+        "overridden by another mod's identical files."
+    ),
+    State.SOME_AND_OVERRIDDEN: (
+        "This mod is not installed, but some of its files already exist in the "
+        "Neverwinter Nights installation or User Files folders and would be "
+        "overridden by another mod's files."
+    ),
+    State.INSTALLED: "This mod is installed.",
+    State.MATCH_OVERRIDE: (
+        "Some or all of this mod's files have been overridden by other mods, "
+        "but the files are identical."
+    ),
+    State.INSTALLED_AND_OVERRIDDEN: (
+        "Some, but not all, of this mod's files have been overridden by other mods."
+    ),
+    State.OVERRIDDEN: "All of this mod's files have been overridden by other mods.",
+}
+
+#: The same, for a single **file**.
+_FILE_DESCRIPTIONS: dict[State, str] = {
+    State.NONE: "This file belongs to no Mod Installer.",
+    State.UNKNOWN: "This file's install state has not been worked out yet.",
+    State.NOT_INSTALLED: "This file is not installed.",
+    State.INSTALLED: "This file is installed.",
+    State.MATCH_OVERRIDE: (
+        "This file has been overridden by another mod's file, but the files are "
+        "identical."
+    ),
+    State.OVERRIDDEN: "This file has been overridden by another mod's file.",
+}

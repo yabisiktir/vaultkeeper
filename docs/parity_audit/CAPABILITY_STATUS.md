@@ -85,6 +85,7 @@ them.
 | switchinggamesaves.htm / restoregamesavesfrombackup.htm | Right-click Activate | **Closed** — brings the mod with it |
 | mscharacterviewer.htm | Use the Character Explorer | **Closed** — the Select button was the last piece |
 | defineextension.htm | Define an extension map | **Closed** — secondary folder + exceptions are editable |
+| statusicons.htm | Mod and File Status Icons | **Was a GAP, now closed** — the eleven meanings, on the rows that show them |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -125,6 +126,46 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Why 160 topics still say UNREVIEWED
+
+Two reasons, and the second is the honest one.
+
+**Mechanically**, `capability_sweep.py` counts a topic as reviewed only when its
+file name appears as a row in this document. Bulk machine checking wrote no
+rows, so the counter never moved. It tracks *verdicts written*, not *topics
+checked*.
+
+**Substantively**, the machine passes are not review, and saying "all three
+sweeps are quiet" repeats the mistake this whole exercise exists to correct.
+Measured against the two real gaps found in this session:
+
+| | `useattributefilters.htm` | `firsttimeexecution.htm` |
+|---|---|---|
+| names a checkable command | no | no |
+| describes a click | no | yes (as does nearly everything) |
+| "the Tool will/automatically…" | no | no |
+| content carried in screenshots | **3 images** | **12 images** |
+
+Both would have scored quiet. The attribute filters were found by opening the
+**screenshots** — the three tick boxes exist nowhere in the topic's text — and
+the first-run flow by reading prose. So the sweeps prove three specific
+negatives and nothing more:
+
+* no unreviewed topic names a command without a handler;
+* every *stated* interaction is wired;
+* no "the Tool will…" sentence promises something absent.
+
+★ **What they cannot see:** a capability that lives in a screenshot, a flow
+described across several sentences with no imperative verb, and any difference
+of *content* between a screen that exists here and the one it was ported from.
+Reading is the only instrument for those, and reading is what found both gaps.
+
+Reading the backlog is therefore still worth doing, and is being done in
+batches, worst-first: topics ranked by how much of their content is in images.
+The first batch found `statusicons.htm` — eleven icon meanings the original
+shows in the Mod Properties and Details panels, where the port was printing a
+title-cased enum name.
 
 ## Where the help-topic sweep has got to
 

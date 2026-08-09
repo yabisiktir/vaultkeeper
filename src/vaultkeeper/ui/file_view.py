@@ -98,6 +98,8 @@ class ContentsView(QTreeWidget):
                 item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight)
                 # Carry the file's (folder, filename) so the pane can view/delete it.
                 item.setData(0, _ROLE_FILE_KEY, (group["folder"], file["name"]))
+                # What the row's icon means, in words (statusicons.htm).
+                item.setToolTip(0, State(file["state"]).describe(of_file=True))
                 brush = file_state_brush(file["state"])
                 if brush is not None:
                     item.setForeground(0, brush)
@@ -241,6 +243,7 @@ class FileView(QTreeWidget):
         item.setData(0, _ROLE_MOD_NAME, md.mod_name)
         item.setData(0, _ROLE_GROUP_NAME, md.group)
         item.setIcon(0, R.get_icon(self.state_icon_name(md)))
+        item.setToolTip(0, md.mod_state.describe())
         brush = self.state_brush(md)
         if brush is not None:
             item.setForeground(0, brush)

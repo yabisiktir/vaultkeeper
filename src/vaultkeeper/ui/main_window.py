@@ -1256,11 +1256,18 @@ class MainWindow(QMainWindow):
             rows.append(("Best weapon", md.best_weapon.name.replace("_", " ").title()))
         self._details_list.clear()
         for prop, value in rows:
-            self._details_list.addTopLevelItem(QTreeWidgetItem([prop, value]))
+            item = QTreeWidgetItem([prop, value])
+            if prop == "State":
+                # statusicons.htm: "Descriptions of the status icons are
+                # displayed in the Mod Properties and Details Property panels."
+                # A title-cased enum name is a label, not an explanation.
+                item.setToolTip(1, md.mod_state.describe())
+            self._details_list.addTopLevelItem(item)
         self._details_list.resizeColumnToContents(0)
 
         # Mod info (VB TlModInfoContainer): a short summary line.
         state = md.mod_state.name.replace("_", " ").title()
+        self._mod_info.setToolTip(md.mod_state.describe())
         play = ""
         if self.controller is not None:
             loop = self.controller.play_loop
