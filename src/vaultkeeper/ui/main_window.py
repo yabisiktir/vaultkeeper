@@ -625,7 +625,29 @@ class MainWindow(QMainWindow):
         self.controller = controller
         self._install_prompter()
         self.refresh()
+        self._detect_workshop_changes()
         self._notify_config_drift()
+
+    def _detect_workshop_changes(self) -> None:
+        """Notice new or changed Steam subscriptions on load (VB ``newtopic20``).
+
+        "The Installer Tool detects new and changed Workshop Subscriptions when
+        you […] Start the Installer Tool […] Load or reload an Enhanced Edition
+        Profile." Only the Tools menu and the viewer did it here, so something
+        subscribed to yesterday stayed invisible until someone went looking for
+        it.
+
+        Best-effort and quiet: a non-Steam install says so and is ignored, and
+        nothing here may keep a profile from opening.
+        """
+        if self.controller is None or not self.controller.ctx.is_ee:
+            return
+        try:
+            diff = self.controller.workshop_refresh()
+        except Exception:
+            return
+        if diff["added"] or diff["updated"] or diff["unsubscribed"]:
+            self.nit_status.set_info(diff["summary"])
 
     def _notify_config_drift(self) -> None:
         """Non-modal notice if the game's config changed since we last saw it."""

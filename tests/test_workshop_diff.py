@@ -79,3 +79,79 @@ def test_diff_real_workshop_folder_stable():
     stored = contents_from_json(contents_to_json(first.contents))
     second = diff_workshop(_REAL_WS, stored)
     assert not second.added and not second.updated and not second.unsubscribed
+
+
+# -- Detection on profile load (newtopic20.htm) ---------------------------------- #
+def test_loading_a_profile_looks_for_new_subscriptions(qtbot, tmp_path):
+    """"The Installer Tool detects new and changed Workshop Subscriptions when
+    you […] Load or reload an Enhanced Edition Profile." Only the Tools menu and
+    the viewer did it, so something subscribed to yesterday stayed invisible
+    until someone went looking."""
+    from vaultkeeper.ui.controller import ProfileController
+    from vaultkeeper.ui.main_window import MainWindow
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+    calls: list[int] = []
+    controller.workshop_refresh = lambda: (
+        calls.append(1),
+        {"added": ["123"], "updated": [], "unsubscribed": [], "summary": "1 new"},
+    )[1]
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    win.set_controller(controller)
+
+    assert calls == [1]
+    assert "1 new" in win.nit_status.mg_info.text()
+
+
+def test_nothing_is_said_when_nothing_changed(qtbot, tmp_path):
+    """A profile load is not the moment for a message saying nothing happened."""
+    from vaultkeeper.ui.controller import ProfileController
+    from vaultkeeper.ui.main_window import MainWindow
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    controller.workshop_refresh = lambda: {
+        "added": [], "updated": [], "unsubscribed": [], "summary": "This is not a Steam install."
+    }
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    win.set_controller(controller)
+    assert "not a Steam install" not in win.nit_status.mg_info.text()
+
+
+def test_a_failure_never_stops_a_profile_opening(qtbot, tmp_path):
+    from vaultkeeper.ui.controller import ProfileController
+    from vaultkeeper.ui.main_window import MainWindow
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    controller = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+    def boom():
+        raise OSError("steam is not there")
+
+    controller.workshop_refresh = boom
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+    win.set_controller(controller)  # must not raise
+    assert win.controller is controller

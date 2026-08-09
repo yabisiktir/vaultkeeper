@@ -118,6 +118,9 @@ them.
 | movingmodsfromonegrouptoanother.htm | Moving Mods between Groups | **Ported bar "None"**, now added |
 | deletearchives.htm | Delete archived Game Saves | Ported (Restore Archived Saves) |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
+| newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
+| newtopic22.htm | Disable Workshop management | **Still a GAP** — the Stop Managing toggle; the viewer is there |
+| createmodinstallationsets.htm / uninstallinstallationsetdefinedm.htm | Installation Sets | Ported (Installation Manager) |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
