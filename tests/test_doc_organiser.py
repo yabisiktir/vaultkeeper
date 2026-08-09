@@ -86,7 +86,8 @@ def test_scan_extracts_docs_from_archives(tmp_path):
     assert names == {"inside.txt"}  # only the doc, not art.tga
     inside = next(e for e in entries if e.file_name == "inside.txt")
     assert inside.folder.startswith("_Downloads/pack.7z!")
-    assert extractor.extract_calls  # the seam was used
+    # The index answers this, so a solid 7z is never decompressed to find a readme.
+    assert extractor.extract_calls == []
 
 
 def test_scan_without_extractor_skips_archives(tmp_path):

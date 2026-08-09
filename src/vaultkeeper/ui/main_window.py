@@ -11,6 +11,8 @@ implemented so far and reports "not available yet" for the rest.
 
 from __future__ import annotations
 
+from pathlib import PurePath
+
 from nwnfile.log import get_logger
 from PySide6.QtCore import QSignalBlocker, Qt, QUrl
 from PySide6.QtWidgets import (
@@ -1273,9 +1275,15 @@ class MainWindow(QMainWindow):
             return
         from PySide6.QtWidgets import QMenu
 
+        from vaultkeeper.core.archive import is_extractable
+
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
         menu.addAction("Display Info", self._on_display_contents_info)
+        # reducefileclutter.htm: keep archives compressed, and still look inside.
+        selected = self._contents.selected_file()
+        if selected is not None and is_extractable(PurePath(selected[1]).suffix):
+            menu.addAction("Extract compressed file contents", self._on_show_archive)
         menu.addAction("Copy Name", self._on_copy_contents_name)
         menu.addSeparator()
         menu.addAction("Cut", lambda: self._on_copy_contents_file(cut=True))
@@ -1334,6 +1342,7 @@ class MainWindow(QMainWindow):
         if path is None:
             self.nit_status.set_info(f"{filename} is not on disk.")
             return
+        from vaultkeeper.core.archive import is_extractable
         from vaultkeeper.ui.dialogs.image_viewer import IMAGE_EXTENSIONS, ImageViewer
 
         ext = path.suffix.lower()
@@ -1341,10 +1350,38 @@ class MainWindow(QMainWindow):
         show_images = self.controller._settings().display_image_files
         if ext == ".bic":
             self._show_character_file(path)
+        elif is_extractable(ext):
+            self._show_archive_contents(path)
         elif ext in IMAGE_EXTENSIONS and show_images:
             self._image_viewer = ImageViewer.show_for(path, self)
         else:
             self._on_view_contents_file()
+
+    def _on_show_archive(self) -> None:
+        """Look inside the selected compressed Contents file."""
+        selected = self._contents.selected_file()
+        if self.controller is None or self._contents_mod is None or selected is None:
+            return
+        path = self.controller.mod_file_path(self._contents_mod, *selected)
+        if path is None:
+            self.nit_status.set_info(f"{selected[1]} is not on disk.")
+            return
+        self._show_archive_contents(path)
+
+    def _show_archive_contents(self, path) -> None:
+        """List a compressed file's members (``reducefileclutter.htm``).
+
+        Without this a ``.zip`` fell through to the text viewer, which showed
+        its bytes — so the one file type the tool spends most of its time
+        handling was the one it could say least about.
+        """
+        from vaultkeeper.ui.dialogs.archive_contents import ArchiveContentsDialog
+
+        dlg = ArchiveContentsDialog.show_for(self.controller, path, self)
+        if dlg is None:
+            self.nit_status.set_info(f"Could not read inside {path.name}.")
+            return
+        self._archive_contents = dlg
 
     def _show_character_file(self, path) -> None:
         """Open the Character Explorer summary for a single ``.bic`` file."""

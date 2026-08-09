@@ -378,6 +378,18 @@ class FakeArchiveExtractor:
     def available(self) -> bool:
         return self._available
 
+    def list_entries(self, archive: Path) -> list[dict] | None:
+        """The canned contents as an index, without "extracting" them."""
+        if not self._available:
+            return None
+        payload = self._contents.get(archive.name, self._contents.get(str(archive)))
+        if payload is None:
+            return None
+        return [
+            {"path": rel, "size": len(data), "crc": 0}
+            for rel, data in sorted(payload.items())
+        ]
+
     def extract(self, archive: Path, dest: Path) -> ExtractResult:
         self.extract_calls.append((archive, dest))
         if not self._available:

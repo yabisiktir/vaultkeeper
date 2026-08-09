@@ -299,6 +299,33 @@ class ProfileController:
         )
         return path if path.is_file() else None
 
+    def archive_listing(self, path: Path) -> list[dict] | None:
+        """What is inside a compressed file, without unpacking it.
+
+        ``reducefileclutter.htm``: after *Move to Downloads* puts the archives
+        back, "you can still view the contents of compressed files in the
+        Details panel". Reading the index is the whole point — the topic's
+        advice is to stop extracting large archives, so answering the question
+        by extracting one would undo it.
+
+        Each entry also carries where the file *would* install to, which is the
+        thing anybody actually opens an archive to find out. Path-only: nothing
+        is unpacked, so an ERF's contents cannot be sniffed here.
+        """
+        from vaultkeeper.core.archive import is_extractable
+
+        if not path.is_file() or not is_extractable(path.suffix):
+            return None
+        backend = self._archive_backend()
+        entries = getattr(backend, "list_entries", lambda _p: None)(path)
+        if entries is None:
+            return None
+        mapper = self.ctx.mapper
+        return [
+            {**entry, "folder": mapper.get_mapped_folder(entry["path"])}
+            for entry in entries
+        ]
+
     def copy_mod_file(
         self,
         src_mod: str,
