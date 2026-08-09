@@ -85,7 +85,10 @@ def bootstrap_controller(
     settings = settings or load_settings()
     store = settings.resolved_store()
 
-    nwn_path = settings.nwn_path
+    # The active profile's own folder, falling back to the global one for
+    # profiles made before this was recorded.
+    profile_name = settings.active_profile or ""
+    nwn_path = (settings.profile_game_paths or {}).get(profile_name) or settings.nwn_path
     if not nwn_path:
         installs = discover()
         if installs:
@@ -107,8 +110,14 @@ def bootstrap_controller(
         map_exclude_overrides=settings.map_exclude_overrides or None,
         map_exception_prefixes=settings.map_exception_prefixes or None,
         settings_path=store.settings_file,
-        game_user_dir=Path(settings.game_user_path) if settings.game_user_path else None,
+        game_user_dir=_profile_user_dir(profile, settings),
     )
+
+
+def _profile_user_dir(profile: str, settings: Settings):
+    """The profile's own user-files folder, else the shared one."""
+    path = (settings.profile_game_user_paths or {}).get(profile) or settings.game_user_path
+    return Path(path) if path else None
 
 
 def profile_is_ee(profile: str, settings: Settings | None = None) -> bool:
@@ -247,6 +256,15 @@ def configure_profile(
     settings.active_profile = profile_name
     # Recorded once, at creation, and never revisited.
     settings.profile_editions = {**settings.profile_editions, profile_name: is_ee}
+    # And its own game folder. Without this, making a second profile for a test
+    # installation silently repointed the first one at it — the global path is
+    # the only one there was.
+    settings.profile_game_paths = {**settings.profile_game_paths, profile_name: nwn_path}
+    if settings.game_user_path:
+        settings.profile_game_user_paths = {
+            **settings.profile_game_user_paths,
+            profile_name: settings.game_user_path,
+        }
     if store_root:
         settings.store_root = store_root
     if not settings.game_user_path:

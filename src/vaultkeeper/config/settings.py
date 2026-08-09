@@ -138,6 +138,13 @@ class Settings:
     #: Per-extension filename-prefix exceptions that send a file to its
     #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
     map_exception_prefixes: dict[str, list] = field(default_factory=dict)
+    #: Per-profile game folders, profile name → path. "Each profile operates
+    #: with a specific Neverwinter Nights Installation or Enhanced Edition User
+    #: Files folder […] to use development or test installations that do not
+    #: interfere with your live gaming environment"
+    #: (``specifyaneverwinternightsfolder.htm``).
+    profile_game_paths: dict[str, str] = field(default_factory=dict)
+    profile_game_user_paths: dict[str, str] = field(default_factory=dict)
     #: Per-profile edition, profile name → ``True`` for Enhanced Edition. Fixed
     #: when the profile is made (``definenewprofiles.htm``: "You cannot change
     #: the Profile Type after the Profile has been created"), because the folder
