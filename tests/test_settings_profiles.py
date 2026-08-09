@@ -22,8 +22,12 @@ def settings(tmp_path: Path) -> Settings:
     s.store_root = str(tmp_path / "Store")
     s.game_user_path = str(tmp_path / "user")
     sp = tmp_path / "settings.json"
-    configure_profile(str(tmp_path / "LiveNWN"), "Live", is_ee=True, settings=s, settings_path=sp)
-    configure_profile(str(tmp_path / "OldNWN"), "Classic", is_ee=False, settings=s, settings_path=sp)
+    configure_profile(
+        str(tmp_path / "LiveNWN"), "Live", is_ee=True, settings=s, settings_path=sp
+    )
+    configure_profile(
+        str(tmp_path / "OldNWN"), "Classic", is_ee=False, settings=s, settings_path=sp
+    )
     return load_settings(sp)
 
 
