@@ -72,6 +72,9 @@ them.
 | bhbackupmanager.htm | Work with backups and exports | **Was a GAP, now closed** — the menu item did nothing |
 | newtopic18.htm | Automate Mod dependency definition | **Closed** — Auto, with progress + Cancel and the follow-up offer |
 | validatedatabase.htm | Perform validation tasks | **Closed** — the last of the five, Validate Neverwinter Nights (`MsValidate`) |
+| newtopic51.htm | Send diagnostic information | **Now real** — was a menu entry only; gathers versions/paths/log |
+| newtopic23.htm | Manage Workshop Mods | Ported — `MsRefreshWorkshopFiles` is wired now too |
+| The New File trio | `MsNewFolder` / `MsNewTextFile` / `MsNewRtfFile` | **Was a GAP, now closed** |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

@@ -1388,6 +1388,12 @@ class MainWindow(QMainWindow):
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsValidate": self._on_validate_neverwinter_nights,
+            "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
+            # New folder / text file / rich text file, in the selected mod.
+            "MsNewFolder": self._on_new_contents_folder,
+            "MsNewTextFile": lambda: self._on_new_contents_file(".txt", "Text"),
+            "MsNewRtfFile": lambda: self._on_new_contents_file(".rtf", "Rich Text"),
+            "MsSendDiagInfo": self._on_send_diagnostics,
             "MsExtractPortraits": self._on_extract_portraits,
             "MsClearHakPortraits": self._on_clear_hak_portraits,
             # Recover group / mod-property data from another profile or backup.
@@ -1867,6 +1873,119 @@ class MainWindow(QMainWindow):
         self._validate_dialog = ValidateNwnDialog(report, self.controller, self)
         self._validate_dialog.finished.connect(lambda _r=0: self.refresh())
         self._validate_dialog.show()
+
+    def _on_new_contents_folder(self) -> None:
+        """New folder in the selected mod's payload (VB ``MsNewFolder``).
+
+        VB routes this to New Mod when the *mod list* has focus, because a new
+        "folder" there is a new mod. Same rule here.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        if self.focusWidget() is self._tree or self._contents_mod is None:
+            self._on_new_mod()
+            return
+        name, ok = QInputDialog.getText(
+            self,
+            "New Folder",
+            f"Name of the folder to create in '{self._contents_mod}':",
+        )
+        if not ok or not name.strip():
+            return
+        result = self.controller.create_mod_folder(self._contents_mod, name)
+        self._after_contents_change(result)
+
+    def _on_new_contents_file(self, suffix: str, label: str) -> None:
+        """New empty text/rich-text file (VB ``MsNewTextFile`` / ``MsNewRtfFile``)."""
+        if self.controller is None or self._contents_mod is None:
+            self.nit_status.set_info("Select a mod first.")
+            return
+        selected = self._contents.selected_file()
+        folder = selected[0] if selected else ""
+        name, ok = QInputDialog.getText(
+            self,
+            f"New {label} File",
+            f"Name of the {label.lower()} file to create in "
+            f"'{folder or self._contents_mod}':",
+            text=f"Notes{suffix}",
+        )
+        if not ok or not name.strip():
+            return
+        if not name.lower().endswith(suffix):
+            name += suffix
+        result = self.controller.create_mod_file(self._contents_mod, folder, name)
+        self._after_contents_change(result)
+
+    def _after_contents_change(self, result: dict) -> None:
+        self.refresh()
+        if self._contents_mod is not None:
+            md = self.controller.pd.mod_item(self._contents_mod)
+            if md is not None:
+                self._show_contents(md)
+        self.nit_status.set_info(result["message"])
+
+    def _on_refresh_workshop_files(self) -> None:
+        """Re-check Steam's subscriptions against ours (VB ``MsRefreshWorkshopFiles``).
+
+        The Workshop viewer does this on opening; the menu item is for when you
+        have just subscribed to something and do not want the whole screen.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            diff = self.controller.workshop_refresh()
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.refresh()
+        self.nit_status.set_info(diff["summary"])
+
+    def _on_send_diagnostics(self) -> None:
+        """Gather what a bug report needs (VB ``MsSendDiagInfo``).
+
+        VB opens an email with a diagnostic file to paste in. This writes the
+        same information to a file, copies the summary to the clipboard and
+        offers the issue tracker — the same substitution already made for Send
+        Feedback, and for the same reason: an email address is not something
+        this project has, and a mail client is not something every machine does.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        report = self.controller.diagnostic_report()
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.clipboard().setText(report["text"])
+        self.nit_status.set_info(
+            f"Diagnostic information written to {report['path']} and copied to the "
+            "clipboard."
+        )
+        from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+        self._diagnostics = TextViewer.show_text(
+            report["text"], "Diagnostic Information", self
+        )
+        if (
+            QMessageBox.question(
+                self,
+                "Send Diagnostic Information",
+                "This is what a bug report needs: your versions, your paths and "
+                "the recent log.\n\nIt is on the clipboard and saved to\n"
+                f"{report['path']}\n\nOpen a new issue now? You can paste it "
+                "straight in.\n\nRead it first if you would rather not share a "
+                "path or a profile name.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
+            from vaultkeeper.ui.feedback import feedback_url
+
+            self._open_url(feedback_url())
 
     def _on_remove_illegal_files(self) -> None:
         if self.controller is None:

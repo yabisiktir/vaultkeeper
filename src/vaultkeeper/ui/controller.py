@@ -467,6 +467,60 @@ class ProfileController:
             message += f" {len(failures)} could not be moved."
         return {"ok": not failures, "moved": moved, "message": message}
 
+    def create_mod_folder(self, mod_name: str, folder: str) -> dict:
+        """Make a new folder in a mod's installer payload (VB ``MsNewFolder``)."""
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"Unknown mod: {mod_name}"}
+        name = folder.strip()
+        if not name or any(ch in name for ch in '\\/:*?"<>|'):
+            return {"ok": False, "message": "That is not a usable folder name."}
+        target = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR / name
+        if target.exists():
+            return {"ok": False, "message": f"'{name}' is already there."}
+        try:
+            target.mkdir(parents=True)
+        except OSError as ex:
+            return {"ok": False, "message": f"Could not create '{name}': {ex}"}
+        # Nothing is recorded in the database: a folder holds no files yet, and
+        # the file list is keyed on files. It appears once something is in it.
+        return {"ok": True, "message": f"Created '{name}'.", "path": str(target)}
+
+    def create_mod_file(
+        self, mod_name: str, folder: str, filename: str, *, content: str = ""
+    ) -> dict:
+        """Make a new empty file in a mod's payload (VB ``MsNewTextFile`` / ``…Rtf``).
+
+        For the readme or notes that belong with a mod but did not come with it.
+        The file is scanned in straight away, so it is part of the installer from
+        the moment it exists rather than after the next rescan.
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"Unknown mod: {mod_name}"}
+        name = filename.strip()
+        if not name or any(ch in name for ch in '\\/:*?"<>|'):
+            return {"ok": False, "message": "That is not a usable file name."}
+        base = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        target = base / folder / name if folder else base / name
+        if target.exists():
+            return {"ok": False, "message": f"'{name}' is already there."}
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+        except OSError as ex:
+            return {"ok": False, "message": f"Could not create '{name}': {ex}"}
+
+        self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return {"ok": True, "message": f"Created '{name}'.", "path": str(target)}
+
     def delete_mod_file(self, mod_name: str, folder: str, filename: str) -> bool:
         """Delete one installer file from a mod (VB ``CmContents`` Delete).
 
@@ -4214,6 +4268,58 @@ class ProfileController:
             / "data"
             / rules_source.rules_filename()
         )
+
+    def diagnostic_report(self) -> dict:
+        """What a bug report needs, gathered in one place (VB ``MsSendDiagInfo``).
+
+        Versions, the paths in play, what the profile holds, and the tail of the
+        log. Written to a file *and* returned, so it can be read before it is
+        shared — it names folders, and a home directory has somebody's name in
+        it.
+        """
+        from vaultkeeper.ui.feedback import environment
+
+        lines = ["Vaultkeeper diagnostic information", ""]
+        for key, value in environment().items():
+            lines.append(f"{key}: {value}")
+
+        settings = self._settings()
+        lines += [
+            "",
+            "Paths",
+            f"  game install: {self.ctx.game_root}",
+            f"  game user:    {self.ctx.game_user_dir}",
+            f"  store:        {settings.resolved_store().root}",
+            f"  profile:      {self.store_path}",
+            f"  edition:      {'Enhanced Edition' if self.ctx.is_ee else 'classic'}",
+        ]
+
+        total, installed = self.counts()
+        lines += [
+            "",
+            "Profile",
+            f"  mods:            {total:,}",
+            f"  installed mods:  {installed:,}",
+            f"  files tracked:   {len(self.pd.file_list):,}",
+            f"  groups:          {len(self.group_names()):,}",
+        ]
+
+        log = self.nit_log_path()
+        lines += ["", f"Log ({log})"]
+        try:
+            tail = log.read_text(encoding="utf-8", errors="replace").splitlines()[-200:]
+            lines += [f"  {line}" for line in tail] or ["  (empty)"]
+        except OSError as ex:
+            lines.append(f"  (could not be read: {ex})")
+
+        text = "\n".join(lines)
+        path = self.data_dir().parent / "Diagnostic Information.txt"
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        except OSError:
+            path = log  # best effort: the text is returned either way
+        return {"text": text, "path": str(path)}
 
     def nit_log_path(self) -> Path:
         """The application's own log file (VB NIT Log File)."""
