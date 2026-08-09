@@ -126,6 +126,40 @@ they look like mistakes:
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
 
+## Where the help-topic sweep has got to
+
+160 topics remain UNREVIEWED, and that number is now misleading in a useful way.
+Classifying them rather than reading them:
+
+| | |
+|---|---|
+| 23 | procedures naming a command that is ported |
+| 41 | short reference / navigation stubs |
+| 24 | reference prose (glossary, FAQ, version history) |
+| 48 | longer prose worth a skim |
+
+Three machine passes over all of them found:
+
+* **no unreviewed topic names a command that is missing** — only the five
+  recorded as non-goals or decisions, plus `mshistory.htm`, which is the version
+  history and mentions everything;
+* every interaction they describe is wired, after the five closed above;
+* no sentence of the form "the Tool can/will/automatically…" describes something
+  the port does not do.
+
+★ So the remaining topics are **documentation of ported behaviour**, and reading
+them one by one is no longer the cheapest way to find a gap. The sweeps are: does
+a topic name a command that has no handler; does it describe an interaction; does
+it promise a behaviour. All three are quiet.
+
+**Recorded as a decision, not a gap:** `newtopic53.htm` (Application Definitions
+File) describes an online INI of hard-coded values, fetched at start-up and
+cached by revision number. The only value in it this port needs is where the
+download rules live, and `vault/rules_source.py` already fetches those from two
+published hosts with a cache and a bundled floor. A general "fetch a file of
+constants before the window opens" mechanism would add a network dependency at
+launch for no capability we lack.
+
 ## Sweeping for sentences, not for commands
 
 With the commands nearly all wired, the remaining risk was interactions with no
