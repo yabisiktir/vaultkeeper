@@ -122,3 +122,83 @@ def test_a_missing_log_does_not_stop_the_report(controller, monkeypatch):
 def test_refreshing_workshop_files_on_a_non_steam_install(controller):
     diff = controller.workshop_refresh()
     assert diff["summary"] == "This is not a Steam install."
+
+
+# -- Remembering where the notes were left (newtopic67 / MsClearScrollInfo) ------ #
+def test_the_notes_come_back_where_they_were_left(qtbot, controller):
+    """A mod's notes can be pages long; returning to the top every time is the
+    sort of small thing that makes a tool tiring."""
+    from vaultkeeper.core.mod_data import ModData
+
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Other"))
+    controller.save_notes("Swordflight", "line\n" * 200)
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Swordflight")
+
+    cursor = win._details.textCursor()
+    cursor.setPosition(400)
+    win._details.setTextCursor(cursor)
+
+    win._select_mod_by_name("Other")
+    win._select_mod_by_name("Swordflight")
+
+    assert win._details.textCursor().position() == 400
+
+
+def test_a_position_past_the_end_does_not_break_it(qtbot, controller):
+    """The notes may have been shortened since — clamp rather than throw."""
+    controller.save_notes("Swordflight", "short")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._notes_positions["Swordflight"] = 9_999
+
+    win._select_mod_by_name("Swordflight")
+    assert win._details.textCursor().position() == len("short")
+
+
+def test_clearing_forgets_them_and_can_turn_it_off(qtbot, controller, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.notes_positions = {"Swordflight": 120}
+    settings.remember_text_positions = True
+    save_settings(settings)
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    def fake_exec(self) -> int:
+        self.checkBox().setChecked(False)  # "stop remembering"
+        return QMessageBox.StandardButton.Yes
+
+    monkeypatch.setattr(QMessageBox, "exec", fake_exec)
+    win._on_clear_text_positions()
+
+    after = load_settings()
+    assert after.notes_positions == {}
+    assert after.remember_text_positions is False
+    assert win._notes_positions == {}
+
+
+def test_nothing_is_remembered_when_it_is_turned_off(qtbot, controller):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.remember_text_positions = False
+    settings.notes_positions = {}
+    save_settings(settings)
+
+    controller.save_notes("Swordflight", "line\n" * 50)
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Swordflight")
+    cursor = win._details.textCursor()
+    cursor.setPosition(100)
+    win._details.setTextCursor(cursor)
+
+    win._remember_notes_position()
+    assert win._notes_positions == {}

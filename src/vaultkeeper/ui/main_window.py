@@ -14,6 +14,7 @@ from __future__ import annotations
 from nwnfile.log import get_logger
 from PySide6.QtCore import QSignalBlocker, Qt, QUrl
 from PySide6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QFileDialog,
     QInputDialog,
@@ -99,6 +100,10 @@ class MainWindow(QMainWindow):
         self._details = QTextEdit()
         self._details.setPlaceholderText("Mod notes…")
         self._notes_mod: str | None = None  # the mod whose notes are loaded
+        from vaultkeeper.config.settings import load_settings as _load
+
+        #: Where each mod's notes were last left, restored on reselection.
+        self._notes_positions: dict[str, int] = dict(_load().notes_positions)
 
         # Nested splitter layout, matching the VB ScProfile/ScMod/ScContents/ScDetails:
         #   mods | (contents / mod-info) | (details list / properties+notes)
@@ -410,6 +415,18 @@ class MainWindow(QMainWindow):
                 self.restoreGeometry(data)
             except (ValueError, TypeError):
                 pass
+
+    def _save_notes_positions(self) -> None:
+        """Write the remembered notes positions out (called on the way out)."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        if not settings.remember_text_positions:
+            return
+        self._remember_notes_position()
+        if settings.notes_positions != self._notes_positions:
+            settings.notes_positions = dict(self._notes_positions)
+            save_settings(settings)
 
     def _save_geometry(self) -> None:
         """Persist the current window geometry if the preference is on."""
@@ -997,8 +1014,9 @@ class MainWindow(QMainWindow):
             self._update_played_info(None)
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
-        """Persist any unsaved mod notes + the window geometry before closing."""
+        """Persist unsaved notes, where they were left, and the geometry."""
         self._save_current_notes()
+        self._save_notes_positions()
         self._save_geometry()
         super().closeEvent(event)
 
@@ -1192,11 +1210,70 @@ class MainWindow(QMainWindow):
         self._mod_info.setText(f"{md.mod_name} — {state}{play}")
 
         # Editable Mod Notes (VB per-mod .rtf). Persist the previously-shown mod first.
+        self._remember_notes_position()
         self._save_current_notes()
         self._notes_mod = md.mod_name
         if self.controller is not None:
             self._details.setPlainText(self.controller.read_notes(md.mod_name))
         self._details.document().setModified(False)
+        self._restore_notes_position(md.mod_name)
+
+    def _remember_notes_position(self) -> None:
+        """Note where the notes were left (VB ``ScrollPositions.RtModNotes``).
+
+        Kept in memory and written with the rest of the settings: a mod's notes
+        can be pages long, and coming back to the top of them every time is the
+        sort of small thing that makes a tool tiring.
+        """
+        from vaultkeeper.config.settings import load_settings
+
+        if self._notes_mod is None or not load_settings().remember_text_positions:
+            return
+        self._notes_positions[self._notes_mod] = self._details.textCursor().position()
+
+    def _restore_notes_position(self, mod_name: str) -> None:
+        from vaultkeeper.config.settings import load_settings
+
+        if not load_settings().remember_text_positions:
+            return
+        position = self._notes_positions.get(mod_name)
+        if not position:
+            return
+        cursor = self._details.textCursor()
+        cursor.setPosition(min(position, len(self._details.toPlainText())))
+        self._details.setTextCursor(cursor)
+        self._details.ensureCursorVisible()
+
+    def _on_clear_text_positions(self) -> None:
+        """Forget every remembered notes position (VB ``MsClearScrollInfo``).
+
+        The confirmation doubles as the way to turn the remembering off, which
+        is what VB's does — someone clearing these is often someone who did not
+        want them kept.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        box = QMessageBox(self)
+        box.setWindowTitle("Clear Text Position Information")
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setText(
+            f"Forget where the notes were left for {len(settings.notes_positions):,} "
+            "mod(s)?"
+        )
+        keep = QCheckBox("Go on remembering text positions")
+        keep.setChecked(settings.remember_text_positions)
+        box.setCheckBox(keep)
+        box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if box.exec() != QMessageBox.StandardButton.Yes:
+            return
+        settings.notes_positions = {}
+        settings.remember_text_positions = keep.isChecked()
+        save_settings(settings)
+        self._notes_positions = {}
+        self.nit_status.set_info("Text position information cleared.")
 
     def _save_current_notes(self) -> None:
         """Persist the currently-loaded mod's notes if the user edited them.
@@ -1390,6 +1467,7 @@ class MainWindow(QMainWindow):
             "MsValidate": self._on_validate_neverwinter_nights,
             "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
             # New folder / text file / rich text file, in the selected mod.
+            "MsClearScrollInfo": self._on_clear_text_positions,
             "MsNewFolder": self._on_new_contents_folder,
             "MsNewTextFile": lambda: self._on_new_contents_file(".txt", "Text"),
             "MsNewRtfFile": lambda: self._on_new_contents_file(".rtf", "Rich Text"),

@@ -75,6 +75,8 @@ them.
 | newtopic51.htm | Send diagnostic information | **Now real** — was a menu entry only; gathers versions/paths/log |
 | newtopic23.htm | Manage Workshop Mods | Ported — `MsRefreshWorkshopFiles` is wired now too |
 | The New File trio | `MsNewFolder` / `MsNewTextFile` / `MsNewRtfFile` | **Was a GAP, now closed** |
+| newtopic67.htm | Clear Text Position Information | **Was a GAP, now closed** — needed the memory it clears |
+| newtopic42.htm | The close button is missing | **N/A by design** — see below |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -115,6 +117,19 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## One command deliberately not ported: Enable Closing
+
+`newtopic42.htm` is a FAQ for a problem VB creates: while the game or the
+toolset is running it **disables Exit and removes the window's close button**,
+and *Enable Closing* on the Options menu is the way out when the game has since
+died and the tool is stuck open.
+
+The port does not disable closing, so there is nothing to re-enable. Porting the
+pair faithfully would mean adding a way to strand someone in order to ship the
+escape hatch for it — the FAQ exists because that happens. `MsEnableClosing`
+therefore stays visible and disabled, like every other unported command, and
+this is a decision rather than an omission.
 
 ## Validate Neverwinter Nights — where real data changed the design
 

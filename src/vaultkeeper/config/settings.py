@@ -131,6 +131,12 @@ class Settings:
     #: When uninstalling a mod, also uninstall its dependency mods that are no
     #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
     uninstall_dependencies: bool = False
+    #: Where each mod's notes were last scrolled to, mod name → caret position
+    #: (VB ``ScrollPositions.RtModNotes``). Cleared by *Clear Text Position
+    #: Information*; internal.
+    notes_positions: dict[str, int] = field(default_factory=dict)
+    #: Remember where the notes were left, per mod (VB ``BehaviourTextPosition``).
+    remember_text_positions: bool = True
     #: Size the Properties panel to what it is showing (VB ``MsPropertiesHeight``,
     #: also toggled by clicking the Properties heading).
     auto_properties_height: bool = False
