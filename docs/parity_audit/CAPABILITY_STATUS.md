@@ -86,6 +86,10 @@ them.
 | mscharacterviewer.htm | Use the Character Explorer | **Closed** — the Select button was the last piece |
 | defineextension.htm | Define an extension map | **Closed** — secondary folder + exceptions are editable |
 | statusicons.htm | Mod and File Status Icons | **Was a GAP, now closed** — the eleven meanings, on the rows that show them |
+| newtopic34.htm | Status Bar | **Was a GAP, now closed** — two dead signals + Selection Preferences |
+| newtopic63.htm | Clear Selection History | **Was wrong, now right** — it cleared Recent Mods |
+| rbportraitmanagerhelp.htm | Use the Portrait Manager | Ported — toolbar, keys and the image-strip click zones all present |
+| rbloadscreenhelp.htm | Use NWN's Start Screen Manager | **Ported bar the clickable status texts**, now added |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, QTimer
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QAction, QColor, QCursor
 from PySide6.QtWidgets import (
     QDialog,
@@ -61,6 +61,26 @@ _EDGE_MARGIN = 40
 # Dimmed colour for auto-excluded images (won't be picked by the slideshow).
 def _excluded_colour() -> QColor:
     return status_colour("disabled")
+
+
+class _ClickableLabel(QLabel):
+    """A status label that is also a shortcut (VB's clickable status texts).
+
+    Qt gives a QLabel no clicked signal, and a label that does something without
+    looking like it does is a shortcut nobody finds — so this also carries the
+    hand cursor.
+    """
+
+    clicked = Signal()
+
+    def __init__(self, text: str = "") -> None:
+        super().__init__(text)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        if event.button() == Qt.MouseButton.LeftButton and self.text():
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
 
 
 class StartScreenManager(SettingsAccess, QDialog):
@@ -105,11 +125,19 @@ class StartScreenManager(SettingsAccess, QDialog):
         self._preview.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._preview.customContextMenuRequested.connect(self._on_context_menu)
         right.addWidget(self._preview, 1)
-        self._detail = QLabel()
+        # Both status texts are clickable, as the help says: "You can also click
+        # the Excluded Status Text to perform the Add [or Remove]" and "You can
+        # also click the Start Screens Statistics Text to display the
+        # Information Report". They looked like plain labels here, which is a
+        # shortcut nobody could find.
+        self._detail = _ClickableLabel()
         self._detail.setWordWrap(True)
+        self._detail.clicked.connect(self._on_toggle_exclude)
+        self._detail.setToolTip("Click to add or remove this image from the auto-cycle")
         right.addWidget(self._detail)
-        self._summary = QLabel()
+        self._summary = _ClickableLabel()
         self._summary.setWordWrap(True)
+        self._summary.clicked.connect(self._on_info_report)
         right.addWidget(self._summary)
         panes.addLayout(right, 1)
 
@@ -559,6 +587,12 @@ class StartScreenManager(SettingsAccess, QDialog):
         self._list.blockSignals(False)
 
         self._summary.setText(self._report.get("summary", ""))
+        # Hovering shows the summary portion of the report, as the help says —
+        # the click shows the whole of it.
+        self._summary.setToolTip(
+            (self._report.get("summary", "") or "")
+            + "\n\nClick for the full information report."
+        )
         has_controller = self._controller is not None
         # Exclusions are cleared from the Information Report, where the list of
         # what would be cleared is actually in front of you (VB RbInfoReport's
