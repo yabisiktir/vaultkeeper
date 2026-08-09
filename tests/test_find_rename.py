@@ -253,3 +253,34 @@ def test_dialog_duplicate_is_flagged_and_not_applied(qtbot, tmp_path: Path) -> N
     assert dlg._model.duplicate_count == 1
     assert dlg._model.renames == {}
     assert not dlg._apply_btn.isEnabled()
+
+
+def test_double_clicking_a_mod_loads_its_name_into_both_boxes(qtbot, tmp_path, monkeypatch):
+    """VB LvMods_MouseDoubleClick — the quickest way to rename one thing, which
+    is what a find-and-replace over names is usually being used for."""
+    from vaultkeeper.ui.dialogs import find_and_rename as far
+    from vaultkeeper.ui.dialogs.find_and_rename import FindAndRenameDialog
+
+    monkeypatch.setattr(far.QMessageBox, "information", lambda *a, **k: None)
+    controller = _controller(tmp_path)
+    _make_mod(controller, tmp_path, "WIP Alpha")
+
+    dlg = FindAndRenameDialog(controller)
+    qtbot.addWidget(dlg)
+    dlg._on_mod_double_clicked(dlg._list.item(0))
+    assert dlg._find.text() == "WIP Alpha"
+    assert dlg._replace.text() == "WIP Alpha"
+
+
+def test_double_clicking_an_empty_row_changes_nothing(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QListWidgetItem
+
+    from vaultkeeper.ui.dialogs import find_and_rename as far
+    from vaultkeeper.ui.dialogs.find_and_rename import FindAndRenameDialog
+
+    monkeypatch.setattr(far.QMessageBox, "information", lambda *a, **k: None)
+    dlg = FindAndRenameDialog(_controller(tmp_path))
+    qtbot.addWidget(dlg)
+    dlg._find.setText("keep")
+    dlg._on_mod_double_clicked(QListWidgetItem("   "))
+    assert dlg._find.text() == "keep"

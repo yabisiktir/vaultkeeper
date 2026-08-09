@@ -237,3 +237,64 @@ def test_selecting_a_large_folder_stays_fast(qtbot):
             f"a row must not carry a collection ({value!r:.40}) — that is what "
             "made selecting a large folder quadratic"
         )
+
+
+# -- double-click does the row's own action (VB LvFiles / LvFolders) ----------- #
+def test_double_clicking_a_file_shows_its_properties(qtbot, tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from vaultkeeper.ui.dialogs.installation_analyser import InstallationAnalyser
+
+    target = tmp_path / "a.hak"
+    target.write_bytes(b"x")
+    browser = {
+        "folders": [
+            {
+                "name": "hak",
+                "count": 1,
+                "size": "1 KB",
+                "size_bytes": 1,
+                "files": [
+                    {"filename": "a.hak", "source": "Mod", "size": "1 KB",
+                     "modified": "", "path": str(target)}
+                ],
+            }
+        ],
+        "total_size": "1 KB",
+    }
+    controller = SimpleNamespace(
+        installation_report=lambda: {"rows": [], "summary": "", "counts": {}},
+        installation_browser_report=lambda: browser,
+    )
+    dlg = InstallationAnalyser(controller)
+    qtbot.addWidget(dlg)
+    dlg._on_folder(0)
+
+    shown = []
+    monkeypatch.setattr(dlg, "_on_file_properties", lambda: shown.append(1))
+    dlg.files.itemDoubleClicked.emit(dlg.files.topLevelItem(0), 0)
+    assert shown == [1]
+
+
+def test_double_clicking_a_folder_opens_it(qtbot, tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from vaultkeeper.ui.dialogs.installation_analyser import InstallationAnalyser
+
+    browser = {
+        "folders": [
+            {"name": "hak", "count": 0, "size": "0", "size_bytes": 0, "files": []}
+        ],
+        "total_size": "0",
+    }
+    controller = SimpleNamespace(
+        installation_report=lambda: {"rows": [], "summary": "", "counts": {}},
+        installation_browser_report=lambda: browser,
+    )
+    dlg = InstallationAnalyser(controller)
+    qtbot.addWidget(dlg)
+
+    opened = []
+    monkeypatch.setattr(dlg, "_on_open_folder", lambda: opened.append(1))
+    dlg.folders.itemDoubleClicked.emit(dlg.folders.item(0))
+    assert opened == [1]

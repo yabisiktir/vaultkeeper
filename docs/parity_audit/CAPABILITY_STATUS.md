@@ -144,7 +144,14 @@ read to the end. Reviewed:
 | Recycle toggle | Right-click → open the Trash | **Ported** |
 | Select Text File icon | Right-click → Documentation Organiser | **Ported** |
 | Wizard Report icon | Right-click → Wizard Builder | **Ported** |
-| Installation Analyser, Find and Rename, Portrait Manager lists | Double-click a row | Not reviewed |
+| Installation Analyser — file row | Double-click → Properties | **Ported** |
+| Installation Analyser — folder row | Double-click → Open Folder | **Ported** |
+| Find and Rename — mod row | Double-click → load the name into Find *and* Replace | **Ported** |
+| Portrait Manager — portrait row | Double-click → Edit Portrait | Already ported |
+| Character Explorer skills/feats | Double-click → the description | Different shape: shown in a panel beside the list |
+
+**All 32 reviewed.** Every one is either ported or recorded above with the reason
+it is not.
 
 Reviewing those turned up something none of the three sweeps was looking for:
 **the status bar's icons were connected to nothing at all**. Ten of its eleven
@@ -178,6 +185,9 @@ unconditionally, so the box could not be unticked), `select_game_mod`,
 `copy_mod_name_on_play`, `copy_debug_mode_on_play` (all three read when Play is
 pressed) and `installer_restore` (rebuilding an installed mod's payload now puts
 it back, so the game stops running the files that were just replaced).
+
+**The list is now empty**: `behaviour_sweep.py --settings` reports zero. Every
+preference the port offers changes something.
 
 `auto_character` is wired too, now that Character Restorers exist: closing the
 game saves the character just played, but only when there is exactly one with no

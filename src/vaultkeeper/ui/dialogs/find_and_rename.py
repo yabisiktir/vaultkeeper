@@ -129,6 +129,10 @@ class FindAndRenameDialog(QDialog):
 
         self._list = QListWidget()
         self._list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
+        # Double-click a mod to load its name into both boxes (VB
+        # LvMods_MouseDoubleClick): the quickest way to rename one thing, which
+        # is what a find-and-replace over names is usually being used for.
+        self._list.itemDoubleClicked.connect(self._on_mod_double_clicked)
         layout.addWidget(self._list, 1)
 
         self._status = QLabel("")
@@ -178,6 +182,14 @@ class FindAndRenameDialog(QDialog):
     def _sync_options(self) -> None:
         self._model.match_start = self._match_start.isChecked()
         self._model.match_case = self._match_case.isChecked()
+
+    def _on_mod_double_clicked(self, item) -> None:
+        """Put the double-clicked mod's name into Find and Replace (VB ``LvMods``)."""
+        name = (item.text() or "").strip()
+        if not name:
+            return
+        self._find.setText(name)
+        self._replace.setText(name)
 
     def _on_options_changed(self, *_a: object) -> None:
         self._sync_options()

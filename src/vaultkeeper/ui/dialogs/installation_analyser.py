@@ -104,6 +104,10 @@ class InstallationAnalyser(QDialog):
         self.folders = QListWidget()
         self.folders.setMaximumWidth(220)
         self.folders.currentRowChanged.connect(self._on_folder)
+        # Double-click does the row's own action, as in the original: a folder
+        # opens (VB LvFolders → CmOpenFolder), a file shows its properties
+        # (LvFiles → ShowProperties). Both were right-click-only here.
+        self.folders.itemDoubleClicked.connect(lambda *_: self._on_open_folder())
         panes.addWidget(self.folders)
 
         self.files = QTreeWidget()
@@ -112,6 +116,7 @@ class InstallationAnalyser(QDialog):
         self.files.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.files.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.files.customContextMenuRequested.connect(self._on_files_menu)
+        self.files.itemDoubleClicked.connect(lambda *_: self._on_file_properties())
         panes.addWidget(self.files, 1)
 
         self.total = QLabel()
