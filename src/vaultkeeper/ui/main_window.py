@@ -63,6 +63,8 @@ class MainWindow(QMainWindow):
         self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
         # Return renames on macOS, Finder-style (see FileView.keyPressEvent).
         self._tree.rename_requested.connect(self._on_rename)
+        # Clicking a mod's status icon installs or uninstalls it (newtopic28).
+        self._tree.state_icon_clicked.connect(self._on_state_icon_clicked)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
         # "You can click the Profile name to refresh the Mod List" — the heading
@@ -535,10 +537,16 @@ class MainWindow(QMainWindow):
 
         if not name:
             return
+        settings = load_settings()
         recent = [n for n in self._recent_mods if n != name]
         recent.insert(0, name)
-        max_recent = max(1, load_settings().max_recent_mods)
-        self._recent_mods = recent[:max_recent]
+        max_recent = max(1, settings.max_recent_mods)
+        # Trimming drops the oldest — except a pinned one, which is exactly the
+        # mod the user asked not to lose.
+        pinned = set(settings.pinned_recent_mods)
+        kept = recent[:max_recent]
+        kept += [n for n in recent[max_recent:] if n in pinned]
+        self._recent_mods = kept
         self._rebuild_recent_mods_menu()
 
     def _rebuild_recent_mods_menu(self) -> None:
@@ -550,10 +558,39 @@ class MainWindow(QMainWindow):
             self._recent_mods = [
                 n for n in self._recent_mods if self.controller.pd.mod_item(n) is not None
             ]
+        settings = load_settings()
+        # Pinned first, then the rest in order of use: a pinned mod is one you
+        # keep coming back to, and burying it under this morning's browsing is
+        # the thing pinning exists to stop.
+        pinned = [n for n in settings.pinned_recent_mods if n in self._recent_mods]
+        rest = [n for n in self._recent_mods if n not in pinned]
         self.nit_menu.populate_recent_mods(
-            self._recent_mods,
+            pinned + rest,
             self._select_mod_by_name,
-            numbered=load_settings().number_recent_mods,
+            numbered=settings.number_recent_mods,
+            pinned=pinned,
+            on_action=self._on_recent_mod_action,
+        )
+
+    def _on_recent_mod_action(self, what: str, name: str) -> None:
+        """Pin / Unpin / Remove from the Recent Mods list (VB's Actions menu)."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        pinned = [n for n in settings.pinned_recent_mods if n != name]
+        if what == "pin":
+            pinned.append(name)
+        elif what == "remove":
+            self._recent_mods = [n for n in self._recent_mods if n != name]
+        settings.pinned_recent_mods = pinned
+        save_settings(settings)
+        self._rebuild_recent_mods_menu()
+        self.nit_status.set_info(
+            {
+                "pin": f"'{name}' will stay in Recent Mods.",
+                "unpin": f"'{name}' is no longer pinned.",
+                "remove": f"'{name}' removed from Recent Mods.",
+            }.get(what, "")
         )
 
     def set_controller(self, controller: ProfileController) -> None:
@@ -1983,6 +2020,40 @@ class MainWindow(QMainWindow):
         self._validate_dialog = ValidateNwnDialog(report, self.controller, self)
         self._validate_dialog.finished.connect(lambda _r=0: self.refresh())
         self._validate_dialog.show()
+
+    def _on_state_icon_clicked(self, mod_name: str) -> None:
+        """Install or uninstall from the row's status icon (VB ``newtopic28``).
+
+        Confirmed first. The icon is a small target next to the one that merely
+        selects, and installing a mod by mis-clicking is not a mistake anyone
+        would forgive.
+        """
+        if self.controller is None:
+            return
+        md = self.controller.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return
+        installed = md.installed
+        verb = "Uninstall" if installed else "Install"
+        if (
+            QMessageBox.question(
+                self,
+                f"{verb} Mod",
+                f"{verb} '{mod_name}'?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        message = (
+            self.controller.uninstall([mod_name])
+            if installed
+            else self.controller.install([mod_name])
+        )
+        self.refresh()
+        self._select_mod_by_name(mod_name)
+        self.nit_status.set_info(message)
 
     def _on_new_contents_folder(self) -> None:
         """New folder in the selected mod's payload (VB ``MsNewFolder``).

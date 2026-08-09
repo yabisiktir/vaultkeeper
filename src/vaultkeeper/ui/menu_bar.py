@@ -375,6 +375,28 @@ MAC_MENU_ROLES: dict[str, str] = {
 MAC_PREFERENCES_PROXY = "MsSettings"
 
 
+def _recent_actions_menu(parent, name: str, is_pinned: bool, on_action):
+    """The per-entry Actions menu: Pin / Unpin / Remove (VB ``newtopic47``).
+
+    A submenu rather than a right-click handler: Qt gives a menu item no
+    context-menu event of its own, and a pinned entry is worth being able to
+    reach with the keyboard as well as the mouse.
+    """
+    from PySide6.QtWidgets import QMenu
+
+    menu = QMenu(parent)
+    if is_pinned:
+        unpin = menu.addAction("Unpin")
+        unpin.triggered.connect(lambda _=False: on_action("unpin", name))
+    else:
+        pin = menu.addAction("Pin")
+        pin.setToolTip("Keep this mod in the list however long ago it was used")
+        pin.triggered.connect(lambda _=False: on_action("pin", name))
+    remove = menu.addAction("Remove from this list")
+    remove.triggered.connect(lambda _=False: on_action("remove", name))
+    return menu
+
+
 class NitMenuBar(QMenuBar):
     """The main window menu bar (VB ``MsMenu``)."""
 
@@ -502,13 +524,25 @@ class NitMenuBar(QMenuBar):
             menu.addAction(act)
             self._run_user_actions.append(act)
 
-    def populate_recent_mods(self, names, on_select, *, numbered: bool = False) -> None:
+    def populate_recent_mods(
+        self,
+        names,
+        on_select,
+        *,
+        numbered: bool = False,
+        pinned=(),
+        on_action=None,
+    ) -> None:
         """Fill the Recent Mods submenu (VB ``MsRecentMods`` RecentItems manager).
 
         ``names`` is the recent mod names (most-recent first); ``on_select`` is called
         with a name when its entry is triggered. ``numbered`` prefixes each entry with
         its position (VB ``RecentItemImageType.Number`` vs the status-icon view). An
         empty list leaves the submenu present but disabled.
+
+        ``pinned`` names the entries that stay in the list however long ago they
+        were used, and ``on_action(what, name)`` receives ``"pin"``, ``"unpin"``
+        or ``"remove"`` from an entry's right-click menu (VB's Actions menu).
         """
         from PySide6.QtWidgets import QMenu
 
@@ -521,10 +555,15 @@ class NitMenuBar(QMenuBar):
             act.setMenu(menu)
         menu.clear()
         act.setEnabled(bool(names))
+        pinned = set(pinned)
         for index, name in enumerate(names, start=1):
             caption = f"{index}. {name}" if numbered else name
+            if name in pinned:
+                caption = f"📌 {caption}"
             entry = QAction(caption, self)
             entry.triggered.connect(lambda _=False, n=name: on_select(n))
+            if on_action is not None:
+                entry.setMenu(_recent_actions_menu(self, name, name in pinned, on_action))
             menu.addAction(entry)
 
     def action(self, item_id: str) -> QAction | None:

@@ -131,6 +131,9 @@ class Settings:
     #: When uninstalling a mod, also uninstall its dependency mods that are no
     #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
     uninstall_dependencies: bool = False
+    #: Mods pinned in the Recent Mods list — they stay however long ago they
+    #: were last used (VB's Pin/Unpin, ``newtopic47``).
+    pinned_recent_mods: list[str] = field(default_factory=list)
     #: The quick toolbar's contents, as ``{"action", "image", "caption"}`` rows
     #: (VB's Toolbar Editor). Empty means the default strip.
     quick_toolbar_items: list[dict] = field(default_factory=list)

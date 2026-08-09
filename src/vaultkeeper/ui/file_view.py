@@ -121,6 +121,9 @@ class FileView(QTreeWidget):
     mods_dropped_on_group = Signal(list, str)
     #: Emitted when Return is pressed on a selected mod (macOS rename idiom).
     rename_requested = Signal()
+    #: Emitted with a mod name when its *status icon* is clicked (VB newtopic28:
+    #: "You can click a Mod's install status icon to Install or Uninstall").
+    state_icon_clicked = Signal(str)
 
     def __init__(self, header: str = "Mods", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -128,6 +131,7 @@ class FileView(QTreeWidget):
         self.setSelectionMode(QTreeWidget.SelectionMode.ExtendedSelection)
         self.setRootIsDecorated(True)
         self.itemSelectionChanged.connect(self._on_selection_changed)
+        self.itemClicked.connect(self._on_item_clicked)
         # Drag mods onto a group to move them (VB FileView drag-drop). The drop is
         # applied through the model (move_to_group) rather than Qt's default
         # re-parent, so the profile stays authoritative.
@@ -135,6 +139,33 @@ class FileView(QTreeWidget):
         self.setAcceptDrops(True)
         self.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
         self.setDropIndicatorShown(True)
+
+    def _on_item_clicked(self, item, column: int) -> None:
+        """Clicking the *icon* means install/uninstall; the label means select.
+
+        The distinction has to be by x-position, because Qt reports a click on
+        the icon and a click on the text as the same item click. Anything past
+        the icon is an ordinary selection — otherwise picking a mod out of the
+        list would install it, which is not a mistake anyone would forgive.
+        """
+        from PySide6.QtGui import QCursor
+
+        name = item.data(0, _ROLE_MOD_NAME)
+        if not name:
+            return
+        x = self.viewport().mapFromGlobal(QCursor.pos()).x()
+        if self.is_over_icon(item, x):
+            self.state_icon_clicked.emit(name)
+
+    def is_over_icon(self, item, x: int) -> bool:
+        """Whether ``x`` (viewport coordinates) is on the row's status icon.
+
+        ``visualItemRect`` already accounts for the row's indentation, so its
+        left edge is where the icon starts.
+        """
+        rect = self.visualItemRect(item)
+        icon_width = self.iconSize().width() or 16
+        return rect.left() <= x <= rect.left() + icon_width + 4
 
     def keyPressEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Return renames the selected mod, the way Finder does.

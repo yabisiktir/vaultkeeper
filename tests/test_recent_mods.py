@@ -94,3 +94,96 @@ def test_clicking_recent_entry_selects_mod(qtbot, controller) -> None:
     alpha_action = next(a for a in menu.actions() if a.text() == "Alpha")
     alpha_action.trigger()
     assert win.selected_mod_names() == ["Alpha"]
+
+
+# -- Pin / Unpin / Remove (VB's Actions menu, newtopic47) ----------------------- #
+def _entries_with_pins(win) -> list[str]:
+    menu = win.nit_menu.action("MsRecentMods").menu()
+    return [a.text() for a in menu.actions()]
+
+
+def test_pinning_keeps_a_mod_at_the_top(qtbot, controller) -> None:
+    """A pinned mod is one you keep coming back to; burying it under this
+    morning's browsing is the thing pinning exists to stop."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+    win._select_mod_by_name("Beta")
+    assert win._recent_mods[0] == "Beta"
+
+    win._on_recent_mod_action("pin", "Alpha")
+
+    assert _entries_with_pins(win)[0].endswith("Alpha")
+    assert "📌" in _entries_with_pins(win)[0]
+
+
+def test_a_pinned_mod_survives_the_trim(qtbot, controller) -> None:
+    """Trimming drops the oldest — except the one the user asked not to lose."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.max_recent_mods = 2
+    save_settings(settings)
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+    win._on_recent_mod_action("pin", "Alpha")
+    win._select_mod_by_name("Beta")
+    win._select_mod_by_name("Gamma")
+    win._select_mod_by_name("Beta")
+
+    assert "Alpha" in win._recent_mods, "pinned, so kept past the cap"
+    assert len(win._recent_mods) == 3
+
+
+def test_unpinning_lets_it_fall_back_into_order(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+    win._select_mod_by_name("Beta")
+    win._on_recent_mod_action("pin", "Alpha")
+    assert _entries_with_pins(win)[0].endswith("Alpha")
+
+    win._on_recent_mod_action("unpin", "Alpha")
+    assert _entries_with_pins(win)[0] == "Beta"
+    assert "📌" not in " ".join(_entries_with_pins(win))
+
+
+def test_removing_takes_it_out_of_the_list(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+    win._select_mod_by_name("Beta")
+
+    win._on_recent_mod_action("remove", "Alpha")
+    assert win._recent_mods == ["Beta"]
+    assert _entries_with_pins(win) == ["Beta"]
+
+
+def test_pins_persist(qtbot, controller) -> None:
+    from vaultkeeper.config.settings import load_settings
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+    win._on_recent_mod_action("pin", "Alpha")
+
+    assert load_settings().pinned_recent_mods == ["Alpha"]
+
+
+def test_each_entry_carries_its_actions_menu(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+
+    entry = win.nit_menu.action("MsRecentMods").menu().actions()[0]
+    labels = [a.text() for a in entry.menu().actions()]
+    assert labels == ["Pin", "Remove from this list"]
+
+    win._on_recent_mod_action("pin", "Alpha")
+    entry = win.nit_menu.action("MsRecentMods").menu().actions()[0]
+    assert [a.text() for a in entry.menu().actions()] == [
+        "Unpin",
+        "Remove from this list",
+    ]

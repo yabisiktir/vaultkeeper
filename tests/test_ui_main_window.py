@@ -1369,3 +1369,64 @@ def test_the_properties_heading_toggles_the_automatic_height(qtbot, controller) 
     win._details_list.header().sectionClicked.emit(0)
     assert load_settings().auto_properties_height is False
     assert action.isChecked() is False
+
+
+def test_clicking_a_mods_status_icon_offers_to_install_it(qtbot, controller, monkeypatch) -> None:
+    """newtopic28: "You can click a Mod's install status icon to Install or
+    Uninstall a Mod." Confirmed first — the icon sits next to the target that
+    merely selects, and installing by mis-click is not a forgivable mistake."""
+    from PySide6.QtWidgets import QMessageBox
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    asked: list[str] = []
+
+    def fake_question(parent, title, text, *a, **k):
+        asked.append(title)
+        return QMessageBox.StandardButton.Yes
+
+    monkeypatch.setattr(QMessageBox, "question", fake_question)
+    installed: list[str] = []
+    monkeypatch.setattr(
+        controller, "install", lambda names: installed.extend(names) or "installed"
+    )
+
+    win._on_state_icon_clicked("Alpha")
+
+    assert asked == ["Install Mod"]
+    assert installed == ["Alpha"]
+
+
+def test_declining_the_status_icon_changes_nothing(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QMessageBox
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.No
+    )
+    touched: list[str] = []
+    monkeypatch.setattr(controller, "install", lambda names: touched.extend(names))
+    monkeypatch.setattr(controller, "uninstall", lambda names: touched.extend(names))
+
+    win._on_state_icon_clicked("Alpha")
+    assert touched == []
+
+
+def test_only_the_icon_counts_not_the_label(qtbot, controller) -> None:
+    """Qt reports a click on the icon and one on the text as the same item
+    click, so the two are told apart by where the pointer was. Picking a mod out
+    of the list must not install it."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.show()
+    qtbot.waitExposed(win)
+
+    assert win._tree.select_mod("Alpha")
+    item = win._tree.currentItem()
+    rect = win._tree.visualItemRect(item)
+
+    assert win._tree.is_over_icon(item, rect.left() + 2), "on the icon"
+    assert not win._tree.is_over_icon(item, rect.left() + 200), "on the label"
+    assert not win._tree.is_over_icon(item, rect.left() - 10), "left of the row"
