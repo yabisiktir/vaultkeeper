@@ -110,6 +110,8 @@ class MainWindow(QMainWindow):
         splitter.addWidget(sc_mod)
         splitter.setStretchFactor(0, 2)
         splitter.setStretchFactor(1, 5)
+        # Held so Reset Window Layout can put them back (VB MsResetWindow).
+        self._splitters = (splitter, sc_mod, sc_contents, sc_details)
 
         # Command chrome (faithful ports of the VB ribbon/toolbar/status bar).
         self.ribbon = Ribbon()
@@ -1215,6 +1217,11 @@ class MainWindow(QMainWindow):
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
             "MsValidateModWebLinks": self._on_validate_mod_web_links,
+            # Options-menu housekeeping — all three were greyed out as "not yet
+            # available" while doing nothing more than resetting local state.
+            "MsResetWindow": self._on_reset_window_layout,
+            "MsClearWaitCursors": self._on_clear_wait_cursors,
+            "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsExtractPortraits": self._on_extract_portraits,
@@ -1711,6 +1718,52 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(
                 "No portrait image web page is set (Settings → Character / Save Viewer)."
             )
+
+    # -- Options-menu housekeeping (VB Options menu) ------------------------ #
+    def _on_reset_window_layout(self) -> None:
+        """Put the window and its panels back to their defaults (VB ``MsResetWindow``).
+
+        Both halves matter: forgetting the saved geometry alone leaves the
+        splitters wherever they were dragged, which is usually the thing that
+        went wrong.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        settings.window_geometry = ""
+        save_settings(settings)
+        self.resize(1200, 760)
+        for splitter in self._splitters:
+            # Equal shares, then the stretch factors reassert the intended
+            # proportions on the next layout pass.
+            count = splitter.count()
+            if count:
+                splitter.setSizes([1] * count)
+        self.nit_status.set_info("Window layout reset.")
+
+    def _on_clear_wait_cursors(self) -> None:
+        """Release any stuck busy cursor (VB ``MsClearWaitCursors``).
+
+        An override cursor that outlives the work it belonged to leaves the whole
+        application looking hung when it is not. This is the escape hatch.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        cleared = 0
+        while QApplication.overrideCursor() is not None:
+            QApplication.restoreOverrideCursor()
+            cleared += 1
+            if cleared > 32:  # a runaway stack is a bug, not a reason to hang here
+                break
+        self.nit_status.set_info(
+            f"Cleared {cleared} wait cursor(s)." if cleared else "No wait cursor was set."
+        )
+
+    def _on_clear_selection_history(self) -> None:
+        """Empty the Recent Mods list (VB ``MsClearSelectionHistory``)."""
+        self._recent_mods = []
+        self._rebuild_recent_mods_menu()
+        self.nit_status.set_info("Recent Mods cleared.")
 
     def _on_open_recycle_bin(self) -> None:
         """Open the OS trash (VB ``BtRecycleToggle`` right-click → explorer)."""

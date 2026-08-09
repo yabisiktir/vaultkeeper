@@ -1215,3 +1215,66 @@ def test_double_click_never_does_what_the_buttons_refuse(qtbot, controller) -> N
     win._act_uninstall.setEnabled(False)
     win._on_mod_double_clicked(item)
     assert not controller.pd.mod_item("Alpha").installed
+
+
+# -- Options-menu housekeeping (VB Options menu) ------------------------------- #
+def test_the_options_housekeeping_commands_are_live(qtbot, controller) -> None:
+    """All three were greyed as "not yet available" while doing nothing more
+    than resetting local state."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    implemented = win.implemented_commands()
+    for command in ("MsResetWindow", "MsClearWaitCursors", "MsClearSelectionHistory"):
+        assert command in implemented
+        assert win.nit_menu.action(command).isEnabled()
+
+
+def test_clearing_wait_cursors_releases_a_stuck_one(qtbot, controller) -> None:
+    """An override cursor outliving its work makes the app look hung."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+    QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+    win._on_clear_wait_cursors()
+    assert QApplication.overrideCursor() is None
+    assert "Cleared 2" in win.nit_status.mg_info.text()
+
+
+def test_clearing_wait_cursors_with_none_set_says_so(qtbot, controller) -> None:
+    from PySide6.QtWidgets import QApplication
+
+    while QApplication.overrideCursor() is not None:
+        QApplication.restoreOverrideCursor()
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_clear_wait_cursors()
+    assert "No wait cursor" in win.nit_status.mg_info.text()
+
+
+def test_clearing_selection_history_empties_recent_mods(qtbot, controller) -> None:
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._record_recent_mod("Alpha")
+    win._record_recent_mod("Beta")
+    assert win._recent_mods
+    win._on_clear_selection_history()
+    assert win._recent_mods == []
+
+
+def test_resetting_the_layout_forgets_the_saved_geometry(qtbot, controller) -> None:
+    """Forgetting the geometry alone leaves the splitters where they were
+    dragged, which is usually the thing that went wrong."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.window_geometry = "c29tZXRoaW5n"
+    save_settings(settings)
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._on_reset_window_layout()
+    assert load_settings().window_geometry == ""
+    assert win._splitters  # and the panes were put back too

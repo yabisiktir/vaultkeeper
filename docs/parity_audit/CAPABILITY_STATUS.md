@@ -125,6 +125,21 @@ Worth knowing for anyone testing these: **Qt does not deliver shortcuts under
 the offscreen platform**, so the suite can only assert the binding. Firing was
 checked on a real platform through the CrossOver bottle.
 
+## The Options menu's housekeeping commands
+
+Eight sat on the menu greyed out as "not yet available". Reviewed as a cluster:
+
+| Command | Verdict |
+|---|---|
+| `MsResetWindow` — Reset Window Layout | **Ported.** Forgets the saved geometry *and* puts the splitters back; forgetting the geometry alone leaves the panes where they were dragged, which is usually what went wrong |
+| `MsClearWaitCursors` | **Ported.** An override cursor outliving its work makes the whole app look hung; this is the escape hatch |
+| `MsClearSelectionHistory` | **Ported.** Empties Recent Mods |
+| `MsClearScrollInfo` — Clear Text Position Information | Not applicable: it clears remembered scroll positions in VB's text viewers, and this port does not remember any |
+| `MsResetWebMenu` — Reset Web Menu Icons | Not applicable: it re-fetches favicons for the Web menu, and this port does not fetch them |
+| `MsResetTaskbarIcon` | Not applicable: a Windows taskbar/jump-list concern |
+| `MsPropertiesHeight` — Automatic Properties Panel Height | Open. A real preference: auto-size the properties pane rather than leaving it where the splitter sits |
+| `MsUpdateEeFiles` — Update Enhanced Edition Files | **Open, and the largest of the eight.** No controller support at all |
+
 ## Not yet reviewed
 
 Everything else. `capability_sweep.py` lists them; the remaining topics are
