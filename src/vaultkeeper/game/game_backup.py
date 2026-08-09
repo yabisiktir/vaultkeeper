@@ -14,6 +14,7 @@ Sizes/counts come from the :class:`GameSaves` scanner. All folder moves go throu
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from vaultkeeper.game.game_saves import (
     NO_SAVES_TEXT,
     GameSaveFolderType,
     GameSaves,
+    GameSaveType,
 )
 
 #: Sub-path (under the store root) holding deactivated-game backups (VB
@@ -95,6 +97,71 @@ def deactivate_game(saves: GameSaves, saves_dir: Path, backup_root: Path) -> Bac
         moved=len(moved_paths),
         errors=errors,
         folder=backup_folder,
+        message=message,
+    )
+
+
+def auto_backup_other_games(
+    saves: GameSaves, backup_root: Path
+) -> BackupResult:
+    """Back up saves that belong to any mod but the one being played (VB ``SanitiseGameSaves``).
+
+    Run when the manager opens. NWN keeps every mod's saves in one folder, so
+    playing a module that chains into its next chapter leaves two mods' saves
+    side by side; this moves all but the current mod's into their own backup
+    folders, one per mod, so the live folder holds only the game in play.
+
+    Quick Saves and Auto Saves stay where they are whatever mod they belong to
+    — the help says so outright, and moving the slot the game is about to
+    overwrite would be a poor trade for tidiness.
+    """
+    current = saves.current_game_save
+    if not saves.folders or current == NO_SAVES_TEXT:
+        return BackupResult(ok=True, message="")
+
+    groups: dict[str, list] = {}
+    for gsi in saves.folders:
+        if gsi.game_save_name == current or gsi.save_type != GameSaveType.STANDARD:
+            continue
+        groups.setdefault(gsi.game_save_name, []).append(gsi)
+    if not groups:
+        return BackupResult(ok=True, message="")
+
+    moved_paths: list[Path] = []
+    errors = 0
+    for game_name, folders in groups.items():
+        backup_folder = backup_root / game_name
+        try:
+            fs.ensure_dir(backup_folder)
+        except OSError:
+            errors += len(folders)
+            continue
+        for gsi in folders:
+            try:
+                fs.move_dir(gsi.full_name, backup_folder / gsi.name, overwrite=True)
+                moved_paths.append(gsi.full_name)
+            except OSError:
+                errors += 1
+    if moved_paths:
+        saves.remove(moved_paths)
+
+    # An empty backup folder for the game still being played is just clutter.
+    current_backup = backup_root / current
+    if current_backup.is_dir() and not any(current_backup.iterdir()):
+        with contextlib.suppress(OSError):
+            current_backup.rmdir()
+
+    message = (
+        f"Auto-Backup performed for {len(groups):,} "
+        f"{'Mod' if len(groups) == 1 else 'Mods'}: "
+        f"moved {to_plural(len(moved_paths), 'game save')}."
+    )
+    if errors:
+        message += f" Errors: {errors:,}."
+    return BackupResult(
+        ok=not errors,
+        moved=len(moved_paths),
+        errors=errors,
         message=message,
     )
 

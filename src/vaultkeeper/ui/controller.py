@@ -4041,6 +4041,19 @@ class ProfileController:
             "backup_total_bytes": total,
         }
 
+    def auto_backup_other_games(self) -> dict:
+        """Move other mods' saves out of the live folder (VB ``SanitiseGameSaves``).
+
+        Called when the Game Saves Manager opens, which is where VB does it.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": True, "moved": 0, "message": ""}
+        from vaultkeeper.game.game_backup import auto_backup_other_games
+
+        result = auto_backup_other_games(loop.game_saves(), self.game_backup_root())
+        return {"ok": result.ok, "moved": result.moved, "message": result.message}
+
     def deactivate_current_game(self) -> dict:
         """Deactivate the active game into a backup (VB ``DeactivateGame``)."""
         loop = self.play_loop

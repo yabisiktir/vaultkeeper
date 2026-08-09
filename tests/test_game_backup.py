@@ -106,3 +106,88 @@ def test_delete_game_backup(tmp_path):
 def test_delete_missing_backup(tmp_path):
     result = gb.delete_game_backup(tmp_path / "Nope")
     assert not result.ok
+
+
+# -- Auto-backup on opening the manager (VB SanitiseGameSaves) ----------------- #
+def test_other_mods_saves_are_moved_aside_when_the_manager_opens(tmp_path):
+    """NWN keeps every mod's saves in one folder, and a module that chains into
+    its next chapter leaves two mods' saves side by side."""
+    saves_dir = tmp_path / "saves"
+    _make_save(saves_dir, 10, "Chapter One")
+    _make_save(saves_dir, 11, "Chapter One")
+    _make_save(saves_dir, 20, "Chapter Two")
+    backup_root = tmp_path / "Backups"
+
+    saves = _saves(saves_dir)
+    current = saves.current_game_save
+    result = gb.auto_backup_other_games(saves, backup_root)
+
+    assert result.ok and result.moved == 2, result.message
+    # Only the game being played is left live.
+    live = sorted(p.name for p in saves_dir.iterdir())
+    assert all(current in name for name in live), live
+    assert sorted(p.name for p in (backup_root / "Chapter One").iterdir()) == [
+        "000010 - Chapter One",
+        "000011 - Chapter One",
+    ]
+    assert "1 Mod" in result.message
+
+
+def test_one_mods_saves_are_left_alone(tmp_path):
+    saves_dir = tmp_path / "saves"
+    _make_save(saves_dir, 1, "Adventure")
+    _make_save(saves_dir, 2, "Adventure")
+    backup_root = tmp_path / "Backups"
+
+    result = gb.auto_backup_other_games(_saves(saves_dir), backup_root)
+
+    assert result.moved == 0 and result.message == ""
+    assert len(list(saves_dir.iterdir())) == 2
+    assert not backup_root.exists()
+
+
+def test_quick_and_auto_saves_stay_whatever_mod_they_belong_to(tmp_path):
+    """The help is explicit about this, and it is the safer behaviour: the game
+    is about to overwrite those slots anyway."""
+    saves_dir = tmp_path / "saves"
+    _make_save(saves_dir, 0, "Another Mod")  # 000000 = Quick Save
+    _make_save(saves_dir, 1, "Another Mod")  # 000001 = Auto Save
+    _make_save(saves_dir, 30, "Current Mod")
+    backup_root = tmp_path / "Backups"
+
+    result = gb.auto_backup_other_games(_saves(saves_dir), backup_root)
+
+    assert result.moved == 0, result.message
+    assert len(list(saves_dir.iterdir())) == 3
+
+
+def test_each_mod_gets_its_own_backup_folder(tmp_path):
+    saves_dir = tmp_path / "saves"
+    _make_save(saves_dir, 10, "Mod A")
+    _make_save(saves_dir, 20, "Mod B")
+    _make_save(saves_dir, 30, "Mod C")
+    backup_root = tmp_path / "Backups"
+
+    result = gb.auto_backup_other_games(_saves(saves_dir), backup_root)
+
+    assert result.moved == 2
+    assert sorted(p.name for p in backup_root.iterdir()) == ["Mod A", "Mod B"]
+    assert "2 Mods" in result.message
+
+
+def test_an_empty_backup_folder_for_the_live_game_is_cleared_away(tmp_path):
+    saves_dir = tmp_path / "saves"
+    _make_save(saves_dir, 10, "Old Mod")
+    _make_save(saves_dir, 20, "Live Mod")
+    backup_root = tmp_path / "Backups"
+    (backup_root / "Live Mod").mkdir(parents=True)
+
+    gb.auto_backup_other_games(_saves(saves_dir), backup_root)
+
+    assert not (backup_root / "Live Mod").exists(), "empty, and the game is live"
+    assert (backup_root / "Old Mod").is_dir()
+
+
+def test_an_empty_saves_folder_is_not_an_error(tmp_path):
+    result = gb.auto_backup_other_games(_saves(tmp_path / "saves"), tmp_path / "B")
+    assert result.ok and result.moved == 0

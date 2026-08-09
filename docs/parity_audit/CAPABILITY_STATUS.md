@@ -58,7 +58,9 @@ them.
 | dealwithmodupdates.htm | Deal with Mod updates | **Now complete** — Move to Folder and Move to History were the missing steps |
 | bhmodsplayed.htm | Mods I have not played for a long time | Ported (`MsModsPlayed`) |
 | usealtkey.htm | Use Alt-Key shortcuts | Ported — every menu title carries its mnemonic, and Qt does the rest |
-| automaticbackupofgamesaves.htm | Automatic backup of Game Saves | UNREVIEWED — needs a look at the Game Saves Manager's open path |
+| automaticbackupofgamesaves.htm | Automatic backup of Game Saves | **Was a GAP, now closed** — runs when the manager opens |
+| bhgamemanager.htm | Work with Game Saves | Ported (Game Saves Manager) |
+| bhgamemapper.htm | Link Game Save to Mod name | Ported (the play loop's prompter) |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -90,6 +92,27 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Auto-backup of game saves — a behaviour with no control at all
+
+Not a command, not a dialog, not even a menu item: it happens *because you
+opened the Game Saves Manager*. NWN keeps every mod's saves in one folder, so a
+module that chains into its next chapter leaves two mods' saves side by side;
+opening the manager moves all but the current mod's into a backup folder each,
+so the live folder holds only the game in play.
+
+Two things worth keeping:
+
+- **Quick Saves and Auto Saves stay put**, whatever mod they belong to. The help
+  says so outright, and it is the safer reading — the game is about to overwrite
+  those slots anyway.
+- The report has to be taken **after** the backup runs, or it describes a folder
+  that has just moved.
+
+★ The test asserts the *invariant* (the live folder ends up holding one mod's
+standard saves) rather than naming which mod wins — "current" is the newest
+save, so asserting a particular folder just re-implements `current_game_save`
+in the test, and my first attempt got it wrong that way.
 
 ## Find: one command, three meanings
 

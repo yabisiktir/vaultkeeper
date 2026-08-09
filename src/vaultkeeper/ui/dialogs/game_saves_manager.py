@@ -113,6 +113,12 @@ class GameSavesManager(QDialog):
         self.backup_total = QLabel()
         layout.addWidget(self.backup_total)
 
+        # VB reports the auto-backup on the manager's own status line, not in a
+        # message box: it is something that has already happened, not a question.
+        self.status = QLabel("")
+        self.status.setWordWrap(True)
+        layout.addWidget(self.status)
+
         button_row = QHBoxLayout()
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -232,6 +238,10 @@ class GameSavesManager(QDialog):
         self.summary_button.setEnabled(has_save)
         self.open_button.setEnabled(has_save)
 
+    def set_status(self, text: str) -> None:
+        """Show a line about something the manager did on the way in."""
+        self.status.setText(text)
+
     def _refresh(self) -> None:
         if self._controller is not None:
             report = self._controller.game_saves_report()
@@ -334,9 +344,17 @@ class GameSavesManager(QDialog):
 
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> GameSavesManager:
-        """Build and show the manager for a controller's game-saves report."""
+        """Build and show the manager for a controller's game-saves report.
+
+        Opening it is also when other mods' saves are moved aside (VB
+        ``SanitiseGameSaves``, from ``PopulateSaveList``) — so the report is
+        taken *after* that, or it would describe a folder that no longer exists.
+        """
+        auto = controller.auto_backup_other_games()
         report = controller.game_saves_report()
         report["backup"] = controller.deactivated_games_report()
         dlg = cls(report, controller, parent)
+        if auto.get("message"):
+            dlg.set_status(auto["message"])
         dlg.show()
         return dlg

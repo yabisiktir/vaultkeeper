@@ -214,3 +214,40 @@ def test_dialog_deactivate_button(qtbot, tmp_path, monkeypatch):
     assert dlg.games.topLevelItem(0).text(0) == "Adventure"
     # Active list emptied.
     assert dlg.table.topLevelItemCount() == 0
+
+
+def test_opening_the_manager_moves_other_mods_saves_aside(qtbot, tmp_path):
+    """VB does this from PopulateSaveList, so it happens on the way in — and the
+    report has to be taken afterwards or it describes a folder that has moved."""
+    controller = _controller(tmp_path)
+    other = tmp_path / "gameuser" / "saves" / "000005 - other"
+    other.mkdir(parents=True)
+    (other / "Chapter Two.sav").write_bytes(b"\x00" * 32)
+    (other / "savenfo.txt").write_text("Elsewhere", encoding="utf-8")
+
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    assert "Auto-Backup" in dlg.status.text()
+
+    # The invariant, not a particular folder: the live folder holds saves for
+    # one mod only (the newest is the one being played), and the quicksave stays
+    # wherever it is. Asserting which mod wins would just re-implement
+    # current_game_save in the test.
+    report = controller.game_saves_report()
+    standard = {
+        r["save"] for r in report["rows"] if not r["name"].startswith(("000000", "000001"))
+    }
+    assert len(standard) == 1, standard
+    assert any(r["name"] == "000000 - quicksave" for r in report["rows"])
+
+    backups = controller.game_backup_root()
+    moved = [p.name for p in backups.iterdir()] if backups.is_dir() else []
+    assert len(moved) == 1 and moved[0] not in standard
+
+
+def test_opening_the_manager_says_nothing_when_there_is_one_mod(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert dlg.status.text() == ""
