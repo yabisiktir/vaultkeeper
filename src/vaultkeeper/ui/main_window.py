@@ -1287,6 +1287,7 @@ class MainWindow(QMainWindow):
             "RbnModExplorer": self._on_mod_explorer,
             "TsModExplorer": self._on_mod_explorer,
             # Backup / restore.
+            "MsBackupManager": self._on_backup_manager,
             "MsBackupData": self._on_backup_data,
             "RbnBackupData": self._on_backup_data,
             "MsRestoreData": self._on_restore_data,
@@ -2205,6 +2206,14 @@ class MainWindow(QMainWindow):
             on_add_recent=self._record_recent_mod,
         )
 
+    def _on_backup_manager(self) -> None:
+        """Open the Backup and Export Manager (VB ``MsBackupManager``)."""
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.backup_manager import BackupManager
+
+        self._backup_manager = BackupManager.show_for(self.controller, self)
+
     def _on_backup_data(self) -> None:
         if self.controller is None:
             return
@@ -2271,7 +2280,14 @@ class MainWindow(QMainWindow):
                 self, "Export Mods", "Select the mods you want to export first."
             )
             return
-        folder = QFileDialog.getExistingDirectory(self, "Export the selected mods to")
+        # Offered against the store's own Exported Mods folder, which is where
+        # the Backup and Export Manager looks. Somewhere else is still fine —
+        # it just will not be listed there afterwards.
+        default = self.controller.exported_mods_dir()
+        default.mkdir(parents=True, exist_ok=True)
+        folder = QFileDialog.getExistingDirectory(
+            self, "Export the selected mods to", str(default)
+        )
         if not folder:
             return
 

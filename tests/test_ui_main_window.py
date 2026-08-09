@@ -388,8 +388,8 @@ def test_ribbon_install_action_drives_install(qtbot, controller) -> None:
 def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
-    # A command not wired yet (e.g. Backup Manager) reports "not available".
-    win._on_command("MsBackupManager")
+    # A command not wired yet reports "not available" rather than doing nothing.
+    win._on_command("MsResetTaskbarIcon")
     assert "not available" in win.nit_status.mg_info.text().lower()
 
 
@@ -720,7 +720,7 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsBackupManager", "MsResetTaskbarIcon"):
+    for dead_id in ("MsResetTaskbarIcon", "MsClearScrollInfo"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented

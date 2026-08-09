@@ -32,7 +32,7 @@ them.
 | recovergroup.htm | Recover Group information | Ported |
 | recovermodproperties.htm | Recover Mod Property information | Ported |
 | calculatecrcs.htm | Calculate checksum values | Ported |
-| databackups.htm | Backup and Restore the Installer Tool's data | Ported (Backup and Export Manager) |
+| databackups.htm | Backup and Restore the Installer Tool's data | Ported — Backup/Restore Data always worked; the *Manager* did not exist until now |
 | newtopic51.htm | Send diagnostic information to Surazal | Ported (menu entry) |
 | bhdownloadproject.htm | Download and install Vault Projects | Ported — see `docs/vault_downloads.md` |
 | exportedmods.htm | Export and Import Mods | Ported (`.vkmod`) |
@@ -69,6 +69,13 @@ them.
 | customisecolours.htm | Customise Colours | **Bounded port, now wider** — the 4 colours this app paints with, not VB's 25 |
 | customisetheinstallertool.htm | Customise the Installer Tool | Ported — Basic and Advanced Settings both reachable from Options |
 | customisemodinstallers.htm | Customise Mod Installers | Ported — Map Excludes, Wizard Builder and the review flow all exist |
+| bhbackupmanager.htm | Work with backups and exports | **Was a GAP, now closed** — the menu item did nothing |
+| bhmapexcludes.htm / bhmapextensions.htm / bhmapfiles.htm / bhmapfolders.htm | The four map pages | Ported (Folder Mapping's four tabs) |
+| bhadvanced.htm / bhlocations.htm / bhpreferences.htm / bhprofiles.htm / bhrunmenu.htm / bhwebmenu.htm | Settings pages | Ported (Settings tabs) |
+| bhaliaseditor.htm | Use the Alias Section Editor | Ported (`MsAliasSection`) |
+| bhdocmanager.htm | Organise Mod Documentation | Ported (`MsDocOrganiser`) |
+| bhhelp.htm | Change the Hak Patch sequence | Ported (`MsHakPatchEditor`) |
+| bhinstallationanalyser.htm / bhinstallationmanager.htm / bhpublishmod.htm / bhwizardbuilder.htm / bhdependencymanager.htm / bhbasicsettings.htm | Their screens | Ported |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -100,6 +107,29 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## The `bh*` topics, checked rather than read
+
+The 26 `bh*` topics are the button-help ones, so their file name *is* a control
+id and they can be checked instead of read. 24 of 26 turned out ported; the
+sweep's value was the two that were not.
+
+★ Do the check with `implemented_commands()` and the **real** id, not a guessed
+one. My first pass guessed `MsAliasSectionEditor`, `MsFolderMapping`,
+`MsRunMenuEditor` — the actual ids are `MsAliasSection`, `RbnMapFiles` and a
+Settings tab — and every guess came back a false NOT-FOUND. Same failure mode as
+the false *Ported*, in the other direction.
+
+**Backup and Export Manager** was the real gap: `MsBackupManager` sat in the
+Tools menu doing nothing, and `databackups.htm` was recorded Ported on the
+strength of Backup Data / Restore Data, which do work. The manager is the screen
+`corruptedprofiledata.htm` sends people to. Now built: three tabs, because the
+three are restored by three different routes; Restore offered only for a
+profile-store backup, since an archive needs unpacking and that is what Restore
+Data is for; Delete honours the recycle-bin preference. Exports now default to
+the store's own *Exported Mods* folder so the third tab has something to list.
+
+Still open from that sweep: `bhnitdownload.htm` (self-update).
 
 ## Fonts and colours — ported to the size of *this* application
 

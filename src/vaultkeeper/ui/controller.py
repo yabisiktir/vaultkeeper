@@ -2582,6 +2582,82 @@ class ProfileController:
             return []
         return sorted(folder.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
 
+    def exported_mods_dir(self) -> Path:
+        """Where exported ``.vkmod`` archives are kept by default (VB Exported Mods)."""
+        return self._settings().resolved_store().root / "Exported Mods"
+
+    def backup_manager_report(self) -> dict:
+        """What is in the backup and export areas (VB ``BackupManager``).
+
+        Three lists, because they are restored by three different routes and
+        deleting from one says nothing about the others.
+        """
+        from vaultkeeper.recovery import data_backups
+
+        store = self._settings().resolved_store()
+
+        def rows(paths) -> list[dict]:
+            out = []
+            for path in paths:
+                try:
+                    stat = path.stat()
+                except OSError:
+                    continue
+                out.append(
+                    {
+                        "name": path.name,
+                        "path": str(path),
+                        "size": stat.st_size,
+                        "modified": stat.st_mtime,
+                    }
+                )
+            return out
+
+        def newest(folder: Path, *patterns: str) -> list[Path]:
+            if not folder.is_dir():
+                return []
+            found: list[Path] = []
+            for pattern in patterns:
+                found += [p for p in folder.glob(pattern) if p.is_file()]
+            return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
+
+        return {
+            # Both kinds live here: the .json copies taken before a destructive
+            # operation, and the .7z/.zip archives Backup Data writes.
+            "data_backups": rows(data_backups(store.root) + newest(store.backups, "*.zip", "*.7z")),
+            "exported_settings": rows(self.exported_settings_files()),
+            "exported_mods": rows(newest(self.exported_mods_dir(), "*.vkmod")),
+            "folders": {
+                "data_backups": str(store.backups),
+                "exported_settings": str(store.exported_settings),
+                "exported_mods": str(self.exported_mods_dir()),
+            },
+        }
+
+    def delete_backup_files(self, paths: list[str]) -> dict:
+        """Delete backups/exports, honouring the recycle-bin preference (VB Delete)."""
+        from vaultkeeper.core import fs
+
+        to_trash = self._settings().recycle_on_delete
+        removed, failures = 0, []
+        for raw in paths:
+            try:
+                fs.delete(Path(raw), to_trash=to_trash, missing_ok=True)
+                removed += 1
+            except OSError as ex:
+                failures.append(f"{Path(raw).name}: {ex}")
+        where = "the recycle bin" if to_trash else "permanently"
+        message = f"Deleted {removed} item{'s' if removed != 1 else ''} ({where})."
+        if failures:
+            message += f" {len(failures)} could not be deleted."
+        return {"ok": not failures, "removed": removed, "message": message}
+
+    def restore_profile_backup(self, backup: str) -> str:
+        """Restore a profile-store backup taken before a destructive operation."""
+        from vaultkeeper.recovery import restore_backup
+
+        return restore_backup(Path(backup), self._settings().resolved_store().root)
+
     def import_settings(self, source: Path) -> dict:
         """Load an exported settings file back over the current preferences.
 
