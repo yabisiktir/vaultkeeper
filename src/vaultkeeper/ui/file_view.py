@@ -10,6 +10,8 @@ copy/paste, rich-text, custom-draw) are deferred.
 
 from __future__ import annotations
 
+import sys
+
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget
@@ -117,6 +119,8 @@ class FileView(QTreeWidget):
     selection_changed = Signal(list)
     #: Emitted (mod_names, target_group) when mods are dragged onto a group.
     mods_dropped_on_group = Signal(list, str)
+    #: Emitted when Return is pressed on a selected mod (macOS rename idiom).
+    rename_requested = Signal()
 
     def __init__(self, header: str = "Mods", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -131,6 +135,29 @@ class FileView(QTreeWidget):
         self.setAcceptDrops(True)
         self.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
         self.setDropIndicatorShown(True)
+
+    def keyPressEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        """Return renames the selected mod, the way Finder does.
+
+        Deliberately handled here rather than as a shortcut on the Rename action:
+        a window-wide ``Return`` shortcut is checked before the key ever reaches
+        the focused widget, so it swallows Return in every text field in the
+        window — including the inline editor this very command opens. Keeping it
+        in the list means a focused editor gets its own Return, because the list
+        is not what has focus then.
+        """
+        from PySide6.QtCore import Qt
+
+        if (
+            sys.platform == "darwin"
+            and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+            and not event.modifiers()
+            and self.selected_mod_names()
+        ):
+            self.rename_requested.emit()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def dropEvent(self, event) -> None:  # noqa: N802 (Qt override)
         from PySide6.QtCore import Qt

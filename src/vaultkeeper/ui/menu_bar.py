@@ -341,12 +341,16 @@ SHORTCUTS: dict[str, str] = {
 #: for most Mac users those two shortcuts simply never fire.
 #:
 #: These are *added*, not substituted: someone who has enabled function keys
-#: keeps the documented key, and gains the one their platform expects. Return is
-#: what Finder uses to rename; ⌘? is what macOS uses for help, and asking
-#: ``StandardKey`` for it gives the right answer per platform rather than a
-#: guess.
+#: keeps the documented key, and gains the one their platform expects. ⌘? is what
+#: macOS uses for help, and asking ``StandardKey`` for it gives the right answer
+#: per platform rather than a guess.
+#:
+#: Rename is **not** here, though Return is the Mac idiom for it. A window-wide
+#: ``Return`` shortcut is checked before the key reaches the focused widget, so
+#: it swallows Return in every text field in the window — verified: a focused
+#: line edit never sees it. Return-to-rename lives in the mod list instead
+#: (:class:`~vaultkeeper.ui.file_view.FileView`), which is where Finder puts it.
 MAC_EXTRA_SHORTCUTS: dict[str, object] = {
-    "MsRename": "Return",
     "MsViewHelp": QKeySequence.StandardKey.HelpContents,
 }
 

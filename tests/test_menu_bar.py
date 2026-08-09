@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 
 import pytest
+from PySide6.QtCore import Qt
 
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.menu_bar import MENUS, NitMenuBar
@@ -155,12 +156,6 @@ def test_the_function_keys_gain_a_mac_alternative(qtbot):
 
     bar = NitMenuBar()
     qtbot.addWidget(bar)
-    rename = [
-        s.toString(QKeySequence.SequenceFormat.NativeText)
-        for s in bar.action("MsRename").shortcuts()
-    ]
-    assert "F2" in rename, "the documented key is kept, not replaced"
-    assert "↵" in rename, "Finder renames with Return; so should this"
 
     # Help asks StandardKey rather than naming a key, so each platform gets its
     # own answer. What that answer *is* cannot be asserted here: under the
@@ -171,6 +166,10 @@ def test_the_function_keys_gain_a_mac_alternative(qtbot):
 
     assert MAC_EXTRA_SHORTCUTS["MsViewHelp"] is QKeySequence.StandardKey.HelpContents
     assert len(bar.action("MsViewHelp").shortcuts()) == 2
+
+    # Rename is pointedly NOT given a second shortcut here — see the FileView
+    # test below for why a window-wide Return is a trap.
+    assert [s.toString() for s in bar.action("MsRename").shortcuts()] == ["F2"]
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="macOS conventions")
@@ -206,3 +205,41 @@ def test_no_hand_rolled_quit_or_preferences_key(qtbot):
     assert "MsExit" not in SHORTCUTS
     assert "MsSettings" not in SHORTCUTS
     assert "MsBasicSettings" not in SHORTCUTS
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS rename idiom")
+def test_return_renames_from_the_mod_list_not_from_a_window_shortcut(qtbot):
+    """Return renames the selected mod, and only when the list has the key.
+
+    Rename's Mac shortcut deliberately is not on the action: Qt checks window
+    shortcuts *before* the key reaches the focused widget, so a bare ``Return``
+    there swallows Return in every text field in the window — including the
+    inline editor renaming itself opens (verified against a live cocoa app: the
+    focused line edit never saw its own Return). Handling the key in the list
+    means a focused editor keeps it, because the list does not have focus then.
+    """
+    from vaultkeeper.core.mod_data import ModData
+    from vaultkeeper.ui.file_view import FileView
+
+    view = FileView()
+    qtbot.addWidget(view)
+    view.populate([("......None", [ModData(group="......None", mod_name="Alpha")])])
+
+    asked: list[int] = []
+    view.rename_requested.connect(lambda: asked.append(1))
+
+    # Nothing selected: Return is not ours to take.
+    qtbot.keyClick(view, Qt.Key.Key_Return)
+    assert asked == []
+
+    view.setCurrentItem(view.topLevelItem(0))
+    qtbot.keyClick(view, Qt.Key.Key_Return)
+    assert asked == [1]
+
+    # A modified Return is somebody else's shortcut. Reset the modifier state
+    # afterwards: QTest leaves the app's keyboardModifiers() latched, and other
+    # widgets read it (Ctrl+click means something in this app), so a stray Ctrl
+    # leaks into whatever test runs next.
+    qtbot.keyClick(view, Qt.Key.Key_Return, Qt.KeyboardModifier.ControlModifier)
+    qtbot.keyClick(view, Qt.Key.Key_Escape)
+    assert asked == [1]

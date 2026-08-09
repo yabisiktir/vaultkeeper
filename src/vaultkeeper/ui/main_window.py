@@ -60,6 +60,8 @@ class MainWindow(QMainWindow):
         # is what VB's DoubleClickAction guard leaves them.
         self._tree.itemDoubleClicked.connect(self._on_mod_double_clicked)
         self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
+        # Return renames on macOS, Finder-style (see FileView.keyPressEvent).
+        self._tree.rename_requested.connect(self._on_rename)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
 
