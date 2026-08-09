@@ -125,3 +125,78 @@ def test_display_info_opens_the_listing_for_an_archive(qtbot, tmp_path: Path) ->
     assert isinstance(dialog, ArchiveContentsDialog)
     assert dialog.table.topLevelItemCount() == 3
     dialog.close()
+
+
+# -- Ctrl+O: open with the associated program (keyboardshortcuts.htm) -------- #
+
+
+def test_open_uses_the_systems_own_program(qtbot, tmp_path, monkeypatch):
+    """"Ctrl+O — Opens the selected folder or file with its associated program."
+
+    There was no such command at all, so a .doc walkthrough or a .pdf map could
+    be listed and never read.
+    """
+    from PySide6.QtGui import QDesktopServices
+
+    from vaultkeeper.core.file_key import FileKeyInfo
+    from vaultkeeper.ui.main_window import MainWindow
+
+    controller, archive = _controller(tmp_path)
+    md = controller.pd.mod_item("M")
+    md.files = [FileKeyInfo.mod_file("G", "M", "download\\pack.zip")]
+
+    opened: list[str] = []
+    monkeypatch.setattr(
+        QDesktopServices, "openUrl", lambda url: opened.append(url.toLocalFile()) or True
+    )
+
+    window = MainWindow(controller)
+    qtbot.addWidget(window)
+    window._contents_mod = "M"
+    window._contents.populate(controller.mod_contents_report("M"))
+
+    window._contents.select_file(("download", "pack.zip"))
+    window._on_open_with_default_app()
+    assert opened == [str(archive)]
+
+    # Nothing selected opens the mod's own folder — the "or folder" half.
+    window._contents.clearSelection()
+    window._contents.setCurrentItem(None)
+    window._on_open_with_default_app()
+    assert opened[-1] == str(controller.mod_folder("M"))
+
+
+def test_open_is_bound_to_the_pane_not_the_window(qtbot, tmp_path):
+    """Window-wide it would fire with a mod selected and nothing to open."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QShortcut
+
+    from vaultkeeper.ui.main_window import MainWindow
+
+    controller, _ = _controller(tmp_path)
+    window = MainWindow(controller)
+    qtbot.addWidget(window)
+
+    shortcut = window._open_shortcut
+    assert shortcut.key().toString() == "Ctrl+O"
+    assert shortcut.context() == Qt.ShortcutContext.WidgetShortcut
+    assert shortcut.parent() is window._contents
+    # And no *other* Ctrl+O crept in at window level.
+    others = [
+        s
+        for s in window.findChildren(QShortcut)
+        if s.key().toString() == "Ctrl+O" and s is not shortcut
+    ]
+    assert others == []
+
+
+def test_open_says_so_when_there_is_nothing_to_open(qtbot, tmp_path):
+    from vaultkeeper.ui.main_window import MainWindow
+
+    controller, _ = _controller(tmp_path)
+    window = MainWindow(controller)
+    qtbot.addWidget(window)
+    window._contents_mod = "Ghost"  # no such mod folder
+
+    window._on_open_with_default_app()
+    assert "nothing there to open" in window.nit_status.mg_info.text()

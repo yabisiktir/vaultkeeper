@@ -124,6 +124,8 @@ them.
 | renameaprofile.htm | Rename a Profile | **Was a GAP, now closed** |
 | newtopic17.htm | Use Download Project to define dependencies | **Was a GAP, now closed** — they were downloaded and discarded |
 | addorremovegroups.htm / updaterestorers.htm | Installation Set groups / Update Restorers | Ported |
+| keyboardshortcuts.htm | Keyboard Shortcuts | **Was partly ported** — the main window's 14 were right; Ctrl+O had no command behind it at all, and the Game Saves Manager's own four were missing |
+| filterbystartendorhenchman.htm | Filter by Start, End or Henchman | Ported (`mod_explorer._passes_number`, all four rules incl. the bare operator) |
 | bhpreferences.htm | Specify your Preferences | **Was partly ported** — the page existed; "changed this session is shown in italics" did not, so nine tabs had to be re-read to see what you were saving |
 | bhwebmenu.htm / bhrunmenu.htm | Customise the Web / Run menu | **Mostly ported, two gaps closed** — a new entry appended instead of landing after the selected one, and right-click did nothing. The ampersand Alt-key works for free (Qt reads it) |
 | reducefileclutter.htm | Reduce file clutter | **Half ported** — Move to Downloads was there, "view the contents of compressed files" was not; now reads the archive index |

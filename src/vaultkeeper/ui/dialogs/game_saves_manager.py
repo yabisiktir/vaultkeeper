@@ -182,7 +182,34 @@ class GameSavesManager(QDialog):
         button_row.addWidget(close_button)
         layout.addLayout(button_row)
 
+        self._install_shortcuts()
         self._populate(report)
+
+    def _install_shortcuts(self) -> None:
+        """The manager's own keys (``keyboardshortcuts.htm``).
+
+        The topic gives this dialog a shortcut table of its own — Ctrl+A
+        Activate, Ctrl+D Deactivate, Ctrl+Minus Reduce, Ctrl+Plus Restore — and
+        none of them existed. They are window-scoped *to this dialog*, so the
+        main window's Ctrl+A (Select All) is untouched while it is open, and
+        none of these keys mean anything to a text field.
+
+        A shortcut whose button is disabled does nothing, rather than acting on
+        a selection that is not there.
+        """
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        for keys, button in (
+            ("Ctrl+A", lambda: self.activate_button),
+            ("Ctrl+D", lambda: self.deactivate_button),
+            ("Ctrl+-", lambda: self.reduce_button),
+            ("Ctrl++", lambda: self.restore_button),
+        ):
+            shortcut = QShortcut(QKeySequence(keys), self)
+            shortcut.setContext(Qt.ShortcutContext.WindowShortcut)
+            shortcut.activated.connect(
+                lambda b=button: b().isEnabled() and b().click()
+            )
 
     # -- Rendering -------------------------------------------------------- #
     # -- Row actions (VB CmCharacterSummary / CmOpen) ---------------------- #

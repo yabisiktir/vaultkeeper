@@ -299,6 +299,11 @@ class ProfileController:
         )
         return path if path.is_file() else None
 
+    def mod_folder(self, mod_name: str) -> Path | None:
+        """A mod's folder on disk, or ``None`` if it is not there."""
+        path = self.ctx.profile_mods_dir / mod_name
+        return path if path.is_dir() else None
+
     def archive_listing(self, path: Path) -> list[dict] | None:
         """What is inside a compressed file, without unpacking it.
 

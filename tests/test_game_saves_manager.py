@@ -531,3 +531,39 @@ def test_the_button_needs_a_selected_save(qtbot, tmp_path):
 
     dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
     assert dlg.finished_button.isEnabled()
+
+
+def test_manager_has_its_own_documented_shortcuts(qtbot, tmp_path):
+    """keyboardshortcuts.htm gives this dialog a shortcut table; it had none."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QShortcut
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    keys = sorted(s.key().toString() for s in dlg.findChildren(QShortcut))
+    assert keys == ["Ctrl++", "Ctrl+-", "Ctrl+A", "Ctrl+D"]
+    # Scoped to this dialog, so the main window's Ctrl+A (Select All) is safe.
+    assert all(
+        s.context() == Qt.ShortcutContext.WindowShortcut
+        for s in dlg.findChildren(QShortcut)
+    )
+
+
+def test_a_shortcut_whose_button_is_disabled_does_nothing(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtGui import QKeySequence, QShortcut
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: 1 / 0)
+
+    restore = next(
+        s
+        for s in dlg.findChildren(QShortcut)
+        if s.key() == QKeySequence("Ctrl++")
+    )
+    assert not dlg.restore_button.isEnabled()  # nothing archived
+    restore.activated.emit()  # would raise if it clicked through

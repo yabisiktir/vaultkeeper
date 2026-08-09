@@ -108,6 +108,14 @@ class MainWindow(QMainWindow):
         self._contents.customContextMenuRequested.connect(
             self._show_contents_context_menu
         )
+        # keyboardshortcuts.htm gives Ctrl+O to "open the selected folder or
+        # file with its associated program". Bound to this pane, not the window:
+        # window-wide it would fire with a mod selected and nothing to open.
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        self._open_shortcut = QShortcut(QKeySequence("Ctrl+O"), self._contents)
+        self._open_shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+        self._open_shortcut.activated.connect(self._on_open_with_default_app)
         self._mod_info = QLabel("")
         self._mod_info.setWordWrap(True)
         self._mod_info.setTextFormat(Qt.TextFormat.RichText)
@@ -1280,6 +1288,7 @@ class MainWindow(QMainWindow):
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
         menu.addAction("Display Info", self._on_display_contents_info)
+        menu.addAction("Open\tCtrl+O", self._on_open_with_default_app)
         # reducefileclutter.htm: keep archives compressed, and still look inside.
         selected = self._contents.selected_file()
         if selected is not None and is_extractable(PurePath(selected[1]).suffix):
@@ -1356,6 +1365,37 @@ class MainWindow(QMainWindow):
             self._image_viewer = ImageViewer.show_for(path, self)
         else:
             self._on_view_contents_file()
+
+    def _on_open_with_default_app(self) -> None:
+        """Open the selection with its associated program (``keyboardshortcuts.htm``).
+
+        "Ctrl+O — Opens the selected folder or file with its associated
+        program." There was no such command at all: everything the Contents
+        pane offered opened *inside* Vaultkeeper, so a .doc walkthrough or a
+        .pdf map could be listed but never read.
+
+        A file opens itself; nothing selected opens the mod's folder, which is
+        the "or folder" half and the answer to "where does this actually live".
+        The key is bound on the Contents view rather than the window, so it
+        cannot fire with a mod selected and nothing to open.
+        """
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        if self.controller is None or self._contents_mod is None:
+            return
+        selected = self._contents.selected_file()
+        if selected is None:
+            target = self.controller.mod_folder(self._contents_mod)
+        else:
+            target = self.controller.mod_file_path(self._contents_mod, *selected)
+        if target is None or not target.exists():
+            self.nit_status.set_info("There is nothing there to open.")
+            return
+        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(target))):
+            self.nit_status.set_info(f"Nothing on this system opens {target.name}.")
+            return
+        self.nit_status.set_info(f"Opened {target.name}.")
 
     def _on_show_archive(self) -> None:
         """Look inside the selected compressed Contents file."""
