@@ -214,7 +214,7 @@ def test_the_confirmation_offers_to_find_missing_links(qtbot, controller, monkey
 
     dm.run_auto_dependencies(controller, None)
     assert "Find missing Vault links" in seen["label"]
-    assert seen["kwargs"] == {"find_links": True}
+    assert seen["kwargs"]["find_links"] is True
 
 
 # -- What the published rules already know ------------------------------------- #
@@ -311,3 +311,151 @@ def test_finding_missing_links_saves_only_an_unambiguous_match(controller):
 
     assert controller.pd.mod_item("CEP 3").web_link == "https://v/cep3"
     assert result["skipped"] == 0, "the one that could be identified now counts"
+
+
+# -- Progress, cancelling, and making the answer count (newtopic18) ------------- #
+def test_cancelling_stops_the_run_and_says_so(controller):
+    """VB warns that Cancel may take a moment because the current page finishes.
+    Ours stops at the next mod, and the count reported is what was looked at —
+    a run that was stopped must not read like a run that found nothing."""
+    seen: list[str] = []
+
+    def stop_after_one(done: int, total: int, label: str) -> bool:
+        seen.append(label)
+        return done >= 1
+
+    controller.project_required_projects = lambda url: []
+    result = controller.auto_mod_dependencies(on_progress=stop_after_one)
+
+    assert result["cancelled"] is True
+    assert result["checked"] == 1
+    assert result["message"].startswith("Stopped.")
+    assert len(seen) == 2, "asked before each mod, and stopped at the second"
+
+
+def test_progress_reports_each_mod(controller):
+    calls: list[tuple] = []
+    controller.project_required_projects = lambda url: []
+    controller.auto_mod_dependencies(
+        on_progress=lambda done, total, label: calls.append((done, total, label)) or False
+    )
+    assert [c[1] for c in calls] == [2, 2]
+    assert {c[2] for c in calls} == {"Swordflight", "CEP 2.6"}
+
+
+def test_it_offers_to_turn_on_uninstall_dependencies(qtbot, controller, monkeypatch):
+    """Knowing a mod needs CEP does nothing on its own — the preference that
+    uses it is off by default, so VB asks about it once it has become useful."""
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.config.settings import load_settings, save_settings
+    from vaultkeeper.ui.dialogs import dependency_manager as dm
+
+    settings = load_settings()
+    settings.uninstall_dependencies = False
+    save_settings(settings)
+
+    asked: list[str] = []
+
+    def fake_question(parent, title, text, *a, **k):
+        asked.append(text)
+        return QMessageBox.StandardButton.Yes
+
+    monkeypatch.setattr(QMessageBox, "question", fake_question)
+    dm._offer_dependency_uninstall(controller, None, {"updated": 1, "cancelled": False})
+
+    assert asked and "Uninstall Mod Dependencies" in asked[0]
+    assert load_settings().uninstall_dependencies is True
+
+
+def test_it_does_not_ask_when_nothing_was_found(qtbot, controller, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.ui.dialogs import dependency_manager as dm
+
+    asked: list[int] = []
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        lambda *a, **k: asked.append(1) or QMessageBox.StandardButton.Yes,
+    )
+    dm._offer_dependency_uninstall(controller, None, {"updated": 0, "cancelled": False})
+    dm._offer_dependency_uninstall(controller, None, {"updated": 3, "cancelled": True})
+    assert asked == []
+
+
+# -- The PRC hop: chosen at install time, followed by Auto afterwards ----------- #
+def test_installing_a_prc_module_records_what_it_needed(qtbot, tmp_path, monkeypatch):
+    """The dependencies were *settled by the user* a few clicks earlier, so this
+    is the one moment they are known for certain rather than inferred. Throwing
+    that away and asking the Vault for it later is doing work twice, badly.
+    """
+    from types import SimpleNamespace
+
+    c = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "Profiles" / "P",
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    c.pd.add_mod(ModData(group="Adv", mod_name="Swordflight (PRC)"))
+
+    monkeypatch.setattr(c, "scrape_project", lambda url: [SimpleNamespace(project_title="CEP 2.6")])
+    monkeypatch.setattr(c, "suggested_mod_name", lambda title: title)
+    monkeypatch.setattr(
+        c,
+        "install_downloaded_project",
+        lambda files, mod, **kw: (c.pd.add_mod(ModData(group="Adv", mod_name=mod)), {
+            "built": True, "install_message": "ok", "downloaded": 1, "total": 1
+        })[1],
+    )
+    monkeypatch.setattr(
+        c, "download_drive_module", lambda *a, **k: SimpleNamespace(ok=True, error="")
+    )
+    monkeypatch.setattr(c, "build_installer_payload", lambda *a, **k: {"ok": True})
+    monkeypatch.setattr(c, "install", lambda *a, **k: "installed")
+
+    c.install_prc_module(
+        "file-id",
+        "Swordflight (PRC)",
+        [SimpleNamespace(name="CEP 2.6", url="https://neverwintervault.org/cep2")],
+        page_url="https://neverwintervault.org/project/swordflight",
+    )
+
+    md = c.pd.mod_item("Swordflight (PRC)")
+    assert md.dependencies == ["CEP 2.6"], "settled at install time, not guessed later"
+    # And the hop the owner pointed out: the module carries the Vault page it was
+    # matched to, so Auto can follow that page to *its* prerequisites afterwards.
+    assert md.web_link == "https://neverwintervault.org/project/swordflight"
+
+
+def test_a_requirement_that_failed_to_install_is_not_recorded(qtbot, tmp_path, monkeypatch):
+    """A dependency on a mod that is not there would make every later uninstall
+    reason about something that does not exist."""
+    from types import SimpleNamespace
+
+    c = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "Profiles" / "P",
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    c.pd.add_mod(ModData(group="Adv", mod_name="Module"))
+
+    monkeypatch.setattr(c, "scrape_project", lambda url: [SimpleNamespace(project_title="CEP")])
+    monkeypatch.setattr(c, "suggested_mod_name", lambda title: title)
+    monkeypatch.setattr(
+        c,
+        "install_downloaded_project",
+        lambda files, mod, **kw: {
+            "built": False, "install_message": "", "downloaded": 0, "total": 1
+        },
+    )
+    monkeypatch.setattr(
+        c, "download_drive_module", lambda *a, **k: SimpleNamespace(ok=True, error="")
+    )
+    monkeypatch.setattr(c, "build_installer_payload", lambda *a, **k: {"ok": True})
+    monkeypatch.setattr(c, "install", lambda *a, **k: "installed")
+
+    c.install_prc_module(
+        "id", "Module", [SimpleNamespace(name="CEP", url="https://v/cep")]
+    )
+    assert c.pd.mod_item("Module").dependencies == []

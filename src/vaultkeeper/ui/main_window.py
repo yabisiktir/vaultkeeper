@@ -64,6 +64,11 @@ class MainWindow(QMainWindow):
         self._tree.rename_requested.connect(self._on_rename)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._show_mods_context_menu)
+        # "You can click the Profile name to refresh the Mod List" — the heading
+        # is where VB shows which profile is loaded, and the port showed it
+        # nowhere at all.
+        self._tree.header().setSectionsClickable(True)
+        self._tree.header().sectionClicked.connect(lambda _i: self.refresh())
 
         self._contents = ContentsView()
         # Contents-pane file actions (VB CmContents): double-click views a file,
@@ -84,6 +89,12 @@ class MainWindow(QMainWindow):
         self._details_list = QTreeWidget()
         self._details_list.setHeaderLabels(["Property", "Value"])
         self._details_list.setRootIsDecorated(False)
+        # "You can click the heading to toggle the Automatic Properties Panel
+        # Height option" — the same switch as the Options menu item.
+        self._details_list.header().setSectionsClickable(True)
+        self._details_list.header().sectionClicked.connect(
+            lambda _i: self._on_toggle_properties_height()
+        )
         # The properties list is read-only; the lower pane is the editable Mod Notes.
         self._details = QTextEdit()
         self._details.setPlaceholderText("Mod notes…")
@@ -114,6 +125,9 @@ class MainWindow(QMainWindow):
         splitter.setStretchFactor(1, 5)
         # Held so Reset Window Layout can put them back (VB MsResetWindow).
         self._splitters = (splitter, sc_mod, sc_contents, sc_details)
+        #: The properties list sits above the notes; Automatic Properties Panel
+        #: Height moves this one.
+        self._properties_splitter = sc_details
 
         # Command chrome (faithful ports of the VB ribbon/toolbar/status bar).
         self.ribbon = Ribbon()
@@ -460,6 +474,14 @@ class MainWindow(QMainWindow):
             settings.number_recent_mods = checked
             save_settings(settings)
             self._rebuild_recent_mods_menu()
+        elif item_id == "MsPropertiesHeight":
+            from vaultkeeper.config.settings import load_settings, save_settings
+
+            settings = load_settings()
+            if settings.auto_properties_height != checked:
+                settings.auto_properties_height = checked
+                save_settings(settings)
+            self._apply_properties_height()
 
     # -- Recent Mods (VB MsRecentMods) ------------------------------------- #
     def _record_recent_mod(self, name: str) -> None:
@@ -609,6 +631,7 @@ class MainWindow(QMainWindow):
             self._tree.clear()
             return
         self._tree.populate(self.controller.groups())
+        self._show_profile_name()
         self._populate_mod_selector()
         self._update_status()
         self._update_title()
@@ -622,6 +645,62 @@ class MainWindow(QMainWindow):
                 "<p>Add mods with <b>Mods &rarr; New Mod</b>, or import an existing "
                 "collection.</p>" + self._import_hint()
             )
+
+    def _show_profile_name(self) -> None:
+        """Name the loaded profile on the mod list's heading (VB Profile Name)."""
+        name = ""
+        if self.controller is not None and self.controller.store_path is not None:
+            name = self.controller.store_path.stem
+        self._tree.headerItem().setText(0, name or "Mods")
+        self._tree.header().setToolTip(
+            f"Profile: {name}\nClick to refresh the mod list" if name else ""
+        )
+
+    def _on_toggle_properties_height(self) -> None:
+        """Flip Automatic Properties Panel Height (VB ``MsPropertiesHeight``).
+
+        Driven from two places — this menu item and the Properties heading —
+        so both go through here and both leave the menu tick correct.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        wanted = not load_settings().auto_properties_height
+        action = self.nit_menu.action("MsPropertiesHeight")
+        if action is not None:
+            # Setting the tick emits toggled, which does the saving and the
+            # resizing — one path, and the menu can never disagree with the
+            # setting.
+            action.setChecked(wanted)
+        else:  # pragma: no cover - the item is always in the menu
+            settings = load_settings()
+            settings.auto_properties_height = wanted
+            save_settings(settings)
+        self.nit_status.set_info(
+            "Automatic Properties Panel Height is " + ("on." if wanted else "off.")
+        )
+
+    def _apply_properties_height(self) -> None:
+        """Size the properties pane to what it is showing, when that is enabled.
+
+        Off, the splitter is left exactly where the user put it — an automatic
+        height that fights a drag is worse than no automatic height.
+        """
+        from vaultkeeper.config.settings import load_settings
+
+        if not load_settings().auto_properties_height:
+            return
+        splitter = self._properties_splitter
+        if splitter is None:
+            return
+        rows = self._details_list.topLevelItemCount()
+        # VB: the file-list height matches the Mod Properties panel, and a
+        # file's own details are the five lines it has.
+        wanted = max(1, rows) * max(1, self._details_list.sizeHintForRow(0)) + 32
+        total = sum(splitter.sizes())
+        if total <= 0:
+            return
+        top = max(60, min(wanted, int(total * 0.6)))
+        splitter.setSizes([top, max(1, total - top)])
 
     def _update_status(self) -> None:
         if self.controller is None:
@@ -1102,6 +1181,9 @@ class MainWindow(QMainWindow):
             # checkable toggle — both handled outside the dispatch dict.
             "MsRecentMods",
             "MsNumberRecentMods",
+            # Also a checkable toggle, and also driven from a second place (the
+            # Properties panel heading) — see _on_toggle_properties_height.
+            "MsPropertiesHeight",
         }
 
     def _apply_command_availability(self) -> None:

@@ -131,6 +131,9 @@ class Settings:
     #: When uninstalling a mod, also uninstall its dependency mods that are no
     #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
     uninstall_dependencies: bool = False
+    #: Size the Properties panel to what it is showing (VB ``MsPropertiesHeight``,
+    #: also toggled by clicking the Properties heading).
+    auto_properties_height: bool = False
     #: Move mods added from files/paste into the default group instead of leaving
     #: them ungrouped (VB ``BehaviourMoveAddedMods``).
     move_added_mods: bool = False

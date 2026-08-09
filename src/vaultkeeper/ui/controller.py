@@ -3312,6 +3312,10 @@ class ProfileController:
         steps: list[dict] = []
         wanted = list(requirements)
         total = len(wanted) + 1
+        #: Requirements that made it in as mods. They *are* this module's
+        #: dependencies — the user settled them a few clicks ago — so recording
+        #: them here means the Dependency Manager knows without asking the Vault.
+        installed_dependencies: list[str] = []
 
         def announce(index: int, label: str) -> None:
             if on_progress is not None:
@@ -3345,6 +3349,8 @@ class ProfileController:
             result = self.install_downloaded_project(
                 files, dep_mod, group=group, on_bytes=on_bytes, on_phase=on_phase
             )
+            if result["built"]:
+                installed_dependencies.append(dep_mod)
             steps.append({
                 "name": name,
                 "kind": "dependency",
@@ -3387,6 +3393,13 @@ class ProfileController:
             if md is not None and not md.is_group_item and not md.web_link:
                 md.web_link = page_url
                 self.save()
+
+        # And record what it needs. This is the one moment the answer is known
+        # for certain — it was chosen, not inferred — and it is also the hop that
+        # makes the rest work later: the module now carries its Vault page, so
+        # Auto Mod Dependencies can follow that page to *its* prerequisites.
+        if installed_dependencies:
+            self.set_mod_dependencies(mod_name, installed_dependencies)
 
         build = self.build_installer_payload(mod_name, on_phase=on_phase)
         message = (
@@ -3882,11 +3895,16 @@ class ProfileController:
         by_name = {search_name(n): n for n, _md in mods}
 
         checked = resolved = updated = 0
+        cancelled = False
         unmatched: list[str] = []
         errors: list[str] = []
         for name, md in linked:
-            if on_progress is not None:
-                on_progress(checked, len(linked), name)
+            # A truthy return means "stop" (VB's Cancel). The count reported is
+            # what was actually looked at, so the summary stays honest about a
+            # run that did not finish.
+            if on_progress is not None and on_progress(checked, len(linked), name):
+                cancelled = True
+                break
             checked += 1
             try:
                 required = self.project_required_projects(md.web_link)
@@ -3917,7 +3935,10 @@ class ProfileController:
         # reads as "you have no dependencies", which is a different and wrong
         # answer — the owner reported exactly that. Say what was *not* looked at.
         skipped = len(mods) - len(linked)
-        parts = [f"Checked {checked:,} mod(s) with a project link."]
+        parts = []
+        if cancelled:
+            parts.append("Stopped.")
+        parts.append(f"Checked {checked:,} mod(s) with a project link.")
         if updated:
             parts.append(f"Updated {updated:,}.")
         elif checked:
@@ -3942,6 +3963,7 @@ class ProfileController:
             ]
         return {
             "ok": not errors,
+            "cancelled": cancelled,
             "checked": checked,
             "skipped": skipped,
             "resolved": resolved,
@@ -4003,8 +4025,10 @@ class ProfileController:
         found = 0
         missing = [(n, md) for n, md in mods if md is not None and not md.web_link]
         for index, (name, md) in enumerate(missing):
-            if on_progress is not None:
-                on_progress(index, len(missing), f"Looking up {name}")
+            if on_progress is not None and on_progress(
+                index, len(missing), f"Looking up {name}"
+            ):
+                break
             try:
                 result = self.find_mod_web_link(name)
             except Exception:

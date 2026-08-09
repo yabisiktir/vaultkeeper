@@ -70,6 +70,10 @@ them.
 | customisetheinstallertool.htm | Customise the Installer Tool | Ported — Basic and Advanced Settings both reachable from Options |
 | customisemodinstallers.htm | Customise Mod Installers | Ported — Map Excludes, Wizard Builder and the review flow all exist |
 | bhbackupmanager.htm | Work with backups and exports | **Was a GAP, now closed** — the menu item did nothing |
+| newtopic18.htm | Automate Mod dependency definition | **Closed** — Auto, with progress + Cancel and the follow-up offer |
+| newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
+| newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
+| newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
 | bhmapexcludes.htm / bhmapextensions.htm / bhmapfiles.htm / bhmapfolders.htm | The four map pages | Ported (Folder Mapping's four tabs) |
 | bhadvanced.htm / bhlocations.htm / bhpreferences.htm / bhprofiles.htm / bhrunmenu.htm / bhwebmenu.htm | Settings pages | Ported (Settings tabs) |
 | bhaliaseditor.htm | Use the Alias Section Editor | Ported (`MsAliasSection`) |
@@ -107,6 +111,30 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Dependencies: what the tool already knows and was throwing away
+
+Owner, on the PRC-ified Drive modules: *"we can actually link them because we do
+a vaultkeeper linkage when we search for their dependencies, so in theory you
+could have a transient jump from the prc-ified module to the vault module to its
+dependencies."* Correct, and half of it was already there:
+`install_prc_module` records the Vault page it matched as the mod's `web_link`,
+which is the hop that lets Auto follow that page to *its* prerequisites later.
+
+The other half was being discarded. The requirements were **settled by the user
+a few clicks earlier** — that is the one moment they are known for certain
+rather than inferred — and each was installed as its own mod without anything
+recording that it *was* a dependency. It is written down now, for the ones that
+actually installed: a dependency on a mod that is not there would make every
+later uninstall reason about something that does not exist.
+
+`newtopic18.htm` also supplied two missing pieces of Auto: a progress dialog
+with **Cancel** (a stopped run must not read like a run that found nothing —
+hence `cancelled` in the result and "Stopped." in the message), and the
+follow-up offer to turn on **Uninstall Mod Dependencies**. That last one matters
+more than it looks: knowing a mod needs CEP does nothing on its own, and the
+preference that acts on it is off by default, so VB asks about it exactly when
+the answer has become useful.
 
 ## The `bh*` topics, checked rather than read
 

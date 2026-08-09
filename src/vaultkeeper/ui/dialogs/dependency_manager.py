@@ -11,12 +11,14 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QMessageBox,
+    QProgressDialog,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -142,13 +144,28 @@ def run_auto_dependencies(controller, parent) -> dict | None:
     if box.exec() != QMessageBox.StandardButton.Yes:
         return None
 
-    from PySide6.QtWidgets import QApplication
+    # A page fetch per mod is long enough to need showing, and long enough that
+    # someone will want out of it (newtopic18: "If you press Cancel to abort the
+    # operation, there may be a delay while the current process completes").
+    progress = QProgressDialog("Reading Vault project pages…", "Cancel", 0, 1, parent)
+    progress.setWindowTitle("Auto Mod Dependencies")
+    progress.setWindowModality(Qt.WindowModality.WindowModal)
+    progress.setMinimumDuration(0)
+    progress.setValue(0)
 
-    QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+    def on_progress(done: int, total: int, label: str) -> bool:
+        progress.setMaximum(max(total, 1))
+        progress.setValue(done)
+        progress.setLabelText(label)
+        QApplication.processEvents()
+        return progress.wasCanceled()
+
     try:
-        result = controller.auto_mod_dependencies(find_links=find_links.isChecked())
+        result = controller.auto_mod_dependencies(
+            find_links=find_links.isChecked(), on_progress=on_progress
+        )
     finally:
-        QApplication.restoreOverrideCursor()
+        progress.close()
 
     # What could not be matched is the useful part of the answer: a requirement
     # naming a mod you do not have is a mod you are missing, not a failure.
@@ -162,4 +179,37 @@ def run_auto_dependencies(controller, parent) -> dict | None:
         parent._auto_report = TextViewer.show_text(
             "\n".join(lines), "Auto Mod Dependencies", parent
         )
+
+    _offer_dependency_uninstall(controller, parent, result)
     return result
+
+
+def _offer_dependency_uninstall(controller, parent, result: dict) -> None:
+    """Offer to make the dependencies count for something (VB, after Auto).
+
+    Knowing that a mod needs CEP does nothing on its own; the preference that
+    uses it is *Uninstall Mod Dependencies*, which is off by default. VB asks
+    about it here because here is where the answer has just become useful.
+    """
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    if result.get("cancelled") or not result.get("updated"):
+        return
+    settings = load_settings()
+    if settings.uninstall_dependencies:
+        return
+    if (
+        QMessageBox.question(
+            parent,
+            "Auto Mod Dependencies",
+            "Uninstalling a mod can also uninstall the mods it requires (CEP, "
+            "for example), as long as no other installed mod still needs them.\n\n"
+            "That is off at the moment, so the dependencies just found will not "
+            "be acted on.\n\nTurn on Uninstall Mod Dependencies?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
+        == QMessageBox.StandardButton.Yes
+    ):
+        settings.uninstall_dependencies = True
+        save_settings(settings)

@@ -1328,3 +1328,44 @@ def test_view_clipboard_shows_the_clipboard_text(qtbot, controller, monkeypatch)
 
     assert seen[0] == "Alpha\tSome Mod"
     assert "no text" in seen[1]
+
+
+def test_the_mod_list_heading_names_the_profile_and_refreshes(qtbot, controller) -> None:
+    """newtopic27: "You can click the Profile name to refresh the Mod List."
+
+    The port showed the profile name nowhere at all, so there was nothing to
+    click and nothing telling you which profile was loaded.
+    """
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    assert win._tree.headerItem().text(0) == controller.store_path.stem
+    assert "Click to refresh" in win._tree.header().toolTip()
+
+    refreshed: list[int] = []
+    win.refresh = lambda: refreshed.append(1)
+    win._tree.header().sectionClicked.emit(0)
+    assert refreshed == [1]
+
+
+def test_the_properties_heading_toggles_the_automatic_height(qtbot, controller) -> None:
+    """newtopic33/64: the heading is a second switch for the same Options item,
+    so both have to leave the tick and the setting agreeing."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.auto_properties_height = False
+    save_settings(settings)
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    action = win.nit_menu.action("MsPropertiesHeight")
+
+    win._details_list.header().sectionClicked.emit(0)
+    assert load_settings().auto_properties_height is True
+    assert action.isChecked() is True
+    assert "is on." in win.nit_status.mg_info.text()
+
+    win._details_list.header().sectionClicked.emit(0)
+    assert load_settings().auto_properties_height is False
+    assert action.isChecked() is False
