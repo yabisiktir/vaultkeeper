@@ -80,6 +80,10 @@ them.
 | updatedeefiles.htm | Update Enhanced Edition Files | **Was a GAP, now closed** (`MsUpdateEeFiles`) |
 | Toolbar editor | `MsCustomise` / `MsShowText` | **Was a GAP, now closed** |
 | newtopic78.htm | Reset Web Menu Icons | **Closed as far as it applies** — no favicons here, so the link check is all of it |
+| newtopic47.htm | Use Recent Mods to navigate to a Mod | **Closed** — Pin / Unpin / Remove |
+| newtopic28.htm | Mod List | **Closed** — the status icon installs/uninstalls |
+| switchinggamesaves.htm / restoregamesavesfrombackup.htm | Right-click Activate | **Closed** — brings the mod with it |
+| mscharacterviewer.htm | Use the Character Explorer | **Closed** — the Select button was the last piece |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -120,6 +124,33 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Sweeping for sentences, not for commands
+
+With the commands nearly all wired, the remaining risk was interactions with no
+command id — the shape that found the profile-name click and the Properties
+heading. Two machine passes over the 164 unreviewed topics:
+
+1. **Which commands do they tell people to click?** Captions map back to ids, so
+   this is checkable rather than readable. Result: **no unreviewed topic names a
+   command that is missing** — only the five already recorded as non-goals or
+   decisions, and `mshistory.htm`, which is the version history and mentions
+   everything.
+2. **Which sentences describe an interaction?** Pulling every "You can click…",
+   "Right-click…", "Double-click…", "Hover…" out of the same topics gave about
+   sixty, most already ported. Four were not:
+
+   - Recent Mods: Pin / Unpin / Remove (`newtopic47`).
+   - A mod's status icon installs or uninstalls it (`newtopic28`).
+   - Right-click Activate brings the game's mod with it
+     (`switchinggamesaves`, `restoregamesavesfrombackup`).
+   - The Character Explorer's **Select** button (`mscharacterviewer`) — recorded
+     as needing "a design decision on where it'd be invoked", which the help
+     answers outright: it closes the Explorer on the mod the character belongs
+     to.
+
+★ Sweep the *sentences*, not the topics. A topic list tells you what to read; a
+sentence list tells you what to check.
 
 ## Updating the tool: the half worth having
 

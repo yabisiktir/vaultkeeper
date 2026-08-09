@@ -78,8 +78,11 @@ class CharacterViewer(QDialog):
         filter_skills_by_rank: bool = False,
         on_skills_filter_changed=None,
         on_open_portrait_manager=None,
+        on_select=None,
     ) -> None:
         super().__init__(parent)
+        #: Called with a mod name when Select is clicked (VB ``BtSelect``).
+        self._on_select = on_select
         self._filter_skills_by_rank = filter_skills_by_rank
         self._on_skills_filter_changed = on_skills_filter_changed
         self._on_open_portrait_manager = on_open_portrait_manager
@@ -177,6 +180,15 @@ class CharacterViewer(QDialog):
         )
         self._clipboard_btn.setMenu(menu)
         bar.addWidget(self._clipboard_btn)
+        # "You can click the Select button to close the Character Explorer and
+        # select the mod containing the character file" — this screen exists to
+        # find a character to play, and the mod is what you do something with.
+        self._select_btn = QPushButton("Select")
+        self._select_btn.setToolTip(
+            "Close this and select the mod the character file belongs to"
+        )
+        self._select_btn.clicked.connect(self._on_select_mod)
+        bar.addWidget(self._select_btn)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         bar.addWidget(close)
@@ -186,6 +198,16 @@ class CharacterViewer(QDialog):
         self._populate_list()
         if not characters:
             self._summary.setPlainText("No character files detected.")
+
+    def _on_select_mod(self) -> None:
+        """Close, and hand the character's mod back to whoever opened this."""
+        mod = getattr(self._current_cf, "mod_name", "") if self._current_cf else ""
+        if not mod:
+            self._select_btn.setToolTip("This character file belongs to no mod.")
+            return
+        if self._on_select is not None:
+            self._on_select(mod)
+        self.accept()
 
     def _populate_list(self) -> None:
         """(Re)fill the list, applying the name search and level/class filter."""
@@ -477,6 +499,7 @@ class CharacterViewer(QDialog):
         parent: QWidget | None = None,
         *,
         on_open_portrait_manager=None,
+        on_select=None,
     ) -> CharacterViewer:
         """Build and show the viewer from a controller's character files."""
 
@@ -495,6 +518,7 @@ class CharacterViewer(QDialog):
             filter_skills_by_rank=settings.filter_skills_by_rank,
             on_skills_filter_changed=controller.set_filter_skills_by_rank,
             on_open_portrait_manager=on_open_portrait_manager,
+            on_select=on_select,
         )
         dlg.show()
         return dlg

@@ -2663,6 +2663,9 @@ class MainWindow(QMainWindow):
             # VB closes the Explorer and opens the Portrait Manager when the
             # portrait is clicked (PicPortrait_Click / CmOpenPortraitManager).
             on_open_portrait_manager=lambda _resref: self._on_portraits(),
+            # Select closes the Explorer on the mod the character belongs to,
+            # which is the thing you go on to install or play.
+            on_select=self._select_mod_by_name,
         )
 
 

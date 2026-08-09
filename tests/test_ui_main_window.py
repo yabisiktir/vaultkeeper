@@ -1430,3 +1430,39 @@ def test_only_the_icon_counts_not_the_label(qtbot, controller) -> None:
     assert win._tree.is_over_icon(item, rect.left() + 2), "on the icon"
     assert not win._tree.is_over_icon(item, rect.left() + 200), "on the label"
     assert not win._tree.is_over_icon(item, rect.left() - 10), "left of the row"
+
+
+def test_character_explorer_select_picks_the_mod(qtbot, controller) -> None:
+    """mscharacterviewer.htm: "click the Select button to close the Character
+    Explorer and select the mod containing the character file". This screen
+    exists to find a character to play; the mod is what you then act on."""
+    from types import SimpleNamespace
+
+    from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+
+    chosen: list[str] = []
+    dlg = CharacterViewer([], on_select=chosen.append)
+    qtbot.addWidget(dlg)
+
+    dlg._current_cf = SimpleNamespace(mod_name="Alpha")
+    dlg._on_select_mod()
+
+    assert chosen == ["Alpha"]
+    assert dlg.result() == dlg.DialogCode.Accepted, "it closes, as the help says"
+
+
+def test_select_says_so_when_the_character_belongs_to_no_mod(qtbot) -> None:
+    from types import SimpleNamespace
+
+    from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
+
+    chosen: list[str] = []
+    dlg = CharacterViewer([], on_select=chosen.append)
+    qtbot.addWidget(dlg)
+
+    dlg._current_cf = SimpleNamespace(mod_name="")
+    dlg._on_select_mod()
+
+    assert chosen == []
+    assert dlg.isVisible() is False or dlg.result() != dlg.DialogCode.Accepted
+    assert "no mod" in dlg._select_btn.toolTip()
