@@ -70,6 +70,7 @@ def auto_configure_first_run(
         default_profile_name(edition),
         store_root=getattr(choices, "store_root", "") or None,
         group_set=getattr(choices, "group_set", "") or None,
+        is_ee=edition == Edition.ENHANCED,
         settings=settings,
         settings_path=settings_path,
     )
@@ -98,13 +99,27 @@ def bootstrap_controller(
         profile_mods_dir=store.profile_dir(profile),
         game_root=Path(nwn_path),
         store_path=store.data / f"{profile}.json",
-        is_ee=True,
+        # The profile's own edition, not "always EE". A classic 1.69 profile
+        # keeps its mods in the install root; an EE one splits them across the
+        # user folder, and getting that wrong makes every file key wrong.
+        is_ee=profile_is_ee(profile, settings),
         map_overrides=settings.map_overrides or None,
         map_exclude_overrides=settings.map_exclude_overrides or None,
         map_exception_prefixes=settings.map_exception_prefixes or None,
         settings_path=store.settings_file,
         game_user_dir=Path(settings.game_user_path) if settings.game_user_path else None,
     )
+
+
+def profile_is_ee(profile: str, settings: Settings | None = None) -> bool:
+    """Whether ``profile`` is an Enhanced Edition profile.
+
+    Recorded when the profile is made. Profiles that predate the record are
+    assumed Enhanced Edition, which is what they were opened as — changing that
+    retrospectively would relocate every file they know about.
+    """
+    settings = settings or load_settings()
+    return bool((settings.profile_editions or {}).get(profile, True))
 
 
 def list_profiles(settings: Settings | None = None) -> list[str]:
@@ -214,6 +229,7 @@ def configure_profile(
     *,
     store_root: str | None = None,
     group_set: str | None = None,
+    is_ee: bool = True,
     settings: Settings | None = None,
     settings_path: Path | None = None,
 ) -> ProfileController:
@@ -229,6 +245,8 @@ def configure_profile(
     settings = settings or load_settings(settings_path)
     settings.nwn_path = nwn_path
     settings.active_profile = profile_name
+    # Recorded once, at creation, and never revisited.
+    settings.profile_editions = {**settings.profile_editions, profile_name: is_ee}
     if store_root:
         settings.store_root = store_root
     if not settings.game_user_path:

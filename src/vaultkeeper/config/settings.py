@@ -134,6 +134,11 @@ class Settings:
     #: Per-extension filename-prefix exceptions that send a file to its
     #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
     map_exception_prefixes: dict[str, list] = field(default_factory=dict)
+    #: Per-profile edition, profile name → ``True`` for Enhanced Edition. Fixed
+    #: when the profile is made (``definenewprofiles.htm``: "You cannot change
+    #: the Profile Type after the Profile has been created"), because the folder
+    #: layout it selects is the one every recorded file key was built against.
+    profile_editions: dict[str, bool] = field(default_factory=dict)
     #: Which file a mod's Contents pane opens on (VB Selection Preferences):
     #: "history" | "play_time" | "text_file".
     selection_preference: str = "text_file"

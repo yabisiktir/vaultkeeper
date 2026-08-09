@@ -92,6 +92,8 @@ them.
 | rbloadscreenhelp.htm | Use NWN's Start Screen Manager | **Ported bar the clickable status texts**, now added |
 | newtopic4.htm | Review and customise download information | **Ported bar multi-select + Space**, now added |
 | filterbymodstate.htm | Filter by Mod State | Ported — the =/>/< operands, in the help's own wording |
+| definenewprofiles.htm | Define new Profiles | **Was a GAP, now closed** — every profile was opened as Enhanced Edition |
+| newtopic10.htm | Ribbon | Ported — the seven tabs, in the original's order |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

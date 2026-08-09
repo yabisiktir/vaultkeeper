@@ -650,10 +650,37 @@ class MainWindow(QMainWindow):
         name, ok = QInputDialog.getText(self, "Profile", "Profile name:", text="My Mods")
         if not ok or not name.strip():
             return
+
+        # The one thing that cannot be changed afterwards, so it is asked now
+        # (definenewprofiles.htm). Pre-answered from what is actually installed:
+        # the two editions keep their mods in different places, and a profile
+        # opened as the wrong one has every file key wrong.
+        from nwnfile.editions import Edition
+        from nwnfile.locations import discover_installs
+
+        detected = next(
+            (i for i in discover_installs() if str(i.root) == nwn_dir), None
+        )
+        default_ee = detected is None or detected.edition == Edition.ENHANCED
+        editions = ["Enhanced Edition", "Neverwinter Nights (1.69)"]
+        choice, ok = QInputDialog.getItem(
+            self,
+            "Profile",
+            "Which Neverwinter Nights is this profile for?\n"
+            "This cannot be changed later.",
+            editions,
+            0 if default_ee else 1,
+            False,
+        )
+        if not ok:
+            return
+
         from vaultkeeper.ui.session import configure_profile
 
         try:
-            controller = configure_profile(nwn_dir, name.strip())
+            controller = configure_profile(
+                nwn_dir, name.strip(), is_ee=choice == editions[0]
+            )
         except OSError as exc:
             QMessageBox.warning(self, "Set Up Profile", f"Could not create the profile:\n{exc}")
             return
