@@ -1226,6 +1226,11 @@ class MainWindow(QMainWindow):
             "RbnDisplaySettings": lambda: self._on_view_file("MsDisplaySettings"),
             "MsOpenRulesFile": lambda: self._on_view_file("MsOpenRulesFile"),
             "MsViewClipboard": self._on_view_clipboard,
+            # Move the selected Contents file elsewhere (VB MsMoveToFolder /
+            # MsMoveToHistory), the two halves of the documented mod-update
+            # workflow: put the new file in, keep the old one.
+            "MsMoveToFolder": self._on_move_to_folder,
+            "MsMoveToHistory": self._on_move_to_history,
             "MsClearWaitCursors": self._on_clear_wait_cursors,
             "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
@@ -1746,6 +1751,50 @@ class MainWindow(QMainWindow):
             if count:
                 splitter.setSizes([1] * count)
         self.nit_status.set_info("Window layout reset.")
+
+    def _selected_contents_file(self) -> tuple[str, str, str] | None:
+        """``(mod, folder, filename)`` for the Contents selection, if there is one."""
+        selected = self._contents.selected_file()
+        if self.controller is None or self._contents_mod is None or selected is None:
+            return None
+        folder, filename = selected
+        return self._contents_mod, folder, filename
+
+    def _on_move_to_folder(self) -> None:
+        """Move the selected file to its other mapped folder (VB ``MsMoveToFolder``).
+
+        The mapper keeps a second folder per extension — a ``.hak`` can live in
+        ``hak`` or ``patch``, a ``.tga`` in its own folder or ``override`` — and
+        this toggles between them.
+        """
+        picked = self._selected_contents_file()
+        if picked is None:
+            self.nit_status.set_info("Select a file in Contents first.")
+            return
+        mod, folder, filename = picked
+        target = self.controller.move_target_folder(mod, folder, filename)
+        if not target:
+            self.nit_status.set_info(f"{filename} has no other folder to move to.")
+            return
+        result = self.controller.move_mod_files(mod, folder, [filename], target)
+        self._after_contents_move(mod, result)
+
+    def _on_move_to_history(self) -> None:
+        """Keep the old version of a file (VB ``MsMoveToHistory``)."""
+        picked = self._selected_contents_file()
+        if picked is None:
+            self.nit_status.set_info("Select a file in Contents first.")
+            return
+        mod, folder, filename = picked
+        result = self.controller.move_mod_files_to_history(mod, folder, [filename])
+        self._after_contents_move(mod, result)
+
+    def _after_contents_move(self, mod: str, result: dict) -> None:
+        self.refresh()
+        md = self.controller.pd.mod_item(mod)
+        if md is not None:
+            self._show_contents(md)
+        self.nit_status.set_info(result["message"])
 
     def _on_view_clipboard(self) -> None:
         """Show what is on the clipboard (VB ``MsViewClipboard``).

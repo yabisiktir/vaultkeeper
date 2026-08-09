@@ -333,6 +333,140 @@ class ProfileController:
             self.delete_mod_file(src_mod, folder, filename)
         return True
 
+    def _forget_mod_file(self, md, folder: str, filename: str) -> None:
+        """Drop a FileKey whose file has moved away, without touching disk.
+
+        ``scan_mod_files`` only ever *adds*, so a move that did not do this would
+        leave the file recorded in both places — and the mod would look like it
+        still installs a file that is not there any more.
+        """
+        target = (folder.lower(), filename.lower())
+        for fk in list(md.files):
+            if (fk.folder.lower(), fk.filename.lower()) == target:
+                self.pd.file_list.pop(fk, None)
+                md.files.remove(fk)
+                self.pd.changes.file.removed(fk)
+
+    def move_target_folder(self, mod_name: str, folder: str, filename: str) -> str:
+        """Where *Move to Folder* would put this file, or "" if it cannot move.
+
+        The mapper keeps a secondary folder per extension (``.hak`` → ``patch``,
+        ``.tga`` → ``override``, …); the command toggles between that and the
+        primary one, which is why the menu caption names the target.
+        """
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return ""
+        extension = Path(filename).suffix.lower()
+        if not extension or not self.ctx.mapper.allow_moves(extension):
+            return ""
+        target = self.ctx.mapper.get_move_target(folder, extension)
+        return "" if target.lower() == folder.lower() else target
+
+    def move_mod_files(
+        self, mod_name: str, folder: str, filenames: list[str], target_folder: str
+    ) -> dict:
+        """Move installer files to another folder within the same mod (VB MoveToFolder).
+
+        An installed mod is uninstalled first, exactly as VB does: the files are
+        about to live somewhere else, and the copies already in the game would
+        otherwise be orphaned with nothing left pointing at them.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item or not filenames or not target_folder:
+            return {"ok": False, "moved": 0, "message": "Moved files: None."}
+
+        from vaultkeeper.core.state import State
+
+        uninstalled = False
+        if md.mod_state > State.NOT_INSTALLED:
+            self.uninstall([mod_name])
+            uninstalled = True
+
+        base = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        dest_dir = base / target_folder
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        moved, failures = 0, []
+        for filename in filenames:
+            source = base / folder / filename
+            try:
+                shutil.move(str(source), str(dest_dir / filename))
+                self._forget_mod_file(md, folder, filename)
+                moved += 1
+            except OSError as ex:
+                failures.append(f"{filename}: {ex}")
+
+        self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+
+        message = f"Moved {moved} file{'s' if moved != 1 else ''} to {target_folder}."
+        if uninstalled:
+            message += " The mod was uninstalled first."
+        if failures:
+            message += f" {len(failures)} could not be moved."
+        return {"ok": not failures, "moved": moved, "message": message}
+
+    def move_mod_files_to_history(
+        self, mod_name: str, folder: str, filenames: list[str]
+    ) -> dict:
+        """Keep the old version of a file (VB ``MsMoveToHistory``).
+
+        ``_History`` sits beside the payload rather than inside it, so a file
+        moved there stops being part of the installer — which is the whole
+        point: "click Move to History to retain the old version of the file".
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item or not filenames:
+            return {"ok": False, "moved": 0, "message": "Moved files: None."}
+
+        from vaultkeeper.core.state import State
+
+        uninstalled = False
+        if md.mod_state > State.NOT_INSTALLED:
+            self.uninstall([mod_name])
+            uninstalled = True
+
+        mod_dir = self.ctx.profile_mods_dir / mod_name
+        history = mod_dir / C.HISTORY_DIR
+        history.mkdir(parents=True, exist_ok=True)
+        moved, failures = 0, []
+        for filename in filenames:
+            source = mod_dir / C.MOD_INSTALLER_DIR / folder / filename
+            target = history / filename
+            if target.exists():
+                # Two versions of the same name is the normal case here — it is
+                # a *history* — so stamp rather than overwrite the older one.
+                stamp = int(source.stat().st_mtime) if source.exists() else 0
+                target = history / f"{Path(filename).stem}-{stamp}{Path(filename).suffix}"
+            try:
+                shutil.move(str(source), str(target))
+                self._forget_mod_file(md, folder, filename)
+                moved += 1
+            except OSError as ex:
+                failures.append(f"{filename}: {ex}")
+
+        self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+
+        message = f"Moved {moved} file{'s' if moved != 1 else ''} to {C.HISTORY_DIR}."
+        if uninstalled:
+            message += " The mod was uninstalled first."
+        if failures:
+            message += f" {len(failures)} could not be moved."
+        return {"ok": not failures, "moved": moved, "message": message}
+
     def delete_mod_file(self, mod_name: str, folder: str, filename: str) -> bool:
         """Delete one installer file from a mod (VB ``CmContents`` Delete).
 

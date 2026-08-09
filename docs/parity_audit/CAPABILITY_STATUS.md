@@ -41,7 +41,7 @@ them.
 | newtopic65.htm | Reset Window Layout | Ported (`MsResetWindow`) |
 | newtopic73.htm | Show BioWare's Portrait Images | Ported (`MsOriginalPortraits`) |
 | newtopic76.htm | Clear Extracted Hak Portraits | Ported (`MsClearHakPortraits`) |
-| newtopic55.htm | Move files to the Development folder | Ported (`MsMoveToDev`) |
+| newtopic55.htm | Move files to the Development folder | **GAP** — this file said Ported; it was not. See below |
 | newtopic12.htm | View Download Rules | Ported (`MsOpenRulesFile`) |
 | newtopic2.htm | Create NIT Mods from Restorers | Ported (`MsConvertRestorer`) |
 | bhworkshop.htm | Manage Steam Workshop Subscriptions | Ported (`MsWorkshopViewer`) |
@@ -55,6 +55,10 @@ them.
 | findfiles.htm | Find files in Contents or Details | **Was a GAP, now closed** — Find steps through list rows |
 | findtext.htm | Find text within a file | **Was a GAP, now closed** — Find bar + a Find button on the viewer |
 | filterbynotes.htm | Filter by Notes | Not applicable — `ModData` carries no notes field here |
+| dealwithmodupdates.htm | Deal with Mod updates | **Now complete** — Move to Folder and Move to History were the missing steps |
+| bhmodsplayed.htm | Mods I have not played for a long time | Ported (`MsModsPlayed`) |
+| usealtkey.htm | Use Alt-Key shortcuts | Ported — every menu title carries its mnemonic, and Qt does the rest |
+| automaticbackupofgamesaves.htm | Automatic backup of Game Saves | UNREVIEWED — needs a look at the Game Saves Manager's open path |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -301,6 +305,35 @@ click — including the pending-changes icon, whose own tooltip promises to
 "display details about files added, removed or changed". A signal with no
 receiver is the same shape of defect as a setting with no reader, and a test now
 fails if any of them goes unconnected again.
+
+## A second verdict this file got wrong — and the Move-to trio
+
+`newtopic55.htm` was recorded **Ported (`MsMoveToDev`)**. The command exists in
+the menu; nothing was wired to it. Same failure as `createcharrestorers.htm`
+below: a *present control id* was taken as evidence of a *working feature*.
+`implemented_commands()` is the check that would have caught both, and it is
+cheap — use it, not grep, before writing "Ported" against a command.
+
+The three are one family, and `dealwithmodupdates.htm` needs two of them:
+
+- **Move to Folder** — done. The mapper already knew each extension's second
+  home (`.hak` → `patch`, `.tga` → `override`), so this toggles between them.
+- **Move to History** — done. `_History` sits *beside* the payload, not inside
+  it, so the old version is kept but stops being installed. That is exactly what
+  "retain the old version of the file" has to mean.
+- **Move to Development** — **still a gap**, and deliberately so: it needs the
+  EE development-folder feature we do not have (a `development` folder in the
+  mapper plus the preference that switches it on). VB gates it on EE edition
+  **and** the preference **and** a mapped extension **and** (`.hak` or a
+  primary/secondary of `override`). Worth doing with that feature, not before.
+
+★ Both move commands uninstall an installed mod first, as VB does. The files are
+about to live somewhere else; the copies already in the game would be orphaned
+with nothing pointing at them.
+
+★ `scan_mod_files` only ever **adds**. A move that does not also drop the old
+FileKey leaves the file recorded in both places, and the mod goes on claiming to
+install something that is not there.
 
 ## A verdict this file got wrong
 
