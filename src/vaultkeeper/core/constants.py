@@ -105,6 +105,8 @@ RESTORER_GROUP: Final = "000.  Restorers"
 ORIGINAL_MODS_GROUP: Final = "799.  Mods Installed by NWN"
 #: Group holding the per-character restorers (Pdc.CharacterRestorerGroup).
 CHARACTER_RESTORER_GROUP: Final = "010.  Character Restorers"
+#: Where a newly-added mod lands by default (Pdc.DefaultGroup).
+DEFAULT_GROUP: Final = "810.  Evaluating"
 #: Group of restorers the application maintains itself (Pdc.AutoGroup).
 AUTO_GROUP: Final = "ZZZ.  NIT Managed Restorers (Auto)"
 #: Group of premium ``.nwm`` modules converted to installable mods (Pdc.NwmGroup).

@@ -20,10 +20,11 @@ class FirstRunChoices:
 
     game_root: str = ""
     store_root: str = ""
+    group_set: str = ""
 
 
 def ask_first_run_choices(parent=None) -> FirstRunChoices | None:
-    """Put the two questions, when either has more than one answer.
+    """Put the first-run questions, when there is anything to settle.
 
     Returns ``None`` when nothing was asked or the user closed the dialog — the
     caller then configures itself exactly as it did before, so a dismissed
@@ -57,4 +58,8 @@ def ask_first_run_choices(parent=None) -> FirstRunChoices | None:
     dialog = FirstRunDialog(installs, options, getattr(recommended, "path", Path()), parent)
     if dialog.exec() != dialog.DialogCode.Accepted:
         return None
-    return FirstRunChoices(game_root=dialog.game_root, store_root=dialog.store_root)
+    return FirstRunChoices(
+        game_root=dialog.game_root,
+        store_root=dialog.store_root,
+        group_set=dialog.group_set,
+    )

@@ -69,6 +69,7 @@ def auto_configure_first_run(
         chosen_root or str(install.root),
         default_profile_name(edition),
         store_root=getattr(choices, "store_root", "") or None,
+        group_set=getattr(choices, "group_set", "") or None,
         settings=settings,
         settings_path=settings_path,
     )
@@ -211,6 +212,7 @@ def configure_profile(
     profile_name: str,
     *,
     store_root: str | None = None,
+    group_set: str | None = None,
     settings: Settings | None = None,
     settings_path: Path | None = None,
 ) -> ProfileController:
@@ -241,4 +243,20 @@ def configure_profile(
     controller = bootstrap_controller(settings, discover=lambda: [])
     if controller is None:  # pragma: no cover - guaranteed configured above
         raise RuntimeError("profile configuration did not yield a controller")
+    _seed_groups(controller, group_set)
     return controller
+
+
+def _seed_groups(controller: ProfileController, group_set: str | None) -> None:
+    """Give a brand-new profile its starting groups (VB ``AddGroups(GroupSets…)``).
+
+    Only for a profile that has none: re-seeding one someone has already
+    organised would put back every group they deleted.
+    """
+    from vaultkeeper.core import constants as C
+    from vaultkeeper.core import group_sets
+
+    if any(not g.startswith(C.GROUP_HIDDEN_PREFIX) for g in controller.group_names()):
+        return
+    for name in group_sets.group_names(group_set or group_sets.DEFAULT_SET_NAME):
+        controller.create_group(name)

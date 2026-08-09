@@ -61,6 +61,10 @@ them.
 | automaticbackupofgamesaves.htm | Automatic backup of Game Saves | **Was a GAP, now closed** — runs when the manager opens |
 | bhgamemanager.htm | Work with Game Saves | Ported (Game Saves Manager) |
 | bhgamemapper.htm | Link Game Save to Mod name | Ported (the play loop's prompter) |
+| defaultgroupsets.htm | Default Group Sets | **Was a GAP, now closed** — the third first-run question |
+| faqgroupnumbers.htm | Why are the default Groups numbered? | Closed with it — the numbers are the install order |
+| dealwithexisting.htm | Deal with existing installed Mods | Ported — the pieces it strings together all exist (INI save, Create Original Restorers, import) |
+| faqothertools.htm | Mods installed with other tools | Ported (Create Restorer, twice — before and after the external tool) |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -92,6 +96,28 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Group sets — the third first-run question, now asked
+
+`defaultgroupsets.htm` was one of the five first-run questions still unasked.
+A new profile had **no groups at all**; VB seeds it from one of four sets.
+
+It reads like a cosmetic preference and is not. `faqgroupnumbers.htm` explains
+why: groups sort by name, that order is the order mod files are copied, and that
+order is what settles a conflict between two mods. **Picking a set is picking a
+conflict policy** — and it is the one first-run answer that is awkward to revisit,
+because by then mods have been sorted into the groups it created.
+
+That changed `worth_asking`: it used to be "more than one install *or* more than
+one place for the store". The group set is always a real choice, so having found
+an installation at all is now reason enough to ask.
+
+★ Seeding only ever applies to a profile with **no** groups. Re-seeding one
+someone has organised would put back every group they had deleted.
+
+The remaining unasked first-run questions: which edition, where the user-files
+folder is (+ the disable-detection setting), Player vs Mod Builder, and whether
+to create Restorers.
 
 ## Auto-backup of game saves — a behaviour with no control at all
 

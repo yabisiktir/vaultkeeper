@@ -42,11 +42,19 @@ def _volumes(*specs) -> list[StoreVolume]:
 
 # -- whether to ask at all ------------------------------------------------------ #
 class TestWorthAsking:
-    def test_one_install_and_one_place_is_not_a_question(self):
-        """A dialog with nothing to decide teaches people to dismiss dialogs."""
-        assert not FirstRunDialog.worth_asking(
+    def test_one_install_and_one_place_is_still_a_question_now(self):
+        """It stopped being "nothing to decide" when the group set joined it.
+
+        That answer is always a real choice, and it is the one that is awkward
+        to change later — by then mods have been sorted into the groups it made.
+        """
+        assert FirstRunDialog.worth_asking(
             [_install("/games/NWN")], _volumes(("/default", 50 * GB, True))
         )
+
+    def test_nothing_found_is_not_a_question(self):
+        """No installation means the manual Set Up Profile flow, not a dialog."""
+        assert not FirstRunDialog.worth_asking([], _volumes(("/default", 50 * GB, True)))
 
     def test_two_installs_is_a_question(self):
         assert FirstRunDialog.worth_asking(
@@ -190,3 +198,20 @@ def test_an_already_configured_profile_is_never_disturbed(tmp_path):
 
     settings = Settings(active_profile="My Mods")
     assert auto_configure_first_run(settings, settings_path=tmp_path / "s.json") is None
+
+
+def test_the_dialog_offers_the_group_sets(qtbot):
+    """The third question. Default first, and it is what comes back unchanged."""
+    from vaultkeeper.core import group_sets
+
+    dlg = FirstRunDialog(
+        [_install("/games/NWN")], _volumes(("/default", 50 * GB, True)), Path("/default")
+    )
+    qtbot.addWidget(dlg)
+
+    offered = [dlg.group_combo.itemText(i) for i in range(dlg.group_combo.count())]
+    assert offered == group_sets.set_names()
+    assert dlg.group_set == group_sets.DEFAULT_SET_NAME
+
+    dlg.group_combo.setCurrentIndex(offered.index("Groups are based on Nexus Mods categories"))
+    assert dlg.group_set == "Groups are based on Nexus Mods categories"

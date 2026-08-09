@@ -51,7 +51,7 @@ def _install_label(install) -> str:
 
 
 class FirstRunDialog(QDialog):
-    """Two questions, both pre-answered."""
+    """Three questions, all pre-answered."""
 
     def __init__(
         self,
@@ -114,6 +114,24 @@ class FirstRunDialog(QDialog):
         hint.setWordWrap(True)
         hint.setEnabled(False)
         form.addRow("", hint)
+
+        # Groups sort by name, that order is the order mod files are copied, and
+        # that order settles a conflict between two mods — so this is not a
+        # cosmetic choice, and it is much easier to make now than to redo later.
+        from vaultkeeper.core import group_sets
+
+        self.group_combo = QComboBox()
+        for name in group_sets.set_names():
+            self.group_combo.addItem(name, name)
+        form.addRow("Start with groups where:", self.group_combo)
+        group_hint = QLabel(
+            "A starting point only — rename, remove or add groups whenever you "
+            "like. The numbers set the order mods install in, which is what "
+            "decides who wins a file conflict."
+        )
+        group_hint.setWordWrap(True)
+        group_hint.setEnabled(False)
+        form.addRow("", group_hint)
         layout.addLayout(form)
         layout.addStretch(1)
 
@@ -131,6 +149,10 @@ class FirstRunDialog(QDialog):
     def store_root(self) -> str:
         return self.store_combo.currentData() or self.store_combo.currentText()
 
+    @property
+    def group_set(self) -> str:
+        return self.group_combo.currentData() or ""
+
     def _browse_game(self) -> None:
         chosen = QFileDialog.getExistingDirectory(
             self, "Locate your Neverwinter Nights installation (the folder holding nwmain)"
@@ -147,14 +169,18 @@ class FirstRunDialog(QDialog):
 
     # -- Whether to ask at all ---------------------------------------------- #
     @classmethod
-    def worth_asking(cls, installs: list, store_options: list) -> bool:
+    def worth_asking(cls, installs: list, store_options: list) -> bool:  # noqa: ARG003
         """Whether there is genuinely a choice to make.
 
         One installation and one place to put the store is not a question, and a
         dialog with nothing to decide is a dialog people learn to dismiss
         without reading — which is how the *next* one gets dismissed too.
+
+        The group set is always a real choice, so on its own it is enough reason
+        to ask: it is the one answer here that is awkward to change afterwards,
+        because by then mods have been sorted into the groups it created.
         """
-        return len(installs) > 1 or len(store_options) > 1
+        return bool(installs)
 
 
 def _wrap(inner) -> QWidget:
