@@ -137,6 +137,10 @@ class DownloadProjectDialog(QDialog):
         self.file_tree = QTreeWidget()
         self.file_tree.setHeaderLabels(["File", "Size", "Status"])
         self.file_tree.setRootIsDecorated(False)
+        # "If you don't want to use these files, select all the files and press
+        # the Space Bar" (newtopic4) — which needs more than one row selectable.
+        self.file_tree.setSelectionMode(QTreeWidget.SelectionMode.ExtendedSelection)
+        self.file_tree.installEventFilter(self)
         self.file_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.file_tree.customContextMenuRequested.connect(self._on_files_menu)
         self.file_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
@@ -222,6 +226,35 @@ class DownloadProjectDialog(QDialog):
         self.status.setText(
             f"{len(files)} file(s) found." if files else "No files found."
         )
+
+    def eventFilter(self, watched, event):  # noqa: N802 (Qt override)
+        """Space toggles every selected file, not only the current one.
+
+        Qt's own Space handling ticks the current row and ignores the rest of
+        the selection, which makes "select all the files and press the Space
+        Bar" tick exactly one of them.
+        """
+        from PySide6.QtCore import QEvent
+
+        if (
+            watched is self.file_tree
+            and event.type() == QEvent.Type.KeyPress
+            and event.key() == Qt.Key.Key_Space
+        ):
+            selected = self.file_tree.selectedItems()
+            if len(selected) > 1:
+                # Everything follows the current row, so a mixed selection ends
+                # up consistent rather than each row flipping its own way.
+                current = self.file_tree.currentItem() or selected[0]
+                wanted = (
+                    Qt.CheckState.Unchecked
+                    if current.checkState(0) == Qt.CheckState.Checked
+                    else Qt.CheckState.Checked
+                )
+                for item in selected:
+                    item.setCheckState(0, wanted)
+                return True
+        return super().eventFilter(watched, event)
 
     def _on_files_menu(self, point) -> None:
         """Copy the file name or its direct link (VB CmCopyFilename / CmCopyLink)."""
