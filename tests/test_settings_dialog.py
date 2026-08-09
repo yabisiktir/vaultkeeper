@@ -185,6 +185,97 @@ def test_web_menu_remove_and_move(qtbot):
     assert [dlg.web_tree.topLevelItem(i).text(0) for i in range(2)] == ["A", "C"]
 
 
+def test_new_menu_item_lands_after_the_selected_one(qtbot):
+    """bhwebmenu/bhrunmenu: "Select the item that will precede your new entry."
+
+    It used to append to the end, so placing an entry in a long menu meant
+    clicking Move Up until it got there.
+    """
+    settings = Settings(
+        web_links=[
+            {"text": "A", "url": "a"},
+            {"text": "B", "url": "b"},
+            {"text": "C", "url": "c"},
+        ]
+    )
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(0))
+    dlg._web_add()
+    names = [dlg.web_tree.topLevelItem(i).text(0) for i in range(4)]
+    assert names == ["A", "New Link", "B", "C"]
+    # And the new row is what you are now editing.
+    assert dlg.web_tree.currentItem().text(0) == "New Link"
+
+    # Nothing selected: it goes on the end, which is the only place left.
+    dlg.web_tree.setCurrentItem(None)
+    dlg._web_add()
+    assert dlg.web_tree.topLevelItem(4).text(0) == "New Link"
+
+
+def test_run_menu_new_item_also_inserts_after(qtbot):
+    settings = Settings(
+        run_links=[{"text": "One", "path": "/one"}, {"text": "Two", "path": "/two"}]
+    )
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    dlg.run_tree.setCurrentItem(dlg.run_tree.topLevelItem(0))
+    dlg._run_add()
+    assert [dlg.run_tree.topLevelItem(i).text(0) for i in range(3)] == [
+        "One",
+        "New Program",
+        "Two",
+    ]
+
+
+def test_menu_editors_answer_a_right_click(qtbot):
+    """"Right-Click… to access the actions menu" — it did nothing before."""
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtGui import QShortcut
+    from PySide6.QtWidgets import QMenu
+
+    settings = Settings(web_links=[{"text": "A", "url": "a"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    offered = []
+    for tree in (dlg.web_tree, dlg.run_tree):
+        assert tree.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu
+        menu = tree.findChild(QMenu)
+        assert menu is not None
+        offered.append([a.text() for a in menu.actions()])
+        # Shown with popup(), so emitting the request does not block a test.
+        tree.customContextMenuRequested.emit(QPoint(4, 4))
+        assert menu.isVisible()
+        menu.hide()
+        # Insert is a *widget* shortcut, so the inline editor keeps its own keys
+        # (the Rename regression in ui/file_view.py).
+        shortcuts = tree.findChildren(QShortcut)
+        assert [s.key().toString() for s in shortcuts] == ["Ins"]
+        assert all(s.context() == Qt.ShortcutContext.WidgetShortcut for s in shortcuts)
+
+    assert offered[0][0] == "New Menu Item"
+    assert "Browse…" in offered[1]
+
+
+def test_web_menu_keeps_an_ampersand_as_an_alt_key(qtbot):
+    """"&Search the Vault … launched using the Alt, W, S key sequence."
+
+    Qt reads the ampersand itself, so this only needs the text to reach the
+    action unmangled — which is worth pinning, because escaping it anywhere
+    along the way would silently cost the feature.
+    """
+    from vaultkeeper.ui.menu_bar import NitMenuBar
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    bar.populate_web_menu([{"text": "&Search the Vault", "url": "https://x"}], print)
+
+    assert bar.menus["MsWeb"].actions()[0].text() == "&Search the Vault"
+
+
 def test_web_menu_reset_to_defaults(qtbot):
     from vaultkeeper.config.settings import default_web_links
 

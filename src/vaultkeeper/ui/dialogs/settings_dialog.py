@@ -45,6 +45,59 @@ from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
+def _insert_after_current(tree: QTreeWidget, columns: list[str]) -> QTreeWidgetItem:
+    """Add a row **after** the selected one (``bhwebmenu`` / ``bhrunmenu``).
+
+    "Select the item that will precede your new entry… The new item is inserted
+    after the entry you selected." These menus are ordered lists that people
+    read top to bottom, so where a new entry lands is the feature; appending to
+    the end meant clicking Move Up as many times as the list is long.
+    """
+    item = QTreeWidgetItem(columns)
+    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+    current = tree.currentItem()
+    index = tree.indexOfTopLevelItem(current) if current is not None else -1
+    if index >= 0:
+        tree.insertTopLevelItem(index + 1, item)
+    else:
+        tree.addTopLevelItem(item)
+    tree.setCurrentItem(item)
+    return item
+
+
+def _install_actions_menu(tree: QTreeWidget, actions: list[tuple[str, object]]) -> None:
+    """Right-click / Insert as the topics describe them.
+
+    "Click the Edit Icon, Right-Click, Double-Click or press the Space Bar to
+    access the actions menu." The buttons down the side do all of this already;
+    what was missing is that right-clicking a list of things you are editing did
+    nothing at all, which reads as a broken list rather than a different idiom.
+
+    Insert is a widget shortcut, not a window one, so the inline editor these
+    rows open keeps its own keys (see the Rename regression in
+    ``ui/file_view.py``).
+    """
+    from PySide6.QtGui import QKeySequence, QShortcut
+    from PySide6.QtWidgets import QMenu
+
+    # Built once and shown with popup() rather than exec(): the contents never
+    # vary, and exec() is a nested event loop that a test cannot get out of —
+    # QMenu.exec cannot be patched away in PySide6, it dispatches to C++ either
+    # way and blocks forever.
+    menu = QMenu(tree)
+    for label, slot in actions:
+        menu.addAction(label, slot)
+
+    tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+    tree.customContextMenuRequested.connect(
+        lambda pos: menu.popup(tree.viewport().mapToGlobal(pos))
+    )
+
+    insert = QShortcut(QKeySequence(Qt.Key.Key_Insert), tree)
+    insert.setContext(Qt.ShortcutContext.WidgetShortcut)
+    insert.activated.connect(actions[0][1])
+
+
 class _ColourButton(QPushButton):
     """One colour, with a swatch, a picker and a way back to the default.
 
@@ -603,6 +656,15 @@ class SettingsDialog(QDialog):
         buttons.addStretch(1)
         row.addLayout(buttons)
         outer.addLayout(row)
+        _install_actions_menu(
+            self.web_tree,
+            [
+                ("New Menu Item", self._web_add),
+                ("Remove", self._web_remove),
+                ("Move Up", lambda: self._web_move(-1)),
+                ("Move Down", lambda: self._web_move(1)),
+            ],
+        )
         return page
 
     def _add_web_row(self, text: str, url: str) -> QTreeWidgetItem:
@@ -612,8 +674,7 @@ class SettingsDialog(QDialog):
         return item
 
     def _web_add(self) -> None:
-        item = self._add_web_row("New Link", "https://")
-        self.web_tree.setCurrentItem(item)
+        item = _insert_after_current(self.web_tree, ["New Link", "https://"])
         self.web_tree.editItem(item, 0)
 
     def _web_remove(self) -> None:
@@ -682,6 +743,16 @@ class SettingsDialog(QDialog):
         buttons.addStretch(1)
         row.addLayout(buttons)
         outer.addLayout(row)
+        _install_actions_menu(
+            self.run_tree,
+            [
+                ("New Menu Item", self._run_add),
+                ("Browse…", self._run_browse),
+                ("Remove", self._run_remove),
+                ("Move Up", lambda: self._run_move(-1)),
+                ("Move Down", lambda: self._run_move(1)),
+            ],
+        )
         return page
 
     def _add_run_row(self, text: str, path: str) -> QTreeWidgetItem:
@@ -691,8 +762,7 @@ class SettingsDialog(QDialog):
         return item
 
     def _run_add(self) -> None:
-        item = self._add_run_row("New Program", "")
-        self.run_tree.setCurrentItem(item)
+        item = _insert_after_current(self.run_tree, ["New Program", ""])
         self.run_tree.editItem(item, 0)
 
     def _run_browse(self) -> None:
