@@ -110,6 +110,8 @@ them.
 | specifyaneverwinternightsfolder.htm | Specify a Neverwinter Nights folder | **Closed** — per-profile paths, editable on the Profiles page |
 | createaneverwinternightsfolder.htm | Create a Neverwinter Nights folder | **Closed** — on the Profiles page, per profile |
 | newtopic24.htm | Update existing Mods | Ported — the superseded-downloads prompt offers Delete and _History |
+| communitypatchprojectcpp.htm | Community Patch Project (CPP) | **Led to a real gap** — the exclusions its advice depends on did not exist |
+| communityexpansionpackcep.htm | Community Expansion Pack (CEP) | Advice; nothing to port |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -150,6 +152,30 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Player or Mod Builder — the fourth first-run question
+
+`communitypatchprojectcpp.htm` is advice, not a feature: "the **1.72 builder
+resources** entry in the Map Exclusions page controls whether CPP's Builder
+Resources are included". Following it meant looking for that entry — and it was
+not there, because VB's whole **``PlayerExcludes``** table had never been ported.
+
+It is a second exclude set, asked about once: ten starter/demo module names that
+ship inside community packs, seven specific files, and two folders (builder
+resources, script templates). Player adds them; Builder adds nothing. That is
+the entire difference, and it decides what Create Installer leaves out — the
+last thing anybody wants to discover after building thirty installers.
+
+★ "mods" had to become an overridable exclude kind. The port could persist file
+and folder exclusions but not module-name ones, and an exclusion that cannot be
+persisted is one that comes back every launch. The additions go through
+`add_exclude` rather than into the table directly, for the same reason.
+
+Four of the five first-run questions are now asked: **which installation**,
+**where the store goes**, **which group set**, **which edition** (at profile
+creation), and now **player or builder**. The one left is the user-files folder
+and its disable-detection setting, which is reachable from Settings and never
+silent.
 
 ## Why 160 topics still say UNREVIEWED
 

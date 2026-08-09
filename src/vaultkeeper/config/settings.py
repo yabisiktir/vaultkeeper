@@ -138,6 +138,10 @@ class Settings:
     #: Per-extension filename-prefix exceptions that send a file to its
     #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
     map_exception_prefixes: dict[str, list] = field(default_factory=dict)
+    #: Whether the one-time Player/Builder question has been put (VB
+    #: ``PrivateCheckPlayerExcludes``). Asked once; the Map Excludes page is
+    #: where it is revisited.
+    asked_player_excludes: bool = False
     #: Per-profile game folders, profile name → path. "Each profile operates
     #: with a specific Neverwinter Nights Installation or Enhanced Edition User
     #: Files folder […] to use development or test installations that do not

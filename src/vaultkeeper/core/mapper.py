@@ -205,6 +205,40 @@ def default_exclude_folders() -> dict[str, bool]:
     }
 
 
+#: What a *player* does not need in an installer (VB ``PlayerExcludes``). Builder
+#: resources, script templates and the starter/demo modules that ship inside
+#: community packs: all of them matter to someone building a module and to
+#: nobody playing one. Asked once, and adjustable afterwards on the Map Excludes
+#: page — which is what ``communitypatchprojectcpp.htm`` tells people to do.
+PLAYER_EXCLUDE_MODS: tuple[str, ...] = (
+    "CEP - Starter",
+    "CEP Open",
+    "CEP Starter",
+    "CEP 1 Open",
+    "CEP 1 Starter",
+    "CEPv2_starter",
+    "CEPv22_",
+    "CEPv23_",
+    "CEPv24_",
+    "Q_Base_",
+)
+
+PLAYER_EXCLUDE_FILES: tuple[str, ...] = (
+    "Abyss.mod",
+    "Black Robe Dungeon - The Beginning v17.mod",
+    "Dragonlance Adventures - Horse v1.mod",
+    "LOKDungeon.mod",
+    "RockInterior.mod",
+    "s1dmavatar.bic",
+    "zcepdatabase-an.bic",
+)
+
+PLAYER_EXCLUDE_FOLDERS: tuple[str, ...] = (
+    "1.72 builder resources",
+    "scripttemplates",
+)
+
+
 def default_exclude_mods() -> dict[str, bool]:
     """Default demo-mod exclusion substrings (DefaultExcludeMods)."""
     return {"demo": True, "test": True}
@@ -231,7 +265,10 @@ class Mapper:
     _OVERRIDE_TABLES = ("ext_mapping", "dir_mapping", "exception_files", "folder_moves")
 
     #: Exclude-list kinds a user can add to (VB Settings "Excluded Items").
-    _EXCLUDE_KINDS = ("files", "folders")
+    #: "mods" is here because VB's player exclusions include demo/starter module
+    #: names, and an exclusion that cannot be persisted is one that comes back
+    #: every launch.
+    _EXCLUDE_KINDS = ("files", "folders", "mods")
 
     def __init__(
         self,
@@ -376,7 +413,11 @@ class Mapper:
 
     # -- Exclude overrides (VB Settings "Excluded Items" / LvMapExcludes) --- #
     def _exclude_table(self, kind: str) -> dict[str, bool]:
-        return {"files": self.exclude_files, "folders": self.exclude_folders}[kind]
+        return {
+            "files": self.exclude_files,
+            "folders": self.exclude_folders,
+            "mods": self.exclude_mods,
+        }[kind]
 
     def apply_exclude_overrides(self, excludes: dict[str, list[str]]) -> None:
         """Add user exclude entries (``{"files": [...], "folders": [...]}``)."""
@@ -499,6 +540,38 @@ class Mapper:
 
     def allow_moves(self, extension: str) -> bool:
         return extension.lower() in self.folder_moves
+
+    def apply_player_excludes(self) -> int:
+        """Add the player exclusions, skipping any already there (VB ``CheckPlayerExcludes``).
+
+        Returns how many were added. Additive on purpose: this runs once, and a
+        list the user has since edited must not be reset by it.
+        """
+        added = 0
+        for kind, names in (
+            ("mods", PLAYER_EXCLUDE_MODS),
+            ("files", PLAYER_EXCLUDE_FILES),
+            ("folders", PLAYER_EXCLUDE_FOLDERS),
+        ):
+            table = self._exclude_table(kind)
+            for name in names:
+                if name.lower() not in table:
+                    # Through add_exclude so it is recorded as a user addition
+                    # and survives a restart; writing the table directly would
+                    # add it for this session only.
+                    self.add_exclude(kind, name)
+                    added += 1
+        return added
+
+    def missing_player_excludes(self) -> int:
+        """How many player exclusions are not present — 0 means nothing to ask."""
+        return (
+            sum(1 for n in PLAYER_EXCLUDE_MODS if n.lower() not in self.exclude_mods)
+            + sum(1 for n in PLAYER_EXCLUDE_FILES if n.lower() not in self.exclude_files)
+            + sum(
+                1 for n in PLAYER_EXCLUDE_FOLDERS if n.lower() not in self.exclude_folders
+            )
+        )
 
     def is_exception_file(self, filename: str) -> bool:
         return filename.lower() in self.exception_files

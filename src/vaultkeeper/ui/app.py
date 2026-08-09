@@ -84,6 +84,8 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     window = MainWindow(controller)
     window.show()
     if first_run:
+        # Which kind of collection this is, before anything is built from it.
+        window.offer_player_excludes()
         window.offer_legacy_import()
 
     # Validation runs after loading — it is the load's *result* it checks (VB

@@ -756,6 +756,35 @@ class MainWindow(QMainWindow):
         menu.addAction("Import Legacy NIT Store…", self._on_import_legacy)
         menu.exec(QCursor.pos())
 
+    def offer_player_excludes(self) -> None:
+        """Ask once whether this is a player's or a builder's collection.
+
+        VB's ``CheckPlayerExcludes``. It decides what Create Installer leaves
+        out — builder resources, script templates, and the starter modules that
+        ship inside community packs — and it is the last thing anybody wants to
+        discover after building thirty installers.
+        """
+        if self.controller is None or not self.controller.player_excludes_pending():
+            return
+        box = QMessageBox(self)
+        box.setWindowTitle("Player or Mod Builder?")
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setText(
+            "Do you play modules, or build them?\n\n"
+            "A player's installers can leave out the parts only a builder needs: "
+            "builder resources, script templates, and the starter modules that "
+            "come inside community packs like CEP.\n\n"
+            "Either way, Settings → Map Excludes is where this is changed later."
+        )
+        player = box.addButton("I play modules", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("I build modules", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        result = self.controller.answer_player_excludes(
+            player=box.clickedButton() is player
+        )
+        self.nit_status.set_info(result["message"])
+
     def offer_legacy_import(self) -> None:
         """On first run, offer to import a detected legacy NIT Store (VB auto-migrates).
 

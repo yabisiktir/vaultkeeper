@@ -7031,6 +7031,40 @@ class ProfileController:
             "summary": f"Excluded files: {len(files)}. Excluded folders: {len(folders)}.",
         }
 
+    def player_excludes_pending(self) -> int:
+        """How many player exclusions are missing, if the question is still open.
+
+        Zero means there is nothing to ask about — either it has been asked
+        already, or the lists carry them anyway.
+        """
+        if self._settings().asked_player_excludes:
+            return 0
+        return self.ctx.mapper.missing_player_excludes()
+
+    def answer_player_excludes(self, *, player: bool) -> dict:
+        """Record the Player/Builder answer, adding the exclusions if Player.
+
+        Asked once. Builder adds nothing, which is the whole of the difference:
+        the excluded items are the ones only a module builder wants.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        added = self.ctx.mapper.apply_player_excludes() if player else 0
+        settings = load_settings(self._settings_path)
+        settings.asked_player_excludes = True
+        if added:
+            settings.map_exclude_overrides = self.ctx.mapper.export_exclude_overrides()
+        save_settings(settings, self._settings_path)
+        return {
+            "ok": True,
+            "added": added,
+            "message": (
+                f"Added {added} player exclusion(s)."
+                if added
+                else "No extra exclusions were added."
+            ),
+        }
+
     def add_map_exclude(self, kind: str, name: str) -> None:
         """Add a user exclude (``kind`` = ``"files"``/``"folders"``) and persist."""
         self.ctx.mapper.add_exclude(kind, name)
