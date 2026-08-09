@@ -115,6 +115,8 @@ class SettingsDialog(QDialog):
         self._controller = controller
         #: Profile → new game folder, from the Profiles page; applied on Save.
         self._profile_folder_edits: dict[str, str] = {}
+        #: Profiles staged for removal, applied on Save.
+        self._profiles_to_remove: set[str] = set()
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
@@ -795,15 +797,68 @@ class SettingsDialog(QDialog):
         )
         self.profile_create_button.clicked.connect(self._on_create_profile_folder)
         row.addWidget(self.profile_create_button)
+        self.profile_remove_button = QPushButton("Remove…")
+        self.profile_remove_button.setToolTip(
+            "Delete this profile's mods and database when you click OK"
+        )
+        self.profile_remove_button.clicked.connect(self._on_remove_profile)
+        row.addWidget(self.profile_remove_button)
         row.addStretch(1)
         layout.addLayout(row)
         self._sync_profile_buttons()
         return page
 
     def _sync_profile_buttons(self) -> None:
-        has_profile = self.profiles_tree.currentItem() is not None
-        self.profile_folder_button.setEnabled(has_profile)
-        self.profile_create_button.setEnabled(has_profile)
+        item = self.profiles_tree.currentItem()
+        has_profile = item is not None
+        staged = has_profile and item.text(0) in self._profiles_to_remove
+        self.profile_folder_button.setEnabled(has_profile and not staged)
+        self.profile_create_button.setEnabled(has_profile and not staged)
+        # The loaded profile cannot be removed from under the running window.
+        self.profile_remove_button.setEnabled(
+            has_profile and item.text(0) != self._settings.active_profile
+        )
+        self.profile_remove_button.setText("Keep" if staged else "Remove…")
+
+    def _on_remove_profile(self) -> None:
+        """Stage a profile for removal, applied on OK (VB "flagged for deletion").
+
+        Staged rather than done immediately, as VB does: this deletes a whole
+        collection of mods, and Cancel has to mean cancel.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        item = self.profiles_tree.currentItem()
+        if item is None:
+            return
+        name = item.text(0)
+        if name in self._profiles_to_remove:
+            self._profiles_to_remove.discard(name)
+            font = item.font(0)
+            font.setStrikeOut(False)
+            for column in range(3):
+                item.setFont(column, font)
+            self._sync_profile_buttons()
+            return
+        if (
+            QMessageBox.question(
+                self,
+                "Remove Profile",
+                f"Remove '{name}' when you click OK?\n\n"
+                "Its mods and its database are deleted — everything that profile "
+                "installed from, not only its record.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        self._profiles_to_remove.add(name)
+        font = item.font(0)
+        font.setStrikeOut(True)
+        for column in range(3):
+            item.setFont(column, font)
+        self._sync_profile_buttons()
 
     def _on_create_profile_folder(self) -> None:
         """Create a game folder for the selected profile and point it there."""
@@ -1063,5 +1118,19 @@ class SettingsDialog(QDialog):
         if dlg.exec() == QDialog.DialogCode.Accepted:
             dlg.apply_to(settings)
             save_settings(settings, settings_path)
+            # Profiles staged on the Profiles page. After the save, so a failure
+            # here cannot lose the rest of the preferences.
+            dlg.apply_profile_removals(settings, settings_path)
             return settings
         return None
+
+    def apply_profile_removals(self, settings: Settings, settings_path=None) -> list[str]:
+        """Delete the profiles staged for removal. Returns what each one said."""
+        from vaultkeeper.ui.session import delete_profile
+
+        messages = []
+        for name in sorted(self._profiles_to_remove):
+            result = delete_profile(name, settings, settings_path=settings_path)
+            messages.append(result["message"])
+        self._profiles_to_remove.clear()
+        return messages

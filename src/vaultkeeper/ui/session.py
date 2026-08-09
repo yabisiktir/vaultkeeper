@@ -131,6 +131,63 @@ def profile_is_ee(profile: str, settings: Settings | None = None) -> bool:
     return bool((settings.profile_editions or {}).get(profile, True))
 
 
+def delete_profile(
+    name: str, settings: Settings | None = None, *, settings_path: Path | None = None
+) -> dict:
+    """Remove a profile's mods and database (VB ``removeaprofile.htm``).
+
+    "the Installer Tool deletes the Profile's directory in the NIT Store's
+    Profiles and Data folders. The deleted folders are moved to the Recycle Bin,
+    unless you have changed the default option."
+
+    The loaded profile is refused rather than deleted from under the running
+    window — VB flags it and acts on Save; refusing outright is the same
+    protection with less to go wrong.
+    """
+    from vaultkeeper.core import fs
+
+    settings = settings or load_settings(settings_path)
+    if not name:
+        return {"ok": False, "message": "No profile was named."}
+    if name == settings.active_profile:
+        return {
+            "ok": False,
+            "message": (
+                f"'{name}' is the profile you have open. Load another one first."
+            ),
+        }
+
+    store = settings.resolved_store()
+    to_trash = settings.recycle_on_delete
+    removed, failures = [], []
+    for path in (
+        store.profile_dir(name),
+        store.profile_data_dir(name),
+        store.data / f"{name}.json",
+    ):
+        if not path.exists():
+            continue
+        try:
+            fs.delete(path, to_trash=to_trash, missing_ok=True)
+            removed.append(path.name)
+        except OSError as ex:
+            failures.append(f"{path.name}: {ex}")
+
+    # Its recorded settings go too, or a profile of the same name made later
+    # inherits the old one's edition and folder.
+    for table in ("profile_editions", "profile_game_paths", "profile_game_user_paths"):
+        current = dict(getattr(settings, table) or {})
+        if current.pop(name, None) is not None:
+            setattr(settings, table, current)
+    save_settings(settings, settings_path)
+
+    where = "the recycle bin" if to_trash else "permanently"
+    message = f"Removed profile '{name}' ({where})."
+    if failures:
+        message += f" {len(failures)} item(s) could not be removed."
+    return {"ok": not failures, "removed": len(removed), "message": message}
+
+
 def list_profiles(settings: Settings | None = None) -> list[str]:
     """Names of the profiles that exist in the store (Profiles subdirectories)."""
     settings = settings or load_settings()

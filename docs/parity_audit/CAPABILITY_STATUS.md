@@ -112,6 +112,9 @@ them.
 | newtopic24.htm | Update existing Mods | Ported — the superseded-downloads prompt offers Delete and _History |
 | communitypatchprojectcpp.htm | Community Patch Project (CPP) | **Led to a real gap** — the exclusions its advice depends on did not exist |
 | communityexpansionpackcep.htm | Community Expansion Pack (CEP) | Advice; nothing to port |
+| removeaprofile.htm | Remove a Profile | **Was a GAP, now closed** — there was no way to remove one |
+| switchextendededition.htm | Switching Beamdog ↔ Steam | Ported — the Library path is editable on Locations |
+| essentials.htm / newtopic.htm | Terminology / uninstalling NIT | Reference; nothing to port |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

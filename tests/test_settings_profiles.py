@@ -146,3 +146,96 @@ def test_both_profile_buttons_need_a_selection(qtbot, settings):
     dlg._sync_profile_buttons()
     assert not dlg.profile_folder_button.isEnabled()
     assert not dlg.profile_create_button.isEnabled()
+
+
+# -- Removing a profile (removeaprofile.htm) ------------------------------------- #
+def test_removing_deletes_the_mods_and_the_database(qtbot, settings, tmp_path):
+    """"the Installer Tool deletes the Profile's directory in the NIT Store's
+    Profiles and Data folders." There was no way to remove a profile at all."""
+    from vaultkeeper.ui.session import delete_profile
+
+    store = settings.resolved_store()
+    (store.profile_dir("Classic") / "SomeMod").mkdir(parents=True, exist_ok=True)
+    (store.data / "Classic.json").write_text("{}")
+
+    settings.active_profile = "Live"
+    result = delete_profile("Classic", settings, settings_path=tmp_path / "settings.json")
+
+    assert result["ok"], result["message"]
+    assert not store.profile_dir("Classic").exists()
+    assert not (store.data / "Classic.json").exists()
+
+
+def test_the_loaded_profile_is_refused(qtbot, settings, tmp_path):
+    """Deleting it out from under the running window is not something to do
+    politely — VB flags it for later; refusing outright is the same protection
+    with less to go wrong."""
+    from vaultkeeper.ui.session import delete_profile
+
+    settings.active_profile = "Live"
+    result = delete_profile("Live", settings, settings_path=tmp_path / "settings.json")
+
+    assert not result["ok"] and "have open" in result["message"]
+    assert settings.resolved_store().profile_dir("Live").exists()
+
+
+def test_its_recorded_settings_go_with_it(qtbot, settings, tmp_path):
+    """Otherwise a profile made later with the same name inherits the old one's
+    edition and folder."""
+    from vaultkeeper.ui.session import delete_profile
+
+    settings.active_profile = "Live"
+    delete_profile("Classic", settings, settings_path=tmp_path / "settings.json")
+
+    assert "Classic" not in settings.profile_editions
+    assert "Classic" not in settings.profile_game_paths
+
+
+def test_removal_is_staged_until_ok(qtbot, settings, tmp_path, monkeypatch):
+    """It deletes a whole collection of mods, so Cancel has to mean cancel."""
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    settings.active_profile = "Live"
+    dlg = _page(qtbot, settings)
+    for i in range(dlg.profiles_tree.topLevelItemCount()):
+        if dlg.profiles_tree.topLevelItem(i).text(0) == "Classic":
+            dlg.profiles_tree.setCurrentItem(dlg.profiles_tree.topLevelItem(i))
+    dlg._on_remove_profile()
+
+    assert "Classic" in dlg._profiles_to_remove
+    assert dlg.profiles_tree.currentItem().font(0).strikeOut()
+    assert settings.resolved_store().profile_dir("Classic").exists(), "not yet"
+
+    dlg.apply_profile_removals(settings, tmp_path / "settings.json")
+    assert not settings.resolved_store().profile_dir("Classic").exists()
+
+
+def test_staging_can_be_undone(qtbot, settings, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes
+    )
+    settings.active_profile = "Live"
+    dlg = _page(qtbot, settings)
+    for i in range(dlg.profiles_tree.topLevelItemCount()):
+        if dlg.profiles_tree.topLevelItem(i).text(0) == "Classic":
+            dlg.profiles_tree.setCurrentItem(dlg.profiles_tree.topLevelItem(i))
+
+    dlg._on_remove_profile()
+    assert dlg.profile_remove_button.text() == "Keep"
+    dlg._on_remove_profile()          # the button now says Keep
+    assert dlg._profiles_to_remove == set()
+    assert not dlg.profiles_tree.currentItem().font(0).strikeOut()
+
+
+def test_the_remove_button_is_off_for_the_loaded_profile(qtbot, settings):
+    settings.active_profile = "Live"
+    dlg = _page(qtbot, settings)
+    for i in range(dlg.profiles_tree.topLevelItemCount()):
+        item = dlg.profiles_tree.topLevelItem(i)
+        dlg.profiles_tree.setCurrentItem(item)
+        assert dlg.profile_remove_button.isEnabled() == (item.text(0) != "Live")
