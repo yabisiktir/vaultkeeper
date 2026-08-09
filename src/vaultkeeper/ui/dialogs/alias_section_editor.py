@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -45,7 +46,7 @@ class AliasSectionEditor(QDialog):
         self._controller = controller
         self.setWindowTitle("Alias Section Editor")
         self.setWindowIcon(R.get_icon("SettingsCogBlue"))
-        self.resize(640, 460)
+        geometry.remember(self, "AliasSectionEditor", 640, 460)
         #: Set True once a save actually changes nwn.ini (the caller re-opens the profile).
         self.changed = False
 

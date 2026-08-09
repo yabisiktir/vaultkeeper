@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.constants import INSTALLER_UNKNOWN
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
 from vaultkeeper.ui.dialogs.settings_access import SettingsAccess
@@ -79,7 +80,7 @@ class PortraitManager(SettingsAccess, QDialog):
         self._last_direction = 1  # which way "always select next" should move
         self._toolbar_actions: dict[str, object] = {}
         self.setWindowIcon(R.get_icon("user"))
-        self.resize(860, 560)
+        geometry.remember(self, "PortraitManager", 860, 560)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self._build_toolbar())

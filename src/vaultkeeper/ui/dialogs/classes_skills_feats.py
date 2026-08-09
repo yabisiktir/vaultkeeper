@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _DESC_ROLE = Qt.ItemDataRole.UserRole
@@ -96,7 +97,7 @@ class ClassesSkillsAndFeatsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Classes, Skills and Feats")
         self.setWindowIcon(R.app_icon())
-        self.resize(680, 480)
+        geometry.remember(self, "ClassesSkillsAndFeatsDialog", 680, 480)
         reference = reference or default_reference()
 
         layout = QVBoxLayout(self)

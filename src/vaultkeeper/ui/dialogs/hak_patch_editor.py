@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -34,7 +35,7 @@ class HakPatchEditor(QDialog):
         self._controller = controller
         self.setWindowTitle("Hak Patch Editor")
         self.setWindowIcon(R.get_icon("Hammer_Builder_16xLG"))
-        self.resize(420, 420)
+        geometry.remember(self, "HakPatchEditor", 420, 420)
 
         outer = QVBoxLayout(self)
         self._count_label = QLabel("")

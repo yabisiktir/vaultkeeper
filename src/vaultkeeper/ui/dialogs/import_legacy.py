@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -35,7 +36,7 @@ class ImportLegacyStore(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Import Legacy NIT Store")
         self.setWindowIcon(R.get_icon("SettingsCogBlue"))
-        self.resize(560, 380)
+        geometry.remember(self, "ImportLegacyStore", 560, 380)
         self._on_imported = on_imported
 
         layout = QVBoxLayout(self)

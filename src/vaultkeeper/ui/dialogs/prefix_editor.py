@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -31,7 +32,7 @@ class PrefixEditor(QDialog):
         self._controller = controller
         self.setWindowTitle("Edit Start Screen Prefixes")
         self.setWindowIcon(R.get_icon("Edit_16x"))
-        self.resize(460, 420)
+        geometry.remember(self, "PrefixEditor", 460, 420)
 
         outer = QVBoxLayout(self)
         help_text = QLabel(

@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.create_nwn_folder import create_nwn_folder, default_target
+from vaultkeeper.ui import geometry
 
 
 class CreateNwnFolderDialog(QDialog):
@@ -43,7 +44,7 @@ class CreateNwnFolderDialog(QDialog):
         self._config_ini_source = config_ini_source
         self.created_path: str = ""
         self.setWindowTitle("Create Neverwinter Nights Folder")
-        self.resize(560, 220)
+        geometry.remember(self, "CreateNwnFolderDialog", 560, 220)
 
         layout = QVBoxLayout(self)
         layout.addWidget(

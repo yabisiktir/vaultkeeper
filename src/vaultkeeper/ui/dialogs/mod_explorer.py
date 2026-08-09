@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -101,7 +102,7 @@ class ModExplorer(QDialog):
         self._controller = controller
         self.setWindowTitle("Mod Explorer")
         self.setWindowIcon(R.get_icon("Mod Explorer 1"))
-        self.resize(760, 500)
+        geometry.remember(self, "ModExplorer", 760, 500)
         self._rows = list(report.get("rows", []))
         self._on_select = on_select
         self._on_add_recent = on_add_recent

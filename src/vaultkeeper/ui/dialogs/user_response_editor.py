@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _KEY_ROLE = 0x0100  # Qt.UserRole
@@ -33,7 +34,7 @@ class UserResponseEditor(QDialog):
         super().__init__(parent)
         self.setWindowTitle("User Response Editor")
         self.setWindowIcon(R.get_icon("user"))
-        self.resize(560, 440)
+        geometry.remember(self, "UserResponseEditor", 560, 440)
         self._controller = controller
 
         layout = QVBoxLayout(self)

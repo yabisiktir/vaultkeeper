@@ -45,6 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.name_edit import validate_name
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.theme import status_colour
 
@@ -74,7 +75,7 @@ class DocOrganiser(QDialog):
         self._mod_names = mod_names
         self.setWindowTitle("Mod Documentation Organiser")
         self.setWindowIcon(R.get_icon("VBExtension_16x"))
-        self.resize(820, 560)
+        geometry.remember(self, "DocOrganiser", 820, 560)
 
         layout = QVBoxLayout(self)
         heading = QLabel(_HEADING)

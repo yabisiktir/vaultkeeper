@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -30,7 +31,7 @@ class PlayDataViewPending(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Pending Play Data")
         self.setWindowIcon(R.get_icon("Time_Green_16x"))
-        self.resize(560, 380)
+        geometry.remember(self, "PlayDataViewPending", 560, 380)
 
         layout = QVBoxLayout(self)
         layout.addWidget(

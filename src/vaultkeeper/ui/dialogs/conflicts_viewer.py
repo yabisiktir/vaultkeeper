@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -30,7 +31,7 @@ class ConflictsViewer(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Mod File Conflicts")
         self.setWindowIcon(R.get_icon("Overridden"))
-        self.resize(640, 440)
+        geometry.remember(self, "ConflictsViewer", 640, 440)
 
         layout = QVBoxLayout(self)
         intro = QLabel(

@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _MAX_BYTES = 4_000_000  # guard against enormous logs
@@ -31,7 +32,7 @@ class TextViewer(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setWindowIcon(R.get_icon("NIT_Log_16x"))
-        self.resize(720, 520)
+        geometry.remember(self, "TextViewer", 720, 520)
 
         layout = QVBoxLayout(self)
         self.editor = QPlainTextEdit()

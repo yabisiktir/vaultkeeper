@@ -6,9 +6,11 @@ mod's current **Dependencies** (right). Ticking a mod adds it as a dependency; *
 persists the set and (for an installed mod) reconciles dependency installs/uninstalls.
 Built on ``ProfileController.dependency_editor_data`` / ``set_mod_dependencies``.
 
-Bounded: the **Auto** button (auto-detect dependencies from Neverwinter Vault project
-links — VB ``BtAuto`` / ``GetAutoDependencyList``) needs the Vault scraper and is
-deferred.
+**Auto** (VB ``BtAuto``) works the dependencies out from the mods' Neverwinter
+Vault project pages, for the whole profile at once — which is what VB's button
+does too. It matters more than it looks: nothing else in the tool ever writes a
+dependency by itself, so without it the list stays empty however many mods
+depend on CEP in fact.
 """
 
 from __future__ import annotations
@@ -26,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _KEY_ROLE = Qt.ItemDataRole.UserRole
@@ -40,7 +43,7 @@ class DependencyEditor(QDialog):
         self._mod_name = mod_name
         self.setWindowTitle("Dependency Manager")
         self.setWindowIcon(R.get_icon("DependencyGraph_16x"))
-        self.resize(720, 460)
+        geometry.remember(self, "DependencyEditor", 720, 460)
 
         data = controller.dependency_editor_data(mod_name)
         self._groups = data["groups"]
@@ -70,6 +73,12 @@ class DependencyEditor(QDialog):
         from vaultkeeper.ui.dialogs.help_viewer import help_button
 
         buttons.addWidget(help_button("BhDependencyManager", self))
+        self.auto_button = QPushButton("Auto")
+        self.auto_button.setToolTip(
+            "Work out dependencies from each mod's Neverwinter Vault project page"
+        )
+        self.auto_button.clicked.connect(self._on_auto)
+        buttons.addWidget(self.auto_button)
         buttons.addStretch(1)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._on_save)
@@ -121,6 +130,27 @@ class DependencyEditor(QDialog):
         self.dep_list.clear()
         for name in sorted(self._deps, key=str.lower):
             self.dep_list.addItem(QListWidgetItem(name))
+
+    def _on_auto(self) -> None:
+        """Run Auto Mod Dependencies and reload this mod's set from the result."""
+        from vaultkeeper.ui.dialogs.dependency_manager import run_auto_dependencies
+
+        if run_auto_dependencies(self._controller, self) is None:
+            return
+        md = self._controller.pd.mod_item(self._mod_name)
+        self._deps = set(md.dependencies) if md is not None else set()
+        self._refresh_deps()
+        self._sync_checks()
+
+    def _sync_checks(self) -> None:
+        """Re-tick the middle list against the dependency set."""
+        for row in range(self.mod_list.count()):
+            item = self.mod_list.item(row)
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if item.data(_KEY_ROLE) in self._deps
+                else Qt.CheckState.Unchecked
+            )
 
     # -- Save ------------------------------------------------------------- #
     def _on_save(self) -> None:

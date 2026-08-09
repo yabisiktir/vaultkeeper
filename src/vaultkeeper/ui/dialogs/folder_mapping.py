@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 #: Tab-name -> index, so callers/tests can request a start page by name.
@@ -67,7 +68,7 @@ class FolderMapping(QDialog):
         self._controller = controller
         self.setWindowTitle("Folder Mapping")
         self.setWindowIcon(R.get_icon("MapToFolder_32x"))
-        self.resize(600, 600)
+        geometry.remember(self, "FolderMapping", 600, 600)
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()

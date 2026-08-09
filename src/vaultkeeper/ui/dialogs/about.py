@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -29,7 +30,7 @@ class AboutDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("About Vaultkeeper")
         self.setWindowIcon(R.app_icon())
-        self.resize(480, 380)
+        geometry.remember(self, "AboutDialog", 480, 380)
 
         layout = QVBoxLayout(self)
 

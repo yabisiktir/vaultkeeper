@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
+
 _MOD_ROLE = Qt.ItemDataRole.UserRole
 
 
@@ -41,7 +43,7 @@ class FindFilesDialog(QDialog):
         self._controller = controller
         self._on_select = on_select
         self.setWindowTitle("Find Files in Profile")
-        self.resize(560, 420)
+        geometry.remember(self, "FindFilesDialog", 560, 420)
 
         layout = QVBoxLayout(self)
 

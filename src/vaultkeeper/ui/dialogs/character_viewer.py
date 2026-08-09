@@ -42,6 +42,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.character_filter import CharacterLevelFilter
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.dialogs.inventory_view import InventoryView
@@ -86,7 +87,7 @@ class CharacterViewer(QDialog):
         self._inventory_nwn_style = inventory_nwn_style
         self._on_inventory_style_changed = on_inventory_style_changed
         self.setWindowIcon(R.get_icon("LookupUser_16x"))
-        self.resize(680, 460)
+        geometry.remember(self, "CharacterViewer", 680, 460)
         self._characters = characters
         self._resolve_portrait = portrait_resolver
         #: Portrait preview box (px) from Settings.portrait_display_size (VB PicSizes).

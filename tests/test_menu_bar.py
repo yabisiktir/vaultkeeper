@@ -173,15 +173,40 @@ def test_the_function_keys_gain_a_mac_alternative(qtbot):
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="macOS conventions")
-def test_only_one_settings_item_claims_the_preferences_slot(qtbot):
+def test_neither_settings_item_is_taken_out_of_the_options_menu(qtbot):
     """macOS picks Preferences out of the menus by caption, and *two* of ours say
-    "Settings" — left to the heuristic, both could be pulled out of Options."""
+    "Settings" — left to the heuristic, both get pulled out of Options.
+
+    Relocation is a **move, not a copy**. Giving Advanced Settings the role did
+    put ⌘, in the Apple menu and did empty the item out of Options, which the
+    owner reported as the item having disappeared. Both stay pinned; the Apple
+    menu gets a proxy instead.
+    """
     from PySide6.QtGui import QAction
 
     bar = NitMenuBar()
     qtbot.addWidget(bar)
-    assert bar.action("MsSettings").menuRole() == QAction.MenuRole.PreferencesRole
+    assert bar.action("MsSettings").menuRole() == QAction.MenuRole.NoRole
     assert bar.action("MsBasicSettings").menuRole() == QAction.MenuRole.NoRole
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="the Apple menu")
+def test_the_apple_menu_gets_a_proxy_that_opens_the_same_screen(qtbot):
+    from PySide6.QtGui import QAction
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    proxy = bar.preferences_proxy
+    assert proxy.menuRole() == QAction.MenuRole.PreferencesRole
+
+    seen: list[str] = []
+    bar.action_triggered.connect(seen.append)
+    proxy.trigger()
+    assert seen == ["MsSettings"], "the proxy is Advanced Settings by another name"
+
+    # And it is not a second visible item: it belongs to a menu only so that
+    # Cocoa can find it, and Cocoa takes it away again.
+    assert proxy not in bar.actions_by_id.values()
 
 
 def test_the_documented_key_is_first_on_every_platform(qtbot):

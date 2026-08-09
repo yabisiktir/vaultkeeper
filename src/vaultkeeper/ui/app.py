@@ -187,9 +187,13 @@ def _show_settings_before_loading() -> None:
     reasons the tool will not start, so this has to work with no controller.
     """
     try:
+        from vaultkeeper.config.settings import load_settings
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
-        SettingsDialog(None).exec()
+        # No controller: there is no profile yet, and getting to one is the
+        # reason we are here. The dialog's first argument is the settings, not
+        # the parent — passing None there crashed this path.
+        SettingsDialog(load_settings(), None).exec()
     except Exception:
         logger.exception("Could not show settings before loading")
 

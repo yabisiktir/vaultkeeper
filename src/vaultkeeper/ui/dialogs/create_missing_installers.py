@@ -28,6 +28,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
+
 #: VB ``LbInstructions.Text``.
 _INSTRUCTIONS = (
     "Set or clear the tick (check or uncheck) to specify the action to take for "
@@ -44,7 +46,7 @@ class CreateMissingInstallers(QDialog):
         super().__init__(parent)
         self._controller = controller
         self.setWindowTitle("Create Missing Installers")
-        self.resize(560, 460)
+        geometry.remember(self, "CreateMissingInstallers", 560, 460)
 
         report = controller.missing_installer_report()
         self._missing: list[str] = report["mods"]

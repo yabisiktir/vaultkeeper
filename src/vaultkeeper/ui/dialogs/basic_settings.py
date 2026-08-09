@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.config.settings import Settings, load_settings, save_settings
+from vaultkeeper.ui import geometry
 
 _DEBUG_MODE_COMMAND = "DebugMode 1"
 
@@ -53,7 +54,7 @@ class BasicSettingsDialog(QDialog):
         self._settings = settings
         self.advanced_requested = False
         self.setWindowTitle("Basic Settings")
-        self.resize(560, 460)
+        geometry.remember(self, "BasicSettingsDialog", 560, 460)
 
         layout = QVBoxLayout(self)
         layout.addWidget(

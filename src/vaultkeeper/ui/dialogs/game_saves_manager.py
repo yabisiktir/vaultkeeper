@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -46,7 +47,7 @@ class GameSavesManager(QDialog):
         self._controller = controller
         self.setWindowTitle("Game Saves Manager")
         self.setWindowIcon(R.get_icon("GameManager16"))
-        self.resize(640, 520)
+        geometry.remember(self, "GameSavesManager", 640, 520)
 
         layout = QVBoxLayout(self)
 

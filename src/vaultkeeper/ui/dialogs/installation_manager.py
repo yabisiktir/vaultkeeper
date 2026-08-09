@@ -41,6 +41,7 @@ from vaultkeeper.game.installation_sets import (
     STATE_SOME,
     STATE_UNINSTALLED,
 )
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _SET_ROLE = Qt.ItemDataRole.UserRole
@@ -62,7 +63,7 @@ class InstallationManager(QDialog):
         self._controller = controller
         self.setWindowTitle("Installation Manager")
         self.setWindowIcon(R.get_icon("Installed"))
-        self.resize(760, 500)
+        geometry.remember(self, "InstallationManager", 760, 500)
 
         self._sets: list = []
         self._installed: set[str] = set()

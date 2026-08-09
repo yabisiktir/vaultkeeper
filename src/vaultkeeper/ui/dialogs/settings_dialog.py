@@ -38,6 +38,7 @@ from vaultkeeper.config.settings import (
     load_settings,
     save_settings,
 )
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -55,7 +56,7 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Settings")
         self.setWindowIcon(R.get_icon("SettingsCogBlue"))
-        self.resize(560, 380)
+        geometry.remember(self, "SettingsDialog", 560, 380)
         self._settings = settings
         self._controller = controller
 

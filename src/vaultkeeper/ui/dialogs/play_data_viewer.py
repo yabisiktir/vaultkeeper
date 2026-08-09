@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -47,7 +48,7 @@ class PlayDataViewer(QDialog):
         self._controller = controller
         self.setWindowTitle("Mods Played")
         self.setWindowIcon(R.get_icon("PlayTime_16x"))
-        self.resize(520, 420)
+        geometry.remember(self, "PlayDataViewer", 520, 420)
 
         layout = QVBoxLayout(self)
 

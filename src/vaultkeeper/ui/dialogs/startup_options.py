@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.startup_options import StartupOptions, menu_options
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -103,7 +104,7 @@ class DataBackupDialog(QDialog):
 
         self.setWindowTitle("Restore Profile Data")
         self.setWindowIcon(R.app_icon())
-        self.resize(620, 360)
+        geometry.remember(self, "DataBackupDialog", 620, 360)
 
         layout = QVBoxLayout(self)
         heading = QLabel("Restore profile information from a backup")

@@ -357,11 +357,22 @@ MAC_EXTRA_SHORTCUTS: dict[str, object] = {
 #: macOS moves About / Quit / Preferences into the application menu, choosing
 #: them from the caption. Two of ours say "Settings" — "Basic Settings" and
 #: "Advanced Settings" — so the heuristic has two candidates for one slot and
-#: could empty both out of the Options menu. Saying which is which settles it.
+#: would empty them out of the Options menu.
+#:
+#: Both are pinned in place. Giving Advanced Settings ``PreferencesRole`` did
+#: put ⌘, in the Apple menu, and it also **took the item out of the Options
+#: menu**, which the owner noticed straight away: relocation is a move, not a
+#: copy. The port's menus are meant to match the original's, so the answer is
+#: :data:`MAC_PREFERENCES_PROXY` below — a separate action that Cocoa may
+#: relocate freely, leaving the real one where people expect it.
 MAC_MENU_ROLES: dict[str, str] = {
-    "MsSettings": "PreferencesRole",
+    "MsSettings": "NoRole",
     "MsBasicSettings": "NoRole",
 }
+
+#: The command the Apple menu's Preferences… entry runs. It is a stand-in for
+#: ``MsSettings``: identical behaviour, no place of its own in our menus.
+MAC_PREFERENCES_PROXY = "MsSettings"
 
 
 class NitMenuBar(QMenuBar):
@@ -413,6 +424,27 @@ class NitMenuBar(QMenuBar):
                     )
                 menu.addAction(act)
                 self.actions_by_id[item.action] = act
+        if sys.platform == "darwin":
+            self._add_preferences_proxy()
+
+    def _add_preferences_proxy(self) -> None:
+        """Put Preferences… ⌘, in the Apple menu without emptying the Options menu.
+
+        Cocoa *moves* an action it recognises; it does not copy one. So this is a
+        second action, doing the same thing, that it is welcome to take — the
+        real Advanced Settings item stays in Options where the original tool has
+        it. Qt gives the accelerator itself once the role is set, so ⌘, is not
+        written out here.
+        """
+        act = QAction("Preferences…", self)
+        act.setMenuRole(QAction.MenuRole.PreferencesRole)
+        act.triggered.connect(
+            lambda _=False: self.action_triggered.emit(MAC_PREFERENCES_PROXY)
+        )
+        # It has to belong to a menu to reach the native menu bar at all; which
+        # one does not matter, because it will not be staying.
+        self.menus["MsOptions"].addAction(act)
+        self.preferences_proxy = act
 
     def shortcut_actions(self) -> list[QAction]:
         """The actions carrying a keyboard shortcut, for the window to adopt."""

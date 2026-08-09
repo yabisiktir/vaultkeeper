@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -39,7 +40,7 @@ class WorkshopViewer(QDialog):
         self._controller = controller
         self.setWindowTitle("Steam Workshop Subscriptions")
         self.setWindowIcon(R.get_icon("SteamViewer"))
-        self.resize(760, 560)
+        geometry.remember(self, "WorkshopViewer", 760, 560)
 
         layout = QVBoxLayout(self)
         self.header = QLabel()

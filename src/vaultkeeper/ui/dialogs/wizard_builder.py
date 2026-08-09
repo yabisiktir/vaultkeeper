@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.wizard import default_display
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 #: Data role storing a target/source item's file key (relative path).
@@ -48,7 +49,7 @@ class WizardBuilder(QDialog):
         self._mod_name = mod_name
         self.setWindowTitle("Wizard Builder")
         self.setWindowIcon(R.get_icon("witchcraft"))
-        self.resize(820, 620)
+        geometry.remember(self, "WizardBuilder", 820, 620)
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Generate Mod Installer Wizard"))

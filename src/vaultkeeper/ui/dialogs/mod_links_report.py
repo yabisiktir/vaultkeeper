@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.background import BackgroundJob, claim, job_running
 
@@ -43,7 +44,7 @@ class ModLinksReportDialog(QDialog):
 
         self.setWindowTitle("Mod Web Links Validation Report")
         self.setWindowIcon(R.get_icon("DynamicWebSite_16x"))
-        self.resize(820, 560)
+        geometry.remember(self, "ModLinksReportDialog", 820, 560)
 
         layout = QVBoxLayout(self)
         self.status = QLabel("Validating mod web links…")

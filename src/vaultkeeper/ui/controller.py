@@ -3772,6 +3772,89 @@ class ProfileController:
             "dependencies": sorted(md.dependencies, key=key),
         }
 
+    def auto_mod_dependencies(self, *, on_progress=None) -> dict:
+        """Work out every mod's dependencies from its Vault page (VB ``BtAuto``).
+
+        Each mod that has a project link is asked what it *requires* — the Vault
+        records this per project — and each requirement is matched to a mod in
+        this profile. That is how a mod comes to know it needs CEP: nothing else
+        in the tool ever writes a dependency by itself, so without this the
+        Dependency Manager stays empty however many mods depend on CEP in fact.
+
+        Matching is by **project link first**, name second. A link is the same
+        identity the Vault uses; a name is a guess, and "CEP 2.6" and "CEP v2.6"
+        are the same mod to a human and not to a string comparison.
+
+        Replaces existing dependencies for the mods it can resolve, as VB does,
+        and leaves every other mod's alone. Returns ``{"ok", "checked",
+        "resolved", "updated", "unmatched", "errors", "message"}``.
+        """
+        from vaultkeeper.vault.mod_links import search_name
+
+        mods = [
+            (name, self.pd.mod_item(name))
+            for name in self.pd.sorted_mod_keys
+        ]
+        linked = [(n, md) for n, md in mods if md is not None and md.web_link]
+        # Index every mod by its own link and by its searchable name, so a
+        # required project can be recognised however it is named.
+        by_link = {md.web_link.lower(): n for n, md in mods if md is not None and md.web_link}
+        by_name = {search_name(n): n for n, _md in mods}
+
+        checked = resolved = updated = 0
+        unmatched: list[str] = []
+        errors: list[str] = []
+        for name, md in linked:
+            if on_progress is not None:
+                on_progress(checked, len(linked), name)
+            checked += 1
+            try:
+                required = self.project_required_projects(md.web_link)
+            except Exception as ex:  # network, parsing, a page that moved
+                errors.append(f"{name}: {ex}")
+                continue
+
+            deps: list[str] = []
+            for entry in required:
+                url = str(entry.get("url", "")).lower()
+                title = str(entry.get("title", ""))
+                match = by_link.get(url) or by_name.get(search_name(title))
+                if match and match != name:
+                    resolved += 1
+                    if match not in deps:
+                        deps.append(match)
+                elif title:
+                    unmatched.append(f"{name} requires {title}")
+            if deps and sorted(deps) != sorted(md.dependencies):
+                self.set_mod_dependencies(name, deps)
+                updated += 1
+
+        parts = [f"Checked {checked:,} mod(s) with a project link."]
+        if updated:
+            parts.append(f"Updated {updated:,}.")
+        elif checked:
+            parts.append("Nothing needed changing.")
+        if unmatched:
+            parts.append(
+                f"{len(unmatched):,} requirement(s) name a mod you do not have."
+            )
+        if errors:
+            parts.append(f"{len(errors):,} page(s) could not be read.")
+        if not linked:
+            parts = [
+                "No mod has a Vault project link yet, so there is nothing to look up. "
+                "Set one with Find Mod's Web Page Link or Edit Link to Mod's Web Page."
+            ]
+        return {
+            "ok": not errors,
+            "checked": checked,
+            "resolved": resolved,
+            "updated": updated,
+            "unmatched": unmatched,
+            "errors": errors,
+            "message": " ".join(parts),
+        }
+
     def set_mod_dependencies(self, mod_name: str, deps: list[str]) -> dict:
         """Save a mod's dependency list + reconcile installs (VB ``BtSave_Click``).
 

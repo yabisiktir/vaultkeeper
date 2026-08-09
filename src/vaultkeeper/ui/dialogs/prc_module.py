@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 #: Column of the entry/candidate/plan trees the tick box lives on.
@@ -78,7 +79,7 @@ class PrcModuleDialog(QDialog):
         self._step_label = ""
         self.setWindowTitle("Install a PRC-ified Vault Module")
         self.setWindowIcon(R.get_icon("0205_WebInsertHyperlink_32"))
-        self.resize(760, 760)
+        geometry.remember(self, "PrcModuleDialog", 760, 760)
 
         layout = QVBoxLayout(self)
         heading = QLabel(

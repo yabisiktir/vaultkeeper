@@ -82,6 +82,10 @@ class Settings:
     remember_window_position: bool = True
     #: Saved main-window geometry (Qt ``saveGeometry`` bytes, base64); internal.
     window_geometry: str = ""
+    #: Saved per-dialog geometry, keyed by screen name (same encoding); internal.
+    #: Cleared by Reset Window Layout, because a remembered size can itself be
+    #: the problem — a window dragged onto a monitor that is no longer there.
+    dialog_geometry: dict[str, str] = field(default_factory=dict)
     #: Play a sound when the application starts (VB ``BehaviourPlayStartup``).
     startup_sound: bool = False
     #: The file to play; empty means the game's own autorun fanfare, found at

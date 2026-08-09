@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.core.state import State
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 from vaultkeeper.ui.file_view import icon_name_for_state
@@ -64,7 +65,7 @@ class ModPlayViewer(QDialog):
         self._on_add_recent = on_add_recent
         self.setWindowTitle("Mods Sorted by Date Completed")
         self.setWindowIcon(R.get_icon("Time_Green_16x"))
-        self.resize(760, 560)
+        geometry.remember(self, "ModPlayViewer", 760, 560)
 
         self._rows = report.get("rows", [])
         # Include/exclude filter state (VB CommonFiltersDialogue); all included by default.

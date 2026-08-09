@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -66,7 +67,7 @@ class FirstRunDialog(QDialog):
 
         self.setWindowTitle("Set up Vaultkeeper")
         self.setWindowIcon(R.get_icon("NIT_Icon_v5"))
-        self.resize(680, 260)
+        geometry.remember(self, "FirstRunDialog", 680, 260)
 
         layout = QVBoxLayout(self)
         heading = QLabel("Confirm where your game and your mods live.")

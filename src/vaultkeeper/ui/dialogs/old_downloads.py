@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import _fmt_size
 
@@ -44,7 +45,7 @@ class OldDownloadsDialog(QDialog):
 
         self.setWindowTitle("Previous Downloads")
         self.setWindowIcon(R.get_icon("DownloadProject_16x"))
-        self.resize(640, 400)
+        geometry.remember(self, "OldDownloadsDialog", 640, 400)
 
         layout = QVBoxLayout(self)
         heading = QLabel(

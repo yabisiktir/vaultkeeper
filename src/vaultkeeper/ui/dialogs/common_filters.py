@@ -23,6 +23,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
+
 
 def _checkable_list(values: list[str], included: dict[str, bool]) -> QListWidget:
     lst = QListWidget()
@@ -50,7 +52,7 @@ class CommonFiltersDialog(QDialog):
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Filters")
-        self.resize(420, 380)
+        geometry.remember(self, "CommonFiltersDialog", 420, 380)
 
         layout = QVBoxLayout(self)
         lists = QHBoxLayout()

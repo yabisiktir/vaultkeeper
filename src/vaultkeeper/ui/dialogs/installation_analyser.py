@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
@@ -57,7 +58,7 @@ class InstallationAnalyser(QDialog):
         self._on_select = on_select
         self.setWindowTitle("Installation Analyser")
         self.setWindowIcon(R.get_icon("InstallationAnalyser_16x"))
-        self.resize(720, 500)
+        geometry.remember(self, "InstallationAnalyser", 720, 500)
         self._browser: dict = {}
         self._report: dict = {}
 

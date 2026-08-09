@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 _HEADING = "Package your Mod for publishing (Uploading)"
@@ -43,7 +44,7 @@ class PublishMod(QDialog):
         self._mod_name = mod_name
         self.setWindowTitle(f"Publish {mod_name}")
         self.setWindowIcon(R.get_icon("VBExtension_16x"))
-        self.resize(520, 240)
+        geometry.remember(self, "PublishMod", 520, 240)
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(_HEADING))

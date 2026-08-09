@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import help_model as H
 
 
@@ -35,7 +36,7 @@ class HelpViewer(QDialog):
     def __init__(self, topic: Path | None = None, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Neverwinter Nights Installer Tool Help")
-        self.resize(940, 640)
+        geometry.remember(self, "HelpViewer", 940, 640)
 
         layout = QVBoxLayout(self)
         splitter = QSplitter(Qt.Orientation.Horizontal)

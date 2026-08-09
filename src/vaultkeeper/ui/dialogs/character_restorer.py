@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 
 
@@ -36,7 +37,7 @@ class CharacterRestorerDialog(QDialog):
 
         self.setWindowTitle("Create Character Restorer")
         self.setWindowIcon(R.get_icon("Windows_Seven_Icon_63_003"))
-        self.resize(560, 340)
+        geometry.remember(self, "CharacterRestorerDialog", 560, 340)
 
         layout = QVBoxLayout(self)
         heading = QLabel(

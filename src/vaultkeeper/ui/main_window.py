@@ -1742,6 +1742,10 @@ class MainWindow(QMainWindow):
 
         settings = load_settings()
         settings.window_geometry = ""
+        # Every remembered dialog size goes too. A remembered size can itself be
+        # the thing that is wrong — a screen dragged onto a monitor that is not
+        # there any more — and this is the only way back from one.
+        settings.dialog_geometry = {}
         save_settings(settings)
         self.resize(1200, 760)
         for splitter in self._splitters:

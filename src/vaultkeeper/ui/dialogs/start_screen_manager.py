@@ -45,6 +45,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.character_viewer import tga_to_pixmap
 from vaultkeeper.ui.dialogs.settings_access import SettingsAccess
@@ -71,7 +72,7 @@ class StartScreenManager(SettingsAccess, QDialog):
         super().__init__(parent)
         self.setWindowTitle("NWN's Start Screen Manager")
         self.setWindowIcon(R.get_icon("Image"))
-        self.resize(760, 520)
+        geometry.remember(self, "StartScreenManager", 760, 520)
         self._controller = controller
         self._report = report
         self._images: list[dict] = report.get("images", [])

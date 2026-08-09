@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from vaultkeeper.game.find_rename import ModRenameSet
+from vaultkeeper.ui import geometry
 from vaultkeeper.ui.theme import status_colour
 
 
@@ -52,7 +53,7 @@ class FindAndRenameDialog(QDialog):
         self._on_applied = on_applied
         self._model: ModRenameSet = controller.mod_rename_set()
         self.setWindowTitle("Find and Rename Mods")
-        self.resize(480, 520)
+        geometry.remember(self, "FindAndRenameDialog", 480, 520)
 
         layout = QVBoxLayout(self)
 
