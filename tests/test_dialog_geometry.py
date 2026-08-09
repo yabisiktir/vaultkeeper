@@ -37,11 +37,36 @@ def _shown(qtbot, dialog):
     return dialog
 
 
+def _assert_tabs_fit(dialog, tabs) -> None:
+    """The tab bar fits — unless the screen is too small for it to.
+
+    The two are one invariant, not two: `geometry` grows a dialog to fit its tab
+    bar *and* caps it to the screen, and the cap wins. A minimum wider than the
+    display cannot be satisfied or escaped, so Qt scrolls the bar instead, which
+    is the deliberate fallback.
+
+    This matters off macOS: the offscreen platform reports an 800x800 screen
+    everywhere, and Windows' default font makes the same seven labels 1056px
+    wide against roughly 700 on macOS. Asserting only "it fits" passes on the
+    machine it was written on and fails on the one that runs CI.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    needed = tabs.tabBar().sizeHint().width()
+    if tabs.width() >= needed:
+        return
+    available = (dialog.screen() or QApplication.primaryScreen()).availableGeometry()
+    assert dialog.width() >= int(available.width() * 0.9) - 1, (
+        f"the tab bar needs {needed}px, the dialog is {dialog.width()}px and the "
+        f"screen is {available.width()}px — it should have grown"
+    )
+
+
 def test_a_dialog_opens_wide_enough_for_every_tab(qtbot):
     """A hidden tab is hidden functionality — the Settings dialog was cutting
     off its seventh tab before anyone touched it."""
     dlg = _shown(qtbot, _Tabbed(tabs=6, label="Tab Label"))
-    assert dlg.tabs.width() >= dlg.tabs.tabBar().sizeHint().width()
+    _assert_tabs_fit(dlg, dlg.tabs)
 
 
 def test_the_hard_coded_size_is_a_floor_not_the_answer(qtbot):
@@ -124,4 +149,4 @@ def test_the_settings_dialog_shows_all_seven_tabs(qtbot):
     dlg = _shown(qtbot, SettingsDialog(load_settings(), None))
     tabs = dlg.findChild(QTabWidget)
     assert tabs.count() == 7
-    assert tabs.width() >= tabs.tabBar().sizeHint().width()
+    _assert_tabs_fit(dlg, tabs)
