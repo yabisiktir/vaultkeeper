@@ -28,6 +28,36 @@ class ToolItem:
 #: A separator sentinel between button groups.
 SEP = ToolItem("", "", "")
 
+def items_from_settings(saved: list) -> tuple[ToolItem, ...]:
+    """Turn the saved toolbar list back into items, falling back to the default.
+
+    Each saved entry is ``{"action", "caption"}``; the image comes from the
+    default definition for that command, because an icon is not something the
+    editor lets anyone choose and not something worth storing per profile.
+    """
+    if not saved:
+        return QUICK_ITEMS
+    by_action = {i.action: i for i in QUICK_ITEMS if i.action}
+    out: list[ToolItem] = []
+    for entry in saved:
+        action = str(entry.get("action", ""))
+        if not action:
+            out.append(SEP)
+            continue
+        default = by_action.get(action)
+        image = str(entry.get("image", "")) or (default.image if default else "")
+        caption = str(entry.get("caption", "")) or (default.caption if default else action)
+        out.append(ToolItem(action, image, caption))
+    return tuple(out)
+
+
+def items_to_settings(items) -> list[dict]:
+    """The saveable form of a toolbar list."""
+    return [
+        {"action": i.action, "image": i.image, "caption": i.caption} for i in items
+    ]
+
+
 #: The quick toolbar, verbatim from ``NIT.Designer.vb`` ``TsQuick.Items``.
 QUICK_ITEMS: tuple[ToolItem, ...] = (
     ToolItem("TsSelectAll", "SelectAll", "Select All"),
@@ -73,7 +103,13 @@ class QuickToolbar(QToolBar):
         self.setMovable(False)
         self.setFloatable(False)
         self.actions_by_id: dict[str, object] = {}
-        for item in QUICK_ITEMS:
+        self.populate(QUICK_ITEMS)
+
+    def populate(self, items) -> None:
+        """Rebuild the strip from ``items`` (VB's toolbar editor writes this list)."""
+        self.clear()
+        self.actions_by_id = {}
+        for item in items:
             if item.action == "":
                 self.addSeparator()
                 continue
@@ -83,6 +119,16 @@ class QuickToolbar(QToolBar):
                 lambda _=False, a=item.action: self.action_triggered.emit(a)
             )
             self.actions_by_id[item.action] = act
+
+    def set_show_text(self, show: bool) -> None:
+        """Icons with or without their captions (VB ``MsShowText``)."""
+        from PySide6.QtCore import Qt
+
+        self.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextUnderIcon
+            if show
+            else Qt.ToolButtonStyle.ToolButtonIconOnly
+        )
 
     def set_enabled(self, action: str, enabled: bool) -> None:
         """Enable/disable a toolbar button by VB control-name id."""

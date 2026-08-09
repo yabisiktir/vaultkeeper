@@ -262,6 +262,25 @@ class MainWindow(QMainWindow):
             if act is not None:
                 act.setChecked(True)
 
+        # The toolbar as the user left it: its contents and whether the captions
+        # show (VB's Toolbar Editor + MsShowText).
+        from vaultkeeper.config.settings import load_settings as _load_toolbar
+        from vaultkeeper.ui.quick_toolbar import items_from_settings
+
+        _toolbar_settings = _load_toolbar()
+        if _toolbar_settings.quick_toolbar_items:
+            self.quick_toolbar.populate(
+                items_from_settings(_toolbar_settings.quick_toolbar_items)
+            )
+        self.quick_toolbar.set_show_text(_toolbar_settings.toolbar_show_text)
+        _show_text = self.nit_menu.action("MsShowText")
+        if _show_text is not None:
+            # Signals blocked: ticking it *is* the command, so setting the
+            # initial state would otherwise save the settings on every launch.
+            _show_text.blockSignals(True)
+            _show_text.setChecked(_toolbar_settings.toolbar_show_text)
+            _show_text.blockSignals(False)
+
         # Populate the Web menu from the user's saved links (VB SetWebMenu).
         from vaultkeeper.config.settings import load_settings
 
@@ -491,6 +510,13 @@ class MainWindow(QMainWindow):
             settings.number_recent_mods = checked
             save_settings(settings)
             self._rebuild_recent_mods_menu()
+        elif item_id == "MsShowText":
+            from vaultkeeper.config.settings import load_settings, save_settings
+
+            settings = load_settings()
+            settings.toolbar_show_text = checked
+            save_settings(settings)
+            self.quick_toolbar.set_show_text(checked)
         elif item_id == "MsOriginalPortraits":
             self._on_original_portraits(checked)
         elif item_id == "MsPropertiesHeight":
@@ -1331,6 +1357,8 @@ class MainWindow(QMainWindow):
             "MsPropertiesHeight",
             # A checkable toggle too: ticking it downloads BioWare's portraits.
             "MsOriginalPortraits",
+            # Icons with or without their captions.
+            "MsShowText",
         }
 
     def _apply_command_availability(self) -> None:
@@ -1467,6 +1495,7 @@ class MainWindow(QMainWindow):
             "MsValidate": self._on_validate_neverwinter_nights,
             "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
             "MsUpdateEeFiles": self._on_update_ee_files,
+            "MsCustomise": self._on_customise_toolbar,
             # New folder / text file / rich text file, in the selected mod.
             "MsClearScrollInfo": self._on_clear_text_positions,
             "MsNewFolder": self._on_new_contents_folder,
@@ -2003,6 +2032,54 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_contents(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_customise_toolbar(self) -> None:
+        """Edit the quick toolbar (VB ``MsCustomise`` / the Toolbar Editor)."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+        from vaultkeeper.ui.dialogs.toolbar_editor import ToolbarEditor
+        from vaultkeeper.ui.quick_toolbar import items_from_settings, items_to_settings
+
+        settings = load_settings()
+        dialog = ToolbarEditor(
+            items_from_settings(settings.quick_toolbar_items),
+            self._toolbar_candidates(),
+            self,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        items = dialog.items()
+        settings.quick_toolbar_items = items_to_settings(items)
+        save_settings(settings)
+        # No reconnect: action_triggered belongs to the toolbar, not to the
+        # buttons, so it survives a rebuild — connecting again fires twice.
+        self.quick_toolbar.populate(items)
+        self._apply_command_availability()
+        self.nit_status.set_info("Toolbar saved.")
+
+    def _toolbar_candidates(self) -> list:
+        """Menu commands worth offering as toolbar buttons.
+
+        Only ones with an icon and a working handler: the toolbar shows icons —
+        and can be set to show *only* icons — so a command with no image is a
+        blank square, and a greyed one is a button that does nothing.
+        """
+        from vaultkeeper.ui.menu_bar import MENUS
+        from vaultkeeper.ui.quick_toolbar import ToolItem
+
+        implemented = self.implemented_commands()
+        seen: set[str] = set()
+        out: list[ToolItem] = []
+        for _title, _menu_id, items in MENUS:
+            for item in items:
+                if not item.action or not item.image or item.action in seen:
+                    continue
+                if item.action not in implemented:
+                    continue
+                seen.add(item.action)
+                out.append(
+                    ToolItem(item.action, item.image, item.caption.replace("&", ""))
+                )
+        return out
 
     def _on_update_ee_files(self) -> None:
         """Re-learn what the Enhanced Edition ships (VB ``MsUpdateEeFiles``).

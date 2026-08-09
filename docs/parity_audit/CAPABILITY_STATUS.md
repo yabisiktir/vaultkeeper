@@ -17,7 +17,7 @@ them.
 |---|---|---|
 | firsttimeexecution.htm | Run the Installer Tool for the first time | **Partly closed** — the two silent-failure questions are asked; five remain, see below |
 | bhnitdownload.htm | Update the Installer Tool | GAP (see below) |
-| mstoolbareditorhelp.htm | Customise the Quick Access Toolbar | GAP (see below) |
+| mstoolbareditorhelp.htm | Customise the Quick Access Toolbar | **Was a GAP, now closed** (`MsCustomise`) |
 | syncmods.htm | Synchronise networked PC Mods | Non-goal — the shared store; mod export/import is ported instead |
 | createcheckpoints.htm | Create Checkpoints | Ported (`controller.create_checkpoint`) |
 | compressmodfolders.htm | Compress or Uncompress Mod folders | Ported (Manage menu) |
@@ -47,7 +47,7 @@ them.
 | bhworkshop.htm | Manage Steam Workshop Subscriptions | Ported (`MsWorkshopViewer`) |
 | saveinifiles.htm | Save your customised INI files | Ported (the five Ini File commands) |
 | newtopic58.htm | Import Map Settings | Deferred — recorded in DIALOG_PARITY as the map pages' import context menu |
-| newtopic35.htm | Quick Access Toolbar | GAP — see above |
+| newtopic35.htm | Quick Access Toolbar | **Closed** — contents editable, `MsShowText` wired |
 | useattributefilters.htm | Use Attribute Filters | **Was a GAP, now closed** — Mod Files / Installers / Restorers |
 | commandline.htm | Command Line Options | **Was a GAP, now closed** — all five, plus the start-up keys |
 | findoperations.htm | Perform Find Operations | **Was partly ported** — Find is focus-scoped now, not always the profile search |
@@ -78,6 +78,7 @@ them.
 | newtopic67.htm | Clear Text Position Information | **Was a GAP, now closed** — needed the memory it clears |
 | newtopic42.htm | The close button is missing | **N/A by design** — see below |
 | updatedeefiles.htm | Update Enhanced Edition Files | **Was a GAP, now closed** (`MsUpdateEeFiles`) |
+| Toolbar editor | `MsCustomise` / `MsShowText` | **Was a GAP, now closed** |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

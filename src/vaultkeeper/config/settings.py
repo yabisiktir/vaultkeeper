@@ -131,6 +131,11 @@ class Settings:
     #: When uninstalling a mod, also uninstall its dependency mods that are no
     #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
     uninstall_dependencies: bool = False
+    #: The quick toolbar's contents, as ``{"action", "image", "caption"}`` rows
+    #: (VB's Toolbar Editor). Empty means the default strip.
+    quick_toolbar_items: list[dict] = field(default_factory=list)
+    #: Show the caption under each toolbar icon (VB ``MsShowText``).
+    toolbar_show_text: bool = True
     #: Where each mod's notes were last scrolled to, mod name → caret position
     #: (VB ``ScrollPositions.RtModNotes``). Cleared by *Clear Text Position
     #: Information*; internal.

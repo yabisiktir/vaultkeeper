@@ -749,7 +749,7 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     # The handled visibility toggles stay live.
     assert win.nit_menu.action("MsShowRibbon").isEnabled()
     # Unhandled checkable toggles are disabled like any other dead item.
-    assert not win.nit_menu.action("MsShowText").isEnabled()
+    assert not win.nit_menu.action("MsDebugOptionsMenu").isEnabled()
 
 
 def test_implemented_commands_match_dispatch(qtbot, controller) -> None:
