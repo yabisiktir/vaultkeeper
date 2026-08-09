@@ -21,7 +21,6 @@ from vaultkeeper.ui import selection_prefs as sp
 from vaultkeeper.ui.controller import ProfileController
 from vaultkeeper.ui.main_window import MainWindow
 
-
 # -- Choosing --------------------------------------------------------------------- #
 FILES = [("hak", "a.hak"), ("docs", "readme.txt"), ("docs", "guide.rtf"),
          ("nitconfig", C.PLAY_TIME_FILE)]
