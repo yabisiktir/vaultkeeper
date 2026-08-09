@@ -251,3 +251,73 @@ def test_opening_the_manager_says_nothing_when_there_is_one_mod(qtbot, tmp_path)
     dlg = GameSavesManager.show_for(controller)
     qtbot.addWidget(dlg)
     assert dlg.status.text() == ""
+
+
+# -- Right-click Activate: bring the mod with it (switchinggamesaves.htm) -------- #
+def test_activating_with_mods_installs_the_games_mod(qtbot, tmp_path):
+    """A game save is no use without the mod that wrote it, and switching
+    between two campaigns otherwise means doing the install by hand."""
+    from vaultkeeper.core.mod_data import ModData
+
+    controller = _controller(tmp_path)
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Adventure"))
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Other Campaign"))
+
+    installed: list[str] = []
+    uninstalled: list[str] = []
+    controller.install = lambda names: installed.extend(names) or "installed"
+    controller.uninstall = lambda names: uninstalled.extend(names) or "uninstalled"
+    mapper = controller.play_loop.game_mapper
+    mapper.save_name_to_mod_name = lambda save, interactive=True: "Adventure"
+    mapper.is_mod_name = lambda name: name in {"Adventure", "Other Campaign"}
+
+    result = controller.swap_game_mods("Adventure")
+
+    assert installed == ["Adventure"], result["message"]
+    assert uninstalled == [], "nothing else was installed to remove"
+
+
+def test_it_leaves_shared_packs_alone(qtbot, tmp_path):
+    """Uninstalling everything would take CEP out from under every other mod."""
+    from vaultkeeper.core.mod_data import ModData
+    from vaultkeeper.core.state import State
+
+    controller = _controller(tmp_path)
+    for name in ("Adventure", "Other Campaign", "CEP 2.6"):
+        controller.pd.add_mod(ModData(group="Adv", mod_name=name))
+        controller.pd.mod_item(name).mod_state = State.INSTALLED
+
+    uninstalled: list[str] = []
+    controller.install = lambda names: "installed"
+    controller.uninstall = lambda names: uninstalled.extend(names) or "uninstalled"
+    mapper = controller.play_loop.game_mapper
+    mapper.save_name_to_mod_name = lambda save, interactive=True: "Adventure"
+    # CEP is not a game anyone's saves belong to, so the mapper does not know it.
+    mapper.is_mod_name = lambda name: name in {"Adventure", "Other Campaign"}
+
+    controller.swap_game_mods("Adventure")
+
+    assert uninstalled == ["Other Campaign"]
+    assert "CEP 2.6" not in uninstalled
+
+
+def test_a_save_whose_mod_is_not_here_is_reported(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    controller.play_loop.game_mapper.save_name_to_mod_name = (
+        lambda save, interactive=True: "Something Else"
+    )
+    result = controller.swap_game_mods("Something Else")
+    assert not result["ok"] and "Something Else" in result["message"]
+
+
+def test_the_activate_button_offers_it_on_right_click(qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    assert (
+        dlg.activate_button.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu
+    )
+    assert "Right-click" in dlg.activate_button.toolTip()

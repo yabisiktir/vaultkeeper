@@ -4642,6 +4642,49 @@ class ProfileController:
         )
         return {"ok": result.ok, "moved": result.moved, "message": result.message}
 
+    def swap_game_mods(self, activated_game: str) -> dict:
+        """Install the activated game's mod and uninstall the one it replaced.
+
+        A game save is no use without the mod that wrote it, and switching
+        between two campaigns otherwise means doing the install by hand
+        afterwards (``switchinggamesaves.htm``). Called after the saves have
+        already moved, so "the current game" is the one just activated.
+
+        Names are resolved with ``interactive=False``: this runs from a
+        right-click, and a prompt asking which mod a save belongs to is not
+        something to spring on someone mid-gesture.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "message": "No game saves are available."}
+        mapper = loop.game_mapper
+
+        wanted = mapper.save_name_to_mod_name(activated_game, interactive=False)
+        target = self.pd.mod_item(wanted)
+        if target is None or target.is_group_item:
+            return {
+                "ok": False,
+                "message": f"No mod in this profile is named '{wanted}'.",
+            }
+
+        parts: list[str] = []
+        ok = True
+        # Uninstall whatever else is installed and belongs to another game's
+        # saves — not every installed mod, which would take the shared packs
+        # (CEP and friends) out from under everything.
+        for name in list(self.pd.mod_keys):
+            md = self.pd.mod_item(name)
+            if md is None or md.is_group_item or name == wanted or not md.installed:
+                continue
+            if not mapper.is_mod_name(name):
+                continue
+            parts.append(self.uninstall([name]))
+        if not target.installed:
+            parts.append(self.install([wanted]))
+        else:
+            parts.append(f"'{wanted}' was already installed.")
+        return {"ok": ok, "message": " ".join(p for p in parts if p)}
+
     def activate_game(self, name: str) -> dict:
         """Activate a deactivated game, backing up the current one first (VB ``ActivateGame``)."""
         loop = self.play_loop

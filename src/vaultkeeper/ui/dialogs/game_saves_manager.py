@@ -130,6 +130,20 @@ class GameSavesManager(QDialog):
         button_row.addWidget(self.restore_button)
         self.activate_button = QPushButton("Activate")
         self.activate_button.clicked.connect(self._on_activate)
+        # Right-click activates *and* swaps the mods over — a game save is no use
+        # without the mod that wrote it, and switching between two mods'
+        # campaigns otherwise means doing the install by hand afterwards
+        # (restoregamesavesfrombackup.htm, switchinggamesaves.htm).
+        self.activate_button.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.activate_button.customContextMenuRequested.connect(
+            lambda _pos: self._on_activate(with_mods=True)
+        )
+        self.activate_button.setToolTip(
+            "Activate the selected game saves.\n"
+            "Right-click to install its mod (and uninstall the current one) too."
+        )
         button_row.addWidget(self.activate_button)
         self.delete_button = QPushButton("Delete")
         self.delete_button.clicked.connect(self._on_delete)
@@ -301,21 +315,29 @@ class GameSavesManager(QDialog):
         self._refresh()
         self._report(result["message"], result["ok"])
 
-    def _on_activate(self) -> None:
+    def _on_activate(self, *, with_mods: bool = False) -> None:
         item = self.games.currentItem()
         if self._controller is None or item is None:
             return
         name = item.text(0)
-        if (
-            QMessageBox.question(
-                self,
-                "Activate Game",
-                f"Activate {name}? The current game will be backed up first.",
+        question = f"Activate {name}? The current game will be backed up first."
+        if with_mods:
+            question += (
+                "\n\nIts mod will be installed as well, and the mod belonging to "
+                "the current saves uninstalled."
             )
+        if (
+            QMessageBox.question(self, "Activate Game", question)
             != QMessageBox.StandardButton.Yes
         ):
             return
         result = self._controller.activate_game(name)
+        if with_mods and result["ok"]:
+            swap = self._controller.swap_game_mods(name)
+            result = {
+                "ok": result["ok"] and swap["ok"],
+                "message": f"{result['message']} {swap['message']}",
+            }
         self._refresh()
         self._report(result["message"], result["ok"])
 
