@@ -2466,7 +2466,7 @@ class MainWindow(QMainWindow):
             self._on_settings()
 
     def _apply_basic_settings(self, settings) -> None:  # noqa: ANN001
-        """Apply the live effects of the Basic Settings (splitter width + appearance)."""
+        """Apply the live effects of a settings change (splitter width + appearance)."""
         self._apply_splitter_width(settings.splitter_width)
         from PySide6.QtWidgets import QApplication
 
@@ -2480,6 +2480,11 @@ class MainWindow(QMainWindow):
                 theme=settings.theme,
                 font_family=settings.font_family,
             )
+        # The mod list takes its row colours as brushes when it is populated, so
+        # a new palette does not reach rows that already exist. Repopulating is
+        # what makes a theme change visible without a restart.
+        if self.controller is not None:
+            self.refresh()
 
     def _apply_splitter_width(self, width: int) -> None:
         """Set the drag-handle thickness on the window's splitters (VB SplitterWidth)."""
@@ -2506,6 +2511,10 @@ class MainWindow(QMainWindow):
             self.nit_menu.populate_run_menu(settings.run_links, self._on_run_program)
             # Reflect the auto-delete-leto preference on the manual command's visibility.
             self._apply_leto_menu_visibility()
+            # Appearance too. This used to be applied only by Basic Settings, so
+            # changing the theme in Advanced Settings did nothing until the app
+            # was restarted — which is what the owner saw.
+            self._apply_basic_settings(settings)
             # If the game paths changed, reopen the profile so they take effect now.
             if (settings.nwn_path, settings.game_user_path) != before:
                 self._reopen_with_new_paths()

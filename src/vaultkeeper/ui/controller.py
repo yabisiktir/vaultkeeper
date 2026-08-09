@@ -3848,7 +3848,7 @@ class ProfileController:
             "dependencies": sorted(md.dependencies, key=key),
         }
 
-    def auto_mod_dependencies(self, *, on_progress=None) -> dict:
+    def auto_mod_dependencies(self, *, find_links: bool = False, on_progress=None) -> dict:
         """Work out every mod's dependencies from its Vault page (VB ``BtAuto``).
 
         Each mod that has a project link is asked what it *requires* — the Vault
@@ -3870,7 +3870,11 @@ class ProfileController:
         mods = [
             (name, self.pd.mod_item(name))
             for name in self.pd.sorted_mod_keys
+            if self.pd.mod_item(name) is not None
+            and not self.pd.mod_item(name).is_group_item
         ]
+        if find_links:
+            self._find_missing_web_links(mods, on_progress=on_progress)
         linked = [(n, md) for n, md in mods if md is not None and md.web_link]
         # Index every mod by its own link and by its searchable name, so a
         # required project can be recognised however it is named.
@@ -3891,11 +3895,15 @@ class ProfileController:
                 continue
 
             deps: list[str] = []
-            for entry in required:
+            for entry in required + self._rule_requirements(name):
                 url = str(entry.get("url", "")).lower()
                 title = str(entry.get("title", ""))
                 match = by_link.get(url) or by_name.get(search_name(title))
-                if match and match != name:
+                if match == name:
+                    # A project listing itself, or a rule naming the folder it
+                    # is already in. Not a dependency, and not a missing mod.
+                    continue
+                if match:
                     resolved += 1
                     if match not in deps:
                         deps.append(match)
@@ -3905,11 +3913,21 @@ class ProfileController:
                 self.set_mod_dependencies(name, deps)
                 updated += 1
 
+        # Coverage first. "Nothing needed changing" after looking at 3 of 48 mods
+        # reads as "you have no dependencies", which is a different and wrong
+        # answer — the owner reported exactly that. Say what was *not* looked at.
+        skipped = len(mods) - len(linked)
         parts = [f"Checked {checked:,} mod(s) with a project link."]
         if updated:
             parts.append(f"Updated {updated:,}.")
         elif checked:
             parts.append("Nothing needed changing.")
+        if skipped:
+            parts.append(
+                f"{skipped:,} mod(s) have no Vault link, so nothing is known about "
+                "what they need — use Find Mod's Web Page Link on those, or tick "
+                "\u201cFind missing links\u201d and run this again."
+            )
         if unmatched:
             parts.append(
                 f"{len(unmatched):,} requirement(s) name a mod you do not have."
@@ -3918,18 +3936,86 @@ class ProfileController:
             parts.append(f"{len(errors):,} page(s) could not be read.")
         if not linked:
             parts = [
-                "No mod has a Vault project link yet, so there is nothing to look up. "
-                "Set one with Find Mod's Web Page Link or Edit Link to Mod's Web Page."
+                "No mod has a Vault project link, so there is nothing to look up. "
+                "Set one with Find Mod's Web Page Link or Edit Link to Mod's Web "
+                "Page, or tick \u201cFind missing links\u201d and run this again."
             ]
         return {
             "ok": not errors,
             "checked": checked,
+            "skipped": skipped,
             "resolved": resolved,
             "updated": updated,
             "unmatched": unmatched,
             "errors": errors,
             "message": " ".join(parts),
         }
+
+    def _rule_requirements(self, mod_name: str) -> list[dict]:
+        """What the published rules say this mod needs — free, and offline.
+
+        41 of the 222 published projects name their prerequisites, and the rules
+        already map a project to the mod folder it belongs in. A mod that came
+        from anywhere but Download Project has no Vault link, so this is often
+        the only thing that knows anything about it.
+        """
+        from vaultkeeper.vault.mod_links import search_name
+
+        try:
+            rules = self.download_rules()
+        except Exception:
+            return []
+        key = search_name(mod_name)
+        out: list[dict] = []
+        for title, rule in rules.projects.items():
+            if not rule.mod_folder or search_name(rule.mod_folder) != key:
+                continue
+            for url in rule.required_projects:
+                out.append({"title": self._project_title_for(url, rules), "url": url})
+            del title
+        return out
+
+    @staticmethod
+    def _project_title_for(url: str, rules) -> str:
+        """A required URL's project title, from the rules or from its own slug.
+
+        The rules do not store each project's URL, but a Vault slug is its title
+        with the punctuation taken out — so the slug is the title, near enough
+        to match a mod name on.
+        """
+        import re
+
+        from vaultkeeper.vault.mod_links import search_name
+
+        slug = re.sub(r"[-_]+", " ", url.rstrip("/").rsplit("/", 1)[-1])
+        wanted = search_name(slug)
+        for title, rule in rules.projects.items():
+            if search_name(title) == wanted:
+                return rule.mod_folder or title
+        return slug
+
+    def _find_missing_web_links(self, mods: list, *, on_progress=None) -> int:
+        """Look up a Vault page for each mod that has none, and save what is certain.
+
+        Only an unambiguous single match is saved: several candidates is a
+        question for the user, not something to guess at behind their back.
+        """
+        found = 0
+        missing = [(n, md) for n, md in mods if md is not None and not md.web_link]
+        for index, (name, md) in enumerate(missing):
+            if on_progress is not None:
+                on_progress(index, len(missing), f"Looking up {name}")
+            try:
+                result = self.find_mod_web_link(name)
+            except Exception:
+                continue
+            candidates = result.get("candidates") or []
+            if result.get("ok") and len(candidates) == 1:
+                md.web_link = candidates[0].url
+                found += 1
+        if found:
+            self.save()
+        return found
 
     def set_mod_dependencies(self, mod_name: str, deps: list[str]) -> dict:
         """Save a mod's dependency list + reconcile installs (VB ``BtSave_Click``).

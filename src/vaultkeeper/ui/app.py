@@ -22,6 +22,13 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     the arguments *after* the program name, and carries the start-up recovery
     options (:mod:`vaultkeeper.startup_options`).
     """
+    # Before the QApplication: macOS builds the Apple menu from the bundle name
+    # the first time a menu bar appears, and run from source that name is the
+    # interpreter's ("Python").
+    from vaultkeeper.ui.mac_app_name import set_application_name
+
+    set_application_name("Vaultkeeper")
+
     app = QApplication.instance() or QApplication(sys.argv[:1] + list(argv or []))
     options = _startup_options(argv)
     # The taskbar and window switcher read the application's icon, not the

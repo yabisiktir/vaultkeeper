@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -115,7 +116,6 @@ _AUTO_EXPLANATION = (
     "Every mod that has a Neverwinter Vault project link will have its page — and "
     "its required-projects list — read, which takes a moment per mod.\n\n"
     "What this finds replaces the dependencies already recorded for those mods."
-    "\n\nDo you want to proceed?"
 )
 
 
@@ -125,23 +125,28 @@ def run_auto_dependencies(controller, parent) -> dict | None:
     Shared so the report and the per-mod editor put the same question and give
     the same account of the answer.
     """
-    if (
-        QMessageBox.question(
-            parent,
-            "Auto Mod Dependencies",
-            _AUTO_EXPLANATION,
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        != QMessageBox.StandardButton.Yes
-    ):
+    box = QMessageBox(parent)
+    box.setWindowTitle("Auto Mod Dependencies")
+    box.setIcon(QMessageBox.Icon.Question)
+    box.setText(_AUTO_EXPLANATION + "\n\nDo you want to proceed?")
+    box.setStandardButtons(
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    )
+    box.setDefaultButton(QMessageBox.StandardButton.No)
+    # A mod that came from anywhere but Download Project has no link, and a mod
+    # with no link is one this can say nothing about — which is how a store full
+    # of mods reports "no dependencies". Offered rather than assumed: it is a
+    # lookup per unlinked mod, and it writes to the mods it identifies.
+    find_links = QCheckBox("Find missing Vault links first (slower)")
+    box.setCheckBox(find_links)
+    if box.exec() != QMessageBox.StandardButton.Yes:
         return None
 
     from PySide6.QtWidgets import QApplication
 
     QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
     try:
-        result = controller.auto_mod_dependencies()
+        result = controller.auto_mod_dependencies(find_links=find_links.isChecked())
     finally:
         QApplication.restoreOverrideCursor()
 

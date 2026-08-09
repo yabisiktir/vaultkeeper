@@ -31,6 +31,12 @@ def controller(tmp_path: Path) -> ProfileController:
     c.pd.add_mod(ModData(group="Packs", mod_name="CEP 3"))
     c.set_mod_web_link("Swordflight", "https://neverwintervault.org/project/1")
     c.set_mod_web_link("CEP 2.6", "https://neverwintervault.org/project/cep2")
+    # The published rules also contribute requirements (see the tests at the
+    # end). Silence them here so these tests are about the project pages only —
+    # "Swordflight" is a real project in the bundled rules.
+    from vaultkeeper.vault.download_rules import DownloadRules
+
+    c.download_rules = lambda: DownloadRules()
     return c
 
 
@@ -172,9 +178,7 @@ def test_declining_the_confirmation_changes_nothing(qtbot, controller, monkeypat
 
     from vaultkeeper.ui.dialogs import dependency_manager as dm
 
-    monkeypatch.setattr(
-        QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.No
-    )
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: QMessageBox.StandardButton.No)
     called: list[int] = []
     monkeypatch.setattr(
         controller, "auto_mod_dependencies", lambda **k: called.append(1) or {}
@@ -182,3 +186,128 @@ def test_declining_the_confirmation_changes_nothing(qtbot, controller, monkeypat
 
     assert dm.run_auto_dependencies(controller, None) is None
     assert called == []
+
+
+def test_the_confirmation_offers_to_find_missing_links(qtbot, controller, monkeypatch):
+    """A mod with no Vault link is one Auto can say nothing about, and a store
+    that never used Download Project has none — which is how it comes to report
+    "no dependencies" for a shelf full of mods that plainly have some."""
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.ui.dialogs import dependency_manager as dm
+
+    seen: dict = {}
+
+    def fake_exec(self) -> int:
+        # Read the text now: the box (and its check box) is destroyed with the
+        # dialog as soon as run_auto_dependencies returns.
+        seen["label"] = self.checkBox().text()
+        self.checkBox().setChecked(True)
+        return QMessageBox.StandardButton.Yes
+
+    monkeypatch.setattr(QMessageBox, "exec", fake_exec)
+    def fake_auto(**kwargs):
+        seen["kwargs"] = kwargs
+        return {"message": "done", "unmatched": [], "errors": [], "skipped": 0}
+
+    monkeypatch.setattr(controller, "auto_mod_dependencies", fake_auto)
+
+    dm.run_auto_dependencies(controller, None)
+    assert "Find missing Vault links" in seen["label"]
+    assert seen["kwargs"] == {"find_links": True}
+
+
+# -- What the published rules already know ------------------------------------- #
+def _rules(text: str):
+    from vaultkeeper.vault.download_rules import DownloadRules
+
+    return DownloadRules.from_text(text)
+
+
+def test_the_rules_supply_requirements_with_no_network_at_all(controller):
+    """41 of the 222 published projects name their prerequisites, and the rules
+    already say which mod folder a project belongs in. A mod that came from
+    anywhere but Download Project has no Vault link, so this is often the only
+    thing that knows anything about it."""
+    controller.download_rules = lambda: _rules(
+        "Project = Swordflight Chapter 1\n"
+        "\tModFolder = Swordflight\n"
+        "\tRequiredProjects\n"
+        "\t\thttps://neverwintervault.org/project/cep2\n"
+        "\tEnd RequiredProjects\n"
+        "End Project\n"
+        "Project = CEP 2.6\n"
+        "\tModFolder = CEP 2.6\n"
+        "End Project\n"
+    )
+    controller.project_required_projects = lambda url: []
+
+    controller.auto_mod_dependencies()
+    assert controller.pd.mod_item("Swordflight").dependencies == ["CEP 2.6"]
+
+
+def test_a_rule_naming_its_own_folder_is_not_a_dependency(controller):
+    """Several projects share one mod folder — chapters of the same module. A
+    requirement that resolves to the mod itself is neither a dependency nor a
+    missing mod, and reporting it as either is noise."""
+    controller.download_rules = lambda: _rules(
+        "Project = Swordflight Chapter 1\n"
+        "\tModFolder = Swordflight\n"
+        "\tRequiredProjects\n"
+        "\t\thttps://neverwintervault.org/project/nwn1/module/swordflight\n"
+        "\tEnd RequiredProjects\n"
+        "End Project\n"
+        "Project = Swordflight\n"
+        "\tModFolder = Swordflight\n"
+        "End Project\n"
+    )
+    controller.project_required_projects = lambda url: []
+
+    result = controller.auto_mod_dependencies()
+    assert controller.pd.mod_item("Swordflight").dependencies == []
+    assert result["unmatched"] == []
+
+
+# -- Saying what was *not* looked at ------------------------------------------- #
+def test_the_answer_says_how_many_mods_it_knew_nothing_about(controller):
+    """"Nothing needed changing" after looking at 2 of 4 mods reads as "you have
+    no dependencies", which is a different and wrong answer — and is what the
+    owner was told about a store where only 3 of 48 mods had a link."""
+    controller.project_required_projects = lambda url: []
+
+    result = controller.auto_mod_dependencies()
+
+    assert result["checked"] == 2
+    assert result["skipped"] == 1, "CEP 3 has no link"
+    assert "have no Vault link" in result["message"]
+    assert "Find Mod's Web Page Link" in result["message"]
+
+
+def test_finding_missing_links_saves_only_an_unambiguous_match(controller):
+    """Several candidates is a question for the user, not something to guess at
+    behind their back."""
+    from vaultkeeper.vault.mod_links import LinkCandidate
+
+    def fake_find(mod_name: str) -> dict:
+        if mod_name == "CEP 3":
+            return {
+                "ok": True,
+                "candidates": [LinkCandidate(title="CEP 3", url="https://v/cep3")],
+                "message": "",
+            }
+        return {
+            "ok": True,
+            "candidates": [
+                LinkCandidate(title="A", url="https://v/a"),
+                LinkCandidate(title="B", url="https://v/b"),
+            ],
+            "message": "",
+        }
+
+    controller.find_mod_web_link = fake_find
+    controller.project_required_projects = lambda url: []
+
+    result = controller.auto_mod_dependencies(find_links=True)
+
+    assert controller.pd.mod_item("CEP 3").web_link == "https://v/cep3"
+    assert result["skipped"] == 0, "the one that could be identified now counts"

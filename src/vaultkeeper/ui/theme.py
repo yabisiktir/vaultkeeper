@@ -36,15 +36,26 @@ _STATUS_COLOURS: dict[str, tuple[str, str]] = {
 }
 
 
-#: The font the application started with, captured before anything is applied.
+#: What the application looked like before anything was applied. Captured once,
+#: because "put it back" is not expressible in terms of the current state: a
+#: palette cannot be un-set, only replaced with the one that was there.
 _BASE_FONT: QFont | None = None
+_BASE_PALETTE: QPalette | None = None
+_BASE_STYLE: str = ""
+
+
+def _capture_base(app: QApplication) -> None:
+    global _BASE_FONT, _BASE_PALETTE, _BASE_STYLE
+    if _BASE_FONT is None:
+        _BASE_FONT = QFont(app.font())
+        _BASE_PALETTE = QPalette(app.palette())
+        style = app.style()
+        _BASE_STYLE = style.objectName() if style is not None else ""
 
 
 def _base_font(app: QApplication) -> QFont:
-    global _BASE_FONT
-    if _BASE_FONT is None:
-        _BASE_FONT = QFont(app.font())
-    return _BASE_FONT
+    _capture_base(app)
+    return _BASE_FONT if _BASE_FONT is not None else QFont(app.font())
 
 
 def is_dark(palette: QPalette | None = None) -> bool:
@@ -175,6 +186,7 @@ def apply_appearance(
     # one currently applied. Otherwise nothing can be *un*set: picking "System
     # default" after a custom font would leave the custom font in place, since
     # "leave it alone" and "put it back" look identical from the current font.
+    _capture_base(app)
     base = _base_font(app)
     f = QFont(base)
     if font_point_size > 0:
@@ -183,7 +195,15 @@ def apply_appearance(
         f.setFamily(font_family)
     if f != app.font():
         app.setFont(f)
-    if theme != "system":
+    if theme == "system":
+        # Put back what was there. Switching *to* a theme replaces the palette,
+        # and a replaced palette cannot be un-set — without the captured one,
+        # choosing "system" after dark left the window dark until a restart.
+        if _BASE_STYLE:
+            app.setStyle(_BASE_STYLE)
+        if _BASE_PALETTE is not None:
+            app.setPalette(_BASE_PALETTE)
+    else:
         # Switch to Fusion first. The native styles paint their chrome from the
         # OS appearance and ignore most of an application palette: on macOS that
         # left the toolbar and the ribbon's tab strip dark while every panel

@@ -144,3 +144,53 @@ def test_broken_settings_never_break_painting(qtbot, settings, monkeypatch):
         lambda *a, **k: (_ for _ in ()).throw(OSError("no settings")),
     )
     assert theme.status_colour("installed").isValid()
+
+
+def test_switching_theme_takes_effect_without_a_restart(qtbot, settings):
+    """Owner-reported: setting light/dark did nothing until the app restarted.
+
+    Two causes, both fixed: Advanced Settings never applied appearance at all
+    (only Basic Settings did), and "system" could not undo a palette — a
+    replaced palette is not un-settable, only replaceable with the one that was
+    there.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance()
+    original = app.palette().color(app.palette().ColorRole.Window).name()
+    try:
+        theme.apply_appearance(app, font_point_size=0, theme="dark")
+        dark = app.palette().color(app.palette().ColorRole.Window).name()
+        assert dark != original
+
+        theme.apply_appearance(app, font_point_size=0, theme="light")
+        light = app.palette().color(app.palette().ColorRole.Window).name()
+        assert light not in (dark, "")
+
+        theme.apply_appearance(app, font_point_size=0, theme="system")
+        assert app.palette().color(app.palette().ColorRole.Window).name() == original
+    finally:
+        theme.apply_appearance(app, font_point_size=0, theme="system")
+
+
+def test_saving_settings_applies_the_appearance(qtbot, tmp_path, monkeypatch):
+    """The wiring, not the palette: Advanced Settings has to *call* it."""
+    from vaultkeeper.ui.main_window import MainWindow
+
+    win = MainWindow(None)
+    qtbot.addWidget(win)
+
+    applied: list[str] = []
+    monkeypatch.setattr(
+        "vaultkeeper.ui.theme.apply_appearance",
+        lambda app, **kwargs: applied.append(kwargs["theme"]),
+    )
+    saved = load_settings()
+    saved.theme = "dark"
+    monkeypatch.setattr(
+        "vaultkeeper.ui.dialogs.settings_dialog.SettingsDialog.edit",
+        classmethod(lambda cls, **kwargs: saved),
+    )
+
+    win._on_settings()
+    assert applied == ["dark"]
