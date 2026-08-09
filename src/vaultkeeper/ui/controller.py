@@ -3285,6 +3285,8 @@ class ProfileController:
 
     def mod_explorer_report(self) -> dict:
         """Every mod with its key properties, state and play time (VB ModExplorer)."""
+        from vaultkeeper.core import constants as C
+
         loop = self.play_loop
         rows = []
         for name in self.pd.sorted_mod_keys:
@@ -3319,6 +3321,21 @@ class ProfileController:
                     "files": len(md.files),
                     "played": played,
                     "completed": md.completed_count,
+                    # The three attribute filters (VB TsModFiles / TsInstallers /
+                    # TsRestorers). "Playable" is VB's test verbatim: some file of
+                    # the mod maps to the game's modules or nwm folder.
+                    "playable": any(
+                        self.ctx.mapper.extension_folder(fk.extension)
+                        in (C.MOD_FOLDER, C.MOD_NWM_FOLDER)
+                        for fk in md.files
+                    ),
+                    # VB HasModInstaller is the *folder*, not the identifier
+                    # file — a mod can have one without the other.
+                    "has_installer": (
+                        self.ctx.profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR
+                    ).is_dir(),
+                    "is_installer": md.is_installer(),
+                    "is_restorer": md.is_restorer(),
                 }
             )
         return {"rows": rows, "count": len(rows)}

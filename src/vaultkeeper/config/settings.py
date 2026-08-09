@@ -151,6 +151,13 @@ class Settings:
     #: mod whose name starts with it. A prefix is only matched text — there is no
     #: prefix field on a mod, in VB either.
     mod_prefix_filters: list[dict] = field(default_factory=list)
+    #: Mod Explorer attribute filters (VB ``FilterModFiles`` / ``FilterInstallers``
+    #: / ``FilterRestorers``), all on by default as in the original: the list
+    #: starts restricted to mods that have an installer, can be played, and
+    #: includes Restorers.
+    filter_mod_files: bool = True
+    filter_installers: bool = True
+    filter_restorers: bool = True
     #: Character Explorer: show only skills the character has ranks in (VB
     #: ``FilterSkillsByRank`` / the *Only show Ranked Skills* tick). A PRC
     #: character has around forty skills and ranks in a handful, so the unranked

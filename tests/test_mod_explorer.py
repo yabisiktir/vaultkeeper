@@ -21,7 +21,21 @@ def _controller(tmp_path: Path) -> ProfileController:
         ModData(group="Adv", mod_name="Swordflight", rating=Ratings.EXCELLENT, completed_count=2)
     )
     controller.pd.add_mod(ModData(group="Adv", mod_name="Abyss"))
+    # These fixture mods carry no files, so the attribute filters — which are on
+    # by default, exactly as in the original — would hide both of them. The tests
+    # below are about the *other* filters; the attribute ones have their own.
+    _set_attribute_filters(controller, False)
     return controller
+
+
+def _set_attribute_filters(controller: ProfileController, on: bool) -> None:
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings(controller._settings_path)
+    settings.filter_mod_files = on
+    settings.filter_installers = on
+    settings.filter_restorers = on
+    save_settings(settings, controller._settings_path)
 
 
 def test_mod_explorer_report(qtbot, tmp_path):
@@ -471,6 +485,9 @@ def _real_controller(tmp_path):
     )
     for name, group in (("Alpha", "Community"), ("Beta", "Official")):
         controller.create_mod(name, group)
+    # As above: newly created mods have no .mod file yet, and the Mod Files
+    # filter is on by default.
+    _set_attribute_filters(controller, False)
     return controller
 
 
@@ -609,3 +626,119 @@ def test_the_filters_dialog_round_trips_prefixes(qtbot):
     ]
     # Punctuation is named so the row reads, as VB's CharDescriptions does.
     assert "Underscore" in dlg._prefixes.item(0).text()
+
+
+# -- Attribute filters (VB TsModFiles / TsInstallers / TsRestorers) ------------ #
+def _attribute_report() -> dict:
+    """One mod of each shape the three attribute filters sort on."""
+    rows = [
+        {"mod": "Playable", "group": "G", "state": "Installed", "state_value": 3,
+         "rating": "None", "files": 1, "played": "", "completed": 0, "weapon": "",
+         "start": "-", "start_value": -1, "end": "-", "end_value": -1,
+         "hench": "-", "hench_value": -1,
+         "playable": True, "has_installer": True, "is_installer": False,
+         "is_restorer": False},
+        {"mod": "Haks Only", "group": "G", "state": "Installed", "state_value": 3,
+         "rating": "None", "files": 1, "played": "", "completed": 0, "weapon": "",
+         "start": "-", "start_value": -1, "end": "-", "end_value": -1,
+         "hench": "-", "hench_value": -1,
+         "playable": False, "has_installer": True, "is_installer": False,
+         "is_restorer": False},
+        {"mod": "No Installer", "group": "G", "state": "Installed", "state_value": 3,
+         "rating": "None", "files": 1, "played": "", "completed": 0, "weapon": "",
+         "start": "-", "start_value": -1, "end": "-", "end_value": -1,
+         "hench": "-", "hench_value": -1,
+         "playable": True, "has_installer": False, "is_installer": True,
+         "is_restorer": False},
+        {"mod": "A Restorer", "group": "G", "state": "Installed", "state_value": 3,
+         "rating": "None", "files": 1, "played": "", "completed": 0, "weapon": "",
+         "start": "-", "start_value": -1, "end": "-", "end_value": -1,
+         "hench": "-", "hench_value": -1,
+         "playable": True, "has_installer": True, "is_installer": False,
+         "is_restorer": True},
+    ]
+    return {"count": len(rows), "rows": rows}
+
+
+def test_all_three_attribute_filters_start_on(qtbot):
+    """The original's documented default: restricted to mods that have an
+    installer and can be played, restorers included."""
+    dlg = ModExplorer(_attribute_report(), None)
+    qtbot.addWidget(dlg)
+    assert all(b.isChecked() for b in dlg._attributes.values())
+    # "Haks Only" cannot be played; "No Installer" has no installer folder.
+    assert _shown(dlg) == {"Playable", "A Restorer"}
+
+
+def test_unticking_mod_files_stops_hiding_unplayable_mods(qtbot):
+    dlg = ModExplorer(_attribute_report(), None)
+    qtbot.addWidget(dlg)
+    dlg._attributes["filter_mod_files"].setChecked(False)
+    assert "Haks Only" in _shown(dlg)
+
+
+def test_the_installers_switch_reads_two_different_ways(qtbot):
+    """Ticked it means "has an installer"; unticked it means "is not an installer".
+
+    Two different tests on one button, which is what VB's NotFiltered does. It
+    reads like a bug and is not one: the switch is about installers as a topic,
+    so turning it off hides the installer mods themselves.
+    """
+    dlg = ModExplorer(_attribute_report(), None)
+    qtbot.addWidget(dlg)
+    assert "No Installer" not in _shown(dlg)
+
+    dlg._attributes["filter_installers"].setChecked(False)
+    shown = _shown(dlg)
+    assert "Haks Only" not in shown, "the Mod Files filter is still on"
+    assert "No Installer" not in shown, "it is an installer, so off hides it"
+    assert "Playable" in shown
+
+
+def test_unticking_restorers_hides_them(qtbot):
+    dlg = ModExplorer(_attribute_report(), None)
+    qtbot.addWidget(dlg)
+    assert "A Restorer" in _shown(dlg)
+    dlg._attributes["filter_restorers"].setChecked(False)
+    assert "A Restorer" not in _shown(dlg)
+
+
+def test_filters_off_shows_everything_without_clearing_anything(qtbot):
+    """VB's TsIgnoreFilters: one switch suspends the lot, filters intact."""
+    dlg = ModExplorer(_attribute_report(), None)
+    qtbot.addWidget(dlg)
+    dlg._search.setText("nothing matches this")
+    assert _shown(dlg) == set()
+
+    dlg._on_toggle_ignore_filters()
+    assert dlg._ignore_btn.text() == "Filters Off"
+    assert _shown(dlg) == {"Playable", "Haks Only", "No Installer", "A Restorer"}
+    # Nothing was cleared: turning them back on restores the same view.
+    assert dlg._search.text() == "nothing matches this"
+    dlg._on_toggle_ignore_filters()
+    assert dlg._ignore_btn.text() == "Filters On"
+    assert _shown(dlg) == set()
+
+
+def test_attribute_filters_persist(qtbot, tmp_path):
+    from vaultkeeper.config.settings import load_settings
+
+    controller = _real_controller(tmp_path)
+    dlg = ModExplorer.show_for(controller)
+    qtbot.addWidget(dlg)
+    dlg._attributes["filter_restorers"].setChecked(True)
+
+    assert load_settings(controller._settings_path).filter_restorers is True
+    reopened = ModExplorer.show_for(controller)
+    qtbot.addWidget(reopened)
+    assert reopened._attributes["filter_restorers"].isChecked() is True
+    assert reopened._attributes["filter_mod_files"].isChecked() is False
+
+
+def test_the_report_records_what_the_attribute_filters_need(qtbot, tmp_path):
+    """The flags are computed once, in the controller, from the mod's own files."""
+    controller = _real_controller(tmp_path)
+    row = next(r for r in controller.mod_explorer_report()["rows"] if r["mod"] == "Alpha")
+    assert row["playable"] is False, "no .mod or .nwm file"
+    assert row["is_restorer"] is False
+    assert set(row) >= {"playable", "has_installer", "is_installer", "is_restorer"}

@@ -48,6 +48,35 @@ them.
 | saveinifiles.htm | Save your customised INI files | Ported (the five Ini File commands) |
 | newtopic58.htm | Import Map Settings | Deferred — recorded in DIALOG_PARITY as the map pages' import context menu |
 | newtopic35.htm | Quick Access Toolbar | GAP — see above |
+| useattributefilters.htm | Use Attribute Filters | **Was a GAP, now closed** — Mod Files / Installers / Restorers |
+| usegroupfilters.htm | Use Group Filters | Ported (the Filters… dialog + Undo Group Changes) |
+| usemodprefixfilters.htm | Use Mod Prefix Filters | Ported (prefix list + Undo Prefix Changes) |
+| usefilterboxestospecifyfiltering.htm | Use Filter Boxes to specify filtering criteria | Ported except the Notes filter — `ModData` carries no notes here |
+
+## The Mod Explorer's filters
+
+Four topics, reviewed together because they describe one subsystem. Three were
+already ported. The fourth, **attribute filters**, was missing outright and is
+the same shape as the first-run gap: a toolbar of three toggles, no dialog of
+its own, no command id — invisible to both the other sweeps.
+
+They are *Mod Files*, *Installers* and *Restorers*, and all three are on by
+default, so the original's Mod Explorer opens showing only mods that can be
+played and have an installer. Two details are worth keeping in mind because
+they look like mistakes:
+
+- **The Installers switch reads two different ways.** Ticked, it keeps mods
+  that *have* an installer folder; unticked, it hides mods that *are* an
+  installer (`NotFiltered` tests `HasModInstaller` in one branch and
+  `IsInstaller` in the other).
+- **`HasModInstaller` is the folder, not the identifier file.** Our
+  `ProfileData` had a `mod_installer_exists` hook for this that nothing ever
+  passed, so it had been silently falling back to the identifier file. The
+  report now tests the folder, as VB does. A hook with no caller is the same
+  defect shape as a setting nothing reads.
+
+Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
+every filter without clearing any of them.
 
 ## The first-run gap, in detail
 

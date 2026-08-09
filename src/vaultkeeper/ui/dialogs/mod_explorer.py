@@ -37,6 +37,23 @@ from PySide6.QtWidgets import (
 from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.dialogs.help_viewer import help_button
 
+#: The three attribute filters, in the original's toolbar order, keyed by the
+#: setting each persists to (VB My.Settings.FilterModFiles / …Installers /
+#: …Restorers). Captions and tooltips are the VB button's own.
+_ATTRIBUTE_FILTERS = [
+    (
+        "filter_mod_files",
+        "Mod Files",
+        "Check to only include Mods that have\n.mod or .nwm files",
+    ),
+    (
+        "filter_installers",
+        "Installers",
+        "Check to include Mods that have Installers\n(ie has a Mod Installer folder)",
+    ),
+    ("filter_restorers", "Restorers", "Check to include Mod Restorers"),
+]
+
 _HEADERS = [
     "Mod", "Group", "State", "Rating", "Files", "Time Played", "Completed",
     # VB ChWeapon / ChStart / ChEnd / ChHench.
@@ -209,6 +226,34 @@ class ModExplorer(QDialog):
         )
         self._undo_prefix_btn.clicked.connect(self._on_undo_prefix_filters)
         bar.addWidget(self._undo_prefix_btn)
+
+        # The attribute filters (VB TsModFiles / TsInstallers / TsRestorers),
+        # carrying the original's own Checked/Unchecked images rather than a Qt
+        # check box, because that is what the button looks like in the tool.
+        settings = controller._settings() if controller else None
+        self._attributes: dict[str, QPushButton] = {}
+        for key, caption, tip in _ATTRIBUTE_FILTERS:
+            on = getattr(settings, key, True) if settings is not None else True
+            btn = QPushButton(caption)
+            btn.setToolTip(tip)
+            btn.setCheckable(True)
+            btn.setChecked(bool(on))
+            btn.toggled.connect(lambda checked, b=None, k=key: self._on_attribute_toggled(k))
+            self._attributes[key] = btn
+            bar.addWidget(btn)
+            self._show_attribute(key)
+
+        # Filters On/Off (VB TsIgnoreFilters) — one switch that suspends every
+        # filter at once, so you can see the whole list without unpicking them.
+        self._ignore_filters = False
+        self._ignore_btn = QPushButton()
+        self._ignore_btn.setToolTip(
+            "Filters Off: All current filters are ignored.\n"
+            "Filters On: All current filters are applied."
+        )
+        self._ignore_btn.clicked.connect(self._on_toggle_ignore_filters)
+        bar.addWidget(self._ignore_btn)
+        self._show_ignore_filters()
         layout.addLayout(bar)
 
         self.table = QTreeWidget()
@@ -259,7 +304,65 @@ class ModExplorer(QDialog):
             self._save_prefix_filters()
             self._populate()
 
+    def _on_attribute_toggled(self, key: str) -> None:
+        self._show_attribute(key)
+        self._save_attribute_filters()
+        self._populate()
+
+    def _show_attribute(self, key: str) -> None:
+        """Ticked/unticked, drawn with the original's own two images."""
+        btn = self._attributes[key]
+        btn.setIcon(R.get_icon("Checked" if btn.isChecked() else "Unchecked"))
+
+    def _on_toggle_ignore_filters(self) -> None:
+        self._ignore_filters = not self._ignore_filters
+        self._show_ignore_filters()
+        self._populate()
+
+    def _show_ignore_filters(self) -> None:
+        """VB shows the *state* on the button: "Filters On" when they apply."""
+        on = not self._ignore_filters
+        self._ignore_btn.setText(f"Filters {'On' if on else 'Off'}")
+        self._ignore_btn.setIcon(R.get_icon("Checked" if on else "Unchecked"))
+
+    def _save_attribute_filters(self) -> None:
+        """Persist the three toggles (VB writes them to My.Settings on close)."""
+        if self._controller is None:
+            return
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._controller._settings_path)
+        for key, btn in self._attributes.items():
+            setattr(settings, key, btn.isChecked())
+        save_settings(settings, self._controller._settings_path)
+
+    def _passes_attributes(self, row: dict) -> bool:
+        """The three attribute filters, with VB's exact asymmetries.
+
+        Ticking Installers narrows the list to mods that *have* an installer;
+        unticking it hides the ones that *are* an installer — two different
+        tests on the same switch, which is what the original does (NotFiltered).
+        """
+        # A row that does not record an attribute is not hidden by it: these
+        # filters exclude on evidence, and absent evidence is not evidence.
+        if self._attributes["filter_mod_files"].isChecked() and not row.get(
+            "playable", True
+        ):
+            return False
+        installers = self._attributes["filter_installers"].isChecked()
+        if installers and not row.get("has_installer", True):
+            return False
+        if not installers and row.get("is_installer"):
+            return False
+        restorers = self._attributes["filter_restorers"].isChecked()
+        return not (not restorers and row.get("is_restorer"))
+
     def _passes(self, row: dict) -> bool:
+        # Filters Off shows everything, filters intact (VB NotFiltered's first test).
+        if self._ignore_filters:
+            return True
+        if not self._passes_attributes(row):
+            return False
         query = self._search.text().strip().lower()
         if query and query not in row["mod"].lower() and query not in row["group"].lower():
             return False
