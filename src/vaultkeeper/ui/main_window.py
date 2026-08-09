@@ -474,6 +474,8 @@ class MainWindow(QMainWindow):
             settings.number_recent_mods = checked
             save_settings(settings)
             self._rebuild_recent_mods_menu()
+        elif item_id == "MsOriginalPortraits":
+            self._on_original_portraits(checked)
         elif item_id == "MsPropertiesHeight":
             from vaultkeeper.config.settings import load_settings, save_settings
 
@@ -655,6 +657,72 @@ class MainWindow(QMainWindow):
         self._tree.header().setToolTip(
             f"Profile: {name}\nClick to refresh the mod list" if name else ""
         )
+
+    def _on_original_portraits(self, wanted: bool) -> None:
+        """Fetch (or drop) BioWare's own portraits (VB ``MsOriginalPortraits``).
+
+        The game keeps its built-in portraits inside its data files, where
+        nothing here can read them, so a character rolled with one shows no
+        picture at all. The Vault publishes them as a reference archive; this
+        fetches it on request, because it is a ~150 MB download that unpacks to
+        roughly 350 MB and nobody should meet that by accident.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        if self.controller is None:
+            return
+        action = self.nit_menu.action("MsOriginalPortraits")
+
+        def set_tick(state: bool) -> None:
+            if action is not None:
+                action.blockSignals(True)
+                action.setChecked(state)
+                action.blockSignals(False)
+
+        if not wanted:
+            result = self.controller.remove_original_portraits()
+            self.nit_status.set_info(result["message"])
+            return
+
+        if self.controller.has_original_portraits():
+            self.nit_status.set_info("BioWare's portraits are already here.")
+            return
+
+        if (
+            QMessageBox.question(
+                self,
+                "Show BioWare's Portrait Images",
+                "Download BioWare's portrait files?\n\n"
+                "Character summaries and the Portrait Manager will then show the "
+                "game's built-in portraits, which live inside the game's own data "
+                "files where this cannot read them.\n\n"
+                "The download is around 150 MB and uses about 350 MB once "
+                "unpacked.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            set_tick(False)
+            return
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            result = self.controller.download_original_portraits(
+                on_phase=lambda text: (
+                    self.nit_status.set_info(text),
+                    QApplication.processEvents(),
+                )
+            )
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        set_tick(bool(result["ok"]))
+        self.nit_status.set_info(result["message"])
+        if not result["ok"]:
+            QMessageBox.warning(
+                self, "Show BioWare's Portrait Images", result["message"]
+            )
 
     def _on_toggle_properties_height(self) -> None:
         """Flip Automatic Properties Panel Height (VB ``MsPropertiesHeight``).
@@ -1184,6 +1252,8 @@ class MainWindow(QMainWindow):
             # Also a checkable toggle, and also driven from a second place (the
             # Properties panel heading) — see _on_toggle_properties_height.
             "MsPropertiesHeight",
+            # A checkable toggle too: ticking it downloads BioWare's portraits.
+            "MsOriginalPortraits",
         }
 
     def _apply_command_availability(self) -> None:

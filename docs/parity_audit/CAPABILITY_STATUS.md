@@ -39,7 +39,7 @@ them.
 | exportedsettings.htm | Export and Import Settings | Ported |
 | newtopic46.htm | Use the Mod Selector to navigate to a Mod | Ported (`main_window.py:243`) |
 | newtopic65.htm | Reset Window Layout | Ported (`MsResetWindow`) |
-| newtopic73.htm | Show BioWare's Portrait Images | Ported (`MsOriginalPortraits`) |
+| newtopic73.htm | Show BioWare's Portrait Images | **Said Ported and was not** — built now (`MsOriginalPortraits`) |
 | newtopic76.htm | Clear Extracted Hak Portraits | Ported (`MsClearHakPortraits`) |
 | newtopic55.htm | Move files to the Development folder | **GAP** — this file said Ported; it was not. See below |
 | newtopic12.htm | View Download Rules | Ported (`MsOpenRulesFile`) |
@@ -111,6 +111,26 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## A third wrong "Ported" — and a guard so there is no fourth
+
+`newtopic73.htm` (*Show BioWare's Portrait Images*) was recorded ported against
+`MsOriginalPortraits`. The menu item was there; nothing was wired to it. Same
+mistake as `createcharrestorers.htm` and `newtopic55.htm`, three for three: a
+**present control id read as a working feature**.
+
+★ `tests/test_capability_status_claims.py` now reads this file, pulls every
+command id off a line that says *Ported*, and fails if any of them has no
+handler — or does not exist at all. The check is a few lines and it is the only
+thing standing between this file and being confidently wrong. Verified against
+a planted bad claim, not just against a clean file.
+
+The feature itself: the game keeps its built-in portraits inside its own data
+files, where nothing here can read them, so a character rolled with one shows no
+picture. The Vault publishes them as a reference archive; ticking the option
+fetches it on request — ~150 MB down, ~350 MB unpacked, which is why it is asked
+for rather than assumed — and the folder joins `portrait_search_dirs()` **last**,
+so a mod's replacement for a built-in portrait still wins.
 
 ## Dependencies: what the tool already knows and was throwing away
 

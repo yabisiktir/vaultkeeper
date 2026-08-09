@@ -4398,6 +4398,121 @@ class ProfileController:
         """NIT's folder for portraits extracted from haks (VB ``Paths.HakPortraits``)."""
         return self.data_dir().parent / "Backups" / "Portraits Extracted from Hak Files"
 
+    #: The Vault project that publishes BioWare's own portrait files (VB
+    #: ``DownloadPortraits``). Not a mod — a reference archive of the game's
+    #: built-in portraits, which the game itself keeps inside its data files
+    #: where nothing here can read them.
+    ORIGINAL_PORTRAITS_URL = (
+        "https://neverwintervault.org/project/nwn1/images/portrait/"
+        "nwn-portrait-file-reference"
+    )
+
+    def original_portraits_root(self) -> Path:
+        """Where BioWare's downloaded portraits live (VB ``Paths.Backups/Portraits``)."""
+        return self.data_dir().parent / "Backups" / "Portraits"
+
+    def has_original_portraits(self) -> bool:
+        root = self.original_portraits_root()
+        return root.is_dir() and any(root.iterdir())
+
+    def download_original_portraits(self, *, on_bytes=None, on_phase=None) -> dict:
+        """Fetch and unpack BioWare's portraits (VB ``DownloadPortraits``).
+
+        A large download — the archive is around 150 MB and unpacks to roughly
+        350 MB — so it is on request, never at start-up, and it is streamed
+        rather than read into memory.
+        """
+        import shutil
+        import tempfile
+
+        if self.has_original_portraits():
+            return {
+                "ok": True,
+                "downloaded": False,
+                "message": "BioWare's portraits are already here.",
+            }
+
+        def phase(text: str) -> None:
+            if on_phase is not None:
+                on_phase(text)
+
+        try:
+            phase("Finding BioWare's portrait archive…")
+            files = self.scrape_project(self.ORIGINAL_PORTRAITS_URL)
+            if not files:
+                return {
+                    "ok": False,
+                    "downloaded": False,
+                    "message": "The portrait project listed no downloadable files.",
+                }
+
+            temp = Path(tempfile.mkdtemp(prefix="vaultkeeper_portraits_"))
+            try:
+                phase("Downloading BioWare's portraits…")
+                from vaultkeeper.vault.downloader import Downloader
+
+                downloader = Downloader(
+                    self._http, scraper=self._make_scraper(), on_bytes=on_bytes
+                )
+                result = downloader.download_file(files[0], temp)
+                if not result.ok or result.path is None:
+                    return {
+                        "ok": False,
+                        "downloaded": False,
+                        "message": f"The download failed: {result.error or 'unknown error'}.",
+                    }
+
+                phase("Extracting…")
+                unpacked = temp / "unpacked"
+                unpacked.mkdir(exist_ok=True)
+                extracted = self._archive_backend().extract(result.path, unpacked)
+                if not extracted.ok:
+                    return {
+                        "ok": False,
+                        "downloaded": True,
+                        "message": f"The archive could not be extracted: {extracted.error}",
+                    }
+
+                # The archive carries a "portraits" folder; take that if it is
+                # there and the whole tree if it is not, so a repack that drops
+                # the wrapper still works.
+                source = next(
+                    (
+                        p
+                        for p in unpacked.rglob("*")
+                        if p.is_dir() and p.name.lower() == "portraits"
+                    ),
+                    unpacked,
+                )
+                target = self.original_portraits_root()
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if target.exists():
+                    shutil.rmtree(target, ignore_errors=True)
+                shutil.move(str(source), str(target))
+                count = sum(1 for _ in target.rglob("*.tga"))
+                return {
+                    "ok": True,
+                    "downloaded": True,
+                    "message": (
+                        f"{count:,} portrait image(s) are now available to the "
+                        "Character Explorer and the Portrait Manager."
+                    ),
+                }
+            finally:
+                shutil.rmtree(temp, ignore_errors=True)
+        except Exception as ex:  # network, archive, disk
+            return {"ok": False, "downloaded": False, "message": f"{ex}"}
+
+    def remove_original_portraits(self) -> dict:
+        """Delete the downloaded portraits (turning the option back off)."""
+        import shutil
+
+        root = self.original_portraits_root()
+        if not root.is_dir():
+            return {"ok": True, "message": "There were none to remove."}
+        shutil.rmtree(root, ignore_errors=True)
+        return {"ok": not root.exists(), "message": "BioWare's portraits were removed."}
+
     def portrait_search_dirs(self) -> list[Path]:
         """NWN portrait search folders in priority order (VB PortraitDirectories)."""
         user = self.ctx.game_user_dir
@@ -4411,6 +4526,11 @@ class ProfileController:
         root = self.hak_portraits_root()
         if root.is_dir():
             dirs.extend(sorted(p for p in root.iterdir() if p.is_dir()))
+        # BioWare's own portraits last: a mod's replacement for a built-in
+        # portrait should win, and the game's copy is the fallback.
+        original = self.original_portraits_root()
+        if original.is_dir():
+            dirs.append(original)
         return dirs
 
     def extract_hak_portraits(self, hak_path: Path) -> dict:
