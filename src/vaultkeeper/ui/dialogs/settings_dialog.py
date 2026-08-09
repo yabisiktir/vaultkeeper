@@ -803,6 +803,9 @@ class SettingsDialog(QDialog):
         )
         self.profile_remove_button.clicked.connect(self._on_remove_profile)
         row.addWidget(self.profile_remove_button)
+        self.profile_rename_button = QPushButton("Rename…")
+        self.profile_rename_button.clicked.connect(self._on_rename_profile)
+        row.addWidget(self.profile_rename_button)
         row.addStretch(1)
         layout.addLayout(row)
         self._sync_profile_buttons()
@@ -819,6 +822,36 @@ class SettingsDialog(QDialog):
             has_profile and item.text(0) != self._settings.active_profile
         )
         self.profile_remove_button.setText("Keep" if staged else "Remove…")
+        # Renaming moves folders on disk, so it happens now rather than being
+        # staged — and a profile staged for removal is not worth renaming.
+        self.profile_rename_button.setEnabled(has_profile and not staged)
+
+    def _on_rename_profile(self) -> None:
+        """Rename a profile's folders and its records (``renameaprofile.htm``)."""
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+        from vaultkeeper.ui.session import rename_profile
+
+        item = self.profiles_tree.currentItem()
+        if item is None:
+            return
+        old_name = item.text(0)
+        new_name, ok = QInputDialog.getText(
+            self, "Rename Profile", "New name:", text=old_name
+        )
+        if not ok or not new_name.strip():
+            return
+        result = rename_profile(old_name, new_name.strip(), self._settings)
+        if not result["ok"]:
+            QMessageBox.warning(self, "Rename Profile", result["message"])
+            return
+        item.setText(0, new_name.strip())
+        # Any staged change follows the new name, or it would be applied to a
+        # profile that no longer answers to the old one.
+        if old_name in self._profile_folder_edits:
+            self._profile_folder_edits[new_name.strip()] = self._profile_folder_edits.pop(
+                old_name
+            )
 
     def _on_remove_profile(self) -> None:
         """Stage a profile for removal, applied on OK (VB "flagged for deletion").

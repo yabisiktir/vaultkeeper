@@ -10,6 +10,7 @@ is not enough configured yet (no game located, or no profile chosen) it returns
 
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Callable
 from pathlib import Path
 
@@ -186,6 +187,64 @@ def delete_profile(
     if failures:
         message += f" {len(failures)} item(s) could not be removed."
     return {"ok": not failures, "removed": len(removed), "message": message}
+
+
+def rename_profile(
+    old_name: str,
+    new_name: str,
+    settings: Settings | None = None,
+    *,
+    settings_path: Path | None = None,
+) -> dict:
+    """Rename a profile's directories and its records (``renameaprofile.htm``).
+
+    "the Installer Tool renames the Profile's directory in the NIT Store's
+    Profiles and Data folders." The per-profile records — edition, game folder,
+    user folder — move with it, or the renamed profile would open as something
+    else.
+    """
+    settings = settings or load_settings(settings_path)
+    old_name, new_name = old_name.strip(), new_name.strip()
+    if not old_name or not new_name:
+        return {"ok": False, "message": "A profile needs a name."}
+    if new_name == old_name:
+        return {"ok": True, "message": "That is already its name."}
+    if any(ch in new_name for ch in '\\/:*?"<>|'):
+        return {"ok": False, "message": "That is not a usable profile name."}
+
+    store = settings.resolved_store()
+    if store.profile_dir(new_name).exists() or (store.data / f"{new_name}.json").exists():
+        return {"ok": False, "message": f"'{new_name}' already exists."}
+
+    moves = [
+        (store.profile_dir(old_name), store.profile_dir(new_name)),
+        (store.profile_data_dir(old_name), store.profile_data_dir(new_name)),
+        (store.data / f"{old_name}.json", store.data / f"{new_name}.json"),
+    ]
+    done: list[tuple[Path, Path]] = []
+    for source, target in moves:
+        if not source.exists():
+            continue
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            source.rename(target)
+            done.append((source, target))
+        except OSError as ex:
+            # Put back whatever moved, so a half-renamed profile cannot exist.
+            for undo_source, undo_target in reversed(done):
+                with contextlib.suppress(OSError):
+                    undo_target.rename(undo_source)
+            return {"ok": False, "message": f"Could not rename: {ex}"}
+
+    for table in ("profile_editions", "profile_game_paths", "profile_game_user_paths"):
+        current = dict(getattr(settings, table) or {})
+        if old_name in current:
+            current[new_name] = current.pop(old_name)
+            setattr(settings, table, current)
+    if settings.active_profile == old_name:
+        settings.active_profile = new_name
+    save_settings(settings, settings_path)
+    return {"ok": True, "message": f"Renamed '{old_name}' to '{new_name}'."}
 
 
 def list_profiles(settings: Settings | None = None) -> list[str]:

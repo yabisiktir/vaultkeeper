@@ -121,6 +121,9 @@ them.
 | newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
 | newtopic22.htm | Disable Workshop management | **Was a GAP, now closed** — Stop Managing, keeping or deleting the copies |
 | createmodinstallationsets.htm / uninstallinstallationsetdefinedm.htm | Installation Sets | Ported (Installation Manager) |
+| renameaprofile.htm | Rename a Profile | **Was a GAP, now closed** |
+| newtopic17.htm | Use Download Project to define dependencies | **Was a GAP, now closed** — they were downloaded and discarded |
+| addorremovegroups.htm / updaterestorers.htm | Installation Set groups / Update Restorers | Ported |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

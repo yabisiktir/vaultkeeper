@@ -459,3 +459,40 @@ def test_a_requirement_that_failed_to_install_is_not_recorded(qtbot, tmp_path, m
         "id", "Module", [SimpleNamespace(name="CEP", url="https://v/cep")]
     )
     assert c.pd.mod_item("Module").dependencies == []
+
+
+# -- Download Project defines them as it downloads (newtopic17.htm) -------------- #
+def test_downloading_a_project_records_what_it_required(controller):
+    """"When you click the Download or Install button in Download Project, the
+    Mod's dependencies are automatically defined." The page has just said what
+    it needs; asking the Vault the same question later through Auto is doing the
+    work twice."""
+    added = controller.record_project_dependencies(
+        "Swordflight",
+        [{"title": "CEP 2.6", "url": "https://neverwintervault.org/project/cep2"}],
+    )
+    assert added == 1
+    assert controller.pd.mod_item("Swordflight").dependencies == ["CEP 2.6"]
+
+
+def test_a_requirement_for_a_mod_you_do_not_have_is_not_recorded(controller):
+    added = controller.record_project_dependencies(
+        "Swordflight", [{"title": "Project Q", "url": "https://v/q"}]
+    )
+    assert added == 0
+    assert controller.pd.mod_item("Swordflight").dependencies == []
+
+
+def test_it_does_not_duplicate_what_is_already_recorded(controller):
+    required = [{"title": "CEP 2.6", "url": "https://neverwintervault.org/project/cep2"}]
+    controller.record_project_dependencies("Swordflight", required)
+    assert controller.record_project_dependencies("Swordflight", required) == 0
+    assert controller.pd.mod_item("Swordflight").dependencies == ["CEP 2.6"]
+
+
+def test_a_project_requiring_itself_is_ignored(controller):
+    added = controller.record_project_dependencies(
+        "Swordflight",
+        [{"title": "Swordflight", "url": "https://neverwintervault.org/project/1"}],
+    )
+    assert added == 0

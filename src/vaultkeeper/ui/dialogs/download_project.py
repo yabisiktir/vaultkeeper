@@ -592,10 +592,15 @@ class DownloadProjectDialog(QDialog):
 
         def work(job):
             on_progress, on_bytes, _ = self._job_callbacks(job)
-            return self.controller.download_project(
+            results = self.controller.download_project(
                 files, mod, group=group, page_url=page_url,
                 on_progress=on_progress, on_bytes=on_bytes,
             )
+            # The page has just told us what it requires; recording it here
+            # saves asking the Vault the same question again through Auto
+            # (newtopic17.htm).
+            self.controller.record_project_dependencies(mod, self._required)
+            return results
 
         def done(results) -> None:
             ok = sum(1 for r in results if r.ok)
@@ -628,6 +633,7 @@ class DownloadProjectDialog(QDialog):
             on_progress, on_bytes, on_phase = self._job_callbacks(job)
             return self.controller.install_downloaded_project(
                 files, mod, group=group, page_url=page_url,
+                required=self._required,
                 on_progress=on_progress, on_bytes=on_bytes, on_phase=on_phase,
             )
 

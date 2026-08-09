@@ -239,3 +239,66 @@ def test_the_remove_button_is_off_for_the_loaded_profile(qtbot, settings):
         item = dlg.profiles_tree.topLevelItem(i)
         dlg.profiles_tree.setCurrentItem(item)
         assert dlg.profile_remove_button.isEnabled() == (item.text(0) != "Live")
+
+
+# -- Renaming (renameaprofile.htm) ------------------------------------------------ #
+def test_renaming_moves_the_folders_and_the_records(qtbot, settings, tmp_path):
+    """"the Installer Tool renames the Profile's directory in the NIT Store's
+    Profiles and Data folders." The per-profile records move too, or the renamed
+    profile opens as something else."""
+    from vaultkeeper.ui.session import rename_profile
+
+    store = settings.resolved_store()
+    (store.data / "Classic.json").write_text("{}")
+
+    result = rename_profile("Classic", "Old School", settings)
+
+    assert result["ok"], result["message"]
+    assert store.profile_dir("Old School").is_dir()
+    assert not store.profile_dir("Classic").exists()
+    assert (store.data / "Old School.json").is_file()
+    assert settings.profile_editions["Old School"] is False
+    assert "Classic" not in settings.profile_game_paths
+
+
+def test_renaming_the_loaded_profile_follows_it(qtbot, settings):
+    from vaultkeeper.ui.session import rename_profile
+
+    settings.active_profile = "Live"
+    rename_profile("Live", "Main", settings)
+    assert settings.active_profile == "Main"
+
+
+def test_a_name_already_taken_is_refused(qtbot, settings):
+    from vaultkeeper.ui.session import rename_profile
+
+    result = rename_profile("Classic", "Live", settings)
+    assert not result["ok"] and "already exists" in result["message"]
+    assert settings.resolved_store().profile_dir("Classic").is_dir()
+
+
+@pytest.mark.parametrize("name", ["", "   ", "a/b", "a:b"])
+def test_a_name_that_is_not_a_name_is_refused(qtbot, settings, name):
+    from vaultkeeper.ui.session import rename_profile
+
+    assert rename_profile("Classic", name, settings)["ok"] is False
+
+
+def test_renaming_to_the_same_name_is_a_no_op(qtbot, settings):
+    from vaultkeeper.ui.session import rename_profile
+
+    result = rename_profile("Classic", "Classic", settings)
+    assert result["ok"] and "already its name" in result["message"]
+
+
+def test_the_button_renames_the_row(qtbot, settings, monkeypatch):
+    from PySide6.QtWidgets import QInputDialog
+
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Old School", True))
+    dlg = _page(qtbot, settings)
+    for i in range(dlg.profiles_tree.topLevelItemCount()):
+        if dlg.profiles_tree.topLevelItem(i).text(0) == "Classic":
+            dlg.profiles_tree.setCurrentItem(dlg.profiles_tree.topLevelItem(i))
+    dlg._on_rename_profile()
+
+    assert dlg.profiles_tree.currentItem().text(0) == "Old School"

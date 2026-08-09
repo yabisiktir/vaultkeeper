@@ -3342,6 +3342,43 @@ class ProfileController:
                 FileStatus.DOWNLOADED if name.lower() in existing else FileStatus.AVAILABLE
             )
 
+    def record_project_dependencies(self, mod_name: str, required: list) -> int:
+        """Record what a downloaded project said it needs (VB ``newtopic17``).
+
+        "When you click the Download or Install button in Download Project, the
+        Mod's dependencies are automatically defined." The page has just told us
+        what it requires and which mods here answer to those names — throwing
+        that away means asking the Vault for it again later, through Auto.
+
+        Only requirements that match a mod in this profile are recorded: a
+        dependency on a mod that is not here would make every later uninstall
+        reason about something that does not exist.
+        """
+        from vaultkeeper.vault.mod_links import search_name
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item or not required:
+            return 0
+        by_link = {
+            m.web_link.lower(): n
+            for n, m in self.pd.mod_list.items()
+            if m.is_not_group_item and m.web_link
+        }
+        by_name = {search_name(n): n for n in self.pd.mod_keys}
+
+        deps = list(md.dependencies)
+        added = 0
+        for entry in required:
+            url = str(entry.get("url", "")).lower()
+            title = str(entry.get("title", ""))
+            match = by_link.get(url) or by_name.get(search_name(title))
+            if match and match != mod_name and match not in deps:
+                deps.append(match)
+                added += 1
+        if added:
+            self.set_mod_dependencies(mod_name, deps)
+        return added
+
     def install_downloaded_project(
         self,
         files: list,
@@ -3349,6 +3386,7 @@ class ProfileController:
         *,
         group: str | None = None,
         page_url: str = "",
+        required: list | None = None,
         on_progress=None,
         on_bytes=None,
         on_phase=None,
@@ -3371,6 +3409,7 @@ class ProfileController:
             on_bytes=on_bytes,
         )
         downloaded = sum(1 for r in results if r.ok)
+        self.record_project_dependencies(mod_name, required or [])
         build = self.build_installer_payload(mod_name, on_phase=on_phase)
         install_message = (
             self.install([mod_name], on_phase=on_phase)
