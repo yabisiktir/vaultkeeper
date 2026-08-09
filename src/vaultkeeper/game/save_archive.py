@@ -221,3 +221,37 @@ def restore_game_saves(range_folder: Path, saves_dir: Path) -> RestoreResult:
         errors=errors,
         message=message,
     )
+
+
+def delete_archived_range(range_folder: Path, *, to_trash: bool = True) -> RestoreResult:
+    """Delete an archived range (``deletearchives.htm``).
+
+    "The selected range is moved to the Recycle Bin or permanently deleted
+    depending on your Recycle Bin for Game Saves Preference" — which is the
+    whole of ``restoringdeletedsavesfromtherecy.htm``: a range that went to the
+    recycle bin can be put back, one that did not is gone. So the preference is
+    the argument, and it defaults to the recoverable answer.
+
+    The saves are counted before the delete; afterwards there is nothing left to
+    count, and "deleted 0 game saves" is not what happened.
+    """
+    if not range_folder.is_dir():
+        return RestoreResult(ok=False, message="Archived game saves not found.")
+
+    saves = sum(1 for p in range_folder.iterdir() if p.is_dir())
+    name = range_folder.name
+    try:
+        fs.delete(range_folder, to_trash=to_trash)
+    except OSError:
+        return RestoreResult(ok=False, message=f"Unable to delete {name}.")
+
+    game_folder = range_folder.parent
+    if game_folder.is_dir() and not any(game_folder.iterdir()):
+        fs.delete(game_folder)
+
+    where = "to the recycle bin" if to_trash else "permanently"
+    return RestoreResult(
+        ok=True,
+        restored=saves,
+        message=f"Deleted {name} ({to_plural(saves, 'game save')}) {where}.",
+    )

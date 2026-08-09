@@ -116,6 +116,96 @@ def test_restore_archived_saves_controller(tmp_path):
     assert not controller.game_saves_report()["archived"]
 
 
+def test_delete_archived_saves_goes_to_the_recycle_bin(tmp_path, recycle_bin):
+    """deletearchives.htm + restoringdeletedsavesfromtherecy.htm.
+
+    Reduce used to be a one-way door: an archived range could only be brought
+    back, never thrown away.
+    """
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+
+    result = controller.delete_archived_saves("000005-000005")
+
+    assert result["ok"] is True
+    assert result["deleted"] == 1
+    assert "recycle bin" in result["message"]
+    assert not controller.game_saves_report()["archived"]
+    # The promise the topic makes: it is still there to be restored.
+    assert (recycle_bin / "000005-000005" / "000005 - archived").is_dir()
+
+
+def test_delete_archived_saves_honours_the_preference(tmp_path, recycle_bin):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+    settings = load_settings()
+    settings.recycle_game_saves = False
+    save_settings(settings)
+
+    result = controller.delete_archived_saves("000005-000005")
+
+    assert result["ok"] is True
+    assert "permanently" in result["message"]
+    assert list(recycle_bin.iterdir()) == []
+
+
+def test_delete_archived_saves_reports_a_missing_range(tmp_path):
+    controller = _controller(tmp_path)
+    result = controller.delete_archived_saves("999999-999999")
+    assert result["ok"] is False
+    assert "not found" in result["message"]
+
+
+def test_delete_game_backup_honours_the_recycle_preference(tmp_path, recycle_bin):
+    """A deactivated game is a whole playthrough, and went permanently."""
+    controller = _controller(tmp_path)
+    controller.deactivate_current_game()
+
+    assert controller.delete_game_backup("Adventure")["ok"]
+    assert (recycle_bin / "Adventure").is_dir()
+
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.recycle_game_saves = False
+    save_settings(settings)
+    backup = controller.game_backup_root() / "Second"
+    (backup / "000001 - save").mkdir(parents=True)
+    assert controller.delete_game_backup("Second")["ok"]
+    # Nothing new arrived in the bin: the preference was honoured both ways.
+    assert [p.name for p in recycle_bin.iterdir()] == ["Adventure"]
+
+
+def test_dialog_delete_archive_button(qtbot, tmp_path, monkeypatch, recycle_bin):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    _seed_archive(controller)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    asked: list[str] = []
+
+    def question(_parent, _title, text, *a, **k):
+        asked.append(text)
+        return QMessageBox.StandardButton.Yes
+
+    monkeypatch.setattr(QMessageBox, "question", question)
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+
+    assert not dlg.delete_archive_button.isEnabled()  # nothing selected
+    dlg.archives.setCurrentItem(dlg.archives.topLevelItem(0))
+    assert dlg.delete_archive_button.isEnabled()
+    dlg.delete_archive_button.click()
+
+    # The prompt says whether this can be undone, because that is the setting.
+    assert "restored from the recycle bin" in asked[0]
+    assert (recycle_bin / "000005-000005").is_dir()
+    assert dlg.archives.topLevelItemCount() == 0
+
+
 def test_dialog_restore_button(qtbot, tmp_path, monkeypatch):
     from PySide6.QtWidgets import QMessageBox
 

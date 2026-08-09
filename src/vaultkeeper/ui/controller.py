@@ -4655,6 +4655,28 @@ class ProfileController:
             "message": result.message,
         }
 
+    def delete_archived_saves(self, range_name: str, *, to_trash: bool | None = None) -> dict:
+        """Delete an archived range (``deletearchives.htm``).
+
+        Recycle-bin by preference, because ``restoringdeletedsavesfromtherecy``
+        promises a regretted delete can be undone — a promise the tool can only
+        keep at the moment of deleting.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "deleted": 0, "message": "No game saves available."}
+        from vaultkeeper.game.save_archive import delete_archived_range
+
+        recycle = self._settings().recycle_game_saves if to_trash is None else to_trash
+        game_name = loop.game_saves().current_game_save
+        range_folder = self.archived_saves_root() / game_name / range_name
+        result = delete_archived_range(range_folder, to_trash=recycle)
+        return {
+            "ok": result.ok,
+            "deleted": result.restored,
+            "message": result.message,
+        }
+
     # -- Deactivate / Activate / Delete games (VB GameManager backup flows) -- #
     def game_backup_root(self) -> Path:
         """The store's deactivated-game backup folder (VB ``Paths.GameSaves``)."""
@@ -4843,11 +4865,18 @@ class ProfileController:
         )
         return {"ok": result.ok, "moved": result.moved, "message": result.message}
 
-    def delete_game_backup(self, name: str, *, to_trash: bool = False) -> dict:
-        """Delete a deactivated game's backup folder (VB ``DeleteGame``)."""
+    def delete_game_backup(self, name: str, *, to_trash: bool | None = None) -> dict:
+        """Delete a deactivated game's backup folder (VB ``DeleteGame``).
+
+        Honours the Recycle Bin for Game Saves preference. It used to delete
+        permanently whatever the preference said, which quietly made
+        ``restoringdeletedsavesfromtherecy.htm`` untrue for the one command
+        most likely to be regretted: a deactivated game is a whole playthrough.
+        """
         from vaultkeeper.game.game_backup import delete_game_backup
 
-        result = delete_game_backup(self.game_backup_root() / name, to_trash=to_trash)
+        recycle = self._settings().recycle_game_saves if to_trash is None else to_trash
+        result = delete_game_backup(self.game_backup_root() / name, to_trash=recycle)
         return {"ok": result.ok, "message": result.message}
 
     # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #

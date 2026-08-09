@@ -116,7 +116,7 @@ them.
 | switchextendededition.htm | Switching Beamdog ↔ Steam | Ported — the Library path is editable on Locations |
 | essentials.htm / newtopic.htm | Terminology / uninstalling NIT | Reference; nothing to port |
 | movingmodsfromonegrouptoanother.htm | Moving Mods between Groups | **Ported bar "None"**, now added |
-| deletearchives.htm | Delete archived Game Saves | Ported (Restore Archived Saves) |
+| deletearchives.htm | Delete archived Game Saves | **Was a GAP, now closed** — I had marked this Ported off the Restore button; there was no Delete at all |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
 | newtopic22.htm | Disable Workshop management | **Was a GAP, now closed** — Stop Managing, keeping or deleting the copies |
@@ -124,6 +124,9 @@ them.
 | renameaprofile.htm | Rename a Profile | **Was a GAP, now closed** |
 | newtopic17.htm | Use Download Project to define dependencies | **Was a GAP, now closed** — they were downloaded and discarded |
 | addorremovegroups.htm / updaterestorers.htm | Installation Set groups / Update Restorers | Ported |
+| reducefileclutter.htm | Reduce file clutter | **Half ported** — Move to Downloads was there, "view the contents of compressed files" was not; now reads the archive index |
+| restoringdeletedsavesfromtherecy.htm | Restoring deleted saves from the Recycle Bin | **Was a GAP, now closed** — the preference existed but only Finish Game read it, so backups and archives went permanently whatever it said |
+| downloadandinstallmods.htm | Download and install Mods from other sites | An index of steps whose commands are each ported |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

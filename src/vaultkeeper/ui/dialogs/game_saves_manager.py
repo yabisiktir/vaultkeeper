@@ -151,6 +151,12 @@ class GameSavesManager(QDialog):
         self.restore_button = QPushButton("Restore")
         self.restore_button.clicked.connect(self._on_restore)
         button_row.addWidget(self.restore_button)
+        # deletearchives.htm: an archived range can be thrown away as well as
+        # brought back. Without this, Reduce was a one-way door — saves you
+        # archived to get them out of the way could only ever come back.
+        self.delete_archive_button = QPushButton("Delete Archive")
+        self.delete_archive_button.clicked.connect(self._on_delete_archive)
+        button_row.addWidget(self.delete_archive_button)
         self.activate_button = QPushButton("Activate")
         self.activate_button.clicked.connect(self._on_activate)
         # Right-click activates *and* swaps the mods over — a game save is no use
@@ -265,9 +271,9 @@ class GameSavesManager(QDialog):
         self._sync_buttons()
 
     def _sync_buttons(self) -> None:
-        self.restore_button.setEnabled(
-            bool(self._controller) and self.archives.currentItem() is not None
-        )
+        has_archive = bool(self._controller) and self.archives.currentItem() is not None
+        self.restore_button.setEnabled(has_archive)
+        self.delete_archive_button.setEnabled(has_archive)
         has_game = bool(self._controller) and self.games.currentItem() is not None
         self.activate_button.setEnabled(has_game)
         self.delete_button.setEnabled(has_game)
@@ -320,6 +326,36 @@ class GameSavesManager(QDialog):
         ):
             return
         result = self._controller.restore_archived_saves(range_name)
+        self._refresh()
+        self._report(result["message"], result["ok"])
+
+    def _on_delete_archive(self) -> None:
+        """Throw an archived range away (``deletearchives.htm``)."""
+        item = self.archives.currentItem()
+        if self._controller is None or item is None:
+            return
+        range_name = item.text(0)
+        # The prompt says where they are going, because that decides whether
+        # this can be undone (restoringdeletedsavesfromtherecy.htm).
+        recycle = self._controller._settings().recycle_game_saves
+        where = (
+            "They can be restored from the recycle bin."
+            if recycle
+            else "This cannot be undone — your Recycle Bin for Game Saves "
+            "preference is off."
+        )
+        if (
+            QMessageBox.question(
+                self,
+                "Delete Archived Game Saves",
+                f"Delete the archived game saves in {range_name}?\n\n{where}",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        result = self._controller.delete_archived_saves(range_name)
         self._refresh()
         self._report(result["message"], result["ok"])
 
@@ -378,11 +414,20 @@ class GameSavesManager(QDialog):
         if self._controller is None or item is None:
             return
         name = item.text(0)
+        recycle = self._controller._settings().recycle_game_saves
+        where = (
+            "It can be restored from the recycle bin."
+            if recycle
+            else "This cannot be undone — your Recycle Bin for Game Saves "
+            "preference is off."
+        )
         if (
             QMessageBox.question(
                 self,
                 "Delete Game Backup",
-                f"Permanently delete the backup for {name}?",
+                f"Delete the backup for {name}?\n\n{where}",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
             != QMessageBox.StandardButton.Yes
         ):
