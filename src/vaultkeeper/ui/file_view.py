@@ -329,6 +329,23 @@ class FileView(QTreeWidget):
                 return True
         return False
 
+    def select_mods(self, names) -> int:
+        """Select exactly ``names`` in the list; returns how many were found."""
+        wanted = {n.lower() for n in names}
+        self.clearSelection()
+        found = 0
+        first = None
+        for item in self._mod_items():
+            name = item.data(0, _ROLE_MOD_NAME)
+            if name and name.lower() in wanted:
+                item.setSelected(True)
+                found += 1
+                if first is None:
+                    first = item
+        if first is not None:
+            self.scrollToItem(first)
+        return found
+
     def select_group(self, group_name: str) -> bool:
         """Expand + scroll to a group header, selecting its first mod (VB Go to Group)."""
         for i in range(self.topLevelItemCount()):

@@ -3798,7 +3798,13 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.find_and_rename import FindAndRenameDialog
 
         self._find_rename_dialog = FindAndRenameDialog.show_for(
-            self.controller, self._on_renames_applied, self
+            self.controller,
+            self._on_renames_applied,
+            self,
+            # "The Mod names that match your Find criteria are selected in the
+            # Mod list" — the preview shows what would change, the selection
+            # shows which mods.
+            on_found=self._tree.select_mods,
         )
 
     def _on_renames_applied(self, _report: dict) -> None:

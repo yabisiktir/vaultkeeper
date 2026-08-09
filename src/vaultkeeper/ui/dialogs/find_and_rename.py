@@ -47,10 +47,14 @@ class FindAndRenameDialog(QDialog):
         controller,
         on_applied: Callable[[dict], None] | None = None,
         parent: QWidget | None = None,
+        *,
+        on_found: Callable[[list], None] | None = None,
     ) -> None:
         super().__init__(parent)
         self._controller = controller
         self._on_applied = on_applied
+        #: Called with the matching mod names so the window can select them.
+        self._on_found = on_found
         self._model: ModRenameSet = controller.mod_rename_set()
         self.setWindowTitle("Find and Rename Mods")
         geometry.remember(self, "FindAndRenameDialog", 480, 520)
@@ -201,6 +205,22 @@ class FindAndRenameDialog(QDialog):
         self._model.find(self._find.text())
         self._model.select_found()
         self._refresh_list()
+        self._announce_found()
+
+    def _announce_found(self) -> None:
+        """Tell the window which mods matched (VB: "selected in the Mod list").
+
+        The preview here shows what *would* change; the selection out there
+        shows *which mods* — and a rename you can see against the real list is
+        one you are far likelier to notice is wrong.
+        """
+        if self._on_found is None:
+            return
+        self._on_found(
+            [e.current_name for e in self._model.entries if e.selected]
+            if self._find.text()
+            else []
+        )
 
     def _find_next(self) -> None:
         """Step the selection to the next matching mod name (VB Find Next)."""
@@ -261,7 +281,9 @@ class FindAndRenameDialog(QDialog):
         self.accept()
 
     @classmethod
-    def show_for(cls, controller, on_applied=None, parent=None) -> FindAndRenameDialog:
-        dlg = cls(controller, on_applied, parent)
+    def show_for(
+        cls, controller, on_applied=None, parent=None, *, on_found=None
+    ) -> FindAndRenameDialog:
+        dlg = cls(controller, on_applied, parent, on_found=on_found)
         dlg.show()
         return dlg
