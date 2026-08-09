@@ -3171,11 +3171,19 @@ class MainWindow(QMainWindow):
         )
 
     def _on_conflicts(self) -> None:
+        """Mod File Conflicts for the selection (``msconflicts.htm``).
+
+        "Select one or more Mods (or a Group to process all its member Mods),
+        then click Mod File Conflicts" — so what is selected is the question,
+        and the viewer's own buttons widen it from there.
+        """
         if self.controller is None:
             return
         from vaultkeeper.ui.dialogs.conflicts_viewer import ConflictsViewer
 
-        self._conflicts_viewer = ConflictsViewer.show_for(self.controller, self)
+        self._conflicts_viewer = ConflictsViewer.show_for(
+            self.controller, self.selected_mod_names(), self
+        )
 
     def _on_dependencies(self) -> None:
         if self.controller is None:

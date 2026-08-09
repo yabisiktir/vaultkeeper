@@ -4526,27 +4526,74 @@ class ProfileController:
             return None
         return self.ctx.game_user_dir.joinpath(*parts)
 
-    def conflicts_report(self) -> dict:
-        """Installed files claimed by more than one mod, with the winning installer.
+    #: The three scopes ``msconflicts.htm`` gives the viewer its buttons for.
+    CONFLICTS_SELECTED: Final = "selected"
+    CONFLICTS_INSTALLED: Final = "installed"
+    CONFLICTS_ALL: Final = "all"
 
-        Surfaces the engine's last-by-``FileKeyInfo.Comparer`` winner selection (VB
-        FileConflictsViewer): each row is a game file, the mod that currently owns it,
-        and every mod whose installer maps onto it.
+    def conflicts_mods(self, scope: str, selected: list[str] | None = None) -> list[str]:
+        """The mods a conflicts scope covers, in priority order.
+
+        "Mods are listed in priority order (ie the order in which they are
+        listed in the Mod List). The first Mod is the lowest priority while the
+        last is the highest."
         """
-        rows = []
-        for ifd in self.pd.installed_list.values():
-            if len(ifd.mod_file_conflicts) > 1:
-                mods = sorted({mfk.mod_name for mfk in ifd.mod_file_conflicts})
-                rows.append(
-                    {
-                        "file": ifd.key.file_key,
-                        "winner": ifd.installer,
-                        "mods": mods,
-                        "count": len(mods),
-                    }
-                )
+        order = self.pd.sorted_mod_keys
+        if scope == self.CONFLICTS_SELECTED:
+            wanted = set(selected or [])
+            return [name for name in order if name in wanted]
+        if scope == self.CONFLICTS_INSTALLED:
+            return [
+                name
+                for name in order
+                if (md := self.pd.mod_item(name)) is not None and md.installed
+            ]
+        return order
+
+    def conflicts_report(
+        self, scope: str = CONFLICTS_ALL, selected: list[str] | None = None
+    ) -> dict:
+        """Game files that more than one mod's **installer** maps onto.
+
+        ``msconflicts.htm``: "Select one or more Mods (or a Group to process all
+        its member Mods), then click Mod File Conflicts" — and the topic warns
+        the analysis "can take some time depending on the total number of files
+        defined in the Mod Installers". That is the question being asked: what
+        *would* clash.
+
+        This used to read ``installed_list`` instead, which only knows about
+        files already on disk. Selecting an uninstalled mod and asking what it
+        would collide with therefore answered "nothing" — the one moment the
+        question is worth asking. The installed view is still available, as the
+        ``installed`` scope, because "what is clashing right now" is a fair
+        second question.
+
+        The winner is the highest-priority mod that claims the file, which is
+        the last one in Mod List order.
+        """
+        mods = self.conflicts_mods(scope, selected)
+        claims: dict[str, list[str]] = {}
+        for name in mods:
+            md = self.pd.mod_item(name)
+            if md is None:
+                continue
+            # A mod listing the same target twice is not in conflict with itself.
+            for key in {fk.installed_key.file_key for fk in md.files}:
+                claims.setdefault(key, []).append(name)
+
+        rows = [
+            {
+                "file": key,
+                # Priority order is the list order, so the winner is the last.
+                "winner": names[-1],
+                "mods": sorted(names),
+                "count": len(names),
+            }
+            for key, names in claims.items()
+            if len(names) > 1
+        ]
         rows.sort(key=lambda r: r["file"].lower())
-        return {"rows": rows, "count": len(rows)}
+        return {"rows": rows, "count": len(rows), "scope": scope, "mods": len(mods)}
 
     def game_saves_report(self) -> dict:
         """The current game saves as display rows plus totals (prompt-free).

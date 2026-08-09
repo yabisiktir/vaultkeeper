@@ -124,6 +124,8 @@ them.
 | renameaprofile.htm | Rename a Profile | **Was a GAP, now closed** |
 | newtopic17.htm | Use Download Project to define dependencies | **Was a GAP, now closed** — they were downloaded and discarded |
 | addorremovegroups.htm / updaterestorers.htm | Installation Set groups / Update Restorers | Ported |
+| msconflicts.htm | Mod File Conflicts | **Was answering a narrower question** — it read the installed list, so an uninstalled mod reported no conflicts; now reads the installers, with the topic's Selected/Installed/All buttons |
+| newtopic40.htm | Rename a document | Ported (Doc Organiser's Rename / Rename To) |
 | keyboardshortcuts.htm | Keyboard Shortcuts | **Was partly ported** — the main window's 14 were right; Ctrl+O had no command behind it at all, and the Game Saves Manager's own four were missing |
 | filterbystartendorhenchman.htm | Filter by Start, End or Henchman | Ported (`mod_explorer._passes_number`, all four rules incl. the bare operator) |
 | bhpreferences.htm | Specify your Preferences | **Was partly ported** — the page existed; "changed this session is shown in italics" did not, so nine tabs had to be re-read to see what you were saving |
