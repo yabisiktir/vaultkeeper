@@ -380,3 +380,40 @@ def test_choosing_page_scraping_is_written_back(qtbot):
     dlg.apply_to(settings)
     assert settings.vault_download_method == "scrape"
     assert settings.vault_rules_online is False
+
+
+def test_changed_preferences_are_shown_in_italics(qtbot):
+    """bhpreferences.htm: "Preferences you change … are displayed in italics."
+
+    Nine tabs of check boxes; without this, knowing what you are about to save
+    means re-reading every page.
+    """
+    settings = Settings()
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    assert dlg.changed_widgets() == []
+
+    box = dlg.recycle
+    was = box.isChecked()
+    box.setChecked(not was)
+    assert dlg.changed_widgets() == [box]
+    assert box.font().italic()
+
+    # Putting it back clears the mark rather than leaving a false one.
+    box.setChecked(was)
+    assert dlg.changed_widgets() == []
+    assert not box.font().italic()
+
+
+def test_changed_marks_cover_text_and_number_fields(qtbot):
+    settings = Settings()
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    from PySide6.QtWidgets import QSpinBox
+
+    spin = dlg.findChild(QSpinBox)
+    assert spin is not None
+    spin.setValue(spin.value() + 1)
+    assert spin in dlg.changed_widgets()

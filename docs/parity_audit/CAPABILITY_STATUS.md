@@ -124,6 +124,7 @@ them.
 | renameaprofile.htm | Rename a Profile | **Was a GAP, now closed** |
 | newtopic17.htm | Use Download Project to define dependencies | **Was a GAP, now closed** — they were downloaded and discarded |
 | addorremovegroups.htm / updaterestorers.htm | Installation Set groups / Update Restorers | Ported |
+| bhpreferences.htm | Specify your Preferences | **Was partly ported** — the page existed; "changed this session is shown in italics" did not, so nine tabs had to be re-read to see what you were saving |
 | bhwebmenu.htm / bhrunmenu.htm | Customise the Web / Run menu | **Mostly ported, two gaps closed** — a new entry appended instead of landing after the selected one, and right-click did nothing. The ampersand Alt-key works for free (Qt reads it) |
 | reducefileclutter.htm | Reduce file clutter | **Half ported** — Move to Downloads was there, "view the contents of compressed files" was not; now reads the archive index |
 | restoringdeletedsavesfromtherecy.htm | Restoring deleted saves from the Recycle Bin | **Was a GAP, now closed** — the preference existed but only Finish Game read it, so backups and archives went permanently whatever it said |
@@ -132,7 +133,7 @@ them.
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
 | bhmapexcludes.htm / bhmapextensions.htm / bhmapfiles.htm / bhmapfolders.htm | The four map pages | Ported (Folder Mapping's four tabs) |
-| bhadvanced.htm / bhlocations.htm / bhpreferences.htm / bhprofiles.htm / bhrunmenu.htm / bhwebmenu.htm | Settings pages | Ported (Settings tabs) |
+| bhadvanced.htm / bhlocations.htm / bhpreferences.htm / bhprofiles.htm | Settings pages | Ported (Settings tabs) — a bulk verdict; see bhwebmenu/bhrunmenu for what one of these hid |
 | bhaliaseditor.htm | Use the Alias Section Editor | Ported (`MsAliasSection`) |
 | bhdocmanager.htm | Organise Mod Documentation | Ported (`MsDocOrganiser`) |
 | bhhelp.htm | Change the Hak Patch sequence | Ported (`MsHakPatchEditor`) |

@@ -207,6 +207,51 @@ class SettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
+        self._track_changes()
+
+    # -- "Changed this session" (bhpreferences.htm) ------------------------ #
+    def _track_changes(self) -> None:
+        """Italicise anything altered since the dialog opened.
+
+        "Preferences you change during your current Settings session are
+        displayed in italics." Across nine tabs of check boxes that is the
+        difference between knowing what you are about to save and hoping — and
+        it costs nothing to be sure, where re-reading every page does not.
+
+        Baselines are captured once and compared on every change, so putting a
+        setting back the way it was clears the mark rather than leaving a false
+        one.
+        """
+        from PySide6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QSpinBox
+
+        readers = (
+            (QCheckBox, lambda w: w.isChecked(), lambda w: w.toggled),
+            (QLineEdit, lambda w: w.text(), lambda w: w.textChanged),
+            (QSpinBox, lambda w: w.value(), lambda w: w.valueChanged),
+            (QComboBox, lambda w: w.currentIndex(), lambda w: w.currentIndexChanged),
+        )
+        self._changed_baseline: dict = {}
+        for kind, read, signal in readers:
+            for widget in self.findChildren(kind):
+                # A combo's line edit and a spin box's are the same value twice.
+                if isinstance(widget, QLineEdit) and isinstance(
+                    widget.parent(), (QComboBox, QSpinBox)
+                ):
+                    continue
+                self._changed_baseline[widget] = read(widget)
+                signal(widget).connect(
+                    lambda *_a, w=widget, r=read: self._mark_changed(w, r(w))
+                )
+
+    def _mark_changed(self, widget, value) -> None:
+        font = widget.font()
+        font.setItalic(value != self._changed_baseline.get(widget))
+        widget.setFont(font)
+
+    def changed_widgets(self) -> list:
+        """Everything currently marked as changed (what the italics say)."""
+        return [w for w in self._changed_baseline if w.font().italic()]
+
     #: Tabs whose preferences can be restored to defaults, tab title → builder.
     #: Locations is excluded — the game paths have no meaningful default.
     def _reset_builders(self) -> dict:

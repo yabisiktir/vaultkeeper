@@ -55,14 +55,21 @@ def reviewed() -> dict[str, str]:
 
     The table's first column is the topic file; the last is the verdict. Kept as
     prose rather than data so the reasoning travels with the verdict.
+
+    A row often covers several topics at once ("a.htm / b.htm"), because one
+    verdict genuinely answers both. Each name is taken separately — matching the
+    whole cell meant those rows marked *nothing* reviewed, so a topic with a
+    written verdict kept being offered up for review.
     """
     if not STATUS.is_file():
         return {}
     verdicts = {}
     for line in STATUS.read_text(encoding="utf-8").splitlines():
         cells = [c.strip() for c in line.split("|") if c.strip()]
-        if len(cells) >= 2 and cells[0].endswith(".htm"):
-            verdicts[cells[0]] = cells[-1]
+        if len(cells) < 2:
+            continue
+        for name in re.findall(r"[\w.\-]+\.htm\b", cells[0]):
+            verdicts[name] = cells[-1]
     return verdicts
 
 
