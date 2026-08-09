@@ -1480,3 +1480,49 @@ def test_select_says_so_when_the_character_belongs_to_no_mod(qtbot) -> None:
     assert chosen == []
     assert dlg.isVisible() is False or dlg.result() != dlg.DialogCode.Accepted
     assert "no mod" in dlg._select_btn.toolTip()
+
+
+def test_the_mod_summary_offers_to_record_a_web_page(qtbot, controller, monkeypatch) -> None:
+    """recordamodswebpagelink.htm: VB shows an Add Link icon that becomes the
+    Download Page icon once set. The port printed the URL as plain text, so the
+    one thing anyone wants to do with a URL could not be done with it."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+
+    assert "Add link" in win._mod_info.text()
+
+    asked: list[int] = []
+    monkeypatch.setattr(win, "_on_edit_web_link", lambda: asked.append(1))
+    win._on_mod_info_link("vaultkeeper:add-link")
+    assert asked == [1]
+
+
+def test_a_recorded_page_becomes_a_link(qtbot, controller, monkeypatch) -> None:
+    controller.set_mod_web_link("Alpha", "https://neverwintervault.org/project/1")
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Alpha")
+
+    assert 'href="https://neverwintervault.org/project/1"' in win._mod_info.text()
+    assert "Add link" not in win._mod_info.text()
+
+    opened: list[str] = []
+    monkeypatch.setattr(win, "_open_url", opened.append)
+    win._on_mod_info_link("https://neverwintervault.org/project/1")
+    assert opened == ["https://neverwintervault.org/project/1"]
+
+
+def test_a_mod_name_with_markup_in_it_is_not_treated_as_markup(qtbot, controller) -> None:
+    """The summary is rich text now, so a name containing < or & must not be
+    able to rewrite the line it appears on."""
+    from vaultkeeper.core.mod_data import ModData
+
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Fire & <b>Ice</b>"))
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Fire & <b>Ice</b>")
+
+    assert "&amp;" in win._mod_info.text()
+    assert "&lt;b&gt;" in win._mod_info.text()

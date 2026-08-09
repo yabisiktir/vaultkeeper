@@ -55,6 +55,12 @@ _STATUS_SELECT_STATE = {
 log = get_logger(__name__)
 
 
+def _shortened_link(url: str) -> str:
+    """A URL short enough to sit on a summary line without pushing it out of view."""
+    trimmed = url.split("://", 1)[-1].rstrip("/")
+    return trimmed if len(trimmed) <= 60 else trimmed[:57] + "…"
+
+
 class MainWindow(QMainWindow):
     """The Vaultkeeper main window."""
 
@@ -102,6 +108,8 @@ class MainWindow(QMainWindow):
         )
         self._mod_info = QLabel("")
         self._mod_info.setWordWrap(True)
+        self._mod_info.setTextFormat(Qt.TextFormat.RichText)
+        self._mod_info.linkActivated.connect(self._on_mod_info_link)
         self._mod_info.setMargin(6)
         self._mod_info.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -1389,9 +1397,23 @@ class MainWindow(QMainWindow):
                 played = loop.play_time(md.mod_name)
                 if played.total_seconds() > 0:
                     play = f" · played {loop.play_data.format_time(played, '')}"
+        # The web link as an actual link, and an invitation when there is none
+        # (VB's Add Link icon, which becomes the Download Page icon once set —
+        # recordamodswebpagelink.htm). It was printed as plain text here, so the
+        # one thing anybody wants to do with a URL could not be done with it.
+        from html import escape
+
         if md.web_link:
-            play = f"{play}  ·  {md.web_link}" if play else f"  ·  {md.web_link}"
-        self._mod_info.setText(f"{md.mod_name} — {state}{play}")
+            link = (
+                f'  ·  <a href="{escape(md.web_link, quote=True)}">'
+                f"{escape(_shortened_link(md.web_link))}</a>"
+            )
+        else:
+            link = '  ·  <a href="vaultkeeper:add-link">Add link…</a>'
+        self._mod_info.setText(
+            f"{escape(md.mod_name)} — {escape(state)}{escape(play)}{link}"
+        )
+        self._mod_info.setToolTip(md.web_link or "Record this mod's download page")
 
         # Editable Mod Notes (VB per-mod .rtf). Persist the previously-shown mod first.
         self._remember_notes_position()
@@ -3563,6 +3585,13 @@ class MainWindow(QMainWindow):
         if md is not None:
             self._show_details(md)
         self.nit_status.set_info(f"Updated properties for '{names[0]}'")
+
+    def _on_mod_info_link(self, href: str) -> None:
+        """The mod summary's link: open the page, or offer to record one."""
+        if href == "vaultkeeper:add-link":
+            self._on_edit_web_link()
+            return
+        self._open_url(href)
 
     def _on_edit_web_link(self) -> None:
         """Edit the selected mod's web page address (VB ``MsEditWebLink``)."""
