@@ -77,6 +77,7 @@ them.
 | The New File trio | `MsNewFolder` / `MsNewTextFile` / `MsNewRtfFile` | **Was a GAP, now closed** |
 | newtopic67.htm | Clear Text Position Information | **Was a GAP, now closed** — needed the memory it clears |
 | newtopic42.htm | The close button is missing | **N/A by design** — see below |
+| updatedeefiles.htm | Update Enhanced Edition Files | **Was a GAP, now closed** (`MsUpdateEeFiles`) |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -117,6 +118,29 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Update Enhanced Edition Files — and a field nothing read
+
+`ProfileData.original_ee_files` existed from the start, was saved and loaded
+with the store, and **was read by nothing**. It is the table this command fills:
+the per-profile record of what the Enhanced Edition ships *now*, on top of the
+bundled snapshot.
+
+Why it matters, measured on the owner's current install: of 280 shipped files,
+**15 have changed and 99 are new** since the bundled table was captured. A file
+whose CRC does not match its table entry is treated as one a mod changed, so
+without this all 114 are invisible to *Create Original Restorers* — which is
+precisely the "restorers quietly stop recognising half the game" that
+`updatedeefiles.htm` exists to prevent.
+
+★ All five shipped folders are in the **install** — `mod`/`mus`/`nwm`/`txpk`
+under `data/`, and `ovr` beside it. That is the "Enhanced Edition Library
+directory" the help names, and it is *not* where mods go. Assuming the user dir
+made the first version of the test scan nothing at all.
+
+★ A file the table knows and the scan does not is **not** reported as removed: a
+folder that could not be read would otherwise look like the game had lost half
+its files.
 
 ## One command deliberately not ported: Enable Closing
 

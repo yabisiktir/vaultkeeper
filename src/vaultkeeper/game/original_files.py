@@ -43,21 +43,71 @@ def _load_table(name: str) -> dict[str, int]:
     return {_normalise_key(k): (int(v) & _MASK) for k, v in raw.items()}
 
 
-def original_crc_table(*, is_ee: bool) -> dict[str, int]:
+def original_crc_table(*, is_ee: bool, overrides: dict[str, int] | None = None) -> dict[str, int]:
     """The known-original ``folder/filename`` → CRC table for the edition.
 
     Classic base (VB ``OriginalFiles``); when ``is_ee`` the Enhanced Edition entries
     are added/overridden (VB ``UseEeOriginal``).
+
+    ``overrides`` is the profile's own table (``ProfileData.original_ee_files``),
+    built by *Update Enhanced Edition Files* after Beamdog or Steam has patched
+    the game. The bundled table is a snapshot of one version, so without this
+    every file an update touched looks like a file some mod changed.
     """
     table = dict(_load_table("original_files.json"))
     if is_ee:
         table.update(_load_table("original_ee_files.json"))
+    if overrides:
+        table.update({_normalise_key(k): (int(v) & _MASK) for k, v in overrides.items()})
     return table
+
+
+#: The EE library folders whose contents ship with the game (VB ``DefineEeFolders``
+#: — mod, mus, nwm, txpk — plus the EE override, ``ovr``).
+EE_ORIGINAL_FOLDERS = ("mod", "mus", "nwm", "txpk", "ovr")
+
+
+def scan_ee_originals(game_folders: dict, *, on_progress=None) -> dict[str, int]:
+    """CRC every file the Enhanced Edition ships (VB ``UpdateEeFiles``' scan).
+
+    Keyed the same way as the bundled table, so the two can simply be compared.
+    """
+    from vaultkeeper.core.crc import crc32_file
+
+    found: dict[str, int] = {}
+    for name in EE_ORIGINAL_FOLDERS:
+        folder = game_folders.get(name)
+        if folder is None or not folder.is_dir():
+            continue
+        if on_progress is not None:
+            on_progress(name)
+        for path in sorted(folder.rglob("*")):
+            if not path.is_file():
+                continue
+            try:
+                found[_normalise_key(f"{name}/{path.name}")] = crc32_file(path) & _MASK
+            except OSError:
+                continue
+    return found
+
+
+def ee_original_changes(
+    scanned: dict[str, int], *, known: dict[str, int]
+) -> dict[str, dict[str, int]]:
+    """Split a scan into what is new and what has changed since the bundled table.
+
+    Files the table knows and the scan does not are *not* reported as removed: a
+    folder that was not scanned (a Steam install with no ``ovr``, say) would
+    otherwise look like the game had lost half its files.
+    """
+    added = {k: v for k, v in scanned.items() if k not in known}
+    changed = {k: v for k, v in scanned.items() if k in known and known[k] != v}
+    return {"added": added, "changed": changed}
 
 
 def original_source_files(pd, mapper, *, is_ee: bool) -> list[FileKeyInfo]:
     """Installed files that are pristine game originals (VB ``OriginalSourceFiles``)."""
-    table = original_crc_table(is_ee=is_ee)
+    table = original_crc_table(is_ee=is_ee, overrides=dict(pd.original_ee_files))
     mod_names = set(pd.mod_keys)
     result: list[FileKeyInfo] = []
     for fk, ifd in pd.installed_list.items():

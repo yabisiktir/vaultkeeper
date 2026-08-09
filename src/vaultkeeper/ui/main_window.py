@@ -1466,6 +1466,7 @@ class MainWindow(QMainWindow):
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsValidate": self._on_validate_neverwinter_nights,
             "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
+            "MsUpdateEeFiles": self._on_update_ee_files,
             # New folder / text file / rich text file, in the selected mod.
             "MsClearScrollInfo": self._on_clear_text_positions,
             "MsNewFolder": self._on_new_contents_folder,
@@ -2002,6 +2003,55 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_contents(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_update_ee_files(self) -> None:
+        """Re-learn what the Enhanced Edition ships (VB ``MsUpdateEeFiles``).
+
+        Run it after Beamdog or Steam patches the game: until then every file the
+        patch touched looks like a file some mod changed, and the base-game
+        restorers quietly stop recognising half the game.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        self.nit_status.set_info("Checking the Enhanced Edition's files…")
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            result = self.controller.update_ee_files(
+                on_progress=lambda folder: (
+                    self.nit_status.set_info(f"Checking {folder}…"),
+                    QApplication.processEvents(),
+                )
+            )
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.nit_status.set_info(result["message"])
+
+        if not (result["added"] or result["changed"]):
+            QMessageBox.information(self, "Update Enhanced Edition Files", result["message"])
+            return
+        # VB only asks this when the core restorer exists, because otherwise
+        # there is nothing the answer could affect.
+        if not self.controller.core_files_restorer_exists():
+            QMessageBox.information(self, "Update Enhanced Edition Files", result["message"])
+            return
+        if (
+            QMessageBox.question(
+                self,
+                "Update Enhanced Edition Files",
+                result["message"]
+                + "\n\nYou have base-game restorers, and they were built from the "
+                "old files. Update them now?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
+            outcome = self.controller.create_original_restorers()
+            self.refresh()
+            self.nit_status.set_info(outcome.get("message", result["message"]))
 
     def _on_refresh_workshop_files(self) -> None:
         """Re-check Steam's subscriptions against ours (VB ``MsRefreshWorkshopFiles``).

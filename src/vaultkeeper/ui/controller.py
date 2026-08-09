@@ -1524,6 +1524,77 @@ class ProfileController:
 
         return self._create_identifier(mod_name, C.EXT_RESTORER)
 
+    def update_ee_files(self, *, on_progress=None) -> dict:
+        """Re-learn what the Enhanced Edition ships (VB ``MsUpdateEeFiles``).
+
+        The bundled CRC table is a snapshot of one version of the game. After
+        Beamdog or Steam patches it, every file the patch touched stops matching
+        — and a file that does not match its table entry is treated as one a mod
+        changed, which is how *Create Original Restorers* comes to skip half the
+        game. This walks the shipped folders again and records the differences
+        against the profile, leaving the bundled table alone.
+
+        Classic profiles have nothing to do here: the table describes EE's
+        library folders.
+        """
+        from vaultkeeper.game.original_files import (
+            ee_original_changes,
+            original_crc_table,
+            scan_ee_originals,
+        )
+
+        if not self.ctx.is_ee:
+            return {
+                "ok": True,
+                "added": 0,
+                "changed": 0,
+                "message": "This is not an Enhanced Edition profile.",
+            }
+
+        scanned = scan_ee_originals(self.ctx.game_folders, on_progress=on_progress)
+        if not scanned:
+            return {
+                "ok": False,
+                "added": 0,
+                "changed": 0,
+                "message": (
+                    "None of the Enhanced Edition's library folders could be read."
+                ),
+            }
+        known = original_crc_table(is_ee=True, overrides=dict(self.pd.original_ee_files))
+        changes = ee_original_changes(scanned, known=known)
+
+        for key, crc in {**changes["added"], **changes["changed"]}.items():
+            self.pd.original_ee_files[key] = crc
+        if changes["added"] or changes["changed"]:
+            self.save()
+
+        added, changed = len(changes["added"]), len(changes["changed"])
+        if not added and not changed:
+            message = (
+                f"Checked {len(scanned):,} Enhanced Edition file(s). "
+                "Nothing has changed since the bundled list."
+            )
+        else:
+            message = (
+                f"Checked {len(scanned):,} Enhanced Edition file(s): "
+                f"{changed:,} changed, {added:,} new. "
+                "They are recorded as originals for this profile."
+            )
+        return {
+            "ok": True,
+            "added": added,
+            "changed": changed,
+            "scanned": len(scanned),
+            "message": message,
+        }
+
+    def core_files_restorer_exists(self) -> bool:
+        """Whether the base-game restorer is there (VB asks before offering to update it)."""
+        from vaultkeeper.core import constants as C
+
+        return self.pd.mod_item(C.CORE_FILES_RESTORER) is not None
+
     def original_source_files(self) -> list:
         """Installed files that are pristine game originals (VB ``OriginalSourceFiles``)."""
         from vaultkeeper.game.original_files import original_source_files
