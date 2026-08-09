@@ -2846,18 +2846,41 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(f"Group '{name.strip()}' already exists")
 
     def _on_move_to_group(self) -> None:
+        """Move the selected mods to a group, or out of all of them.
+
+        ``movingmodsfromonegrouptoanother.htm``: "You can also click **None**
+        from the Group drop down list if you want to ungroup the selected Mods."
+        Typing "None" used to make a group actually called None, which is a
+        different and permanent thing.
+        """
+        from vaultkeeper.core import constants as C
+
         names = self.selected_mod_names()
         if self.controller is None or not names:
             return
-        existing = self.controller.group_names()
+        existing = [
+            g
+            for g in self.controller.group_names()
+            if not g.startswith(C.GROUP_HIDDEN_PREFIX)
+        ]
         group, ok = QInputDialog.getItem(
-            self, "Move to Group", "Target group:", existing, 0, editable=True
+            self,
+            "Move to Group",
+            "Target group:\n(None leaves them ungrouped — ungrouped mods sort "
+            "first, so they lose every file conflict.)",
+            ["None", *existing],
+            0,
+            editable=True,
         )
         if not ok or not group.strip():
             return
-        self.controller.move_to_group(names, group.strip())
+        target = group.strip()
+        self.controller.move_to_group(names, C.GROUP_NONE if target == "None" else target)
         self.refresh()
-        self.nit_status.set_info(f"Moved {len(names)} mod(s) to '{group.strip()}'")
+        self.nit_status.set_info(
+            f"Moved {len(names)} mod(s) "
+            + ("out of their group." if target == "None" else f"to '{target}'.")
+        )
 
     def _on_anneal(self) -> None:
         if self.controller is None:

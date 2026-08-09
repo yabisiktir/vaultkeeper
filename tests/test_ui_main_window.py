@@ -1605,3 +1605,57 @@ def test_cancelling_the_group_cancels_the_mod(qtbot, controller, monkeypatch) ->
 
     win._on_new_mod()
     assert controller.pd.mod_item("Nope") is None
+
+
+def test_move_to_group_offers_none_and_means_it(qtbot, controller, monkeypatch) -> None:
+    """movingmodsfromonegrouptoanother.htm: "You can also click None from the
+    Group drop down list if you want to ungroup the selected Mods." Typing None
+    used to make a group actually called None — a different, permanent thing."""
+    from PySide6.QtWidgets import QInputDialog
+
+    from vaultkeeper.core import constants as C
+
+    controller.create_group("100.  Community Packs")
+    controller.move_to_group(["Alpha"], "100.  Community Packs")
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+
+    offered: list[list[str]] = []
+
+    def fake_item(parent, title, label, items, index, editable):
+        offered.append(list(items))
+        return "None", True
+
+    monkeypatch.setattr(QInputDialog, "getItem", fake_item)
+    win._on_move_to_group()
+
+    assert offered[0][0] == "None"
+    assert controller.pd.mod_item("Alpha").group == C.GROUP_NONE
+    assert controller.pd.mod_item("Alpha").group != "None"
+
+
+def test_move_to_group_hides_the_internal_buckets(qtbot, controller, monkeypatch) -> None:
+    """The sentinel groups are internal; offering them as a destination invites
+    someone to file a mod somewhere the list will not show it."""
+    from PySide6.QtWidgets import QInputDialog
+
+    from vaultkeeper.core import constants as C
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    _select_mod(win, "Alpha")
+
+    offered: list[list[str]] = []
+    monkeypatch.setattr(
+        QInputDialog,
+        "getItem",
+        lambda parent, title, label, items, index, editable: (
+            offered.append(list(items)),
+            ("", False),
+        )[1],
+    )
+    win._on_move_to_group()
+
+    assert not any(g.startswith(C.GROUP_HIDDEN_PREFIX) for g in offered[0])

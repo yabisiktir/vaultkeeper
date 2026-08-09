@@ -115,6 +115,9 @@ them.
 | removeaprofile.htm | Remove a Profile | **Was a GAP, now closed** — there was no way to remove one |
 | switchextendededition.htm | Switching Beamdog ↔ Steam | Ported — the Library path is editable on Locations |
 | essentials.htm / newtopic.htm | Terminology / uninstalling NIT | Reference; nothing to port |
+| movingmodsfromonegrouptoanother.htm | Moving Mods between Groups | **Ported bar "None"**, now added |
+| deletearchives.htm | Delete archived Game Saves | Ported (Restore Archived Saves) |
+| newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
