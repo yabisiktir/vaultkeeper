@@ -4340,6 +4340,52 @@ class ProfileController:
             / rules_source.rules_filename()
         )
 
+    def check_for_update(self):
+        """Ask the project whether a newer Vaultkeeper exists (VB ``MsUpdateNow``)."""
+        from vaultkeeper.ui.feedback import app_version
+        from vaultkeeper.vault.app_update import check_for_update
+
+        return check_for_update(self._vault_http(), app_version())
+
+    def check_web_menu_links(self, *, on_progress=None) -> dict:
+        """Check the Web menu's addresses still answer (VB ``MsResetWebMenu``).
+
+        VB's command re-fetches the favicons it shows beside each entry and
+        validates the links whose icon it could not get. This menu uses one
+        generic icon, so there is nothing to re-fetch — the useful half is the
+        validation, which is what this does.
+        """
+        links = list(self._settings().web_links)
+        findings: list[dict] = []
+        for index, link in enumerate(links):
+            url = str(link.get("url", "")).strip()
+            text = str(link.get("text", "")) or url
+            if on_progress is not None:
+                on_progress(index, len(links), text)
+            if not url:
+                findings.append({"text": text, "url": url, "problem": "No address"})
+                continue
+            try:
+                response = self._vault_http().head(url, timeout=10)
+                status = getattr(response, "status_code", 0)
+                # A HEAD is often refused by sites that answer a GET perfectly
+                # well, so only a *client* error counts against the link.
+                if 400 <= status < 500 and status not in (403, 405, 429):
+                    findings.append(
+                        {"text": text, "url": url, "problem": f"HTTP {status}"}
+                    )
+            except Exception as ex:
+                findings.append({"text": text, "url": url, "problem": f"{ex}"})
+        message = (
+            f"Checked {len(links)} web link(s). "
+            + (
+                f"{len(findings)} did not answer."
+                if findings
+                else "They all answered."
+            )
+        )
+        return {"ok": not findings, "checked": len(links), "bad": findings, "message": message}
+
     def diagnostic_report(self) -> dict:
         """What a bug report needs, gathered in one place (VB ``MsSendDiagInfo``).
 

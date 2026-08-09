@@ -16,7 +16,7 @@ them.
 | Topic | Capability | Verdict |
 |---|---|---|
 | firsttimeexecution.htm | Run the Installer Tool for the first time | **Partly closed** — the two silent-failure questions are asked; five remain, see below |
-| bhnitdownload.htm | Update the Installer Tool | GAP (see below) |
+| bhnitdownload.htm | Update the Installer Tool | **Was a GAP, now closed** — checks releases, offers the page |
 | mstoolbareditorhelp.htm | Customise the Quick Access Toolbar | **Was a GAP, now closed** (`MsCustomise`) |
 | syncmods.htm | Synchronise networked PC Mods | Non-goal — the shared store; mod export/import is ported instead |
 | createcheckpoints.htm | Create Checkpoints | Ported (`controller.create_checkpoint`) |
@@ -79,6 +79,7 @@ them.
 | newtopic42.htm | The close button is missing | **N/A by design** — see below |
 | updatedeefiles.htm | Update Enhanced Edition Files | **Was a GAP, now closed** (`MsUpdateEeFiles`) |
 | Toolbar editor | `MsCustomise` / `MsShowText` | **Was a GAP, now closed** |
+| newtopic78.htm | Reset Web Menu Icons | **Closed as far as it applies** — no favicons here, so the link check is all of it |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -119,6 +120,30 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Updating the tool: the half worth having
+
+`bhnitdownload.htm` — VB downloads a 7-Zip from the Vault and unpacks it over
+itself. The port asks the project's releases what the newest version is and, if
+that is newer, offers the release page.
+
+**Replacing a running application's own files is the part of a self-updater that
+goes wrong**, and it goes wrong on the machine of whoever least wanted it to.
+The useful half — *there is a new one, here it is* — needs none of it. Nothing is
+sent either: it reads a public list, and does not report who asked or what they
+have installed.
+
+Version comparison is deliberately forgiving (`v1.2` vs `1.2.0`): a tag is
+written by a person, and refusing to compare would fail exactly when the check
+is most wanted. A 404 means no release has been published yet, which is not a
+failure.
+
+`MsResetWebMenu` in the same commit. VB re-fetches the favicon beside each Web
+menu entry and validates the ones it could not get; this menu draws one generic
+icon, so there is nothing to re-fetch and the validation is the whole of it.
+★ A 403/405/429 does **not** count against a link — plenty of sites refuse HEAD
+and answer GET perfectly well, and calling those broken sends someone off to fix
+what is not wrong.
 
 ## Update Enhanced Edition Files — and a field nothing read
 
@@ -409,7 +434,7 @@ absent:
 | `MsCancelGoTo`, `TsSelectGroupName` | *Cancel* buttons on two dialogs |
 | `MsGroupNone`, `MsPlayedInfo` | Runtime-filled labels (*None*, *Mod played for 28 hours*), not commands |
 | `TsbModSelector` | **Present** — a combo box, not a menu item, so the id-based diff missed it (`main_window.py:243`) |
-| `MsGetUpdate` | Self-update. A real gap, above |
+| `MsGetUpdate` | Self-update — the *check* is built (`MsUpdateNow`); the in-place replace is deliberately not |
 | `MsCopyToShared` | Shared NIT Store — non-goal |
 | `MsTitleBarColour` | A Win32 DWM attribute |
 | `MsValidateOnActivateStatus` | Status-bar toggle for validate-on-activate |

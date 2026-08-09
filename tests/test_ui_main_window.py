@@ -720,7 +720,7 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsResetTaskbarIcon", "MsResetWebMenu"):
+    for dead_id in ("MsResetTaskbarIcon", "MsDebugOptionsMenu"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented

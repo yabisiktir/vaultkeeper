@@ -1496,6 +1496,8 @@ class MainWindow(QMainWindow):
             "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
             "MsUpdateEeFiles": self._on_update_ee_files,
             "MsCustomise": self._on_customise_toolbar,
+            "MsUpdateNow": self._on_check_for_update,
+            "MsResetWebMenu": self._on_check_web_menu_links,
             # New folder / text file / rich text file, in the selected mod.
             "MsClearScrollInfo": self._on_clear_text_positions,
             "MsNewFolder": self._on_new_contents_folder,
@@ -2032,6 +2034,86 @@ class MainWindow(QMainWindow):
             if md is not None:
                 self._show_contents(md)
         self.nit_status.set_info(result["message"])
+
+    def _on_check_for_update(self) -> None:
+        """Is there a newer Vaultkeeper? (VB ``MsUpdateNow``.)
+
+        VB downloads a 7-Zip and unpacks it over itself. This offers the release
+        page instead: replacing a running application's own files is the part of
+        a self-updater that goes wrong, and the useful half — *there is a new
+        one, here it is* — needs none of that.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        self.nit_status.set_info("Checking for a newer version…")
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            check = self.controller.check_for_update()
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.nit_status.set_info(check.message)
+
+        if not check.available:
+            QMessageBox.information(self, "Update Vaultkeeper", check.message)
+            return
+        notes = f"\n\n{check.notes[:600]}" if check.notes else ""
+        if (
+            QMessageBox.question(
+                self,
+                "Update Vaultkeeper",
+                f"{check.message}{notes}\n\nOpen the download page?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
+            self._open_url(check.url)
+
+    def _on_check_web_menu_links(self) -> None:
+        """Check the Web menu's addresses (VB ``MsResetWebMenu``).
+
+        VB re-fetches the favicon beside each entry and validates the ones it
+        could not get. This menu uses one generic icon, so there is nothing to
+        re-fetch and the validation is the whole of it.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            result = self.controller.check_web_menu_links(
+                on_progress=lambda done, total, text: (
+                    self.nit_status.set_info(f"Checking {text}…"),
+                    QApplication.processEvents(),
+                )
+            )
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.nit_status.set_info(result["message"])
+
+        if result["ok"]:
+            QMessageBox.information(self, "Reset Web Menu Icons", result["message"])
+            return
+        listing = "\n".join(
+            f"  {bad['text']} — {bad['problem']}" for bad in result["bad"]
+        )
+        if (
+            QMessageBox.question(
+                self,
+                "Reset Web Menu Icons",
+                f"{result['message']}\n\n{listing}\n\nOpen the Web Menu settings "
+                "to fix them?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
+            self._on_settings(start_tab="Web Menu")
 
     def _on_customise_toolbar(self) -> None:
         """Edit the quick toolbar (VB ``MsCustomise`` / the Toolbar Editor)."""
