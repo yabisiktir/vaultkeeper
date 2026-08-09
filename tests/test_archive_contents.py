@@ -145,9 +145,13 @@ def test_open_uses_the_systems_own_program(qtbot, tmp_path, monkeypatch):
     md = controller.pd.mod_item("M")
     md.files = [FileKeyInfo.mod_file("G", "M", "download\\pack.zip")]
 
-    opened: list[str] = []
+    # QUrl.toLocalFile() hands back forward slashes on Windows too, so these
+    # are compared as paths rather than as strings.
+    opened: list[Path] = []
     monkeypatch.setattr(
-        QDesktopServices, "openUrl", lambda url: opened.append(url.toLocalFile()) or True
+        QDesktopServices,
+        "openUrl",
+        lambda url: opened.append(Path(url.toLocalFile())) or True,
     )
 
     window = MainWindow(controller)
@@ -157,13 +161,13 @@ def test_open_uses_the_systems_own_program(qtbot, tmp_path, monkeypatch):
 
     window._contents.select_file(("download", "pack.zip"))
     window._on_open_with_default_app()
-    assert opened == [str(archive)]
+    assert opened == [archive]
 
     # Nothing selected opens the mod's own folder — the "or folder" half.
     window._contents.clearSelection()
     window._contents.setCurrentItem(None)
     window._on_open_with_default_app()
-    assert opened[-1] == str(controller.mod_folder("M"))
+    assert opened[-1] == controller.mod_folder("M")
 
 
 def test_open_is_bound_to_the_pane_not_the_window(qtbot, tmp_path):
