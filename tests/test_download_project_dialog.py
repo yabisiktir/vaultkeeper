@@ -856,3 +856,52 @@ def test_the_rules_can_add_a_prerequisite_the_page_omits(qtbot, tmp_path):
         for i in range(dlg.required_list.topLevelItemCount())
     ]
     assert "https://neverwintervault.org/project/nwn1/hakpak/needed-anyway" in urls
+
+
+# -- Download rules toggle (newtopic5.htm) ---------------------------------- #
+
+
+def test_rules_toggle_reflects_and_saves_the_preference(qtbot, tmp_path):
+    """"Disable Apply Project Download File rules to show all available files."
+
+    The preference was honoured but lived three dialogs away, in Advanced
+    Settings — not where you read "3 files the download rules hold back".
+    """
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings(None)
+    settings.vault_apply_project_rules = True
+    save_settings(settings, None)
+
+    controller = _controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+
+    assert dlg.rules_button.isChecked()
+    dlg.rules_button.setChecked(False)
+    assert load_settings(None).vault_apply_project_rules is False
+    assert "every file" in dlg.status.text()
+
+    dlg.rules_button.setChecked(True)
+    assert load_settings(None).vault_apply_project_rules is True
+
+
+def test_turning_rules_off_refetches_what_they_held_back(qtbot, tmp_path, monkeypatch):
+    """The held-back files were dropped before the list was built.
+
+    Without the re-fetch the setting would appear to do nothing at all.
+    """
+    controller = _controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+
+    fetches: list[str] = []
+    monkeypatch.setattr(dlg, "_on_fetch", lambda: fetches.append("fetched"))
+
+    # Nothing retrieved yet: there is nothing to re-fetch.
+    dlg.rules_button.setChecked(False)
+    assert fetches == []
+
+    dlg._fetched_url = "http://vault/project/my-project"
+    dlg.rules_button.setChecked(True)
+    assert fetches == ["fetched"]

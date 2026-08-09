@@ -111,6 +111,7 @@ class DownloadProjectDialog(QDialog):
         self.retrieve_button.clicked.connect(self._on_fetch)
         url_row.addWidget(self.url_edit, 1)
         url_row.addWidget(self.retrieve_button)
+        url_row.addWidget(self._build_rules_button())
         layout.addLayout(url_row)
 
         # Project configuration: what mod the download becomes (VB "Project
@@ -373,6 +374,49 @@ class DownloadProjectDialog(QDialog):
         self._fetched_url = url
         self._show_rules_revision()
         self._offer_web_link(url)
+
+    def _build_rules_button(self):
+        """The download-rules toggle (``newtopic5.htm``).
+
+        "You can click the Project Download Rules Preferences icon to view and
+        change which rules are applied… Disable *Apply Project Download File
+        rules* to show all available files." The preference existed and was
+        honoured, but only in Advanced Settings — three dialogs away from the
+        moment it matters, which is reading "3 files the download rules hold
+        back" and wanting to see them.
+
+        Toggling re-fetches when a project is already on screen, because the
+        held-back files were dropped before the list was built; without that the
+        setting would appear to do nothing.
+        """
+        from PySide6.QtWidgets import QToolButton
+
+        from vaultkeeper.config.settings import load_settings
+
+        self.rules_button = QToolButton()
+        self.rules_button.setIcon(R.get_icon("DownloadRules_16x"))
+        self.rules_button.setCheckable(True)
+        self.rules_button.setChecked(load_settings().vault_apply_project_rules)
+        self.rules_button.setToolTip(
+            "Apply the published project download rules.\n"
+            "Turn this off to see every file a project offers."
+        )
+        self.rules_button.toggled.connect(self._on_rules_toggled)
+        return self.rules_button
+
+    def _on_rules_toggled(self, applied: bool) -> None:
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        settings.vault_apply_project_rules = applied
+        save_settings(settings)
+        self.status.setText(
+            "Download rules applied."
+            if applied
+            else "Download rules off — every file the project offers is listed."
+        )
+        if self._fetched_url:
+            self._on_fetch()
 
     def _apply_project_rule(self, project: dict) -> None:
         """Put the download where the published rules say it belongs.
