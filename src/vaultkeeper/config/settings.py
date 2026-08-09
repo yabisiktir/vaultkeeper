@@ -240,6 +240,13 @@ class Settings:
     #: PORT: the VB editor sets a font per-element/control; here it is a single
     #: app-wide override, which is the high-value accessibility subset.
     font_point_size: int = 0
+    #: UI font family, "" for the platform default (VB Fonts page). VB carries a
+    #: font per element; the port has one, because it has one to apply.
+    font_family: str = ""
+    #: Overrides for the mod-list status colours, name → "#rrggbb" (VB Colour
+    #: page). Only the colours this application actually paints with are
+    #: offered: a picker for a colour nothing reads is a preference that lies.
+    status_colours: dict[str, str] = field(default_factory=dict)
     #: UI colour theme: ``"system"`` | ``"light"`` | ``"dark"`` (VB
     #: BasicFontAndColourEditor's Colour page / colour settings, applied via
     #: ``SaveColourSettings``/``ApplyThemeToRichTextFiles``). BOUNDED PORT: the VB

@@ -16,7 +16,7 @@ Kept import-safe and unit-testable without a running Qt event loop: building a
 
 from __future__ import annotations
 
-from PySide6.QtGui import QColor, QPalette
+from PySide6.QtGui import QColor, QFont, QPalette
 from PySide6.QtWidgets import QApplication
 
 #: Valid ``Settings.theme`` values (also the order shown in the Appearance tab).
@@ -36,6 +36,17 @@ _STATUS_COLOURS: dict[str, tuple[str, str]] = {
 }
 
 
+#: The font the application started with, captured before anything is applied.
+_BASE_FONT: QFont | None = None
+
+
+def _base_font(app: QApplication) -> QFont:
+    global _BASE_FONT
+    if _BASE_FONT is None:
+        _BASE_FONT = QFont(app.font())
+    return _BASE_FONT
+
+
 def is_dark(palette: QPalette | None = None) -> bool:
     """Whether the active palette is a dark one.
 
@@ -51,10 +62,44 @@ def is_dark(palette: QPalette | None = None) -> bool:
     return window.lightness() < 128
 
 
+#: What each status colour marks, for the Appearance page. The label is the
+#: user's name for it; the description says where it shows, because "Overridden"
+#: means nothing on its own.
+STATUS_COLOUR_LABELS: dict[str, tuple[str, str]] = {
+    "installed": ("Installed", "A mod whose files are all in the game"),
+    "overridden": ("Overridden", "A mod some of whose files another mod has replaced"),
+    "duplicate": ("Conflict", "A duplicated name, or a file that clashes"),
+    "disabled": ("Unavailable", "Rows that are present but not usable"),
+}
+
+
+def default_status_colour(name: str, *, dark: bool = False) -> str:
+    """The built-in colour for a status, as a hex string."""
+    light_value, dark_value = _STATUS_COLOURS.get(name, ("#000000", "#FFFFFF"))
+    return dark_value if dark else light_value
+
+
 def status_colour(name: str, palette: QPalette | None = None) -> QColor:
-    """A status colour that stays legible on the current background."""
-    light, dark = _STATUS_COLOURS.get(name, ("#000000", "#FFFFFF"))
-    return QColor(dark if is_dark(palette) else light)
+    """A status colour that stays legible on the current background.
+
+    A saved override wins outright, on either background: it is the user's
+    choice, and second-guessing it here would make the picker a suggestion box.
+    """
+    override = _status_overrides().get(name)
+    if override:
+        colour = QColor(override)
+        if colour.isValid():
+            return colour
+    return QColor(default_status_colour(name, dark=is_dark(palette)))
+
+
+def _status_overrides() -> dict[str, str]:
+    from vaultkeeper.config.settings import load_settings
+
+    try:
+        return load_settings().status_colours or {}
+    except Exception:  # settings must never be able to break painting
+        return {}
 
 
 def build_palette(theme: str) -> QPalette | None:
@@ -113,15 +158,30 @@ def build_palette(theme: str) -> QPalette | None:
     return None  # "system" (or anything unrecognised) — leave the app default.
 
 
-def apply_appearance(app: QApplication, *, font_point_size: int, theme: str) -> None:
-    """Apply the persisted font size + theme to ``app`` (VB ``Restart()`` step).
+def apply_appearance(
+    app: QApplication,
+    *,
+    font_point_size: int,
+    theme: str,
+    font_family: str = "",
+) -> None:
+    """Apply the persisted font + theme to ``app`` (VB ``Restart()`` step).
 
-    ``font_point_size <= 0`` leaves the platform default font untouched.
-    ``theme == "system"`` leaves the platform default palette untouched.
+    ``font_point_size <= 0`` and an empty ``font_family`` each leave that half of
+    the platform default font untouched. ``theme == "system"`` leaves the
+    platform default palette untouched.
     """
+    # Always start from the font the application launched with, never from the
+    # one currently applied. Otherwise nothing can be *un*set: picking "System
+    # default" after a custom font would leave the custom font in place, since
+    # "leave it alone" and "put it back" look identical from the current font.
+    base = _base_font(app)
+    f = QFont(base)
     if font_point_size > 0:
-        f = app.font()
         f.setPointSize(font_point_size)
+    if font_family:
+        f.setFamily(font_family)
+    if f != app.font():
         app.setFont(f)
     if theme != "system":
         # Switch to Fusion first. The native styles paint their chrome from the

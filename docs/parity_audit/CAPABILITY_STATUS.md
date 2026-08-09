@@ -65,6 +65,10 @@ them.
 | faqgroupnumbers.htm | Why are the default Groups numbered? | Closed with it — the numbers are the install order |
 | dealwithexisting.htm | Deal with existing installed Mods | Ported — the pieces it strings together all exist (INI save, Create Original Restorers, import) |
 | faqothertools.htm | Mods installed with other tools | Ported (Create Restorer, twice — before and after the external tool) |
+| customisefonts.htm | Customise Fonts | **Bounded port, now wider** — family + size, not VB's 11 per-element fonts |
+| customisecolours.htm | Customise Colours | **Bounded port, now wider** — the 4 colours this app paints with, not VB's 25 |
+| customisetheinstallertool.htm | Customise the Installer Tool | Ported — Basic and Advanced Settings both reachable from Options |
+| customisemodinstallers.htm | Customise Mod Installers | Ported — Map Excludes, Wizard Builder and the review flow all exist |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -96,6 +100,30 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Fonts and colours — ported to the size of *this* application
+
+VB keeps a font per UI element (11) and a colour per element (25). Copying that
+list would mean 21 colour pickers wired to nothing, which is a preference that
+lies to the person setting it — the "setting nothing reads" defect, built on
+purpose. So the Appearance page offers what this application actually paints
+with: one font family and size, the theme, and the **four semantic status
+colours** (`theme._STATUS_COLOURS`) that mark a mod's state in the list.
+
+A test ties the two lists together, so a fifth colour added to the painting code
+without a picker fails.
+
+★ Applying a font must always start from the font the app **launched** with, not
+the one currently set. "Leave it alone" and "put it back" are indistinguishable
+from the current font, so without that, a custom font could be chosen and never
+undone until a restart — the setting would look broken. A leaked font family
+between tests is what surfaced it.
+
+An unset colour follows the theme, which keeps the light/dark pair that makes it
+legible on either background; a set one is used exactly as given, because
+adjusting the user's choice for contrast would make the picker a suggestion box.
+Clearing has to stay reachable, so "unset" is stored as absence, never as
+today's default value.
 
 ## Group sets — the third first-run question, now asked
 

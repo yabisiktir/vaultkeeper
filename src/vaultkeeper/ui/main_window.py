@@ -2459,7 +2459,10 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if app is not None:
             apply_appearance(
-                app, font_point_size=settings.font_point_size, theme=settings.theme
+                app,
+                font_point_size=settings.font_point_size,
+                theme=settings.theme,
+                font_family=settings.font_family,
             )
 
     def _apply_splitter_width(self, width: int) -> None:

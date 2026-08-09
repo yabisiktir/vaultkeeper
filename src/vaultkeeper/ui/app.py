@@ -37,7 +37,10 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
 
         settings = load_settings()
         apply_appearance(
-            app, font_point_size=settings.font_point_size, theme=settings.theme
+            app,
+            font_point_size=settings.font_point_size,
+            theme=settings.theme,
+            font_family=settings.font_family,
         )
     except Exception:
         logger.exception("Failed to apply saved appearance settings; continuing with defaults")

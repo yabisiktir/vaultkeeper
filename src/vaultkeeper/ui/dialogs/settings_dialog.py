@@ -13,8 +13,10 @@ the Mapper editors (see the FolderMapping viewer) and run/web menus come later.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QCursor, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
+    QColorDialog,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -23,6 +25,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMenu,
     QPushButton,
     QSpinBox,
     QTabWidget,
@@ -40,6 +43,57 @@ from vaultkeeper.config.settings import (
 )
 from vaultkeeper.ui import geometry
 from vaultkeeper.ui import resources as R
+
+
+class _ColourButton(QPushButton):
+    """One colour, with a swatch, a picker and a way back to the default.
+
+    Right-click (or the Reset entry) clears the override rather than setting a
+    colour that happens to match today's default: "unset" has to stay reachable,
+    or the theme can never take the colour back.
+    """
+
+    def __init__(self, name: str, value: str = "") -> None:
+        super().__init__()
+        self._name = name
+        self._value = value
+        self.clicked.connect(self._pick)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(lambda _pos: self._menu())
+        self._render()
+
+    def value(self) -> str:
+        return self._value
+
+    def _current(self) -> QColor:
+        from vaultkeeper.ui import theme
+
+        if self._value:
+            return QColor(self._value)
+        return theme.status_colour(self._name)
+
+    def _render(self) -> None:
+        colour = self._current()
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(colour)
+        self.setIcon(QIcon(pixmap))
+        self.setText(
+            self._value.upper() if self._value else f"Theme default ({colour.name().upper()})"
+        )
+
+    def _pick(self) -> None:
+        chosen = QColorDialog.getColor(self._current(), self, "Choose a colour")
+        if chosen.isValid():
+            self._value = chosen.name()
+            self._render()
+
+    def _menu(self) -> None:
+        menu = QMenu(self)
+        reset = menu.addAction("Use the theme's colour")
+        reset.setEnabled(bool(self._value))
+        if menu.exec(QCursor.pos()) is reset:
+            self._value = ""
+            self._render()
 
 
 class SettingsDialog(QDialog):
@@ -448,17 +502,31 @@ class SettingsDialog(QDialog):
     _PORTRAIT_SIZE_LABELS = ("Huge", "Large", "Medium")
 
     def _build_appearance(self, settings: Settings) -> QWidget:
-        """Appearance preferences: BOUNDED PORT of the VB font/colour editor.
+        """Appearance: the Font and Colour pages (VB ``BasicFontAndColourEditor``).
 
-        VB opens a full ``BasicFontAndColourEditor`` (per-element Font page +
-        Colour page). This ports only the high-value accessibility subset: one
-        application-wide font point size and one light/dark/system theme. See
-        ``vaultkeeper.ui.theme`` for the palette/font application logic.
+        VB keeps a font per UI element (11 of them) and a colour per element
+        (25). This offers one font and the **four colours this application
+        actually paints with** — the mod-list status colours. The other twenty-one
+        would be pickers for colours nothing reads, which is a preference that
+        lies to the person setting it; see ``vaultkeeper.ui.theme``.
         """
-        from vaultkeeper.ui.theme import THEMES
+        from PySide6.QtGui import QFontDatabase
+
+        from vaultkeeper.ui.theme import STATUS_COLOUR_LABELS, THEMES
 
         page = QWidget()
         form = QFormLayout(page)
+
+        # A plain combo, not a QFontComboBox: that one owns its model and drops
+        # an inserted row, and the first row has to be "leave the platform
+        # alone" — the system font is not a family we can name on every OS.
+        self.font_family = QComboBox()
+        self.font_family.addItem("System default")
+        self.font_family.addItems(QFontDatabase.families())
+        if settings.font_family:
+            index = self.font_family.findText(settings.font_family)
+            self.font_family.setCurrentIndex(max(index, 0))
+        form.addRow("Application font:", self.font_family)
 
         self.font_size = QSpinBox()
         self.font_size.setRange(0, 24)
@@ -474,6 +542,21 @@ class SettingsDialog(QDialog):
             index = 0
         self.theme.setCurrentIndex(index)
         form.addRow("Theme:", self.theme)
+
+        self._colour_buttons: dict[str, _ColourButton] = {}
+        for name, (label, description) in STATUS_COLOUR_LABELS.items():
+            button = _ColourButton(name, settings.status_colours.get(name, ""))
+            button.setToolTip(description)
+            self._colour_buttons[name] = button
+            form.addRow(f"{label} colour:", button)
+        note = QLabel(
+            "Colours mark a mod's state in the list. Leave one alone and it "
+            "follows the theme, staying readable on both backgrounds; set one "
+            "and it is used as given."
+        )
+        note.setWordWrap(True)
+        note.setEnabled(False)
+        form.addRow("", note)
         return page
 
     def _build_web_menu(self, settings: Settings) -> QWidget:
@@ -806,6 +889,14 @@ class SettingsDialog(QDialog):
         settings.vault_rules_online = self.vault_rules_online.isChecked()
         settings.vault_apply_project_rules = self.vault_apply_project_rules.isChecked()
         settings.font_point_size = self.font_size.value()
+        settings.font_family = (
+            self.font_family.currentText() if self.font_family.currentIndex() else ""
+        )
+        settings.status_colours = {
+            name: button.value()
+            for name, button in self._colour_buttons.items()
+            if button.value()
+        }
         from vaultkeeper.ui.theme import THEMES
 
         settings.theme = THEMES[self.theme.currentIndex()]
