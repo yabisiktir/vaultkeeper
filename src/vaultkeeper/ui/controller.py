@@ -99,6 +99,7 @@ class ProfileController:
         store_path: Path | None = None,
         is_ee: bool = True,
         map_overrides: dict[str, dict[str, str]] | None = None,
+        map_exception_prefixes: dict[str, list] | None = None,
         map_exclude_overrides: dict[str, list[str]] | None = None,
         settings_path: Path | None = None,
         game_user_dir: Path | None = None,
@@ -113,6 +114,10 @@ class ProfileController:
             overrides=map_overrides,
             exclude_overrides=map_exclude_overrides,
         )
+        # Saved filename-prefix exceptions, applied here so they are in force for
+        # every scan rather than only after the Settings screen has been opened.
+        for extension, prefixes in (map_exception_prefixes or {}).items():
+            mapper.set_exception_prefixes(extension, list(prefixes))
         # The EE user-dir folder split only applies when the caller knows the real
         # NWN user-files folder (the app passes settings.game_user_path). Without it
         # we keep the standard single-root layout, so scans/installs stay inside the
@@ -6933,6 +6938,54 @@ class ProfileController:
         """Add/replace a source-folder → NWN-folder mapping and persist it."""
         self.ctx.mapper.set_override("dir_mapping", source, folder)
         self._persist_map_overrides()
+
+    def set_extension_secondary(
+        self, extension: str, folder: str, prefixes: list[str]
+    ) -> dict:
+        """Set an extension's secondary folder + its exception prefixes.
+
+        The secondary folder is where a file of this extension *may* also live
+        (VB "Secondary Folder"); a prefix is a filename condition that sends it
+        there automatically — how ``fnt_`` textures reach ``override`` while
+        every other ``.tga`` goes to its own folder (``defineextension.htm``).
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        key = extension.strip().lower()
+        if not key:
+            return {"ok": False, "message": "Choose an extension first."}
+        if not key.startswith("."):
+            key = f".{key}"
+        mapper = self.ctx.mapper
+
+        cleaned = [p.strip().lower() for p in prefixes if p and p.strip()]
+        if folder:
+            mapper.set_override("folder_moves", key, folder)
+        else:
+            mapper.remove_override("folder_moves", key)
+            mapper.folder_moves.pop(key, None)
+            if cleaned:
+                # A prefix rule with nowhere to send the file is not a rule.
+                return {
+                    "ok": False,
+                    "message": (
+                        "Exceptions need a secondary folder to send files to."
+                    ),
+                }
+        mapper.set_exception_prefixes(key, cleaned)
+
+        self._persist_map_overrides()
+        settings = load_settings(self._settings_path)
+        settings.map_exception_prefixes = {
+            k: list(v) for k, v in mapper.exception_prefixes.items()
+        }
+        save_settings(settings, self._settings_path)
+        where = f"→ {folder}" if folder else "with no secondary folder"
+        return {
+            "ok": True,
+            "message": f"{key} {where}"
+            + (f", exceptions: {', '.join(cleaned)}." if cleaned else "."),
+        }
 
     def remove_map_override(self, table: str, key: str) -> bool:
         """Remove a user-added map override (extension/file/folder) and persist."""

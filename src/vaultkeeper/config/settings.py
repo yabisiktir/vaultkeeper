@@ -131,6 +131,9 @@ class Settings:
     #: When uninstalling a mod, also uninstall its dependency mods that are no
     #: longer required by any other installed mod (VB ``BehaviourUninstallDependencies``).
     uninstall_dependencies: bool = False
+    #: Per-extension filename-prefix exceptions that send a file to its
+    #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
+    map_exception_prefixes: dict[str, list] = field(default_factory=dict)
     #: Mods pinned in the Recent Mods list — they stay however long ago they
     #: were last used (VB's Pin/Unpin, ``newtopic47``).
     pinned_recent_mods: list[str] = field(default_factory=list)

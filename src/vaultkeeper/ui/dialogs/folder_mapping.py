@@ -8,10 +8,13 @@ Built on ``ProfileController.folder_mapping_report`` and the map-edit methods.
 Editing surface: an *Add / Update* row (key + NWN folder) applies a user override to
 the current tab's table, *Remove Selected* deletes a user override (built-in defaults
 are not removable — a persisted deletion of a default is deferred), and *Reset All*
-restores the default tables. Overrides are shown in bold and persist to the settings
-file. The VB per-list rename-in-place editor, import-from-game and secondary-folder
-editing are deferred with the rest of the Settings subsystem. Column captions come
-from ``Settings.Designer.vb``.
+restores the default tables. On the Extensions tab there is also the **secondary
+folder** and its **exceptions** — the filename prefixes that send a file there
+instead (``defineextension.htm``); that is how ``fnt_`` textures reach ``override``
+while every other ``.tga`` goes to its own folder. Overrides are shown in bold and
+persist to the settings file. The VB per-list rename-in-place editor and
+import-from-game are deferred with the rest of the Settings subsystem. Column
+captions come from ``Settings.Designer.vb``.
 """
 
 from __future__ import annotations
@@ -107,6 +110,32 @@ class FolderMapping(QDialog):
         edit_row.addWidget(self._remove_button)
         layout.addLayout(edit_row)
 
+        # Extensions only: the secondary folder a file may be moved to, and the
+        # filename prefixes that send it there automatically (defineextension.htm).
+        # That is how "fnt_" textures reach override while every other .tga goes
+        # to its own folder.
+        self._secondary_row = QWidget()
+        secondary = QHBoxLayout(self._secondary_row)
+        secondary.setContentsMargins(0, 0, 0, 0)
+        secondary.addWidget(QLabel("Secondary folder:"))
+        self._secondary_combo = QComboBox()
+        self._secondary_combo.setEditable(True)
+        self._secondary_combo.addItem("")
+        self._secondary_combo.addItems(_FOLDER_CHOICES)
+        secondary.addWidget(self._secondary_combo, 1)
+        secondary.addWidget(QLabel("Exceptions (name starts or ends with):"))
+        self._prefixes_edit = QLineEdit()
+        self._prefixes_edit.setPlaceholderText("fnt_, gui_, ls_load")
+        self._prefixes_edit.setToolTip(
+            "Comma-separated. A file whose name starts or ends with one of these "
+            "goes to the secondary folder instead."
+        )
+        secondary.addWidget(self._prefixes_edit, 1)
+        self._secondary_button = QPushButton("Apply")
+        self._secondary_button.clicked.connect(self._on_apply_secondary)
+        secondary.addWidget(self._secondary_button)
+        layout.addWidget(self._secondary_row)
+
         self.summary = QLabel()
         layout.addWidget(self.summary)
 
@@ -197,12 +226,45 @@ class FolderMapping(QDialog):
         else:
             self._key_label.setText(f"{_TAB_TABLES[index][1]}:")
             self._folder_combo.addItems(_FOLDER_CHOICES)
+        # Only an extension has a second folder to go to.
+        self._secondary_row.setVisible(index == 0)
         self._update_buttons()
 
     def _update_buttons(self) -> None:
         item = self._current_tree().currentItem()
         is_override = bool(item and item.data(0, Qt.ItemDataRole.UserRole)[1])
         self._remove_button.setEnabled(is_override)
+        self._load_secondary()
+
+    def _load_secondary(self) -> None:
+        """Show the selected extension's secondary folder and exception prefixes."""
+        if self.tabs.currentIndex() != 0 or self._controller is None:
+            return
+        item = self.extensions.currentItem()
+        if item is None:
+            self._secondary_combo.setCurrentText("")
+            self._prefixes_edit.clear()
+            self._secondary_button.setEnabled(False)
+            return
+        extension = item.text(0)
+        mapper = self._controller.ctx.mapper
+        self._secondary_combo.setCurrentText(mapper.get_secondary_folder(extension))
+        self._prefixes_edit.setText(
+            ", ".join(mapper.exception_prefixes.get(extension.lower(), []))
+        )
+        self._secondary_button.setEnabled(True)
+
+    def _on_apply_secondary(self) -> None:
+        """Save the secondary folder + exception prefixes for the selected extension."""
+        item = self.extensions.currentItem()
+        if item is None or self._controller is None:
+            return
+        extension = item.text(0)
+        folder = self._secondary_combo.currentText().strip()
+        prefixes = [p.strip() for p in self._prefixes_edit.text().split(",")]
+        result = self._controller.set_extension_secondary(extension, folder, prefixes)
+        self.refresh()
+        self.summary.setText(result["message"])
 
     def _on_add(self) -> None:
         key = self._key_edit.text().strip()

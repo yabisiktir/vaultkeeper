@@ -84,6 +84,7 @@ them.
 | newtopic28.htm | Mod List | **Closed** — the status icon installs/uninstalls |
 | switchinggamesaves.htm / restoregamesavesfrombackup.htm | Right-click Activate | **Closed** — brings the mod with it |
 | mscharacterviewer.htm | Use the Character Explorer | **Closed** — the Select button was the last piece |
+| defineextension.htm | Define an extension map | **Closed** — secondary folder + exceptions are editable |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

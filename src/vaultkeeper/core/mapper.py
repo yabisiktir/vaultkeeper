@@ -228,7 +228,7 @@ class Mapper:
     """The file-to-folder mapping engine, initialised from the default v21 tables."""
 
     #: Override table names accepted by :meth:`apply_overrides` / persistence.
-    _OVERRIDE_TABLES = ("ext_mapping", "dir_mapping", "exception_files")
+    _OVERRIDE_TABLES = ("ext_mapping", "dir_mapping", "exception_files", "folder_moves")
 
     #: Exclude-list kinds a user can add to (VB Settings "Excluded Items").
     _EXCLUDE_KINDS = ("files", "folders")
@@ -290,7 +290,25 @@ class Mapper:
             "ext_mapping": self.ext_mapping,
             "dir_mapping": self.dir_mapping,
             "exception_files": self.exception_files,
+            # The secondary ("move to") folder per extension. Editable for the
+            # same reason as the primary one: which of two folders a file can
+            # legally live in is a per-installation fact, not a constant.
+            "folder_moves": self.folder_moves,
         }[name]
+
+    def set_exception_prefixes(self, extension: str, prefixes: list[str]) -> None:
+        """Replace an extension's filename-prefix exceptions (VB Exceptions panel).
+
+        A prefix sends a file to the extension's *secondary* folder — that is
+        how ``fnt_`` textures reach ``override`` while every other ``.tga`` goes
+        to its own folder. An empty list removes the rule.
+        """
+        key = extension.lower()
+        cleaned = [p.strip().lower() for p in prefixes if p and p.strip()]
+        if cleaned:
+            self.exception_prefixes[key] = sorted(set(cleaned))
+        else:
+            self.exception_prefixes.pop(key, None)
 
     def apply_overrides(self, overrides: dict[str, dict[str, str]]) -> None:
         """Merge ``overrides`` (``{table: {key: folder}}``) onto the live tables.

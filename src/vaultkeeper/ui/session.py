@@ -101,6 +101,7 @@ def bootstrap_controller(
         is_ee=True,
         map_overrides=settings.map_overrides or None,
         map_exclude_overrides=settings.map_exclude_overrides or None,
+        map_exception_prefixes=settings.map_exception_prefixes or None,
         settings_path=store.settings_file,
         game_user_dir=Path(settings.game_user_path) if settings.game_user_path else None,
     )
