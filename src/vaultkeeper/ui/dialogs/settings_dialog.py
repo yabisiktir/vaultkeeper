@@ -292,6 +292,14 @@ class SettingsDialog(QDialog):
         self.recycle.setChecked(settings.recycle_on_delete)
         form.addRow(self.recycle)
 
+        self.recycle_saves = QCheckBox("…including deleted game saves")
+        self.recycle_saves.setChecked(settings.recycle_game_saves)
+        self.recycle_saves.setToolTip(
+            "Game saves are large and routinely discarded, so they get their own "
+            "answer."
+        )
+        form.addRow(self.recycle_saves)
+
         self.startup_check = QCheckBox(
             "Check the game configuration for changes on startup"
         )
@@ -865,6 +873,7 @@ class SettingsDialog(QDialog):
     def apply_to(self, settings: Settings) -> None:
         """Write the editable fields back into ``settings``."""
         settings.recycle_on_delete = self.recycle.isChecked()
+        settings.recycle_game_saves = self.recycle_saves.isChecked()
         settings.validate_game_config_on_startup = self.startup_check.isChecked()
         settings.convert_bik_files = self.convert_bik.isChecked()
         settings.install_after_create = self.install_after_create.isChecked()

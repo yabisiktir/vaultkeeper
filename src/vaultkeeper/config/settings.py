@@ -68,6 +68,10 @@ class Settings:
     active_profile: str | None = None
     #: Send user-initiated deletes to the OS trash rather than deleting permanently.
     recycle_on_delete: bool = True
+    #: Game saves get their own answer (VB "Recycle Bin for Game Saves"): they
+    #: are large and routinely discarded, so someone can reasonably want these
+    #: gone for good while keeping the safety net everywhere else.
+    recycle_game_saves: bool = True
     #: On startup, check whether the game config diverged and prompt before syncing
     #: (config-isolation principle — never sync silently).
     validate_game_config_on_startup: bool = True

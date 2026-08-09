@@ -380,3 +380,64 @@ def test_the_deactivate_button_offers_it_on_right_click(qtbot, tmp_path):
         == Qt.ContextMenuPolicy.CustomContextMenu
     )
     assert "Right-click" in dlg.deactivate_button.toolTip()
+
+
+# -- Finished (deletinggamesaves.htm) ------------------------------------------- #
+def test_finished_removes_every_save_for_that_game(qtbot, tmp_path):
+    """The topic opens with the reason: "You should delete the Game Saves when
+    you have completed playing a Mod so that the Installer Tool can record how
+    long you spent playing the Mod." Deleting them one at a time gets there
+    eventually; Finished is the button that says what you mean."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller(tmp_path)
+    settings = load_settings()
+    settings.recycle_game_saves = False
+    save_settings(settings)
+
+    saves = tmp_path / "gameuser" / "saves"
+    other = saves / "000009 - elsewhere"
+    other.mkdir(parents=True)
+    (other / "Another Game.sav").write_bytes(b"\x00" * 32)
+
+    result = controller.finish_game("Adventure")
+
+    assert result["ok"] and result["removed"] == 2
+    assert "permanently" in result["message"]
+    left = sorted(p.name for p in saves.iterdir())
+    assert left == ["000009 - elsewhere"], "only that game's saves went"
+
+
+def test_finished_honours_the_game_saves_recycle_preference(qtbot, tmp_path):
+    """Game saves get their own answer: they are large and routinely discarded,
+    so someone can want these gone for good while keeping the safety net
+    everywhere else."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller(tmp_path)
+    settings = load_settings()
+    settings.recycle_on_delete = True
+    settings.recycle_game_saves = False
+    save_settings(settings)
+
+    result = controller.finish_game("Adventure")
+    assert "permanently" in result["message"]
+
+
+def test_finishing_a_game_that_is_not_there_says_so(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    result = controller.finish_game("Never Played")
+    assert not result["ok"] and "No live saves" in result["message"]
+
+
+def test_the_button_needs_a_selected_save(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    dlg.table.setCurrentItem(None)
+    dlg._sync_buttons()
+    assert not dlg.finished_button.isEnabled()
+
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+    assert dlg.finished_button.isEnabled()

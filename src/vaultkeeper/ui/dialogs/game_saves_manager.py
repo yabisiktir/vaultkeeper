@@ -79,10 +79,21 @@ class GameSavesManager(QDialog):
         self.open_button.setIcon(R.get_icon("Mod Explorer 1"))
         self.open_button.setToolTip("Open the selected save's folder")
         self.open_button.clicked.connect(self._on_open_folder)
+        # "You should delete the Game Saves when you have completed playing a Mod
+        # so that the Installer Tool can record how long you spent playing the
+        # Mod" (deletinggamesaves.htm). Deleting them one at a time gets there
+        # eventually; this is the button that says what you mean.
+        self.finished_button = QPushButton("Finished")
+        self.finished_button.setIcon(R.get_icon("StatusOK_16x"))
+        self.finished_button.setToolTip(
+            "Delete every save for this game and record how long it was played"
+        )
+        self.finished_button.clicked.connect(self._on_finished)
         self.reduce_button = QPushButton("Reduce")
         self.reduce_button.clicked.connect(self._on_reduce)
         reduce_row.addWidget(self.summary_button)
         reduce_row.addWidget(self.open_button)
+        reduce_row.addWidget(self.finished_button)
         reduce_row.addWidget(self.reduce_button)
         layout.addLayout(reduce_row)
 
@@ -264,6 +275,7 @@ class GameSavesManager(QDialog):
         has_save = bool(self._controller) and self.table.currentItem() is not None
         self.summary_button.setEnabled(has_save)
         self.open_button.setEnabled(has_save)
+        self.finished_button.setEnabled(has_save)
 
     def set_status(self, text: str) -> None:
         """Show a line about something the manager did on the way in."""
@@ -376,6 +388,31 @@ class GameSavesManager(QDialog):
         ):
             return
         result = self._controller.delete_game_backup(name)
+        self._refresh()
+        self._report(result["message"], result["ok"])
+
+    def _on_finished(self) -> None:
+        """Delete every save for the selected game and record the play time."""
+        row = self._selected_save()
+        if row is None or self._controller is None:
+            return
+        save_name = row.get("save") or ""
+        if not save_name:
+            return
+        if (
+            QMessageBox.question(
+                self,
+                "Finished",
+                f"Delete every game save for '{save_name}'?\n\n"
+                "How long you played it is recorded once the saves are gone — "
+                "that is what tells the tool the game is over rather than paused.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        result = self._controller.finish_game(save_name)
         self._refresh()
         self._report(result["message"], result["ok"])
 

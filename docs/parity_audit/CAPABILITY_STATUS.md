@@ -106,6 +106,7 @@ them.
 | newtopic1.htm | Create Restorers to backup installed Files | Ported |
 | tshelpfindandrename.htm | Find and rename Mods | **Ported bar selecting the matches**, now added |
 | createmissinginstallers.htm | Create missing Mod Installers | Ported — including the include-excluded toggle |
+| deletinggamesaves.htm | Delete Game Saves | **Was a GAP, now closed** — the Finished button, and its own recycle preference |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
