@@ -1526,3 +1526,82 @@ def test_a_mod_name_with_markup_in_it_is_not_treated_as_markup(qtbot, controller
 
     assert "&amp;" in win._mod_info.text()
     assert "&lt;b&gt;" in win._mod_info.text()
+
+
+def test_new_mod_asks_for_the_group(qtbot, controller, monkeypatch) -> None:
+    """addanewmod.htm: "If the Group shown is not the one you want to use for
+    the new Mod, select the correct Group from the dropdown list." Only the name
+    was asked for, so every new mod landed in the default group."""
+    from PySide6.QtWidgets import QInputDialog
+
+    controller.create_group("100.  Community Packs")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Swordflight", True))
+    asked: list[list[str]] = []
+
+    def fake_item(parent, title, label, items, index, editable):
+        asked.append(list(items))
+        return "100.  Community Packs", True
+
+    monkeypatch.setattr(QInputDialog, "getItem", fake_item)
+    win._on_new_mod()
+
+    assert asked and "100.  Community Packs" in asked[0]
+    assert controller.pd.mod_item("Swordflight").group == "100.  Community Packs"
+
+
+def test_new_mod_defaults_to_the_group_in_view(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    controller.create_group("100.  Community Packs")
+    controller.create_mod("Existing", "100.  Community Packs")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win._select_mod_by_name("Existing")
+
+    seen: dict = {}
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("New One", True))
+    monkeypatch.setattr(
+        QInputDialog,
+        "getItem",
+        lambda parent, title, label, items, index, editable: (
+            seen.setdefault("default", items[index]),
+            (items[index], True),
+        )[1],
+    )
+    win._on_new_mod()
+
+    assert seen["default"] == "100.  Community Packs"
+
+
+def test_a_profile_with_no_groups_is_not_asked(qtbot, controller, monkeypatch) -> None:
+    """A dropdown with one entry is a dialog that teaches people to click
+    through dialogs."""
+    from PySide6.QtWidgets import QInputDialog
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Solo", True))
+    asked: list[int] = []
+    monkeypatch.setattr(
+        QInputDialog, "getItem", lambda *a, **k: asked.append(1) or ("", True)
+    )
+
+    win._on_new_mod()
+    assert asked == []
+    assert controller.pd.mod_item("Solo") is not None
+
+
+def test_cancelling_the_group_cancels_the_mod(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    controller.create_group("100.  Community Packs")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Nope", True))
+    monkeypatch.setattr(QInputDialog, "getItem", lambda *a, **k: ("", False))
+
+    win._on_new_mod()
+    assert controller.pd.mod_item("Nope") is None

@@ -96,6 +96,9 @@ them.
 | newtopic10.htm | Ribbon | Ported — the seven tabs, in the original's order |
 | recordamodswebpagelink.htm | Record a Mod's Web Page Link | **Ported bar the Add Link affordance**, now added |
 | movenonnitfolders.htm | Move non-NIT Mod folders in | Ported — paste folders into the selected group |
+| addanewmod.htm | Add a new Mod | **Ported bar the group choice**, now added |
+| filterbyrating.htm | Filter by Rating | Ported — Matches / Worse than / Better than |
+| newtopic6.htm / newtopic14.htm | Download and Install files / Wizard for Custom Menus | Ported |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |

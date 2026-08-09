@@ -2002,16 +2002,57 @@ class MainWindow(QMainWindow):
         self.refresh()
 
     def _on_new_mod(self) -> None:
+        """Create a mod, asking for its group as well as its name (VB New Mod).
+
+        ``addanewmod.htm``: "If the Group shown is not the one you want to use
+        for the new Mod, select the correct Group from the dropdown list." Only
+        the name was asked for here, so every new mod landed in the default
+        group and had to be dragged out of it.
+        """
         if self.controller is None:
             return
         name, ok = QInputDialog.getText(self, "New Mod", "Mod name:")
         if not ok or not name.strip():
             return
-        if self.controller.create_mod(name.strip()):
+
+        group = self._ask_group_for_new_mod()
+        if group is None:
+            return
+        if self.controller.create_mod(name.strip(), group):
             self.refresh()
+            self._select_mod_by_name(name.strip())  # "Your new Mod is selected"
             self.nit_status.set_info(f"Created mod '{name.strip()}'")
         else:
             self.nit_status.set_info(f"Mod '{name.strip()}' already exists")
+
+    def _ask_group_for_new_mod(self) -> str | None:
+        """The group for a new mod, defaulted to the one in view. None = cancelled.
+
+        No question at all when the profile has no groups yet: a dropdown with
+        one entry is a dialog that teaches people to click through dialogs.
+        """
+        from vaultkeeper.core import constants as C
+
+        groups = [
+            g
+            for g in self.controller.group_names()
+            if not g.startswith(C.GROUP_HIDDEN_PREFIX)
+        ]
+        if not groups:
+            return ""
+        selected = self.selected_mod_names()
+        current = ""
+        if selected:
+            md = self.controller.pd.mod_item(selected[0])
+            current = self.controller.group_label(md.group) if md is not None else ""
+        options = ["No Group", *groups]
+        index = options.index(current) if current in options else 0
+        choice, ok = QInputDialog.getItem(
+            self, "New Mod", "Group:", options, index, False
+        )
+        if not ok:
+            return None
+        return "" if choice == "No Group" else choice
 
     def _on_create_installer(self) -> None:
         names = self.selected_mod_names()
