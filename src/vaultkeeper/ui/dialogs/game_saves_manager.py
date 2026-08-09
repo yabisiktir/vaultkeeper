@@ -101,6 +101,18 @@ class GameSavesManager(QDialog):
         games_header.addStretch(1)
         self.deactivate_button = QPushButton("Deactivate Current Game")
         self.deactivate_button.clicked.connect(self._on_deactivate)
+        # The mirror of Activate's right-click: put the saves away and take the
+        # mod out with them (startanewgame.htm).
+        self.deactivate_button.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.deactivate_button.customContextMenuRequested.connect(
+            lambda _pos: self._on_deactivate(with_mods=True)
+        )
+        self.deactivate_button.setToolTip(
+            "Move the current game's saves to a backup.\n"
+            "Right-click to uninstall its mod as well."
+        )
         games_header.addWidget(self.deactivate_button)
         layout.addLayout(games_header)
 
@@ -299,19 +311,27 @@ class GameSavesManager(QDialog):
         self._refresh()
         self._report(result["message"], result["ok"])
 
-    def _on_deactivate(self) -> None:
+    def _on_deactivate(self, *, with_mods: bool = False) -> None:
         if self._controller is None:
             return
+        # Asked before the saves move: afterwards there is nothing left to say
+        # which mod they belonged to.
+        game = self._controller.current_game_name() if with_mods else ""
+        question = "Move the current game's saves to a backup?"
+        if with_mods:
+            question += "\n\nIts mod will be uninstalled as well."
         if (
-            QMessageBox.question(
-                self,
-                "Deactivate Game",
-                "Move the current game's saves to a backup?",
-            )
+            QMessageBox.question(self, "Deactivate Game", question)
             != QMessageBox.StandardButton.Yes
         ):
             return
         result = self._controller.deactivate_current_game()
+        if with_mods and result["ok"] and game:
+            removed = self._controller.uninstall_game_mod(game)
+            result = {
+                "ok": result["ok"] and removed["ok"],
+                "message": f"{result['message']} {removed['message']}",
+            }
         self._refresh()
         self._report(result["message"], result["ok"])
 

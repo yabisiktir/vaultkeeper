@@ -4647,6 +4647,29 @@ class ProfileController:
         )
         return {"ok": result.ok, "moved": result.moved, "message": result.message}
 
+    def current_game_name(self) -> str:
+        """The save name of the game currently in the live saves folder."""
+        loop = self.play_loop
+        return loop.game_saves().current_game_save if loop is not None else ""
+
+    def uninstall_game_mod(self, game_name: str) -> dict:
+        """Uninstall the mod a game's saves belong to (VB right-click Deactivate).
+
+        Asked for by name rather than worked out afterwards: once the saves have
+        been moved there is nothing left in the live folder to say which mod
+        they were for.
+        """
+        loop = self.play_loop
+        if loop is None:
+            return {"ok": False, "message": "No game saves are available."}
+        mod_name = loop.game_mapper.save_name_to_mod_name(game_name, interactive=False)
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return {"ok": False, "message": f"No mod named '{mod_name}' to uninstall."}
+        if not md.installed:
+            return {"ok": True, "message": f"'{mod_name}' was not installed."}
+        return {"ok": True, "message": self.uninstall([mod_name])}
+
     def swap_game_mods(self, activated_game: str) -> dict:
         """Install the activated game's mod and uninstall the one it replaced.
 

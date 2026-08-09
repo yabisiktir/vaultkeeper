@@ -321,3 +321,62 @@ def test_the_activate_button_offers_it_on_right_click(qtbot, tmp_path):
         dlg.activate_button.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu
     )
     assert "Right-click" in dlg.activate_button.toolTip()
+
+
+def test_deactivating_with_mods_uninstalls_the_games_mod(qtbot, tmp_path):
+    """startanewgame.htm — the mirror of Activate's right-click."""
+    from vaultkeeper.core.mod_data import ModData
+    from vaultkeeper.core.state import State
+
+    controller = _controller(tmp_path)
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Adventure"))
+    controller.pd.mod_item("Adventure").mod_state = State.INSTALLED
+
+    removed: list[str] = []
+    controller.uninstall = lambda names: removed.extend(names) or "uninstalled"
+    controller.play_loop.game_mapper.save_name_to_mod_name = (
+        lambda save, interactive=True: "Adventure"
+    )
+
+    result = controller.uninstall_game_mod("Adventure")
+    assert result["ok"] and removed == ["Adventure"]
+
+
+def test_a_mod_that_is_not_installed_is_not_uninstalled(qtbot, tmp_path):
+    from vaultkeeper.core.mod_data import ModData
+
+    controller = _controller(tmp_path)
+    controller.pd.add_mod(ModData(group="Adv", mod_name="Adventure"))
+    touched: list[str] = []
+    controller.uninstall = lambda names: touched.extend(names)
+    controller.play_loop.game_mapper.save_name_to_mod_name = (
+        lambda save, interactive=True: "Adventure"
+    )
+
+    result = controller.uninstall_game_mod("Adventure")
+    assert result["ok"] and touched == []
+    assert "was not installed" in result["message"]
+
+
+def test_the_current_game_is_read_before_the_saves_move(qtbot, tmp_path):
+    """Once they have moved there is nothing left to say which mod they were
+    for, so the name has to be taken first."""
+    controller = _controller(tmp_path)
+    assert controller.current_game_name() == "Adventure"
+
+    controller.deactivate_current_game()
+    assert controller.current_game_name() != "Adventure"
+
+
+def test_the_deactivate_button_offers_it_on_right_click(qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    assert (
+        dlg.deactivate_button.contextMenuPolicy()
+        == Qt.ContextMenuPolicy.CustomContextMenu
+    )
+    assert "Right-click" in dlg.deactivate_button.toolTip()
