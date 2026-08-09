@@ -3685,6 +3685,32 @@ class ProfileController:
         return md is not None and md.installed
 
     # -- File viewers (View menu) ----------------------------------------- #
+    def settings_file_path(self) -> Path:
+        """Where this profile's settings are written (VB ``MsDisplaySettings``)."""
+        if self._settings_path:
+            return Path(self._settings_path)
+        return self._settings().resolved_store().settings_file
+
+    def download_rules_path(self) -> Path:
+        """The cached Vault download rules, or the bundled copy when none is cached.
+
+        Pointing at the bundle rather than at a path that does not exist matters:
+        the menu item exists to *show* the rules in force, and on a machine that
+        has never fetched them the bundled file is what is in force.
+        """
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.vault import rules_source
+
+        data_dir = self.store_path.parent if self.store_path else data_root()
+        cached = rules_source.cache_file(data_dir)
+        if cached.is_file():
+            return cached
+        return (
+            Path(rules_source.__file__).resolve().parent
+            / "data"
+            / rules_source.rules_filename()
+        )
+
     def nit_log_path(self) -> Path:
         """The application's own log file (VB NIT Log File)."""
         from vaultkeeper.core.log import log_file_path

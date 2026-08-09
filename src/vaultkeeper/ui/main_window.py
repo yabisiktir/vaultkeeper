@@ -1220,6 +1220,10 @@ class MainWindow(QMainWindow):
             # Options-menu housekeeping — all three were greyed out as "not yet
             # available" while doing nothing more than resetting local state.
             "MsResetWindow": self._on_reset_window_layout,
+            "MsDisplaySettings": lambda: self._on_view_file("MsDisplaySettings"),
+            "RbnDisplaySettings": lambda: self._on_view_file("MsDisplaySettings"),
+            "MsOpenRulesFile": lambda: self._on_view_file("MsOpenRulesFile"),
+            "MsViewClipboard": self._on_view_clipboard,
             "MsClearWaitCursors": self._on_clear_wait_cursors,
             "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
@@ -1740,6 +1744,21 @@ class MainWindow(QMainWindow):
             if count:
                 splitter.setSizes([1] * count)
         self.nit_status.set_info("Window layout reset.")
+
+    def _on_view_clipboard(self) -> None:
+        """Show what is on the clipboard (VB ``MsViewClipboard``).
+
+        Several commands here put things on it — a mod name, a DebugMode
+        command, a level summary — and this is how you check what landed.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+        text = QApplication.clipboard().text()
+        self._clipboard_viewer = TextViewer.show_text(
+            text or "(the clipboard holds no text)", "Clipboard", self
+        )
 
     def _on_clear_wait_cursors(self) -> None:
         """Release any stuck busy cursor (VB ``MsClearWaitCursors``).
@@ -2463,6 +2482,15 @@ class MainWindow(QMainWindow):
             ),
             "MsNwnToolsetIniFile": (
                 self.controller.game_file_path("nwtoolset.ini"), "NWN Toolset Ini File"
+            ),
+            # Vaultkeeper's own two files. Both were on the View menu and greyed
+            # out, which is an odd thing for "show me this file" to be when the
+            # file is right there.
+            "MsDisplaySettings": (
+                self.controller.settings_file_path(), "Vaultkeeper User Config File"
+            ),
+            "MsOpenRulesFile": (
+                self.controller.download_rules_path(), "Download Rules File"
             ),
         }
         path, title = specs.get(kind, (None, "File"))

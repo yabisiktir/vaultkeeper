@@ -720,15 +720,15 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsViewClipboard", "MsBackupManager", "MsResetTaskbarIcon"):
+    for dead_id in ("MsBackupManager", "MsResetTaskbarIcon"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented
-    # RbnDisplaySettings: genuinely unported — its menu twin MsDisplaySettings has
-    # no handler either, so a greyed button is the honest state.
-    for dead_id in ("RbnDisplaySettings",):
-        button = win.ribbon.button(dead_id)
-        assert button is not None and not button.isEnabled()
+    # No ribbon button is dead any more. RbnDisplaySettings was the last one, and
+    # it only became wireable once MsDisplaySettings had a handler — the two are
+    # the same command, so a greyed button beside a working menu item is never
+    # the honest state, it is a gap.
+    assert win.ribbon.button("RbnDisplaySettings").isEnabled()
     # RbnExportSettings and RbnManageWorkshop used to be listed above: ribbon
     # buttons with no handler, which looked like parity and behaved like dead
     # controls while the same screen worked from the menu. Both are wired now —
@@ -1278,3 +1278,53 @@ def test_resetting_the_layout_forgets_the_saved_geometry(qtbot, controller) -> N
     win._on_reset_window_layout()
     assert load_settings().window_geometry == ""
     assert win._splitters  # and the panes were put back too
+
+
+def test_view_menu_shows_the_settings_and_rules_files(qtbot, controller, monkeypatch) -> None:
+    """VB's View menu opens the two files the app actually runs on.
+
+    Both are real files on disk that a user has no other way to look at from
+    inside the app, and both were menu items with no handler until now.
+    """
+    from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    seen: list = []
+    monkeypatch.setattr(
+        TextViewer, "show_file", lambda path, title, parent: seen.append((path, title))
+    )
+
+    win._on_view_file("MsDisplaySettings")
+    win._on_view_file("MsOpenRulesFile")
+
+    assert [title for _p, title in seen] == [
+        "Vaultkeeper User Config File",
+        "Download Rules File",
+    ]
+    # The rules path must resolve to a file that exists even on a machine that
+    # has never fetched them: the bundled copy is the one in force there.
+    assert Path(seen[1][0]).is_file()
+
+
+def test_view_clipboard_shows_the_clipboard_text(qtbot, controller, monkeypatch) -> None:
+    from PySide6.QtWidgets import QApplication
+
+    from vaultkeeper.ui.dialogs.text_viewer import TextViewer
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+
+    seen: list = []
+    monkeypatch.setattr(
+        TextViewer, "show_text", lambda text, title, parent: seen.append(text)
+    )
+
+    QApplication.clipboard().setText("Alpha\tSome Mod")
+    win._on_view_clipboard()
+    QApplication.clipboard().clear()
+    win._on_view_clipboard()
+
+    assert seen[0] == "Alpha\tSome Mod"
+    assert "no text" in seen[1]
