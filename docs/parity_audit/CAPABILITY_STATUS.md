@@ -49,6 +49,10 @@ them.
 | newtopic58.htm | Import Map Settings | Deferred — recorded in DIALOG_PARITY as the map pages' import context menu |
 | newtopic35.htm | Quick Access Toolbar | GAP — see above |
 | useattributefilters.htm | Use Attribute Filters | **Was a GAP, now closed** — Mod Files / Installers / Restorers |
+| commandline.htm | Command Line Options | **Was a GAP, now closed** — all five, plus the start-up keys |
+| faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
+| corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
+| corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
 | usegroupfilters.htm | Use Group Filters | Ported (the Filters… dialog + Undo Group Changes) |
 | usemodprefixfilters.htm | Use Mod Prefix Filters | Ported (prefix list + Undo Prefix Changes) |
 | usefilterboxestospecifyfiltering.htm | Use Filter Boxes to specify filtering criteria | Ported except the Notes filter — `ModData` carries no notes here |
@@ -77,6 +81,38 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## The recovery options — a third invisible capability
+
+`commandline.htm` is the same shape as the first-run gap and the attribute
+filters: no screen, no command id, nothing for a sweep anchored on ported
+dialogs to catch. It is also the most consequential of the three, because every
+option on it exists for one situation — **the app will not start** — and three
+FAQ topics (`faqnitcrashes`, `corruptedprofiledata`, `corruptedsettings`) are
+just pointers to it. Without it, a corrupted store is unrecoverable from inside
+the app.
+
+Five options, each abbreviable to its first letter, plus the start-up keys for
+when there is no command line to type on (someone double-clicked an icon):
+
+| Option | Key | What it does |
+|---|---|---|
+| `-CommandMenu` / `-C` | Ctrl | The menu of the other four |
+| `-Settings` / `-S` | | Settings, before any profile data is read |
+| `-ProfileValidate` / `-P` | | Validate the profile after it loads |
+| `-RestoreProfileData` / `-R` | Alt | List the data backups before loading |
+| `-MusicOff` / `-M` | Shift | No start-up sound |
+
+★ **Ordering is the feature.** Settings and Restore must run *before* the
+profile is read, because the read is what crashes. The test asserts the
+sequence, not the calls.
+
+Two things this turned up:
+
+- We suppressed the start-up sound on **Ctrl**, which is VB's key for the
+  options *menu*. Shift is the sound. Fixed.
+- Restoring is deliberately in `vaultkeeper/recovery.py`, not on the
+  controller: it must work on file names and bytes with no profile loaded.
 
 ## The first-run gap, in detail
 

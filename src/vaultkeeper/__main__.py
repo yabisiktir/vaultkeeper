@@ -3,6 +3,10 @@
 ``python -m vaultkeeper`` launches the GUI. ``python -m vaultkeeper --scan``
 prints the discovered NWN installs and resolved store layout (the headless probe,
 useful for verifying the cross-platform path layer without a display).
+
+The start-up recovery options (``-Settings``, ``-RestoreProfileData`` and the
+rest, in :mod:`vaultkeeper.startup_options`) are read here too and passed on to
+the GUI, which is where they take effect.
 """
 
 from __future__ import annotations
@@ -38,15 +42,27 @@ def _scan() -> int:
     return 0
 
 
+def _usage() -> int:
+    from vaultkeeper.startup_options import usage_text
+
+    print("Usage: vaultkeeper [option]...\n")
+    print("  --scan   print the discovered NWN installs and store layout, then exit")
+    print("  --help   show this message\n")
+    print(usage_text())
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if "--scan" in args:
         return _scan()
+    if "--help" in args or "-h" in args:
+        return _usage()
 
     # Launch the GUI. Imported lazily so --scan works without a Qt display.
     from vaultkeeper.ui.app import run
 
-    return run()
+    return run(argv=args)
 
 
 if __name__ == "__main__":
