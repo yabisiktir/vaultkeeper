@@ -1,15 +1,23 @@
 """TextViewer — a read-only text/log file viewer (VB LazWorks ``ShowText``).
 
 Used by the View menu's log/ini/config file items. Loads a file into a monospace
-read-only editor with a title; shows a friendly placeholder when the file is absent.
+read-only editor with a title; shows a friendly placeholder when the file is
+absent. Carries a Find button (Ctrl+F), as the original's viewer does.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QDialog, QPlainTextEdit, QVBoxLayout, QWidget
+from PySide6.QtGui import QFont, QKeySequence
+from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QPlainTextEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from vaultkeeper.ui import resources as R
 
@@ -32,6 +40,23 @@ class TextViewer(QDialog):
         self.editor.setFont(QFont("Menlo", 11))
         self.editor.setPlainText(self._load(path))
         layout.addWidget(self.editor)
+
+        # "Press the Find button, Ctrl+F or click Find from the Edit menu" —
+        # a viewer you cannot search is not much use on a log.
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self._find_button = QPushButton("Find…")
+        self._find_button.setShortcut(QKeySequence.StandardKey.Find)
+        self._find_button.clicked.connect(self.open_find)
+        row.addWidget(self._find_button)
+        layout.addLayout(row)
+
+    def open_find(self) -> None:
+        """Open the Find bar on this viewer's text."""
+        from vaultkeeper.ui.dialogs.find_text import FindTextDialog
+
+        self.find_dialog = FindTextDialog(self.editor, self)
+        self.find_dialog.show()
 
     @staticmethod
     def _load(path: Path | None) -> str:

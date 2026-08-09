@@ -50,6 +50,11 @@ them.
 | newtopic35.htm | Quick Access Toolbar | GAP — see above |
 | useattributefilters.htm | Use Attribute Filters | **Was a GAP, now closed** — Mod Files / Installers / Restorers |
 | commandline.htm | Command Line Options | **Was a GAP, now closed** — all five, plus the start-up keys |
+| findoperations.htm | Perform Find Operations | **Was partly ported** — Find is focus-scoped now, not always the profile search |
+| findinprofile.htm | Find files in your Profile | Ported (Find Files dialog) |
+| findfiles.htm | Find files in Contents or Details | **Was a GAP, now closed** — Find steps through list rows |
+| findtext.htm | Find text within a file | **Was a GAP, now closed** — Find bar + a Find button on the viewer |
+| filterbynotes.htm | Filter by Notes | Not applicable — `ModData` carries no notes field here |
 | faqnitcrashes.htm | The Installer Tool crashes every time I start it | Closed with the above — the topic is a pointer to the two below |
 | corruptedprofiledata.htm | Corrupted Profile Data | Closed — `-RestoreProfileData` / hold Alt |
 | corruptedsettings.htm | Corrupted Settings | Closed — `-Settings` / the start-up menu |
@@ -81,6 +86,24 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Find: one command, three meanings
+
+`findoperations.htm` says it outright — "the scope of the search operation
+depends on which element in the UI has focus" — and that sentence is the whole
+feature. Ours always opened the profile file-search, which made the other two
+scopes unreachable from the menu they are documented under. A command diff
+could not see this: `MsFind` was present and wired the whole time.
+
+| Focus | Scope |
+|---|---|
+| the mod list | the whole profile (Find Files dialog) |
+| contents / properties list | step through matching rows, both directions |
+| the notes, or a file viewer | step through occurrences in the text |
+
+★ Use `self.focusWidget()`, not `QApplication.focusWidget()` — the former
+answers for the window whether or not it is the active one, which is both more
+accurate and testable without a window manager.
 
 ## The recovery options — a third invisible capability
 

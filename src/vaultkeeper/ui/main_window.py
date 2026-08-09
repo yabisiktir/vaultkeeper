@@ -2822,7 +2822,26 @@ class MainWindow(QMainWindow):
         self._links_report = ModLinksReportDialog.show_for(self.controller, self)
 
     def _on_find(self) -> None:
-        """Open the profile file-search dialog (VB ``MsFind`` on the mod list)."""
+        """Find, in whichever pane has focus (VB ``MsFind``).
+
+        One command, three meanings — "the scope of the search operation depends
+        on which element in the UI has focus". Clicking a mod name searches the
+        whole profile; clicking in the contents or properties list steps through
+        its rows; clicking in the notes searches the text. Always opening the
+        profile search, as this used to, makes the other two unreachable.
+        """
+        # self.focusWidget(), not QApplication.focusWidget(): the former answers
+        # for this window whether or not the window is the active one, which is
+        # both more accurate here and testable without a window manager.
+        focus = self.focusWidget()
+        for pane in (self._details, self._contents, self._details_list):
+            if focus is pane or (focus is not None and focus.parent() is pane):
+                from vaultkeeper.ui.dialogs.find_text import FindTextDialog
+
+                self._find_text_dialog = FindTextDialog(pane, self)
+                self._find_text_dialog.show()
+                return
+
         if self.controller is None:
             return
         from vaultkeeper.ui.dialogs.find_files import FindFilesDialog
