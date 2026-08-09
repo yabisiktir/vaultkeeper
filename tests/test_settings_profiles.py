@@ -98,3 +98,51 @@ def test_the_edition_is_shown_but_not_editable(qtbot, settings):
 
     assert not (item.flags() & Qt.ItemFlag.ItemIsEditable)
     assert dlg.profile_folder_button.text().startswith("Neverwinter Nights Folder")
+
+
+def test_a_game_folder_can_be_created_for_the_selected_profile(
+    qtbot, settings, tmp_path, monkeypatch
+):
+    """createaneverwinternightsfolder.htm puts this on the Profiles page, per
+    profile. Making the folder and pointing the profile at it is one action, and
+    the Locations page's copy can only ever affect the loaded profile."""
+    from PySide6.QtWidgets import QDialog
+
+    from vaultkeeper.ui.dialogs import create_nwn_folder as cnf
+
+    created = str(tmp_path / "TestNWN")
+
+    class _FakeDialog:
+        created_path = created
+
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+            _FakeDialog.seen = kwargs
+
+        def exec(self):
+            return QDialog.DialogCode.Accepted
+
+    monkeypatch.setattr(cnf, "CreateNwnFolderDialog", _FakeDialog)
+    monkeypatch.setattr(
+        "vaultkeeper.ui.dialogs.settings_dialog.QDialog", QDialog, raising=False
+    )
+
+    dlg = _page(qtbot, settings)
+    for i in range(dlg.profiles_tree.topLevelItemCount()):
+        if dlg.profiles_tree.topLevelItem(i).text(0) == "Classic":
+            dlg.profiles_tree.setCurrentItem(dlg.profiles_tree.topLevelItem(i))
+    dlg._on_create_profile_folder()
+
+    # The new folder is shown, staged, and it knows which edition to build.
+    assert dlg.profiles_tree.currentItem().text(2) == created
+    assert dlg._profile_folder_edits["Classic"] == created
+    assert _FakeDialog.seen["is_ee"] is False
+    assert _FakeDialog.seen["profile_name"] == "Classic"
+
+
+def test_both_profile_buttons_need_a_selection(qtbot, settings):
+    dlg = _page(qtbot, settings)
+    dlg.profiles_tree.setCurrentItem(None)
+    dlg._sync_profile_buttons()
+    assert not dlg.profile_folder_button.isEnabled()
+    assert not dlg.profile_create_button.isEnabled()

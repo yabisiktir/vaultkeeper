@@ -785,15 +785,48 @@ class SettingsDialog(QDialog):
         )
         self.profile_folder_button.clicked.connect(self._on_change_profile_folder)
         row.addWidget(self.profile_folder_button)
+        # createaneverwinternightsfolder.htm puts this here, per profile —
+        # making the folder and pointing the profile at it is one action, and
+        # the Locations page's copy can only ever affect the loaded profile.
+        self.profile_create_button = QPushButton("Create Game Folder…")
+        self.profile_create_button.setToolTip(
+            "Clone an installation into a new folder for this profile, so a test "
+            "setup cannot disturb the one you play"
+        )
+        self.profile_create_button.clicked.connect(self._on_create_profile_folder)
+        row.addWidget(self.profile_create_button)
         row.addStretch(1)
         layout.addLayout(row)
         self._sync_profile_buttons()
         return page
 
     def _sync_profile_buttons(self) -> None:
-        self.profile_folder_button.setEnabled(
-            self.profiles_tree.currentItem() is not None
+        has_profile = self.profiles_tree.currentItem() is not None
+        self.profile_folder_button.setEnabled(has_profile)
+        self.profile_create_button.setEnabled(has_profile)
+
+    def _on_create_profile_folder(self) -> None:
+        """Create a game folder for the selected profile and point it there."""
+        from pathlib import Path
+
+        from vaultkeeper.ui.dialogs.create_nwn_folder import CreateNwnFolderDialog
+
+        item = self.profiles_tree.currentItem()
+        if item is None:
+            return
+        name, source = item.text(0), item.text(2)
+        dlg = CreateNwnFolderDialog(
+            profile_name=name,
+            source=source,
+            parent_dir=str(Path(source).parent.parent) if source else "",
+            is_ee=item.text(1) == "Enhanced Edition",
+            config_ini_source=self._settings.game_user_path or "",
+            parent=self,
         )
+        if dlg.exec() != QDialog.DialogCode.Accepted or not dlg.created_path:
+            return
+        item.setText(2, dlg.created_path)
+        self._profile_folder_edits[name] = dlg.created_path
 
     def _on_change_profile_folder(self) -> None:
         """Repoint one profile at another installation, leaving the rest alone."""
