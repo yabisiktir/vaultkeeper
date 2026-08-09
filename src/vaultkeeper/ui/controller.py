@@ -909,6 +909,90 @@ class ProfileController:
             self.save()
         return removed
 
+    def validate_neverwinter_nights(self) -> dict:
+        """Look through the game's own folders for files that do not belong there.
+
+        VB *Validate Neverwinter Nights*: walk each supported directory in the
+        installation and user-files folders and report what is illegal — a file
+        whose extension is not an NWN extension, sitting in a folder the game
+        reads. Nothing is deleted here; the report is the point, and removing
+        them is a separate, asked-for step.
+
+        This is the game-side twin of :meth:`remove_illegal_mod_files`, which
+        does the same job inside a mod's installer payload.
+        """
+        from vaultkeeper.core import constants as C
+
+        mapper = self.ctx.mapper
+        rows: list[dict] = []
+        scanned = 0
+        for name, folder in sorted(self.ctx.game_folders.items()):
+            if not folder.is_dir():
+                continue
+            # The game root itself holds the executables and everything else the
+            # game ships; only the mapped sub-folders are ours to judge.
+            if name == C.MOD_ROOT_FOLDER:
+                continue
+            for path in sorted(folder.iterdir()):
+                if not path.is_file():
+                    continue
+                scanned += 1
+                if mapper.is_nwn_extension(path.suffix):
+                    continue
+                try:
+                    size = path.stat().st_size
+                except OSError:
+                    size = 0
+                rows.append(
+                    {
+                        "folder": name,
+                        "filename": path.name,
+                        "path": str(path),
+                        "size": size,
+                    }
+                )
+        return {
+            "rows": rows,
+            "scanned": scanned,
+            "count": len(rows),
+            "message": (
+                f"Checked {scanned:,} file(s) in your Neverwinter Nights folders. "
+                + (
+                    f"{len(rows):,} do not belong there."
+                    if rows
+                    else "Nothing is out of place."
+                )
+            ),
+        }
+
+    def delete_illegal_game_files(self, paths: list[str]) -> dict:
+        """Move files the validation flagged out of the game (VB Delete Illegal Files).
+
+        To the recycle bin unless that preference is off, and the installed-file
+        list is rescanned afterwards — a file removed behind the database's back
+        is how a mod comes to look installed when it is not.
+        """
+        from vaultkeeper.core import fs
+
+        to_trash = self._settings().recycle_on_delete
+        removed, failures = 0, []
+        for raw in paths:
+            try:
+                fs.delete(Path(raw), to_trash=to_trash, missing_ok=True)
+                removed += 1
+            except OSError as ex:
+                failures.append(f"{Path(raw).name}: {ex}")
+        if removed:
+            self.pd.rescan_installed_state(
+                self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+            )
+            self.save()
+        where = "the recycle bin" if to_trash else "permanently"
+        message = f"Removed {removed} file(s) ({where})."
+        if failures:
+            message += f" {len(failures)} could not be removed."
+        return {"ok": not failures, "removed": removed, "message": message}
+
     def remove_illegal_mod_files(self) -> dict:
         """Relocate every mod file that maps to no legal folder / non-NWN extension.
 

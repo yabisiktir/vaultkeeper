@@ -1387,6 +1387,7 @@ class MainWindow(QMainWindow):
             "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
             "MsValidateMovieFiles": self._on_validate_movie_files,
+            "MsValidate": self._on_validate_neverwinter_nights,
             "MsExtractPortraits": self._on_extract_portraits,
             "MsClearHakPortraits": self._on_clear_hak_portraits,
             # Recover group / mod-property data from another profile or backup.
@@ -1842,6 +1843,30 @@ class MainWindow(QMainWindow):
             self._movie_report = TextViewer.show_text(
                 report["text"], "Invalid Movie Files", self
             )
+
+    def _on_validate_neverwinter_nights(self) -> None:
+        """Report files that do not belong in the game's folders (VB ``MsValidate``).
+
+        A list with tick boxes rather than VB's delete-the-lot button: run
+        against a real installation every finding was legitimate (PRC's ``.hif``
+        files, the game's own ``repository.json``), so nothing may go without
+        being ticked.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        report = self.controller.validate_neverwinter_nights()
+        self.nit_status.set_info(report["message"])
+        if not report["count"]:
+            QMessageBox.information(
+                self, "Validate Neverwinter Nights", report["message"]
+            )
+            return
+        from vaultkeeper.ui.dialogs.validate_nwn import ValidateNwnDialog
+
+        self._validate_dialog = ValidateNwnDialog(report, self.controller, self)
+        self._validate_dialog.finished.connect(lambda _r=0: self.refresh())
+        self._validate_dialog.show()
 
     def _on_remove_illegal_files(self) -> None:
         if self.controller is None:

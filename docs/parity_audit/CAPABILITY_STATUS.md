@@ -71,6 +71,7 @@ them.
 | customisemodinstallers.htm | Customise Mod Installers | Ported — Map Excludes, Wizard Builder and the review flow all exist |
 | bhbackupmanager.htm | Work with backups and exports | **Was a GAP, now closed** — the menu item did nothing |
 | newtopic18.htm | Automate Mod dependency definition | **Closed** — Auto, with progress + Cancel and the follow-up offer |
+| validatedatabase.htm | Perform validation tasks | **Closed** — the last of the five, Validate Neverwinter Nights (`MsValidate`) |
 | newtopic27.htm | Profile Name | **Was a GAP, now closed** — the name was shown nowhere; click it to refresh |
 | newtopic33.htm / newtopic64.htm | Properties Panel / Automatic Height | **Was a GAP, now closed** (`MsPropertiesHeight`) |
 | newtopic49.htm / newtopic50.htm | Right-clicking the Profile Name / Mod's right-click menu | N/A — image-caption stubs with no content of their own |
@@ -111,6 +112,23 @@ they look like mistakes:
 
 Also here: **Filters On/Off** (`TsIgnoreFilters`), one switch that suspends
 every filter without clearing any of them.
+
+## Validate Neverwinter Nights — where real data changed the design
+
+The last of `validatedatabase.htm`'s five validations. It walks the game's own
+folders for files with an extension the game does not read — the game-side twin
+of *Remove Illegal Mod Files*, which asks the same question of a mod's payload.
+
+★ VB shows the list and a **Delete Illegal Files** button that recycles the whole
+of it. Run against the owner's real installation, the list was four files and
+**every one was legitimate**: PRC's two `.hif` hakpak-information files, and the
+`repository.json` the game itself writes into `mod` and `nwm`. Ported literally,
+this feature's first use would have deleted four working files.
+
+So the port shows tick boxes, all clear to begin with, and deletes what has been
+ticked. "The game does not read this extension" is a fair thing to point out and
+a poor thing to act on unasked. The fixture-based tests could never have shown
+this — only running it against a real install did.
 
 ## A third wrong "Ported" — and a guard so there is no fourth
 
