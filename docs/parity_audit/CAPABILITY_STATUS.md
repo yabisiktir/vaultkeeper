@@ -128,6 +128,12 @@ them.
 | newtopic45.htm | Navigate to a Group | Ported (`MsGoToGroup` — Edit menu + status-bar group) |
 | addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
 | newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
+| newtopic81.htm | View NWN classes/skills/feats | Ported (`MsClassesSkillsAndFeats`) |
+| newtopic66.htm | Clear Wait Cursors | Ported (`MsClearWaitCursors`) |
+| newtopic11.htm | Contribute to Download Rules | Ported — Send Feedback + the rules link |
+| newtopic8.htm / newtopic52.htm | Change / Customise Theme colours | Bounded colour port (see customisecolours) — the 4 colours this app paints with, not VB's named themes + Advanced editor |
+| newtopic68.htm | Debug Options Menu | Deferred — tied to the Development-folder feature (MsMoveToDev), tracked in the backlog |
+
 
 | newtopic3.htm | Specify the Neverwinter Vault Project page | Ported (Download Project via URL) |
 | newtopic15.htm | Build a Wizard that uses File Preferences | Ported (Wizard Builder's preferences group + display-name editing) |
