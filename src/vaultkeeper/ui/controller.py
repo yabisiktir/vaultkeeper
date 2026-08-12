@@ -7441,6 +7441,18 @@ class ProfileController:
         settings.save_editor_theme = theme
         save_settings(settings, self._settings_path)
 
+    def editor_theme(self) -> str:
+        """The theme an embedded Save Game Editor should open with (host opt-in).
+
+        Vaultkeeper's own light/dark, read from the live palette so it resolves
+        the "system" setting the same way the rest of the app does — the editor
+        launched from Vaultkeeper should match it rather than defaulting to its
+        own remembered theme. The editor detects this method via ``getattr``.
+        """
+        from vaultkeeper.ui.theme import is_dark
+
+        return "dark" if is_dark() else "light"
+
     # -- Map editing + persistence (VB Settings map editors, Phase 8) ------ #
     def _persist_map_overrides(self) -> None:
         from vaultkeeper.config.settings import load_settings, save_settings
