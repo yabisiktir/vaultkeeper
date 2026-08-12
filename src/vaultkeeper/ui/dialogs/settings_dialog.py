@@ -943,7 +943,7 @@ class SettingsDialog(QDialog):
         row.addWidget(self.profile_create_button)
         self.profile_remove_button = QPushButton("Remove…")
         self.profile_remove_button.setToolTip(
-            "Delete this profile's mods and database when you click OK"
+            "Delete this profile's mods and database when you click OK in Settings"
         )
         self.profile_remove_button.clicked.connect(self._on_remove_profile)
         row.addWidget(self.profile_remove_button)
@@ -1021,8 +1021,9 @@ class SettingsDialog(QDialog):
             QMessageBox.question(
                 self,
                 "Remove Profile",
-                f"Remove '{name}' when you click OK?\n\n"
-                "Its mods and its database are deleted — everything that profile "
+                f"Remove '{name}'?\n\n"
+                "It is struck through here until you click OK in Settings; then "
+                "its mods and its database are deleted — everything that profile "
                 "installed from, not only its record.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
