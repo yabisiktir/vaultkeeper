@@ -128,6 +128,13 @@ them.
 | newtopic45.htm | Navigate to a Group | Ported (`MsGoToGroup` — Edit menu + status-bar group) |
 | addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
 | newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
+| faqworkshopmods.htm | Why doesn't it show Workshop Mods? | Ported — answered by the Workshop enable preference (newtopic19) |
+| tshelpexplorer.htm | Use the Mod Explorer | Ported — Ctrl+R per the VB source (`MsModExplorer.ShortcutKeys = Control Or R`); the topic's "Ctrl+E" is a doc error |
+| filterbymodname.htm | Filter by Mod Name | Ported (Mod Explorer name filter) |
+| filterbyweapon.htm | Filter by Weapon | Ported (Mod Explorer weapon filter) |
+| userinterface.htm | User Interface | Reference topic (UI overview image map) |
+| neverwinternightsclientextendern.htm | NWNCX (client extender) | Reference — the .dll extension is handled by Map Extensions |
+
 | removegroups.htm | Remove Groups | **Was partly ported** — group delete existed on the right-click menu; the Delete key (which the topic names first) did nothing, as headers are not selectable. Delete now acts on the current header, and on selected mods |
 | uninstallmods.htm | Uninstall Mods | Ported (`MsUninstall` + the Uninstall Dependencies setting) |
 | newtopic75.htm | See portraits from a Mod's hak | Superseded — VB used an external ERF Utility; the port extracts hak portraits natively |
