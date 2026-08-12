@@ -56,6 +56,13 @@ class GameSavesManager(QDialog):
         self.table.setRootIsDecorated(False)
         self.table.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.table.currentItemChanged.connect(lambda *_: self._sync_buttons())
+        # openagamesavefolderwithwindowsfi.htm names four ways to do this —
+        # "click the Open with File Explorer icon, double-click the folder,
+        # press Ctrl+O or right-click the folder" — and only the icon existed.
+        # newtopic60.htm asks for Character Summary on the same right-click.
+        self.table.itemDoubleClicked.connect(lambda *_a: self._on_open_folder())
+        self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self._show_save_menu)
         layout.addWidget(self.table)
 
         self.summary = QLabel()
@@ -211,6 +218,13 @@ class GameSavesManager(QDialog):
                 lambda b=button: b().isEnabled() and b().click()
             )
 
+        # openagamesavefolderwithwindowsfi.htm names Ctrl+O as one of its four
+        # ways to open the selected folder. Scoped to the save table so it only
+        # fires with a save row in hand.
+        open_shortcut = QShortcut(QKeySequence("Ctrl+O"), self.table)
+        open_shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+        open_shortcut.activated.connect(self._on_open_folder)
+
     # -- Rendering -------------------------------------------------------- #
     # -- Row actions (VB CmCharacterSummary / CmOpen) ---------------------- #
     def _selected_save(self) -> dict | None:
@@ -255,6 +269,27 @@ class GameSavesManager(QDialog):
         folder = _Path(row.get("path", ""))
         if folder.is_dir():
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+
+    def _show_save_menu(self, pos) -> None:
+        """Right-click a save row (openagamesavefolderwithwindowsfi / newtopic60).
+
+        Both topics describe reaching these two actions by right-clicking the
+        folder — "Open with File Explorer" and "Display Character Summary" — and
+        the table had no menu at all. The buttons below are the same actions;
+        this is the third documented way in, and the one those two topics name.
+        """
+        from PySide6.QtGui import QKeySequence
+        from PySide6.QtWidgets import QMenu
+
+        if self._selected_save() is None:
+            return
+        menu = QMenu(self)
+        open_action = menu.addAction("Open with File Explorer", self._on_open_folder)
+        open_action.setShortcut(QKeySequence("Ctrl+O"))
+        menu.addAction("Display Character Summary", self._on_character_summary)
+        # popup(), not exec(): exec() opens a nested event loop that a headless
+        # test cannot escape, and QMenu.exec cannot be patched in PySide6.
+        menu.popup(self.table.viewport().mapToGlobal(pos))
 
     def _populate(self, report: dict) -> None:
         self.table.clear()

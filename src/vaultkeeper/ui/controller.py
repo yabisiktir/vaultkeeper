@@ -1192,6 +1192,13 @@ class ProfileController:
         if md is None or md.is_group_item:
             return 0
         installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        # adddownloadedfilestoamod.htm: added files are *moved* by default, and
+        # only copied when Use Move is turned off. Moving is the useful default —
+        # a downloaded archive extracted into place should not also be left in
+        # Downloads to be tidied by hand — but it is destructive, so it is a
+        # preference, and a source that cannot be moved falls back to a copy
+        # rather than being lost.
+        use_move = self._settings().use_move_on_add
         added = 0
         for source in file_paths:
             source = Path(source)
@@ -1200,7 +1207,13 @@ class ProfileController:
             folder = self.ctx.mapper.get_mapped_folder(source.name)
             dest = installer / folder / source.name
             dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, dest)
+            if use_move:
+                try:
+                    shutil.move(str(source), str(dest))
+                except (OSError, shutil.Error):
+                    shutil.copy2(source, dest)
+            else:
+                shutil.copy2(source, dest)
             added += 1
         if added:
             self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)

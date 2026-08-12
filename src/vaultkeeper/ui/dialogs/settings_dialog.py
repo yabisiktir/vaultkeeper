@@ -450,6 +450,16 @@ class SettingsDialog(QDialog):
         self.move_added_mods.setChecked(settings.move_added_mods)
         form.addRow(self.move_added_mods)
 
+        self.use_move_on_add = QCheckBox(
+            "Use Move when adding files to a mod (unchecked copies instead)"
+        )
+        self.use_move_on_add.setChecked(settings.use_move_on_add)
+        self.use_move_on_add.setToolTip(
+            "On: added files are moved out of their source folder.\n"
+            "Off: they are copied, leaving the originals in place."
+        )
+        form.addRow(self.use_move_on_add)
+
         self.confirm_actions = QCheckBox("Ask for confirmation before destructive actions")
         self.confirm_actions.setChecked(settings.confirm_actions)
         form.addRow(self.confirm_actions)
@@ -1205,6 +1215,7 @@ class SettingsDialog(QDialog):
         settings.startup_sound = self.startup_sound.isChecked()
         settings.default_group = self.default_group.text().strip()
         settings.move_added_mods = self.move_added_mods.isChecked()
+        settings.use_move_on_add = self.use_move_on_add.isChecked()
         settings.confirm_actions = self.confirm_actions.isChecked()
         settings.uninstall_dependencies = self.uninstall_dependencies.isChecked()
         settings.display_image_files = self.display_image_files.isChecked()

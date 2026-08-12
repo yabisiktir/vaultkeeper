@@ -180,6 +180,10 @@ class Settings:
     #: Move mods added from files/paste into the default group instead of leaving
     #: them ungrouped (VB ``BehaviourMoveAddedMods``).
     move_added_mods: bool = False
+    #: When adding downloaded files to a mod, move them (removing the source) rather
+    #: than copying (VB ``BehaviourUseMove`` / adddownloadedfilestoamod.htm). VB's
+    #: default is Move — "the selected files are moved to your Mod's folder".
+    use_move_on_add: bool = True
     #: Show image files (tga/png/…) as a preview in Display Info; when off they open
     #: as text (VB ``BehaviourDisplayImageFiles`` / ``ConfigDisplayTgaImages``).
     display_image_files: bool = True

@@ -543,12 +543,14 @@ def test_manager_has_its_own_documented_shortcuts(qtbot, tmp_path):
     qtbot.addWidget(dlg)
 
     keys = sorted(s.key().toString() for s in dlg.findChildren(QShortcut))
-    assert keys == ["Ctrl++", "Ctrl+-", "Ctrl+A", "Ctrl+D"]
-    # Scoped to this dialog, so the main window's Ctrl+A (Select All) is safe.
-    assert all(
-        s.context() == Qt.ShortcutContext.WindowShortcut
-        for s in dlg.findChildren(QShortcut)
-    )
+    assert keys == ["Ctrl++", "Ctrl+-", "Ctrl+A", "Ctrl+D", "Ctrl+O"]
+    # The four action keys are dialog-scoped, so the main window's Ctrl+A
+    # (Select All) is safe; Ctrl+O is scoped tighter still, to the save table.
+    scopes = {
+        s.key().toString(): s.context() for s in dlg.findChildren(QShortcut)
+    }
+    assert scopes["Ctrl+A"] == Qt.ShortcutContext.WindowShortcut
+    assert scopes["Ctrl+O"] == Qt.ShortcutContext.WidgetShortcut
 
 
 def test_a_shortcut_whose_button_is_disabled_does_nothing(qtbot, tmp_path, monkeypatch):
@@ -567,3 +569,50 @@ def test_a_shortcut_whose_button_is_disabled_does_nothing(qtbot, tmp_path, monke
     )
     assert not dlg.restore_button.isEnabled()  # nothing archived
     restore.activated.emit()  # would raise if it clicked through
+
+
+def test_save_row_right_click_offers_open_and_summary(qtbot, tmp_path):
+    """openagamesavefolderwithwindowsfi.htm + newtopic60.htm: both via right-click."""
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QMenu
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+    # Shown with popup(), not exec(): exec() is a nested loop a test cannot exit,
+    # and QMenu.exec cannot be patched away in PySide6.
+    dlg._show_save_menu(QPoint(4, 4))
+    menu = dlg.findChild(QMenu)
+    assert menu is not None
+    assert [a.text() for a in menu.actions()] == [
+        "Open with File Explorer",
+        "Display Character Summary",
+    ]
+    menu.hide()
+
+
+def test_save_table_ctrl_o_opens_the_folder(qtbot, tmp_path, monkeypatch):
+    """The fourth way the topic names — Ctrl+O — scoped to the table."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QDesktopServices, QShortcut
+
+    controller = _controller(tmp_path)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    opened: list[str] = []
+    monkeypatch.setattr(
+        QDesktopServices, "openUrl", lambda url: opened.append(url.toLocalFile()) or True
+    )
+
+    shortcut = next(
+        s
+        for s in dlg.table.findChildren(QShortcut)
+        if s.key().toString() == "Ctrl+O"
+    )
+    assert shortcut.context() == Qt.ShortcutContext.WidgetShortcut
+    dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
+    shortcut.activated.emit()
+    assert len(opened) == 1
