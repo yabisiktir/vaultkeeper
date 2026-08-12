@@ -129,7 +129,7 @@ them.
 | addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
 | newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
 | newtopic70.htm | Run a batch file | **Deliberate non-goal** — a .bat shipped in a mod folder is untrusted content; the port does not execute it (View it and run it yourself). Security decision, recorded |
-| newtopic79.htm | Reset Taskbar Icon | Deferred/N-A — a Windows 11 taskbar-icon fix (MsResetTaskbarIcon), no effect off Windows |
+| newtopic79.htm | Reset Taskbar Icon | **Ported** — `MsResetTaskbarIcon` wired; on Windows it hides+re-shows the window to rebuild the taskbar button (VB's `ShowInTaskbar` toggle), a no-op-with-message elsewhere |
 | faqnwnmodstoee.htm | Use NWN mods in EE | Ported — Export/Import Mods (.vkmod) + profiles |
 | newtopic57.htm | It messed up my INI file | Ported — restore via Save INI files / Original Restorers |
 | newtopic74.htm | It removes my nwnpatch/userpatch changes | Reference — the hak-patch INI is regenerated (HakPatchManager); by design |
@@ -758,7 +758,7 @@ Eight sat on the menu greyed out as "not yet available". Reviewed as a cluster:
 | `MsClearSelectionHistory` | **Ported.** Empties Recent Mods |
 | `MsClearScrollInfo` — Clear Text Position Information | Not applicable: it clears remembered scroll positions in VB's text viewers, and this port does not remember any |
 | `MsResetWebMenu` — Reset Web Menu Icons | Not applicable: it re-fetches favicons for the Web menu, and this port does not fetch them |
-| `MsResetTaskbarIcon` | Not applicable: a Windows taskbar/jump-list concern |
+| `MsResetTaskbarIcon` | **Ported** (was "not applicable"): hide+re-show rebuilds the Windows taskbar button; no-op-with-message off Windows |
 | `MsPropertiesHeight` — Automatic Properties Panel Height | Open. A real preference: auto-size the properties pane rather than leaving it where the splitter sits |
 | `MsUpdateEeFiles` — Update Enhanced Edition Files | **Open, and the largest of the eight.** No controller support at all |
 

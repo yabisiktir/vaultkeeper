@@ -466,7 +466,8 @@ def test_unimplemented_command_reports_status(qtbot, controller) -> None:
     win = MainWindow(controller)
     qtbot.addWidget(win)
     # A command not wired yet reports "not available" rather than doing nothing.
-    win._on_command("MsResetTaskbarIcon")
+    # MsConnect is a recorded non-goal (the Shared NIT Store), so it stays unwired.
+    win._on_command("MsConnect")
     assert "not available" in win.nit_status.mg_info.text().lower()
 
 
@@ -797,7 +798,8 @@ def test_unimplemented_commands_are_disabled(qtbot, controller) -> None:
     implemented = win.implemented_commands()
 
     # Faithful-but-unwired items exist (parity) but are disabled everywhere.
-    for dead_id in ("MsResetTaskbarIcon", "MsDebugOptionsMenu"):
+    # The Shared NIT Store commands are recorded non-goals, so they stay unwired.
+    for dead_id in ("MsConnect", "MsOpenSharedStore", "MsSynchroniseMods"):
         act = win.nit_menu.action(dead_id)
         assert act is not None and not act.isEnabled()
         assert dead_id not in implemented
@@ -1736,3 +1738,41 @@ def test_move_to_group_hides_the_internal_buckets(qtbot, controller, monkeypatch
     win._on_move_to_group()
 
     assert not any(g.startswith(C.GROUP_HIDDEN_PREFIX) for g in offered[0])
+
+
+def test_reset_taskbar_icon_is_windows_only(qtbot, controller, monkeypatch):
+    """Off Windows it says so and never hides the window (VB MsResetTaskbarIcon)."""
+    import sys
+
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.show()
+    monkeypatch.setattr(sys, "platform", "darwin")
+
+    win._on_reset_taskbar_icon()
+
+    assert "Windows-only" in win.nit_status.mg_info.text()
+    assert win.isVisible()  # not hidden on a non-Windows platform
+
+
+def test_reset_taskbar_icon_is_a_wired_command(qtbot, controller):
+    """No dead menu item: the command dispatches to a handler."""
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    assert "MsResetTaskbarIcon" in win.implemented_commands()
+
+
+def test_debug_options_menu_is_usable_when_shown(qtbot, controller):
+    """Regression: the availability pass greyed out Enable Development Folder.
+
+    The toggle is not a dispatch command, so before it joined
+    implemented_commands() the availability pass disabled it — and enabling Debug
+    Menu Options then opened the submenu onto a dead, greyed item.
+    """
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    # Enabled independent of the submenu's visibility (the pass disabled it flat).
+    assert win.nit_menu.action("DbEnableDevelopmentFolder").isEnabled()
+    # And once shown, the submenu itself opens (Qt re-enables its menuAction).
+    win.nit_menu.set_debug_menu_visible(True)
+    assert win.nit_menu.action("MsDebugOptionsMenu").isEnabled()

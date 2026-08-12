@@ -1701,6 +1701,11 @@ class MainWindow(QMainWindow):
             "MsOriginalPortraits",
             # Icons with or without their captions.
             "MsShowText",
+            # The Debug Options submenu container + its Enable Development Folder
+            # toggle (handled in _on_toggle). Without these the availability pass
+            # greys the submenu out, so it opens to nothing once it is shown.
+            "MsDebugOptionsMenu",
+            "DbEnableDevelopmentFolder",
         }
 
     def _apply_command_availability(self) -> None:
@@ -1821,6 +1826,7 @@ class MainWindow(QMainWindow):
             # Options-menu housekeeping — all three were greyed out as "not yet
             # available" while doing nothing more than resetting local state.
             "MsResetWindow": self._on_reset_window_layout,
+            "MsResetTaskbarIcon": self._on_reset_taskbar_icon,
             "MsDisplaySettings": lambda: self._on_view_file("MsDisplaySettings"),
             "RbnDisplaySettings": lambda: self._on_view_file("MsDisplaySettings"),
             "MsOpenRulesFile": lambda: self._on_view_file("MsOpenRulesFile"),
@@ -2734,6 +2740,25 @@ class MainWindow(QMainWindow):
             )
 
     # -- Options-menu housekeeping (VB Options menu) ------------------------ #
+    def _on_reset_taskbar_icon(self) -> None:
+        """Rebuild the Windows taskbar button (VB ``MsResetTaskbarIcon``).
+
+        A Windows-11 workaround for a taskbar button that goes blank or stuck: VB
+        toggles ``ShowInTaskbar`` off and on. Qt has no such property, but hiding
+        and immediately re-showing the top-level window recreates the taskbar
+        entry the same way. It is a no-op off Windows — there is no such bug
+        there, and vanishing the window would only be disruptive — so it says so
+        rather than doing nothing invisibly.
+        """
+        import sys
+
+        if sys.platform != "win32":
+            self.nit_status.set_info("Reset Taskbar Icon is a Windows-only fix.")
+            return
+        self.hide()
+        self.show()
+        self.nit_status.set_info("Taskbar icon reset.")
+
     def _on_reset_window_layout(self) -> None:
         """Put the window and its panels back to their defaults (VB ``MsResetWindow``).
 
