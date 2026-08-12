@@ -128,6 +128,14 @@ them.
 | newtopic45.htm | Navigate to a Group | Ported (`MsGoToGroup` — Edit menu + status-bar group) |
 | addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
 | newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
+| removegroups.htm | Remove Groups | **Was partly ported** — group delete existed on the right-click menu; the Delete key (which the topic names first) did nothing, as headers are not selectable. Delete now acts on the current header, and on selected mods |
+| uninstallmods.htm | Uninstall Mods | Ported (`MsUninstall` + the Uninstall Dependencies setting) |
+| newtopic75.htm | See portraits from a Mod's hak | Superseded — VB used an external ERF Utility; the port extracts hak portraits natively |
+| newtopic7.htm | Change text size | Bounded font port (see customisefonts) — family + size |
+| wmierror.htm | WMI error detected | N/A — the port has no WMI dependency |
+| faqmissingstartmenu.htm | Missing Start Menu items | N/A — a Windows Setup/packaging concern, not the app |
+| programerror.htm | Program Error (crash on start) | Reference — the error log / diagnostic report exists |
+
 | newtopic81.htm | View NWN classes/skills/feats | Ported (`MsClassesSkillsAndFeats`) |
 | newtopic66.htm | Clear Wait Cursors | Ported (`MsClearWaitCursors`) |
 | newtopic11.htm | Contribute to Download Rules | Ported — Send Feedback + the rules link |

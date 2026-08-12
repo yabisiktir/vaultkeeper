@@ -84,6 +84,7 @@ class MainWindow(QMainWindow):
         self._tree.mods_dropped_on_group.connect(self._on_mods_dropped_on_group)
         # Return renames on macOS, Finder-style (see FileView.keyPressEvent).
         self._tree.rename_requested.connect(self._on_rename)
+        self._tree.delete_requested.connect(self._on_remove)
         # Clicking a mod's status icon installs or uninstalls it (newtopic28).
         self._tree.state_icon_clicked.connect(self._on_state_icon_clicked)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -4098,7 +4099,14 @@ class MainWindow(QMainWindow):
     def _on_remove(self) -> None:
         if self.controller is None:
             return
+        # removegroups.htm: "Select one or more Groups … Press Delete or click
+        # Delete". A group header is the current row without being selected, so
+        # Delete on it removes the group (and its mods), as F2 renames it.
+        group = self._tree.current_group_name()
         names = self.selected_mod_names()
+        if not names and group:
+            self._on_delete_groups([group])
+            return
         if not names:
             return
         prompt = (

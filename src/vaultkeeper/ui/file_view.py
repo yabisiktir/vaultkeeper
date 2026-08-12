@@ -146,6 +146,10 @@ class FileView(QTreeWidget):
     mods_dropped_on_group = Signal(list, str)
     #: Emitted when Return is pressed on a selected mod (macOS rename idiom).
     rename_requested = Signal()
+    #: Emitted when Delete is pressed on a selected mod or current group header
+    #: (removegroups.htm / remove-from-profile). Handled in the list, not as a
+    #: window shortcut, so a focused text field keeps its own Delete key.
+    delete_requested = Signal()
     #: Emitted with a mod name when its *status icon* is clicked (VB newtopic28:
     #: "You can click a Mod's install status icon to Install or Uninstall").
     state_icon_clicked = Signal(str)
@@ -211,6 +215,20 @@ class FileView(QTreeWidget):
             and self.selected_mod_names()
         ):
             self.rename_requested.emit()
+            event.accept()
+            return
+        # Delete removes the selected mods or the current group header
+        # (removegroups.htm). In the list, not a window shortcut, so a focused
+        # editor keeps its own Delete. On macOS the "delete" key is Backspace.
+        delete_keys = {Qt.Key.Key_Delete}
+        if sys.platform == "darwin":
+            delete_keys.add(Qt.Key.Key_Backspace)
+        if (
+            event.key() in delete_keys
+            and not event.modifiers()
+            and (self.selected_mod_names() or self.current_group_name())
+        ):
+            self.delete_requested.emit()
             event.accept()
             return
         super().keyPressEvent(event)

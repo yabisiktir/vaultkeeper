@@ -204,6 +204,47 @@ def test_f2_on_a_mod_still_renames_the_mod(qtbot, tmp_path, monkeypatch) -> None
     assert ctrl.pd.mod_item("A") is None
 
 
+def test_delete_removes_the_current_group(qtbot, tmp_path, monkeypatch) -> None:
+    """removegroups.htm: "Select … Groups … Press Delete or click Delete"."""
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    monkeypatch.setattr(win, "_confirm", lambda *a, **k: True)
+
+    tree = win._tree
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).text(0) == "Adventures":
+            tree.setCurrentItem(tree.topLevelItem(i))
+            break
+    assert win._tree.current_group_name() == "Adventures"
+
+    win._on_remove()  # the Delete handler
+    assert "Adventures" not in ctrl.group_names()
+
+
+def test_delete_key_emits_on_a_group_header(qtbot, tmp_path, monkeypatch) -> None:
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    # The real _on_remove is connected to the signal; keep its confirm dialog
+    # from opening (this test only checks the key reaches the signal).
+    monkeypatch.setattr(win, "_confirm", lambda *a, **k: False)
+    tree = win._tree
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).text(0) == "Adventures":
+            tree.setCurrentItem(tree.topLevelItem(i))
+            break
+
+    fired = []
+    tree.delete_requested.connect(lambda: fired.append(True))
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QKeyEvent
+
+    event = QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Delete, Qt.KeyboardModifier.NoModifier)
+    tree.keyPressEvent(event)
+    assert fired == [True]
+
+
 def test_group_header_context_menu_target(qtbot, tmp_path) -> None:
     # A group header is detected for the group menu; a mod row is not.
     ctrl = _grouped_controller(tmp_path)
