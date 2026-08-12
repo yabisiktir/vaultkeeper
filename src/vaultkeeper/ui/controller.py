@@ -891,6 +891,117 @@ class ProfileController:
         return {"renamed": renamed, "failed": failed}
 
     # -- Mod creation ------------------------------------------------------ #
+    def convert_nwm_to_mod(self, nwm_path: Path) -> dict:
+        """Turn an ``.nwm`` into a Toolset-openable ``.mod`` mod (newtopic59.htm).
+
+        The Toolset will not open a module whose extension is ``.nwm``; the same
+        bytes named ``.mod`` open fine. So this creates a mod in the
+        *ZZZ. NIT Converted NWM Mods* group holding the module renamed to
+        ``.mod``, and — on the Enhanced Edition — a shared dependency mod
+        carrying the haks and tlk the module names, so the Toolset does not open
+        it full of unresolved references. Both are built as installable mods and
+        installed, so the converted module is where the Toolset looks for it.
+
+        The converted mods are throwaway — the topic says to delete them once the
+        Toolset is done — which is why they sort to the bottom and why re-running
+        on the same module is refused rather than silently duplicated.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.nwm_convert import CONVERTED_GROUP, module_dependencies
+
+        nwm_path = Path(nwm_path)
+        if not nwm_path.is_file() or nwm_path.suffix.lower() != ".nwm":
+            return {"ok": False, "mod_name": "", "message": "Select an .nwm module to convert."}
+
+        mod_name = nwm_path.stem
+        if mod_name in self.pd.mod_list:
+            return {
+                "ok": False,
+                "mod_name": mod_name,
+                "message": f"'{mod_name}' has already been converted. Delete it to redo.",
+            }
+
+        # The module itself, renamed .mod, in a fresh mod under the ZZZ group.
+        self.create_mod(mod_name, CONVERTED_GROUP)
+        installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        module_dest = installer / self.ctx.mapper.get_mapped_folder("x.mod") / f"{mod_name}.mod"
+        module_dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(nwm_path, module_dest)
+
+        # On EE, gather the haks/tlk the module names into the shared deps mod.
+        deps_mod = ""
+        if self.ctx.is_ee:
+            haks, tlks = module_dependencies(nwm_path)
+            if haks or tlks:
+                deps_mod = self._add_converted_dependencies(haks, tlks)
+
+        names = [mod_name] + ([deps_mod] if deps_mod else [])
+        for name in names:
+            md = self.pd.mod_item(name)
+            if md is not None:
+                self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+
+        installed = False
+        message = f"Converted '{mod_name}'. Open it in the Toolset."
+        try:
+            self.install(names)
+            installed = True
+        except Exception as ex:  # a missing game folder should not lose the conversion
+            from nwnfile.log import get_logger
+
+            get_logger(__name__).exception("Converted %s but could not install it", mod_name)
+            message = f"Converted '{mod_name}', but it could not be installed: {ex}"
+
+        return {
+            "ok": True,
+            "mod_name": mod_name,
+            "group": CONVERTED_GROUP,
+            "dependencies_mod": deps_mod,
+            "installed": installed,
+            "message": message,
+        }
+
+    def _add_converted_dependencies(self, haks: list[str], tlks: list[str]) -> str:
+        """Collect a converted module's haks/tlk into the shared deps mod.
+
+        Copies each named hak from the game's ``hak`` folder and each tlk from
+        ``tlk`` into ``NIT Dependencies for Converted Files``, creating that mod
+        the first time and adding to it thereafter. A reference the game does not
+        actually have on disk is skipped — a converted module missing one hak is
+        better than no conversion at all.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.nwm_convert import CONVERTED_DEPS_MOD, CONVERTED_GROUP
+
+        if CONVERTED_DEPS_MOD not in self.pd.mod_list:
+            self.create_mod(CONVERTED_DEPS_MOD, CONVERTED_GROUP)
+        installer = self.ctx.profile_mods_dir / CONVERTED_DEPS_MOD / C.MOD_INSTALLER_DIR
+
+        wanted = [(haks, "hak", ".hak"), (tlks, "tlk", ".tlk")]
+        for names, folder_key, ext in wanted:
+            source_root = self.ctx.game_folders.get(folder_key)
+            if source_root is None:
+                continue
+            dest_dir = installer / self.ctx.mapper.get_mapped_folder(f"x{ext}")
+            for name in names:
+                filename = name if name.lower().endswith(ext) else f"{name}{ext}"
+                source = source_root / filename
+                if not source.is_file():
+                    continue
+                dest = dest_dir / filename
+                if dest.exists():
+                    continue  # already carried by an earlier conversion
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, dest)
+        return CONVERTED_DEPS_MOD
+
     def create_mod(self, name: str, group: str | None = None) -> bool:
         """Create a new mod folder + database row (VB New Mod). False if it exists."""
         from vaultkeeper.core import constants as C
@@ -3888,45 +3999,79 @@ class ProfileController:
         }
 
     def installation_browser_report(self) -> dict:
-        """Installed files grouped by NWN folder (VB InstallationAnalyser browser).
+        """The real contents of each NWN folder, by source (VB InstallationAnalyser).
+
+        bhinstallationanalyser.htm: the Analyser reports on "files in the
+        Neverwinter Nights Installation or User Files folders" so you can
+        "determine the installation source of each file". So this is not only
+        what a profile installed — it is what is actually *there*, with each file
+        attributed to the mod that installed it or left blank when nothing here
+        did (the game's own originals, or something installed by hand). Without
+        the originals an Official ``.nwm`` module could not be selected, and so
+        could not be converted for the Toolset (newtopic59.htm).
 
         Returns ``{"folders": [{"name", "count", "size", "size_bytes", "files":
-        [{"filename", "source", "size", "modified"}]}], "total_size", "total_bytes"}``
-        — the NWN-Folders list filtering a File-Name / Installation-Source table, with
-        the total installed-file size. Built from the installed-file model.
+        [{"filename", "source", "size", "modified", "path"}]}], "total_size",
+        "total_bytes"}``.
         """
+        import os
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
 
         key = cmp_to_key(win_compare)
         game_folders = self.ctx.game_folders
-        buckets: dict[str, list] = {}
-        for fk, ifd in self.pd.installed_list.items():
-            buckets.setdefault(fk.folder, []).append((fk, ifd))
+
+        # What the profile installed, so an on-disk file can be attributed.
+        installed: dict[tuple[str, str], object] = {
+            (fk.folder, fk.filename.lower()): ifd
+            for fk, ifd in self.pd.installed_list.items()
+        }
+
+        # rows[folder][filename] -> file dict. Start with the profile's records
+        # (they carry the source and may name a file since removed from disk),
+        # then let the disk fill in the originals nothing here installed.
+        rows: dict[str, dict[str, dict]] = {}
+        for (folder, _lower), ifd in list(installed.items()):
+            fk_name = ifd.key.filename
+            base = game_folders.get(folder)
+            rows.setdefault(folder, {})[fk_name.lower()] = {
+                "filename": fk_name,
+                "source": ifd.installer,
+                "size": _fmt_size(ifd.byte_size),
+                "size_bytes": ifd.byte_size,
+                "modified": _fmt_date(ifd.modified),
+                "path": str(base / fk_name) if base is not None else "",
+            }
+
+        for folder, base in game_folders.items():
+            try:
+                entries = list(os.scandir(base))
+            except OSError:
+                continue
+            bucket = rows.setdefault(folder, {})
+            for entry in entries:
+                low = entry.name.lower()
+                if low in bucket or not entry.is_file():
+                    continue  # already attributed to a profile mod
+                try:
+                    stat = entry.stat()
+                except OSError:
+                    continue
+                bucket[low] = {
+                    "filename": entry.name,
+                    "source": "",  # nothing in this profile installed it
+                    "size": _fmt_size(stat.st_size),
+                    "size_bytes": stat.st_size,
+                    "modified": _fmt_date(datetime.fromtimestamp(stat.st_mtime)),
+                    "path": str(Path(base) / entry.name),
+                }
 
         folders = []
         total = 0
-        for folder in sorted(buckets, key=key):
-            entries = sorted(buckets[folder], key=lambda pair: key(pair[0].filename))
-            files = []
-            folder_size = 0
-            for fk, ifd in entries:
-                files.append(
-                    {
-                        "filename": fk.filename,
-                        "source": ifd.installer,
-                        "size": _fmt_size(ifd.byte_size),
-                        "size_bytes": ifd.byte_size,
-                        "modified": _fmt_date(ifd.modified),
-                        # Where it actually sits, so the analyser can reveal it
-                        # or describe it (VB CmOpenFolder / CmProperties).
-                        "path": str(game_folders[fk.folder] / fk.filename)
-                        if fk.folder in game_folders
-                        else "",
-                    }
-                )
-                folder_size += ifd.byte_size
+        for folder in sorted(rows, key=key):
+            files = sorted(rows[folder].values(), key=lambda f: key(f["filename"]))
+            folder_size = sum(f["size_bytes"] for f in files)
             total += folder_size
             folders.append(
                 {

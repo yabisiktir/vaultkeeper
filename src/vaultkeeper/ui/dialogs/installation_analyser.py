@@ -78,6 +78,16 @@ class InstallationAnalyser(QDialog):
         self._select_button.setToolTip("Select the highlighted file's mod in the main window")
         self._select_button.clicked.connect(self._on_select_mod)
         buttons.addWidget(self._select_button)
+        # newtopic59.htm: "The Installation Analyser displays a Convert button
+        # when a NWM file is selected." An .nwm cannot be opened in the Toolset;
+        # Convert makes a .mod copy that can.
+        self._convert_button = QPushButton("Convert")
+        self._convert_button.setToolTip(
+            "Convert the selected .nwm module to a .mod the Toolset can open"
+        )
+        self._convert_button.clicked.connect(self._on_convert_nwm)
+        self._convert_button.setVisible(False)
+        buttons.addWidget(self._convert_button)
         buttons.addStretch(1)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
@@ -118,6 +128,7 @@ class InstallationAnalyser(QDialog):
         self.files.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.files.customContextMenuRequested.connect(self._on_files_menu)
         self.files.itemDoubleClicked.connect(lambda *_: self._on_file_properties())
+        self.files.currentItemChanged.connect(lambda *_: self._sync_convert())
         panes.addWidget(self.files, 1)
 
         self.total = QLabel()
@@ -220,6 +231,36 @@ class InstallationAnalyser(QDialog):
         source = item.data(0, _SOURCE_ROLE)
         if source:
             self._on_select(source)
+            self.accept()
+
+    def _selected_nwm_path(self):
+        """The selected file's path if it is an ``.nwm``, else ``None``."""
+        path = self._current_file_path()
+        if path is not None and path.suffix.lower() == ".nwm":
+            return path
+        return None
+
+    def _sync_convert(self) -> None:
+        """Show Convert only for a selected .nwm (newtopic59.htm)."""
+        self._convert_button.setVisible(self._selected_nwm_path() is not None)
+
+    def _on_convert_nwm(self) -> None:
+        """Convert the selected .nwm into a Toolset-openable .mod mod."""
+        from PySide6.QtWidgets import QMessageBox
+
+        nwm = self._selected_nwm_path()
+        if nwm is None or self._controller is None:
+            return
+        result = self._controller.convert_nwm_to_mod(nwm)
+        if not result["ok"]:
+            QMessageBox.information(self, "Convert Module", result["message"])
+            return
+        # VB selects the converted mod in the main window and closes; the topic
+        # ends "The converted Mod is selected … ready to be opened with the
+        # Toolset."
+        QMessageBox.information(self, "Convert Module", result["message"])
+        if self._on_select is not None:
+            self._on_select(result["mod_name"])
             self.accept()
 
     # -- Issues tab ------------------------------------------------------- #

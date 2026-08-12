@@ -298,3 +298,78 @@ def test_double_clicking_a_folder_opens_it(qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(dlg, "_on_open_folder", lambda: opened.append(1))
     dlg.folders.itemDoubleClicked.emit(dlg.folders.item(0))
     assert opened == [1]
+
+
+def test_original_files_on_disk_are_listed_with_no_source(tmp_path, qtbot):
+    """bhinstallationanalyser.htm: the Analyser shows what is in the folders,
+    not only what a profile installed — so an original .nwm can be selected."""
+    controller = _controller(tmp_path)
+    nwm_dir = controller.ctx.game_folders["nwm"]
+    nwm_dir.mkdir(parents=True, exist_ok=True)
+    (nwm_dir / "Prelude.nwm").write_bytes(b"MODULE")
+
+    report = controller.installation_browser_report()
+    by_name = {f["name"]: f for f in report["folders"]}
+    assert "nwm" in by_name
+    row = by_name["nwm"]["files"][0]
+    assert row["filename"] == "Prelude.nwm"
+    assert row["source"] == ""  # nothing in this profile installed it
+
+
+def test_convert_button_shows_only_for_a_selected_nwm(tmp_path, qtbot):
+    """newtopic59.htm: "displays a Convert button when a NWM file is selected"."""
+    controller = _controller(tmp_path)
+    for folder in ("nwm", "hak"):
+        (controller.ctx.game_folders[folder]).mkdir(parents=True, exist_ok=True)
+    (controller.ctx.game_folders["nwm"] / "Prelude.nwm").write_bytes(b"M")
+    (controller.ctx.game_folders["hak"] / "thing.hak").write_bytes(b"H")
+
+    dlg = InstallationAnalyser(controller)
+    qtbot.addWidget(dlg)
+    assert not dlg._convert_button.isVisibleTo(dlg)
+
+    # Select the nwm folder, then its file.
+    for row in range(dlg.folders.count()):
+        if dlg.folders.item(row).text().startswith("nwm"):
+            dlg.folders.setCurrentRow(row)
+            break
+    dlg.files.setCurrentItem(dlg.files.topLevelItem(0))
+    assert dlg._convert_button.isVisibleTo(dlg)
+
+    # A hak is not convertible.
+    for row in range(dlg.folders.count()):
+        if dlg.folders.item(row).text().startswith("hak"):
+            dlg.folders.setCurrentRow(row)
+            break
+    dlg.files.setCurrentItem(dlg.files.topLevelItem(0))
+    assert not dlg._convert_button.isVisibleTo(dlg)
+
+
+def test_convert_button_calls_the_controller(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    (controller.ctx.game_folders["nwm"]).mkdir(parents=True, exist_ok=True)
+    (controller.ctx.game_folders["nwm"] / "Prelude.nwm").write_bytes(b"M")
+
+    selected = []
+    dlg = InstallationAnalyser(controller, on_select=selected.append)
+    qtbot.addWidget(dlg)
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+
+    called = {}
+
+    def fake_convert(path):
+        called["path"] = path
+        return {"ok": True, "mod_name": "Prelude", "message": "done"}
+
+    monkeypatch.setattr(controller, "convert_nwm_to_mod", fake_convert)
+    for row in range(dlg.folders.count()):
+        if dlg.folders.item(row).text().startswith("nwm"):
+            dlg.folders.setCurrentRow(row)
+            break
+    dlg.files.setCurrentItem(dlg.files.topLevelItem(0))
+    dlg._on_convert_nwm()
+
+    assert called["path"].name == "Prelude.nwm"
+    assert selected == ["Prelude"]  # the converted mod is selected in the window

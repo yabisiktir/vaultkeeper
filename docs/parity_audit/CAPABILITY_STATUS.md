@@ -119,6 +119,9 @@ them.
 | deletearchives.htm | Delete archived Game Saves | **Was a GAP, now closed** — I had marked this Ported off the Restore button; there was no Delete at all |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | reducethenumberofnwngamesaves.htm | Reduce the number of NWN Game Saves | Ported (Game Saves Manager's Reduce) |
+| newtopic59.htm | Open Official/Premium Mods in the Toolset | **Was a GAP, now closed** — Convert an .nwm to a Toolset-openable .mod (group + module copy + EE hak/tlk dependency mod), reachable from the Installation Analyser |
+| bhinstallationanalyser.htm | Use the Installation Analyser | **Was partly ported** — the browser showed only profile-installed files; it now shows the real folder contents so originals (incl. .nwm modules) can be selected |
+
 | installinstallationsetdefinedmod.htm | Install Installation Set defined Mods | Ported (Installation Manager → Apply) |
 | restorearchivedgamesaves.htm | Restore archived Game Saves | Ported (Restore button / `restore_archived_saves`) |
 | newtopic9.htm | Review options with Advanced Settings | Ported — Advanced Settings, and start-up music is the sound preference |
