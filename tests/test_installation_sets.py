@@ -463,3 +463,41 @@ def test_ticking_a_group_adds_it_whole_and_unticking_removes_it(tmp_path, qtbot)
     group = next(g for g in iset.groups if g.name == "GroupA")
     assert [m.name for m in group.mods] == ["Alpha"]
     assert all(m.desired_installed for m in group.mods)
+
+
+def test_dialog_f2_renames_the_selected_set(tmp_path, qtbot, monkeypatch):
+    """renameinstallationsets.htm: "press F2 or click Rename"."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QShortcut
+    from PySide6.QtWidgets import QInputDialog
+
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "GroupA", installed=True)
+    dlg = InstallationManager(ctrl)
+    qtbot.addWidget(dlg)
+    dlg._on_new_checkpoint()  # a non-Current set that can be renamed
+
+    # Select the new checkpoint (Current is guarded against rename).
+    for row in range(dlg.set_list.count()):
+        if "Current" not in dlg.set_list.item(row).text():
+            dlg.set_list.setCurrentRow(row)
+            break
+
+    renamed = {}
+    monkeypatch.setattr(
+        QInputDialog, "getText", lambda *a, **k: ("Renamed Set", True)
+    )
+    monkeypatch.setattr(
+        ctrl, "rename_installation_set",
+        lambda old, new: renamed.update(old=old, new=new),
+    )
+
+    f2 = next(
+        s for s in dlg.set_list.findChildren(QShortcut)
+        if s.key().toString() == "F2"
+    )
+    assert f2.context() == Qt.ShortcutContext.WidgetShortcut
+    f2.activated.emit()
+    assert renamed["new"] == "Renamed Set"

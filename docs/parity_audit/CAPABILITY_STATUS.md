@@ -119,6 +119,12 @@ them.
 | deletearchives.htm | Delete archived Game Saves | **Was a GAP, now closed** — I had marked this Ported off the Restore button; there was no Delete at all |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | reducethenumberofnwngamesaves.htm | Reduce the number of NWN Game Saves | Ported (Game Saves Manager's Reduce) |
+| installinstallationsetdefinedmod.htm | Install Installation Set defined Mods | Ported (Installation Manager → Apply) |
+| restorearchivedgamesaves.htm | Restore archived Game Saves | Ported (Restore button / `restore_archived_saves`) |
+| newtopic9.htm | Review options with Advanced Settings | Ported — Advanced Settings, and start-up music is the sound preference |
+| removerestorerfiles.htm | Remove installed files / Uninstall Original Mods | Ported — Uninstall a restorer; original demo modules go via Create Original Restorers then Uninstall |
+| renameinstallationsets.htm | Rename Installation Sets | **Was partly ported** — the Rename button existed; F2 (which the topic names first) did not |
+
 | newtopic19.htm | Enable Steam Workshop Subscription Management | **Was a GAP, now closed** — no enable preference and no way to point at the Workshop folder when auto-detection failed; both added, so a non-Steam install can now see its subscriptions |
 | newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
 | newtopic22.htm | Disable Workshop management | **Was a GAP, now closed** — Stop Managing, keeping or deleting the copies |

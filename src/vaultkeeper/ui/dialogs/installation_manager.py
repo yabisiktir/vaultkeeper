@@ -105,6 +105,14 @@ class InstallationManager(QDialog):
         left.addLayout(sort_row)
         self.set_list = QListWidget()
         self.set_list.currentRowChanged.connect(self._on_set_selected)
+        # renameinstallationsets.htm: "press F2 or click Rename". Scoped to the
+        # list so it only fires with a set in hand, and so it does not shadow
+        # the main window's F2.
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        rename_key = QShortcut(QKeySequence(Qt.Key.Key_F2), self.set_list)
+        rename_key.setContext(Qt.ShortcutContext.WidgetShortcut)
+        rename_key.activated.connect(self._on_rename)
         left.addWidget(self.set_list, 1)
         for label, slot in (
             ("New Checkpoint", self._on_new_checkpoint),
