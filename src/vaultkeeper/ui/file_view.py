@@ -299,6 +299,18 @@ class FileView(QTreeWidget):
         """The mod a row stands for, or "" for a group header."""
         return "" if item is None else (item.data(0, _ROLE_MOD_NAME) or "")
 
+    def current_group_name(self) -> str:
+        """The group name if the current row is a group header, else "".
+
+        Group headers are not *selectable* (group actions live on their
+        right-click menu), but a header can still be the *current* row, which is
+        what F2 acts on — the keyboard route renameagroup.htm documents.
+        """
+        item = self.currentItem()
+        if item is None or item.data(0, _ROLE_MOD_NAME):
+            return ""
+        return item.data(0, _ROLE_GROUP_NAME) or ""
+
     def group_header_at(self, pos) -> str | None:
         """The group name if ``pos`` is over a (visible) group header, else None.
 

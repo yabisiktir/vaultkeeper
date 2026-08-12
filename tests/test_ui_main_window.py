@@ -168,6 +168,42 @@ def test_rename_group_via_ui(qtbot, tmp_path, monkeypatch) -> None:
     assert set(ctrl.group_member_names("Epics")) == {"A", "B"}
 
 
+def test_f2_renames_the_current_group(qtbot, tmp_path, monkeypatch) -> None:
+    """renameagroup.htm: "Select the Group … Press F2 or click Rename"."""
+    from PySide6.QtWidgets import QInputDialog
+
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+
+    # Make the "Adventures" header the current row (headers are not selectable).
+    tree = win._tree
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).text(0) == "Adventures":
+            tree.setCurrentItem(tree.topLevelItem(i))
+            break
+    assert win._tree.current_group_name() == "Adventures"
+    assert win.selected_mod_names() == []  # nothing is selected, only current
+
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("Epics", True))
+    win._on_rename()  # the F2 handler
+    assert "Epics" in ctrl.group_names()
+    assert "Adventures" not in ctrl.group_names()
+
+
+def test_f2_on_a_mod_still_renames_the_mod(qtbot, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    ctrl = _grouped_controller(tmp_path)
+    win = MainWindow(ctrl)
+    qtbot.addWidget(win)
+    win._tree.select_mod("A")
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("A2", True))
+    win._on_rename()
+    assert ctrl.pd.mod_item("A2") is not None
+    assert ctrl.pd.mod_item("A") is None
+
+
 def test_group_header_context_menu_target(qtbot, tmp_path) -> None:
     # A group header is detected for the group menu; a mod row is not.
     ctrl = _grouped_controller(tmp_path)

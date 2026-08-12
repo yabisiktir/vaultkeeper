@@ -119,6 +119,13 @@ them.
 | deletearchives.htm | Delete archived Game Saves | **Was a GAP, now closed** — I had marked this Ported off the Restore button; there was no Delete at all |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
 | reducethenumberofnwngamesaves.htm | Reduce the number of NWN Game Saves | Ported (Game Saves Manager's Reduce) |
+| renameagroup.htm | Rename a Group | **Was partly ported** — group rename existed on the right-click menu; F2 (which the topic names first) did nothing, as headers are not selectable. F2 now acts on the *current* header |
+| newtopic62.htm | Number Recent Mods | Ported (`MsNumberRecentMods`) |
+| newtopic32.htm | Details Panel | Reference topic — the Details/Notes panel is ported |
+| startanewgame.htm | Start a new game | Ported — Deactivate button + Ctrl+D + right-click-uninstall (double-click opens the folder, per openagamesavefolderwithwindowsfi) |
+| newtopic39.htm | Remove version number from document names | Ported (Doc Organiser Version toggle) |
+| newtopic41.htm | Rename a document using a Contents Panel name | Ported (Doc Organiser Rename To) |
+
 | newtopic59.htm | Open Official/Premium Mods in the Toolset | **Was a GAP, now closed** — Convert an .nwm to a Toolset-openable .mod (group + module copy + EE hak/tlk dependency mod), reachable from the Installation Analyser |
 | bhinstallationanalyser.htm | Use the Installation Analyser | **Was partly ported** — the browser showed only profile-installed files; it now shows the real folder contents so originals (incl. .nwm modules) can be selected |
 

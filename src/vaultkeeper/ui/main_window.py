@@ -3805,8 +3805,17 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(message or "Uninstall complete")
 
     def _on_rename(self) -> None:
+        if self.controller is None:
+            return
+        # renameagroup.htm: "Select the Group … Press F2 or click Rename". A
+        # group header is the current row without being selected, so F2 on it
+        # renames the group rather than doing nothing.
+        group = self._tree.current_group_name()
         names = self.selected_mod_names()
-        if self.controller is None or len(names) != 1:
+        if not names and group:
+            self._on_rename_group(group)
+            return
+        if len(names) != 1:
             return
         old = names[0]
         new, ok = QInputDialog.getText(self, "Rename Mod", "New name:", text=old)
