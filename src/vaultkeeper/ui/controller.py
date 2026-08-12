@@ -98,6 +98,7 @@ class ProfileController:
         game_root: Path,
         store_path: Path | None = None,
         is_ee: bool = True,
+        development_folder: bool = False,
         map_overrides: dict[str, dict[str, str]] | None = None,
         map_exception_prefixes: dict[str, list] | None = None,
         map_exclude_overrides: dict[str, list[str]] | None = None,
@@ -111,6 +112,7 @@ class ProfileController:
         """
         mapper = Mapper(
             is_ee=is_ee,
+            development_folder=development_folder,
             overrides=map_overrides,
             exclude_overrides=map_exclude_overrides,
         )
@@ -399,6 +401,34 @@ class ProfileController:
             return ""
         target = self.ctx.mapper.get_move_target(folder, extension)
         return "" if target.lower() == folder.lower() else target
+
+    def dev_move_target(
+        self, mod_name: str, folder: str, filename: str
+    ) -> tuple[str, str] | None:
+        """Where *Move to Development* would put this file, and its menu label.
+
+        Returns ``(target_folder, label)`` — the label toggles between "Move to
+        Development" and "Move to <primary>" — or ``None`` when the command must
+        not be offered (VB ``SetContentsMenu`` gate: development folder enabled,
+        Enhanced Edition, mapped extension, and an override file). A ``.nit*``
+        installer file is never moved (VB skips it explicitly).
+        """
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return None
+        extension = Path(filename).suffix.lower()
+        if extension.startswith(".nit"):
+            return None
+        return self.ctx.mapper.dev_move_target(folder, extension)
+
+    def set_development_folder(self, enabled: bool) -> None:
+        """Turn the EE ``development`` folder on/off at runtime (VB toggle).
+
+        Re-applies the mapper so ``development`` becomes (or stops being) a legal
+        install target and *Move to Development* is offered — VB does exactly this
+        and no more when ``DbEnableDevelopmentFolder`` is ticked.
+        """
+        self.ctx.mapper.set_development_folder(enabled)
 
     def move_mod_files(
         self, mod_name: str, folder: str, filenames: list[str], target_folder: str

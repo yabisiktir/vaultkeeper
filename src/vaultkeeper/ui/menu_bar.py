@@ -427,6 +427,9 @@ class NitMenuBar(QMenuBar):
                 if item.action == "":
                     menu.addSeparator()
                     continue
+                if item.action == "MsDebugOptionsMenu":
+                    self._build_debug_menu(menu)
+                    continue
                 act = QAction(R.get_icon(item.image), item.caption, self)
                 act.setCheckable(item.checkable)
                 if item.checkable:
@@ -457,6 +460,45 @@ class NitMenuBar(QMenuBar):
                 self.actions_by_id[item.action] = act
         if sys.platform == "darwin":
             self._add_preferences_proxy()
+
+    def _build_debug_menu(self, options_menu) -> None:
+        """The Debug Options submenu (VB ``MsDebugOptionsMenu``), under Options.
+
+        Only its *Enable Development Folder* toggle is ported (``newtopic68.htm``);
+        the diagnostic reports remain a separate, deferred surface. The whole
+        submenu is hidden until *Enable Debug Menu Options* turns it on, exactly as
+        VB gates it on ``My.Settings.DebugOptionsMenu``.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        submenu = QMenu("Debug Options Menu", self)
+        submenu.setIcon(R.get_icon("DebugIcon"))
+        self.menus["MsDebugOptionsMenu"] = submenu
+        # Keep the id resolvable via action() — it is the submenu's own menuAction.
+        self.actions_by_id["MsDebugOptionsMenu"] = submenu.menuAction()
+        dev = QAction("Enable Development Folder", self)
+        dev.setCheckable(True)
+        dev.toggled.connect(
+            lambda checked: self.action_toggled.emit("DbEnableDevelopmentFolder", checked)
+        )
+        submenu.addAction(dev)
+        self.actions_by_id["DbEnableDevelopmentFolder"] = dev
+        options_menu.addMenu(submenu)
+        submenu.menuAction().setVisible(False)  # shown when the setting turns it on
+
+    def set_debug_menu_visible(self, visible: bool) -> None:
+        """Show or hide the Debug Options submenu (VB ``DebugOptionsMenu`` gate)."""
+        menu = self.menus.get("MsDebugOptionsMenu")
+        if menu is not None:
+            menu.menuAction().setVisible(visible)
+
+    def set_development_folder_checked(self, checked: bool) -> None:
+        """Reflect the persisted state on the toggle without re-firing it."""
+        act = self.actions_by_id.get("DbEnableDevelopmentFolder")
+        if act is not None:
+            act.blockSignals(True)
+            act.setChecked(checked)
+            act.blockSignals(False)
 
     def _add_preferences_proxy(self) -> None:
         """Put Preferences… ⌘, in the Apple menu without emptying the Options menu.

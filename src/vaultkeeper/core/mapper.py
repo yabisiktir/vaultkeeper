@@ -53,6 +53,7 @@ FOLDER_PATCH = "patch"
 FOLDER_MODULES = C.MOD_FOLDER             # "modules"
 FOLDER_NWM = C.MOD_NWM_FOLDER             # "nwm"
 FOLDER_MOD_EE = "mod"                     # EE .mod folder
+FOLDER_DEV = "development"                # EE development folder (opt-in; VB C.ModDevFolder)
 FOLDER_EE_MUS = "mus"
 FOLDER_VANILLA_ICONS = "restore vanilla icons"
 
@@ -275,12 +276,16 @@ class Mapper:
         *,
         is_ee: bool = True,
         exclude_erf: bool = True,
+        development_folder: bool = False,
         overrides: dict[str, dict[str, str]] | None = None,
         exclude_overrides: dict[str, list[str]] | None = None,
     ) -> None:
         self.is_ee = is_ee
         #: My.Settings.MapExcludeErf — whether stray ERFs are excluded on create.
         self.exclude_erf = exclude_erf
+        #: My.Settings.ConfigDevelopmentFolder — include the EE ``development``
+        #: folder as a legal install target (VB ``Mapper.DevelopmentFolder``).
+        self.development_folder_enabled = development_folder
 
         self._build_default_tables()
 
@@ -320,6 +325,34 @@ class Mapper:
 
         if self.is_ee:
             self._apply_ee()
+        if self.development_folder_enabled:
+            self._apply_development_folder()
+
+    def _apply_development_folder(self) -> None:
+        """Map files inside a ``development`` sub-folder to the development target.
+
+        Mirrors the ``DirMapping`` half of VB ``Mapper.DevelopmentFolder``: like
+        the ``override -> override`` entry, this keeps a file already sitting in a
+        ``development`` folder mapped there during a scan/build. Called from
+        :meth:`_build_default_tables` so it survives a table rebuild/override reset.
+        """
+        self.dir_mapping[FOLDER_DEV] = FOLDER_DEV
+
+    def set_development_folder(self, enabled: bool) -> None:
+        """Include or exclude the EE ``development`` folder (VB ``DevelopmentFolder``).
+
+        When on, ``development`` becomes a legal install folder (resolving to
+        ``user_dir/development`` on EE) and files in a ``development`` sub-folder
+        map there. When off it is removed, along with any ``folder_moves`` that
+        point at it — exactly the two lists VB adds to and strips from.
+        """
+        self.development_folder_enabled = enabled
+        if enabled:
+            self._apply_development_folder()
+            return
+        self.dir_mapping.pop(FOLDER_DEV, None)
+        for key in [k for k, v in self.folder_moves.items() if v == FOLDER_DEV]:
+            self.folder_moves.pop(key, None)
 
     # -- User overrides (Settings map editors + persistence, Phase 8) ------ #
     def _table(self, name: str) -> dict[str, str]:
@@ -528,6 +561,29 @@ class Mapper:
             return default_folder
         return self.folder_moves[extension.lower()]
 
+    def dev_move_target(
+        self, current_folder: str, extension: str
+    ) -> tuple[str, str] | None:
+        """Resolve VB's *Move to Development* gate to ``(target_folder, label)``.
+
+        Ports the ``SetContentsMenu`` gate: the development folder must be enabled
+        and the profile Enhanced Edition, the extension mapped, and the file must
+        belong to ``override`` — a ``.hak``, or an extension whose primary or
+        secondary folder is ``override``. Returns ``None`` when the command should
+        be hidden. The target toggles: a file already in ``development`` moves back
+        to its primary folder; otherwise it moves to ``development``. The label
+        follows (VB ``ToCapitalisedStart``): "Move to Development" / "Move to Hak".
+        """
+        ext = extension.lower()
+        if not (self.development_folder_enabled and self.is_ee and self.mapped_extension(ext)):
+            return None
+        primary = self.get_primary_folder(ext)
+        secondary = self.get_secondary_folder(ext)
+        if not (ext == ".hak" or primary == FOLDER_OVERRIDE or secondary == FOLDER_OVERRIDE):
+            return None
+        target = primary if current_folder.lower() == FOLDER_DEV else FOLDER_DEV
+        return target, f"Move to {target[:1].upper()}{target[1:]}"
+
     # -- Extension / folder predicates ------------------------------------ #
     def mapped_extension(self, extension: str) -> bool:
         return extension.lower() in self.ext_mapping
@@ -687,6 +743,8 @@ class Mapper:
         names.update(v.lower() for v in self.folder_moves.values())
         if self.is_ee:
             names.update({FOLDER_OVR, FOLDER_EE_TEXTUREPACKS, FOLDER_EE_MUS, FOLDER_MOD_EE})
+        if self.development_folder_enabled:
+            names.add(FOLDER_DEV)
         return names
 
     def is_legal_folder(self, folder: str) -> bool:

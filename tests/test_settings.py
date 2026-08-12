@@ -50,3 +50,16 @@ def test_resolved_store_uses_custom_root(tmp_path: Path) -> None:
     store = s.resolved_store()
     assert store.root == tmp_path / "MyStore"
     assert store.profiles == tmp_path / "MyStore/Profiles"
+
+
+def test_development_folder_settings_default_off_and_roundtrip(tmp_path: Path) -> None:
+    s = Settings()
+    assert s.enable_development_folder is False
+    assert s.debug_options_menu is False
+    s.enable_development_folder = True
+    s.debug_options_menu = True
+    path = tmp_path / "settings.json"
+    save_settings(s, path)
+    loaded = load_settings(path)
+    assert loaded.enable_development_folder is True
+    assert loaded.debug_options_menu is True

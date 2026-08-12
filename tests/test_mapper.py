@@ -161,3 +161,89 @@ def test_ee_reclassifies_gui_shd() -> None:
     assert nwn.nwn_extensions[".gui"] == M.FOLDER_OVERRIDE
     # But get_mapped_folder placement still uses ext_mapping (override) for both.
     assert ee.get_mapped_folder("mod/x/panel.gui") == M.FOLDER_OVERRIDE
+
+
+# -- Development folder (VB Mapper.DevelopmentFolder / ConfigDevelopmentFolder) -- #
+
+
+def test_development_folder_off_by_default(mapper: Mapper) -> None:
+    assert not mapper.development_folder_enabled
+    assert not mapper.is_legal_folder(M.FOLDER_DEV)
+    assert M.FOLDER_DEV not in mapper.dir_mapping
+    # A supported file sitting in a development sub-folder maps by its extension.
+    assert mapper.get_mapped_folder("mod/development/hero.utc") == M.FOLDER_OVERRIDE
+
+
+def test_development_folder_enabled_via_constructor() -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    assert m.development_folder_enabled
+    assert m.is_legal_folder(M.FOLDER_DEV)
+    assert m.dir_mapping[M.FOLDER_DEV] == M.FOLDER_DEV
+    # dir_mapping precedence keeps a file already in development mapped there.
+    assert m.get_mapped_folder("mod/development/hero.utc") == M.FOLDER_DEV
+
+
+def test_development_folder_toggle_at_runtime(mapper: Mapper) -> None:
+    mapper.set_development_folder(True)
+    assert mapper.is_legal_folder(M.FOLDER_DEV)
+    assert mapper.get_mapped_folder("mod/development/panel.gui") == M.FOLDER_DEV
+    mapper.set_development_folder(False)
+    assert not mapper.is_legal_folder(M.FOLDER_DEV)
+    assert M.FOLDER_DEV not in mapper.dir_mapping
+    assert mapper.get_mapped_folder("mod/development/panel.gui") == M.FOLDER_OVERRIDE
+
+
+def test_development_folder_survives_override_reset() -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    m.set_override("ext_mapping", ".foo", M.FOLDER_OVERRIDE)
+    m.reset_overrides()
+    # Resetting map overrides must not disable the development folder — a separate
+    # setting rebuilds it through _build_default_tables.
+    assert m.is_legal_folder(M.FOLDER_DEV)
+    assert m.dir_mapping[M.FOLDER_DEV] == M.FOLDER_DEV
+
+
+def test_development_folder_resolves_to_user_dir_on_ee(tmp_path) -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    game_root = tmp_path / "nwn"
+    user_dir = tmp_path / "user"
+    paths = m.nwn_folder_paths(game_root, user_dir=user_dir)
+    assert paths[M.FOLDER_DEV] == user_dir / M.FOLDER_DEV
+
+
+def test_development_folder_resolves_under_root_when_standard() -> None:
+    from pathlib import Path
+
+    m = Mapper(is_ee=False, development_folder=True)
+    game_root = Path("/game/nwn")
+    paths = m.nwn_folder_paths(game_root)
+    assert paths[M.FOLDER_DEV] == game_root / M.FOLDER_DEV
+
+
+def test_dev_move_target_requires_enabled_ee_and_mapped() -> None:
+    assert Mapper(is_ee=True).dev_move_target("override", ".utc") is None  # not enabled
+    non_ee = Mapper(is_ee=False, development_folder=True)
+    assert non_ee.dev_move_target("override", ".utc") is None  # not EE
+    m = Mapper(is_ee=True, development_folder=True)
+    assert m.dev_move_target("override", ".xyz") is None  # unmapped extension
+
+
+def test_dev_move_target_override_files_move_to_development() -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    assert m.dev_move_target("override", ".utc") == (M.FOLDER_DEV, "Move to Development")
+    # A .hak qualifies by extension regardless of its folders.
+    assert m.dev_move_target("hak", ".hak") == (M.FOLDER_DEV, "Move to Development")
+    # A .tga qualifies through its *secondary* (move) folder being override.
+    assert m.dev_move_target("portraits", ".tga") == (M.FOLDER_DEV, "Move to Development")
+
+
+def test_dev_move_target_toggles_back_when_already_in_development() -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    assert m.dev_move_target(M.FOLDER_DEV, ".hak") == ("hak", "Move to Hak")
+    assert m.dev_move_target(M.FOLDER_DEV, ".utc") == ("override", "Move to Override")
+
+
+def test_dev_move_target_excludes_non_override_extensions() -> None:
+    m = Mapper(is_ee=True, development_folder=True)
+    # .mod is mapped but belongs to modules, not override, and is not a .hak.
+    assert m.dev_move_target("modules", ".mod") is None

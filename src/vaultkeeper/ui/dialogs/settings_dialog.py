@@ -495,6 +495,14 @@ class SettingsDialog(QDialog):
         self.confirm_saves.setChecked(settings.confirm_saves)
         form.addRow(self.confirm_saves)
 
+        self.debug_menu = QCheckBox("Enable the Debug Options menu")
+        self.debug_menu.setChecked(settings.debug_options_menu)
+        self.debug_menu.setToolTip(
+            "Adds Options › Debug Options Menu, where the Enhanced Edition "
+            "development folder can be enabled (newtopic68.htm)."
+        )
+        form.addRow(self.debug_menu)
+
         self.portrait_display_size = QComboBox()
         self.portrait_display_size.addItems(self._PORTRAIT_SIZE_LABELS)
         try:
@@ -1249,6 +1257,7 @@ class SettingsDialog(QDialog):
         settings.display_image_files = self.display_image_files.isChecked()
         settings.delete_leto_logs = self.delete_leto_logs.isChecked()
         settings.confirm_saves = self.confirm_saves.isChecked()
+        settings.debug_options_menu = self.debug_menu.isChecked()
         settings.portrait_display_size = self.portrait_display_size.currentText()
         settings.inventory_nwn_style = self.inventory_nwn_style.isChecked()
         settings.hak_item_icons = self.hak_item_icons.isChecked()

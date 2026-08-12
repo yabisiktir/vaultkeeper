@@ -41,7 +41,7 @@ them.
 | newtopic65.htm | Reset Window Layout | Ported (`MsResetWindow`) |
 | newtopic73.htm | Show BioWare's Portrait Images | **Said Ported and was not** — built now (`MsOriginalPortraits`) |
 | newtopic76.htm | Clear Extracted Hak Portraits | Ported (`MsClearHakPortraits`) |
-| newtopic55.htm | Move files to the Development folder | **GAP** — this file said Ported; it was not. See below |
+| newtopic55.htm | Move files to the Development folder | **Now ported** — `MsMoveToDev` wired; the EE development folder + its enable toggle now exist. See below |
 | newtopic12.htm | View Download Rules | Ported (`MsOpenRulesFile`) |
 | newtopic2.htm | Create NIT Mods from Restorers | Ported (`MsConvertRestorer`) |
 | bhworkshop.htm | Manage Steam Workshop Subscriptions | Ported (`MsWorkshopViewer`) |
@@ -171,7 +171,7 @@ them.
 | newtopic66.htm | Clear Wait Cursors | Ported (`MsClearWaitCursors`) |
 | newtopic11.htm | Contribute to Download Rules | Ported — Send Feedback + the rules link |
 | newtopic8.htm / newtopic52.htm | Change / Customise Theme colours | Bounded colour port (see customisecolours) — the 4 colours this app paints with, not VB's named themes + Advanced editor |
-| newtopic68.htm | Debug Options Menu | Deferred — tied to the Development-folder feature (MsMoveToDev), tracked in the backlog |
+| newtopic68.htm | Debug Options Menu | **Partly ported** — the menu now exists (gated by *Enable Debug Menu Options*) and carries *Enable Development Folder*; its ~24 diagnostic reports remain a separate deferred surface. See below |
 
 
 | newtopic3.htm | Specify the Neverwinter Vault Project page | Ported (Download Project via URL) |
@@ -822,11 +822,20 @@ The three are one family, and `dealwithmodupdates.htm` needs two of them:
 - **Move to History** — done. `_History` sits *beside* the payload, not inside
   it, so the old version is kept but stops being installed. That is exactly what
   "retain the old version of the file" has to mean.
-- **Move to Development** — **still a gap**, and deliberately so: it needs the
-  EE development-folder feature we do not have (a `development` folder in the
-  mapper plus the preference that switches it on). VB gates it on EE edition
-  **and** the preference **and** a mapped extension **and** (`.hak` or a
-  primary/secondary of `override`). Worth doing with that feature, not before.
+- **Move to Development** — **now done.** The EE development folder is a real,
+  opt-in mapper target (`core/mapper.py`: `set_development_folder` +
+  `dev_move_target`, `FOLDER_DEV`), gated exactly as VB does — EE edition **and**
+  the `enable_development_folder` setting **and** a mapped extension **and**
+  (`.hak` or a primary/secondary of `override`). `MsMoveToDev` is wired
+  (`main_window._on_move_to_dev`) and offered on the Contents right-click with
+  the VB dynamic label ("Move to Development" / "Move to <primary>" to bring it
+  back). It is enabled from **Options › Debug Options Menu › Enable Development
+  Folder**, which appears only when *Enable Debug Menu Options* is ticked in
+  Settings (VB `DebugOptionsMenu`). **Deferred:** the ~24 diagnostic reports that
+  also live in VB's Debug Options menu (`DbActionList`, `DbModDataReport`, the
+  `*Report` family, `DbSetPlayTimeValue`, …) — a separate surface, not part of
+  the development-folder feature. `newtopic79` (`MsResetTaskbarIcon`, Windows
+  taskbar) remains deferred/N-A off Windows.
 
 ★ Both move commands uninstall an installed mod first, as VB does. The files are
 about to live somewhere else; the copies already in the game would be orphaned

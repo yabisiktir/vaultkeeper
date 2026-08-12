@@ -107,6 +107,7 @@ def bootstrap_controller(
         # keeps its mods in the install root; an EE one splits them across the
         # user folder, and getting that wrong makes every file key wrong.
         is_ee=profile_is_ee(profile, settings),
+        development_folder=settings.enable_development_folder,
         map_overrides=settings.map_overrides or None,
         map_exclude_overrides=settings.map_exclude_overrides or None,
         map_exception_prefixes=settings.map_exception_prefixes or None,

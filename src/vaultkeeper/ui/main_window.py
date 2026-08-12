@@ -326,6 +326,10 @@ class MainWindow(QMainWindow):
 
         _settings = load_settings()
         self.nit_menu.populate_web_menu(_settings.web_links, self._open_url)
+        # Debug Options submenu: shown only when Enable Debug Menu Options is on;
+        # its Enable Development Folder toggle reflects the persisted state.
+        self.nit_menu.set_debug_menu_visible(_settings.debug_options_menu)
+        self.nit_menu.set_development_folder_checked(_settings.enable_development_folder)
         # Populate the Run menu's user programs (VB SetRunMenu), after Play/Toolset.
         self.nit_menu.populate_run_menu(_settings.run_links, self._on_run_program)
 
@@ -557,6 +561,17 @@ class MainWindow(QMainWindow):
             settings.toolbar_show_text = checked
             save_settings(settings)
             self.quick_toolbar.set_show_text(checked)
+        elif item_id == "DbEnableDevelopmentFolder":
+            # VB DbEnableDevelopmentFolder.Click: persist + re-apply the mapper so
+            # development becomes (or stops being) a legal target and Move to
+            # Development is offered (newtopic55.htm / newtopic68.htm).
+            from vaultkeeper.config.settings import load_settings, save_settings
+
+            settings = load_settings()
+            settings.enable_development_folder = checked
+            save_settings(settings)
+            if self.controller is not None:
+                self.controller.set_development_folder(checked)
         elif item_id == "MsOriginalPortraits":
             self._on_original_portraits(checked)
         elif item_id == "MsPropertiesHeight":
@@ -1277,11 +1292,22 @@ class MainWindow(QMainWindow):
         save_settings(settings)
 
     def _show_contents_context_menu(self, pos) -> None:
-        """Right-click a Contents file to View or Delete it (VB CmContents)."""
+        """Right-click a Contents file to View or Delete it (VB CmContents/CmDetails)."""
+        menu = self._build_contents_menu()
+        if menu is not None:
+            menu.exec(self._contents.viewport().mapToGlobal(pos))
+
+    def _build_contents_menu(self):
+        """Assemble the Contents right-click menu (``None`` when nothing is picked).
+
+        Split out from :meth:`_show_contents_context_menu` so the actions can be
+        inspected without ``exec()`` (which blocks and cannot be patched).
+        """
         if self.controller is None or self._contents_mod is None:
-            return
-        if self._contents.selected_file() is None:  # a folder row / nothing selected
-            return
+            return None
+        selected = self._contents.selected_file()
+        if selected is None:  # a folder row / nothing selected
+            return None
         from PySide6.QtWidgets import QMenu
 
         from vaultkeeper.core.archive import is_extractable
@@ -1291,8 +1317,7 @@ class MainWindow(QMainWindow):
         menu.addAction("Display Info", self._on_display_contents_info)
         menu.addAction("Open\tCtrl+O", self._on_open_with_default_app)
         # reducefileclutter.htm: keep archives compressed, and still look inside.
-        selected = self._contents.selected_file()
-        if selected is not None and is_extractable(PurePath(selected[1]).suffix):
+        if is_extractable(PurePath(selected[1]).suffix):
             menu.addAction("Extract compressed file contents", self._on_show_archive)
         menu.addAction("Copy Name", self._on_copy_contents_name)
         menu.addSeparator()
@@ -1300,9 +1325,17 @@ class MainWindow(QMainWindow):
         menu.addAction("Copy", lambda: self._on_copy_contents_file(cut=False))
         paste = menu.addAction("Paste", self._on_paste_contents_file)
         paste.setEnabled(self._file_clipboard is not None)
+        # newtopic55.htm: right-click an EE override file -> Move to Development,
+        # when the (opt-in) development folder is enabled. Label toggles with the
+        # target (Move to Development / Move to <primary> to bring it back).
+        dev = self.controller.dev_move_target(
+            self._contents_mod, selected[0], selected[1]
+        )
+        if dev is not None:
+            menu.addAction(dev[1], self._on_move_to_dev)
         menu.addSeparator()
         menu.addAction("Delete File", self._on_delete_contents_file)
-        menu.exec(self._contents.viewport().mapToGlobal(pos))
+        return menu
 
     def _on_copy_contents_file(self, *, cut: bool) -> None:
         """Put the selected Contents file on the clipboard (VB CmContents Cut/Copy)."""
@@ -1797,6 +1830,7 @@ class MainWindow(QMainWindow):
             # workflow: put the new file in, keep the old one.
             "MsMoveToFolder": self._on_move_to_folder,
             "MsMoveToHistory": self._on_move_to_history,
+            "MsMoveToDev": self._on_move_to_dev,
             "MsClearWaitCursors": self._on_clear_wait_cursors,
             "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
@@ -2762,6 +2796,28 @@ class MainWindow(QMainWindow):
         result = self.controller.move_mod_files_to_history(mod, folder, [filename])
         self._after_contents_move(mod, result)
 
+    def _on_move_to_dev(self) -> None:
+        """Move the selected override file to/from the EE Development folder.
+
+        VB ``MsMoveToDev`` — offered only when the development folder is enabled
+        and the file is an Enhanced Edition override file. The target toggles
+        between ``development`` and the file's primary folder (``newtopic55.htm``).
+        """
+        picked = self._selected_contents_file()
+        if picked is None:
+            self.nit_status.set_info("Select a file in Contents first.")
+            return
+        mod, folder, filename = picked
+        resolved = self.controller.dev_move_target(mod, folder, filename)
+        if resolved is None:
+            self.nit_status.set_info(
+                f"{filename} cannot move to the Development folder."
+            )
+            return
+        target, _label = resolved
+        result = self.controller.move_mod_files(mod, folder, [filename], target)
+        self._after_contents_move(mod, result)
+
     def _after_contents_move(self, mod: str, result: dict) -> None:
         self.refresh()
         md = self.controller.pd.mod_item(mod)
@@ -3577,6 +3633,8 @@ class MainWindow(QMainWindow):
             self.nit_menu.populate_run_menu(settings.run_links, self._on_run_program)
             # Reflect the auto-delete-leto preference on the manual command's visibility.
             self._apply_leto_menu_visibility()
+            # Show/hide the Debug Options submenu per Enable Debug Menu Options.
+            self.nit_menu.set_debug_menu_visible(settings.debug_options_menu)
             # Appearance too. This used to be applied only by Basic Settings, so
             # changing the theme in Advanced Settings did nothing until the app
             # was restarted — which is what the owner saw.

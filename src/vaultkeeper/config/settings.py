@@ -138,6 +138,14 @@ class Settings:
     #: Per-extension filename-prefix exceptions that send a file to its
     #: secondary folder (VB's Exceptions panel, ``defineextension.htm``).
     map_exception_prefixes: dict[str, list] = field(default_factory=dict)
+    #: Include the Enhanced Edition ``development`` folder as a legal install
+    #: target (VB ``ConfigDevelopmentFolder``; toggled from the Debug Options
+    #: menu's *Enable Development Folder*). Off by default — the game warns player
+    #: use of it "can break things in many subtle ways" (``newtopic55.htm``).
+    enable_development_folder: bool = False
+    #: Show the Debug Options menu (VB ``DebugOptionsMenu``; ``newtopic68.htm``).
+    #: Off by default; it hosts *Enable Development Folder* and *Move to Development*.
+    debug_options_menu: bool = False
     #: Whether the one-time Player/Builder question has been put (VB
     #: ``PrivateCheckPlayerExcludes``). Asked once; the Map Excludes page is
     #: where it is revisited.

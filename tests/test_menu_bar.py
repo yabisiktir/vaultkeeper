@@ -25,6 +25,9 @@ def test_menu_registry_matches_data(qtbot):
     bar = NitMenuBar()
     qtbot.addWidget(bar)
     expected = {i.action for _, _, items in MENUS for i in items if i.action}
+    # MsDebugOptionsMenu is a submenu that also carries a dynamically-built
+    # Enable Development Folder toggle (VB DbEnableDevelopmentFolder).
+    expected |= {"DbEnableDevelopmentFolder"}
     assert set(bar.actions_by_id) == expected
 
 
@@ -268,3 +271,44 @@ def test_return_renames_from_the_mod_list_not_from_a_window_shortcut(qtbot):
     qtbot.keyClick(view, Qt.Key.Key_Return, Qt.KeyboardModifier.ControlModifier)
     qtbot.keyClick(view, Qt.Key.Key_Escape)
     assert asked == [1]
+
+
+def test_debug_options_submenu_hidden_by_default(qtbot):
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    submenu = bar.menus.get("MsDebugOptionsMenu")
+    assert submenu is not None
+    assert submenu.title() == "Debug Options Menu"
+    # Hidden until Enable Debug Menu Options turns it on (VB DebugOptionsMenu gate).
+    assert not submenu.menuAction().isVisible()
+    labels = [a.text() for a in submenu.actions()]
+    assert "Enable Development Folder" in labels
+
+
+def test_debug_menu_visibility_toggles(qtbot):
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    bar.set_debug_menu_visible(True)
+    assert bar.menus["MsDebugOptionsMenu"].menuAction().isVisible()
+    bar.set_debug_menu_visible(False)
+    assert not bar.menus["MsDebugOptionsMenu"].menuAction().isVisible()
+
+
+def test_enable_development_folder_toggle_emits(qtbot):
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    dev = bar.action("DbEnableDevelopmentFolder")
+    assert dev is not None and dev.isCheckable()
+    with qtbot.waitSignal(bar.action_toggled) as sig:
+        dev.trigger()
+    assert sig.args == ["DbEnableDevelopmentFolder", True]
+
+
+def test_set_development_folder_checked_does_not_re_fire(qtbot):
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    fired = []
+    bar.action_toggled.connect(lambda *a: fired.append(a))
+    bar.set_development_folder_checked(True)  # reflecting saved state, not a click
+    assert bar.action("DbEnableDevelopmentFolder").isChecked()
+    assert fired == []
