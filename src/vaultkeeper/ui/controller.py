@@ -4209,6 +4209,41 @@ class ProfileController:
         stored = [s for s in self.load_installation_sets()[1:] if s.name != name]
         self.save_installation_sets(stored)
 
+    def prune_installation_set(self, name: str) -> dict:
+        """Drop the unticked (uninstalled) mods from a set (pruneinstallationsets.htm).
+
+        "Use Prune to remove uninstalled Mods from an Installation Set's Mod
+        list." A set accumulates every mod that was ever in its groups; once you
+        have decided some should stay uninstalled, they are noise on every later
+        review. Pruning keeps only the mods the set actually installs, and an
+        emptied group is dropped with them. Returns ``{"ok", "removed",
+        "message"}``.
+        """
+        stored = self.load_installation_sets()[1:]
+        target = next((s for s in stored if s.name == name), None)
+        if target is None:
+            return {"ok": False, "removed": 0, "message": f"No set named '{name}'."}
+        if not target.editable:
+            return {"ok": False, "removed": 0, "message": "This set cannot be edited."}
+
+        removed = 0
+        kept_groups = []
+        for group in target.groups:
+            kept = [m for m in group.mods if m.desired_installed]
+            removed += len(group.mods) - len(kept)
+            group.mods = kept
+            if kept:
+                kept_groups.append(group)
+        target.groups = kept_groups
+        self.save_installation_sets(stored)
+        return {
+            "ok": True,
+            "removed": removed,
+            "message": f"Pruned {removed} uninstalled mod(s) from '{name}'."
+            if removed
+            else f"'{name}' had no uninstalled mods to prune.",
+        }
+
     def apply_installation_set(self, iset) -> str:  # noqa: ANN001
         """Install/uninstall to reach the set's desired states (VB ``BtApply``).
 

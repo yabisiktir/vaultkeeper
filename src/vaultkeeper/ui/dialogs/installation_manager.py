@@ -113,11 +113,21 @@ class InstallationManager(QDialog):
         rename_key = QShortcut(QKeySequence(Qt.Key.Key_F2), self.set_list)
         rename_key.setContext(Qt.ShortcutContext.WidgetShortcut)
         rename_key.activated.connect(self._on_rename)
+        # deleteinstallationsets.htm: "press Delete or click Delete"; and
+        # pruneinstallationsets.htm: "press Ctrl+P or click Prune". Both scoped
+        # to the list so they only fire with a set in hand.
+        delete_key = QShortcut(QKeySequence(Qt.Key.Key_Delete), self.set_list)
+        delete_key.setContext(Qt.ShortcutContext.WidgetShortcut)
+        delete_key.activated.connect(self._on_delete)
+        prune_key = QShortcut(QKeySequence("Ctrl+P"), self.set_list)
+        prune_key.setContext(Qt.ShortcutContext.WidgetShortcut)
+        prune_key.activated.connect(self._on_prune)
         left.addWidget(self.set_list, 1)
         for label, slot in (
             ("New Checkpoint", self._on_new_checkpoint),
             ("New Set", self._on_new_set),
             ("Rename", self._on_rename),
+            ("Prune", self._on_prune),
             ("Delete", self._on_delete),
         ):
             btn = QPushButton(label)
@@ -355,6 +365,20 @@ class InstallationManager(QDialog):
             return
         self._controller.rename_installation_set(iset.name, name)
         self._reload(select_name=name)
+
+    def _on_prune(self) -> None:
+        """Drop a set's uninstalled mods (pruneinstallationsets.htm)."""
+        from PySide6.QtWidgets import QMessageBox
+
+        iset = self._selected_set()
+        if iset is None or iset.set_type == "current":
+            return
+        result = self._controller.prune_installation_set(iset.name)
+        if not result["ok"]:
+            QMessageBox.information(self, "Prune Installation Set", result["message"])
+            return
+        self._reload(select_name=iset.name)
+        QMessageBox.information(self, "Prune Installation Set", result["message"])
 
     def _on_delete(self) -> None:
         iset = self._selected_set()

@@ -501,3 +501,94 @@ def test_dialog_f2_renames_the_selected_set(tmp_path, qtbot, monkeypatch):
     assert f2.context() == Qt.ShortcutContext.WidgetShortcut
     f2.activated.emit()
     assert renamed["new"] == "Renamed Set"
+
+
+# -- Prune (pruneinstallationsets.htm) ------------------------------------- #
+
+
+def test_prune_removes_uninstalled_mods_from_a_set(tmp_path):
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Keep", "GroupA", installed=True)
+    _add_mod(ctrl, "Drop", "GroupA", installed=True)
+    _add_mod(ctrl, "Lonely", "GroupB", installed=True)
+    ctrl.create_installation_set("My Set", from_current=True)
+
+    # Mark Drop and the whole of GroupB as desired-uninstalled.
+    stored = ctrl.load_installation_sets()[1:]
+    myset = next(s for s in stored if s.name == "My Set")
+    for group in myset.groups:
+        for mod in group.mods:
+            if mod.name in ("Drop", "Lonely"):
+                mod.desired_installed = False
+    ctrl.save_installation_sets(stored)
+
+    result = ctrl.prune_installation_set("My Set")
+    assert result["ok"] is True
+    assert result["removed"] == 2
+
+    pruned = next(s for s in ctrl.load_installation_sets()[1:] if s.name == "My Set")
+    names = {m.name for g in pruned.groups for m in g.mods}
+    assert names == {"Keep"}
+    # A group emptied by the prune is dropped with its mods.
+    assert [g.name for g in pruned.groups] == ["GroupA"]
+
+
+def test_prune_reports_when_there_is_nothing_to_do(tmp_path):
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Keep", "GroupA", installed=True)
+    ctrl.create_installation_set("Full", from_current=True)
+    result = ctrl.prune_installation_set("Full")
+    assert result["ok"] is True
+    assert result["removed"] == 0
+    assert "no uninstalled mods" in result["message"]
+
+
+def test_prune_refuses_a_missing_set(tmp_path):
+    ctrl = _controller(tmp_path)
+    assert ctrl.prune_installation_set("ghost")["ok"] is False
+
+
+def test_dialog_has_prune_and_delete_shortcuts(tmp_path, qtbot):
+    """pruneinstallationsets (Ctrl+P) + deleteinstallationsets (Delete)."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QShortcut
+
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "GroupA", installed=True)
+    dlg = InstallationManager(ctrl)
+    qtbot.addWidget(dlg)
+
+    keys = {s.key().toString() for s in dlg.set_list.findChildren(QShortcut)}
+    assert {"F2", "Del", "Ctrl+P"} <= keys
+    assert all(
+        s.context() == Qt.ShortcutContext.WidgetShortcut
+        for s in dlg.set_list.findChildren(QShortcut)
+    )
+
+
+def test_dialog_prune_button_calls_controller(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.ui.dialogs.installation_manager import InstallationManager
+
+    ctrl = _controller(tmp_path)
+    _add_mod(ctrl, "Alpha", "GroupA", installed=True)
+    dlg = InstallationManager(ctrl)
+    qtbot.addWidget(dlg)
+    dlg._on_new_checkpoint()
+    for row in range(dlg.set_list.count()):
+        if "Current" not in dlg.set_list.item(row).text():
+            dlg.set_list.setCurrentRow(row)
+            break
+
+    monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
+    called = {}
+    monkeypatch.setattr(
+        ctrl, "prune_installation_set",
+        lambda name: called.setdefault("name", name) and None
+        or {"ok": True, "removed": 1, "message": "done"},
+    )
+    dlg._on_prune()
+    assert "name" in called

@@ -121,6 +121,14 @@ them.
 | reducethenumberofnwngamesaves.htm | Reduce the number of NWN Game Saves | Ported (Game Saves Manager's Reduce) |
 | renameagroup.htm | Rename a Group | **Was partly ported** — group rename existed on the right-click menu; F2 (which the topic names first) did nothing, as headers are not selectable. F2 now acts on the *current* header |
 | newtopic62.htm | Number Recent Mods | Ported (`MsNumberRecentMods`) |
+| pruneinstallationsets.htm | Prune Installation Sets | **Was a GAP, now closed** — no Prune at all; drops the unticked (uninstalled) mods from a set, Ctrl+P or button |
+| deleteinstallationsets.htm | Delete Installation Sets | **Was partly ported** — Delete button existed; the Delete key did not |
+| newtopic16.htm | View Create Installer Wizard results | Ported (status-bar wizard report) |
+| newtopic69.htm | Change Installer Options | Ported (`MsChangeInstaller`) |
+| newtopic45.htm | Navigate to a Group | Ported (`MsGoToGroup` — Edit menu + status-bar group) |
+| addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
+| newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
+
 | newtopic3.htm | Specify the Neverwinter Vault Project page | Ported (Download Project via URL) |
 | newtopic15.htm | Build a Wizard that uses File Preferences | Ported (Wizard Builder's preferences group + display-name editing) |
 | addmodsfromdownloadedfiles.htm | Add Mods from downloaded files | Ported (`MsAddMods`) |
