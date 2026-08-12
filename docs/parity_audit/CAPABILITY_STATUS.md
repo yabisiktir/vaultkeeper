@@ -171,7 +171,7 @@ them.
 | newtopic66.htm | Clear Wait Cursors | Ported (`MsClearWaitCursors`) |
 | newtopic11.htm | Contribute to Download Rules | Ported — Send Feedback + the rules link |
 | newtopic8.htm / newtopic52.htm | Change / Customise Theme colours | Bounded colour port (see customisecolours) — the 4 colours this app paints with, not VB's named themes + Advanced editor |
-| newtopic68.htm | Debug Options Menu | **Partly ported** — the menu now exists (gated by *Enable Debug Menu Options*) and carries *Enable Development Folder*; its ~24 diagnostic reports remain a separate deferred surface. See below |
+| newtopic68.htm | Debug Options Menu | **Ported** — the menu exists (gated by *Enable Debug Menu Options*) with its one user-facing item, *Enable Development Folder*. Its other ~26 items are developer-internal tooling, a deliberate non-goal (triaged; see below) |
 
 
 | newtopic3.htm | Specify the Neverwinter Vault Project page | Ported (Download Project via URL) |
@@ -835,11 +835,37 @@ The three are one family, and `dealwithmodupdates.htm` needs two of them:
   the VB dynamic label ("Move to Development" / "Move to <primary>" to bring it
   back). It is enabled from **Options › Debug Options Menu › Enable Development
   Folder**, which appears only when *Enable Debug Menu Options* is ticked in
-  Settings (VB `DebugOptionsMenu`). **Deferred:** the ~24 diagnostic reports that
-  also live in VB's Debug Options menu (`DbActionList`, `DbModDataReport`, the
-  `*Report` family, `DbSetPlayTimeValue`, …) — a separate surface, not part of
-  the development-folder feature. `newtopic79` (`MsResetTaskbarIcon`, Windows
+  Settings (VB `DebugOptionsMenu`). `newtopic79` (`MsResetTaskbarIcon`, Windows
   taskbar) remains deferred/N-A off Windows.
+
+### The other ~26 Debug Options items — deliberate non-goal (triaged 2026-08-12)
+
+Read every `Db*_Click` handler in `NIT.Menu.vb`. They are developer-internal
+tooling, not user features, and are **deliberately not ported**:
+
+- **VB-internal data dumps** whose format is tied to VB's own structures:
+  `DbOriginalFilesReport` / `DbInstalledFilesReport` / `DbModDataReport` /
+  `DbModFileReport` (`pd.Report(...)`), `DbAppDefsReport` (`AppDefs.Report()`),
+  `DbGameMapDataReport`, `DbBlankFilesReport`, `DbScrollReport`,
+  `DbSelectionHistory`, `DbExtractedPortraits`, `DbOriginalFiles`,
+  `DbEeOriginalFiles`.
+- **Dev-test setters** that mutate state for testing: `DbSetPlayTimeValue`,
+  `DbSetSize` (match Paint.net for screenshots), `DbRedoDateCompleted`.
+- **VB-author-only tools**: `DbColourSettings` / `DbChangedColours` copy data to
+  the clipboard *as VB source*; `DbMethod` is a literal scratchpad
+  (`dbCode = False`, empty comment markers).
+- **WinForms-specific / obsolete**: `DbDisableAltKey`, `DbShowNitAvailable`,
+  `DbHelpLayout`, `DbEnableVaultDownloadCounter`.
+- **Already ported elsewhere**: `DbGameMapUserReport` = the User Response Editor
+  (`MsUserResponses`); `DbStartScreenInfo`; `DbActionList`.
+- **Touches a recorded non-goal**: `DbSyncReport` = the Shared NIT Store
+  (`MsConnect`/`MsSynchroniseMods`).
+
+The user-facing "diagnose a problem" need these served is covered by the port's
+own diagnostics — Validate Profile Data / Mods / Installed Data, Recover Groups /
+Mod Properties, Rebuild Database, the log-file viewer, and the Installation
+Analyser. So the Debug Options menu is considered complete with its one
+user-facing item (Enable Development Folder), and `newtopic68` is Ported.
 
 ★ Both move commands uninstall an installed mod first, as VB does. The files are
 about to live somewhere else; the copies already in the game would be orphaned
