@@ -121,6 +121,13 @@ them.
 | reducethenumberofnwngamesaves.htm | Reduce the number of NWN Game Saves | Ported (Game Saves Manager's Reduce) |
 | renameagroup.htm | Rename a Group | **Was partly ported** — group rename existed on the right-click menu; F2 (which the topic names first) did nothing, as headers are not selectable. F2 now acts on the *current* header |
 | newtopic62.htm | Number Recent Mods | Ported (`MsNumberRecentMods`) |
+| newtopic3.htm | Specify the Neverwinter Vault Project page | Ported (Download Project via URL) |
+| newtopic15.htm | Build a Wizard that uses File Preferences | Ported (Wizard Builder's preferences group + display-name editing) |
+| addmodsfromdownloadedfiles.htm | Add Mods from downloaded files | Ported (`MsAddMods`) |
+| installmods.htm | Install Mods | Ported (`MsInstall`) |
+| createmodinstallers.htm | Create Mod Installers | Ported (`MsCreateInstaller`) |
+| refinemodinstallercreation.htm | Refine Mod Installer creation | Ported — Work with Installers tab + the Advanced Settings map pages |
+
 | newtopic32.htm | Details Panel | Reference topic — the Details/Notes panel is ported |
 | startanewgame.htm | Start a new game | Ported — Deactivate button + Ctrl+D + right-click-uninstall (double-click opens the folder, per openagamesavefolderwithwindowsfi) |
 | newtopic39.htm | Remove version number from document names | Ported (Doc Organiser Version toggle) |
