@@ -417,3 +417,25 @@ def test_changed_marks_cover_text_and_number_fields(qtbot):
     assert spin is not None
     spin.setValue(spin.value() + 1)
     assert spin in dlg.changed_widgets()
+
+
+def test_workshop_management_preference_round_trips(qtbot):
+    """newtopic19.htm: enabling management + a manual content folder."""
+    settings = Settings(manage_steam_workshop=False)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+
+    assert dlg.manage_steam_workshop.isChecked() is False
+    dlg.manage_steam_workshop.setChecked(True)
+    dlg.apply_to(settings)
+    assert settings.manage_steam_workshop is True
+
+
+def test_use_move_preference_round_trips(qtbot):
+    settings = Settings(use_move_on_add=True)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    assert dlg.use_move_on_add.isChecked() is True
+    dlg.use_move_on_add.setChecked(False)
+    dlg.apply_to(settings)
+    assert settings.use_move_on_add is False

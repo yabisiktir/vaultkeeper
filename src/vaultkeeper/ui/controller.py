@@ -6286,6 +6286,27 @@ class ProfileController:
             return f"Played {diff} ago for the {nth} time."
         return f"Finished playing today for the {nth} time."
 
+    def workshop_management_enabled(self) -> bool:
+        """Whether the Tool is set to manage Steam Workshop content (newtopic19.htm)."""
+        return bool(self._settings().manage_steam_workshop)
+
+    def workshop_content_dir(self) -> Path | None:
+        """The Steam Workshop content folder, honouring a manual override.
+
+        newtopic19.htm: "Define the Steam Workshop Content folder on the
+        Locations page … (the Tool usually detects this location
+        automatically)." So a saved path wins, and the auto-detected Steam
+        layout is the fallback — which is why detection failing on an unusual
+        install no longer hides the feature outright.
+        """
+        from vaultkeeper.game.workshop import workshop_content_path
+
+        override = self._settings().workshop_content_dir.strip()
+        if override:
+            path = Path(override)
+            return path if path.is_dir() else None
+        return workshop_content_path(self.ctx.game_root)
+
     def workshop_report(self) -> dict:
         """Steam Workshop subscriptions on disk, mapped to mods (VB ``WorkshopViewer``).
 
@@ -6294,9 +6315,9 @@ class ProfileController:
         (id / Yes-No / mod name), the content path, managed/unmanaged counts and a
         status line mirroring the VB summary. Empty when this isn't a Steam install.
         """
-        from vaultkeeper.game.workshop import scan_workshop, workshop_content_path
+        from vaultkeeper.game.workshop import scan_workshop
 
-        content = workshop_content_path(self.ctx.game_root)
+        content = self.workshop_content_dir()
         id_to_mod = {
             md.workshop_id: md.mod_name
             for md in self.pd.mod_list.values()
@@ -6350,9 +6371,9 @@ class ProfileController:
         and returns ``{"added", "updated", "unsubscribed", "added_files",
         "updated_files", "removed_files", "summary"}`` (ids in the lists).
         """
-        from vaultkeeper.game.workshop import diff_workshop, workshop_content_path
+        from vaultkeeper.game.workshop import diff_workshop
 
-        content = workshop_content_path(self.ctx.game_root)
+        content = self.workshop_content_dir()
         stored = self._read_workshop_contents()
         if content is None:
             return {
@@ -6474,7 +6495,6 @@ class ProfileController:
         from vaultkeeper.game.workshop import (
             WORKSHOP_GROUP,
             resolve_mod_name,
-            workshop_content_path,
             workshop_url,
         )
 
@@ -6488,7 +6508,7 @@ class ProfileController:
                 "message": message,
             }
 
-        content = workshop_content_path(self.ctx.game_root)
+        content = self.workshop_content_dir()
         if content is None:
             return result(False, "", "This is not a Steam install.")
         id_folder = content / workshop_id
@@ -7106,10 +7126,8 @@ class ProfileController:
         mods folder and data store — as (group / location / path) rows for the
         Settings *Locations* page (columns ``Location`` / ``Path``). Read-only.
         """
-        from vaultkeeper.game.workshop import workshop_content_path
-
         ctx = self.ctx
-        workshop = workshop_content_path(ctx.game_root)
+        workshop = self.workshop_content_dir()
         store_root = self.store_path.parent if self.store_path else None
         groups: list[tuple[str, list[tuple[str, Path | None]]]] = [
             (

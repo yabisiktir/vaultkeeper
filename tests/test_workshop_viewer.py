@@ -316,3 +316,78 @@ def test_dialog_add_invokes_controller(qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(QMessageBox, "information", lambda *a, **k: None)
     dlg._on_add()
     assert controller.pd.mod_item("Cool Adventure") is not None
+
+
+# -- Enable + folder override (newtopic19.htm) ---------------------------- #
+
+
+def test_management_is_off_by_default(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    controller = _controller(tmp_path, content, game_root)
+    # "By default, the Installer Tool does not manage Steam's Workshop content."
+    assert controller.workshop_management_enabled() is False
+
+
+def test_management_reflects_the_preference(tmp_path):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    game_root, content = _steam_layout(tmp_path)
+    controller = _controller(tmp_path, content, game_root)
+    settings = load_settings()
+    settings.manage_steam_workshop = True
+    save_settings(settings)
+    assert controller.workshop_management_enabled() is True
+
+
+def test_content_dir_falls_back_to_the_steam_layout(tmp_path):
+    game_root, content = _steam_layout(tmp_path)
+    controller = _controller(tmp_path, content, game_root)
+    # No override set: the auto-detected Steam path is used.
+    assert controller.workshop_content_dir() == content
+
+
+def test_a_manual_override_wins_over_detection(tmp_path):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    game_root, content = _steam_layout(tmp_path)
+    controller = _controller(tmp_path, content, game_root)
+
+    elsewhere = tmp_path / "custom" / "workshop"
+    elsewhere.mkdir(parents=True)
+    settings = load_settings()
+    settings.workshop_content_dir = str(elsewhere)
+    save_settings(settings)
+
+    assert controller.workshop_content_dir() == elsewhere
+
+
+def test_a_manual_override_that_is_not_there_is_ignored(tmp_path):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    game_root, content = _steam_layout(tmp_path)
+    controller = _controller(tmp_path, content, game_root)
+    settings = load_settings()
+    settings.workshop_content_dir = str(tmp_path / "gone")
+    save_settings(settings)
+    # A path to nothing is not usable, and is not silently treated as one.
+    assert controller.workshop_content_dir() is None
+
+
+def test_override_lets_detection_work_on_a_non_steam_install(tmp_path):
+    """The whole point: a GOG install could not see the Workshop at all before."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    game_root = tmp_path / "GOG" / "Neverwinter Nights"
+    game_root.mkdir(parents=True)
+    content = tmp_path / "manual-workshop"
+    content.mkdir()
+    _make_item(content, "111", "readme.txt")
+
+    controller = _controller(tmp_path, content, game_root)
+    settings = load_settings()
+    settings.workshop_content_dir = str(content)
+    save_settings(settings)
+
+    report = controller.workshop_report()
+    assert report["content_path"] == str(content)
+    assert {r["id"] for r in report["rows"]} == {"111"}

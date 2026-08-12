@@ -118,6 +118,7 @@ them.
 | movingmodsfromonegrouptoanother.htm | Moving Mods between Groups | **Ported bar "None"**, now added |
 | deletearchives.htm | Delete archived Game Saves | **Was a GAP, now closed** — I had marked this Ported off the Restore button; there was no Delete at all |
 | newtopic13.htm / newtopic72.htm / reviewmodinformationinaddedfiles.htm | Download rules, best practice, Doc Organiser | Advice for features that exist |
+| newtopic19.htm | Enable Steam Workshop Subscription Management | **Was a GAP, now closed** — no enable preference and no way to point at the Workshop folder when auto-detection failed; both added, so a non-Steam install can now see its subscriptions |
 | newtopic20.htm | Detect Steam Workshop Subscriptions | **Ported bar load-time detection**, now added |
 | newtopic22.htm | Disable Workshop management | **Was a GAP, now closed** — Stop Managing, keeping or deleting the copies |
 | createmodinstallationsets.htm / uninstallinstallationsetdefinedm.htm | Installation Sets | Ported (Installation Manager) |

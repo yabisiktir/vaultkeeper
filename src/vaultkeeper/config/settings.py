@@ -184,6 +184,14 @@ class Settings:
     #: than copying (VB ``BehaviourUseMove`` / adddownloadedfilestoamod.htm). VB's
     #: default is Move — "the selected files are moved to your Mod's folder".
     use_move_on_add: bool = True
+    #: Let the Tool manage Steam Workshop subscription content (VB
+    #: ``ConfigManageSteamWorkshop`` / newtopic19.htm). Off by default — "the
+    #: Installer Tool does not manage Steam's Workshop Subscription content".
+    manage_steam_workshop: bool = False
+    #: Manual Steam Workshop content folder, for when it is not auto-detected
+    #: (VB Locations ``Steam Workshop Content``). Blank = derive it from the game
+    #: install, which is the usual case.
+    workshop_content_dir: str = ""
     #: Show image files (tga/png/…) as a preview in Display Info; when off they open
     #: as text (VB ``BehaviourDisplayImageFiles`` / ``ConfigDisplayTgaImages``).
     display_image_files: bool = True

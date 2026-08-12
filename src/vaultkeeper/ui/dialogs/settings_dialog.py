@@ -460,6 +460,17 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.use_move_on_add)
 
+        self.manage_steam_workshop = QCheckBox(
+            "Use Vaultkeeper to manage Steam's Workshop Content"
+        )
+        self.manage_steam_workshop.setChecked(settings.manage_steam_workshop)
+        self.manage_steam_workshop.setToolTip(
+            "Off by default. When on, the Steam Workshop viewer detects your\n"
+            "subscriptions and can turn them into managed mods. Point it at the\n"
+            "Workshop Content folder on the Locations page if it is not found."
+        )
+        form.addRow(self.manage_steam_workshop)
+
         self.confirm_actions = QCheckBox("Ask for confirmation before destructive actions")
         self.confirm_actions.setChecked(settings.confirm_actions)
         form.addRow(self.confirm_actions)
@@ -1099,6 +1110,22 @@ class SettingsDialog(QDialog):
             "sound when the application starts” is ticked, under Behaviour."
         )
         form.addRow("Start-up sound:", sound_row)
+
+        # newtopic19.htm: a manual Steam Workshop Content folder, for when it is
+        # not auto-detected. Blank falls back to the Steam layout under the game
+        # install, so the placeholder shows what that would be.
+        self.workshop_dir_edit, workshop_row = self._path_editor(
+            self._settings.workshop_content_dir
+        )
+        auto = controller.workshop_content_dir() if controller else None
+        self.workshop_dir_edit.setPlaceholderText(
+            str(auto) if auto else "(auto-detected only on a Steam install)"
+        )
+        self.workshop_dir_edit.setToolTip(
+            "Where Steam keeps this game's Workshop subscriptions. Leave blank to "
+            "detect it from the install; set it if detection did not find it."
+        )
+        form.addRow("Steam Workshop Content:", workshop_row)
         outer.addLayout(form)
 
         # Create a separate game folder for this profile (VB CreateNwnFolder).
@@ -1216,6 +1243,7 @@ class SettingsDialog(QDialog):
         settings.default_group = self.default_group.text().strip()
         settings.move_added_mods = self.move_added_mods.isChecked()
         settings.use_move_on_add = self.use_move_on_add.isChecked()
+        settings.manage_steam_workshop = self.manage_steam_workshop.isChecked()
         settings.confirm_actions = self.confirm_actions.isChecked()
         settings.uninstall_dependencies = self.uninstall_dependencies.isChecked()
         settings.display_image_files = self.display_image_files.isChecked()
@@ -1250,6 +1278,8 @@ class SettingsDialog(QDialog):
             settings.nwn_path = self.game_install_edit.text().strip() or None
         if self.game_user_edit is not None:
             settings.game_user_path = self.game_user_edit.text().strip() or None
+        if getattr(self, "workshop_dir_edit", None) is not None:
+            settings.workshop_content_dir = self.workshop_dir_edit.text().strip()
         if getattr(self, "startup_sound_edit", None) is not None:
             # VB Settings.Locations:173 skips PathStartupSound when the file does
             # not exist, rather than saving a path to nothing. Blank is different
