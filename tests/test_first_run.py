@@ -215,3 +215,59 @@ def test_the_dialog_offers_the_group_sets(qtbot):
 
     dlg.group_combo.setCurrentIndex(offered.index("Groups are based on Nexus Mods categories"))
     assert dlg.group_set == "Groups are based on Nexus Mods categories"
+
+
+def test_auto_configure_records_a_browsed_ee_user_folder(tmp_path):
+    from vaultkeeper.config.settings import Settings, load_settings
+
+    user_dir = tmp_path / "nwn-user"
+    user_dir.mkdir()
+    path = tmp_path / "s.json"
+    settings = Settings(store_root=str(tmp_path / "store"))  # game_user_path unset
+    auto_configure_first_run(
+        settings,
+        choices=FirstRunChoices(
+            game_root=str(tmp_path / "steam"), game_user_path=str(user_dir)
+        ),
+        settings_path=path,
+        discover=lambda: [_install(str(tmp_path / "steam"))],
+    )
+    assert load_settings(path).game_user_path == str(user_dir)
+
+
+def test_auto_configure_records_detection_disabled(tmp_path):
+    from vaultkeeper.config.settings import Settings, load_settings
+
+    path = tmp_path / "s.json"
+    settings = Settings(store_root=str(tmp_path / "store"))
+    auto_configure_first_run(
+        settings,
+        choices=FirstRunChoices(
+            game_root=str(tmp_path / "steam"), disable_ee_detection=True
+        ),
+        settings_path=path,
+        discover=lambda: [_install(str(tmp_path / "steam"))],
+    )
+    reloaded = load_settings(path)
+    assert reloaded.disable_ee_detection is True
+    assert reloaded.game_user_path is None  # never guessed
+
+
+def test_ee_prompt_gate_skips_a_classic_install():
+    """A Diamond (classic) install never triggers the EE user-folder prompt."""
+    from vaultkeeper.ui.first_run import _ask_ee_user_folder
+
+    installs = [_install("/x", edition=Edition.DIAMOND)]
+    assert _ask_ee_user_folder(installs, "/x", None) == ("", False)
+
+
+def test_ee_prompt_gate_skips_when_the_folder_is_found(monkeypatch, tmp_path):
+    """When the EE user folder resolves, there is nothing to ask."""
+    from vaultkeeper.ui import session
+    from vaultkeeper.ui.first_run import _ask_ee_user_folder
+
+    found = tmp_path / "user"
+    found.mkdir()
+    monkeypatch.setattr(session, "default_game_user_path", lambda **_: found)
+    installs = [_install("/x")]  # EE by default
+    assert _ask_ee_user_folder(installs, "/x", None) == ("", False)

@@ -64,6 +64,12 @@ class Settings:
     #: Override for the game user-data folder (Documents/Neverwinter Nights); ``None``
     #: = auto-resolve from the platform.
     game_user_path: str | None = None
+    #: Stop auto-resolving the Enhanced Edition user-files folder at start-up (VB
+    #: ``PrivateExtendedDisabled``, the ExtendedEditionDialogue's "Disable Enhanced
+    #: Edition detection at start-up"). When set, first-run config leaves
+    #: ``game_user_path`` for the user to set, rather than guessing the standard
+    #: folder — the escape hatch for a non-standard or not-yet-created layout.
+    disable_ee_detection: bool = False
     #: Name of the active profile.
     active_profile: str | None = None
     #: Send user-initiated deletes to the OS trash rather than deleting permanently.

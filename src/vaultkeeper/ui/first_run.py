@@ -21,6 +21,12 @@ class FirstRunChoices:
     game_root: str = ""
     store_root: str = ""
     group_set: str = ""
+    #: The Enhanced Edition user-files folder, when it had to be asked for
+    #: (VB ExtendedEditionDialogue); "" when it was found or not asked.
+    game_user_path: str = ""
+    #: Whether the user turned Enhanced Edition detection off at that prompt
+    #: (VB PrivateExtendedDisabled).
+    disable_ee_detection: bool = False
 
 
 def ask_first_run_choices(parent=None) -> FirstRunChoices | None:
@@ -52,14 +58,57 @@ def ask_first_run_choices(parent=None) -> FirstRunChoices | None:
 
     from vaultkeeper.ui.dialogs.first_run import FirstRunDialog
 
-    if not FirstRunDialog.worth_asking(installs, options):
-        return None
+    game_root = store_root = group_set = ""
+    if FirstRunDialog.worth_asking(installs, options):
+        dialog = FirstRunDialog(
+            installs, options, getattr(recommended, "path", Path()), parent
+        )
+        if dialog.exec() != dialog.DialogCode.Accepted:
+            return None
+        game_root, store_root, group_set = (
+            dialog.game_root,
+            dialog.store_root,
+            dialog.group_set,
+        )
 
-    dialog = FirstRunDialog(installs, options, getattr(recommended, "path", Path()), parent)
-    if dialog.exec() != dialog.DialogCode.Accepted:
+    # The 5th first-run question: an Enhanced Edition install whose user-files
+    # folder cannot be located. Independent of the install/store questions —
+    # a single install on a single volume still needs asking when the folder is
+    # missing (the flagship first-run blind spot).
+    user_folder, disabled = _ask_ee_user_folder(installs, game_root, parent)
+
+    if not (game_root or store_root or group_set or user_folder or disabled):
         return None
     return FirstRunChoices(
-        game_root=dialog.game_root,
-        store_root=dialog.store_root,
-        group_set=dialog.group_set,
+        game_root=game_root,
+        store_root=store_root,
+        group_set=group_set,
+        game_user_path=user_folder,
+        disable_ee_detection=disabled,
     )
+
+
+def _ask_ee_user_folder(installs, chosen_root: str, parent) -> tuple[str, bool]:
+    """Prompt for the EE user-files folder when it is installed but unlocatable.
+
+    Returns ``(user_folder, detection_disabled)``; ``("", False)`` when there is
+    nothing to ask — the install is classic, or the folder resolves already, or
+    the user cancels. Mirrors VB ``DetectExtended`` → ``SolicitEnhanced``.
+    """
+    from nwnfile.locations import Edition
+
+    from vaultkeeper.ui.session import default_game_user_path
+
+    install = next(
+        (i for i in installs if str(i.root) == chosen_root),
+        installs[0],
+    )
+    if install.edition != Edition.ENHANCED or default_game_user_path() is not None:
+        return "", False
+
+    from vaultkeeper.ui.dialogs.extended_edition import ExtendedEditionDialog
+
+    dialog = ExtendedEditionDialog(parent)
+    if dialog.exec() != dialog.DialogCode.Accepted:
+        return "", False
+    return dialog.user_folder, dialog.detection_disabled

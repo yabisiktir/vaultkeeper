@@ -72,6 +72,8 @@ def auto_configure_first_run(
         store_root=getattr(choices, "store_root", "") or None,
         group_set=getattr(choices, "group_set", "") or None,
         is_ee=edition == Edition.ENHANCED,
+        game_user_path=getattr(choices, "game_user_path", "") or None,
+        disable_ee_detection=getattr(choices, "disable_ee_detection", False),
         settings=settings,
         settings_path=settings_path,
     )
@@ -333,7 +335,7 @@ def import_legacy_profile(
     return target
 
 
-def default_game_user_path() -> Path | None:
+def default_game_user_path(*, disabled: bool = False) -> Path | None:
     """The NWN:EE user-files folder if it exists on disk (for first-run auto-config).
 
     NWN:EE keeps the *installed* haks/override/tlk plus saves/localvault in a
@@ -342,7 +344,13 @@ def default_game_user_path() -> Path | None:
     already-installed mods are detected (see the installed-mods fix). Returns
     ``None`` when the standard folder isn't present — the user can still set it
     later via the Locations page, and scans fall back to the single-root layout.
+
+    ``disabled`` (VB ``PrivateExtendedDisabled``) short-circuits the guess: when
+    the user has turned Enhanced Edition detection off, we never auto-resolve the
+    folder, leaving them to set it themselves.
     """
+    if disabled:
+        return None
     from nwnfile.locations import HostOS, user_documents_dir
 
     candidate = user_documents_dir(HostOS.current())
@@ -356,6 +364,8 @@ def configure_profile(
     store_root: str | None = None,
     group_set: str | None = None,
     is_ee: bool = True,
+    game_user_path: str | None = None,
+    disable_ee_detection: bool = False,
     settings: Settings | None = None,
     settings_path: Path | None = None,
 ) -> ProfileController:
@@ -371,6 +381,12 @@ def configure_profile(
     settings = settings or load_settings(settings_path)
     settings.nwn_path = nwn_path
     settings.active_profile = profile_name
+    # The 5th first-run answer (VB ExtendedEditionDialogue): a folder the user
+    # browsed to, or detection turned off. Applied before auto-detection below.
+    if disable_ee_detection:
+        settings.disable_ee_detection = True
+    if game_user_path:
+        settings.game_user_path = game_user_path
     # Recorded once, at creation, and never revisited.
     settings.profile_editions = {**settings.profile_editions, profile_name: is_ee}
     # And its own game folder. Without this, making a second profile for a test
@@ -385,7 +401,7 @@ def configure_profile(
     if store_root:
         settings.store_root = store_root
     if not settings.game_user_path:
-        user_dir = default_game_user_path()
+        user_dir = default_game_user_path(disabled=settings.disable_ee_detection)
         if user_dir is not None:
             settings.game_user_path = str(user_dir)
 

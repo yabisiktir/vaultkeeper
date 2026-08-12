@@ -49,7 +49,7 @@ def test_it_writes_a_png_of_the_real_main_window(window_shot, qtbot, tmp_path, m
     # skipping it is the difference between ~13s and well under one.
     from vaultkeeper.ui import session
 
-    monkeypatch.setattr(session, "default_game_user_path", lambda: None)
+    monkeypatch.setattr(session, "default_game_user_path", lambda **_: None)
 
     # settle=0: the deferred fills are worth waiting for when a human will look
     # at the result, but here the question is only whether it builds and paints.

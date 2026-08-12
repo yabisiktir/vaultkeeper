@@ -274,11 +274,15 @@ and folder exclusions but not module-name ones, and an exclusion that cannot be
 persisted is one that comes back every launch. The additions go through
 `add_exclude` rather than into the table directly, for the same reason.
 
-Four of the five first-run questions are now asked: **which installation**,
-**where the store goes**, **which group set**, **which edition** (at profile
-creation), and now **player or builder**. The one left is the user-files folder
-and its disable-detection setting, which is reachable from Settings and never
-silent.
+**All five first-run questions are now asked**: **which installation**, **where
+the store goes**, **which group set**, **which edition** (at profile creation),
+**player or builder**, and now — the last one — **where the EE user-files folder
+is, when it cannot be located** (VB `ExtendedEditionDialogue`,
+`ui/dialogs/extended_edition.py`), with its **Disable Enhanced Edition detection
+at start-up** checkbox (VB `PrivateExtendedDisabled` → `Settings.disable_ee_detection`,
+honoured in `default_game_user_path`). The prompt fires only for an EE install
+whose user folder is missing; the setting is also editable on the Settings
+Locations tab, so it is never silent.
 
 ## Why 160 topics still say UNREVIEWED
 
@@ -652,7 +656,7 @@ edition, and offers a legacy import.
 |---|---|---|
 | 1 | Which library, when several Enhanced Edition installs are found (Steam, Beamdog, GOG) | **Asked** — first-run screen, preselecting the first |
 | 2 | Which edition is installed, when NWN cannot be found | Falls back to a folder picker |
-| 3 | Where the EE user-files folder is, when it cannot be located — plus *Disable Enhanced Edition detection at start-up* | Auto-resolves; no prompt, no setting |
+| 3 | Where the EE user-files folder is, when it cannot be located — plus *Disable Enhanced Edition detection at start-up* | **Asked** — `ExtendedEditionDialog` when an EE install's user folder is missing; the setting also lives on Settings › Locations |
 | 4 | Which drive/folder for the store, **recommending the one with most free space** | **Asked** — preselecting the roomiest *local* volume |
 | 5 | **Player or Mod Builder**, which seeds the installer exclusion preferences | Never asked; defaults used |
 | 6 | Group Set preference, when the default profile initialises | Never asked |

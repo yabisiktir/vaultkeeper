@@ -33,7 +33,7 @@ def _install(tmp_path: Path, edition: Edition) -> list[GameInstall]:
 
 def _no_real_game_scan(monkeypatch):
     # Don't auto-detect + scan the developer's real ~/Documents/Neverwinter Nights.
-    monkeypatch.setattr("vaultkeeper.ui.session.default_game_user_path", lambda: None)
+    monkeypatch.setattr("vaultkeeper.ui.session.default_game_user_path", lambda **_: None)
 
 
 def test_auto_configure_creates_ee_default(tmp_path, monkeypatch):

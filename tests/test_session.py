@@ -53,7 +53,7 @@ def test_configure_profile_persists_and_opens(tmp_path: Path, monkeypatch) -> No
     # Auto-detecting the EE user folder walks the real machine and takes about
     # thirteen seconds here — the single slowest thing in the suite. It has its
     # own test below; this one is about persistence.
-    monkeypatch.setattr(session, "default_game_user_path", lambda: None)
+    monkeypatch.setattr(session, "default_game_user_path", lambda **_: None)
 
     settings_path = tmp_path / "settings.json"
     settings = Settings(store_root=str(tmp_path / "Store"))
@@ -76,7 +76,7 @@ def test_configure_profile_auto_populates_game_user_path(tmp_path, monkeypatch):
 
     user_dir = tmp_path / "Neverwinter Nights"
     user_dir.mkdir()
-    monkeypatch.setattr(session, "default_game_user_path", lambda: user_dir)
+    monkeypatch.setattr(session, "default_game_user_path", lambda **_: user_dir)
 
     settings_path = tmp_path / "settings.json"
     settings = Settings(store_root=str(tmp_path / "Store"))
@@ -93,7 +93,7 @@ def test_configure_profile_keeps_explicit_game_user_path(tmp_path, monkeypatch):
     from vaultkeeper.ui.session import configure_profile
 
     # Auto-detection must never override a user's explicit choice.
-    monkeypatch.setattr(session, "default_game_user_path", lambda: tmp_path / "auto")
+    monkeypatch.setattr(session, "default_game_user_path", lambda **_: tmp_path / "auto")
     settings_path = tmp_path / "settings.json"
     settings = Settings(
         store_root=str(tmp_path / "Store"),
@@ -216,3 +216,31 @@ def test_importing_a_bad_file_reports_rather_than_raises(tmp_path: Path) -> None
     broken.write_text("{ not json", encoding="utf-8")
     result = controller.import_settings(broken)
     assert isinstance(result["ok"], bool)  # whatever it decides, it must not raise
+
+
+def test_default_game_user_path_none_when_detection_disabled(tmp_path, monkeypatch):
+    from nwnfile import locations
+
+    from vaultkeeper.ui import session
+
+    folder = tmp_path / "Neverwinter Nights"
+    folder.mkdir()
+    monkeypatch.setattr(locations, "user_documents_dir", lambda *a, **k: folder)
+    # A valid folder resolves normally, but is ignored when detection is off.
+    assert session.default_game_user_path() == folder
+    assert session.default_game_user_path(disabled=True) is None
+
+
+def test_configure_profile_skips_user_path_when_detection_disabled(tmp_path):
+    from vaultkeeper.config.settings import Settings, load_settings
+    from vaultkeeper.ui.session import configure_profile
+
+    # disable_ee_detection short-circuits before touching the real machine, so no
+    # monkeypatch is needed and the developer's own folder is never scanned.
+    settings_path = tmp_path / "settings.json"
+    settings = Settings(store_root=str(tmp_path / "Store"), disable_ee_detection=True)
+    configure_profile(
+        str(tmp_path / "NWN"), "Fresh", settings=settings, settings_path=settings_path
+    )
+    # The user folder is left for the user to set, not guessed (VB PrivateExtendedDisabled).
+    assert load_settings(settings_path).game_user_path is None

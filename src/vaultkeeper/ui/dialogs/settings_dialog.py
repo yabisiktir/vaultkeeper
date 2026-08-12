@@ -1081,6 +1081,7 @@ class SettingsDialog(QDialog):
         if controller is None:
             self.game_install_edit = None
             self.game_user_edit = None
+            self.disable_ee_detection = None
             return None
         report = controller.locations_report()
         by_location = {r["location"]: r["path"] for r in report["rows"]}
@@ -1103,6 +1104,20 @@ class SettingsDialog(QDialog):
             by_location.get("Game User Folder", "")
         )
         form.addRow("Game User Folder:", user_row)
+
+        # VB ExtendedEditionDialogue's "Disable Enhanced Edition detection at
+        # start-up": the escape hatch when auto-detection guesses the wrong user
+        # folder. With it on, set the Game User Folder above yourself.
+        self.disable_ee_detection = QCheckBox(
+            "Disable Enhanced Edition detection at start-up"
+        )
+        self.disable_ee_detection.setChecked(self._settings.disable_ee_detection)
+        self.disable_ee_detection.setToolTip(
+            "Stop guessing the Enhanced Edition user-files folder when the app "
+            "starts. Turn this on if detection points at the wrong folder, and set "
+            "the Game User Folder above yourself."
+        )
+        form.addRow(self.disable_ee_detection)
 
         # VB Locations, Installer Tool group: "NIT Start-up Sound", a *.wav file
         # picker whose Reset default is the game's own launcher fanfare.
@@ -1287,6 +1302,8 @@ class SettingsDialog(QDialog):
             settings.nwn_path = self.game_install_edit.text().strip() or None
         if self.game_user_edit is not None:
             settings.game_user_path = self.game_user_edit.text().strip() or None
+        if getattr(self, "disable_ee_detection", None) is not None:
+            settings.disable_ee_detection = self.disable_ee_detection.isChecked()
         if getattr(self, "workshop_dir_edit", None) is not None:
             settings.workshop_content_dir = self.workshop_dir_edit.text().strip()
         if getattr(self, "startup_sound_edit", None) is not None:

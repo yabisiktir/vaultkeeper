@@ -193,3 +193,17 @@ def test_no_game_sound_says_so_rather_than_naming_a_missing_file(qtbot, tmp_path
     from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog as SD
 
     assert SD._default_startup_sound(_controller(tmp_path)) == ""
+
+
+def test_disable_ee_detection_checkbox_round_trips(qtbot, tmp_path):
+    """The Locations tab reflects and writes back disable_ee_detection."""
+    controller = _controller(tmp_path)
+    settings = Settings(disable_ee_detection=True)
+    dlg = SettingsDialog(settings, controller=controller)
+    qtbot.addWidget(dlg)
+
+    assert dlg.disable_ee_detection is not None
+    assert dlg.disable_ee_detection.isChecked()  # reflects the setting
+    dlg.disable_ee_detection.setChecked(False)
+    dlg.apply_to(settings)
+    assert settings.disable_ee_detection is False

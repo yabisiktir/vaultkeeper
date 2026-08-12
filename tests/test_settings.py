@@ -63,3 +63,12 @@ def test_development_folder_settings_default_off_and_roundtrip(tmp_path: Path) -
     loaded = load_settings(path)
     assert loaded.enable_development_folder is True
     assert loaded.debug_options_menu is True
+
+
+def test_disable_ee_detection_defaults_off_and_roundtrips(tmp_path: Path) -> None:
+    s = Settings()
+    assert s.disable_ee_detection is False
+    s.disable_ee_detection = True
+    path = tmp_path / "settings.json"
+    save_settings(s, path)
+    assert load_settings(path).disable_ee_detection is True
