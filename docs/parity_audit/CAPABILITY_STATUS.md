@@ -128,6 +128,30 @@ them.
 | newtopic45.htm | Navigate to a Group | Ported (`MsGoToGroup` — Edit menu + status-bar group) |
 | addanewgroup.htm | Add a new Group | Ported (`MsNewGroup`, Ctrl+G) |
 | newtopic36.htm | Play Neverwinter Nights | Reference topic — Play launch is ported |
+| newtopic70.htm | Run a batch file | **Deliberate non-goal** — a .bat shipped in a mod folder is untrusted content; the port does not execute it (View it and run it yourself). Security decision, recorded |
+| newtopic79.htm | Reset Taskbar Icon | Deferred/N-A — a Windows 11 taskbar-icon fix (MsResetTaskbarIcon), no effect off Windows |
+| faqnwnmodstoee.htm | Use NWN mods in EE | Ported — Export/Import Mods (.vkmod) + profiles |
+| newtopic57.htm | It messed up my INI file | Ported — restore via Save INI files / Original Restorers |
+| newtopic74.htm | It removes my nwnpatch/userpatch changes | Reference — the hak-patch INI is regenerated (HakPatchManager); by design |
+| newtopic37.htm | Folders inside zip files | Ported — Create Installer processes archive contents |
+| newtopic71.htm | Installer missed archive files | Reference — the wizard's archive-folder views cover this |
+| newtopic38.htm | Create a Download Rule | Reference — Contribute to Download Rules / Send Feedback |
+| newtopic43.htm | Create and use a custom colour | Bounded colour port (see customisecolours) |
+| newtopic77.htm | Why access the Internet | Reference — App Definitions + Download Rules fetch (a setting) |
+| newtopic53.htm / newtopic54.htm / newtopic80.htm | Technical Information (App Definitions, IFO) | Reference/technical topics |
+| newtopic56.htm | Full list of Preferences | Reference — the Preferences pages |
+| newtopic29.htm / newtopic30.htm / newtopic31.htm | Mod Properties / Notes / Contents panels | Reference — the panels are ported |
+| newtopic44.htm | Work with the Mod List | Reference — Go to Group + Mod Selector + Recent Mods, all ported |
+| newtopic48.htm | Linked Images | Reference — a help-system image page |
+| newtopic61.htm | Use the Options menu | Reference — the Options menu |
+| managemenu.htm / usethetoolsmenu.htm | Use the Manage / Tools menu | Reference — menu overviews |
+| msfaq.htm / faqnwnmodstoee.htm | FAQ index | Reference — the FAQ landing pages |
+| msgetstarted.htm / userinterface.htm / overview.htm / reference.htm / glossary.htm | Get Started / overview / glossary | Reference navigation |
+| mshistory.htm / mswhatsnew.htm | Version history / What's New | Reference — release notes |
+| msviewhelp.htm / msfontandcolourhelp.htm | Help topic hosts | Reference — help chrome |
+| workwithgroups.htm / workwithmods.htm / workwithrestorers.htm | Work with Groups / Mods / Restorers | Reference — section landing pages, their operations ported |
+| surazalsmodnotes.htm | Surazal's Mod notes | Reference — author's notes |
+
 | faqworkshopmods.htm | Why doesn't it show Workshop Mods? | Ported — answered by the Workshop enable preference (newtopic19) |
 | tshelpexplorer.htm | Use the Mod Explorer | Ported — Ctrl+R per the VB source (`MsModExplorer.ShortcutKeys = Control Or R`); the topic's "Ctrl+E" is a doc error |
 | filterbymodname.htm | Filter by Mod Name | Ported (Mod Explorer name filter) |
