@@ -279,6 +279,11 @@ class Settings:
     #: ``nwnsaveeditor.ui.editor.tokens.THEMES``). The editor is self-themed
     #: rather than following ``theme`` above, so it carries its own preference.
     save_editor_theme: str = "dark"
+    #: Save Game Editor: allow editing class levels (opt-in, off by default). The
+    #: editor defines this setting type; carrying it here lets the editor's own
+    #: Settings screen show the toggle when it runs embedded in Vaultkeeper, with
+    #: the value stored per host (the standalone editor keeps its own).
+    enable_class_level_editing: bool = False
     #: How a Vault project's file list is obtained: ``"api"`` asks the Vault's own
     #: API (what NIT v8.0 moved to, and what survives the site's redesign),
     #: ``"scrape"`` reads the project page's HTML as before. The API is the

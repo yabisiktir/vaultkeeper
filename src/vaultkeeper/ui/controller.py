@@ -7441,6 +7441,19 @@ class ProfileController:
         settings.save_editor_theme = theme
         save_settings(settings, self._settings_path)
 
+    def set_class_level_editing(self, enabled: bool) -> None:
+        """Persist the Save Game Editor's opt-in class-level-editing toggle.
+
+        Its presence tells the editor's Settings screen to show the toggle when it
+        runs embedded here — the same setting type it offers standalone, with the
+        value kept in Vaultkeeper's own store.
+        """
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.enable_class_level_editing = bool(enabled)
+        save_settings(settings, self._settings_path)
+
     def editor_theme(self) -> str:
         """The theme an embedded Save Game Editor should open with (host opt-in).
 

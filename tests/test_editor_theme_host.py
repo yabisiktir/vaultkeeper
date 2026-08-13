@@ -28,3 +28,10 @@ def test_editor_theme_follows_the_apps_light_dark(tmp_path, monkeypatch):
     assert controller.editor_theme() == "dark"
     monkeypatch.setattr("vaultkeeper.ui.theme.is_dark", lambda *a, **k: False)
     assert controller.editor_theme() == "light"
+
+
+def test_set_class_level_editing_persists_for_the_embedded_editor(tmp_path):
+    controller = _controller(tmp_path)
+    assert controller._settings().enable_class_level_editing is False
+    controller.set_class_level_editing(True)
+    assert controller._settings().enable_class_level_editing is True

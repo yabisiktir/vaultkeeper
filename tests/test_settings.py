@@ -72,3 +72,12 @@ def test_disable_ee_detection_defaults_off_and_roundtrips(tmp_path: Path) -> Non
     path = tmp_path / "settings.json"
     save_settings(s, path)
     assert load_settings(path).disable_ee_detection is True
+
+
+def test_class_level_editing_defaults_off_and_roundtrips(tmp_path: Path) -> None:
+    s = Settings()
+    assert s.enable_class_level_editing is False
+    s.enable_class_level_editing = True
+    path = tmp_path / "settings.json"
+    save_settings(s, path)
+    assert load_settings(path).enable_class_level_editing is True
