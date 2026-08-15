@@ -3,35 +3,41 @@
 Install and manage **Neverwinter Nights** mods on **macOS, Windows and Linux** —
 including Wine/CrossOver prefixes and network game locations.
 
+[![Build](https://github.com/yabisiktir/vaultkeeper/actions/workflows/build.yml/badge.svg)](https://github.com/yabisiktir/vaultkeeper/actions/workflows/build.yml)
+[![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
+[![Python 3.11–3.13](https://img.shields.io/badge/python-3.11%E2%80%933.13-blue.svg)](pyproject.toml)
+[![Platforms: macOS · Windows · Linux](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#building-an-app)
+
+![The mod list grouped, with a selected mod's files and their install state](docs/images/main-window.png)
+
 A mod is rarely one file. Vaultkeeper keeps a profile of every mod you have, works
 out which of its files belong in which game folder, tracks what is installed and
 what each file overrides, and can put it all back.
 
-![The mod list grouped, with a selected mod's files and their install state](docs/images/main-window.png)
+## Contents
+
+- [What it does](#what-it-does)
+- [Running it from a checkout](#running-it-from-a-checkout)
+- [Building an app](#building-an-app)
+- [Bundled tools](#bundled-tools)
+- [Development](#development)
+- [Layout](#layout)
+- [Licence](#licence)
+- [Thanks](#thanks)
 
 ## What it does
 
-- **Mods, grouped.** A profile of your mods and groups, each with its install
-  state, showing what is installed, what is overridden by something else, and
-  what conflicts.
-- **Install and uninstall.** File-level, reversible, and recorded — so removing a
-  mod restores whatever it displaced instead of leaving holes.
-- **Build installers from downloads.** Point it at the archives a mod ships as; it
-  extracts them, maps every file to the folder the game expects, and builds the
-  payload.
-- **Download from the Vault.** Fetch a project straight from Neverwinter Vault, and
-  install modules from the PRC-ified Drive collection with their dependencies
-  resolved. Transfers stream to disk and run in the background. Projects are read
-  through the Vault's own API, with page scraping kept as a fallback — see
-  [docs/vault_downloads.md](docs/vault_downloads.md).
+| Area | What you get |
+|---|---|
+| **Mods, grouped** | A profile of your mods and groups, each with its install state — what's installed, what's overridden by something else, and what conflicts. |
+| **Install and uninstall** | File-level, reversible, and recorded — removing a mod restores whatever it displaced instead of leaving holes. |
+| **Build installers from downloads** | Point it at the archives a mod ships as; it extracts them, maps every file to the folder the game expects, and builds the payload. |
+| **Download from the Vault** | Fetch a project straight from Neverwinter Vault, and install modules from the PRC-ified Drive collection with their dependencies resolved. Transfers stream to disk and run in the background. Read through the Vault's own API, with page scraping kept as a fallback — see [docs/vault_downloads.md](docs/vault_downloads.md). |
+| **Play tracking** | Launch the game, and see what you played and for how long. |
+| **Look inside the game's files** | Characters, items, portraits, haks, ERF/GFF contents — the parsers are native, so nothing external is needed to read them. |
+| **Save game editing** | Via [nwn-save-editor](https://github.com/yabisiktir/nwn-save-editor), which ships inside Vaultkeeper and also runs on its own. |
 
-  ![Browsing the PRC-ified module collection, each row showing what it was built for](docs/images/prc-module.png)
-
-- **Play tracking.** Launch the game, and see what you played and for how long.
-- **Look inside the game's files.** Characters, items, portraits, haks, ERF/GFF
-  contents — the parsers are native, so nothing external is needed to read them.
-- **Save game editing** via [nwn-save-editor](https://github.com/yabisiktir/nwn-save-editor),
-  which ships inside Vaultkeeper and also runs on its own.
+![Browsing the PRC-ified module collection, each row showing what it was built for](docs/images/prc-module.png)
 
 Your game folders are treated as someone else's property: Vaultkeeper keeps its own
 store and config, and never silently rewrites `nwn.ini` or `settings.tml`. Changes
@@ -173,8 +179,8 @@ docs/              # user guides and the parity ledger
 
 ## Licence
 
-GPL-3.0-or-later. 7-Zip is bundled under its own licence, reproduced beside each
-binary.
+GPL-3.0-or-later. See [LICENSE](LICENSE). 7-Zip is bundled under its own licence,
+reproduced beside each binary.
 
 ## Thanks
 
