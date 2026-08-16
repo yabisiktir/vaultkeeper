@@ -284,6 +284,11 @@ class Settings:
     #: Settings screen show the toggle when it runs embedded in Vaultkeeper, with
     #: the value stored per host (the standalone editor keeps its own).
     enable_class_level_editing: bool = False
+    #: Save Game Editor: extra saves folders to scan besides ``<user dir>/saves``
+    #: (each holds NWN save sub-folders). The editor defines the protocol; carrying
+    #: the list here lets its "Additional save folders" panel manage them when it
+    #: runs embedded, exactly as the standalone editor does with its own file.
+    extra_save_dirs: list[str] = field(default_factory=list)
     #: How a Vault project's file list is obtained: ``"api"`` asks the Vault's own
     #: API (what NIT v8.0 moved to, and what survives the site's redesign),
     #: ``"scrape"`` reads the project page's HTML as before. The API is the

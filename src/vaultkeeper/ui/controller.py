@@ -7454,6 +7454,23 @@ class ProfileController:
         settings.enable_class_level_editing = bool(enabled)
         save_settings(settings, self._settings_path)
 
+    def extra_save_dirs(self) -> list[Path]:
+        """Extra saves folders the embedded Save Game Editor should scan besides
+        ``<user dir>/saves`` — so an alternate saves location works in Vaultkeeper
+        just as it does in the standalone editor."""
+        from vaultkeeper.config.settings import load_settings
+
+        return [Path(p) for p in load_settings(self._settings_path).extra_save_dirs if p]
+
+    def set_extra_save_dirs(self, dirs) -> None:
+        """Persist the editor's extra saves folders. Its presence tells the editor's
+        'Additional save folders' panel that this list is ours to manage."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.extra_save_dirs = [str(d) for d in dirs]
+        save_settings(settings, self._settings_path)
+
     def editor_theme(self) -> str:
         """The theme an embedded Save Game Editor should open with (host opt-in).
 
