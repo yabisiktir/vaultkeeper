@@ -179,6 +179,33 @@ def test_download_prerequisites_downloads_only_ticked_unheld_bundles(tmp_path):
     assert got.read_bytes() == b"XX"
 
 
+def test_install_prerequisites_installs_only_ticked_unheld_bundles(tmp_path):
+    """VB's Install button doesn't just fetch a required project — it builds and
+    installs it too, the same as the primary mod."""
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/x.zip": HttpResponse("http://cdn/x.zip", 200, content=b"Z")}
+    )
+    controller._extractor = FakeArchiveExtractor(contents={"x.zip": {"hak/x.hak": b"X"}})
+    x = VaultScraperInfo(direct_url="http://cdn/x.zip", filename="x.zip")
+    bundles = [
+        {"title": "Tileset X", "url": "u", "mod_folder": "Tileset X", "group": "",
+         "files": [x], "have": False, "external": False, "selected": True},
+        {"title": "Held", "files": [x], "have": True, "selected": True},        # skipped: have
+        {"title": "Unticked", "files": [x], "have": False, "selected": False},  # skipped: unticked
+        {"title": "External", "files": [], "have": False, "external": True, "selected": True},
+    ]
+    report = controller.install_prerequisites(bundles)
+
+    assert report["installed"] == ["Tileset X"]
+    assert "Held" in report["skipped"] and "Unticked" in report["skipped"]
+    assert "External" in report["unresolved"]
+    md = controller.pd.mod_item("Tileset X")
+    assert md is not None and md.is_installer()
+
+
 def test_dialog_fetch_expands_and_preticks_prerequisites(qtbot, tmp_path, monkeypatch):
     """On fetch, a module's required projects are expanded into files and listed
     pre-ticked (default), so the next download grabs them too."""
@@ -366,6 +393,47 @@ def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
     md = controller.pd.mod_item("Installed Project")
     assert md is not None and md.is_installer()
     assert "Installed 'Installed Project'" in dlg.status.text()
+
+
+def test_dialog_install_button_installs_ticked_prerequisites(qtbot, tmp_path):
+    """Install unrolls prerequisites the same way Download does: a ticked required
+    project is fetched *and* installed into its own mod folder, not just downloaded."""
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {
+            "http://cdn/a.zip": HttpResponse("http://cdn/a.zip", 200, content=b"Z"),
+            "http://cdn/x.zip": HttpResponse("http://cdn/x.zip", 200, content=b"Z"),
+        }
+    )
+    controller._extractor = FakeArchiveExtractor(
+        contents={"a.zip": {"hak/x.hak": b"X"}, "x.zip": {"hak/y.hak": b"Y"}}
+    )
+    dlg = DownloadProjectDialog(controller, default_mod="Installed Project")
+    qtbot.addWidget(dlg)
+    dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+    dlg.populate_required(
+        [
+            {
+                "title": "Tileset X", "url": "http://vault/tileset-x",
+                "mod_folder": "Tileset X", "group": "",
+                "files": [VaultScraperInfo(direct_url="http://cdn/x.zip", filename="x.zip")],
+                "have": False, "external": False,
+            }
+        ]
+    )
+    assert dlg.required_list.topLevelItem(0).checkState(0) == Qt.CheckState.Checked
+
+    dlg._on_install()
+    _finish(qtbot, dlg)
+
+    primary = controller.pd.mod_item("Installed Project")
+    assert primary is not None and primary.is_installer()
+    prereq = controller.pd.mod_item("Tileset X")
+    assert prereq is not None and prereq.is_installer()
+    assert "Installed 'Installed Project'" in dlg.status.text()
+    assert "Also installed required project(s): Tileset X" in dlg.status.text()
 
 
 def test_download_shows_byte_progress(qtbot, tmp_path):

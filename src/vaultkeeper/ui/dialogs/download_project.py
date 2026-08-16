@@ -707,7 +707,13 @@ class DownloadProjectDialog(QDialog):
         self.start_job(work, done)
 
     def _on_install(self) -> None:
-        """Download the ticked files, build the installer, and install the mod."""
+        """Download the ticked files, build the installer, and install the mod.
+
+        VB's Install button folds the ticked required projects into the same pass:
+        each is downloaded into its own mod folder and installed alongside the
+        primary mod, not merely fetched (``CreateInstallers`` builds an installer
+        for every mod that downloaded cleanly, and installs all of them).
+        """
         if self._busy:
             return
         files = self.checked_files()
@@ -721,23 +727,38 @@ class DownloadProjectDialog(QDialog):
             return
         group = self.group_combo.currentText().strip() or None
         page_url = self._fetched_url
+        prereqs = self._selected_prereqs()
 
         def work(job):
             on_progress, on_bytes, on_phase = self._job_callbacks(job)
-            return self.controller.install_downloaded_project(
+            result = self.controller.install_downloaded_project(
                 files, mod, group=group, page_url=page_url,
                 required=self._required,
                 on_progress=on_progress, on_bytes=on_bytes, on_phase=on_phase,
             )
+            prereq_report = self.controller.install_prerequisites(
+                prereqs, on_progress=on_progress, on_bytes=on_bytes, on_phase=on_phase,
+            )
+            return result, prereq_report
 
-        def done(result) -> None:
+        def done(payload) -> None:
+            result, prereq_report = payload
             if result["built"]:
-                self.status.setText(f"Installed '{mod}'. {result['install_message']}")
+                parts = [f"Installed '{mod}'. {result['install_message']}."]
             else:
-                self.status.setText(
+                parts = [
                     f"Downloaded {result['downloaded']} of {result['total']} file(s), "
                     f"but could not build the installer for '{mod}'."
+                ]
+            installed = prereq_report["installed"]
+            if installed:
+                parts.append(
+                    f"Also installed required project(s): {', '.join(installed)}."
                 )
+            unresolved = prereq_report["unresolved"]
+            if unresolved:
+                parts.append(f"Could not install: {', '.join(unresolved)}.")
+            self.status.setText(" ".join(parts))
             if result["downloaded"]:
                 self.offer_old_downloads(mod, files)
 

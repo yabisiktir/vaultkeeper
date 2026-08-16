@@ -3545,6 +3545,12 @@ class ProfileController:
         external reference (a Steam Workshop item, a tool's home page) resolves to no
         files and is surfaced but cannot be downloaded here.
 
+        One level only, matching VB: ``PopulateRequiredProjects`` reads each
+        requirement's ``Scraper.RequiredFiles`` (its own file list) but never turns
+        around and expands *that* project's own Required Projects. A prerequisite
+        that itself needs something is surfaced once installed, on its own next
+        Download Project pass, not unrolled recursively here.
+
         Returns one bundle per requirement:
         ``{title, url, mod_folder, group, files, have, have_mod, external}``.
         """
@@ -3623,6 +3629,40 @@ class ProfileController:
             )
             downloaded.append(mod)
         return {"downloaded": downloaded, "skipped": skipped, "unresolved": unresolved}
+
+    def install_prerequisites(
+        self, bundles: list, *, on_progress=None, on_bytes=None, on_phase=None
+    ) -> dict:
+        """Download, build, and install the chosen prerequisite bundles (VB Install).
+
+        VB's Install button folds the ticked required projects' files into the same
+        ``DownloadList`` as the primary project, then ``CreateInstallers`` builds an
+        installer for *every* mod that downloaded cleanly — not just the primary one
+        — and ``BehaviourInstallerInstall`` carries that same mod set into
+        ``InstallMods``. So a prerequisite is installed, not just fetched. Mirrors
+        :meth:`download_prerequisites` but installs each mod (via
+        :meth:`install_downloaded_project`) rather than only downloading it. Returns
+        ``{installed, skipped, unresolved}`` — lists of titles / mod names.
+        """
+        installed, skipped, unresolved = [], [], []
+        for bundle in bundles or []:
+            title = str(bundle.get("title", ""))
+            if not bundle.get("selected", True) or bundle.get("have"):
+                skipped.append(title)
+                continue
+            files = bundle.get("files") or []
+            mod = str(bundle.get("mod_folder") or title).strip()
+            if not files or not mod:
+                unresolved.append(title)
+                continue
+            self.install_downloaded_project(
+                files, mod,
+                group=(bundle.get("group") or None),
+                page_url=str(bundle.get("url", "")),
+                on_progress=on_progress, on_bytes=on_bytes, on_phase=on_phase,
+            )
+            installed.append(mod)
+        return {"installed": installed, "skipped": skipped, "unresolved": unresolved}
 
     def record_project_dependencies(self, mod_name: str, required: list) -> int:
         """Record what a downloaded project said it needs (VB ``newtopic17``).
