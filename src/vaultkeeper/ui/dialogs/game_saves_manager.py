@@ -510,9 +510,10 @@ class GameSavesManager(QDialog):
             QMessageBox.question(
                 self,
                 "Finished",
-                f"Delete every game save for '{save_name}'?\n\n"
-                "How long you played it is recorded once the saves are gone — "
-                "that is what tells the tool the game is over rather than paused.",
+                f"Finish '{save_name}'?\n\n"
+                "Its game saves are moved to the archive (restorable from this "
+                "window) and its play time is recorded — that is what tells the "
+                "tool the game is over rather than paused.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )

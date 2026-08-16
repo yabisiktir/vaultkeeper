@@ -473,17 +473,11 @@ def test_the_deactivate_button_offers_it_on_right_click(qtbot, tmp_path):
 
 
 # -- Finished (deletinggamesaves.htm) ------------------------------------------- #
-def test_finished_removes_every_save_for_that_game(qtbot, tmp_path):
-    """The topic opens with the reason: "You should delete the Game Saves when
-    you have completed playing a Mod so that the Installer Tool can record how
-    long you spent playing the Mod." Deleting them one at a time gets there
-    eventually; Finished is the button that says what you mean."""
-    from vaultkeeper.config.settings import load_settings, save_settings
-
+def test_finished_archives_every_save_for_that_game(qtbot, tmp_path):
+    """Finished clears a mod's saves from the active list — which is what records
+    its completion — by **archiving** them, never deleting: a mis-click can't
+    destroy a whole game's saves, and they stay restorable from the manager."""
     controller = _controller(tmp_path)
-    settings = load_settings()
-    settings.recycle_game_saves = False
-    save_settings(settings)
 
     saves = tmp_path / "gameuser" / "saves"
     other = saves / "000009 - elsewhere"
@@ -493,25 +487,34 @@ def test_finished_removes_every_save_for_that_game(qtbot, tmp_path):
     result = controller.finish_game("Adventure")
 
     assert result["ok"] and result["removed"] == 2
-    assert "permanently" in result["message"]
+    assert "archived" in result["message"].lower()
+    # Only that game's saves left the active list.
     left = sorted(p.name for p in saves.iterdir())
     assert left == ["000009 - elsewhere"], "only that game's saves went"
+    # ...and they are in the archive, restorable — not gone.
+    archived = controller.archived_saves_root() / "Adventure" / "000000-000002"
+    assert sorted(p.name for p in archived.iterdir()) == [
+        "000000 - quicksave",
+        "000002 - camp",
+    ]
 
 
-def test_finished_honours_the_game_saves_recycle_preference(qtbot, tmp_path):
-    """Game saves get their own answer: they are large and routinely discarded,
-    so someone can want these gone for good while keeping the safety net
-    everywhere else."""
+def test_finished_never_deletes_even_with_the_recycle_preference_off(qtbot, tmp_path):
+    """The Recycle-Bin-for-game-saves preference being off used to make Finished a
+    permanent delete of a whole game's saves. It no longer deletes at all — the
+    saves are archived regardless, so the footgun is closed."""
     from vaultkeeper.config.settings import load_settings, save_settings
 
     controller = _controller(tmp_path)
     settings = load_settings()
-    settings.recycle_on_delete = True
     settings.recycle_game_saves = False
     save_settings(settings)
 
     result = controller.finish_game("Adventure")
-    assert "permanently" in result["message"]
+    assert result["ok"] and "archived" in result["message"].lower()
+    assert "permanent" not in result["message"].lower()
+    archived = controller.archived_saves_root() / "Adventure" / "000000-000002"
+    assert archived.is_dir() and any(archived.iterdir())
 
 
 def test_finishing_a_game_that_is_not_there_says_so(qtbot, tmp_path):

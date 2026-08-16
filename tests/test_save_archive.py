@@ -6,6 +6,7 @@ from pathlib import Path
 
 from vaultkeeper.game.game_saves import GameSaveFolderType, GameSaves
 from vaultkeeper.game.save_archive import (
+    archive_finished_saves,
     archive_game_saves,
     reduce_indices,
     restore_game_saves,
@@ -39,6 +40,40 @@ def test_reduce_indices_skips_leading_quick_auto_and_keeps_newest(tmp_path):
     # keep too high -> nothing to archive.
     assert reduce_indices(gs.folders, 100) is None
     assert reduce_indices([], 1) is None
+
+
+def test_archive_finished_saves_moves_all_of_a_game_and_is_restorable(tmp_path):
+    """Finished archives *every* save for the game (not just the oldest), so it can
+    be a safe replacement for deleting them — and the archive restores back."""
+    saves_dir = tmp_path / "saves"
+    _make_saves(saves_dir, _FIVE)
+    archived = tmp_path / "Archived Saves"
+    gs = GameSaves(GameSaveFolderType.SAVES, saves_dir)
+
+    result = archive_finished_saves(gs, archived, "Adventure")
+    assert result.ok and result.moved == 5 and result.errors == 0
+    assert result.range_name == "000000-000004"
+    assert "Archived 5 game saves" in result.message
+    # Every live save left; none were deleted — all are in the archive.
+    assert gs.folders == []
+    range_folder = archived / "Adventure" / "000000-000004"
+    assert len(list(range_folder.iterdir())) == 5
+
+    # And the existing restore path brings them back.
+    back = GameSaves(GameSaveFolderType.SAVES, saves_dir)
+    restored = restore_game_saves(range_folder, saves_dir)
+    assert restored.ok and restored.restored == 5
+    back = GameSaves(GameSaveFolderType.SAVES, saves_dir)
+    assert len(back.folders) == 5
+
+
+def test_archive_finished_saves_with_no_matching_game(tmp_path):
+    saves_dir = tmp_path / "saves"
+    _make_saves(saves_dir, _FIVE)
+    gs = GameSaves(GameSaveFolderType.SAVES, saves_dir)
+    result = archive_finished_saves(gs, tmp_path / "Archived Saves", "Never Played")
+    assert not result.ok and result.moved == 0
+    assert gs.folders  # nothing touched
 
 
 def test_archive_and_restore_round_trip(tmp_path):

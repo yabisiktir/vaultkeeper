@@ -169,6 +169,54 @@ def archive_game_saves(
     )
 
 
+def archive_finished_saves(
+    saves: GameSaves, archived_root: Path, game_name: str
+) -> ReduceResult:
+    """Move *every* live save for ``game_name`` into the archive — the safe form of
+    VB ``Finished``.
+
+    ``Finished`` records a mod's completion by clearing its game saves. Deleting
+    them outright means a mis-click destroys a whole game's saves at once —
+    permanently, with the Recycle-Bin-for-game-saves preference off. Archiving them
+    instead still clears the active list (which is what records the completion) but
+    leaves every save restorable from the Game Saves Manager. Same
+    ``<game>/<first>-<last>/`` layout as :func:`archive_game_saves`, so the existing
+    restore path covers it unchanged.
+    """
+    wanted = [gsi for gsi in saves.folders if gsi.game_save_name == game_name]
+    if not wanted:
+        return ReduceResult(ok=False, message=f"No live saves for '{game_name}'.")
+
+    numbers = [gsi.number for gsi in wanted]
+    range_name = f"{min(numbers):06d}-{max(numbers):06d}"
+    range_folder = archived_root / game_name / range_name
+    fs.ensure_dir(range_folder)
+
+    moved_paths: list[Path] = []
+    errors = 0
+    for gsi in wanted:
+        try:
+            fs.move_dir(gsi.full_name, range_folder / gsi.name, overwrite=True)
+            moved_paths.append(gsi.full_name)
+        except OSError:
+            errors += 1
+
+    if moved_paths:
+        saves.remove(moved_paths)
+
+    message = f"Archived {to_plural(len(moved_paths), 'game save')} for {game_name}."
+    if errors:
+        message += f" Errors: {errors:,}."
+    return ReduceResult(
+        ok=bool(moved_paths),
+        moved=len(moved_paths),
+        errors=errors,
+        range_name=range_name,
+        range_folder=range_folder,
+        message=message,
+    )
+
+
 def scan_archived_ranges(archived_root: Path, game_name: str) -> list[ArchivedRange]:
     """Enumerate a game's archived ranges (VB ``ArchivedFolder``)."""
     game_archive = archived_root / game_name

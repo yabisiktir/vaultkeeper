@@ -5011,52 +5011,47 @@ class ProfileController:
         return {"ok": result.ok, "moved": result.moved, "message": result.message}
 
     def finish_game(self, save_name: str, *, to_trash: bool | None = None) -> dict:
-        """Delete every live save for one game, then record the play time (VB Finished).
+        """Finish a game: **archive** its live saves, then record the play time.
 
-        ``deletinggamesaves.htm`` opens with the reason: "You should delete the
-        Game Saves when you have completed playing a Mod **so that the Installer
-        Tool can record how long you spent playing the Mod**." Deleting the
-        saves one at a time gets there eventually; this is the button that says
-        what you mean, and records the completion in one step.
+        ``deletinggamesaves.htm`` frames Finished as *deleting* a mod's saves so the
+        tool records how long you played. But deleting a whole game's saves on a
+        mis-click is unrecoverable — permanently so with the Recycle-Bin-for-game-
+        saves preference off — so the saves are archived instead of deleted: cleared
+        from the active list (which is what records the completion) yet restorable
+        from the Game Saves Manager. ``to_trash`` is accepted for backwards
+        compatibility and no longer used — Finished never deletes.
         """
-        from vaultkeeper.core import fs
-
         loop = self.play_loop
         if loop is None:
             return {"ok": False, "removed": 0, "message": "No game saves are available."}
+        from vaultkeeper.game.save_archive import archive_finished_saves
+
         saves = loop.game_saves()
-        wanted = [gsi for gsi in saves.folders if gsi.game_save_name == save_name]
-        if not wanted:
+        result = archive_finished_saves(saves, self.archived_saves_root(), save_name)
+        if result.moved == 0 and not result.errors:
             return {
                 "ok": False,
                 "removed": 0,
                 "message": f"No live saves for '{save_name}'.",
             }
-
-        recycle = (
-            self._settings().recycle_game_saves if to_trash is None else to_trash
-        )
-        removed, failures = [], []
-        for gsi in wanted:
-            try:
-                fs.delete(gsi.full_name, to_trash=recycle, missing_ok=True)
-                removed.append(gsi.full_name)
-            except OSError as ex:
-                failures.append(f"{gsi.name}: {ex}")
-        if removed:
-            saves.remove(removed)
-        # The play time is only written once the saves are gone — that is what
-        # tells the recorder the game is over rather than paused.
+        # The play time is only written once the saves leave the active list — that
+        # is what tells the recorder the game is over rather than paused.
         loop.play_data.record_completed_games()
 
         mod_name = loop.game_mapper.save_name_to_mod_name(save_name, interactive=False)
         message = (
-            f"Finished '{mod_name}': removed {len(removed)} game save(s)"
-            + (" to the recycle bin." if recycle else " permanently.")
+            f"Finished '{mod_name}': archived {result.moved} game save(s) "
+            f"(restorable from the Game Saves Manager)."
         )
-        if failures:
-            message += f" {len(failures)} could not be removed."
-        return {"ok": not failures, "removed": len(removed), "message": message}
+        if result.errors:
+            message += f" {result.errors} could not be archived."
+        return {
+            "ok": result.errors == 0,
+            "removed": result.moved,
+            "archived": result.moved,
+            "range_name": result.range_name,
+            "message": message,
+        }
 
     def current_game_name(self) -> str:
         """The save name of the game currently in the live saves folder."""
