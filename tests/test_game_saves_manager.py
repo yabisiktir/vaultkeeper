@@ -523,6 +523,47 @@ def test_finishing_a_game_that_is_not_there_says_so(qtbot, tmp_path):
     assert not result["ok"] and "No live saves" in result["message"]
 
 
+def test_protect_game_saves_blocks_every_save_removing_action(qtbot, tmp_path):
+    """With the lock on, nothing the tool offers can remove a live save: Finished,
+    Reduce, Deactivate and the auto-move-aside all refuse and leave the folder."""
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller(tmp_path)
+    settings = load_settings()
+    settings.protect_game_saves = True
+    save_settings(settings)
+
+    saves = tmp_path / "gameuser" / "saves"
+    before = sorted(p.name for p in saves.iterdir())
+
+    finished = controller.finish_game("Adventure")
+    reduced = controller.reduce_game_saves(1)
+    deactivated = controller.deactivate_current_game()
+    auto = controller.auto_backup_other_games()
+
+    assert not finished["ok"] and "protected" in finished["message"].lower()
+    assert not reduced["ok"] and "protected" in reduced["message"].lower()
+    assert not deactivated["ok"] and "protected" in deactivated["message"].lower()
+    assert auto["moved"] == 0  # the on-open sanitise is a no-op when locked
+    # The live saves folder is untouched.
+    assert sorted(p.name for p in saves.iterdir()) == before
+
+
+def test_protect_game_saves_disables_the_manager_buttons(qtbot, tmp_path):
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller(tmp_path)
+    settings = load_settings()
+    settings.protect_game_saves = True
+    save_settings(settings)
+
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert not dlg.finished_button.isEnabled()
+    assert not dlg.reduce_button.isEnabled()
+    assert not dlg.deactivate_button.isEnabled()
+
+
 def test_the_button_needs_a_selected_save(qtbot, tmp_path):
     controller = _controller(tmp_path)
     dlg = GameSavesManager.show_for(controller)

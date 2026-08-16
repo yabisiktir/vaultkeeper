@@ -47,6 +47,13 @@ _NO_START_SCREEN_MSG = "Vaultkeeper does not yet manage your NWN Start Screen."
 #: Installed folder that holds portrait TGAs (VB Mapper.C.ModPortraitsFolder).
 _PORTRAIT_FOLDER = "portraits"
 
+#: Refusal shown when the "protect game saves" preference blocks an action that
+#: would remove saves from the live folder (Finished / Reduce / Deactivate).
+_GAME_SAVES_PROTECTED = (
+    "Game saves are protected (Settings → Protect game saves). "
+    "No saves were changed."
+)
+
 
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
@@ -4893,6 +4900,8 @@ class ProfileController:
         Keeps the newest ``keep`` saves active and moves the rest into the archive.
         Returns ``{ok, moved, errors, range_name, message}``.
         """
+        if self._settings().protect_game_saves:
+            return {"ok": False, "moved": 0, "message": _GAME_SAVES_PROTECTED}
         loop = self.play_loop
         if loop is None:
             return {"ok": False, "moved": 0, "message": "No game saves available."}
@@ -4990,6 +4999,8 @@ class ProfileController:
 
         Called when the Game Saves Manager opens, which is where VB does it.
         """
+        if self._settings().protect_game_saves:
+            return {"ok": True, "moved": 0, "message": ""}  # locked: never move saves
         loop = self.play_loop
         if loop is None:
             return {"ok": True, "moved": 0, "message": ""}
@@ -5000,6 +5011,8 @@ class ProfileController:
 
     def deactivate_current_game(self) -> dict:
         """Deactivate the active game into a backup (VB ``DeactivateGame``)."""
+        if self._settings().protect_game_saves:
+            return {"ok": False, "moved": 0, "message": _GAME_SAVES_PROTECTED}
         loop = self.play_loop
         if loop is None:
             return {"ok": False, "moved": 0, "message": "No game saves available."}
@@ -5021,6 +5034,8 @@ class ProfileController:
         from the Game Saves Manager. ``to_trash`` is accepted for backwards
         compatibility and no longer used — Finished never deletes.
         """
+        if self._settings().protect_game_saves:
+            return {"ok": False, "removed": 0, "message": _GAME_SAVES_PROTECTED}
         loop = self.play_loop
         if loop is None:
             return {"ok": False, "removed": 0, "message": "No game saves are available."}

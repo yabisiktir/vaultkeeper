@@ -78,6 +78,11 @@ class Settings:
     #: are large and routinely discarded, so someone can reasonably want these
     #: gone for good while keeping the safety net everywhere else.
     recycle_game_saves: bool = True
+    #: Lock the live game-saves folder: when on, the tool refuses every action that
+    #: removes saves from it — Finished, Reduce and Deactivate (and the automatic
+    #: move-aside when the Game Saves Manager opens). Off by default; a user who
+    #: never wants the tool touching their saves turns it on.
+    protect_game_saves: bool = False
     #: On startup, check whether the game config diverged and prompt before syncing
     #: (config-isolation principle — never sync silently).
     validate_game_config_on_startup: bool = True

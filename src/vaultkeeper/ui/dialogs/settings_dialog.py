@@ -403,6 +403,16 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.recycle_saves)
 
+        self.protect_saves = QCheckBox(
+            "Protect game saves (disable Finished, Reduce and Deactivate)"
+        )
+        self.protect_saves.setChecked(settings.protect_game_saves)
+        self.protect_saves.setToolTip(
+            "When on, the tool refuses every action that removes saves from your "
+            "live saves folder — nothing here will touch your saves."
+        )
+        form.addRow(self.protect_saves)
+
         self.startup_check = QCheckBox(
             "Check the game configuration for changes on startup"
         )
@@ -1259,6 +1269,7 @@ class SettingsDialog(QDialog):
                 settings.nwn_path = self._profile_folder_edits[active]
         settings.recycle_on_delete = self.recycle.isChecked()
         settings.recycle_game_saves = self.recycle_saves.isChecked()
+        settings.protect_game_saves = self.protect_saves.isChecked()
         settings.validate_game_config_on_startup = self.startup_check.isChecked()
         settings.convert_bik_files = self.convert_bik.isChecked()
         settings.install_after_create = self.install_after_create.isChecked()

@@ -93,7 +93,7 @@ class GameSavesManager(QDialog):
         self.finished_button = QPushButton("Finished")
         self.finished_button.setIcon(R.get_icon("StatusOK_16x"))
         self.finished_button.setToolTip(
-            "Delete every save for this game and record how long it was played"
+            "Archive every save for this game and record how long it was played"
         )
         self.finished_button.clicked.connect(self._on_finished)
         self.reduce_button = QPushButton("Reduce")
@@ -315,8 +315,12 @@ class GameSavesManager(QDialog):
                 )
             )
 
+        # "Protect game saves" locks every action that removes saves from the live
+        # folder — the controller refuses them too, this just greys the buttons.
+        protected = bool(self._controller) and self._controller._settings().protect_game_saves
+
         self.reduce_button.setEnabled(
-            bool(self._controller) and report.get("can_reduce", False)
+            not protected and bool(self._controller) and report.get("can_reduce", False)
         )
         # Second list: deactivated games (backups) + Backups space total.
         self.games.clear()
@@ -329,7 +333,18 @@ class GameSavesManager(QDialog):
             f"Backups total size: {backup.get('backup_total') or '0 B'}"
         )
         has_active = bool(self._controller) and count > 0
-        self.deactivate_button.setEnabled(has_active)
+        self.deactivate_button.setEnabled(has_active and not protected)
+        self.finished_button.setEnabled(not protected)
+        if protected:
+            note = "Disabled — game saves are protected (Settings → Protect game saves)."
+            for button in (
+                self.finished_button, self.reduce_button, self.deactivate_button
+            ):
+                button.setToolTip(note)
+            self.status.setText(
+                "Game saves are protected: Finished, Reduce and Deactivate are off. "
+                "Turn this off in Settings → Protect game saves."
+            )
         self._sync_buttons()
 
     def _sync_buttons(self) -> None:
