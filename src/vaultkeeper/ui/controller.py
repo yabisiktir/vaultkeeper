@@ -3535,6 +3535,95 @@ class ProfileController:
                 FileStatus.DOWNLOADED if name.lower() in existing else FileStatus.AVAILABLE
             )
 
+    def expand_prerequisites(self, required: list, *, exclude_mod: str = "") -> list[dict]:
+        """Expand a module's required projects into their files (VB ``LvRequirements``).
+
+        Faithful to VB's DownloadProject: each required project is fetched and routed
+        to its own mod folder / group via the download rules, so a single download can
+        grab the prerequisites too. A requirement already present in the store is
+        flagged ``have`` and not re-fetched (VB's "skip when already downloaded"); an
+        external reference (a Steam Workshop item, a tool's home page) resolves to no
+        files and is surfaced but cannot be downloaded here.
+
+        Returns one bundle per requirement:
+        ``{title, url, mod_folder, group, files, have, have_mod, external}``.
+        """
+        from vaultkeeper.vault.mod_links import is_external_requirement, search_name
+
+        by_link = {
+            m.web_link.lower(): n
+            for n, m in self.pd.mod_list.items()
+            if m.is_not_group_item and m.web_link
+        }
+        by_name = {search_name(n): n for n in self.pd.mod_keys}
+
+        bundles: list[dict] = []
+        for entry in required or []:
+            title = str(entry.get("title", "")).strip()
+            if not title:
+                continue
+            url = str(entry.get("url", ""))
+            have_mod = by_link.get(url.lower()) or by_name.get(search_name(title)) or ""
+            if have_mod == exclude_mod:
+                have_mod = ""
+            external = is_external_requirement(entry)
+            bundle = {
+                "title": title,
+                "url": url,
+                "mod_folder": "",
+                "group": "",
+                "files": [],
+                "have": bool(have_mod),
+                "have_mod": have_mod,
+                "external": external,
+            }
+            if url and not external and not have_mod:
+                try:
+                    project = self.fetch_vault_project(url)
+                except Exception as ex:  # a moved page / network — surface, don't crash
+                    from nwnfile.log import get_logger
+
+                    get_logger(__name__).warning(
+                        "could not expand required project %s: %s", url, ex
+                    )
+                    project = None
+                if project:
+                    bundle["files"] = project["files"]
+                    # The requirement's own folder from the rules, else its title —
+                    # never the parent's folder, which would merge two projects.
+                    bundle["mod_folder"] = project["mod_folder"] or title
+                    bundle["group"] = project["group"]
+            bundles.append(bundle)
+        return bundles
+
+    def download_prerequisites(self, bundles: list, *, on_progress=None, on_bytes=None) -> dict:
+        """Download the chosen prerequisite bundles (VB: the ticked requirements).
+
+        Each bundle's files go into its own mod folder / group. Bundles the user
+        unticked (``selected`` False), ones already in the store (``have``) and
+        external references (no files) are skipped. Returns
+        ``{downloaded, skipped, unresolved}`` — lists of titles / mod names.
+        """
+        downloaded, skipped, unresolved = [], [], []
+        for bundle in bundles or []:
+            title = str(bundle.get("title", ""))
+            if not bundle.get("selected", True) or bundle.get("have"):
+                skipped.append(title)
+                continue
+            files = bundle.get("files") or []
+            mod = str(bundle.get("mod_folder") or title).strip()
+            if not files or not mod:
+                unresolved.append(title)
+                continue
+            self.download_project(
+                files, mod,
+                group=(bundle.get("group") or None),
+                page_url=str(bundle.get("url", "")),
+                on_progress=on_progress, on_bytes=on_bytes,
+            )
+            downloaded.append(mod)
+        return {"downloaded": downloaded, "skipped": skipped, "unresolved": unresolved}
+
     def record_project_dependencies(self, mod_name: str, required: list) -> int:
         """Record what a downloaded project said it needs (VB ``newtopic17``).
 

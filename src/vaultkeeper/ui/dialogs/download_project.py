@@ -38,22 +38,6 @@ from vaultkeeper.ui import resources as R
 from vaultkeeper.ui.controller import _fmt_size
 
 
-def _is_external(project: dict) -> bool:
-    """Whether a required project is a web page rather than a Vault project.
-
-    The API says so outright; a scraped page does not, and a link that leaves
-    the Vault is the only signal there is.
-    """
-    kind = str(project.get("type", "")).lower()
-    if kind:
-        return kind == "external"
-    # Scraped: the path is all there is to go on. A project page is
-    # ``…/project/<game>/<kind>/<slug>``; 7-Zip's home page is not.
-    from urllib.parse import urlsplit
-
-    return "/project/" not in urlsplit(str(project.get("url", ""))).path
-
-
 class DownloadProjectDialog(QDialog):
     """Retrieve a Vault project and download it into a new/updated mod."""
 
@@ -68,6 +52,7 @@ class DownloadProjectDialog(QDialog):
         self.controller = controller
         self._files: list = []
         self._required: list[dict] = []
+        self._prereqs: list[dict] = []  # required projects expanded into their files
         self._name_touched = False
         #: Set while a transfer is running, so a second click cannot start one.
         self._busy = False
@@ -321,39 +306,80 @@ class DownloadProjectDialog(QDialog):
                 result.append(self._files[index])
         return result
 
-    def populate_required(self, projects: list) -> None:
-        """Show the project's required prerequisites (VB Required-Projects field)."""
-        self._required = projects
+    def populate_required(self, bundles: list) -> None:
+        """Show the module's required projects as a checklist (VB ``LvRequirements``).
+
+        Each Vault requirement has been expanded into its files; a ticked one is
+        downloaded into its own mod folder alongside the module. Requirements
+        already in the store, external pages, and any that could not be read are
+        shown but cannot be ticked. Whether the tickable ones start ticked follows
+        the *Include prerequisites* setting.
+        """
+        from PySide6.QtCore import Qt as _Qt
+
+        self._prereqs = bundles
         self.required_list.clear()
-        for proj in projects:
-            item = QTreeWidgetItem([proj["title"], proj["url"]])
-            if _is_external(proj):
-                # Not everything a project requires is a Vault project. 7-Zip is
-                # required by name and links to its own home page; loading that
-                # into the retrieve box and fetching it finds nothing, which
-                # reads as a broken prerequisite rather than an external one.
-                item.setText(0, f"{proj['title']} (external page)")
-                item.setToolTip(0, "An external web page — opens in your browser.")
+        include = self.controller._settings().vault_include_prerequisites
+        for bundle in bundles:
+            title = bundle.get("title", "")
+            item = QTreeWidgetItem([title, bundle.get("url", "")])
+            if bundle.get("have"):
+                item.setText(0, f"{title}  — already in your store")
+                bundle["selected"] = False
+            elif bundle.get("external"):
+                item.setText(0, f"{title}  — external page (double-click to open)")
+                item.setToolTip(0, "Not a Vault project — opens in your browser.")
+                bundle["selected"] = False
+            elif not bundle.get("files"):
+                item.setText(0, f"{title}  — could not be read from the Vault")
+                bundle["selected"] = False
+            else:
+                folder = bundle.get("mod_folder") or title
+                n = len(bundle["files"])
+                item.setText(0, f"{title}  →  {folder}  ({n} file{'' if n == 1 else 's'})")
+                item.setFlags(item.flags() | _Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(
+                    0, _Qt.CheckState.Checked if include else _Qt.CheckState.Unchecked
+                )
+                bundle["selected"] = include
             self.required_list.addTopLevelItem(item)
-        has = bool(projects)
+        has = bool(bundles)
+        self.required_label.setText(
+            "Required projects (ticked ones are downloaded too):" if has else ""
+        )
         self.required_label.setVisible(has)
         self.required_list.setVisible(has)
 
-    def _on_required_double_clicked(self, item: QTreeWidgetItem) -> None:
-        """Load a required project's URL into the retrieve box (so it can be fetched).
+    def _selected_prereqs(self) -> list:
+        """The prerequisite bundles the user has ticked (with ``selected`` set)."""
+        from PySide6.QtCore import Qt as _Qt
 
-        An external page is opened in the browser instead — there is nothing
-        here that could download it.
+        out = []
+        for index, bundle in enumerate(self._prereqs):
+            item = self.required_list.topLevelItem(index)
+            checkable = item is not None and bool(
+                item.flags() & _Qt.ItemFlag.ItemIsUserCheckable
+            )
+            picked = dict(bundle)
+            picked["selected"] = (
+                checkable and item.checkState(0) == _Qt.CheckState.Checked
+            )
+            out.append(picked)
+        return out
+
+    def _on_required_double_clicked(self, item: QTreeWidgetItem) -> None:
+        """Open an external requirement's page in the browser.
+
+        Vault requirements are handled by ticking them; this stays useful for the
+        external pages there is nothing here to download.
         """
         index = self.required_list.indexOfTopLevelItem(item)
-        proj = self._required[index] if 0 <= index < len(self._required) else {}
-        if _is_external(proj):
+        bundle = self._prereqs[index] if 0 <= index < len(self._prereqs) else {}
+        if bundle.get("external"):
             from PySide6.QtCore import QUrl
             from PySide6.QtGui import QDesktopServices
 
-            QDesktopServices.openUrl(QUrl(item.text(1)))
-            return
-        self.url_edit.setText(item.text(1))
+            QDesktopServices.openUrl(QUrl(bundle.get("url", "")))
 
     def _on_name_edited(self, _text: str) -> None:
         self._name_touched = True
@@ -366,7 +392,15 @@ class DownloadProjectDialog(QDialog):
         self.status.setText("Retrieving…")
         project = self.controller.fetch_vault_project(url)
         self.populate_files(project["files"])
-        self.populate_required(project["required"])
+        self._required = project["required"]
+        # Expand each required project into its files (VB LvRequirements), so a
+        # single download can grab the prerequisites too. This fetches each
+        # requirement's page, so it is done here on the retrieve, not the download.
+        self.populate_required(
+            self.controller.expand_prerequisites(
+                self._required, exclude_mod=self.mod_name_edit.text().strip()
+            )
+        )
         if not project["files"]:
             self.status.setText(self._nothing_found(url))
             return
@@ -634,6 +668,8 @@ class DownloadProjectDialog(QDialog):
         group = self.group_combo.currentText().strip() or None
         page_url = self._fetched_url
 
+        prereqs = self._selected_prereqs()
+
         def work(job):
             on_progress, on_bytes, _ = self._job_callbacks(job)
             results = self.controller.download_project(
@@ -644,13 +680,26 @@ class DownloadProjectDialog(QDialog):
             # saves asking the Vault the same question again through Auto
             # (newtopic17.htm).
             self.controller.record_project_dependencies(mod, self._required)
-            return results
+            # VB downloads the ticked required projects in the same pass, each into
+            # its own mod folder.
+            prereq_report = self.controller.download_prerequisites(
+                prereqs, on_progress=on_progress, on_bytes=on_bytes
+            )
+            return results, prereq_report
 
-        def done(results) -> None:
+        def done(payload) -> None:
+            results, prereq_report = payload
             ok = sum(1 for r in results if r.ok)
             verb = "Updated" if ok else "No files downloaded to"
+            extra = ""
+            got = prereq_report["downloaded"]
+            if got:
+                extra += f" Also fetched required project(s): {', '.join(got)}."
+            unresolved = prereq_report["unresolved"]
+            if unresolved:
+                extra += f" Could not fetch: {', '.join(unresolved)}."
             self.status.setText(
-                f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'."
+                f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'.{extra}"
             )
             if ok:
                 self.offer_old_downloads(mod, [r.info for r in results if r.ok])

@@ -310,6 +310,11 @@ class Settings:
     #: and should not be offered. Off means a project is taken exactly as the
     #: Vault presents it (VB's Download Project rule preferences).
     vault_apply_project_rules: bool = True
+    #: Expand a project's required projects into their files and pre-tick them, so
+    #: one download fetches the module and its prerequisites together (VB's
+    #: DownloadProject requirements list). Off leaves them shown but unticked — you
+    #: opt each one in — so a missing dependency is never silent either way.
+    vault_include_prerequisites: bool = True
     #: User's Web-menu links (``[{"text", "url"}, ...]``); defaults to Vault + Nexus.
     web_links: list[dict[str, str]] = field(default_factory=default_web_links)
     #: User's Run-menu external programs (``[{"text", "path"}, ...]``) shown after the

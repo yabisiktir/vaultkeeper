@@ -116,6 +116,22 @@ class LinkFinding:
         return bool(self.suggested) and self.suggested != self.current
 
 
+def is_external_requirement(entry: dict) -> bool:
+    """Whether a required project points off the Vault (a web page, not a project).
+
+    The API says so via ``type == "external"``; a scraped entry only has its URL to
+    go on, and a Vault project path is ``…/project/<game>/<kind>/<slug>`` (a Steam
+    Workshop link or a tool's home page is not). Such a requirement has no Vault
+    files to fetch, so it is surfaced but cannot be downloaded here.
+    """
+    from urllib.parse import urlsplit
+
+    kind = str(entry.get("type", "")).lower()
+    if kind:
+        return kind == "external"
+    return "/project/" not in urlsplit(str(entry.get("url", ""))).path
+
+
 def search_name(mod_name: str, rules: DownloadRules | None = None) -> str:
     """A mod folder name reduced to something the Vault might have titled it.
 

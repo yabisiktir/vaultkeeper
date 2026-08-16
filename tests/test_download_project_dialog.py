@@ -109,6 +109,111 @@ def test_controller_download_project(qtbot, tmp_path):
     assert (downloads / "b.hak").read_bytes() == b"BB"
 
 
+def test_expand_prerequisites_fetches_each_required_project(tmp_path, monkeypatch):
+    """VB expands a module's required projects into their files. External refs (a
+    Workshop link) resolve to nothing and are surfaced but not fetched."""
+    controller = _controller(tmp_path)
+    required = [
+        {"title": "Tileset X", "type": "project",
+         "url": "http://vault/project/nwn1/hakpak/tileset/x"},
+        {"title": "A Workshop Thing", "type": "external",
+         "url": "http://steamcommunity.com/sharedfiles/1"},
+    ]
+    fetched = []
+
+    def fake_fetch(url):
+        fetched.append(url)
+        return {
+            "files": [VaultScraperInfo(filename="x.hak", direct_url="http://cdn/x.hak")],
+            "required": [], "title": "", "mod_folder": "", "group": "", "excluded": 0,
+        }
+
+    monkeypatch.setattr(controller, "fetch_vault_project", fake_fetch)
+    bundles = controller.expand_prerequisites(required)
+
+    assert [b["title"] for b in bundles] == ["Tileset X", "A Workshop Thing"]
+    tileset = bundles[0]
+    assert tileset["files"] and not tileset["external"] and not tileset["have"]
+    assert tileset["mod_folder"] == "Tileset X"  # no rule folder -> the title, not the parent's
+    external = bundles[1]
+    assert external["external"] and external["files"] == []
+    # The external one is never fetched.
+    assert fetched == ["http://vault/project/nwn1/hakpak/tileset/x"]
+
+
+def test_expand_prerequisites_flags_and_skips_ones_already_in_the_store(tmp_path, monkeypatch):
+    controller = _controller(tmp_path)  # the fixture already has a mod "My Mod"
+    required = [
+        {"title": "My Mod", "type": "project",
+         "url": "http://vault/project/nwn1/module/my-mod"},
+    ]
+    calls = []
+    monkeypatch.setattr(
+        controller, "fetch_vault_project", lambda url: calls.append(url)
+    )
+
+    bundles = controller.expand_prerequisites(required)
+    assert bundles[0]["have"] and bundles[0]["have_mod"] == "My Mod"
+    assert calls == []  # already present -> not re-fetched (VB's "skip when downloaded")
+
+
+def test_download_prerequisites_downloads_only_ticked_unheld_bundles(tmp_path):
+    controller = _controller(tmp_path)
+    controller._http = FakeHttpClient(
+        {"http://cdn/x.hak": HttpResponse("http://cdn/x.hak", 200, content=b"XX")}
+    )
+    x = VaultScraperInfo(direct_url="http://cdn/x.hak", filename="x.hak")
+    bundles = [
+        {"title": "Tileset X", "url": "u", "mod_folder": "Tileset X", "group": "",
+         "files": [x], "have": False, "external": False, "selected": True},
+        {"title": "Held", "files": [x], "have": True, "selected": True},        # skipped: have
+        {"title": "Unticked", "files": [x], "have": False, "selected": False},  # skipped: unticked
+        {"title": "External", "files": [], "have": False, "external": True, "selected": True},
+    ]
+    report = controller.download_prerequisites(bundles)
+
+    assert report["downloaded"] == ["Tileset X"]
+    assert "Held" in report["skipped"] and "Unticked" in report["skipped"]
+    assert "External" in report["unresolved"]
+    got = tmp_path / "Profiles" / "P" / "Tileset X" / C.DOWNLOADS_DIR / "x.hak"
+    assert got.read_bytes() == b"XX"
+
+
+def test_dialog_fetch_expands_and_preticks_prerequisites(qtbot, tmp_path, monkeypatch):
+    """On fetch, a module's required projects are expanded into files and listed
+    pre-ticked (default), so the next download grabs them too."""
+    _set_download_method("api")  # keeps the rules offline
+    controller = _controller(tmp_path)
+
+    def fake_fetch(url):
+        if "chapter-three" in url:
+            return {
+                "files": [VaultScraperInfo(filename="c3.hak", direct_url="http://cdn/c3")],
+                "required": [], "title": "Chapter Three",
+                "mod_folder": "", "group": "", "excluded": 0,
+            }
+        return {
+            "files": [VaultScraperInfo(filename="a.zip", direct_url="http://cdn/a")],
+            "required": [{"title": "Chapter Three", "type": "project",
+                          "url": "http://vault/project/nwn1/module/chapter-three"}],
+            "title": "Chapter Four", "mod_folder": "", "group": "", "excluded": 0,
+        }
+
+    monkeypatch.setattr(controller, "fetch_vault_project", fake_fetch)
+    dlg = DownloadProjectDialog(controller, ["My Mod"], "Chapter Four")
+    qtbot.addWidget(dlg)
+    dlg.url_edit.setText("http://vault/project/nwn1/module/chapter-four")
+    dlg._on_fetch()
+
+    assert not dlg.required_list.isHidden()
+    assert dlg.required_list.topLevelItemCount() == 1
+    item = dlg.required_list.topLevelItem(0)
+    assert item.checkState(0) == Qt.CheckState.Checked
+    picked = dlg._selected_prereqs()
+    assert picked[0]["selected"] and picked[0]["title"] == "Chapter Three"
+    assert picked[0]["files"]  # expanded into the requirement's files
+
+
 def test_dialog_fetch_and_populate(qtbot, tmp_path):
     _set_download_method("scrape")  # this fixture is a project *page*
     controller = _controller(tmp_path)
@@ -403,24 +508,33 @@ _REQUIRED_PAGE = (
 )
 
 
+_CEP_PAGE = (
+    '<h1>CEP</h1><span class="file-icon"></span>'
+    '<a href="http://cdn/cep.7z" length=999>cep.7z</a>'
+)
+
+
 def test_dialog_shows_required_projects(qtbot, tmp_path):
     _set_download_method("scrape")  # this fixture is a project *page*
     controller = _controller(tmp_path)
-    controller._http = FakeHttpClient(
-        {"http://vault/project/needs-cep": HttpResponse(
+    controller._http = FakeHttpClient({
+        "http://vault/project/needs-cep": HttpResponse(
             "http://vault/project/needs-cep", 200, text=_REQUIRED_PAGE
-        )}
-    )
+        ),
+        "http://vault/project/nwn1/hakpak/cep": HttpResponse(
+            "http://vault/project/nwn1/hakpak/cep", 200, text=_CEP_PAGE
+        ),
+    })
     dlg = DownloadProjectDialog(controller, ["My Mod"])
     qtbot.addWidget(dlg)
     dlg.url_edit.setText("http://vault/project/needs-cep")
     dlg._on_fetch()
     assert not dlg.required_list.isHidden()  # made visible on fetch
     assert dlg.required_list.topLevelItemCount() == 2
-    assert dlg.required_list.topLevelItem(0).text(0) == "CEP 2.6"
-    # Double-clicking loads the required project's URL into the fetch box.
-    dlg._on_required_double_clicked(dlg.required_list.topLevelItem(0))
-    assert dlg.url_edit.text() == "http://vault/project/nwn1/hakpak/cep"
+    # The Vault requirement is expanded into its files and pre-ticked.
+    cep = dlg.required_list.topLevelItem(0)
+    assert cep.text(0).startswith("CEP 2.6")
+    assert cep.checkState(0) == Qt.CheckState.Checked
 
 
 def test_an_external_prerequisite_is_marked_and_not_fetched(qtbot, tmp_path, monkeypatch):
@@ -437,7 +551,7 @@ def test_an_external_prerequisite_is_marked_and_not_fetched(qtbot, tmp_path, mon
     dlg.url_edit.setText("http://vault/project/needs-cep")
     dlg._on_fetch()
     external = dlg.required_list.topLevelItem(1)
-    assert external.text(0) == "7-Zip (external page)"
+    assert external.text(0).startswith("7-Zip") and "external page" in external.text(0)
 
     opened = []
     from PySide6.QtGui import QDesktopServices
@@ -445,7 +559,7 @@ def test_an_external_prerequisite_is_marked_and_not_fetched(qtbot, tmp_path, mon
     monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url.toString()))
     dlg._on_required_double_clicked(external)
     assert opened == ["https://www.7-zip.org"]
-    # The retrieve box is left alone — there is nothing here to download.
+    # The retrieve box is left alone — an external page is not downloaded here.
     assert dlg.url_edit.text() == "http://vault/project/needs-cep"
 
 
@@ -501,10 +615,10 @@ def test_a_phase_without_a_count_shows_a_busy_bar_not_a_full_one(qtbot, tmp_path
 
 def test_the_api_marks_an_external_prerequisite_outright(qtbot, tmp_path):
     """The API states the kind; the scraper had to infer it from the URL."""
-    from vaultkeeper.ui.dialogs.download_project import _is_external
+    from vaultkeeper.vault.mod_links import is_external_requirement
 
-    assert _is_external({"type": "external", "url": "https://neverwintervault.org/x"})
-    assert not _is_external({"type": "project", "url": "https://elsewhere.example/p"})
+    assert is_external_requirement({"type": "external", "url": "https://neverwintervault.org/x"})
+    assert not is_external_requirement({"type": "project", "url": "https://elsewhere.example/p"})
 
 
 def test_files_and_prerequisites_come_from_one_request(qtbot, tmp_path):
@@ -524,8 +638,9 @@ def test_files_and_prerequisites_come_from_one_request(qtbot, tmp_path):
     dlg.url_edit.setText("https://neverwintervault.org/project/9")
     dlg._on_fetch()
     assert dlg.file_tree.topLevelItemCount() == 1
-    assert dlg.required_list.topLevelItem(0).text(0) == "7-Zip (external page)"
-    assert controller._http.calls == [("GET", query)]  # one, not two
+    top = dlg.required_list.topLevelItem(0)
+    assert top.text(0).startswith("7-Zip") and "external page" in top.text(0)
+    assert controller._http.calls == [("GET", query)]  # one, not two (external not fetched)
 
 
 # -- remembering where a mod came from ------------------------------------------ #

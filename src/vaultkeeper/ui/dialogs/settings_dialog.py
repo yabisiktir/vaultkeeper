@@ -575,6 +575,18 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.vault_apply_project_rules)
 
+        self.vault_include_prerequisites = QCheckBox(
+            "Include a project's required projects, pre-ticked"
+        )
+        self.vault_include_prerequisites.setChecked(settings.vault_include_prerequisites)
+        self.vault_include_prerequisites.setToolTip(
+            "A module lists the projects it needs (a tileset, an earlier chapter). "
+            "With this on, they are expanded into their files and ticked, so one "
+            "download fetches the module and its prerequisites together. Turn it off "
+            "to see them listed but unticked, and choose each yourself."
+        )
+        form.addRow(self.vault_include_prerequisites)
+
         from vaultkeeper.vault import rules_source
 
         hosts = QLabel(
@@ -1296,6 +1308,9 @@ class SettingsDialog(QDialog):
         ]
         settings.vault_rules_online = self.vault_rules_online.isChecked()
         settings.vault_apply_project_rules = self.vault_apply_project_rules.isChecked()
+        settings.vault_include_prerequisites = (
+            self.vault_include_prerequisites.isChecked()
+        )
         settings.font_point_size = self.font_size.value()
         settings.font_family = (
             self.font_family.currentText() if self.font_family.currentIndex() else ""
