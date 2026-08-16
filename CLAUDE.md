@@ -37,21 +37,25 @@ The editor window Vaultkeeper embeds (from `nwn-save-editor`) has its **own**
 token-based theming — see that repo's `CLAUDE.md`. When Vaultkeeper opens it, the
 controller acts as its host and may dictate the theme via `editor_theme()`.
 
-## Port fidelity — this is a 1:1 port, not a rewrite
+## Syncing from upstream NIT
 
-Vaultkeeper is a Python port of the VB.NET NWN Installer Tool. The quality bar is
-**no dropped functionality and the same feel**, not "roughly equivalent".
+Vaultkeeper began as a Python reimplementation of the VB.NET NWN Installer Tool
+(NIT) and has since grown its own features. **Vaultkeeper's current behaviour is the
+baseline — parity with NIT is not the goal.** Don't revert or reshape evolved code
+to match the original.
 
-1. **Don't silently drop behaviour.** There is a machine-generated coverage ledger
-   in `docs/parity_audit/` (methods / handlers / controls swept file-by-file) proving
-   VB functionality wasn't lost. When you port or change a screen, check it against
-   the VB source and the audit rather than guessing what it should do.
-2. **Reuse the original UI idiom.** Ported screens must reuse the **original button
-   icons and toolbar idiom** — read the `.Image` lines in the VB `<Form>.Designer.vb`.
-   Replacing an icon button with a text button is not a faithful port.
-3. **When a port is a deliberate simplification, say so** in the module docstring
-   (as `ui/theme.py` does for the font/colour editor), so the gap is visible instead
-   of looking like a bug.
+Going forward we periodically review **newer NIT releases** and bring relevant fixes
+and new features across, layered on top of what Vaultkeeper already has. When you do
+that:
+
+1. **Read the NIT VB source as the reference for the new behaviour**, and when a new
+   screen or control comes across, reuse its UI idiom — the `.Image` lines in the VB
+   `<Form>.Designer.vb` give the original icons rather than a text-button stand-in.
+2. **Add onto Vaultkeeper's existing implementation; don't replace it** to look like
+   NIT. Where Vaultkeeper already diverged deliberately, keep the divergence.
+3. **The coverage ledger in `docs/parity_audit/` is a provenance map** of what came
+   from which NIT construct (it tracks specific NIT versions, e.g. `NIT_V8.md`) — use
+   it to diff a new release and find what's new, not as a spec to conform to.
 
 ## User-data safety
 
