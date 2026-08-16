@@ -37,6 +37,71 @@ The editor window Vaultkeeper embeds (from `nwn-save-editor`) has its **own**
 token-based theming — see that repo's `CLAUDE.md`. When Vaultkeeper opens it, the
 controller acts as its host and may dictate the theme via `editor_theme()`.
 
+## Port fidelity — this is a 1:1 port, not a rewrite
+
+Vaultkeeper is a Python port of the VB.NET NWN Installer Tool. The quality bar is
+**no dropped functionality and the same feel**, not "roughly equivalent".
+
+1. **Don't silently drop behaviour.** There is a machine-generated coverage ledger
+   in `docs/parity_audit/` (methods / handlers / controls swept file-by-file) proving
+   VB functionality wasn't lost. When you port or change a screen, check it against
+   the VB source and the audit rather than guessing what it should do.
+2. **Reuse the original UI idiom.** Ported screens must reuse the **original button
+   icons and toolbar idiom** — read the `.Image` lines in the VB `<Form>.Designer.vb`.
+   Replacing an icon button with a text button is not a faithful port.
+3. **When a port is a deliberate simplification, say so** in the module docstring
+   (as `ui/theme.py` does for the font/colour editor), so the gap is visible instead
+   of looking like a bug.
+
+## User-data safety
+
+Vaultkeeper writes into the user's real NWN install and save folders. Losing their
+mods or saves is the worst thing it can do.
+
+1. **Deletions go through the recycle bin, not `unlink`.** `send2trash` is used so a
+   mistake is recoverable; a test proves it (the autouse `recycle_bin` fixture
+   redirects it). Don't hard-delete user content.
+2. **A data-loss bug already shipped once** (Rebuild-Database wiped user data). The
+   conftest `_isolate_store` fixture that keeps tests off the developer's real store
+   exists because of it — **keep it**, and never let a code path write to the real
+   config/data root in a test.
+3. **Resolve the EE user directory correctly.** On Enhanced Edition, installed
+   content lives in the **user** dir, located via `nwn.ini`'s `[Alias]` section — not
+   a guessed `Documents` path (`app_paths.py` / `verify_install.py`). A shared user
+   folder cannot serve two OSes: the aliases are absolute and platform-specific.
+
+## Downloads and the vault API
+
+1. **Downloads must stream.** A 1.2 GB hakpak read into memory crashed the app. Use
+   the streaming path (`vault/downloader.py`, `vault/http.py`, `vault/drive_download.py`
+   — chunked `iter_content`), never `response.content` on a mod file.
+2. **The download rules are fetched, not bundled** (`vault/download_rules.py`); NIT
+   v8's API replaced scraping (scraping is now a fallback setting, `vault/scraper.py`).
+   Beware the **cp1252** encoding on vault responses. Don't hardcode or vendor the
+   rules file.
+
+## Testing conventions
+
+- **The autouse isolation fixtures are load-bearing — never remove them.**
+  `_isolate_store` patches `app_paths._home` *and* the `config_root`/`data_root`/
+  `cache_root` env vars (patching `_home` alone is not enough off macOS);
+  `recycle_bin` redirects `send2trash`. They keep the suite off the developer's real
+  files.
+- **Real-data tests are env-gated and skip by default.** They read the tester's
+  actual install via `VAULTKEEPER_TEST_NIT_STORE` / `_NWN_USER_DIR` / `_NWN_INSTALL`
+  / `_STEAM_WORKSHOP` (see `tests/real_data.py`) and `skipif` when unset. Assert
+  shapes and ranges, not exact real-world values.
+- **GUI tests run headless** (`QT_QPA_PLATFORM=offscreen`); a modal dialog on the
+  path under test will hang the run. Steer past it or patch it.
+
+## Cross-platform
+
+This ships on **Windows, macOS and Linux** (and CrossOver). Paths, the user
+directory and the alias handling differ per OS — none of it was verified on the
+other OSes until CI started doing it, and the first real run found bugs. Don't
+assume a macOS-shaped path or a single user-folder layout; go through `app_paths`
+and the platform helpers.
+
 ## Before you push
 
 Run the same gate CI runs (from the `vaultkeeper/` dir):
