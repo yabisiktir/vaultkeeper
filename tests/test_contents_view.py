@@ -96,3 +96,46 @@ def test_contents_view_populate(qtbot) -> None:
     assert folder.childCount() == 2
     assert folder.child(0).text(0) == "a.hak"
     assert folder.child(0).text(1) == "10 B"
+
+
+def test_contents_view_related_group(qtbot, tmp_path: Path) -> None:
+    """Related (documentation) rows carry a path, and are kept apart from installer files."""
+    doc = tmp_path / "Walkthrough.pdf"
+    doc.write_text("map")
+    view = ContentsView()
+    qtbot.addWidget(view)
+    report = {
+        "folders": [
+            {
+                "folder": "hak",
+                "files": [
+                    {"name": "a.hak", "state": State.INSTALLED, "size": 10, "size_text": "10 B"},
+                ],
+            },
+            {
+                "folder": "Documentation",
+                "kind": "related",
+                "files": [
+                    {"name": "Walkthrough.pdf", "size": 3, "size_text": "3 B", "path": str(doc)},
+                ],
+            },
+        ],
+        "count": 2,
+    }
+    view.populate(report)
+    assert view.topLevelItemCount() == 2
+
+    # Selecting the installer file: an (folder, filename) key, no related path.
+    installer_item = view.topLevelItem(0).child(0)
+    view.setCurrentItem(installer_item)
+    assert view.selected_file() == ("hak", "a.hak")
+    assert view.selected_related_path() is None
+
+    # Selecting the documentation file: a real path, and no installer key.
+    doc_item = view.topLevelItem(1).child(0)
+    view.setCurrentItem(doc_item)
+    assert view.selected_file() is None
+    assert view.selected_related_path() == doc
+
+    # files() / auto-select consider only installer files, never docs.
+    assert view.files() == [("hak", "a.hak")]

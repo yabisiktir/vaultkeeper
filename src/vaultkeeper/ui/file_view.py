@@ -44,7 +44,8 @@ _STATE_ICON = {
 
 _ROLE_MOD_NAME = 0x0100  # Qt.UserRole
 _ROLE_GROUP_NAME = 0x0101  # Qt.UserRole + 1 (the row's group, for drag-to-group)
-_ROLE_FILE_KEY = 0x0102  # Qt.UserRole + 2 (a Contents file's (folder, filename))
+_ROLE_FILE_KEY = 0x0102  # Qt.UserRole + 2 (an installer file's (folder, filename))
+_ROLE_ABS_PATH = 0x0103  # Qt.UserRole + 3 (a related file's absolute path on disk)
 
 
 def icon_name_for_state(state: State) -> str:
@@ -82,36 +83,72 @@ class ContentsView(QTreeWidget):
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
 
     def populate(self, report: dict) -> None:
-        """Rebuild from a ``controller.mod_contents_report`` result."""
+        """Rebuild from a ``controller.mod_contents_report`` result.
+
+        A group's ``kind`` of ``"related"`` marks the mod's documentation and
+        ``_Downloads`` files (readmes, walkthroughs, PDFs, archives) — the files
+        NIT's mod-folder browser showed alongside the installable ones. Their
+        rows carry an absolute ``path`` and a document icon rather than an
+        install-state icon, so they can be opened even though they never install.
+        """
         from PySide6.QtCore import Qt
 
         self.clear()
         folder_icon = R.get_icon("Folder_6221")
+        doc_icon = R.get_icon("Document_16x")
         for group in report.get("folders", []):
+            related = group.get("kind") == "related"
             folder_item = QTreeWidgetItem([group["folder"], ""])
             folder_item.setIcon(0, folder_icon)
             folder_item.setFlags(folder_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             self.addTopLevelItem(folder_item)
             for file in group["files"]:
                 item = QTreeWidgetItem([file["name"], file["size_text"]])
-                item.setIcon(0, R.get_icon(icon_name_for_state(file["state"])))
                 item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight)
-                # Carry the file's (folder, filename) so the pane can view/delete it.
-                item.setData(0, _ROLE_FILE_KEY, (group["folder"], file["name"]))
-                # What the row's icon means, in words (statusicons.htm).
-                item.setToolTip(0, State(file["state"]).describe(of_file=True))
-                brush = file_state_brush(file["state"])
-                if brush is not None:
-                    item.setForeground(0, brush)
+                if related:
+                    item.setIcon(0, doc_icon)
+                    # Related files live outside the installer tree, so they
+                    # carry their real path rather than an (folder, filename) key.
+                    item.setData(0, _ROLE_ABS_PATH, file["path"])
+                    item.setToolTip(0, file["path"])
+                else:
+                    item.setIcon(0, R.get_icon(icon_name_for_state(file["state"])))
+                    # Carry the file's (folder, filename) so the pane can view/delete it.
+                    item.setData(0, _ROLE_FILE_KEY, (group["folder"], file["name"]))
+                    # What the row's icon means, in words (statusicons.htm).
+                    item.setToolTip(0, State(file["state"]).describe(of_file=True))
+                    brush = file_state_brush(file["state"])
+                    if brush is not None:
+                        item.setForeground(0, brush)
                 folder_item.addChild(item)
             folder_item.setExpanded(True)
 
     def selected_file(self) -> tuple[str, str] | None:
-        """The selected file's ``(folder, filename)``, or ``None`` for a group row."""
+        """The selected installer file's ``(folder, filename)``, or ``None``.
+
+        ``None`` for a group row, an empty pane, *or* a related (documentation /
+        downloads) file — those are addressed by :meth:`selected_related_path`.
+        """
         item = self.currentItem()
         if item is None:
             return None
         return item.data(0, _ROLE_FILE_KEY)
+
+    def selected_related_path(self):
+        """The selected related file's absolute :class:`~pathlib.Path`, or ``None``.
+
+        Set only for the documentation / ``_Downloads`` rows added from
+        ``controller.mod_related_files``; ``None`` for installer files and groups.
+        """
+        item = self.currentItem()
+        if item is None:
+            return None
+        raw = item.data(0, _ROLE_ABS_PATH)
+        if not raw:
+            return None
+        from pathlib import Path
+
+        return Path(raw)
 
     def files(self) -> list[tuple[str, str]]:
         """Every ``(folder, filename)`` currently listed, in display order."""

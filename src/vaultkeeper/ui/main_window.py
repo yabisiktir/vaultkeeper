@@ -11,6 +11,7 @@ implemented so far and reports "not available yet" for the rest.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import PurePath
 
 from nwnfile.log import get_logger
@@ -101,7 +102,9 @@ class MainWindow(QMainWindow):
         self._contents_mod: str | None = None
         # Cut/Copy/Paste clipboard for Contents files: (mod, folder, filename, is_cut).
         self._file_clipboard: tuple | None = None
-        self._contents.itemDoubleClicked.connect(self._on_view_contents_file)
+        # Token -> path for the mod-info documentation links (rebuilt per selection).
+        self._doc_paths: dict[str, str] = {}
+        self._contents.itemDoubleClicked.connect(self._on_contents_double_click)
         # Remember what was picked, so "whatever was selected last time" means
         # something the next time this mod is opened.
         self._contents.itemSelectionChanged.connect(self._remember_contents_selection)
@@ -1060,7 +1063,30 @@ class MainWindow(QMainWindow):
                 menu.addSeparator()
                 pending_separator = False
             menu.addAction(action)
+        # "Open Mod Folder" — reach the mod's readmes/walkthroughs/downloads in
+        # the OS file browser (the mod folder is where NIT's Contents pane was
+        # rooted). Enabled for a single selected mod.
+        if len(self.selected_mod_names()) == 1:
+            menu.addSeparator()
+            menu.addAction("Open Mod Folder", self._on_open_mod_folder)
         return menu
+
+    def _on_open_mod_folder(self) -> None:
+        """Open the selected mod's folder in the OS file browser."""
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        names = self.selected_mod_names()
+        if self.controller is None or len(names) != 1:
+            return
+        folder = self.controller.mod_folder(names[0])
+        if folder is None or not folder.is_dir():
+            self.nit_status.set_info(f"{names[0]} has no folder on disk.")
+            return
+        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder))):
+            self.nit_status.set_info("Could not open the mod folder.")
+            return
+        self.nit_status.set_info(f"Opened {names[0]}'s folder.")
 
     def _show_mods_context_menu(self, pos) -> None:
         if self.controller is None:
@@ -1259,7 +1285,13 @@ class MainWindow(QMainWindow):
             self._contents_mod = None
             return
         self._contents_mod = md.mod_name
-        self._contents.populate(self.controller.mod_contents_report(md.mod_name))
+        # The installable game files (state-coloured), then the mod's own
+        # documentation / _Downloads files so a walkthrough or readme is reachable
+        # from the same pane (VB FvContents browsed the whole mod folder).
+        report = self.controller.mod_contents_report(md.mod_name)
+        related = self.controller.mod_related_files(md.mod_name)
+        report = {**report, "folders": report["folders"] + related["folders"]}
+        self._contents.populate(report)
         self._apply_selection_preference(md.mod_name)
 
     def _apply_selection_preference(self, mod_name: str) -> None:
@@ -1305,12 +1337,27 @@ class MainWindow(QMainWindow):
         """
         if self.controller is None or self._contents_mod is None:
             return None
-        selected = self._contents.selected_file()
-        if selected is None:  # a folder row / nothing selected
-            return None
         from PySide6.QtWidgets import QMenu
 
         from vaultkeeper.core.archive import is_extractable
+
+        # A related (documentation / _Downloads) file can be viewed and opened,
+        # but not cut/pasted/deleted through the profile — those act on installer
+        # files. Offer just the read actions for it.
+        related = self._contents.selected_related_path()
+        if related is not None:
+            menu = QMenu(self)
+            menu.addAction("View File", self._on_view_contents_file)
+            menu.addAction("Display Info", self._on_display_contents_info)
+            menu.addAction("Open\tCtrl+O", self._on_open_with_default_app)
+            if is_extractable(related.suffix):
+                menu.addAction("Extract compressed file contents", self._on_show_archive)
+            menu.addAction("Copy Name", self._on_copy_contents_name)
+            return menu
+
+        selected = self._contents.selected_file()
+        if selected is None:  # a folder row / nothing selected
+            return None
 
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
@@ -1377,13 +1424,11 @@ class MainWindow(QMainWindow):
         """
         if self.controller is None or self._contents_mod is None:
             return
-        selected = self._contents.selected_file()
-        if selected is None:
-            return
-        folder, filename = selected
-        path = self.controller.mod_file_path(self._contents_mod, folder, filename)
+        path = self._selected_contents_path()
         if path is None:
-            self.nit_status.set_info(f"{filename} is not on disk.")
+            return
+        if not path.is_file():
+            self.nit_status.set_info(f"{path.name} is not on disk.")
             return
         from vaultkeeper.core.archive import is_extractable
         from vaultkeeper.ui.dialogs.image_viewer import IMAGE_EXTENSIONS, ImageViewer
@@ -1399,6 +1444,23 @@ class MainWindow(QMainWindow):
             self._image_viewer = ImageViewer.show_for(path, self)
         else:
             self._on_view_contents_file()
+
+    def _selected_contents_path(self):
+        """Absolute path of the current Contents selection, or ``None``.
+
+        Resolves either kind of Contents row: a related (documentation /
+        ``_Downloads``) file carries its own path; an installer file is resolved
+        under the mod's installer folder. ``None`` for a group row or empty pane.
+        """
+        if self.controller is None or self._contents_mod is None:
+            return None
+        related = self._contents.selected_related_path()
+        if related is not None:
+            return related
+        selected = self._contents.selected_file()
+        if selected is None:
+            return None
+        return self.controller.mod_file_path(self._contents_mod, *selected)
 
     def _on_open_with_default_app(self) -> None:
         """Open the selection with its associated program (``keyboardshortcuts.htm``).
@@ -1418,11 +1480,12 @@ class MainWindow(QMainWindow):
 
         if self.controller is None or self._contents_mod is None:
             return
-        selected = self._contents.selected_file()
-        if selected is None:
+        if self._contents.selected_file() is None and (
+            self._contents.selected_related_path() is None
+        ):
             target = self.controller.mod_folder(self._contents_mod)
         else:
-            target = self.controller.mod_file_path(self._contents_mod, *selected)
+            target = self._selected_contents_path()
         if target is None or not target.exists():
             self.nit_status.set_info("There is nothing there to open.")
             return
@@ -1433,12 +1496,13 @@ class MainWindow(QMainWindow):
 
     def _on_show_archive(self) -> None:
         """Look inside the selected compressed Contents file."""
-        selected = self._contents.selected_file()
-        if self.controller is None or self._contents_mod is None or selected is None:
+        if self.controller is None or self._contents_mod is None:
             return
-        path = self.controller.mod_file_path(self._contents_mod, *selected)
+        path = self._selected_contents_path()
         if path is None:
-            self.nit_status.set_info(f"{selected[1]} is not on disk.")
+            return
+        if not path.is_file():
+            self.nit_status.set_info(f"{path.name} is not on disk.")
             return
         self._show_archive_contents(path)
 
@@ -1483,29 +1547,44 @@ class MainWindow(QMainWindow):
 
     def _on_copy_contents_name(self) -> None:
         """Copy the selected Contents file's name to the clipboard (VB CmContents CopyName)."""
-        selected = self._contents.selected_file()
-        if selected is None:
-            return
+        related = self._contents.selected_related_path()
+        name = related.name if related is not None else None
+        if name is None:
+            selected = self._contents.selected_file()
+            if selected is None:
+                return
+            name = selected[1]  # (folder, filename)
         from PySide6.QtWidgets import QApplication
 
-        QApplication.clipboard().setText(selected[1])  # (folder, filename)
-        self.nit_status.set_info(f"Copied {selected[1]}.")
+        QApplication.clipboard().setText(name)
+        self.nit_status.set_info(f"Copied {name}.")
+
+    def _on_contents_double_click(self, *_args) -> None:
+        """Double-click a Contents row: view an installer file, open a related one.
+
+        A related file (a walkthrough, readme, PDF or downloaded archive) is meant
+        for its own application, so double-clicking it opens it there — the natural
+        "double-click the walkthrough to read it". An installer game file keeps the
+        in-app read-only viewer (VB CmContents Open).
+        """
+        if self._contents.selected_related_path() is not None:
+            self._on_open_with_default_app()
+        else:
+            self._on_view_contents_file()
 
     def _on_view_contents_file(self, *_args) -> None:
         """Open the selected Contents file in the read-only viewer (VB CmContents Open)."""
         if self.controller is None or self._contents_mod is None:
             return
-        selected = self._contents.selected_file()
-        if selected is None:
-            return
-        folder, filename = selected
-        path = self.controller.mod_file_path(self._contents_mod, folder, filename)
+        path = self._selected_contents_path()
         if path is None:
-            self.nit_status.set_info(f"{filename} is not on disk.")
+            return
+        if not path.is_file():
+            self.nit_status.set_info(f"{path.name} is not on disk.")
             return
         from vaultkeeper.ui.dialogs.text_viewer import TextViewer
 
-        self._text_viewer = TextViewer.show_file(path, filename, self)
+        self._text_viewer = TextViewer.show_file(path, path.name, self)
 
     def _on_delete_contents_file(self) -> None:
         """Delete the selected Contents file from the mod (VB CmContents Delete)."""
@@ -1524,6 +1603,35 @@ class MainWindow(QMainWindow):
                 self._show_details(md)
             self.refresh()
             self.nit_status.set_info(f"Deleted {filename}.")
+
+    def _documentation_links(self, mod_name: str) -> str:
+        """HTML for the mod's documentation files as one-click links (or ``""``).
+
+        The walkthrough / readme the mod ships, surfaced right in the details
+        summary so it can be opened without hunting through the Contents pane —
+        the second half of making related files reachable. Only the mod-root
+        documentation is linked here (its ``_Downloads`` archives stay in the
+        Contents pane); the links open with the OS's associated program.
+        """
+        from html import escape
+
+        self._doc_paths = {}
+        if self.controller is None:
+            return ""
+        related = self.controller.mod_related_files(mod_name)
+        docs: list[dict] = []
+        for group in related.get("folders", []):
+            if group.get("folder") == "Documentation":
+                docs = group["files"]
+                break
+        if not docs:
+            return ""
+        links = []
+        for i, doc in enumerate(docs):
+            token = f"vaultkeeper:doc:{i}"
+            self._doc_paths[token] = doc["path"]
+            links.append(f'<a href="{token}">{escape(doc["name"])}</a>')
+        return "<br>📄 " + " · ".join(links)
 
     def _show_details(self, md: ModData) -> None:
         # Details list (VB FvDetails): key properties as Property/Value rows.
@@ -1572,8 +1680,9 @@ class MainWindow(QMainWindow):
             )
         else:
             link = '  ·  <a href="vaultkeeper:add-link">Add link…</a>'
+        docs = self._documentation_links(md.mod_name)
         self._mod_info.setText(
-            f"{escape(md.mod_name)} — {escape(state)}{escape(play)}{link}"
+            f"{escape(md.mod_name)} — {escape(state)}{escape(play)}{link}{docs}"
         )
         self._mod_info.setToolTip(md.web_link or "Record this mod's download page")
 
@@ -2400,11 +2509,14 @@ class MainWindow(QMainWindow):
             != QMessageBox.StandardButton.Yes
         ):
             return
-        message = (
-            self.controller.uninstall([mod_name])
-            if installed
-            else self.controller.install([mod_name])
-        )
+        if installed and not self._confirm_uninstall([mod_name]):
+            return
+        with self._busy_cursor():
+            message = (
+                self.controller.uninstall([mod_name])
+                if installed
+                else self.controller.install([mod_name])
+            )
         self.refresh()
         self._select_mod_by_name(mod_name)
         self.nit_status.set_info(message)
@@ -3876,7 +3988,8 @@ class MainWindow(QMainWindow):
         names = self.selected_mod_names()
         if self.controller is None or not names:
             return
-        message = self.controller.install(names)
+        with self._busy_cursor():
+            message = self.controller.install(names)
         self.refresh()
         self.nit_status.set_info(message or "Install complete")
 
@@ -3884,9 +3997,59 @@ class MainWindow(QMainWindow):
         names = self.selected_mod_names()
         if self.controller is None or not names:
             return
-        message = self.controller.uninstall(names)
+        # NIT's uninstall safety prompts (VB UninstallSelectedMods): a mod other
+        # installed mods still need, or one that bundles base-game modules, is
+        # confirmed per mod — declined ones drop out.
+        names = self._confirm_uninstall(names)
+        if not names:
+            return
+        with self._busy_cursor():
+            message = self.controller.uninstall(names)
         self.refresh()
         self.nit_status.set_info(message or "Uninstall complete")
+
+    def _confirm_uninstall(self, names: list[str]) -> list[str]:
+        """Filter ``names`` through NIT's per-mod uninstall confirmations.
+
+        Non-installed mods pass through untouched (uninstall is a no-op for them,
+        as it is in NIT). For each installed mod, a dependants warning and/or a
+        bundled-base-game-modules warning is raised; a declined mod is dropped.
+        """
+        if self.controller is None:
+            return names
+        kept: list[str] = []
+        for name in names:
+            md = self.controller.pd.mod_item(name)
+            if md is None or not md.installed:
+                kept.append(name)
+                continue
+            warn = self.controller.uninstall_warnings(name)
+            n = warn["dependants"]
+            if n > 0 and not self._confirm(
+                "Uninstall Mod",
+                f"{name} is being used by {n:,} installed mod{'s' if n != 1 else ''}."
+                "\n\nDo you want to proceed with the uninstall?",
+            ):
+                continue
+            if warn["campaign"] and not self._confirm(
+                "Uninstall Mod",
+                f"Are you sure you want to uninstall {name}, "
+                f"which contains {warn['campaign']}?",
+            ):
+                continue
+            kept.append(name)
+        return kept
+
+    @contextmanager
+    def _busy_cursor(self):
+        """Show the wait cursor for the duration of a blocking op (VB ui.WaitCursor)."""
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            yield
+        finally:
+            QApplication.restoreOverrideCursor()
 
     def _on_rename(self) -> None:
         if self.controller is None:
@@ -3933,11 +4096,33 @@ class MainWindow(QMainWindow):
         self.nit_status.set_info(f"Updated properties for '{names[0]}'")
 
     def _on_mod_info_link(self, href: str) -> None:
-        """The mod summary's link: open the page, or offer to record one."""
+        """The mod summary's link: open the page, a doc file, or offer to record one."""
         if href == "vaultkeeper:add-link":
             self._on_edit_web_link()
             return
+        if href.startswith("vaultkeeper:doc:"):
+            self._open_documentation(href)
+            return
         self._open_url(href)
+
+    def _open_documentation(self, token: str) -> None:
+        """Open a mod-info documentation link with its associated program."""
+        from pathlib import Path
+
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        path_str = self._doc_paths.get(token)
+        if not path_str:
+            return
+        target = Path(path_str)
+        if not target.is_file():
+            self.nit_status.set_info(f"{target.name} is no longer there.")
+            return
+        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(target))):
+            self.nit_status.set_info(f"Nothing on this system opens {target.name}.")
+            return
+        self.nit_status.set_info(f"Opened {target.name}.")
 
     def _on_edit_web_link(self) -> None:
         """Edit the selected mod's web page address (VB ``MsEditWebLink``)."""

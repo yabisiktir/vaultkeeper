@@ -243,6 +243,97 @@ class ProfileController:
         total = sum(len(f["files"]) for f in folders)
         return {"folders": folders, "count": total, "installed": installed}
 
+    def mod_related_files(self, mod_name: str) -> dict:
+        """The mod's documentation and downloaded files — not its installer files.
+
+        NIT's Contents pane is a browser rooted at the mod's *folder*
+        (``FvContents.DisplayRoot(ModItem(modname).ModPath)``), so a mod's loose
+        readme / walkthrough / PDF and its ``_Downloads`` archives sit right there
+        to be opened. Vaultkeeper's Contents pane shows only the installable game
+        files, so those "related files" (the walkthrough being the one people ask
+        for) had no way to be reached. This restores them as extra Contents groups:
+
+        * **Documentation** — documentation-type files loose in the mod root
+          (``is_doc_file``), skipping reserved names (the play-time RTF, the wizard
+          file) and hidden dot-files.
+        * the ``_Downloads`` subtree — *every* file under it (archives included),
+          grouped by its folder, so the original downloads can be opened too.
+
+        The installer subtree and NIT's private ``_History`` / ``_Published`` /
+        ``_Workshop`` folders are pruned. Each file carries its absolute ``path``;
+        groups are tagged ``kind="related"``. Returns ``{"folders", "count"}``.
+        """
+        import os
+        from functools import cmp_to_key
+
+        from nwnfile.win_sort import win_compare
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.reserved import is_reserved_name_or_prefix
+        from vaultkeeper.game.documentation import is_doc_file
+
+        root = self.ctx.profile_mods_dir / mod_name
+        if self.pd.mod_item(mod_name) is None or not root.is_dir():
+            return {"folders": [], "count": 0}
+
+        # Subtrees never shown here: the installer files (their own groups) and
+        # NIT's private bookkeeping folders.
+        skip_top = {
+            name.lower()
+            for name in (
+                C.MOD_INSTALLER_DIR,
+                C.HISTORY_DIR,
+                C.PUBLISHED_DIR,
+                C.WORKSHOP_DIR,
+            )
+        }
+        by_folder: dict[str, list[dict]] = {}
+        for dirpath, dirnames, filenames in os.walk(root):
+            rel_dir = Path(dirpath).relative_to(root)
+            at_root = rel_dir == Path(".")
+            if at_root:
+                dirnames[:] = [d for d in dirnames if d.lower() not in skip_top]
+            for name in filenames:
+                if name.startswith(".") or is_reserved_name_or_prefix(name):
+                    continue
+                # At the mod root only documentation files count; deeper (i.e. in
+                # _Downloads) everything the mod shipped is fair game to open.
+                if at_root and not is_doc_file(name):
+                    continue
+                path = Path(dirpath) / name
+                try:
+                    size = path.stat().st_size
+                except OSError:
+                    continue
+                label = "Documentation" if at_root else rel_dir.as_posix()
+                by_folder.setdefault(label, []).append(
+                    {
+                        "name": name,
+                        "size": size,
+                        "size_text": _fmt_size(size),
+                        "path": str(path),
+                    }
+                )
+
+        def by_name(a: dict, b: dict) -> int:
+            return win_compare(a["name"], b["name"])
+
+        # Documentation first (what the user is usually after), then the rest in
+        # the same Windows natural order the installer view uses.
+        def folder_key(label: str):
+            return (0 if label == "Documentation" else 1, cmp_to_key(win_compare)(label))
+
+        folders = [
+            {
+                "folder": label,
+                "kind": "related",
+                "files": sorted(by_folder[label], key=cmp_to_key(by_name)),
+            }
+            for label in sorted(by_folder, key=folder_key)
+        ]
+        total = sum(len(f["files"]) for f in folders)
+        return {"folders": folders, "count": total}
+
     def find_profile_files(
         self,
         query: str,
@@ -840,11 +931,44 @@ class ProfileController:
 
     # -- Operations -------------------------------------------------------- #
     def install(self, names: list[str], *, on_phase=None) -> str:
-        """Install the named mods; ``on_phase(label, done, total)`` narrates it."""
+        """Install the named mods and the mods they depend on (VB ``InstallMods``).
+
+        A mod pulls in its uninstalled dependencies (CEP, etc.) recursively — NIT's
+        ``InstallMods`` always includes them (``IncludeDependencies``); it is only
+        *uninstalling* dependencies that is gated by a setting. Annealing stays on
+        the mods the caller asked for, matching VB's use of the selection.
+        ``on_phase(label, done, total)`` narrates it.
+        """
+        targets = self._with_install_dependencies(names)
         self.engine.install_files(
-            self.mod_files(names), anneal_mods=names, on_phase=on_phase
+            self.mod_files(targets), anneal_mods=names, on_phase=on_phase
         )
         return self.engine.result_message
+
+    def _with_install_dependencies(self, names: list[str]) -> list[str]:
+        """Add each mod's *uninstalled* dependencies, recursively (VB ``IncludeDependencies``).
+
+        A dependency that is missing from the profile or already installed is not
+        added; installed dependencies are also not recursed into (their own
+        sub-dependencies are already satisfied), matching NIT.
+        """
+        result = list(names)
+        seen = {n.lower() for n in names}
+        queue = list(names)
+        while queue:
+            md = self.pd.mod_item(queue.pop())
+            if md is None:
+                continue
+            for dep in md.dependencies:
+                if dep.lower() in seen:
+                    continue
+                dep_mod = self.pd.mod_item(dep)
+                if dep_mod is None or dep_mod.installed:
+                    continue
+                seen.add(dep.lower())
+                result.append(dep_mod.mod_name)
+                queue.append(dep_mod.mod_name)
+        return result
 
     def _settings(self):
         """Load the current settings (VB My.Settings)."""
@@ -883,6 +1007,35 @@ class ProfileController:
                     result.append(dep_mod.mod_name)
                     queue.append(dep_mod.mod_name)
         return result
+
+    def uninstall_warnings(self, mod_name: str) -> dict:
+        """The confirmations NIT raises before uninstalling a mod (VB ``UninstallSelectedMods``).
+
+        Returns ``{"dependants": int, "campaign": str}``:
+
+        * **dependants** — how many *installed* mods still depend on this one
+          ("X is being used by N installed Mods — proceed?").
+        * **campaign** — a phrase for base-game modules the mod bundles ("modules
+          included in the Enhanced Edition" for ``mod`` files, "original campaign
+          modules" for ``nwm`` files), or ``""`` when it ships none. Uninstalling
+          these puts back what BioWare shipped, so NIT asks first.
+
+        Both are only meaningful for an installed mod (the caller checks that).
+        """
+        from vaultkeeper.core.mapper import FOLDER_MOD_EE, FOLDER_NWM
+
+        md = self.pd.mod_item(mod_name)
+        if md is None:
+            return {"dependants": 0, "campaign": ""}
+        dependants = len(self.pd.get_installed_dependants().get(mod_name, []))
+        folders = {fk.folder for fk in md.files}
+        if FOLDER_MOD_EE in folders:
+            campaign = "modules included in the Enhanced Edition"
+        elif FOLDER_NWM in folders:
+            campaign = "original campaign modules"
+        else:
+            campaign = ""
+        return {"dependants": dependants, "campaign": campaign}
 
     def remove_mods(self, names: list[str]) -> int:
         """Remove mod definitions from the profile; return how many were removed."""
