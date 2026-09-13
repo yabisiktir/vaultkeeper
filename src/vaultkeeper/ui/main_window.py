@@ -1949,6 +1949,7 @@ class MainWindow(QMainWindow):
             "MsClearWaitCursors": self._on_clear_wait_cursors,
             "MsClearSelectionHistory": self._on_clear_selection_history,
             "MsValidateInstalledData": lambda: self._maintenance("validate_installed_data"),
+            "MsRecogniseRebuildDeps": self._on_recognise_and_rebuild_dependencies,
             "MsValidateMovieFiles": self._on_validate_movie_files,
             "MsValidate": self._on_validate_neverwinter_nights,
             "MsRefreshWorkshopFiles": self._on_refresh_workshop_files,
@@ -3396,6 +3397,39 @@ class MainWindow(QMainWindow):
             from vaultkeeper.ui.dialogs.dependency_manager import DependencyManager
 
             self._dependency_manager = DependencyManager.show_for(self.controller, self)
+
+    def _on_recognise_and_rebuild_dependencies(self) -> None:
+        """One click to recognise installed mods, then rebuild their dependencies.
+
+        The two-step people reach for after installing mods outside Vaultkeeper
+        (a manual copy, an older tool, another iteration): first recognise what is
+        installed in the game folder, then work out the dependency mapping from the
+        Vault. Both already exist as separate commands (Validate Installed Data +
+        Dependency Manager ▸ Auto); this chains them.
+
+        Recognition is local, safe and silent — it only re-reads the game folder
+        (``rescan_installed_state``). The dependency rebuild reuses the shared Auto
+        flow, so it still confirms first (it fetches a page per mod and replaces
+        recorded dependencies) and offers "Find missing Vault links". Declining the
+        rebuild still leaves the recognition done.
+        """
+        if self.controller is None:
+            self.nit_status.set_info("Set up a profile first.")
+            return
+        # 1) Recognise mods installed outside the tool, from the live game folder.
+        with self._busy_cursor():
+            recognised = self.controller.rescan_installed_state()
+        self.refresh()
+
+        # 2) Rebuild the dependency mapping (shared confirm + progress + report).
+        from vaultkeeper.ui.dialogs.dependency_manager import run_auto_dependencies
+
+        result = run_auto_dependencies(self.controller, self)
+        if result is None:
+            self.nit_status.set_info(f"{recognised} Dependency rebuild skipped.")
+            return
+        self.refresh()
+        self.nit_status.set_info(f"{recognised} {result['message']}")
 
     def _on_analyse(self) -> None:
         if self.controller is None:

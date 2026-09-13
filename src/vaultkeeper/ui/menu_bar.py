@@ -230,6 +230,14 @@ MENUS: tuple = (
                 False,
             ),
             MenuItem("MsValidateInstalledData", "Validate Installed &Data", "", False),
+            # Vaultkeeper convenience: one click to recognise mods installed
+            # outside the tool and then rebuild every mod's dependency mapping.
+            MenuItem(
+                "MsRecogniseRebuildDeps",
+                "Reco&gnise Installed && Rebuild Dependencies",
+                "DependencyGraph_16x",
+                False,
+            ),
             MenuItem("MsValidate", "Validate &Neverwinter Nights", "FindinFiles_6299", False),
             SEP,
             MenuItem("MsRecoverGroups", "Recover &Groups", "GroupRecover", False),
