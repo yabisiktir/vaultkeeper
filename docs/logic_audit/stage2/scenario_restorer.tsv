@@ -1,0 +1,7 @@
+# Stage 2 scenario "restorer": protect a pre-existing user file (override/shared.2da,
+# owned by no mod) with a restorer, then install/uninstall a mod that overwrites it.
+create_restorer	My Originals
+paste	Alpha Pack
+create_installer	Alpha Pack
+install	Alpha Pack
+uninstall	Alpha Pack

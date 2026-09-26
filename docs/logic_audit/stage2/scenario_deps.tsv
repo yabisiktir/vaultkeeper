@@ -1,0 +1,11 @@
+# Stage 2 scenario "deps": patch haks + dependency chains.
+paste	Delta Patch|Epsilon Base|Zeta Addon
+create_installer	Delta Patch|Epsilon Base|Zeta Addon
+set_dependency	Zeta Addon	Epsilon Base
+install	Delta Patch
+install	Zeta Addon
+uninstall	Zeta Addon
+install	Epsilon Base
+install	Zeta Addon
+uninstall	Epsilon Base
+uninstall	Delta Patch

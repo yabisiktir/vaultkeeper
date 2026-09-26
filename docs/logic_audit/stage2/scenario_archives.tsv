@@ -1,0 +1,6 @@
+# Stage 2 scenario "archives": pasting real archives (a raw-named .7z, a .zip with one
+# top folder, a .zip containing a nested .7z), building installers and installing.
+paste	theta_pack_v12.7z|Iota Addons.zip|kappa_bundle.zip
+create_installer	@theta_pack_v12|@Iota Addons|@kappa_bundle
+install	@theta_pack_v12|@Iota Addons|@kappa_bundle
+uninstall	@theta_pack_v12|@Iota Addons|@kappa_bundle

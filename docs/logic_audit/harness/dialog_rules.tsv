@@ -1,0 +1,10 @@
+# substring of the dialog text<TAB>button to click ("-" = progress window, leave it)[<TAB>radio option to select first, by prefix][<TAB>text to type]. First match wins. No match = abort.
+create the missing Profiles sub-folder	Yes
+Changes have been made to the Alias Section	OK
+Specify whether you are a Mod Player or Builder	Continue	Player
+Select a Group Set for Enhanced Edition Mods	Select	Groups are based on category and usage
+Do you want to create Restorers for files installed by Neverwinter Nights	Yes
+FileOperations: 	-
+Do you want to apply Theme colours to Notes	No
+CreateInstaller: 	-
+NameTextEditor: 	Create		My Originals

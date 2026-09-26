@@ -1,0 +1,12 @@
+# Stage 2 scenario "update": a mod's source files change while it is installed
+# (new version of a file, a new file, a removed file), then its installer is rebuilt.
+paste	Alpha Pack|Beta Pack
+create_installer	Alpha Pack|Beta Pack
+install	Alpha Pack|Beta Pack
+edit_mod	Alpha Pack	alpha.hak	ALPHA PACK v2::alpha.hak
+edit_mod	Alpha Pack	alpha_new.hak	ALPHA PACK v2::alpha_new.hak
+edit_mod	Alpha Pack	music/mus_alpha.bmu	DELETE
+rescan
+create_installer	Alpha Pack
+install	Alpha Pack
+uninstall	Alpha Pack|Beta Pack
