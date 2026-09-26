@@ -209,23 +209,36 @@ class ProfileData:
             if md is None or md.is_group_item:
                 return False
 
-            for fk in list(md.files):
-                self.changes.file.removed(fk)
-                self.file_list.pop(fk, None)
-                ifd = self.installed_item(fk.installed_key)
-                if ifd is not None:
-                    if md.is_mod_identifier_file(fk):
-                        self.changes.installed.removed(ifd.key)
-                        self.remove_installed_file(ifd)
-                    else:
-                        self.remove_mod_file(ifd, fk, True)
-                self.changes.mods.affected(name)
-
-            md.files.clear()
+            self._remove_all_files(md)
             del self.mod_list[name]
             self.update_file_states()
             self.update_mod_states()
             return True
+
+    def remove_all_files(self, md: ModData) -> None:
+        """Forget every file of a mod, keeping the mod (VB ``ModData.RemoveAllFiles``).
+
+        Used before an installer is rebuilt: the old payload's records go, so a
+        file that has left the mod's source cannot linger in the database.
+        """
+        with self._lock:
+            self._remove_all_files(md)
+            self.update_file_states()
+            self.update_mod_states()
+
+    def _remove_all_files(self, md: ModData) -> None:
+        for fk in list(md.files):
+            self.changes.file.removed(fk)
+            self.file_list.pop(fk, None)
+            ifd = self.installed_item(fk.installed_key)
+            if ifd is not None:
+                if md.is_mod_identifier_file(fk):
+                    self.changes.installed.removed(ifd.key)
+                    self.remove_installed_file(ifd)
+                else:
+                    self.remove_mod_file(ifd, fk, True)
+            self.changes.mods.affected(md.mod_name)
+        md.files.clear()
 
     def remove_group(self, group: str) -> bool:
         """Remove a user group's row from the database (VB group ``ModData.Remove``).

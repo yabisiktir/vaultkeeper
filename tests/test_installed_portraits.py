@@ -26,7 +26,7 @@ def _install_portrait(controller: ProfileController, tmp_path: Path, mod: str, r
     installer.mkdir(parents=True, exist_ok=True)
     for size in _SIZES:
         (installer / f"{resref}{size}.tga").write_bytes(b"TGA" + size.encode())
-    controller.build_installer_payload(mod)
+    controller.create_installer(mod)  # register the payload placed above
     controller.install([mod])
 
 
@@ -70,7 +70,7 @@ def test_non_portrait_files_ignored(tmp_path: Path) -> None:
     hak_dir = tmp_path / "Profiles" / "P" / "Hak Mod" / C.MOD_INSTALLER_DIR / "hak"
     hak_dir.mkdir(parents=True)
     (hak_dir / "stuff.hak").write_bytes(b"HAK")
-    c.build_installer_payload("Hak Mod")
+    c.create_installer("Hak Mod")  # register the payload placed above
     c.install(["Hak Mod"])
 
     report = c.installed_portraits_report()

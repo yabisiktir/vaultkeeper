@@ -3048,13 +3048,38 @@ class MainWindow(QMainWindow):
             return
         if self._offer_character_restorer():
             return
-        names = self.selected_mod_names()
-        if not names:
-            self.nit_status.set_info("Select a mod first.")
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+        # VB: back up every installed file no mod owns into a restorer the user
+        # names, so a later uninstall can put those files back.
+        unowned = self.controller.unowned_source_files()
+        if not unowned:
+            QMessageBox.information(
+                self,
+                "Create Restorer",
+                "All installed files have Mod Installers or Restorers associated with "
+                "them.\n\nThere is no need to create a Restorer.",
+            )
             return
-        made = sum(1 for n in names if self.controller.create_restorer(n))
+        # VB pre-fills the selected mod's name when it is a restorer, to add to it.
+        suggested = ""
+        names = self.selected_mod_names()
+        if names:
+            md = self.controller.pd.mod_item(names[0])
+            if md is not None and md.is_not_group_item and md.is_restorer():
+                suggested = md.mod_name
+        name, ok = QInputDialog.getText(
+            self,
+            "Create Restorer",
+            f"{len(unowned):,} installed file(s) belong to no mod. Back them up in a "
+            "restorer named (an existing restorer's name adds to it):",
+            text=suggested,
+        )
+        if not ok or not name.strip():
+            return
+        result = self.controller.create_restorer_from_installed(name.strip(), unowned)
         self.refresh()
-        self.nit_status.set_info(f"Created restorer for {made} mod(s).")
+        self.nit_status.set_info(result["message"])
 
     def _offer_character_restorer(self) -> bool:
         """Offer to save unowned characters; True when that is what happened."""
@@ -3853,7 +3878,7 @@ class MainWindow(QMainWindow):
                 self.controller.game_file_path("nwnplayer.ini"), "NWN Player Ini File"
             ),
             "MsNwnPatchIniFile": (
-                self.controller.game_file_path("nwnpatch.ini"), "NWN Patch Ini File"
+                self.controller.patch_ini_path, "NWN Patch Ini File"
             ),
             "MsNwnConfigIniFile": (
                 self.controller.game_file_path("nwconfig.ini"), "NWN Config Ini File"

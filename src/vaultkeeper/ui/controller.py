@@ -78,8 +78,8 @@ class ProfileController:
         #: Settings file for persisting non-profile prefs (map overrides); None =
         #: the platform default location.
         self._settings_path = settings_path
-        patch_ini = ctx.game_root / "nwnpatch.ini"
-        self._hpm = HakPatchManager(pd, patch_ini)
+        self._restore_ee_install_patch_ini()
+        self._hpm = HakPatchManager(pd, self.patch_ini_path)
         self.engine = ModInstallationManager(
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
         )
@@ -166,6 +166,7 @@ class ProfileController:
             mapper=mapper,
             is_ee=is_ee,
             game_user_dir=game_user_dir,
+            ee_user_files_dir=folder_user_dir if is_ee else None,
         )
         return cls(pd, ctx, store_path=store_path, settings_path=settings_path)
 
@@ -941,9 +942,29 @@ class ProfileController:
         """
         targets = self._with_install_dependencies(names)
         self.engine.install_files(
-            self.mod_files(targets), anneal_mods=names, on_phase=on_phase
+            self._install_copy_list(self.mod_files(targets)),
+            anneal_mods=names,
+            on_phase=on_phase,
         )
         return self.engine.result_message
+
+    @staticmethod
+    def _install_copy_list(files: list[FileKeyInfo]) -> list[FileKeyInfo]:
+        """One file per file key, the priority winner's (VB ``InstallMods``).
+
+        When a batch holds two mods with the same file, the copy that lands is the
+        one that sorts last by ``FileKeyInfo.comparer`` (group, then mod name), not
+        whichever mod the caller happened to list first: VB sorts, reverses, and
+        keeps the first of each file key. Without this, installing A and B together
+        left A's file in the game where installing them one at a time left B's.
+        """
+        from functools import cmp_to_key
+
+        ordered = sorted(files, key=cmp_to_key(FileKeyInfo.comparer), reverse=True)
+        winners: dict[str, FileKeyInfo] = {}
+        for fk in ordered:
+            winners.setdefault(fk.file_key.lower(), fk)
+        return list(winners.values())
 
     def _with_install_dependencies(self, names: list[str]) -> list[str]:
         """Add each mod's *uninstalled* dependencies, recursively (VB ``IncludeDependencies``).
@@ -2041,7 +2062,6 @@ class ProfileController:
         owns them, so a later Restore puts these characters back exactly as they
         are now. Nothing is removed from the game.
         """
-        import shutil
 
         from vaultkeeper.core import constants as C
 
@@ -2056,18 +2076,7 @@ class ProfileController:
             }
 
         installer_dir = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
-        copied = 0
-        for fk in file_keys:
-            folder = self.ctx.game_folders.get(fk.folder)
-            if folder is None:
-                continue
-            source = folder / fk.filename
-            if not source.is_file():
-                continue
-            dest = installer_dir / fk.folder / fk.filename
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, dest)
-            copied += 1
+        copied = self._copy_game_files(file_keys, installer_dir)
         if copied == 0:
             return {
                 "ok": False,
@@ -2083,6 +2092,109 @@ class ProfileController:
             "ok": True,
             "files": copied,
             "message": f"Created '{name}' with {copied} character file(s).",
+        }
+
+    def _copy_game_files(self, file_keys, installer_dir: Path) -> int:
+        """Copy installed game files into ``installer_dir/<folder>/<file>``; return the count."""
+        import shutil
+
+        copied = 0
+        for fk in file_keys:
+            folder = self.ctx.game_folders.get(fk.folder)
+            if folder is None:
+                continue
+            source = folder / fk.filename
+            if not source.is_file():
+                continue
+            dest = installer_dir / fk.folder / fk.filename
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, dest)
+            copied += 1
+        return copied
+
+    def unowned_source_files(self) -> list[FileKeyInfo]:
+        """Installed game files no mod or restorer owns (VB ``pd.UnknownSourceFiles``).
+
+        What *Create Restorer* backs up: files you put in the game yourself, or
+        that were there before any mod, which an install would otherwise overwrite
+        and an uninstall would then delete.
+        """
+        return self.pd.unknown_source_files(self.ctx.mapper)
+
+    def create_restorer_from_installed(
+        self, name: str, file_keys=None, *, group: str | None = None
+    ) -> dict:
+        """Back up unowned installed files into a restorer (VB ``CreateRestorer``).
+
+        The files are copied into the restorer's installer payload; the restorer
+        then owns them, so when a mod that overwrote one is uninstalled, the anneal
+        puts this copy back. ``file_keys`` defaults to every unowned file. A new
+        name makes a new restorer in ``group`` (VB's default "000.  Restorers"); the
+        name of an existing restorer adds the files to it, overwriting older copies
+        as VB does. Nothing is removed from the game.
+        """
+        from vaultkeeper.core import constants as C
+
+        name = (name or "").strip()
+        if not name:
+            return {"ok": False, "files": 0, "message": "Name the restorer first."}
+        keys = self.unowned_source_files() if file_keys is None else list(file_keys)
+        if not keys:
+            return {
+                "ok": False,
+                "files": 0,
+                "message": "All installed files have Mod Installers or Restorers "
+                "associated with them. There is no need to create a Restorer.",
+            }
+        existing = self.pd.mod_item(name)
+        if existing is not None and (existing.is_group_item or not existing.is_restorer()):
+            return {
+                "ok": False,
+                "files": 0,
+                "message": f"'{name}' already exists and is not a restorer; choose another name.",
+            }
+
+        installer_dir = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
+        if existing is None:
+            self.create_mod(name, group or C.RESTORER_GROUP)
+        copied = self._copy_game_files(keys, installer_dir)
+        if copied == 0:
+            return {"ok": False, "files": 0, "message": "None of those files could be read."}
+        # The identifier makes it a restorer and rescans the payload (and saves).
+        self._create_identifier(name, C.EXT_RESTORER)
+        # VB CreateRestorer: each copy takes the installed file's checksum (when the
+        # sizes agree, i.e. the copy is whole), then ownership is re-resolved so the
+        # restorer owns the game's file — which is what lets an uninstall put it back.
+        md = self.pd.mod_item(name)
+        # VB also installs the restorer's identifier in the game's nitconfig folder,
+        # so the restorer counts as installed and an uninstall anneals from it.
+        nit_folder = self.ctx.game_folders.get(C.MOD_NIT_DIR)
+        if nit_folder is not None:
+            ident = nit_folder / f"{name}{C.EXT_RESTORER}"
+            ident.parent.mkdir(parents=True, exist_ok=True)
+            if not ident.exists():
+                ident.write_text("", encoding="utf-8")
+            ident_key = FileKeyInfo.installed(C.MOD_NIT_DIR, ident.name)
+            self.pd.add_installed_file(ident_key, ident)
+            self.pd.set_mod_files(ident_key)
+        for ifk in keys:
+            ifd = self.pd.installed_item(ifk)
+            fd = self.pd.file_item(FileKeyInfo(md.group, name, ifk.folder, ifk.filename))
+            if ifd is None or fd is None:
+                continue
+            if fd.byte_size == ifd.byte_size:
+                fd.file_crc = ifd.file_crc
+            self.pd.set_mod_files(ifk)
+        self.pd.changes.mods.affected(name)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return {
+            "ok": True,
+            "files": copied,
+            "message": f"Created restorer '{name}' with {copied} file(s)."
+            if existing is None
+            else f"Added {copied} file(s) to restorer '{name}'.",
         }
 
     def auto_character_restorers(self, played_mod: str = "") -> dict:
@@ -2213,11 +2325,44 @@ class ProfileController:
                 "message": f"Unknown mod: {mod_name}",
             }
 
+        if md.is_restorer():
+            # VB never rebuilds a restorer: its payload *is* the backup.
+            return {
+                "ok": False,
+                "copied": 0,
+                "excluded": 0,
+                "archives": 0,
+                "converted": 0,
+                "message": f"{mod_name} is a restorer; restorers are not rebuilt.",
+            }
+
         if convert_bik is None:
             convert_bik = self._convert_bik_files()
 
         mod_folder = self.ctx.profile_mods_dir / mod_name
         installer = mod_folder / C.MOD_INSTALLER_DIR
+
+        if not self._has_source_files(mod_folder):
+            # VB classes a mod with nothing to build from as a restorer
+            # (ModData.ValidateInstallerType) and never rebuilds it. Rebuilding here
+            # would throw away the only copy of its payload.
+            return {
+                "ok": False,
+                "copied": 0,
+                "excluded": 0,
+                "archives": 0,
+                "converted": 0,
+                "message": f"{mod_name} has no source files to rebuild its installer from.",
+            }
+
+        # VB CreateInstaller.ShowDialog → DeleteInstaller: an installed mod is
+        # uninstalled first (without its dependencies), then the old installer and
+        # its records go, so a file that has left the mod's source leaves the
+        # installer *and* the game. The caller reinstalls if installer-restore is on.
+        if md.installed:
+            self.engine.uninstall_files(self.mod_files([mod_name]), anneal_mods=[mod_name])
+        self.pd.remove_all_files(md)
+        fs.delete(installer, to_trash=True)
         installer.mkdir(parents=True, exist_ok=True)
 
         # RunWizard: resolve the installer wizard's ignore list from the decisions.
@@ -2283,6 +2428,26 @@ class ProfileController:
                 + "."
             ),
         }
+
+    def _has_source_files(self, folder: Path) -> bool:
+        """Whether a mod folder holds anything to build an installer from.
+
+        VB ``ModData.FolderHasSourceFiles``: a file with a mapped extension or an
+        archive, at any depth, outside ``.Mod Installer`` and ``_History``.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.archive import is_extractable
+
+        if not folder.is_dir():
+            return False
+        skipped = (C.MOD_INSTALLER_DIR, C.HISTORY_DIR)
+        for entry in folder.iterdir():
+            if entry.is_file():
+                if self.ctx.mapper.mapped_extension(entry.suffix) or is_extractable(entry.suffix):
+                    return True
+            elif entry.name not in skipped and self._has_source_files(entry):
+                return True
+        return False
 
     def _convert_bik_files(self) -> bool:
         """The profile's BIK→WBM preference (VB ``ProfileInfo.ConvertBikFiles``)."""
@@ -2926,9 +3091,52 @@ class ProfileController:
         total, installed = self.counts()
         return f"Database rebuilt: {total:,} mods, {installed:,} installed."
 
+    @property
+    def patch_ini_path(self) -> Path:
+        """The patch-hak INI this profile's game reads (VB ``Paths.NwnPatchIniFile``).
+
+        Enhanced Edition reads the user's patch haks from ``userpatch.ini`` in the
+        user files folder and ships its own ``nwnpatch.ini`` in the install folder,
+        which NIT never touches (``NwnFolderInfo``: EE → ``UserPatchIniFile``). A
+        1.69 profile has only ``nwnpatch.ini``, in the install folder.
+        """
+        from vaultkeeper.core import constants as C
+
+        # Only the user folder mods install into — never the auto-detected default,
+        # which may be a real game folder the profile does not manage.
+        if self.ctx.is_ee and self.ctx.ee_user_files_dir is not None:
+            return self.ctx.ee_user_files_dir / C.USER_PATCH_INI_FILE
+        return self.ctx.game_root / C.PATCH_INI_FILE
+
+    def _restore_ee_install_patch_ini(self) -> None:
+        """Put back an EE install folder's ``nwnpatch.ini`` an older version replaced.
+
+        Earlier versions wrote the patch list to ``<install>/nwnpatch.ini`` even on
+        EE, renaming the game's own file to ``nwnpatch.ini.bak`` first. NIT never
+        writes there on EE, so a ``.bak`` beside it can only be ours: restore it.
+        Without a ``.bak`` there was no original, and nothing in the install folder
+        is deleted.
+        """
+        from vaultkeeper.core import constants as C
+
+        if not self.ctx.is_ee or self.ctx.ee_user_files_dir is None:
+            return
+        installed = self.ctx.game_root / C.PATCH_INI_FILE
+        backup = installed.with_name(installed.name + ".bak")
+        if not backup.is_file():
+            return
+        try:
+            backup.replace(installed)
+        except OSError:
+            from vaultkeeper.core.log import get_logger
+
+            get_logger(__name__).warning(
+                "Could not restore %s from %s", installed, backup, exc_info=True
+            )
+
     def _rebuild_engine(self) -> None:
         """Rebuild the engine/hak-patch against ``self.pd`` and drop the play loop."""
-        self._hpm = HakPatchManager(self.pd, self.ctx.game_root / "nwnpatch.ini")
+        self._hpm = HakPatchManager(self.pd, self.patch_ini_path)
         self.engine = ModInstallationManager(
             self.pd, self.ctx, hak_patch=self._hpm.create_nwn_patch_ini_file,
             on_save=self.save,

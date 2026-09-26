@@ -27,6 +27,11 @@ def _isolate_store(tmp_path_factory, monkeypatch) -> Iterator[None]:
     """
     home = tmp_path_factory.mktemp("home")
     monkeypatch.setattr("vaultkeeper.app_paths._home", lambda: home)
+    # ★ The game's user folder is resolved by nwnfile, not app_paths: an EE profile
+    # opened without an explicit user folder falls back to
+    # nwnfile.locations.user_documents_dir() — the developer's REAL
+    # ~/Documents/Neverwinter Nights. A test once wrote userpatch.ini there.
+    monkeypatch.setattr("nwnfile.locations._home", lambda: home)
     # ★ Patching _home() is not enough off macOS. config_root/data_root/cache_root
     # prefer the platform's environment variables and only fall back to the home
     # directory, so on Windows every test shared — and wrote into — the machine's

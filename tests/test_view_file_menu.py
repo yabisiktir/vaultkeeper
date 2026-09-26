@@ -42,10 +42,16 @@ NEW_INI_KINDS = {
 
 def test_new_ini_viewers_open_correct_file(qtbot, tmp_path: Path) -> None:
     controller = _controller(tmp_path)
-    for filename, _title in NEW_INI_KINDS.values():
-        (controller.ctx.game_user_dir / filename).write_text(
-            f"[content of {filename}]", encoding="utf-8"
+    for command, (filename, _title) in NEW_INI_KINDS.items():
+        # The patch-hak list lives where the profile's game reads it
+        # (``ProfileController.patch_ini_path``), not necessarily in the user folder.
+        target = (
+            controller.patch_ini_path
+            if command == "MsNwnPatchIniFile"
+            else controller.ctx.game_user_dir / filename
         )
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"[content of {filename}]", encoding="utf-8")
     win = MainWindow(controller)
     qtbot.addWidget(win)
 

@@ -58,6 +58,11 @@ class InstallContext:
     #: nwn.ini/settings.tml/saves live. Used for config-drift checks; never written
     #: without user consent.
     game_user_dir: Path | None = None
+    #: The EE user-files folder mods actually install into — set only when the
+    #: caller named it (the EE folder split is engaged). Unlike ``game_user_dir``,
+    #: which falls back to the platform default for read-only checks, this is safe
+    #: to write NIT-managed files into (``userpatch.ini``).
+    ee_user_files_dir: Path | None = None
 
     def mod_path(self, fk: FileKeyInfo) -> Path:
         return ProfileData.mod_file_path(self.profile_mods_dir, fk)

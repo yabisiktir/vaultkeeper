@@ -25,7 +25,7 @@ def _make_and_install(controller: ProfileController, tmp_path: Path, name: str) 
     )
     payload.parent.mkdir(parents=True, exist_ok=True)
     payload.write_bytes(b"DATA")
-    controller.build_installer_payload(name)
+    controller.create_installer(name)  # register the payload placed above
     controller.install([name])
     return payload
 
