@@ -21,9 +21,10 @@ on the old code (`tests/test_install_conflict_priority.py`,
 the stage-2 scenarios (deps, update, restorer: final game state identical).
 
 Notes from the fixes:
-- **U2 is now more visible.** Rebuilding an installed mod uninstalls it first
-  (NIT's sequence); with VK's `installer_restore` default False it then stays
-  uninstalled until installed again. NIT's default is True. Fix next.
+- **U2 fixed too** (second batch): `installer_restore` defaults to True as in
+  NIT, and settings version 2 turns it on once in existing settings files (every
+  field is saved, so the old wrong default was in all of them). The update
+  scenario now matches NIT at the rebuild step.
 - **Open question — natural sort of `.` vs digits.** NIT's `WinCompare`
   (`StrCmpLogicalW`) measured under Wine sorts `.` *after* digits, so ungrouped
   mods (`......001`) outrank "000.  Restorers" and even "100.  Community Packs";
@@ -55,7 +56,7 @@ Notes from the fixes:
 
 | ID | Finding |
 |---|---|
-| U2 | Rebuilt installer of an installed mod isn't reinstalled (VK `installer_restore` default False; NIT True) |
+| U2 ✅ | Rebuilt installer of an installed mod isn't reinstalled (VK `installer_restore` default False; NIT True) |
 | A1 | Pasted archive not kept in the mod's `_Downloads` |
 | S3 | Mod state after uninstall/override differs (VK shows "Some and Match" for a mod whose file is another mod's copy) |
 | N1 | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — port the tidy-up without NIT's `( EE)` bug |

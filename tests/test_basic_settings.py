@@ -43,7 +43,7 @@ def test_dialog_reflects_and_applies_settings(qtbot) -> None:
 
 
 def test_install_auto_forces_restore_coupling(qtbot) -> None:
-    dlg = BasicSettingsDialog(Settings())
+    dlg = BasicSettingsDialog(Settings(installer_restore=False))
     qtbot.addWidget(dlg)
     assert not dlg.cb_install_restore.isChecked()
     dlg.cb_install_auto.setChecked(True)  # VB: forces "already installed" on

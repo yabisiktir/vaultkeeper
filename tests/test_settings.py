@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from vaultkeeper.config.settings import Settings, load_settings, save_settings
+from vaultkeeper.config.settings import SETTINGS_VERSION, Settings, load_settings, save_settings
 
 
 def test_defaults() -> None:
     s = Settings()
-    assert s.version == 1
+    assert s.version == SETTINGS_VERSION
     assert s.recycle_on_delete is True
     assert s.validate_game_config_on_startup is True
     assert s.nwn_path is None

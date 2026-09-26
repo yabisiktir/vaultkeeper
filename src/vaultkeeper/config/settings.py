@@ -20,7 +20,7 @@ from typing import Any
 from vaultkeeper.app_paths import VaultStore
 from vaultkeeper.persistence.json_store import read_json, write_json
 
-SETTINGS_VERSION = 1
+SETTINGS_VERSION = 2
 
 
 def default_web_links() -> list[dict[str, str]]:
@@ -109,7 +109,9 @@ class Settings:
     #: When auto-installing after creating an installer, only (re)install mods that
     #: were already installed rather than every mod (VB ``BehaviourInstallerRestore``;
     #: coupled with ``install_after_create`` — installing implies this is on).
-    installer_restore: bool = False
+    #: On by default, as in NIT: rebuilding an installed mod uninstalls it first, and
+    #: this is what puts it back.
+    installer_restore: bool = True
     #: Select the mod being played in the list when you press Play Neverwinter Nights
     #: (VB ``BehaviourSelectGameMod``).
     select_game_mod: bool = False
@@ -375,10 +377,14 @@ class Settings:
 def _migrate(data: dict[str, Any]) -> dict[str, Any]:
     """Upgrade an on-disk settings dict to the current version in place.
 
-    No historical versions exist yet; this is the seam future migrations use.
+    * **1 → 2**: ``installer_restore`` was ported with the wrong default (False;
+      NIT's ``BehaviourInstallerRestore`` is True). Every field is saved, so the
+      wrong default sits in every existing file; turn it on once. Someone who had
+      switched it off deliberately can switch it off again.
     """
     version = int(data.get("version", SETTINGS_VERSION))
-    # future: while version < SETTINGS_VERSION: ...
+    if version < 2:
+        data["installer_restore"] = True
     data["version"] = max(version, SETTINGS_VERSION) if version else SETTINGS_VERSION
     return data
 
