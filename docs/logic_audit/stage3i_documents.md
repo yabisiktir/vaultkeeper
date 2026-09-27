@@ -18,6 +18,9 @@ CRC match, unique numbering) and `NIT.Common.IsRunDocOrganiser` with its callers
 | D7 | Several mods | NIT steps through mods with Next; VK shows all selected mods in one view. | DELIBERATE (UI) |
 | D8 | Speed | VK describes archive docs from the 7-Zip index (path, size, CRC) instead of extracting; archives are unpacked only when they cannot be listed or hold archives. | VK-better |
 
+Regression tests: `tests/test_doc_organiser_parity.py` (D2 tests fail on the old
+code) and `tests/test_doc_organiser.py`.
+
 ## Mod notes
 
 Method: NIT's `ModData.Notes` / `Rename`, `NIT.ModView` notes display,
@@ -35,6 +38,3 @@ and the main window's notes pane.
 | N6 | Sync | `BehaviourSyncNotes` syncs through NIT's shared network profile (`SharedNit`), which VK does not port (export/import instead). | n/a |
 
 Regression tests: `tests/test_notes_parity.py` (the three controller tests fail on the old code).
-
-Regression tests: `tests/test_doc_organiser_parity.py` (D2 tests fail on the old
-code) and `tests/test_doc_organiser.py`.
