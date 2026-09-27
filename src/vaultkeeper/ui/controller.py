@@ -6861,11 +6861,14 @@ class ProfileController:
             if self.ctx.is_ee:
                 dirs.append(user / "ovr")
             dirs.append(user / "override")
-            dirs.append(user / "portraits")
-        # Portraits extracted from haks (one subfolder per hak) are also searched.
+        # Portraits extracted from haks (one subfolder per hak), then the
+        # portraits folder: NIT's order (CharacterSummary), and the game's, where
+        # a hak outranks a loose portrait.
         root = self.hak_portraits_root()
         if root.is_dir():
             dirs.extend(sorted(p for p in root.iterdir() if p.is_dir()))
+        if user is not None:
+            dirs.append(user / "portraits")
         # BioWare's own portraits last: a mod's replacement for a built-in
         # portrait should win, and the game's copy is the fallback.
         original = self.original_portraits_root()

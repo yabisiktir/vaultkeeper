@@ -603,3 +603,22 @@ def test_the_portrait_is_inert_without_a_host_to_open(qtbot, tmp_path):
     dlg = CharacterViewer([_char("Hero", tmp_path / "h.bic")], None)
     qtbot.addWidget(dlg)
     assert not dlg._portrait.toolTip()
+
+
+def test_hak_portraits_outrank_the_portraits_folder(tmp_path):
+    """NIT's CharacterSummary order: ovr, override, hak portraits, portraits."""
+    from vaultkeeper.ui.controller import ProfileController
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    hak_dir = c.hak_portraits_root() / "cep_portraits.hak"
+    hak_dir.mkdir(parents=True)
+
+    dirs = c.portrait_search_dirs()
+
+    assert dirs.index(hak_dir) < next(i for i, d in enumerate(dirs) if d.name == "portraits")
