@@ -281,4 +281,6 @@ layouts.
   folder "Lord Of Destruction" to Ungrouped and drop 12 records of installer
   files that are gone (mostly "1. Neverwinter Nights (EE)", whose folder holds a
   `.nitins` while the database says restorer).
-- Stage 4 residual code review (batches 3–7; see `stage4_review.md`); Stage 5 fixes.
+- Stage 4 batch 3 fixed a user-visible bug for the owner: the Game Saves Manager
+  ignored the `SAVES` alias, so the saves in `saves___` never showed.
+- Stage 4 residual code review (batches 4–7; see `stage4_review.md`); Stage 5 fixes.

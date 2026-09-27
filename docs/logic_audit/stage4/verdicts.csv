@@ -27,7 +27,7 @@ ModData.vb,ValidateInstallerType,fixed,"MISSING: ported (validate_installer_type
 ModData.vb,AddModFile,same,scan_mod_files
 ModData.vb,GetModFolderFiles,same,
 ModData.vb,FolderHasSourceFiles,same,_has_source_files
-ModData.vb,SetModState,fixed,"branch-for-branch same; patch INI name now matched in any case (Option Compare Text)"
+ModData.vb,SetModState,fixed,branch-for-branch same; patch INI name now matched in any case (Option Compare Text)
 ModData.vb,UpdateFileKeys,same,re-key on group move/rename (stage 2 move scenario)
 ModData.vb,RebuildFileList,same,
 ProfileData.vb,Load,same,"load_profile; check vs game + installer types + notes on open (3a, batch 1/2)"
@@ -136,3 +136,114 @@ GroupMemberData.vb,Rename,same,"rename_group: removed keys re-resolved via set_m
 GroupMemberData.vb,AddMembers,same,move_mods_to_group
 GroupMemberData.vb,AddMembersThread,same,move_mods_to_group
 GroupMemberData.vb,AddingMembers,same,move_mods_to_group
+Paths.vb,Tool,same,path property; app_paths / store layout
+Paths.vb,Profiles,same,path property; app_paths / store layout
+Paths.vb,ProfileMods,same,path property; app_paths / store layout
+Paths.vb,SharedProfileMods,n/a,"NetworkManager shared store, not ported"
+Paths.vb,Data,same,path property; app_paths / store layout
+Paths.vb,ProfileData,same,path property; app_paths / store layout
+Paths.vb,ProfileNotes,same,path property; app_paths / store layout
+Paths.vb,ExportedMods,same,export folder
+Paths.vb,ImportedMods,same,import
+Paths.vb,SyncNotes,n/a,NetworkManager notes sync
+Paths.vb,Backups,same,path property; app_paths / store layout
+Paths.vb,DataBackups,same,path property; app_paths / store layout
+Paths.vb,ArchivedSaves,same,path property; app_paths / store layout
+Paths.vb,ExportedSettings,same,path property; app_paths / store layout
+Paths.vb,GameSaves,same,store Game Saves folder; the live saves folder follows the SAVES alias (game_saves_dir)
+Paths.vb,NwnPortraits,same,path property; app_paths / store layout
+Paths.vb,HakPortraits,same,path property; app_paths / store layout
+Paths.vb,Nwn,same,path property; app_paths / store layout
+Paths.vb,Temp,same,path property; app_paths / store layout
+Paths.vb,TempWbm,same,path property; app_paths / store layout
+Paths.vb,Downloads,same,download folder setting; VK asks via Settings/Locations instead of a blocking loop
+Paths.vb,CrashReports,fixed,crash_reports: <user>/crashreport (batch 2)
+Paths.vb,TaskStateFilename,n/a,background task state (WinForms)
+Paths.vb,UserName,n/a,NetworkManager user file
+Paths.vb,RebuildRequested,same,import leaves lists empty → rebuild on first open
+Paths.vb,NwnClientLogFile,same,path property; app_paths / store layout
+Paths.vb,NwnEngineLogFile,same,path property; app_paths / store layout
+Paths.vb,NwnPlayLogFile,same,path property; app_paths / store layout
+Paths.vb,NwnMissingLogFile,same,path property; app_paths / store layout
+Paths.vb,NwnIniFile,same,path property; app_paths / store layout
+Paths.vb,NwnPlayerIniFile,same,path property; app_paths / store layout
+Paths.vb,NwnPatchIniFile,same,path property; app_paths / store layout
+Paths.vb,NwnConfigIniFile,same,path property; app_paths / store layout
+Paths.vb,NwnToolsetIniFile,same,path property; app_paths / store layout
+Paths.vb,GroupNameFilters,n/a,UI state file
+Paths.vb,RecentMods,same,path property; app_paths / store layout
+Paths.vb,SelectionHistoryFile,deliberate,UI state; see LoadSelections
+Paths.vb,ScrollPositionsFile,n/a,UI state file
+Paths.vb,InstallerIdFile,same,path property; app_paths / store layout
+Paths.vb,UserRulesFile,fixed,"User Rules.txt appended to the download rules (rules_source), opened from the rules-file command"
+Paths.vb,CrashReportFiles,same,path property; app_paths / store layout
+Paths.vb,InstallerIdFilePath,same,path property; app_paths / store layout
+Paths.vb,InstalledEditions,same,path property; app_paths / store layout
+Paths.vb,Profile,same,path property; app_paths / store layout
+Paths.vb,ReservedNameImage,n/a,icon
+Paths.vb,IsReservedName,same,path property; app_paths / store layout
+Paths.vb,IsNotReservedName,same,path property; app_paths / store layout
+Paths.vb,IsReservedNameOrPrefix,same,core/reserved.py incl. (Auto) suffix
+Paths.vb,IsNotReservedNameOrPrefix,same,core/reserved.py
+Paths.vb,HasDataFile,same,store exists → load
+Paths.vb,ErrorMessage,n/a,log text
+Paths.vb,ExtendedLibrary,same,path property; app_paths / store layout
+Paths.vb,WorkshopContentPath,same,path property; app_paths / store layout
+Paths.vb,ExtendedExePath,same,path property; app_paths / store layout
+Paths.vb,ExtendedDataPath,same,path property; app_paths / store layout
+Paths.vb,ExtendedOvrPath,same,path property; app_paths / store layout
+Paths.vb,ExtendedUserPath,same,path property; app_paths / store layout
+Paths.vb,ExtendedVersionFileName,same,path property; app_paths / store layout
+Paths.vb,GetFileEdition,same,profile_is_ee
+Paths.vb,CreateEditionFile,same,Settings profile edition record
+Paths.vb,SolicitEdition,same,profile edition asked when made (profile_is_ee)
+Paths.vb,DetectExtended,same,nwnfile.discover_installs
+Paths.vb,SolicitEnhanced,same,first-run locate dialog
+Paths.vb,UserFilesFolder,same,user_documents_dir + nwn.ini aliases
+Paths.vb,BeamdogLibrary,same,_native_gog_beamdog_roots
+Paths.vb,GogLibrary,same,_native_gog_beamdog_roots
+Paths.vb,SteamLibrary,fixed,libraryfolders.vdf + 'Neverwinter Nights Enhanced Edition' folder (nwn-save-editor 6e34bff)
+Paths.vb,SteamLibraryFolder,fixed,as SteamLibrary (VK checks the common folder rather than .acf installdir)
+Paths.vb,GetWorkshopContentPath,same,workshop_content_dir
+Paths.vb,ValidateExtendedLib,same,looks_like_nwn_root
+Paths.vb,ValidateEeFolder,same,looks_like_nwn_root
+Paths.vb,Validate,same,startup: stage 3a; active-profile fallback to default/first when its folder is missing not ported (VK recreates the folder)
+Paths.vb,SetPathNit,same,first-run store location question (3a)
+Paths.vb,ValidatedNitPath,same,store root
+Paths.vb,CreateStore,same,store layout
+Paths.vb,DetectOriginal,same,discover_installs (classic via looks_like_nwn_root)
+Paths.vb,GetExePath,same,game_launch.resolve_executable
+Paths.vb,SolicitNwnExeFile,same,locate dialog
+Paths.vb,GetFolder,same,folder picker
+Paths.vb,CreateMissingFolders,same,store dirs created on use
+Paths.vb,CheckAccessPermissions,deliberate,no up-front permission probe; write errors are reported where they happen
+Paths.vb,CreateProfileFolder,same,switch/create profile mkdir
+Paths.vb,IsValidNwnFolder,same,looks_like_nwn_root
+ProfileInfo.vb,OperationStates,n/a,"one-time NIT data migrations (RemoveOldDataFiles, ValidateWizardReports, RebuildPlayTimeFiles, Populate*, RenameReservedFolders, ValidateLinks http→https); UpdateEeFiles → ee_files_signatures; ValidateHakPatch/RefreshHakModStatus → batch 4"
+ProfileInfo.vb,LoadStateFilename,n/a,as OperationStates
+ProfileInfo.vb,ConvertBikFiles,same,EE and convert_bik setting
+ProfileInfo.vb,GetNwnVersion,same,editions/version
+ProfileInfo.vb,SaveLoadStates,n/a,as OperationStates
+ProfileInfo.vb,SetEdition,same,profile_is_ee
+ProfileInfo.vb,SetOperationStates,n/a,as OperationStates
+ProfileInfoManager.vb,ProfileCount,same,list_profiles
+ProfileInfoManager.vb,Profiles,same,list_profiles
+ProfileInfoManager.vb,ProfileInfo,same,active profile
+ProfileInfoManager.vb,FolderInfo,same,ctx game folders
+ProfileInfoManager.vb,InactivePatchFile,same,patch_ini_path (S1)
+ProfileInfoManager.vb,PatchIniFilename,same,patch_ini_path (S1)
+ProfileInfoManager.vb,SetGameSaves,fixed,saves follow the SAVES alias (game_saves_dir); NIT's shared saves-folder setting that rewrites SAVES in every profile is not ported (Alias editor instead): deliberate
+ProfileInfoManager.vb,GetProfiles,deliberate,Profiles subfolders listed; NIT also re-adopts data-only orphan profiles and disables profiles whose game folder is gone
+ProfileInfoManager.vb,CreateDefaultProfile,same,first run (3a)
+ProfileInfoManager.vb,CreateProfile,same,create profile
+NwnFolderInfo.vb,CustomAliasFile,deliberate,custom alias definitions: VK's Alias editor edits nwn.ini directly
+NwnFolderInfo.vb,CustomAliasState,deliberate,as CustomAliasFile
+NwnFolderInfo.vb,CreateUserPatchFile,same,3a (userpatch.ini created)
+NwnFolderInfo.vb,ValidateNwnIni,fixed,stray aliases repointed on agreement before open; missing NWMFILES/SOURCEOVERRIDE/PATCH not written (3a F3 deliberate)
+NwnFolderInfo.vb,PopulateLocations,fixed,stray_alias_updates + confirm_alias_repair
+NwnFolderInfo.vb,ValidateNwnConfigIni,n/a,classic nwnconfig.ini [Registry] paths for a moved Diamond install; not ported
+NwnFolderInfo.vb,SetGameSavesPath,fixed,saves_folder(): SAVES alias
+NwnFolderInfo.vb,LoadNwnIniFile,same,read_alias_section; a missing [Alias] section is not created (no silent config writes)
+NwnFolderInfo.vb,SaveNwnIniFile,same,write_alias_section keeps nwn.ini.bak once
+NwnFolderInfo.vb,LoadCustomAliasFile,deliberate,as CustomAliasFile
+NwnFolderInfo.vb,SaveCustomAliasFile,deliberate,as CustomAliasFile

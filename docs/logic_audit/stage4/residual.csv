@@ -121,108 +121,6 @@ HakPatchManager.vb,CreateNwnPatchIniFile,HakPatchManager.vb:360,Divergence,61,co
 HakPatchManager.vb,GetPatchHaks,HakPatchManager.vb:447,Divergence,23,my.computer.filesystem,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 HakPatchManager.vb,CreateModPatchIniFile,HakPatchManager.vb:478,Ported,39,file. fs. my.computer.filesystem writealltext,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 HakPatchManager.vb,UpdateProfileData,HakPatchManager.vb:534,Divergence,21,my.computer.filesystem pd. pim.,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-Paths.vb,Tool,Paths.vb:260,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,Profiles,Paths.vb:270,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ProfileMods,Paths.vb:280,Divergence,5,my.computer.filesystem,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-Paths.vb,SharedProfileMods,Paths.vb:291,Deferred,9,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-Paths.vb,Data,Paths.vb:305,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ProfileData,Paths.vb:315,Divergence,5,my.computer.filesystem,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-Paths.vb,ProfileNotes,Paths.vb:325,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ExportedMods,Paths.vb:335,Deferred,5,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-Paths.vb,ImportedMods,Paths.vb:346,Deferred,10,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-Paths.vb,SyncNotes,Paths.vb:362,Deferred,10,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-Paths.vb,Backups,Paths.vb:377,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,DataBackups,Paths.vb:387,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ArchivedSaves,Paths.vb:397,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ExportedSettings,Paths.vb:407,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,GameSaves,Paths.vb:417,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,NwnPortraits,Paths.vb:430,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,HakPortraits,Paths.vb:444,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,Nwn,Paths.vb:453,Ported,5,,verified: app_paths/locations/editions
-Paths.vb,Temp,Paths.vb:462,Ported,5,,verified: app_paths/locations/editions
-Paths.vb,TempWbm,Paths.vb:471,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,Downloads,Paths.vb:480,Ported,17,my.settings.pathdownloads =,verified: app_paths/locations/editions
-Paths.vb,CrashReports,Paths.vb:503,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,TaskStateFilename,Paths.vb:516,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,UserName,Paths.vb:525,Deferred,5,my.computer.filesystem,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-Paths.vb,RebuildRequested,Paths.vb:536,Ported,12,deletefile fs. my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,NwnClientLogFile,Paths.vb:552,Ported,5,my.computer.filesystem pim.,verified: app_paths/locations/editions
-Paths.vb,NwnEngineLogFile,Paths.vb:564,Ported,5,my.computer.filesystem pim.,verified: app_paths/locations/editions
-Paths.vb,NwnPlayLogFile,Paths.vb:578,Ported,5,my.computer.filesystem pim.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,NwnMissingLogFile,Paths.vb:592,Divergence,5,my.computer.filesystem pim.,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,NwnIniFile,Paths.vb:602,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,NwnPlayerIniFile,Paths.vb:611,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,NwnPatchIniFile,Paths.vb:620,Ported,5,my.computer.filesystem pim.,verified: app_paths/locations/editions
-Paths.vb,NwnConfigIniFile,Paths.vb:629,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,NwnToolsetIniFile,Paths.vb:638,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,GroupNameFilters,Paths.vb:647,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,RecentMods,Paths.vb:656,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,SelectionHistoryFile,Paths.vb:665,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,ScrollPositionsFile,Paths.vb:675,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,InstallerIdFile,Paths.vb:686,Ported,9,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,UserRulesFile,Paths.vb:699,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,CrashReportFiles,Paths.vb:708,Divergence,5,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-Paths.vb,InstallerIdFilePath,Paths.vb:725,Ported,5,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,InstalledEditions,Paths.vb:737,Ported,5,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,Profile,Paths.vb:750,Ported,8,my.settings.profile =,verified: app_paths/locations/editions
-Paths.vb,ReservedNameImage,Paths.vb:766,Partial,5,,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
-Paths.vb,IsReservedName,Paths.vb:779,Ported,5,,verified: app_paths/locations/editions
-Paths.vb,IsNotReservedName,Paths.vb:792,Ported,5,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,IsReservedNameOrPrefix,Paths.vb:805,Ported,13,,verified: app_paths/locations/editions
-Paths.vb,IsNotReservedNameOrPrefix,Paths.vb:826,Ported,13,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,HasDataFile,Paths.vb:846,Ported,13,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ErrorMessage,Paths.vb:865,Ported,25,,verified: app_paths/locations/editions
-Paths.vb,ExtendedLibrary,Paths.vb:915,Ported,5,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,WorkshopContentPath,Paths.vb:928,Ported,5,,verified: app_paths/locations/editions
-Paths.vb,ExtendedExePath,Paths.vb:941,Ported,18,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ExtendedDataPath,Paths.vb:966,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ExtendedOvrPath,Paths.vb:978,Ported,5,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ExtendedUserPath,Paths.vb:991,Ported,5,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ExtendedVersionFileName,Paths.vb:1003,Ported,5,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,GetFileEdition,Paths.vb:1040,Ported,8,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,CreateEditionFile,Paths.vb:1060,Partial,9,deletefile fs. my.computer.filesystem,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
-Paths.vb,SolicitEdition,Paths.vb:1080,Partial,13,,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
-Paths.vb,DetectExtended,Paths.vb:1106,Ported,36,my.settings.pathextendededitionlib = my.settings.pathextendededitionuser =,verified: app_paths/locations/editions
-Paths.vb,SolicitEnhanced,Paths.vb:1174,Partial,18,my.settings.pathextendededitionlib = my.settings.pathextendededitionuser = my.settings.privateextendeddisabled =,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
-Paths.vb,UserFilesFolder,Paths.vb:1206,Ported,18,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,BeamdogLibrary,Paths.vb:1242,Ported,30,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,GogLibrary,Paths.vb:1290,Ported,10,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,SteamLibrary,Paths.vb:1311,Ported,36,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,SteamLibraryFolder,Paths.vb:1368,Ported,40,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,GetWorkshopContentPath,Paths.vb:1434,Ported,15,my.computer.filesystem,verified: app_paths/locations/editions
-Paths.vb,ValidateExtendedLib,Paths.vb:1462,Ported,18,fs. my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ValidateEeFolder,Paths.vb:1512,Ported,11,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,Validate,Paths.vb:1538,Ported,129,copyfile fs. my.computer.filesystem my.settings.pathdownloads = my.settings.pathnit = my.settings.pathnwn =,verified: app_paths/locations/editions
-Paths.vb,SetPathNit,Paths.vb:1713,Ported,47,.save( my.computer.filesystem my.settings.pathnit =,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,ValidatedNitPath,Paths.vb:1787,Ported,13,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,CreateStore,Paths.vb:1811,Ported,19,fs.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,DetectOriginal,Paths.vb:1841,Ported,44,my.settings.pathnwn = my.settings.privateoriginaldisabled = registry,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,GetExePath,Paths.vb:1906,Ported,21,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,SolicitNwnExeFile,Paths.vb:1942,Ported,10,my.computer.filesystem my.settings.pathnwn =,verified: app_paths/locations/editions
-Paths.vb,GetFolder,Paths.vb:1967,Ported,20,,verified: app_paths/locations/editions
-Paths.vb,CreateMissingFolders,Paths.vb:2010,Ported,9,fs. my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,CheckAccessPermissions,Paths.vb:2035,Partial,22,fs.,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
-Paths.vb,CreateProfileFolder,Paths.vb:2077,Ported,21,fs. my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-Paths.vb,IsValidNwnFolder,Paths.vb:2119,Ported,13,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileInfo.vb,OperationStates,ProfileInfo.vb:26,Partial,13,,web-menu editing + operation-state present but bounded.
-ProfileInfo.vb,LoadStateFilename,ProfileInfo.vb:43,Divergence,5,my.computer.filesystem,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
-ProfileInfo.vb,ConvertBikFiles,ProfileInfo.vb:62,Ported,5,,verified: editions/version
-ProfileInfo.vb,GetNwnVersion,ProfileInfo.vb:154,Ported,15,my.computer.filesystem,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
-ProfileInfo.vb,SaveLoadStates,ProfileInfo.vb:180,Divergence,11,my.computer.filesystem,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
-ProfileInfo.vb,SetEdition,ProfileInfo.vb:198,Ported,12,my.computer.filesystem,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
-ProfileInfo.vb,SetOperationStates,ProfileInfo.vb:217,Partial,27,file. my.computer.filesystem,web-menu editing + operation-state present but bounded.
-ProfileInfoManager.vb,ProfileCount,ProfileInfoManager.vb:30,Ported,5,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ProfileInfoManager.vb,Profiles,ProfileInfoManager.vb:39,Ported,5,,verified: profile mgmt/session
-ProfileInfoManager.vb,ProfileInfo,ProfileInfoManager.vb:48,Divergence,5,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileInfoManager.vb,ProfileInfo,ProfileInfoManager.vb:57,Divergence,5,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileInfoManager.vb,FolderInfo,ProfileInfoManager.vb:71,Deferred,5,,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-ProfileInfoManager.vb,FolderInfo,ProfileInfoManager.vb:80,Deferred,5,,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-ProfileInfoManager.vb,InactivePatchFile,ProfileInfoManager.vb:90,Deferred,5,pim.,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-ProfileInfoManager.vb,PatchIniFilename,ProfileInfoManager.vb:100,Ported,5,pim.,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ProfileInfoManager.vb,SetGameSaves,ProfileInfoManager.vb:158,Ported,29,my.computer.filesystem,verified: profile mgmt/session
-ProfileInfoManager.vb,GetProfiles,ProfileInfoManager.vb:206,Ported,100,fs. my.computer.filesystem my.settings.profilenwn =,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ProfileInfoManager.vb,CreateDefaultProfile,ProfileInfoManager.vb:340,Ported,10,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ProfileInfoManager.vb,CreateProfile,ProfileInfoManager.vb:365,Ported,8,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 Defs.vb,StartupType,Defs.vb:477,Divergence,46,vault,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,DefaultWebMenu,Defs.vb:691,Ported,7,vault,verified: constants/editions/helpers
 Defs.vb,SuppressGotFocus,Defs.vb:753,Divergence,8,,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
@@ -500,17 +398,6 @@ NetworkManager.vb,BgNetwork_DoWork,NetworkManager.vb:474,Deferred,57,fs. my.comp
 NetworkManager.vb,BgSync_DoWork,NetworkManager.vb:553,Deferred,34,copyfile fs. my.computer.filesystem pd.,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
 NitDownload.vb,BtOpen_Click,NitDownload.vb:146,Divergence,11,.save( my.settings.pathdownloadupdates =,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 NitUserInterface.vb,SetPrefs,NitUserInterface.vb:50,Partial,17,my.settings.colourtheme =,"reads present, bounded (settings prefs load, nwn.ini validate)."
-NwnFolderInfo.vb,CustomAliasFile,NwnFolderInfo.vb:192,Deferred,5,,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-NwnFolderInfo.vb,CustomAliasState,NwnFolderInfo.vb:201,Deferred,4,,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-NwnFolderInfo.vb,CreateUserPatchFile,NwnFolderInfo.vb:243,Deferred,13,file. my.computer.filesystem writealltext,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-NwnFolderInfo.vb,ValidateNwnIni,NwnFolderInfo.vb:266,Ported,34,my.computer.filesystem,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-NwnFolderInfo.vb,PopulateLocations,NwnFolderInfo.vb:319,Ported,53,my.computer.filesystem,verified: nwn.ini/alias read
-NwnFolderInfo.vb,ValidateNwnConfigIni,NwnFolderInfo.vb:393,Ported,37,file. my.computer.filesystem registry,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-NwnFolderInfo.vb,SetGameSavesPath,NwnFolderInfo.vb:453,Ported,32,my.computer.filesystem,verified: nwn.ini/alias read
-NwnFolderInfo.vb,LoadNwnIniFile,NwnFolderInfo.vb:502,Ported,27,file. my.computer.filesystem,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-NwnFolderInfo.vb,SaveNwnIniFile,NwnFolderInfo.vb:547,Deferred,38,copyfile file. fs.,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-NwnFolderInfo.vb,LoadCustomAliasFile,NwnFolderInfo.vb:597,Ported,23,my.computer.filesystem,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-NwnFolderInfo.vb,SaveCustomAliasFile,NwnFolderInfo.vb:629,Deferred,11,my.computer.filesystem,config-isolation writes NOT done / alias editor / online module fetch / patch file.
 PlayDataViewer.vb,PlayDataViewer_Load,PlayDataViewer.vb:101,Divergence,151,my.settings.configdayconversionfactor =,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PlayDataViewer.vb,PlayDataViewer_FormClosing,PlayDataViewer.vb:356,Divergence,5,.save(,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 PlayDataViewer.vb,LtxHoursPerDay_TextChanged,PlayDataViewer.vb:574,Divergence,13,my.settings.configautodayconversionfactor = my.settings.configdayconversionfactor =,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.

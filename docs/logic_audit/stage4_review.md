@@ -32,7 +32,7 @@ artefact`, `n/a`); `triage.py` then lists what is left in `stage4/residual.csv`.
 |---|---|---|---|
 | 1 | ModData.vb | 31 | ✅ |
 | 2 | ProfileData.vb, ProfileData.Properties.vb, GroupMemberData.vb | 107 | ✅ |
-| 3 | Paths.vb, ProfileInfo.vb, ProfileInfoManager.vb, NwnFolderInfo.vb | 113 | |
+| 3 | Paths.vb, ProfileInfo.vb, ProfileInfoManager.vb, NwnFolderInfo.vb | 111 | ✅ |
 | 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | |
 | 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | ~160 | |
 | 6 | Defs.vb, Settings.* | ~70 | |
@@ -78,3 +78,25 @@ Regression tests: `tests/test_validate_mod_data_parity.py`, `tests/test_crash_re
 `tests/test_validate_nwn.py::test_files_nit_allows_are_not_reported`,
 `tests/test_update_ee_files.py` (last two), `tests/test_original_files.py::test_original_source_files_includes_a_stale_original_restorer_copy`,
 `tests/test_notes_parity.py::test_orphaned_notes_are_recycled_when_the_profile_opens`.
+
+## Batch 3 — Paths, ProfileInfo, ProfileInfoManager, NwnFolderInfo
+
+111 verdicts: 83 same, 13 n/a, 8 fixed, 7 deliberate. Most of Paths.vb is
+one-line path properties that map onto the store layout.
+
+| Member | Finding | Verdict |
+|---|---|---|
+| `SetGameSavesPath` | NIT (and the game) find saves through `nwn.ini`'s `SAVES` alias. VK hard-coded `<user>/saves` for the Game Saves Manager, play-session save tracking, the saves count and the character list. The owner's alias points at `saves___` and `saves` is empty, so VK showed none of their 11 saves, and Reduce/Archive had nothing to act on. Now `game_saves_dir()` / `nwn_folders.saves_folder()`. | BUG → fixed |
+| `PopulateLocations` / `ValidateNwnIni` | On every load NIT points each alias at the same-named sub-folder of the profile's own user folder, and HD0 at the folder. A user folder copied for a test profile keeps the original's absolute aliases, so under VK the game, and every install for the test profile, used the live folder. VK now detects this before the profile opens (opening checks, and anneals, the folders it resolves) and repoints the aliases if the user agrees (`nwn.ini.bak` kept). It leaves CD0, SAVES, NWMFILES, relative values and other-OS values alone. The owner's `nwn.ini` needs nothing. Asking, not writing silently, is deliberate (VK's rule for game config; 3a F3). | MISSING → fixed |
+| `UserRulesFile` | NIT appends `User Rules.txt` (store Data folder) to the download rules, e.g. to add private projects to NoInstallerProjects. VK had no such file. It is now created with an explanatory header, appended on load, and opened for editing by the rules-file menu command. | MISSING → fixed |
+| `SteamLibrary` | NIT reads Steam's `libraryfolders.vdf` and accepts a "Neverwinter Nights Enhanced Edition" install folder; VK searched only the default library, so a game on a second drive was never found (nwn-save-editor `6e34bff`). | MISSING → fixed |
+| `SetGameSaves` | NIT's shared saves-folder setting rewrites `SAVES` in every profile's `nwn.ini`; VK has no such setting (edit the alias instead). | deliberate |
+| Custom alias definitions | NIT can keep per-profile custom alias locations and reapply them; VK's Alias editor edits `nwn.ini` directly. | deliberate |
+| `GetProfiles`, `Validate` | NIT re-adopts profiles that exist only in Data, falls back to the default/first profile when the active one's folder is gone, and disables profiles whose game folder is missing. VK lists Profiles sub-folders and recreates a missing folder on open; no data is lost either way. | deliberate (noted) |
+| `CheckAccessPermissions` | NIT probes read/write access up front; VK reports write errors where they happen. | deliberate |
+| `OperationStates` | One-time NIT data migrations. `UpdateEeFiles` is covered by batch 2's executable check; the hak-patch refresh on load goes to batch 4. | n/a |
+| `ValidateNwnConfigIni` | Classic only: rewrites `nwnconfig.ini`'s `[Registry]` paths for a moved Diamond install. | n/a |
+
+Regression tests: `tests/test_alias_repair.py`, `tests/test_rules_source.py`,
+`tests/test_ui_main_window.py` (rules-file command), nwn-save-editor
+`tests/test_steam_libraries.py`.
