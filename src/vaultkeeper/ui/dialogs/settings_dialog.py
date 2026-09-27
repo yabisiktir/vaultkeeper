@@ -461,11 +461,13 @@ class SettingsDialog(QDialog):
         form.addRow(self.move_added_mods)
 
         self.use_move_on_add = QCheckBox(
-            "Use Move when adding files to a mod (unchecked copies instead)"
+            "Use Move (rather than Copy) when adding files"
         )
         self.use_move_on_add.setChecked(settings.use_move_on_add)
         self.use_move_on_add.setToolTip(
-            "On: added files are moved out of their source folder.\n"
+            "Applies to Add Files to Mod and Add Mods from Files (whose archive is\n"
+            "kept in the new mod's _Downloads folder).\n"
+            "On: files are moved out of their source folder.\n"
             "Off: they are copied, leaving the originals in place."
         )
         form.addRow(self.use_move_on_add)

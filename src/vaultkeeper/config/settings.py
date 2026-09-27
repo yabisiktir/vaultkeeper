@@ -201,9 +201,10 @@ class Settings:
     #: Move mods added from files/paste into the default group instead of leaving
     #: them ungrouped (VB ``BehaviourMoveAddedMods``).
     move_added_mods: bool = False
-    #: When adding downloaded files to a mod, move them (removing the source) rather
-    #: than copying (VB ``BehaviourUseMove`` / adddownloadedfilestoamod.htm). VB's
-    #: default is Move — "the selected files are moved to your Mod's folder".
+    #: When adding files to a mod, or making mods from archives (whose archive is
+    #: kept in the new mod's ``_Downloads``), move them rather than copy (VB v8
+    #: ``BehaviourMoveAddedMods``, "Use Move (rather than Copy) when adding files";
+    #: older help calls it ``BehaviourUseMove``). VB's default is Move.
     use_move_on_add: bool = True
     #: Let the Tool manage Steam Workshop subscription content (VB
     #: ``ConfigManageSteamWorkshop`` / newtopic19.htm). Off by default — "the

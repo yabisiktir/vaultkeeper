@@ -113,7 +113,7 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | ID | Finding |
 |---|---|
 | U2 ✅ | Rebuilt installer of an installed mod isn't reinstalled (VK `installer_restore` default False; NIT True) |
-| A1 | Pasted archive not kept in the mod's `_Downloads` |
+| A1 ✅ | Pasted archive not kept in the mod's `_Downloads` — fixed: Add Mods from Files moves it there (copies when "Use Move (rather than Copy) when adding files" is off), a clipboard paste copies it. Note: NIT's `BehaviourMoveAddedMods` *is* that move/copy preference; VK's `move_added_mods` is a separate VK default-group option that reused the name. |
 | S3 | Mod state after uninstall/override differs (VK shows "Some and Match" for a mod whose file is another mod's copy) |
 | N1 | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — port the tidy-up without NIT's `( EE)` bug |
 | M2 | `nitconfig` folders always excluded (deliberate; effect on re-created installers unverified) |

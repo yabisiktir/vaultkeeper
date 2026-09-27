@@ -1553,14 +1553,23 @@ class ProfileController:
             self.save()
         return added
 
-    def add_mods_from_files(self, paths: list[Path], group: str | None = None) -> dict:
+    def add_mods_from_files(
+        self, paths: list[Path], group: str | None = None, *, move: bool | None = None
+    ) -> dict:
         """Create a new mod from each archive, extracting its files (VB MsAddMods/ModPaste).
 
         For each selected archive a mod folder named after the archive is created
         under ``group`` (the currently-selected group, else No Group), the archive is
-        extracted into it and a ``_Downloads`` folder is added — leaving the mod ready
-        for Create Installer, exactly as the VB "Add Mods from Files" flow does. A file
-        that 7-Zip can't extract, or whose mod name already exists, is skipped. Returns
+        extracted into it and the archive itself is kept in the mod's ``_Downloads``
+        folder — leaving the mod ready for Create Installer, exactly as the VB "Add
+        Mods from Files" flow does (``ModPaste`` → ``SetModPasteTarget``). Keeping it
+        matters: it is the original a rebuild, an update check and the mod's related
+        files all go back to, and the user's own download is often deleted later.
+
+        ``move`` moves the archive there rather than copying it; by default it
+        follows "Use Move (rather than Copy) when adding files" (VB
+        ``BehaviourMoveAddedMods``, here ``use_move_on_add``). A file that 7-Zip
+        can't extract, or whose mod name already exists, is skipped. Returns
         ``{"created", "ignored", "errors", "message"}``.
         """
         import shutil
@@ -1592,7 +1601,19 @@ class ProfileController:
                 errors.append(source.name)
                 shutil.rmtree(mod_dir, ignore_errors=True)
                 continue
-            (mod_dir / C.DOWNLOADS_DIR).mkdir(exist_ok=True)
+            downloads = mod_dir / C.DOWNLOADS_DIR
+            downloads.mkdir(exist_ok=True)
+            keep_move = self._settings().use_move_on_add if move is None else move
+            try:
+                if keep_move:
+                    shutil.move(str(source), downloads / source.name)
+                else:
+                    shutil.copy2(source, downloads / source.name)
+            except OSError as ex:
+                from nwnfile.log import get_logger
+
+                # The mod is still made; only the kept copy of its archive is missing.
+                get_logger(__name__).warning("could not keep %s: %s", source, ex)
             self.pd.add_mod(ModData(group=group, mod_name=name))
             created.append(name)
         if created:
@@ -1668,7 +1689,8 @@ class ProfileController:
         extractable = [a for a in archives if is_extractable(a.suffix)]
         errors.extend(a.name for a in archives if not is_extractable(a.suffix))
         if extractable:
-            arch_result = self.add_mods_from_files(extractable, group)
+            # A paste copies: the clipboard's originals stay where they are.
+            arch_result = self.add_mods_from_files(extractable, group, move=False)
             created.extend(arch_result["created"])
             ignored.extend(arch_result["ignored"])
             errors.extend(arch_result["errors"])
