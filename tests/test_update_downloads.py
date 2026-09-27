@@ -146,3 +146,47 @@ def test_publish_reports_when_backend_unavailable(tmp_path):
     result = controller.publish_mod("My Mod")
     assert not result["ok"]
     assert "not available" in result["message"].lower()
+
+
+def test_publish_asks_before_replacing_an_archive(tmp_path, recycle_bin):
+    """7-Zip's ``a`` adds into an existing archive, so NIT recycles it first, on a yes."""
+    from vaultkeeper.core import constants as C
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor()
+    published = controller.ctx.profile_mods_dir / "My Mod" / C.PUBLISHED_DIR
+    published.mkdir(parents=True)
+    (published / "My Mod.7z").write_bytes(b"OLD")
+
+    asked = controller.publish_mod("My Mod")
+    assert not asked["ok"] and asked["exists"]
+    assert "replace the current My Mod.7z" in asked["message"]
+    assert not controller._extractor.create_calls
+    assert (published / "My Mod.7z").read_bytes() == b"OLD"
+
+    assert controller.publish_mod("My Mod", replace=True)["ok"]
+    assert (published / "My Mod.7z").read_bytes() != b"OLD"  # a fresh archive
+    assert [p.read_bytes() for p in recycle_bin.rglob("My Mod.7z")] == [b"OLD"]
+
+
+def test_publish_writes_the_installation_guide(tmp_path):
+    from vaultkeeper.core import constants as C
+    from vaultkeeper.core.archive import FakeArchiveExtractor
+
+    controller = _controller(tmp_path)
+    controller._extractor = FakeArchiveExtractor()
+    mod = controller.ctx.profile_mods_dir / "My Mod"
+    guide = mod / "Installation Guide.rtf"
+
+    controller.publish_mod("My Mod")
+    assert not guide.exists()
+
+    controller.publish_mod("My Mod", guide=True, replace=True)
+    manual = guide.read_text(encoding="cp1252")
+    assert manual.startswith("{\\rtf1")
+
+    (mod / C.MOD_INSTALLER_DIR / C.MOD_ROOT_FOLDER).mkdir(parents=True)
+    controller.publish_mod("My Mod", guide=True, replace=True)
+    assert "Installer Tool" in guide.read_text(encoding="cp1252")
+    assert guide.read_text(encoding="cp1252") != manual

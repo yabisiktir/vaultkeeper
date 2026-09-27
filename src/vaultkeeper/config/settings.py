@@ -208,6 +208,9 @@ class Settings:
     #: or "no" (VB ``ConfigRunCreateInstaller``: Ask each time, with "Always take
     #: this action" to stop asking).
     run_create_installer: str = "ask"
+    #: The Wizard Builder warns when the Archive Folder Files view would list more
+    #: files than this (VB ``ConfigWizardFileThreshold``).
+    wizard_file_threshold: int = 15000
     #: How many game saves Reduce keeps (VB ``ConfigSavesRetention``; the Game
     #: Saves Manager's "Number of game saves to keep", remembered between uses).
     saves_retention: int = 50

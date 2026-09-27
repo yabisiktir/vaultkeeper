@@ -2032,7 +2032,14 @@ class ProfileController:
         suffix = version.strip().rstrip(".")
         return f"{mod_name} {suffix}.7z" if suffix else f"{mod_name}.7z"
 
-    def publish_mod(self, mod_name: str, *, version: str = "") -> dict:
+    def publish_mod(
+        self,
+        mod_name: str,
+        *,
+        version: str = "",
+        replace: bool = False,
+        guide: bool = False,
+    ) -> dict:
         """Archive a mod into a distributable ``.7z`` under ``_Published`` (VB PublishMod).
 
         Ports the PublishMod operation faithfully: create
@@ -2043,9 +2050,16 @@ class ProfileController:
         publish (``rewrite_for_publish``) and the original file is restored
         afterwards. Returns ``{"ok", "path", "zip_name", "message"}``.
 
-        The optional *Generate Installation Guide* step is deferred (the VB RTF guide
-        templates are not bundled). The published folder is the mod's, not a chosen
-        destination — VB has no destination picker.
+        An archive of the same name is replaced only with ``replace`` (VB asks "Do
+        you want to replace the current …?"), and goes to the recycle bin first:
+        7-Zip's ``a`` adds into an existing archive, so without that a file the mod
+        no longer has would still be published. Without ``replace`` the result has
+        ``exists`` set and nothing is touched.
+
+        ``guide`` writes ``Installation Guide.rtf`` into the mod folder, so it is
+        published with it (VB ``CbGuide``): NIT's own guide, or its manual one
+        when the installer has no ``nwn`` folder. The published folder is the
+        mod's, not a chosen destination — VB has no destination picker.
         """
         from vaultkeeper.core import constants as C
         from vaultkeeper.game.wizard import (
@@ -2070,12 +2084,26 @@ class ProfileController:
         zip_name = self.publish_zip_name(mod_name, version)
         published_dir = mod_folder / C.PUBLISHED_DIR
         archive = published_dir / zip_name
+        if archive.exists():
+            if not replace:
+                return _publish_result(
+                    False,
+                    zip_name=zip_name,
+                    exists=True,
+                    message=f"Do you want to replace the current {zip_name}?",
+                )
+            from vaultkeeper.core import fs
+
+            fs.delete(archive, to_trash=True)
         try:
             published_dir.mkdir(parents=True, exist_ok=True)
         except OSError as exc:
             return _publish_result(
                 False, message=f"Unable to create the {C.PUBLISHED_DIR} folder: {exc}"
             )
+
+        if guide:
+            self._write_installation_guide(mod_folder)
 
         # Re-root the wizard's file references under the archive folder, keeping the
         # original text to restore after the archive is built (VB non-destructive).
@@ -2121,6 +2149,27 @@ class ProfileController:
         return _publish_result(
             False, message=result.error or f"Failed to publish {mod_name}"
         )
+
+    def _write_installation_guide(self, mod_folder: Path) -> bool:
+        """Write ``Installation Guide.rtf`` into a mod folder (VB ``CbGuide``).
+
+        NIT's guide for mods with an ``nwn`` folder in their installer (they
+        need the Installer Tool), its manual one otherwise.
+        """
+        from importlib.resources import files
+
+        from vaultkeeper.core import constants as C
+
+        nwn_root = mod_folder / C.MOD_INSTALLER_DIR / C.MOD_ROOT_FOLDER
+        template = (
+            "NWN Installation Guide.rtf" if nwn_root.is_dir() else "Default Installation Guide.rtf"
+        )
+        try:
+            data = (files("vaultkeeper.game.data") / template).read_bytes()
+            (mod_folder / "Installation Guide.rtf").write_bytes(data)
+        except OSError:
+            return False
+        return True
 
     def create_installer(self, mod_name: str) -> bool:
         """Mark a mod as an installer (write its identifier) and scan its files.
@@ -9180,10 +9229,21 @@ def _doc_copy_summary(copied: int, errors: int) -> str:
 
 
 def _publish_result(
-    ok: bool, *, path: str = "", zip_name: str = "", message: str = ""
+    ok: bool,
+    *,
+    path: str = "",
+    zip_name: str = "",
+    message: str = "",
+    exists: bool = False,
 ) -> dict:
     """Assemble a publish-op result dict (VB PublishMod outcome)."""
-    return {"ok": ok, "path": path, "zip_name": zip_name, "message": message}
+    return {
+        "ok": ok,
+        "path": path,
+        "zip_name": zip_name,
+        "message": message,
+        "exists": exists,
+    }
 
 
 def _wizard_op_result(

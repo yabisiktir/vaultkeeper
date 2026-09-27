@@ -518,7 +518,7 @@ def test_publish_dialog_live_name_and_publish(qtbot, tmp_path):
     assert dlg.archive_label.text() == "My Mod.7z"
     dlg.version_edit.setText("2.0")
     assert dlg.archive_label.text() == "My Mod 2.0.7z"
-    assert not dlg.guide_check.isEnabled()  # deferred
+    assert dlg.guide_check.isEnabled() and not dlg.guide_check.isChecked()
 
     import unittest.mock as mock
 
@@ -689,3 +689,35 @@ def test_wizard_install_prompt(tmp_path):
 
     # A mod with no wizard reports run_wizard False.
     assert controller.wizard_install_prompt("Plain")["run_wizard"] is False
+
+
+@pytest.mark.parametrize("cancel", [True, False])
+def test_folder_files_view_over_the_threshold_asks(qtbot, tmp_path, monkeypatch, cancel):
+    """VB ``FileThresholdCancel`` (``ConfigWizardFileThreshold``, default 15,000)."""
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    assert load_settings().wizard_file_threshold == 15000
+    settings = load_settings()
+    settings.wizard_file_threshold = 2
+    save_settings(settings)
+    controller = _controller(tmp_path, "My Mod")
+    dlg = WizardBuilder(controller, "My Mod")
+    qtbot.addWidget(dlg)
+    monkeypatch.setattr(
+        controller, "wizard_source_files", lambda mod, view: ["a", "b", "c"]
+    )
+    asked = []
+    answer = QMessageBox.StandardButton.Yes if cancel else QMessageBox.StandardButton.No
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *a, **k: asked.append(a[2]) or answer
+    )
+
+    dlg.view_combo.setCurrentIndex(dlg.view_combo.findData("folder_files"))
+
+    assert "3 files have been detected" in asked[0]
+    if cancel:
+        assert dlg.view_combo.currentData() == "files"
+    else:
+        assert dlg.source_list.count() == 3

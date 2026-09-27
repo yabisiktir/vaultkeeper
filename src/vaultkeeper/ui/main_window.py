@@ -2460,10 +2460,10 @@ class MainWindow(QMainWindow):
             if result["ok"]:
                 built += 1
                 copied += result["copied"]
-                # Install-after-create preference (VB BehaviourInstallerInstall).
+                # Install-after-create preference (VB BehaviourInstallerInstall):
+                # every mod built, the ones the rebuild just uninstalled included.
                 if self._install_after_create():
-                    if not was_installed:
-                        self.controller.install([name])
+                    self.controller.install([name])
                 elif settings.installer_restore and was_installed:
                     # Only put back what was already installed, so the game stops
                     # running the payload that was just replaced.

@@ -22,7 +22,7 @@ Save writes it as the mod's own file; there is no file to Delete until then.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -255,8 +255,6 @@ class WizardBuilder(QDialog):
         from PySide6.QtWidgets import QApplication
 
         view = self.view_combo.currentData() or "files"
-        assigned = self._all_target_keys()
-        self.source_list.clear()
         if view != "files":
             QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
@@ -264,9 +262,33 @@ class WizardBuilder(QDialog):
         finally:
             if view != "files":
                 QApplication.restoreOverrideCursor()
+        if view == "folder_files" and self._threshold_cancel(len(keys)):
+            previous = getattr(self, "_shown_view", "files")
+            with QSignalBlocker(self.view_combo):
+                self.view_combo.setCurrentIndex(self.view_combo.findData(previous))
+            return
+        self._shown_view = view
+        assigned = self._all_target_keys()
+        self.source_list.clear()
         for key in keys:
             if key.lower() not in assigned:
                 self._add_source_item(key)
+
+    def _threshold_cancel(self, count: int) -> bool:
+        """Offer to cancel a view listing too many files (VB ``FileThresholdCancel``)."""
+        threshold = self._controller._settings().wizard_file_threshold
+        if count <= threshold:
+            return False
+        answer = QMessageBox.question(
+            self,
+            "Wizard Builder",
+            f"{count:,} files have been detected, which exceeds the configured "
+            f"threshold of {threshold:,}.\n\nThis will take a very long time to "
+            "process and may appear to be hanging.\n\nIf you need to process "
+            "Archive Folder Files, construct the Wizard manually using a text "
+            "editor.\n\nDo you want to cancel the view change?",
+        )
+        return answer == QMessageBox.StandardButton.Yes
 
     def _all_target_keys(self) -> set[str]:
         keys: set[str] = set()

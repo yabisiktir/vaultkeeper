@@ -6,9 +6,9 @@ archive-name label mirrors VB ``LbArchiveName``. If the mod has an installer
 wizard, publishing re-roots its file references under the archive folder and
 restores the original afterwards (handled in the controller).
 
-The *Generate Installation Guide* option (VB ``CbGuide``) is shown disabled — the
-VB RTF guide templates are not bundled, so that step is deferred. Captions come
-from ``PublishMod.Designer.vb``.
+*Generate Installation Guide* (VB ``CbGuide``) adds NIT's installation guide to
+the mod folder, and so to the archive. Publishing over an existing archive asks
+first, as NIT does. Captions come from ``PublishMod.Designer.vb``.
 """
 
 from __future__ import annotations
@@ -63,7 +63,6 @@ class PublishMod(QDialog):
         layout.addWidget(self.archive_label)
 
         self.guide_check = QCheckBox("Generate Installation Guide")
-        self.guide_check.setEnabled(False)  # deferred (templates not bundled)
         layout.addWidget(self.guide_check)
 
         layout.addStretch(1)
@@ -90,9 +89,14 @@ class PublishMod(QDialog):
         )
 
     def _on_publish(self) -> None:
-        result = self._controller.publish_mod(
-            self._mod_name, version=self.version_edit.text()
-        )
+        kwargs = {"version": self.version_edit.text(), "guide": self.guide_check.isChecked()}
+        result = self._controller.publish_mod(self._mod_name, **kwargs)
+        if result.get("exists"):
+            answer = QMessageBox.question(self, "Publish Mod", result["message"])
+            if answer != QMessageBox.StandardButton.Yes:
+                self.version_edit.setFocus()
+                return
+            result = self._controller.publish_mod(self._mod_name, replace=True, **kwargs)
         if result["ok"]:
             QMessageBox.information(self, "Publish Mod", result["message"])
             self.accept()

@@ -63,3 +63,20 @@ def test_always_no_stops_asking(qtbot, tmp_path: Path, monkeypatch) -> None:
     dlg._offer_create_installer()
 
     assert not c.pd.mod_item("Alpha").is_installer()
+
+
+def test_install_after_create_reinstalls_an_installed_mod(qtbot, tmp_path: Path) -> None:
+    """VB ``BehaviourInstallerInstall`` installs every mod built. The rebuild
+    uninstalls an installed mod first, and Vaultkeeper then skipped it because it
+    *had been* installed, so the preference left it uninstalled."""
+    win, c = _window(qtbot, tmp_path)
+    settings = load_settings()
+    settings.install_after_create = True
+    settings.installer_restore = False
+    save_settings(settings)
+    win._on_create_installer(["Alpha"])
+    assert c._mod_installed("Alpha")
+
+    win._on_create_installer(["Alpha"])
+
+    assert c._mod_installed("Alpha")
