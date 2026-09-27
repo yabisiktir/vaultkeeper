@@ -218,6 +218,14 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | W6 ✅ | A module already provided by another mod was duplicated |
 | W7 ✅ | No MapId rules or Steam titles: non-module items named "Mod <id>" |
 
+## Stage 3i — documents (details: `stage3i_documents.md`)
+
+| ID | Finding |
+|---|---|
+| D1 ✅ | No offer to run the Documentation Organiser after downloading |
+| D2 ✅ | Docs inside archives inside archives were never found |
+| D3 ✅ | Archive-index docs lost the versionless qualifier (Version toggle) |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
@@ -237,6 +245,6 @@ layouts.
 
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
-- Stage 3i–3j: documents, characters.
+- Stage 3j: characters.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Stage 4 residual code review; Stage 5 fixes.

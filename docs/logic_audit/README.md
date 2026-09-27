@@ -67,7 +67,7 @@ compared by reading, and the finding says so.
 | 3f ✅ | **Installer tooling** | Wizard Builder validate/save, Publish, Change Installer, Update Installer (installer paste) | scenarios on fixture mods | resulting files identical |
 | 3g ✅ | **Portraits and start screens** | Portrait Manager, load screens, `po_*` handling | fixture portraits | resulting files identical |
 | 3h ✅ | **Steam Workshop** | Workshop import, ID map (`WorkshopIdMap`), subscription handling | fixture Workshop folder | imported mods identical |
-| 3i | **Documents** | DocOrganiser, related files, notes | fixture mod folders | resulting layout identical |
+| 3i ✅ | **Documents** | DocOrganiser, related files, notes | fixture mod folders | resulting layout identical |
 | 3j | **Characters** | BIC reading (VK's is far richer; check only NIT's fields) | real `.bic` corpus | NIT's fields identical |
 
 Each writes `stage3<letter>_<feature>.md`; findings join `FINDINGS.md`. Stages 1-2 were the pilot; stage 3 is scheduled only after 1-2's findings are
