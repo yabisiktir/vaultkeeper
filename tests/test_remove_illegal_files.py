@@ -80,3 +80,22 @@ def test_extension_illegal_file_moved_individually(tmp_path: Path) -> None:
     assert moved.is_file()
     filenames = {fk.filename for fk in controller.pd.mod_item("Mod").files}
     assert "junk.xyz" not in filenames and "keep.hak" in filenames
+
+
+def test_illegal_items_are_removed_when_the_profile_opens(tmp_path: Path) -> None:
+    # VB LoadProfile runs RemoveIllegalModFiles on every load.
+    controller = _controller(tmp_path)
+    inst = _installer(controller)
+    (inst / "junk").mkdir(parents=True)
+    (inst / "junk" / "a.hak").write_bytes(b"H")
+    controller.pd.scan_mod_files(controller.pd.mod_item("Mod"), controller.ctx.profile_mods_dir)
+    controller.save()
+
+    reopened = ProfileController.open_profile(
+        profile_mods_dir=controller.ctx.profile_mods_dir,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+    assert not (inst / "junk").exists()
+    assert all(fk.folder != "junk" for fk in reopened.pd.mod_item("Mod").files)

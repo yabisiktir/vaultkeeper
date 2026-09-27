@@ -227,6 +227,11 @@ class ProfileController:
         controller = cls(pd, ctx, store_path=store_path, settings_path=settings_path)
         controller._copy_credits_movie_fix()
         if check_game:
+            # VB LoadProfile: illegal installer items moved to "Removed Items".
+            with contextlib.suppress(OSError):
+                result = controller.remove_illegal_mod_files()
+                if result["folders"] or result["files"]:
+                    controller.startup_notes.append(result["message"])
             controller._check_game_on_open()
             controller._anneal_all_on_open()
             controller.validate_installer_types()
