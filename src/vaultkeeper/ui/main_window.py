@@ -1385,7 +1385,9 @@ class MainWindow(QMainWindow):
 
         selected = self._contents.selected_file()
         if selected is None:  # a folder row / nothing selected
-            return None
+            menu = QMenu(self)
+            self._add_installer_actions(menu)
+            return menu
 
         menu = QMenu(self)
         menu.addAction("View File", self._on_view_contents_file)
@@ -1400,6 +1402,7 @@ class MainWindow(QMainWindow):
         menu.addAction("Copy", lambda: self._on_copy_contents_file(cut=False))
         paste = menu.addAction("Paste", self._on_paste_contents_file)
         paste.setEnabled(self._file_clipboard is not None)
+        self._add_installer_actions(menu)
         # newtopic55.htm: right-click an EE override file -> Move to Development,
         # when the (opt-in) development folder is enabled. Label toggles with the
         # target (Move to Development / Move to <primary> to bring it back).
@@ -1411,6 +1414,67 @@ class MainWindow(QMainWindow):
         menu.addSeparator()
         menu.addAction("Delete File", self._on_delete_contents_file)
         return menu
+
+    def _add_installer_actions(self, menu) -> None:
+        """Add files from outside the profile to the mod's installer (VB InstallerPaste).
+
+        NIT does this by pasting into the Installer folder of the Details list;
+        Vaultkeeper's Contents list has no folder to paste into, so it offers
+        the two ways in: paste what the system clipboard holds, or pick files.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        mime = QApplication.clipboard().mimeData()
+        has_files = (
+            mime is not None
+            and mime.hasUrls()
+            and any(url.isLocalFile() for url in mime.urls())
+        )
+        paste = menu.addAction("Paste into Installer", self._on_paste_into_installer)
+        paste.setEnabled(has_files)
+        menu.addAction("Add Files to Installer…", self._on_add_files_to_installer)
+
+    def _on_paste_into_installer(self) -> None:
+        from pathlib import Path
+
+        from PySide6.QtWidgets import QApplication
+
+        mime = QApplication.clipboard().mimeData()
+        if mime is None or not mime.hasUrls():
+            return
+        paths = [Path(url.toLocalFile()) for url in mime.urls() if url.isLocalFile()]
+        self._update_installer(paths)
+
+    def _on_add_files_to_installer(self) -> None:
+        from pathlib import Path
+
+        if self._contents_mod is None:
+            return
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, f"Select the files you want to add to the {self._contents_mod} installer"
+        )
+        if paths:
+            self._update_installer([Path(p) for p in paths])
+
+    def _update_installer(self, paths: list) -> None:
+        """Run :meth:`ProfileController.update_installer` for the Contents mod."""
+        from PySide6.QtWidgets import QApplication
+
+        if self.controller is None or self._contents_mod is None or not paths:
+            return
+        mod = self._contents_mod
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            result = self.controller.update_installer(
+                mod, paths, overwrite=self.nit_status.overwrite
+            )
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.refresh()
+        md = self.controller.pd.mod_item(mod)
+        if md is not None:
+            self._show_contents(md)
+        self.nit_status.set_info(result["message"])
 
     def _on_copy_contents_file(self, *, cut: bool) -> None:
         """Put the selected Contents file on the clipboard (VB CmContents Cut/Copy)."""
@@ -2244,14 +2308,24 @@ class MainWindow(QMainWindow):
         if self.controller is None or not names:
             self.nit_status.set_info("Select a mod first.")
             return
-        paths, _ = QFileDialog.getOpenFileNames(self, "Add Files to Mod")
+        action = "move" if self.controller._settings().use_move_on_add else "copy"
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, f"Select the files you want to {action} to {names[0]}"
+        )
         if not paths:
             return
         from pathlib import Path
 
-        added = self.controller.add_files_to_mod(names[0], [Path(p) for p in paths])
+        added = self.controller.add_files_to_mod(
+            names[0], [Path(p) for p in paths], overwrite=self.nit_status.overwrite
+        )
         self.refresh()
-        self.nit_status.set_info(f"Added {added} file(s) to {names[0]}.")
+        # adddownloadedfilestoamod.htm: added files go to the mod's folder, where
+        # Create Installer picks them up.
+        self.nit_status.set_info(
+            f"Added {added} file(s) to {names[0]}'s folder. "
+            "Create the Mod Installer to include them."
+        )
 
     def _on_add_mods(self) -> None:
         """Create new mods from selected archive files (VB ``MsAddMods``)."""

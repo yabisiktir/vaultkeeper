@@ -1625,50 +1625,141 @@ class ProfileController:
             ),
         }
 
-    def add_files_to_mod(self, mod_name: str, file_paths: list[Path]) -> int:
-        """Copy files into a mod's ``.Mod Installer``, each in its mapped game folder.
+    def add_files_to_mod(
+        self, mod_name: str, file_paths: list[Path], *, overwrite: bool = True
+    ) -> int:
+        """Move (or copy) files into a mod's folder (VB ``MsAddFiles``).
 
-        Ports VB Add Files: each source file is placed under the folder the Mapper
-        assigns for it (``hak``/``override``/``tlk``/…), then the mod's file list is
-        rescanned. Returns the number of files added.
+        adddownloadedfilestoamod.htm: "The selected files are moved to your Mod's
+        folder", where Create Installer finds them. They used to go straight into
+        the ``.Mod Installer``, which the next rebuild recycles and rebuilds from
+        the mod folder, so they were lost; an archive landed there still packed.
+
+        Moving is the default ("Use Move"); a source that cannot be moved is
+        copied rather than lost. An existing file is replaced only with
+        ``overwrite`` (the status bar's Overwrite toggle, VB ``ui.Overwrite``).
+        Returns the number of files and folders added.
         """
         import shutil
 
-        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
             return 0
-        installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
-        # adddownloadedfilestoamod.htm: added files are *moved* by default, and
-        # only copied when Use Move is turned off. Moving is the useful default —
-        # a downloaded archive extracted into place should not also be left in
-        # Downloads to be tidied by hand — but it is destructive, so it is a
-        # preference, and a source that cannot be moved falls back to a copy
-        # rather than being lost.
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        mod_folder.mkdir(parents=True, exist_ok=True)
         use_move = self._settings().use_move_on_add
         added = 0
         for source in file_paths:
             source = Path(source)
-            if not source.is_file():
+            if not source.exists():
                 continue
-            folder = self.ctx.mapper.get_mapped_folder(source.name)
-            dest = installer / folder / source.name
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            if use_move:
-                try:
+            dest = mod_folder / source.name
+            if dest.exists():
+                if not overwrite or dest.resolve() == source.resolve():
+                    continue
+                fs.delete(dest, to_trash=True)
+            try:
+                if use_move:
                     shutil.move(str(source), str(dest))
-                except (OSError, shutil.Error):
+                elif source.is_dir():
+                    shutil.copytree(source, dest)
+                else:
                     shutil.copy2(source, dest)
-            else:
-                shutil.copy2(source, dest)
+            except (OSError, shutil.Error):
+                if source.is_dir():
+                    shutil.copytree(source, dest, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(source, dest)
             added += 1
-        if added:
-            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
-            self.pd.update_file_states()
-            self.pd.update_mod_states()
-            self.save()
         return added
+
+    def update_installer(
+        self,
+        mod_name: str,
+        sources: list[Path],
+        *,
+        move: bool = False,
+        overwrite: bool = True,
+    ) -> dict:
+        """Add files and folders to a mod's installer (VB ``UpdateInstaller``).
+
+        What NIT does with items pasted into a mod's Installer folder: they go
+        through Create Installer's scan — archives extracted, each file mapped to
+        its game folder, movies converted — and are copied into the existing
+        installer without clearing it. A file already there is replaced only with
+        ``overwrite``. ``move`` removes each loose source file once it is in; an
+        archive is left where it is, as NIT leaves it. The mod becomes an
+        installer if it was not one. Returns ``{"ok", "copied", "skipped",
+        "archives", "converted", "message"}``.
+        """
+        import tempfile
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+        from vaultkeeper.game.installer_build import build_copy_plan
+
+        def result(ok, message, copied=0, skipped=0, archives=0, converted=0):
+            return {
+                "ok": ok,
+                "copied": copied,
+                "skipped": skipped,
+                "archives": archives,
+                "converted": converted,
+                "message": message,
+            }
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item:
+            return result(False, f"Unknown mod: {mod_name}")
+        sources = [Path(s) for s in sources if Path(s).exists()]
+        if not sources:
+            return result(False, "There is nothing to add.")
+        installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        convert_bik = self._convert_bik_files()
+        copied = skipped = converted = 0
+        with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
+            plan = build_copy_plan(
+                mod_name,
+                self.ctx.profile_mods_dir / mod_name,
+                mapper=self.ctx.mapper,
+                extractor=self._archive_backend(),
+                extract_root=Path(extract_dir),
+                convert_bik=convert_bik,
+                sources=sources,
+            )
+            for item in plan.items:
+                dest = installer / item.folder / item.filename
+                if dest.exists() and not overwrite:
+                    skipped += 1
+                    continue
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    fs.copy_file(item.source, dest, overwrite=True)
+                except OSError:
+                    continue
+                copied += 1
+                if move and not item.source.is_relative_to(extract_dir):
+                    with contextlib.suppress(OSError):
+                        item.source.unlink()
+            if convert_bik and plan.bik_files:
+                converted = self._convert_bik_movies(
+                    plan.bik_files, installer, Path(extract_dir)
+                )
+        self._update_patch_sequence(plan)
+        # Marks the mod an installer if needed, rescans it, recomputes states, saves.
+        self._create_identifier(mod_name, C.EXT_INSTALLER)
+        parts = [f"Updated the installer for {mod_name}: {copied} file(s) added"]
+        if plan.archives_extracted:
+            parts.append(f"{plan.archives_extracted} archive(s) extracted")
+        if converted:
+            parts.append(f"{converted} movie(s) converted")
+        if skipped:
+            parts.append(f"{skipped} already there (Overwrite is off)")
+        return result(
+            True, ", ".join(parts) + ".", copied, skipped, plan.archives_extracted, converted
+        )
 
     def add_mods_from_files(
         self, paths: list[Path], group: str | None = None, *, move: bool | None = None

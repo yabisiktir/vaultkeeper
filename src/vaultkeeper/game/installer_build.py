@@ -251,8 +251,13 @@ def build_copy_plan(
     convert_bik: bool = False,
     ignore: set[Path] | None = None,
     on_phase=None,
+    sources: list[Path] | None = None,
 ) -> InstallerPlan:
     """Scan ``mod_folder`` and return the installer :class:`InstallerPlan`.
+
+    ``sources`` scans those files and folders instead of the mod folder (VB
+    ``UpdateInstaller``: items pasted into a mod's Installer folder go through the
+    same scan, extract and analyse as a full build).
 
     Loose archives are extracted with ``extractor`` (into ``extract_root`` — a
     fresh temp dir if omitted) and their contents re-scanned; the plan's source
@@ -279,16 +284,29 @@ def build_copy_plan(
         extract_root = Path(tempfile.mkdtemp(prefix="vk-installer-"))
 
     # Queue of (modname, directory) to scan — extracted dirs are added as found.
-    scan_queue: deque[Path] = deque([mod_folder])
+    scan_queue: deque[Path] = deque([mod_folder] if sources is None else [])
     extract_counter = 0
     used_names: set[str] = set()
+    pending: list[Path] = []
+    for source in sources or []:
+        if source.is_dir():
+            scan_queue.append(source)
+        elif source.is_file():
+            found = _scan_file(
+                source, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
+            )
+            if found is not None:
+                pending.append(found)
 
-    while scan_queue:
-        folder = scan_queue.popleft()
-        say("Looking through the mod's files", 0, 0)
-        archives = _scan_folder(
-            folder, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
-        )
+    while scan_queue or pending:
+        if pending:
+            archives, pending = pending, []
+        else:
+            folder = scan_queue.popleft()
+            say("Looking through the mod's files", 0, 0)
+            archives = _scan_folder(
+                folder, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore
+            )
         for archive in archives:
             if extractor is None or not is_extractable(archive.suffix):
                 continue
@@ -395,37 +413,12 @@ def _scan_folder(
     ignore = ignore or set()
 
     for fi in sorted(p for p in folder.iterdir() if p.is_file()):
-        name = fi.name
-        if _is_hidden(name):
-            continue
         # A whole excluded ERF folder suppresses every file directly inside it.
         if erf_excluded:
             continue
-        # Skip files the installer wizard's decisions dropped (VB RunWizard ignores).
-        if ignore and is_ignored(fi, ignore):
-            continue
-
-        if is_extractable(fi.suffix):
-            # Compressed file → extract queue, unless MapExcludes bars it (VB ScanFile).
-            if not (
-                mapper.is_excluded_file(name)
-                or mapper.is_excluded_file(f"{folder.name}\\{name}")
-            ):
-                archives.append(fi)
-            continue
-
-        # BIK→WBM: with convert_bik on, collect the .bik for conversion (VB adds it
-        # to BikFiles and copies the resulting .wbm instead). With it off, .bik falls
-        # through to be analysed as-is (faithful to VB when ConvertBikFiles is False).
-        if fi.suffix.lower() == ".bik" and convert_bik:
-            plan.bik_files.append(fi)
-            continue
-        # The downloaded-wizard copy path is part of the deferred wizard flow.
-        if name == WIZARD_FILE:
-            continue
-
-        analyser.analyse(plan.mod_name, SourceFile.from_path(fi))
-        plan.files_scanned += 1
+        found = _scan_file(fi, mapper, analyser, plan, convert_bik=convert_bik, ignore=ignore)
+        if found is not None:
+            archives.append(found)
 
     # Recurse into sub-folders, skipping excluded ones (VB ContainsExcludedFolder).
     for sub in sorted(p for p in folder.iterdir() if p.is_dir()):
@@ -438,6 +431,46 @@ def _scan_folder(
         )
 
     return archives
+
+
+def _scan_file(
+    fi: Path,
+    mapper: Mapper,
+    analyser: _Analyser,
+    plan: InstallerPlan,
+    *,
+    convert_bik: bool,
+    ignore: set[Path] | None = None,
+) -> Path | None:
+    """Scan one file (VB ``ScanFile``); return it if it is an archive to extract."""
+    name = fi.name
+    if _is_hidden(name):
+        return None
+    # Skip files the installer wizard's decisions dropped (VB RunWizard ignores).
+    if ignore and is_ignored(fi, ignore):
+        return None
+
+    if is_extractable(fi.suffix):
+        # Compressed file → extract queue, unless MapExcludes bars it (VB ScanFile).
+        if mapper.is_excluded_file(name) or mapper.is_excluded_file(
+            f"{fi.parent.name}\\{name}"
+        ):
+            return None
+        return fi
+
+    # BIK→WBM: with convert_bik on, collect the .bik for conversion (VB adds it
+    # to BikFiles and copies the resulting .wbm instead). With it off, .bik falls
+    # through to be analysed as-is (faithful to VB when ConvertBikFiles is False).
+    if fi.suffix.lower() == ".bik" and convert_bik:
+        plan.bik_files.append(fi)
+        return None
+    # The downloaded-wizard copy path is part of the deferred wizard flow.
+    if name == WIZARD_FILE:
+        return None
+
+    analyser.analyse(plan.mod_name, SourceFile.from_path(fi))
+    plan.files_scanned += 1
+    return None
 
 
 def is_ignored(path: Path, ignore: set[Path]) -> bool:
