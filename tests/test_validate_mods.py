@@ -121,6 +121,9 @@ def test_validate_mods_composite(tmp_path: Path) -> None:
     controller = _controller(tmp_path)
     controller.create_mod("Mod")
     _add_hak(controller, "Mod", "patch", "p.hak")
+    # A source file makes it an installer; without one NIT (ValidateInstallerType)
+    # classes the mod as a restorer, and ValidateMod skips restorers.
+    (controller.ctx.profile_mods_dir / "Mod" / "p.hak").write_bytes(b"HAK")
     message = controller.validate_mods()
     assert "Patch INI created: 1" in message
     assert "Validated mods" in message

@@ -73,3 +73,13 @@ def test_edited_open_notes_follow_a_rename(qtbot, tmp_path: Path, monkeypatch) -
 
     assert c.read_notes("New Name") == "Edited just now."
     assert not c.mod_notes_path("Old Name").exists()
+
+
+def test_deleting_a_mod_recycles_its_notes(tmp_path: Path, recycle_bin: Path) -> None:
+    """VB ModData.Remove sends the notes to the recycle bin with the mod."""
+    c = _controller(tmp_path)
+
+    c.delete_mods(["Old Name"])
+
+    assert not c.mod_notes_path("Old Name").exists()
+    assert [p.name for p in recycle_bin.rglob("Old Name.rtf")] == ["Old Name.rtf"]

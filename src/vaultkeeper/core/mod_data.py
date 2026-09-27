@@ -143,7 +143,8 @@ class ModData:
             elif state == State.NOT_INSTALLED:
                 not_installed_count += 1
             elif state == State.OVERRIDDEN:
-                if fk.filename in (C.PATCH_INI_FILE, C.USER_PATCH_INI_FILE):
+                # Option Compare Text in VB: the name matches in any case.
+                if fk.filename.lower() in (C.PATCH_INI_FILE.lower(), C.USER_PATCH_INI_FILE.lower()):
                     # Patch ini files follow the mod's current install state.
                     if self.mod_state < State.INSTALLED:
                         not_installed_count += 1

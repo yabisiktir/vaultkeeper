@@ -1,0 +1,32 @@
+file,member,verdict,note
+ModData.vb,IsGroupItem,same,group row test
+ModData.vb,IsNotGroupItem,same,
+ModData.vb,IsHiddenGroup,same,
+ModData.vb,LastPlayed,same,"VK tests modules/nwm folder, VB .mod/.nwm extension: same files in practice"
+ModData.vb,IsSteamManaged,same,
+ModData.vb,Installed,same,
+ModData.vb,ModPath,same,
+ModData.vb,InstallerPath,same,
+ModData.vb,HasModInstaller,same,
+ModData.vb,IsRestorer,same,
+ModData.vb,IsInstaller,same,
+ModData.vb,HasModFile,same,
+ModData.vb,LevelStart,same,0 stored as NullValue in both
+ModData.vb,LevelEnd,same,0 stored as NullValue in both
+ModData.vb,Notes,same,path <data>/<profile>/Mod Notes/<mod>.rtf
+ModData.vb,DeleteInstaller,same,build_installer_payload: remove_all_files + recycle the installer
+ModData.vb,RemoveAllFiles,same,identifier records dropped; other installed records lose this mod
+ModData.vb,RemoveFile,same,
+ModData.vb,Remove,fixed,deleting a mod now recycles its notes (VB Remove); was left for Validate Mods
+ModData.vb,Rename,fixed,notes now renamed with the mod (3i N1); folder/keys/identifiers already same
+ModData.vb,CreateInstallerFolder,same,
+ModData.vb,CreateInstaller,same,
+ModData.vb,CreateRestorer,same,
+ModData.vb,CreateTypeFile,fixed,_create_identifier now also removes the opposite identifier
+ModData.vb,ValidateInstallerType,fixed,"MISSING: ported (validate_installer_types, each profile load + Validate Mods); real-data dry run: 1 mod gains its missing .nitins"
+ModData.vb,AddModFile,same,scan_mod_files
+ModData.vb,GetModFolderFiles,same,
+ModData.vb,FolderHasSourceFiles,same,_has_source_files
+ModData.vb,SetModState,fixed,"branch-for-branch same; patch INI name now matched in any case (Option Compare Text)"
+ModData.vb,UpdateFileKeys,same,re-key on group move/rename (stage 2 move scenario)
+ModData.vb,RebuildFileList,same,

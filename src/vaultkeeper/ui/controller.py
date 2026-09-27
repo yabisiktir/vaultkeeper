@@ -196,7 +196,36 @@ class ProfileController:
         controller = cls(pd, ctx, store_path=store_path, settings_path=settings_path)
         if check_game:
             controller._check_game_on_open()
+            controller.validate_installer_types()
         return controller
+
+    def validate_installer_types(self) -> int:
+        """Correct every mod's identifier (VB ``NIT.Workers.ValidateInstallerType``).
+
+        Run on each profile load, as NIT does, for every mod with an installer.
+        Returns the number of mods corrected.
+        """
+        from vaultkeeper.core import constants as C
+
+        fixed = 0
+        for md in list(self.pd.mod_list.values()):
+            if md.is_group_item:
+                continue
+            mod_folder = self.ctx.profile_mods_dir / md.mod_name
+            if not (mod_folder / C.MOD_INSTALLER_DIR).is_dir():
+                continue
+            if self.pd.validate_installer_type(
+                md,
+                has_source=self._has_source_files(mod_folder),
+                profile_mods_dir=self.ctx.profile_mods_dir,
+                game_folders=self.ctx.game_folders,
+            ):
+                fixed += 1
+        if fixed:
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+        return fixed
 
     def _check_game_on_open(self) -> None:
         """Bring a saved profile up to date with the game folder (VB ``LoadProfile``).
@@ -1163,6 +1192,11 @@ class ProfileController:
                 failed.append(name)
                 continue
             self.pd.remove_mod(name)
+            # VB ModData.Remove: the notes go too (to the recycle bin).
+            notes = self.mod_notes_path(name)
+            if notes.is_file():
+                with contextlib.suppress(OSError):
+                    fs.delete(notes, to_trash=True)
             for md in self.pd.mod_list.values():
                 md.dependencies[:] = [d for d in md.dependencies if d.lower() != name.lower()]
             deleted.append(name)
@@ -3409,6 +3443,15 @@ class ProfileController:
         )
         nit_dir.mkdir(parents=True, exist_ok=True)
         (nit_dir / f"{mod_name}{extension}").write_text("", encoding="utf-8")
+        # A mod is one or the other: never leave both identifiers behind.
+        other = C.EXT_RESTORER if extension == C.EXT_INSTALLER else C.EXT_INSTALLER
+        if (nit_dir / f"{mod_name}{other}").exists():
+            self._remove_mod_files(
+                mod_name,
+                lambda fk: fk.folder == C.MOD_NIT_DIR
+                and fk.filename.lower() == f"{mod_name}{other}".lower(),
+            )
+            (nit_dir / f"{mod_name}{other}").unlink(missing_ok=True)
         self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
         self.pd.update_file_states()
         self.pd.update_mod_states()
@@ -3620,6 +3663,7 @@ class ProfileController:
         from the installed patch haks. Recomputes states and persists.
         """
         removed_deps = self.pd.validate_dependencies()
+        self.validate_installer_types()
         orphaned_notes = self.validate_notes()
         ini_created = ini_deleted = 0
         for md in list(self.pd.mod_list.values()):

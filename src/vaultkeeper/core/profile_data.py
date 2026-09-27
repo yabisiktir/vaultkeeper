@@ -342,6 +342,68 @@ class ProfileData:
             self.update_mod_states()
             return True
 
+    def validate_installer_type(
+        self,
+        md: ModData,
+        *,
+        has_source: bool,
+        profile_mods_dir: Path,
+        game_folders: dict[str, Path] | None = None,
+    ) -> bool:
+        """Make a mod's identifier match what it is (VB ``ModData.ValidateInstallerType``).
+
+        A mod with source files to build from is an installer (``<mod>.nitins``);
+        one without is a restorer (``<mod>.nitres``). NIT checks this for every
+        mod with an installer each time a profile loads: duplicate file entries
+        are dropped, a wrong identifier is renamed to the right one (in the
+        installer and, if installed, in the game), and a missing one is created.
+        So a restorer that has since been given source files becomes an
+        installer, and Create Installer will build it. Returns True if anything
+        changed.
+        """
+        with self._lock:
+            changed = False
+            unique = list(dict.fromkeys(md.files))
+            if len(unique) != len(md.files):
+                md.files[:] = unique
+                changed = True
+
+            good, bad = (C.EXT_INSTALLER, C.EXT_RESTORER) if has_source else (
+                C.EXT_RESTORER, C.EXT_INSTALLER
+            )
+            fk = FileKeyInfo(md.group, md.mod_name, C.MOD_NIT_DIR, f"{md.mod_name}{good}")
+            fk_bad = FileKeyInfo(md.group, md.mod_name, C.MOD_NIT_DIR, f"{md.mod_name}{bad}")
+            nit_dir = profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR / C.MOD_NIT_DIR
+
+            if fk_bad.installed_key in self.installed_list:
+                self._rename_installed_identifier(fk_bad, fk, game_folders)
+                changed = True
+
+            bad_fd = self.file_list.get(fk_bad)
+            if bad_fd is not None:
+                old_path, new_path = nit_dir / fk_bad.filename, nit_dir / fk.filename
+                if old_path.exists() and not new_path.exists():
+                    old_path.rename(new_path)
+                elif old_path.exists():
+                    old_path.unlink()
+                self.file_list.pop(fk_bad, None)
+                if fk in self.file_list:
+                    md.files[:] = [f for f in md.files if f != fk_bad]
+                else:
+                    bad_fd.key = fk
+                    self.file_list[fk] = bad_fd
+                    md.files[:] = [fk if f == fk_bad else f for f in md.files]
+                self.changes.file.removed(fk_bad)
+                self.changes.file.renamed(fk)
+                return True
+
+            if fk not in self.file_list or fk not in md.files:
+                nit_dir.mkdir(parents=True, exist_ok=True)
+                (nit_dir / fk.filename).touch()
+                self.scan_mod_files(md, profile_mods_dir)
+                changed = True
+            return changed
+
     def _rename_installed_identifier(
         self, fk: FileKeyInfo, new_fk: FileKeyInfo, game_folders: dict[str, Path] | None
     ) -> None:
