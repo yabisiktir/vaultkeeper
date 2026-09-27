@@ -22,6 +22,7 @@ from collections.abc import Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QHBoxLayout,
     QHeaderView,
@@ -60,6 +61,7 @@ class InstallationAnalyser(QDialog):
         self.setWindowIcon(R.get_icon("InstallationAnalyser_16x"))
         geometry.remember(self, "InstallationAnalyser", 720, 500)
         self._browser: dict = {}
+        self.changed = False
         self._report: dict = {}
 
         layout = QVBoxLayout(self)
@@ -72,7 +74,7 @@ class InstallationAnalyser(QDialog):
         buttons.addWidget(help_button("BhInstallationAnalyser", self))
         self._refresh_button = QPushButton("Refresh")
         self._refresh_button.setToolTip("Re-run the installation analysis")
-        self._refresh_button.clicked.connect(self.refresh)
+        self._refresh_button.clicked.connect(self._on_refresh)
         buttons.addWidget(self._refresh_button)
         self._select_button = QPushButton("Select")
         self._select_button.setToolTip("Select the highlighted file's mod in the main window")
@@ -88,6 +90,14 @@ class InstallationAnalyser(QDialog):
         self._convert_button.clicked.connect(self._on_convert_nwm)
         self._convert_button.setVisible(False)
         buttons.addWidget(self._convert_button)
+        # VB TsMiniDumpInfo: the Crash Dump Manager, shown when crash files exist.
+        self._crash_button = QPushButton("Crash Reports")
+        self._crash_button.setToolTip("View or delete the game's crash reports")
+        self._crash_button.clicked.connect(self._on_crash_reports)
+        buttons.addWidget(self._crash_button)
+        #: What the last Refresh found in the game folders.
+        self._status = QLabel("")
+        buttons.addWidget(self._status)
         buttons.addStretch(1)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
@@ -97,9 +107,36 @@ class InstallationAnalyser(QDialog):
         self.refresh()
 
     # -- data ------------------------------------------------------------- #
-    def refresh(self) -> None:
-        """Re-run the analysis and repopulate both tabs (VB BtRefresh)."""
+    def _on_refresh(self) -> None:
+        """VB ``BtRefresh``: check the game folders (and anneal) before re-reading.
+
+        Without the check the analyser only re-read the records, so a file added
+        to or removed from the game since the profile opened never showed.
+        """
         if self._controller is not None:
+            QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+            try:
+                self._status.setText(self._controller.check_game_folder())
+            finally:
+                QApplication.restoreOverrideCursor()
+            #: The main window re-reads the mod list when this is set.
+            self.changed = True
+        self.refresh()
+
+    def _on_crash_reports(self) -> None:
+        from vaultkeeper.ui.dialogs.crash_reports import CrashReportsDialog
+
+        CrashReportsDialog(self._controller, parent=self).exec()
+        self.refresh()
+
+    def refresh(self) -> None:
+        """Re-read the analysis and repopulate both tabs."""
+        if self._controller is not None:
+            try:
+                has_crashes = bool(self._controller.crash_reports())
+            except (OSError, TypeError, AttributeError):
+                has_crashes = False
+            self._crash_button.setVisible(has_crashes)
             self._browser = self._controller.installation_browser_report()
             self._report = self._controller.installation_report()
         self._populate_browser()

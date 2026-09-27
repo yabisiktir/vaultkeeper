@@ -3712,6 +3712,8 @@ class MainWindow(QMainWindow):
         self._analyser = InstallationAnalyser.show_for(
             self.controller, self._select_mod_by_name, self
         )
+        analyser = self._analyser
+        analyser.finished.connect(lambda _r: analyser.changed and self.refresh())
 
     def _on_installation_manager(self) -> None:
         """Open the Installation Manager (named install sets — VB MsInstallationManager)."""

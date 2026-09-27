@@ -322,19 +322,7 @@ class ProfileController:
         from nwnfile.log import get_logger
 
         try:
-            result = self.pd.check_installed_files(
-                self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
-            )
-            if not any(result.values()):
-                self.pd.changes.reset_changes()
-                return
-            affected = list(self.pd.changes.mods.affected_list)
-            if affected:
-                self.pd.changes.save_info()
-                self.engine.anneal(affected)
-                self.pd.changes.restore_saved_info()
-            self.pd.changes.reset_changes()
-            self.save()
+            result, affected = self._check_game_and_anneal()
             if affected:
                 self.startup_notes.append(
                     "The game folder changed since this profile was last open "
@@ -343,6 +331,33 @@ class ProfileController:
                 )
         except Exception:
             get_logger(__name__).exception("checking the game folder on open failed")
+
+    def check_game_folder(self) -> str:
+        """Check the game folders against the records and anneal (VB analyser ``BtRefresh``)."""
+        result, affected = self._check_game_and_anneal()
+        if not any(result.values()):
+            return "Checked the game folders: no changes."
+        return (
+            f"Checked the game folders: {result['added']:,} file(s) added, "
+            f"{result['changed']:,} changed, {result['removed']:,} removed. "
+            f"Mods affected: {len(affected):,}."
+        )
+
+    def _check_game_and_anneal(self) -> tuple[dict, list[str]]:
+        result = self.pd.check_installed_files(
+            self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+        )
+        if not any(result.values()):
+            self.pd.changes.reset_changes()
+            return result, []
+        affected = list(self.pd.changes.mods.affected_list)
+        if affected:
+            self.pd.changes.save_info()
+            self.engine.anneal(affected)
+            self.pd.changes.restore_saved_info()
+        self.pd.changes.reset_changes()
+        self.save()
+        return result, affected
 
     # -- Queries ----------------------------------------------------------- #
     def groups(self) -> list[tuple[str, list[ModData]]]:

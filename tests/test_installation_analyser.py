@@ -373,3 +373,34 @@ def test_convert_button_calls_the_controller(tmp_path, qtbot, monkeypatch):
 
     assert called["path"].name == "Prelude.nwm"
     assert selected == ["Prelude"]  # the converted mod is selected in the window
+
+
+def test_refresh_checks_the_game_folders_first(qtbot, tmp_path):
+    # VB BtRefresh runs CheckInstalledFiles (and anneals) before re-reading, so a
+    # file put into the game after the profile opened shows up.
+    controller = _controller(tmp_path)
+    dlg = InstallationAnalyser.show_for(controller)
+    qtbot.addWidget(dlg)
+    hak = controller.ctx.game_folders["hak"]
+    hak.mkdir(parents=True, exist_ok=True)
+    (hak / "dropped.hak").write_bytes(b"HAK")
+
+    dlg._refresh_button.click()
+
+    assert FileKeyInfo.installed("hak", "dropped.hak") in controller.pd.installed_list
+    assert "1 file(s) added" in dlg._status.text()
+    assert dlg.changed
+
+
+def test_the_crash_report_button_shows_only_with_crash_files(qtbot, tmp_path):
+    controller = _controller(tmp_path)
+    dlg = InstallationAnalyser.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert not dlg._crash_button.isVisible()
+
+    folder = controller.ctx.game_user_dir / "crashreport"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "nwmain-crash-1.txt").write_text("x")
+    dlg.refresh()
+
+    assert dlg._crash_button.isVisible()
