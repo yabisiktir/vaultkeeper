@@ -720,20 +720,23 @@ class StartScreenManager(SettingsAccess, QDialog):
             entries = [entry] if entry else []
         if not entries:
             return
-        from PySide6.QtWidgets import QMessageBox
+        from PySide6.QtWidgets import QApplication, QMessageBox
 
         names = [e["name"] for e in entries]
         plural = "image" if len(names) == 1 else "images"
+        # VB: Shift makes it a permanent delete; otherwise the recycle bin.
+        permanent = bool(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
+        verb = "Permanently delete" if permanent else "Delete"
         if (
             QMessageBox.question(
                 self,
                 "Delete Start Screen Images",
-                f"Delete {len(names)} start screen {plural}?",
+                f"{verb} {len(names)} start screen {plural}?",
             )
             != QMessageBox.StandardButton.Yes
         ):
             return
-        result = self._controller.delete_loadscreen_images(names)
+        result = self._controller.delete_loadscreen_images(names, permanent=permanent)
         self._status(result.get("message", ""))
         self._refresh()
 

@@ -2933,6 +2933,8 @@ class MainWindow(QMainWindow):
         """
         if self.controller is None:
             return
+        if action_id == "RbnPlay" and self._play_right_click_modified():
+            return
         alternates = {
             "RbnPlay": self._on_loadscreens,
             "RbnPortraitManager": self._on_portrait_web_page,
@@ -2941,6 +2943,30 @@ class MainWindow(QMainWindow):
         handler = alternates.get(action_id)
         if handler is not None:
             handler()
+
+    def _play_right_click_modified(self) -> bool:
+        """Shift / Ctrl + right-click on Play (VB ``RbnPlay_MouseUp``).
+
+        Shift switches between the Standard and Prefixed start screens when
+        prefixes are defined; Ctrl shows the start screen that is installed.
+        Returns True when one of them handled the click.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        mods = QApplication.keyboardModifiers()
+        if mods & Qt.KeyboardModifier.ControlModifier:
+            path = self.controller.installed_loadscreen_path()
+            if path is not None:
+                from vaultkeeper.ui.dialogs.image_viewer import ImageViewer
+
+                self._image_viewer = ImageViewer.show_for(path, self)
+            return True
+        if mods & Qt.KeyboardModifier.ShiftModifier and self.controller.loadscreen_prefix_text():
+            result = self.controller.next_loadscreen(toggle=True)
+            if result["message"]:
+                self.nit_status.set_info(result["message"])
+            return True
+        return False
 
     def _on_portrait_web_page(self) -> None:
         """Open the site portraits are sourced from (VB ``MsPortraitManager`` right-click).
@@ -4122,6 +4148,15 @@ class MainWindow(QMainWindow):
                 note = f"{note} {auto['message']}".rstrip()
         except Exception:
             log.exception("Auto restorers failed after play")
+        # VB BgRunNwn: with Auto-Start Screen Selection on, the next start screen
+        # is installed each time the game closes.
+        if self.controller._settings().auto_loadscreen:
+            try:
+                screen = self.controller.next_loadscreen()
+                if screen["message"]:
+                    note = f"{note} {screen['message']}".rstrip()
+            except Exception:
+                log.exception("Auto start screen failed after play")
         # VB exit processing: too many saves slow the game down; say so.
         count = self.controller.saves_count()
         if count > self.controller._settings().saves_threshold:

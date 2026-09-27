@@ -7378,7 +7378,7 @@ class ProfileController:
         self._loadscreen_image_folder(md).mkdir(parents=True, exist_ok=True)
         return md
 
-    def install_loadscreen(self, display_name: str) -> dict:
+    def install_loadscreen(self, display_name: str, *, prefixed: bool | None = None) -> dict:
         """Install (or switch to) a loadscreen image as NWN's start screen.
 
         Faithful composite of VB ``CreateLoadscreenInstaller`` +
@@ -7419,13 +7419,80 @@ class ProfileController:
         info = ss.read_start_screen_info(data_dir) or ss.StartScreenInfo(
             active_type="1", standard="", prefixed="", browse_folder=str(self.ctx.profile_mods_dir)
         )
-        prefixes = ss.read_prefixes(data_dir)
-        info = ss.with_active_screen(
-            info, display_name, prefixed=ss.is_prefixed(display_name, prefixes)
-        )
+        if prefixed is None:
+            prefixed = ss.is_prefixed(display_name, ss.read_prefixes(data_dir))
+        info = ss.with_active_screen(info, display_name, prefixed=prefixed)
         info = replace(info, browse_folder=info.browse_folder or str(self.ctx.profile_mods_dir))
         ss.save_start_screen_info(data_dir, info)
         return {"ok": True, "message": f"Start Screen Installed: {display_name}."}
+
+    def next_loadscreen(self, *, toggle: bool = False) -> dict:
+        """Install the next start screen (VB ``AutoLoadscreen``).
+
+        NIT does this each time the game closes when "Auto-Start Screen
+        Selection" is on, and on Shift+right-click of Play, which switches
+        between the Standard and Prefixed sets (``toggle``). Standard screens
+        are all images not auto-excluded; Prefixed ones are those with an
+        enabled prefix. The next name is the one after the active screen, in
+        list order, wrapping round (``GetNextName``); the active type is kept.
+
+        Nothing happens when the start-screen mod is not installed, the info
+        file is missing, the active screen is not in the list or is the only
+        one. Returns ``{"ok", "installed", "message"}``.
+        """
+        from dataclasses import replace
+
+        from vaultkeeper.core.file_key import FileKeyInfo
+        from vaultkeeper.game import start_screen as ss
+
+        def result(ok: bool, installed: str = "", message: str = "") -> dict:
+            return {"ok": ok, "installed": installed, "message": message}
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        if md is None or not self._mod_installed(md.mod_name):
+            return result(False)
+        screen_key = FileKeyInfo.installed(ss.OVERRIDE_FOLDER, ss.NWN_START_SCREEN_NAME)
+        if screen_key not in self.pd.installed_list:
+            return result(False)
+        data_dir = self._profile_data_dir()
+        info = ss.read_start_screen_info(data_dir)
+        if info is None:
+            return result(False)
+        prefixes = ss.read_prefixes(data_dir)
+        names = [
+            im.name
+            for im in ss.scan_loadscreens(self._loadscreen_image_folder(md))
+        ]
+        if toggle and prefixes:
+            info = replace(info, active_type="2" if info.standard_active else "1")
+            ss.save_start_screen_info(data_dir, info)
+            chosen = info.active_screen
+        else:
+            if info.standard_active:
+                excluded = {e.lower() for e in ss.read_auto_excludes(data_dir)}
+                available = [n for n in names if n.lower() not in excluded]
+            else:
+                available = [n for n in names if ss.is_filter_prefixed(n, prefixes)]
+            chosen = ss.get_next_name(available, info.active_screen)
+        if not chosen:
+            return result(False)
+        installed = self.install_loadscreen(chosen, prefixed=info.prefix_active)
+        if not installed["ok"]:
+            return result(False, message=installed["message"])
+        return result(True, chosen, f"Start Screen Installed: {chosen}.")
+
+    def installed_loadscreen_path(self) -> Path | None:
+        """The start screen in the game's override folder, if NIT installed one."""
+        from vaultkeeper.core.file_key import FileKeyInfo
+        from vaultkeeper.game import start_screen as ss
+
+        md = self.pd.mod_item(ss.LOADSCREEN_MOD)
+        key = FileKeyInfo.installed(ss.OVERRIDE_FOLDER, ss.NWN_START_SCREEN_NAME)
+        folder = self.ctx.game_folders.get(ss.OVERRIDE_FOLDER)
+        if md is None or not md.installed or key not in self.pd.installed_list or folder is None:
+            return None
+        path = folder / ss.NWN_START_SCREEN_NAME
+        return path if path.is_file() else None
 
     def uninstall_loadscreen(self) -> dict:
         """Uninstall the loadscreen mod from the game (VB ``UninstallLoadscreenMod``).
@@ -7591,15 +7658,21 @@ class ProfileController:
             + (f" Errors: {errors}." if errors else ""),
         }
 
-    def delete_loadscreen_images(self, names: list[str]) -> dict:
+    def delete_loadscreen_images(self, names: list[str], *, permanent: bool = False) -> dict:
         """Delete image files from the managed mod (VB ``RbDeleteFile`` @1340).
 
-        Removes each named ``.tga`` from the ``Loadscreen Images`` folder, prunes any
-        matching auto-exclusions, and — if the currently-active/installed image was
-        deleted — uninstalls the loadscreen from the game and reselects the next
-        available image as active (VB auto-select-next). Returns
+        As NIT: the files go to the recycle bin (``permanent`` is its Shift+Delete),
+        auto-exclusions of deleted files are pruned, and each active slot whose
+        image is gone is refilled from its own set, the Standard slot with the
+        first image not excluded, the Prefixed slot with the first enabled
+        prefixed one, keeping the active type. When the installed image was
+        deleted the start screen is uninstalled, or, with Auto-Start Screen
+        Selection on, the new active one is installed instead. Returns
         ``{"deleted", "message"}``.
         """
+        from dataclasses import replace
+
+        from vaultkeeper.core import fs
         from vaultkeeper.game import start_screen as ss
 
         md = self.pd.mod_item(ss.LOADSCREEN_MOD)
@@ -7615,7 +7688,7 @@ class ProfileController:
         for name in names:
             path = image_folder / name
             if path.is_file():
-                path.unlink()
+                fs.delete(path, to_trash=not permanent)
                 deleted += 1
                 if active and name.lower() == active.lower():
                     active_deleted = True
@@ -7624,51 +7697,57 @@ class ProfileController:
             return {"deleted": 0, "message": "No Start Screen images deleted."}
 
         # Prune auto-exclusions that no longer exist (VB ValidateAutoExcludes).
-        remaining = {p.name.lower() for p in image_folder.glob("*.tga") if p.is_file()}
-        excludes = [e for e in ss.read_auto_excludes(data_dir) if e.lower() in remaining]
+        left = [im.name for im in ss.scan_loadscreens(image_folder)]
+        left_lower = {n.lower() for n in left}
+        excludes = [e for e in ss.read_auto_excludes(data_dir) if e.lower() in left_lower]
         ss.save_auto_excludes(data_dir, excludes)
 
-        # If the installed image was deleted it must be uninstalled; reselect the next.
+        message = f"Start Screen images deleted: {deleted}."
+        if info is None:
+            return {"deleted": deleted, "message": message}
+        if not left:
+            ss.save_start_screen_info(data_dir, ss.cleared_active_screen(info))
+            if active_deleted:
+                self.uninstall_loadscreen()
+            return {"deleted": deleted, "message": message}
+
+        prefixes = ss.read_prefixes(data_dir)
+        excluded = {e.lower() for e in excludes}
+        if info.standard.lower() not in left_lower:
+            standard = [n for n in left if n.lower() not in excluded]
+            info = replace(info, standard=standard[0] if standard else "")
+        if prefixes and info.prefixed.lower() not in left_lower:
+            prefixed = [n for n in left if ss.is_filter_prefixed(n, prefixes)]
+            info = replace(info, prefixed=prefixed[0] if prefixed else "")
+        ss.save_start_screen_info(data_dir, info)
+
         if active_deleted:
-            self.uninstall_loadscreen()
-            if info is not None:
-                images = ss.scan_loadscreens(image_folder)
-                next_name = images[0].name if images else ""
-                if next_name:
-                    prefixes = ss.read_prefixes(data_dir)
-                    info = ss.with_active_screen(
-                        info, next_name, prefixed=ss.is_prefixed(next_name, prefixes)
-                    )
-                else:
-                    info = ss.cleared_active_screen(info)
-                ss.save_start_screen_info(data_dir, info)
+            installed = None
+            if self._settings().auto_loadscreen and info.active_screen:
+                installed = self.install_loadscreen(
+                    info.active_screen, prefixed=info.prefix_active
+                )
+            if installed is not None and installed["ok"]:
+                message = f"{message} {installed['message']}"
+            else:
+                self.uninstall_loadscreen()
+        return {"deleted": deleted, "message": message}
 
-        return {
-            "deleted": deleted,
-            "message": f"Start Screen images deleted: {deleted}.",
-        }
-
-    def rename_loadscreen_image(
-        self, old_name: str, new_name: str, *, replicate_vb_bug: bool = True
-    ) -> dict:
-        """Rename a loadscreen image (VB ``RbRename`` @1243) — **LANDMINE, see below**.
+    def rename_loadscreen_image(self, old_name: str, new_name: str) -> dict:
+        """Rename a loadscreen image (VB ``RbRename`` @1243).
 
         Validates the new name (:func:`start_screen.validate_loadscreen_name`), renames
         the file in the ``Loadscreen Images`` folder, renames any matching
         auto-exclusion, and updates the active-screen slots in ``StartscreenInfo.txt``
         following VB's Standard/Prefixed reassignment branches.
 
-        .. warning::
-            VB has a genuine bug at StartScreenManager.vb:1271. When the *installed*
-            image is renamed and its prefix-state is unchanged, VB executes
-            ``SsInfo.Active = InstalledLoadScreen`` — writing the **display name** into
-            the active-**type** slot (line 0 of the info file, which must hold ``"1"``
-            or ``"2"``), corrupting ``StartscreenInfo.txt``. The clearly-intended code
-            was ``SsInfo.ActiveScreen = InstalledLoadScreen`` (which writes the Standard
-            or Prefixed name slot). We port the bug **faithfully by default**
-            (``replicate_vb_bug=True``) so behaviour matches the original; pass
-            ``replicate_vb_bug=False`` for the corrected behaviour. There is no real
-            loadscreen data on this machine to validate against — flagged for review.
+        VB has a bug at StartScreenManager.vb:1271. When the *installed* image is
+        renamed and its prefix state is unchanged, it runs ``SsInfo.Active =
+        InstalledLoadScreen``, writing the display name into the active-*type*
+        line of ``StartscreenInfo.txt`` (which must hold "1" or "2") and leaving
+        the name slot on the old, now missing name. Rotation then stops finding
+        the active screen. This port assigns the name slot and keeps the type,
+        which is what the code meant (logic audit 3g).
 
         Returns ``{"ok", "message"}``.
         """
@@ -7730,12 +7809,9 @@ class ProfileController:
                         prefixed=ss.get_next_name(prefixed_available, old_name),
                         standard=new_name,
                     )
-                elif replicate_vb_bug:
-                    # VB BUG @1271: writes a display name into the active-TYPE slot.
-                    info = replace(info, active_type=new_name)
                 else:
-                    # Corrected: assign into the active screen name slot.
-                    info = ss.with_active_screen(info, new_name, prefixed=new_prefixed)
+                    # VB @1271 wrote the name into the type slot; the name slot is meant.
+                    info = ss.with_active_screen(info, new_name, prefixed=info.prefix_active)
             elif old_name == info.prefixed:
                 if not new_prefixed and old_prefixed:
                     info = replace(
