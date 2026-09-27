@@ -272,4 +272,13 @@ layouts.
   formatted drops its formatting (3i N4).
 - Owner decision: NIT asks for a name for each unidentified Workshop item on
   load (3h W9); VK leaves "Mod <id>" with Rename in the viewer.
-- Stage 4 residual code review; Stage 5 fixes.
+- Owner heads-up (stage 4 batch 2): the campaign `.nwm` files in the Steam
+  install were changed on 14–15 Aug outside any mod (the PRC-ified campaign).
+  Running *Update EE Files* by hand would record them as the game's originals;
+  the automatic run after a game update does not start until the executable
+  changes.
+- Owner heads-up: *Validate Mods* on the real profile would add the orphan
+  folder "Lord Of Destruction" to Ungrouped and drop 12 records of installer
+  files that are gone (mostly "1. Neverwinter Nights (EE)", whose folder holds a
+  `.nitins` while the database says restorer).
+- Stage 4 residual code review (batches 3–7; see `stage4_review.md`); Stage 5 fixes.

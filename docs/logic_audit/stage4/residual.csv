@@ -1,72 +1,4 @@
 file,member,vb_ref,status,lines,signals,notes
-ProfileData.vb,Load,ProfileData.vb:71,Ported,65,map. pim.,verified: profile_data + profile_store persistence
-ProfileData.vb,LoadData,ProfileData.vb:181,Divergence,95,deletefile fs. my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,GetLatestDataFile,ProfileData.vb:320,Ported,15,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,CreateRepairList,ProfileData.vb:350,Deferred,7,,daily-play-time auto factor / shared-store export / installation-sets / repair-list / find-rename / workshop network title fetch.
-ProfileData.vb,Save,ProfileData.vb:371,Ported,5,savefile,verified: profile_data + profile_store persistence
-ProfileData.vb,SaveData,ProfileData.vb:480,Ported,20,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,CalculateAllChecksums,ProfileData.vb:519,Ported,14,file.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,CalculateChecksums,ProfileData.vb:549,Divergence,35,.save(,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.vb,RepairChecksums,ProfileData.vb:605,Ported,17,file.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,RepairChecksums,ProfileData.vb:637,Ported,17,file.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,RepairOriginalChecksums,ProfileData.vb:672,Ported,9,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,CreateInstalledList,ProfileData.vb:696,Ported,4,,verified: profile_data + profile_store persistence
-ProfileData.vb,AddInstalledFiles,ProfileData.vb:711,Ported,8,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,AddInstalledFilesThread,ProfileData.vb:731,Ported,36,fs. my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,UpdateDatabaseFile,ProfileData.vb:795,Divergence,10,map.,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,AddInstalledFile,ProfileData.vb:817,Ported,18,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,CreateModList,ProfileData.vb:852,Ported,37,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,CreateModListThread,ProfileData.vb:911,Ported,5,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,AddMod,ProfileData.vb:928,Ported,13,,verified: profile_data + profile_store persistence
-ProfileData.vb,CreateFiles,ProfileData.vb:956,Ported,11,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,AddFiles,ProfileData.vb:981,Ported,8,,verified: profile_data + profile_store persistence
-ProfileData.vb,AddFilesThread,ProfileData.vb:1002,Ported,13,directory. file. my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,InitialiseGroups,ProfileData.vb:1027,Ported,7,,verified: profile_data + profile_store persistence
-ProfileData.vb,GetGroupInfo,ProfileData.vb:1046,Ported,23,my.computer.filesystem,verified: profile_data + profile_store persistence
-ProfileData.vb,AddGroups,ProfileData.vb:1082,Ported,14,,verified: profile_data + profile_store persistence
-ProfileData.vb,UpdateModStates,ProfileData.vb:1110,Ported,7,,verified: profile_data + profile_store persistence
-ProfileData.vb,UpdateFileStatesThread,ProfileData.vb:1137,Ported,35,file.,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,SetModFiles,ProfileData.vb:1193,Ported,7,,verified: profile_data + profile_store persistence
-ProfileData.vb,UseNwOriginal,ProfileData.vb:1216,Ported,9,,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.vb,CreateOriginalFiles,ProfileData.vb:1235,Ported,23,,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.vb,BuildOriginalFiles,ProfileData.vb:1276,Partial,19,my.computer.filesystem,Bounded: RunAutoRestorers auto-run-on-load is not ported (only the manual Create Original Restorers command); BuildOriginalFiles rescans the install from disk (the port uses the bundled CRC tables instead).
-ProfileData.vb,BuildOriginalFilesDoWork,ProfileData.vb:1308,Deferred,40,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,UseEeOriginal,ProfileData.vb:1379,Ported,9,,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.vb,CreateOriginalEeFiles,ProfileData.vb:1399,Ported,17,,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.vb,BuildOriginalEeFiles,ProfileData.vb:1431,Deferred,38,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,UpdateOriginalEeFiles,ProfileData.vb:1487,Deferred,5,,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,UpdateOriginalEeFilesThread,ProfileData.vb:1508,Deferred,113,my.computer.filesystem pim.,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,SaveEeFileVersion,ProfileData.vb:1656,Divergence,7,my.computer.filesystem writealltext,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,GetEeFolders,ProfileData.vb:1673,Deferred,17,my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,ValidateOriginals,ProfileData.vb:1704,Ported,44,map. pd.,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.vb,CheckInstalledFiles,ProfileData.vb:1776,Ported,36,movefile my.computer.filesystem,Validate Installed Data ported: ProfileData.check_installed_files (drop vanished installed records + rescan added/changed + recompute states) + controller.validate_installed_data; wired MsValidateInstalledData.
-ProfileData.vb,ValidateInstalledFileData,ProfileData.vb:1843,Partial,21,movefile,CheckInstalledFiles fully ported; the ValidateInstalledFileData illegal-file detection + CRC/size repair of ModFileKeys is bounded (removal of orphaned records is covered by check_installed_files + update_file/mod_states).
-ProfileData.vb,ValidateInstalledFileDataThread,ProfileData.vb:1885,Partial,71,file. my.computer.filesystem pd.,CheckInstalledFiles fully ported; the ValidateInstalledFileData illegal-file detection + CRC/size repair of ModFileKeys is bounded (removal of orphaned records is covered by check_installed_files + update_file/mod_states).
-ProfileData.vb,IsIllegalFile,ProfileData.vb:1994,Deferred,14,map.,MsValidate = scan game folders for files NIT deems illegal (foreign/untracked) then delete-to-recycle. Deferred (destructive + not groundable): faithful IsIllegalFile needs the ValidInstalledFilenames/ValidInstalledExtensions valid-set validated against real game data to avoid false-positive deletion of legitimate game files.
-ProfileData.vb,CheckSelectedFiles,ProfileData.vb:2026,Deferred,35,,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,AddCrashDumpFiles,ProfileData.vb:2080,Divergence,39,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,AddDatabaseFiles,ProfileData.vb:2137,Divergence,24,map. my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,CheckCharacterFiles,ProfileData.vb:2177,Divergence,16,map. my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,CheckTmpSettings,ProfileData.vb:2203,Divergence,17,my.computer.filesystem,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,CheckAutoFileChanges,ProfileData.vb:2234,Divergence,63,map. my.computer.filesystem pd.,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,ValidateModAndFileData,ProfileData.vb:2321,Deferred,23,file.,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,ValidateModAndFileDataThread,ProfileData.vb:2370,Deferred,57,file. my.computer.filesystem pd.,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,RemoveIllegalModFiles,ProfileData.vb:2482,Ported,10,file. pd.,verified: profile_data + profile_store persistence
-ProfileData.vb,RemoveIllegalModFilesThread,ProfileData.vb:2502,Deferred,31,file. fs. map. movefile my.computer.filesystem,"unported subsystem: map-version migrations (Phase-8), original-restorers, MsValidate validators, dev-folder."
-ProfileData.vb,ValidateNotes,ProfileData.vb:2556,Ported,18,deletefile fs. my.computer.filesystem pd.,verified: profile_data + profile_store persistence
-ProfileData.vb,GetInstaller,ProfileData.vb:2593,Ported,8,,verified: profile_data + profile_store persistence
-ProfileData.vb,GetConflicts,ProfileData.vb:2615,Ported,9,,verified: profile_data + profile_store persistence
-ProfileData.vb,FileKeyExists,ProfileData.vb:2660,Ported,8,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,LoadSelections,ProfileData.vb:2683,Divergence,13,my.computer.filesystem my.settings.privateselections =,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,SaveSelections,ProfileData.vb:2706,Divergence,8,my.computer.filesystem writealltext,"VB ListView/settings-format plumbing, native-JSON persistence (vs NRBF tables), UI-state files, Windows-specific."
-ProfileData.vb,RecoverUserData,ProfileData.vb:2730,Ported,49,my.computer.filesystem pd.,verified: profile_data + profile_store persistence
-ProfileData.vb,ModRenamed,ProfileData.vb:2803,Ported,9,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,ModDeleted,ProfileData.vb:2822,Ported,8,,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.vb,HasDependants,ProfileData.vb:2840,Ported,8,,verified: profile_data + profile_store persistence
-ProfileData.vb,ValidateDependencies,ProfileData.vb:2860,Ported,18,,verified: profile_data + profile_store persistence
-ProfileData.vb,GetDependants,ProfileData.vb:2890,Ported,16,pd.,verified: profile_data + profile_store persistence
-ProfileData.vb,GetInstalledDependants,ProfileData.vb:2918,Ported,19,pd.,verified: profile_data + profile_store persistence
-ProfileData.vb,GetAutoDependencyList,ProfileData.vb:2947,Ported,6,pd.,verified: profile_data + profile_store persistence
 NIT.Common.vb,SetRunApplicationSetup,NIT.Common.vb:804,Deferred,1,vault,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 NIT.Common.vb,RefreshModsExported,NIT.Common.vb:2286,Deferred,76,pd. vault,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
 NIT.Common.vb,ImportModsExported,NIT.Common.vb:2305,Deferred,62,pd. vault,shared-store sync / auto-config-restorers / run-menu / auto-update / patch-import.
@@ -272,34 +204,6 @@ Paths.vb,CreateMissingFolders,Paths.vb:2010,Ported,9,fs. my.computer.filesystem,
 Paths.vb,CheckAccessPermissions,Paths.vb:2035,Partial,22,fs.,capability present but bounded (map editor via FolderMapping dialog + map_overrides; edition prompts).
 Paths.vb,CreateProfileFolder,Paths.vb:2077,Ported,21,fs. my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
 Paths.vb,IsValidNwnFolder,Paths.vb:2119,Ported,13,my.computer.filesystem,confirmed in port core (grep): mapping/reserved/editions/checksums/mutators.
-ProfileData.Properties.vb,ProfileName,ProfileData.Properties.vb:31,Divergence,15,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,InstalledItem,ProfileData.Properties.vb:119,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,ModItem,ProfileData.Properties.vb:135,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,ModExists,ProfileData.Properties.vb:150,Divergence,5,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,FileItem,ProfileData.Properties.vb:164,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,FileDataItem,ProfileData.Properties.vb:180,Ported,9,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,ModsInstalledCount,ProfileData.Properties.vb:196,Ported,7,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,ModCount,ProfileData.Properties.vb:210,Ported,7,,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-ProfileData.Properties.vb,ModKeys,ProfileData.Properties.vb:224,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,SortedModKeys,ProfileData.Properties.vb:239,Divergence,9,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,UnknownSourceFiles,ProfileData.Properties.vb:256,Divergence,7,map.,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,UnknownCharacterFiles,ProfileData.Properties.vb:270,Deferred,7,,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-ProfileData.Properties.vb,OriginalFileKeys,ProfileData.Properties.vb:284,Divergence,5,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,OriginalSourceFiles,ProfileData.Properties.vb:296,Ported,7,,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.Properties.vb,OriginalSourceFile,ProfileData.Properties.vb:309,Ported,12,map.,"Original restorers ported: game/original_files.py (bundled OriginalFiles/OriginalEeFiles CRC tables -> original_crc_table; original_source_files; validate_originals; restorer_buckets) + controller.create_original_restorers (group + copy pristine originals into Core/INI/Character + per-module restorer mods), wired MsCreateOriginalRestorers."
-ProfileData.Properties.vb,OriginalEeSourceFiles,ProfileData.Properties.vb:331,Deferred,5,,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-ProfileData.Properties.vb,GroupKeys,ProfileData.Properties.vb:344,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,GroupSelectList,ProfileData.Properties.vb:365,Ported,15,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,ValidInstalledFilenames,ProfileData.Properties.vb:392,Deferred,7,pim.,MsValidate = scan game folders for files NIT deems illegal (foreign/untracked) then delete-to-recycle. Deferred (destructive + not groundable): faithful IsIllegalFile needs the ValidInstalledFilenames/ValidInstalledExtensions valid-set validated against real game data to avoid false-positive deletion of legitimate game files.
-ProfileData.Properties.vb,ValidInstalledExtensions,ProfileData.Properties.vb:406,Deferred,15,,MsValidate = scan game folders for files NIT deems illegal (foreign/untracked) then delete-to-recycle. Deferred (destructive + not groundable): faithful IsIllegalFile needs the ValidInstalledFilenames/ValidInstalledExtensions valid-set validated against real game data to avoid false-positive deletion of legitimate game files.
-ProfileData.Properties.vb,GroupCount,ProfileData.Properties.vb:445,Ported,5,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,IsReservedGroup,ProfileData.Properties.vb:458,Ported,5,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,IsNotReservedGroup,ProfileData.Properties.vb:471,Ported,5,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,IsLoaded,ProfileData.Properties.vb:483,Divergence,5,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-ProfileData.Properties.vb,IsNotLoaded,ProfileData.Properties.vb:495,Ported,5,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,DataFilesExist,ProfileData.Properties.vb:515,Ported,10,my.computer.filesystem,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-ProfileData.Properties.vb,CalculateOriginalCrcs,ProfileData.Properties.vb:549,Deferred,4,,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-ProfileData.Properties.vb,GroupsInitialised,ProfileData.Properties.vb:569,Ported,5,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
 ProfileInfo.vb,OperationStates,ProfileInfo.vb:26,Partial,13,,web-menu editing + operation-state present but bounded.
 ProfileInfo.vb,LoadStateFilename,ProfileInfo.vb:43,Divergence,5,my.computer.filesystem,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ProfileInfo.vb,ConvertBikFiles,ProfileInfo.vb:62,Ported,5,,verified: editions/version
@@ -319,17 +223,6 @@ ProfileInfoManager.vb,SetGameSaves,ProfileInfoManager.vb:158,Ported,29,my.comput
 ProfileInfoManager.vb,GetProfiles,ProfileInfoManager.vb:206,Ported,100,fs. my.computer.filesystem my.settings.profilenwn =,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,CreateDefaultProfile,ProfileInfoManager.vb:340,Ported,10,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
 ProfileInfoManager.vb,CreateProfile,ProfileInfoManager.vb:365,Ported,8,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-GroupMemberData.vb,State,GroupMemberData.vb:37,Ported,5,,verified: group_member.py
-GroupMemberData.vb,Count,GroupMemberData.vb:46,Divergence,7,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-GroupMemberData.vb,Members,GroupMemberData.vb:57,Ported,7,,verified: group_member.py
-GroupMemberData.vb,MemberNames,GroupMemberData.vb:68,Ported,7,,verified: group_member.py
-GroupMemberData.vb,MemberPaths,GroupMemberData.vb:79,Ported,7,,"helper logic ported in its parent module (IFO/module decode, state text/colour, bic skills/feats, char filter, workshop, vault rules, find dialogue, eq/hash, crc info)."
-GroupMemberData.vb,InstalledCount,GroupMemberData.vb:90,Ported,7,,verified: group_member.py
-GroupMemberData.vb,InstalledMembers,GroupMemberData.vb:101,Ported,7,,verified: group_member.py
-GroupMemberData.vb,Rename,GroupMemberData.vb:132,Ported,29,file.,verified: group_member.py
-GroupMemberData.vb,AddMembers,GroupMemberData.vb:194,Ported,5,,verified: group_member.py
-GroupMemberData.vb,AddMembersThread,GroupMemberData.vb:205,Divergence,10,file.,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
-GroupMemberData.vb,AddingMembers,GroupMemberData.vb:236,Divergence,7,,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 Defs.vb,StartupType,Defs.vb:477,Divergence,46,vault,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,DefaultWebMenu,Defs.vb:691,Ported,7,vault,verified: constants/editions/helpers
 Defs.vb,SuppressGotFocus,Defs.vb:753,Divergence,8,,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.

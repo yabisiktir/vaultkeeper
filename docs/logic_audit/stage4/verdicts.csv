@@ -30,3 +30,109 @@ ModData.vb,FolderHasSourceFiles,same,_has_source_files
 ModData.vb,SetModState,fixed,"branch-for-branch same; patch INI name now matched in any case (Option Compare Text)"
 ModData.vb,UpdateFileKeys,same,re-key on group move/rename (stage 2 move scenario)
 ModData.vb,RebuildFileList,same,
+ProfileData.vb,Load,same,"load_profile; check vs game + installer types + notes on open (3a, batch 1/2)"
+ProfileData.vb,LoadData,n/a,NRBF table plumbing; VK persists JSON
+ProfileData.vb,GetLatestDataFile,n/a,NRBF data-file versioning
+ProfileData.vb,CreateRepairList,n/a,NRBF repair bookkeeping
+ProfileData.vb,Save,same,save_profile
+ProfileData.vb,SaveData,n/a,NRBF writer
+ProfileData.vb,CalculateAllChecksums,same,calculate_checksums over every file
+ProfileData.vb,CalculateChecksums,same,calculate_checksums / _checksum_new_mod_files (S3)
+ProfileData.vb,RepairChecksums,same,Calculate CRC command
+ProfileData.vb,RepairOriginalChecksums,same,validate_originals
+ProfileData.vb,CreateInstalledList,same,scan_installed
+ProfileData.vb,AddInstalledFiles,same,scan_installed
+ProfileData.vb,AddInstalledFilesThread,same,scan_installed
+ProfileData.vb,UpdateDatabaseFile,deliberate,NIT skips an EE-rewritten SQLite of equal length; VK re-checksums (backs up once more)
+ProfileData.vb,AddInstalledFile,same,add_installed_file
+ProfileData.vb,CreateModList,same,scan_mods
+ProfileData.vb,CreateModListThread,same,scan_mods
+ProfileData.vb,AddMod,same,scan_mods
+ProfileData.vb,CreateFiles,same,scan_mod_files
+ProfileData.vb,AddFiles,same,scan_mod_files
+ProfileData.vb,AddFilesThread,same,scan_mod_files (all sub-folders incl. nitconfig)
+ProfileData.vb,InitialiseGroups,same,initialise_groups
+ProfileData.vb,GetGroupInfo,same,import
+ProfileData.vb,AddGroups,same,ensure_mandatory_groups
+ProfileData.vb,UpdateModStates,same,update_mod_states
+ProfileData.vb,UpdateFileStatesThread,same,update_file_states (stage 2 diffs)
+ProfileData.vb,SetModFiles,same,set_mod_files
+ProfileData.vb,UseNwOriginal,same,original_crc_table(is_ee=False)
+ProfileData.vb,CreateOriginalFiles,same,bundled OriginalFiles table
+ProfileData.vb,BuildOriginalFiles,deliberate,"classic: VK uses the bundled 1.69 table, no rescan of a Diamond install"
+ProfileData.vb,BuildOriginalFilesDoWork,deliberate,as BuildOriginalFiles
+ProfileData.vb,UseEeOriginal,same,original_crc_table(is_ee=True) overlays EE
+ProfileData.vb,CreateOriginalEeFiles,same,bundled original_ee_files.json
+ProfileData.vb,BuildOriginalEeFiles,same,scan_ee_originals
+ProfileData.vb,UpdateOriginalEeFiles,fixed,E1: now also runs on open after a game update (first sighting only records the exe CRC)
+ProfileData.vb,UpdateOriginalEeFilesThread,fixed,E2: mod-installed files keep the known original CRC; restorer-held take the copy's CRC. Removed entries not dropped (bundled table immutable): deliberate
+ProfileData.vb,SaveEeFileVersion,fixed,Settings.ee_files_signatures per profile
+ProfileData.vb,GetEeFolders,same,EE_ORIGINAL_FOLDERS
+ProfileData.vb,ValidateOriginals,same,validate_originals
+ProfileData.vb,CheckInstalledFiles,same,check_installed_files (3a)
+ProfileData.vb,ValidateInstalledFileData,same,validate_installed_file_data; illegal count reported by Validate Neverwinter Nights instead
+ProfileData.vb,ValidateInstalledFileDataThread,same,validate_installed_file_data branch for branch
+ProfileData.vb,IsIllegalFile,fixed,Validate Neverwinter Nights now honours ValidInstalledFilenames/Extensions (+ vk_*.json)
+ProfileData.vb,CheckSelectedFiles,fixed,record_play_files in run_auto_restorers (database + journals); crash files via crash_reports
+ProfileData.vb,AddCrashDumpFiles,fixed,crash_reports.new_crash_files (batch 2); pre-89.8193 root dumps n/a
+ProfileData.vb,AddDatabaseFiles,fixed,record_play_files
+ProfileData.vb,CheckCharacterFiles,same,auto_character_restorers scans the vaults itself
+ProfileData.vb,CheckTmpSettings,n/a,settings.tml.tmp record has no consumer in VK
+ProfileData.vb,CheckAutoFileChanges,fixed,record_play_files + _refresh_installed_facts
+ProfileData.vb,ValidateModAndFileData,fixed,validate_mod_and_file_data in Validate Mods; mods without a folder kept (deliberate: imported definitions)
+ProfileData.vb,ValidateModAndFileDataThread,fixed,as above; game copies without CRC checksummed too
+ProfileData.vb,RemoveIllegalModFiles,same,remove_illegal_mod_files
+ProfileData.vb,RemoveIllegalModFilesThread,same,remove_illegal_mod_files
+ProfileData.vb,ValidateNotes,fixed,recycle (3i N2) + on open (batch 2)
+ProfileData.vb,GetInstaller,same,get_installer
+ProfileData.vb,GetConflicts,same,get_conflicts
+ProfileData.vb,FileKeyExists,same,dict membership
+ProfileData.vb,LoadSelections,deliberate,UI state: VK does not restore the selected mod per profile; screen-parity phase
+ProfileData.vb,SaveSelections,deliberate,as LoadSelections
+ProfileData.vb,RecoverUserData,same,stage 3c
+ProfileData.vb,ModRenamed,same,rename_mod
+ProfileData.vb,ModDeleted,same,delete_mods
+ProfileData.vb,HasDependants,same,has_dependants
+ProfileData.vb,ValidateDependencies,same,validate_dependencies
+ProfileData.vb,GetDependants,same,get_dependants
+ProfileData.vb,GetInstalledDependants,same,get_installed_dependants
+ProfileData.vb,GetAutoDependencyList,same,stage 1 dependency diffs
+ProfileData.Properties.vb,ProfileName,same,store_path stem
+ProfileData.Properties.vb,InstalledItem,same,installed_item
+ProfileData.Properties.vb,ModItem,same,mod_item
+ProfileData.Properties.vb,ModExists,same,mod_exists
+ProfileData.Properties.vb,FileItem,same,file_item
+ProfileData.Properties.vb,FileDataItem,same,file_item
+ProfileData.Properties.vb,ModsInstalledCount,same,counts
+ProfileData.Properties.vb,ModCount,same,counts
+ProfileData.Properties.vb,ModKeys,same,mod_keys
+ProfileData.Properties.vb,SortedModKeys,same,sorted_mod_keys (win_compare)
+ProfileData.Properties.vb,UnknownSourceFiles,same,unknown_source_files
+ProfileData.Properties.vb,UnknownCharacterFiles,same,unowned_characters
+ProfileData.Properties.vb,OriginalFileKeys,same,original_file_keys
+ProfileData.Properties.vb,OriginalSourceFiles,fixed,stale original-restorer copy now included
+ProfileData.Properties.vb,OriginalSourceFile,fixed,as OriginalSourceFiles
+ProfileData.Properties.vb,OriginalEeSourceFiles,same,original_ee_files keys
+ProfileData.Properties.vb,GroupKeys,same,group_keys (hidden excluded)
+ProfileData.Properties.vb,GroupSelectList,same,group picker
+ProfileData.Properties.vb,ValidInstalledFilenames,fixed,_VALID_INSTALLED_FILENAMES
+ProfileData.Properties.vb,ValidInstalledExtensions,fixed,_VALID_INSTALLED_EXTENSIONS
+ProfileData.Properties.vb,GroupCount,same,non-reserved groups
+ProfileData.Properties.vb,IsReservedGroup,same,RESERVED/MANDATORY groups
+ProfileData.Properties.vb,IsNotReservedGroup,same,
+ProfileData.Properties.vb,IsLoaded,n/a,form state
+ProfileData.Properties.vb,IsNotLoaded,n/a,form state
+ProfileData.Properties.vb,DataFilesExist,same,store exists → load else scan
+ProfileData.Properties.vb,CalculateOriginalCrcs,same,validate_installed_file_data rechecks CRC-less originals
+ProfileData.Properties.vb,GroupsInitialised,n/a,lazy-init flag
+GroupMemberData.vb,State,same,group_member.py
+GroupMemberData.vb,Count,same,
+GroupMemberData.vb,Members,same,
+GroupMemberData.vb,MemberNames,same,
+GroupMemberData.vb,MemberPaths,same,
+GroupMemberData.vb,InstalledCount,same,
+GroupMemberData.vb,InstalledMembers,same,
+GroupMemberData.vb,Rename,same,"rename_group: removed keys re-resolved via set_mod_files, same owners as NIT's ResetModFiles+FindInstaller"
+GroupMemberData.vb,AddMembers,same,move_mods_to_group
+GroupMemberData.vb,AddMembersThread,same,move_mods_to_group
+GroupMemberData.vb,AddingMembers,same,move_mods_to_group
