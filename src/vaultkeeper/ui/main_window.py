@@ -2362,8 +2362,10 @@ class MainWindow(QMainWindow):
             return None
         return "" if choice == "No Group" else choice
 
-    def _on_create_installer(self) -> None:
-        names = self.selected_mod_names()
+    def _on_create_installer(self, names: list[str] | None = None) -> None:
+        if not isinstance(names, list):  # a Qt signal passes a bool
+            names = None
+        names = names or self.selected_mod_names()
         if self.controller is None or not names:
             self.nit_status.set_info("Select a mod first.")
             return

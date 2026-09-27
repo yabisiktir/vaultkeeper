@@ -346,6 +346,42 @@ class WizardBuilder(QDialog):
         )
         self.summary.setText(result["message"])
         self.refresh()
+        if result.get("ok", True):
+            self._offer_create_installer()
+
+    def _offer_create_installer(self) -> None:
+        """Ask whether to (re-)create the installer now (VB ``RunCreateModInstaller``).
+
+        A saved wizard only takes effect when the installer is built, so NIT asks
+        straight away — or, with "Always take this action", stops asking.
+        """
+        from PySide6.QtWidgets import QCheckBox
+
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        action = (settings.run_create_installer or "ask").lower()
+        if action == "ask":
+            md = self._controller.pd.mod_item(self._mod_name)
+            verb = "re-create the" if md is not None and md.is_installer() else "create a"
+            box = QMessageBox(self)
+            box.setWindowTitle("Installer Wizard")
+            box.setIcon(QMessageBox.Icon.Question)
+            box.setText(f"Do you want to {verb} Mod Installer for {self._mod_name}?")
+            box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            always = QCheckBox("Always take this action.")
+            box.setCheckBox(always)
+            yes = box.exec() == QMessageBox.StandardButton.Yes
+            if always.isChecked():
+                settings.run_create_installer = "yes" if yes else "no"
+                save_settings(settings)
+        else:
+            yes = action == "yes"
+        parent = self.parent()
+        if yes and parent is not None and hasattr(parent, "_on_create_installer"):
+            parent._on_create_installer([self._mod_name])
 
     def _on_validate(self) -> None:
         """Report how many wizard entries no longer match a real file (VB Validate)."""

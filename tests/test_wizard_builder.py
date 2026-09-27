@@ -64,6 +64,14 @@ End InstallerExcludes
 # -- Parser (VB WizardInfo.Load) ------------------------------------------ #
 
 
+
+@pytest.fixture(autouse=True)
+def _no_create_installer_prompt(monkeypatch):
+    """Saving now asks whether to build the installer (tested separately)."""
+    from vaultkeeper.ui.dialogs.wizard_builder import WizardBuilder
+
+    monkeypatch.setattr(WizardBuilder, "_offer_create_installer", lambda self: None)
+
 def test_parse_full_wizard():
     info = parse_wizard_text(_WIZARD_TEXT, "Grand Mod")
     assert info.title == "My Grand Wizard"

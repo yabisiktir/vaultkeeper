@@ -204,6 +204,10 @@ class Settings:
     #: them ungrouped. Vaultkeeper's own: NIT's similarly named
     #: BehaviourMoveAddedMods is the move-or-copy choice (``use_move_on_add``).
     move_added_mods: bool = False
+    #: After saving an installer wizard, create the mod's installer: "ask", "yes"
+    #: or "no" (VB ``ConfigRunCreateInstaller``: Ask each time, with "Always take
+    #: this action" to stop asking).
+    run_create_installer: str = "ask"
     #: How many game saves Reduce keeps (VB ``ConfigSavesRetention``; the Game
     #: Saves Manager's "Number of game saves to keep", remembered between uses).
     saves_retention: int = 50
