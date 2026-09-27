@@ -4171,13 +4171,68 @@ class ProfileController:
             "text": "\n".join(lines),
         }
 
-    def calculate_crcs(self) -> str:
-        """Recompute CRC-32 checksums for pending files and refresh states."""
+    #: The choices VB MsRepairCrcs offers, in its order.
+    CRC_MODES = (
+        ("missing", "Missing CRC values"),
+        ("unknown_originals", "Unknown Originals"),
+        ("all", "All CRC values"),
+        ("file_key", "Specify the File Key (Folder\\Filename.Extension)..."),
+    )
+
+    def calculate_crcs(self, mode: str = "missing", file_key: str = "") -> str:
+        """Recompute CRC-32 checksums (VB ``MsRepairCrcs`` / ``RepairChecksums``).
+
+        ``missing``: every record without a checksum, mod and installed side
+        (VB's first option; the old command only took "pending" files, which is
+        empty once a profile has loaded, so it did nothing). ``unknown_originals``:
+        unknown-source installed files named in the originals table. ``all``:
+        everything. ``file_key``: the installed file and every mod copy of
+        ``folder\\name``. States are recomputed and the profile saved.
+        """
+        from vaultkeeper.game.original_files import original_crc_table
+
+        changes = self.pd.changes
+        changes.reset_changes()
+        installed = list(self.pd.installed_list)
+        files = list(self.pd.file_list)
+        if mode == "missing":
+            installed = [k for k in installed if not self.pd.installed_list[k].crc_calculated]
+            files = [k for k in files if not self.pd.file_list[k].crc_calculated]
+        elif mode == "unknown_originals":
+            table = original_crc_table(
+                is_ee=self.ctx.is_ee, overrides=dict(self.pd.original_ee_files) or None
+            )
+            installed = [
+                k for k in installed
+                if self.pd.installed_list[k].is_unknown_installer
+                and k.file_key.lower().replace("\\", "/") in table
+            ]
+            keys = {k.file_key.lower() for k in installed}
+            files = [k for k in files if k.file_key.lower() in keys]
+        elif mode == "file_key":
+            wanted = file_key.strip().replace("/", "\\").lower()
+            installed = [k for k in installed if k.file_key.lower() == wanted]
+            files = [k for k in files if k.file_key.lower() == wanted]
+        elif mode != "all":
+            raise ValueError(mode)
+        if not installed and not files:
+            return (
+                "All files have valid checksum values."
+                if mode == "missing"
+                else "No files matched: nothing to calculate."
+            )
+        for k in installed:
+            changes.installed.changed(k)
+        for k in files:
+            changes.file.changed(k)
         self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)
         self.pd.update_file_states()
+        for name in self.pd.mod_keys:
+            changes.mods.affected(name)
         self.pd.update_mod_states()
+        changes.reset_changes()
         self.save()
-        return "CRC calculation complete."
+        return f"CRC values calculated: {len(installed) + len(files):,} file(s)."
 
     def rescan_installed_state(self) -> str:
         """Recompute install state for imported mods from the live game, and persist.

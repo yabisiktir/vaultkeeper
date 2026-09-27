@@ -2147,7 +2147,7 @@ class MainWindow(QMainWindow):
             # Engine maintenance.
             "MsAnneal": self._on_anneal,
             "MsValidateProfileData": lambda: self._maintenance("validate_profile_data"),
-            "MsRepairCrcs": lambda: self._maintenance("calculate_crcs"),
+            "MsRepairCrcs": self._on_calculate_crcs,
             "MsRebuildDatabase": lambda: self._maintenance("rebuild_database"),
             "MsValidateMods": lambda: self._maintenance("validate_mods"),
             "MsValidateModWebLinks": self._on_validate_mod_web_links,
@@ -3543,6 +3543,34 @@ class MainWindow(QMainWindow):
         if self.controller is None:
             return
         message = getattr(self.controller, method)()
+        self.refresh()
+        self.nit_status.set_info(message)
+
+    def _on_calculate_crcs(self) -> None:
+        """Choose which CRC values to compute (VB ``MsRepairCrcs``)."""
+        if self.controller is None:
+            return
+        from PySide6.QtWidgets import QApplication, QInputDialog
+
+        labels = [label for _mode, label in self.controller.CRC_MODES]
+        choice, ok = QInputDialog.getItem(
+            self, "Calculate CRCs", "Specify which CRC values to compute", labels, 0, False
+        )
+        if not ok:
+            return
+        mode = self.controller.CRC_MODES[labels.index(choice)][0]
+        file_key = ""
+        if mode == "file_key":
+            file_key, ok = QInputDialog.getText(
+                self, "Calculate CRCs", "File Key (Folder\\Filename.Extension):"
+            )
+            if not ok or not file_key.strip():
+                return
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            message = self.controller.calculate_crcs(mode, file_key)
+        finally:
+            QApplication.restoreOverrideCursor()
         self.refresh()
         self.nit_status.set_info(message)
 
