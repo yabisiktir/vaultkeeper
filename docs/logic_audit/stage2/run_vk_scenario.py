@@ -179,6 +179,11 @@ def main() -> None:
             if sb not in Path(path).parents and Path(path) != sb:
                 sys.exit(f"ABORT: game folder {name} outside sandbox: {path}")
         log.write(f"first run: {ctl.answer_player_excludes(player=True)}\n")
+        # NIT's harness answers "Create Restorers for files installed by NWN?" Yes.
+        offer = ctl.original_restorers_offer()
+        log.write(f"original restorers offer: {offer}\n")
+        if offer["count"]:
+            log.write(f"original restorers: {ctl.create_original_restorers()}\n")
         # app.py start-up: NIT's managed restorers (VB RunAutoRestorers on first activation).
         log.write(f"auto restorers: {ctl.run_auto_restorers()}\n")
 

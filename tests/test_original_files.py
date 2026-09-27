@@ -45,7 +45,47 @@ def test_restorer_buckets_group_by_kind():
     assert (C.RESTORER_GROUP, C.CORE_FILES_RESTORER) in buckets
     assert (C.RESTORER_GROUP, C.INI_FILES_RESTORER) in buckets
     assert (C.RESTORER_GROUP, C.CHARACTER_FILES_RESTORER) in buckets
-    assert (C.ORIGINAL_MODS_GROUP, "Chapter1") in buckets
+    assert (C.ORIGINAL_MODS_GROUP, "1. Neverwinter Nights (EE)") in buckets
+
+
+def test_restorer_buckets_group_modules_as_nit_does():
+    """VB AutoOriginalRestorer: one restorer per campaign, one per bundled module,
+    each with the edition; never one per chapter file (logic audit 3a)."""
+    names = [
+        ("nwm", "Chapter1.nwm"), ("nwm", "Chapter1E.nwm"), ("nwm", "Prelude.nwm"),
+        ("nwm", "XP1-Chapter 1.nwm"), ("nwm", "XP1-Interlude.nwm"),
+        ("nwm", "XP2_Chapter1.nwm"),
+        ("nwm", "Neverwinter Nights - Darkness over Daggerford.nwm"),
+        ("mod", "Contest Of Champions 0492.mod"), ("mod", "Kingmaker.mod"),
+        ("override", "x.2da"),
+    ]
+    fks = [FileKeyInfo.installed(folder, name) for folder, name in names]
+
+    buckets = {name: sorted(f.filename for f in files)
+               for (_g, name), files in restorer_buckets(fks, is_ee=True).items()}
+
+    assert buckets == {
+        C.CORE_FILES_RESTORER: ["x.2da"],
+        "1. Neverwinter Nights (EE)": ["Chapter1.nwm", "Chapter1E.nwm", "Prelude.nwm"],
+        "2. The Shadow of Undrentide (EE)": ["XP1-Chapter 1.nwm", "XP1-Interlude.nwm"],
+        "3. Hordes of the Underdark (EE)": ["XP2_Chapter1.nwm"],
+        "Darkness over Daggerford (EE)": ["Neverwinter Nights - Darkness over Daggerford.nwm"],
+        "Contest of Champions (EE)": ["Contest Of Champions 0492.mod"],
+        "Kingmaker (EE)": ["Kingmaker.mod"],
+    }
+
+
+def test_classic_demo_modules_and_other_modules():
+    fks = [
+        FileKeyInfo.installed("modules", "Demo - The Cat Lady.mod"),
+        FileKeyInfo.installed("modules", "Some Other.mod"),
+    ]
+    buckets = restorer_buckets(fks, is_ee=False, restorer_group=C.GROUP_NONE)
+    assert (C.ORIGINAL_MODS_GROUP, "Demo - The Cat Lady (NWN)") in buckets
+    # A classic module that is not one of the named ones is a core file.
+    assert [f.filename for f in buckets[(C.GROUP_NONE, C.CORE_FILES_RESTORER)]] == [
+        "Some Other.mod"
+    ]
 
 
 # -- detection / validation ------------------------------------------------ #

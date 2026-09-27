@@ -134,6 +134,17 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | N1 ✅ | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — fixed: `core/mod_names.mod_name_from_file` ports `ModNameFromFile`'s word rules for raw names (underscores or no capitals) and leaves clean names alone. Checked with the harness `modname` query on 26 names: 23 identical to NIT; the 3 others are deliberate (NIT's "MIX of Things", "Tales of Arterra ( EE)", "CEP V2.x"). Applies to archives; a pasted *folder* keeps its name (its installer identifier carries it). |
 | M2 ✅ | `nitconfig` folders always excluded — verified harmless and kept (VK-better): the only files there are identifiers. The mod's own identifier is written by the build anyway; a foreign `.nitins`/`.nitres` that NIT would copy into the installer would mark that other mod installed (or make this mod look like a restorer) whenever this one is installed. Pinned by `tests/test_installer_nitconfig_source.py`. |
 
+## Stage 3a — first run, profiles, INI (details: `stage3a_first_run.md`)
+
+| ID | Finding |
+|---|---|
+| F1 ✅ | First run never offered "Create Restorers for files installed by NWN?" (menu only) |
+| F1b ✅ | Original restorers grouped per module file (~26) instead of NIT's per campaign / per bundled module, no edition suffix |
+| P1 ✅ | Profiles not checked against the game folder when opened / switched (NIT: `CheckInstalledFiles` + anneal on every load) |
+| P2 ✅ | `check_installed_files` left mods "installed" in files that vanished, and did not checksum added/changed files |
+| F3 | NIT writes `NWMFiles`/`SOURCEOVERRIDE`/`PATCH` aliases into nwn.ini — deliberate not to (VK better; S4 closed) |
+| F2 | Empty `userpatch.ini` at first run (NIT) vs first install (VK) — harmless |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |

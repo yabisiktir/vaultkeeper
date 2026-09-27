@@ -87,6 +87,8 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
         # Which kind of collection this is, before anything is built from it.
         window.offer_player_excludes()
         window.offer_legacy_import()
+        # VB asks after a profile is created or migrated: back up NWN's own files.
+        window.offer_original_restorers()
 
     # Validation runs after loading — it is the load's *result* it checks (VB
     # OnLoadValidateProfile, applied once the profile data is in).

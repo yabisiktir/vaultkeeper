@@ -145,25 +145,85 @@ def validate_originals(pd, mapper, *, is_ee: bool) -> int:
     return changes
 
 
-def restorer_buckets(originals: list[FileKeyInfo]) -> dict[tuple[str, str], list[FileKeyInfo]]:
+#: VB ``Pdc`` names the original restorers match on.
+_CAMPAIGN_PREFIX = "neverwinter nights - "  # premium modules shipped as .nwm
+_DEMO_PREFIX = "demo -"
+_CONTEST_OF_CHAMPIONS = "contest of champions 0492.mod"
+
+
+def restorer_buckets(
+    originals: list[FileKeyInfo],
+    *,
+    is_ee: bool = True,
+    ee_keys: set[str] | None = None,
+    restorer_group: str = C.RESTORER_GROUP,
+) -> dict[tuple[str, str], list[FileKeyInfo]]:
     """Group original files into ``(group, restorer_name) -> files`` (VB ``AutoOriginalRestorer``).
 
-    The three fixed restorers — Core / INI / Character — under the Restorers group, plus a
-    per-module restorer under "Mods Installed by NWN" for each base-game module
-    (``.mod`` / ``.nwm``). Empty buckets are omitted by the caller.
+    As NIT does it:
+
+    * **Core / INI / Character** restorers under ``restorer_group`` (VB uses the
+      Restorers group when the profile has one, else No Group). Core takes every
+      file that is not an ``.ini``, ``.bic``, ``.nwm`` or ``.tml`` and not one of
+      the separately restored modules below (``IsNotNamedOriginal``).
+    * The campaigns as **one restorer each** under "Mods Installed by NWN":
+      "1. Neverwinter Nights", "2. The Shadow of Undrentide" (``XP1…``) and
+      "3. Hordes of the Underdark" (``XP2…``), each with every chapter of it.
+    * **One restorer per bundled module**: Contest of Champions, the demo
+      modules, the premium modules (``Neverwinter Nights - …``, prefix dropped)
+      and the Enhanced Edition's ``mod`` folder modules.
+
+    Every module restorer carries the edition, "(EE)" or "(NWN)", so the two
+    editions' copies never share a name. ``ee_keys`` are the Enhanced Edition's
+    own original ``folder/file`` keys (VB ``OriginalEeFiles``).
     """
-    buckets: dict[tuple[str, str], list[FileKeyInfo]] = {}
-    for fk in originals:
+    if ee_keys is None:
+        ee_keys = set(_load_table("original_ee_files.json")) if is_ee else set()
+    suffix = "(EE)" if is_ee else "(NWN)"
+    group = C.ORIGINAL_MODS_GROUP
+
+    def is_named_module(fk: FileKeyInfo) -> bool:
+        low = fk.filename.lower()
         ext = fk.extension.lower()
-        if ext in (C.EXT_MOD, C.EXT_NWM):
-            # A base-game module -> its own restorer named after the module file.
+        if ext in (".bic", ".ini", C.EXT_NWM, ".tml"):
+            return True
+        return ext == C.EXT_MOD and (
+            low.startswith(_DEMO_PREFIX)
+            or low == _CONTEST_OF_CHAMPIONS
+            or _normalise_key(fk.file_key) in ee_keys
+        )
+
+    buckets: dict[tuple[str, str], list[FileKeyInfo]] = {}
+
+    def add(key: tuple[str, str], fk: FileKeyInfo) -> None:
+        bucket = buckets.setdefault(key, [])
+        if fk not in bucket:
+            bucket.append(fk)
+
+    for fk in originals:
+        folder = fk.folder.lower()
+        low = fk.filename.lower()
+        ext = fk.extension.lower()
+        if not is_named_module(fk):
+            add((restorer_group, C.CORE_FILES_RESTORER), fk)
+        if ext == ".ini":
+            add((restorer_group, C.INI_FILES_RESTORER), fk)
+        if ext == ".bic":
+            add((restorer_group, C.CHARACTER_FILES_RESTORER), fk)
+        if folder in ("modules", "mod") and low == _CONTEST_OF_CHAMPIONS:
+            add((group, f"Contest of Champions {suffix}"), fk)
+        if folder == "nwm":
+            if low.startswith("xp1"):
+                add((group, f"2. The Shadow of Undrentide {suffix}"), fk)
+            elif low.startswith("xp2"):
+                add((group, f"3. Hordes of the Underdark {suffix}"), fk)
+            elif not low.startswith("xp") and not low.startswith(_CAMPAIGN_PREFIX):
+                add((group, f"1. Neverwinter Nights {suffix}"), fk)
+        if low != _CONTEST_OF_CHAMPIONS and (
+            folder == "mod" or low.startswith(_DEMO_PREFIX) or low.startswith(_CAMPAIGN_PREFIX)
+        ):
             name = fk.filename.rsplit(".", 1)[0]
-            key = (C.ORIGINAL_MODS_GROUP, name)
-        elif ext == ".ini":
-            key = (C.RESTORER_GROUP, C.INI_FILES_RESTORER)
-        elif ext == ".bic":
-            key = (C.RESTORER_GROUP, C.CHARACTER_FILES_RESTORER)
-        else:
-            key = (C.RESTORER_GROUP, C.CORE_FILES_RESTORER)
-        buckets.setdefault(key, []).append(fk)
+            if name.lower().startswith(_CAMPAIGN_PREFIX):
+                name = name[len(_CAMPAIGN_PREFIX):]
+            add((group, f"{name} {suffix}"), fk)
     return buckets

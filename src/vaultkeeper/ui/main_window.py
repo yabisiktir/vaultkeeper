@@ -836,6 +836,33 @@ class MainWindow(QMainWindow):
         )
         self.nit_status.set_info(result["message"])
 
+    def offer_original_restorers(self) -> None:
+        """Offer to back up the files NWN itself installed (VB first-run question).
+
+        Asked once, when the profile is new: a mod that overwrites a game file
+        leaves nothing to put back unless its original was saved first.
+        """
+        if self.controller is None:
+            return
+        offer = self.controller.original_restorers_offer()
+        if not offer["count"]:
+            return
+        answer = QMessageBox.question(
+            self,
+            "Restorers for Neverwinter Nights files",
+            "Do you want to create Restorers for files installed by Neverwinter Nights?\n\n"
+            "Recommended so that you can restore original files that get overwritten.\n\n"
+            f"Disk space required: {offer['size']}.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        self.nit_status.set_info("Creating Restorers for installation files…")
+        result = self.controller.create_original_restorers()
+        self.refresh()
+        self.nit_status.set_info(result["message"])
+
     def offer_legacy_import(self) -> None:
         """On first run, offer to import a detected legacy NIT Store (VB auto-migrates).
 
@@ -876,7 +903,8 @@ class MainWindow(QMainWindow):
         controller = switch_profile(name)
         if controller is not None:
             self.set_controller(controller)
-            self.nit_status.set_info(f"Switched to profile '{name}'")
+            notes = " ".join(controller.startup_notes)
+            self.nit_status.set_info(f"Switched to profile '{name}'. {notes}".strip())
 
     # -- Population -------------------------------------------------------- #
     def refresh(self) -> None:

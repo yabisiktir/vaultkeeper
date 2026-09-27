@@ -801,18 +801,33 @@ class ProfileData:
             for ifk in list(self.installed_list):
                 path = self.installed_file_path(game_folders, ifk)
                 if path is None or not path.is_file():
-                    ifd = self.installed_list.pop(ifk, None)
+                    ifd = self.installed_list.get(ifk)
                     if ifd is not None:
                         self.changes.installed.removed(ifk)
+                        # VB RemoveFile: the mods that had this file are no longer
+                        # installed in it — not just the record goes.
+                        self.remove_installed_file(ifd)
                         removed += 1
             before_added = len(self.changes.installed.added_list)
             before_changed = len(self.changes.installed.changed_list)
             self.scan_installed(game_folders, root_folder_name=root_folder_name)
-            added = len(self.changes.installed.added_list) - before_added
-            changed = len(self.changes.installed.changed_list) - before_changed
+            new_keys = self.changes.installed.added_list[before_added:]
+            changed_keys = self.changes.installed.changed_list[before_changed:]
+            # Mods holding a file that appeared or changed are affected (VB), and
+            # the file's CRC is taken from disk before states are worked out —
+            # without it an added file reads 0 and matches nothing.
+            touched = {fk.file_key.lower() for fk in [*new_keys, *changed_keys]}
+            for fk in self.file_list:
+                if fk.file_key.lower() in touched:
+                    self.changes.mods.affected(fk.mod_name)
+            for ifk in [*new_keys, *changed_keys]:
+                ifd = self.installed_list.get(ifk)
+                path = self.installed_file_path(game_folders, ifk)
+                if ifd is not None and path is not None:
+                    ifd.file_crc = _safe_crc(path)
             self.update_file_states()
             self.update_mod_states()
-            return {"removed": removed, "added": added, "changed": changed}
+            return {"removed": removed, "added": len(new_keys), "changed": len(changed_keys)}
 
     def rescan_installed_state(
         self, game_folders: dict[str, Path], root_folder_name: str

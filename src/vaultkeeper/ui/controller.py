@@ -164,6 +164,8 @@ class ProfileController:
         )
 
         pd = load_profile(store_path) if store_path else None
+        # A saved profile is checked against the game when it opens (below).
+        check_game = pd is not None
         if pd is None:
             pd = ProfileData()
             pd.scan_mods(profile_mods_dir)
@@ -178,6 +180,7 @@ class ProfileController:
             # file keys but no FileList/InstalledList — rebuild install state from
             # the live game so already-installed mods show correctly (first open).
             pd.rescan_installed_state(game_folders, root_folder_name=root_folder_name)
+            check_game = False
 
         ctx = InstallContext(
             profile_mods_dir=profile_mods_dir,
@@ -189,7 +192,45 @@ class ProfileController:
             game_user_dir=game_user_dir,
             ee_user_files_dir=folder_user_dir if is_ee else None,
         )
-        return cls(pd, ctx, store_path=store_path, settings_path=settings_path)
+        controller = cls(pd, ctx, store_path=store_path, settings_path=settings_path)
+        if check_game:
+            controller._check_game_on_open()
+        return controller
+
+    def _check_game_on_open(self) -> None:
+        """Bring a saved profile up to date with the game folder (VB ``LoadProfile``).
+
+        NIT runs ``CheckInstalledFiles`` every time a profile loads, then anneals
+        the mods it affected: the game folder is shared — by other profiles, by
+        the game itself, by anything else the user runs — so what the profile
+        last saw may no longer be true. Vaultkeeper only did this from a menu
+        command, and showed a switched-to profile as it was when last closed
+        (logic audit 3a). Best-effort: a failure leaves the profile as saved.
+        """
+        from nwnfile.log import get_logger
+
+        try:
+            result = self.pd.check_installed_files(
+                self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
+            )
+            if not any(result.values()):
+                self.pd.changes.reset_changes()
+                return
+            affected = list(self.pd.changes.mods.affected_list)
+            if affected:
+                self.pd.changes.save_info()
+                self.engine.anneal(affected)
+                self.pd.changes.restore_saved_info()
+            self.pd.changes.reset_changes()
+            self.save()
+            if affected:
+                self.startup_notes.append(
+                    "The game folder changed since this profile was last open "
+                    f"({result['added']} file(s) added, {result['changed']} changed, "
+                    f"{result['removed']} removed); mods affected: {len(affected)}."
+                )
+        except Exception:
+            get_logger(__name__).exception("checking the game folder on open failed")
 
     # -- Queries ----------------------------------------------------------- #
     def groups(self) -> list[tuple[str, list[ModData]]]:
@@ -2020,6 +2061,24 @@ class ProfileController:
 
         return original_source_files(self.pd, self.ctx.mapper, is_ee=self.ctx.is_ee)
 
+    def original_restorers_offer(self) -> dict:
+        """What "Create Restorers for files installed by NWN?" would back up.
+
+        VB asks this when a profile has just been created or migrated
+        (``NIT.ProfileView``: ``ValidateOriginals`` → ``OriginalSourceFiles``),
+        showing the disk space it needs, and only when there is something to
+        back up. Returns ``{"count", "bytes", "size"}`` (``size`` for display).
+        """
+        from vaultkeeper.game.original_files import validate_originals
+
+        validate_originals(self.pd, self.ctx.mapper, is_ee=self.ctx.is_ee)
+        originals = self.original_source_files()
+        size = 0
+        for fk in originals:
+            ifd = self.pd.installed_item(fk)
+            size += ifd.byte_size if ifd is not None else 0
+        return {"count": len(originals), "bytes": size, "size": _fmt_size(size)}
+
     def create_original_restorers(self) -> dict:
         """Back up the pristine game-original files into restorer mods.
 
@@ -2040,7 +2099,21 @@ class ProfileController:
 
         validate_originals(self.pd, self.ctx.mapper, is_ee=self.ctx.is_ee)
         originals = self.original_source_files()
-        buckets = restorer_buckets(originals)
+        # VB falls back to No Group when the profile has no Restorers group; here
+        # the group is made instead, so restorers keep the priority they are
+        # designed for (ungrouped mods are the *lowest*). Deliberate.
+        restorer_group = C.RESTORER_GROUP
+        ee_keys = None
+        if self.ctx.is_ee and self.pd.original_ee_files:
+            # The bundled EE table plus what Update Enhanced Edition Files found.
+            from vaultkeeper.game.original_files import _load_table, _normalise_key
+
+            ee_keys = set(_load_table("original_ee_files.json")) | {
+                _normalise_key(k) for k in self.pd.original_ee_files
+            }
+        buckets = restorer_buckets(
+            originals, is_ee=self.ctx.is_ee, ee_keys=ee_keys, restorer_group=restorer_group
+        )
 
         created = 0
         files = 0
