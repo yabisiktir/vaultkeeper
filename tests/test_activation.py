@@ -76,3 +76,25 @@ def test_the_window_reloads_notes_edited_elsewhere(qtbot, tmp_path: Path) -> Non
     win._on_reactivated()
 
     assert win._details.toPlainText() == "edited elsewhere"
+
+
+def test_the_health_icon_follows_the_game_error_logs(qtbot, tmp_path: Path) -> None:
+    # VB HealthCheck: AR_ERROR.LOG / logs/nwclienterror1.txt with content.
+    from vaultkeeper.ui.main_window import MainWindow
+
+    c = _open(tmp_path)
+    win = MainWindow(c)
+    qtbot.addWidget(win)
+    win.show()
+    assert not win.nit_status.bt_health.isVisible()
+
+    root = c.ctx.game_folders[C.MOD_ROOT_FOLDER]
+    (root / "logs").mkdir(parents=True, exist_ok=True)
+    (root / "logs" / "nwclienterror1.txt").write_text("Error: something broke")
+    win._health_check()
+    assert win.nit_status.bt_health.isVisible()
+    assert "something broke" in c.game_error_logs()[0]["text"]
+
+    assert c.clear_game_error_logs() == 1
+    win._health_check()
+    assert not win.nit_status.bt_health.isVisible()

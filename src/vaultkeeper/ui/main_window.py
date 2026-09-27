@@ -207,9 +207,7 @@ class MainWindow(QMainWindow):
         self.nit_status.character_right_clicked.connect(self._on_characters)
         self.nit_status.select_file_right_clicked.connect(self._on_doc_organiser)
         self.nit_status.recycle_right_clicked.connect(self._on_open_recycle_bin)
-        self.nit_status.health_clicked.connect(
-            lambda: self._on_view_file("MsNwnClientLogFile")
-        )
+        self.nit_status.health_clicked.connect(self._on_health)
         # "Display details about files added, removed or changed in the NWN
         # installation folder" — its own tooltip, promising something no click
         # delivered. That report is the conflicts viewer.
@@ -228,6 +226,7 @@ class MainWindow(QMainWindow):
         if controller is not None:
             self._install_prompter()
             self.refresh()
+            self._health_check()
         else:
             self._show_empty_state()
 
@@ -656,6 +655,7 @@ class MainWindow(QMainWindow):
         self.refresh()
         self._detect_workshop_changes()
         self._notify_config_drift()
+        self._health_check()
 
     def _detect_workshop_changes(self) -> None:
         """Notice new or changed Steam subscriptions on load (VB ``newtopic20``).
@@ -1372,6 +1372,7 @@ class MainWindow(QMainWindow):
         self._activating = True
         try:
             self._reload_notes_if_changed()
+            self._health_check()
             note = self.controller.on_window_activated()
             if note:
                 self.refresh()
@@ -1380,6 +1381,31 @@ class MainWindow(QMainWindow):
             log.exception("Activation processing failed")
         finally:
             self._activating = False
+
+    def _health_check(self) -> None:
+        """Show the health icon while the game's error logs have content (VB ``HealthCheck``)."""
+        logs = []
+        if self.controller is not None:
+            try:
+                logs = self.controller.game_error_logs()
+            except Exception:
+                log.exception("Reading the game's error logs failed")
+        self.nit_status.show_health(bool(logs))
+
+    def _on_health(self) -> None:
+        if self.controller is None:
+            return
+        from vaultkeeper.ui.dialogs.error_logs import ErrorLogsDialog
+
+        logs = self.controller.game_error_logs()
+        if not logs:
+            self._health_check()
+            return
+        dlg = ErrorLogsDialog(logs, self)
+        dlg.exec()
+        if dlg.reset_requested:
+            self.controller.clear_game_error_logs()
+        self._health_check()
 
     def _notes_file_stamp(self, mod_name: str):
         try:

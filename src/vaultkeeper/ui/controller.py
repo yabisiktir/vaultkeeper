@@ -394,6 +394,37 @@ class ProfileController:
             notes.append(auto["message"])
         return " ".join(notes)
 
+    #: The game's error logs NIT watches (VB ``NIT.Monitor.HealthFiles``).
+    _HEALTH_FILES = ("AR_ERROR.LOG", "logs/nwclienterror1.txt")
+
+    def _health_log_paths(self) -> list[Path]:
+        from vaultkeeper.core import constants as C
+
+        root = self.ctx.game_folders.get(C.MOD_ROOT_FOLDER) or self.ctx.game_root
+        return [Path(root) / rel for rel in self._HEALTH_FILES]
+
+    def game_error_logs(self) -> list[dict]:
+        """Non-empty game error logs, ``[{"name", "path", "text"}]`` (VB ``HealthCheck``)."""
+        logs = []
+        for path in self._health_log_paths():
+            try:
+                if path.stat().st_size == 0:
+                    continue
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            logs.append({"name": path.name.upper(), "path": str(path), "text": text})
+        return logs
+
+    def clear_game_error_logs(self) -> int:
+        """Empty the game's error logs (VB ``ResetErrorLogs``). Returns how many."""
+        cleared = 0
+        for entry in self.game_error_logs():
+            with contextlib.suppress(OSError):
+                Path(entry["path"]).write_bytes(b"")
+                cleared += 1
+        return cleared
+
     def check_game_folder(self) -> str:
         """Check the game folders against the records and anneal (VB analyser ``BtRefresh``)."""
         result, affected = self._check_game_and_anneal()
