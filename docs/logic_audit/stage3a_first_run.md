@@ -30,3 +30,14 @@ compared by reading NIT (`NIT.ProfileView.vb`, `Settings.Profiles.vb`) against
 
 Regression tests: `tests/test_first_run_original_restorers.py`,
 `tests/test_original_files.py` (NIT grouping), `tests/test_check_game_on_open.py`.
+
+## Real-data dry run (P1, read-only, 2026-09-27)
+
+The owner's "Enhanced Edition Mods" profile, checked against the real game with
+saving, the M3 migration and the anneal's copy step disabled: 78 stale records
+dropped (65 of them `data\*.bif` recorded by an older scan from the install's
+`data`; NIT's live table maps `data` to the *user* folder too, as VK now does),
+21 files recorded as added (new PRC haks, characters, a database), 29 as changed
+(databases the game rewrote, updated PRC haks); 7 mods affected; the anneal
+would copy **nothing** (a file the game rewrote matches no mod, is "unknown",
+and is skipped — so a restorer's older database is never copied back).

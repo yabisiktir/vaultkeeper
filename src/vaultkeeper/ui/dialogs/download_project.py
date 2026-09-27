@@ -463,8 +463,10 @@ class DownloadProjectDialog(QDialog):
         folder, group = project.get("mod_folder", ""), project.get("group", "")
         if folder and not self._name_touched:
             self.mod_name_edit.setText(folder)
-        if group:
-            self.group_combo.setCurrentText(group)
+        # Never the first group in the list (that is "000.  Restorers"): the
+        # existing mod's group, the rule's, else the default group (VB).
+        name = self.mod_name_edit.text().strip() or folder
+        self.group_combo.setCurrentText(self.controller.download_group(name, group))
         held = project.get("excluded", 0)
         if held:
             self.status.setText(

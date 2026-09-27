@@ -73,8 +73,9 @@ class PlayDataSettings:
 
     play_time_mod: str = ""
     play_time: timedelta = timedelta(0)
-    #: A play session shorter than this many minutes is not recorded.
-    config_min_play_time: int = 1
+    #: A play session shorter than this many minutes is not recorded (VB
+    #: ``ConfigMinPlayTime``, 10 — a quick launch to check something is not play).
+    config_min_play_time: int = 10
     #: Play-time hours that count as one "day" in FormatDays.
     config_day_conversion_factor: int = 24
 

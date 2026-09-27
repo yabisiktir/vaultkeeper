@@ -4478,15 +4478,55 @@ class MainWindow(QMainWindow):
             return
         if not names:
             return
-        prompt = (
-            f"Remove {len(names)} mod(s) from the profile?\n"
-            "(The mod files on disk are not deleted.)"
-        )
-        if not self._confirm("Remove from Profile", prompt):
+        # VB DeleteSelectedMods: a mod others need is confirmed on its own.
+        keep = []
+        for name in names:
+            if self.controller.pd.has_dependants(name) and (
+                QMessageBox.question(
+                    self,
+                    "Delete",
+                    f"There are Mods that require {name} to work properly.\n\n"
+                    f"Do you still want to delete {name}?",
+                )
+                != QMessageBox.StandardButton.Yes
+            ):
+                keep.append(name)
+        names = [n for n in names if n not in keep]
+        if not names:
             return
-        removed = self.controller.remove_mods(names)
+        installed = [n for n in names if self.controller.pd.mod_item(n).installed]
+        settings = self.controller._settings()
+        uninstall = settings.uninstall_before_delete
+        box = QMessageBox(self)
+        box.setWindowTitle("Delete")
+        box.setIcon(QMessageBox.Icon.Question)
+        where = "the recycle bin" if settings.recycle_on_delete else "deleted permanently"
+        box.setText(
+            f"Delete {len(names)} mod(s)?\n\n"
+            f"Their folders go to {where}, and they leave the profile."
+        )
+        box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        check = None
+        if installed:
+            from PySide6.QtWidgets import QCheckBox
+
+            check = QCheckBox("Uninstall Mods before deleting them.")
+            check.setChecked(uninstall)
+            box.setCheckBox(check)
+        if (settings.confirm_actions or installed) and (
+            box.exec() != QMessageBox.StandardButton.Yes
+        ):
+            return
+        if check is not None and check.isChecked() != uninstall:
+            from vaultkeeper.config.settings import load_settings, save_settings
+
+            uninstall = check.isChecked()
+            saved = load_settings()
+            saved.uninstall_before_delete = uninstall
+            save_settings(saved)
+        result = self.controller.delete_mods(names, uninstall=uninstall)
         self.refresh()
-        self.nit_status.set_info(f"Removed {removed} mod(s) from the profile")
+        self.nit_status.set_info(result["message"])
 
     def _on_delete_groups(self, groups: list[str]) -> None:
         """Delete the selected groups and their member mods (VB DeleteSelectedGroups)."""

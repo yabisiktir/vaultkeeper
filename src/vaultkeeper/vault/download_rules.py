@@ -389,6 +389,9 @@ class DownloadRules:
     #: Mod-name prefixes to drop before searching the Vault for a title
     #: (VB ``FindLinkIgnorePrefixes``: cmp, ctp, cpp — packager initials).
     find_link_ignore_prefixes: list[str] = field(default_factory=list)
+    #: Group for downloads the rules do not place (VB ``DefaultGroup``);
+    #: ``"DefaultName"`` means the built-in "810.  Evaluating".
+    default_group: str = "DefaultName"
     #: Per-project rules, keyed by lowercased project title (see
     #: :class:`ProjectRule`). 224 of them in the published file.
     projects: dict[str, ProjectRule] = field(default_factory=dict)
@@ -501,6 +504,8 @@ class DownloadRules:
             self.api.by_fid = value
         elif name == "apisearchbytitle":
             self.api.search_by_title = value
+        elif name == "defaultgroup":
+            self.default_group = value or "DefaultName"
         elif name == "revisionnumber":
             try:
                 self.revision = int(value)

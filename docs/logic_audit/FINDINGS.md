@@ -145,6 +145,17 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | F3 | NIT writes `NWMFiles`/`SOURCEOVERRIDE`/`PATCH` aliases into nwn.ini — deliberate not to (VK better; S4 closed) |
 | F2 | Empty `userpatch.ini` at first run (NIT) vs first install (VK) — harmless |
 
+## Stage 3b — settings (details: `stage3b_settings.md`)
+
+| ID | Finding |
+|---|---|
+| B1 ✅ | BIK→WBM conversion default off (NIT on); a failed conversion dropped the movie |
+| B2 ✅ | Select-the-played-mod default off (NIT on) |
+| B3 ✅ | Minimum recorded play session 1 min (NIT 10) |
+| B4 ✅ | Delete did not uninstall, delete the folder or anneal (NIT does; installed files were orphaned) |
+| B5 ✅ | Importing a mod you have lost your group/properties, merged over the old folder, left the install stale |
+| B6 ✅ | A download with no rule group went into "000.  Restorers" (first group) instead of "810.  Evaluating" |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |

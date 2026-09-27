@@ -20,7 +20,7 @@ from typing import Any
 from vaultkeeper.app_paths import VaultStore
 from vaultkeeper.persistence.json_store import read_json, write_json
 
-SETTINGS_VERSION = 2
+SETTINGS_VERSION = 3
 
 
 def default_web_links() -> list[dict[str, str]]:
@@ -87,8 +87,10 @@ class Settings:
     #: (config-isolation principle — never sync silently).
     validate_game_config_on_startup: bool = True
     #: Convert ``.bik`` movies to ``.wbm`` when building an installer (VB
-    #: ``ProfileInfo.ConvertBikFiles``; NWN:EE plays WebM, not Bink).
-    convert_bik_files: bool = False
+    #: ``BehaviourConvertBik`` → ``ProfileInfo.ConvertBikFiles``; NWN:EE plays
+    #: WebM, not Bink). On by default as in NIT; applies to EE profiles only, and
+    #: only when a converter is available (otherwise the .bik is kept as it is).
+    convert_bik_files: bool = True
     #: Automatically install a mod right after building its installer (VB
     #: install-after-create behaviour).
     install_after_create: bool = False
@@ -113,8 +115,8 @@ class Settings:
     #: this is what puts it back.
     installer_restore: bool = True
     #: Select the mod being played in the list when you press Play Neverwinter Nights
-    #: (VB ``BehaviourSelectGameMod``).
-    select_game_mod: bool = False
+    #: (VB ``BehaviourSelectGameMod``; on by default, as in NIT).
+    select_game_mod: bool = True
     #: Copy the mod name to the clipboard when starting a new Neverwinter Nights game
     #: (VB ``ConfigCopyOnPlay``).
     copy_mod_name_on_play: bool = False
@@ -199,8 +201,15 @@ class Settings:
     #: also toggled by clicking the Properties heading).
     auto_properties_height: bool = False
     #: Move mods added from files/paste into the default group instead of leaving
-    #: them ungrouped (VB ``BehaviourMoveAddedMods``).
+    #: them ungrouped. Vaultkeeper's own: NIT's similarly named
+    #: BehaviourMoveAddedMods is the move-or-copy choice (``use_move_on_add``).
     move_added_mods: bool = False
+    #: Keep your own rating, best weapon, levels, henchmen and web link for a mod
+    #: you already have when importing its export (VB ``BehaviourRetainProperties``).
+    retain_properties_on_import: bool = True
+    #: Uninstall installed mods before deleting them (VB ``BehaviourUninstallDeletes``,
+    #: "Uninstall Mods before deleting them"; the Delete confirmation's checkbox).
+    uninstall_before_delete: bool = True
     #: When adding files to a mod, or making mods from archives (whose archive is
     #: kept in the new mod's ``_Downloads``), move them rather than copy (VB v8
     #: ``BehaviourMoveAddedMods``, "Use Move (rather than Copy) when adding files";
@@ -382,10 +391,16 @@ def _migrate(data: dict[str, Any]) -> dict[str, Any]:
       NIT's ``BehaviourInstallerRestore`` is True). Every field is saved, so the
       wrong default sits in every existing file; turn it on once. Someone who had
       switched it off deliberately can switch it off again.
+    * **2 → 3**: two more defaults ported wrong (logic audit 3b):
+      ``convert_bik_files`` (NIT ``BehaviourConvertBik`` True) and
+      ``select_game_mod`` (NIT ``BehaviourSelectGameMod`` True).
     """
     version = int(data.get("version", SETTINGS_VERSION))
     if version < 2:
         data["installer_restore"] = True
+    if version < 3:
+        data["convert_bik_files"] = True
+        data["select_game_mod"] = True
     data["version"] = max(version, SETTINGS_VERSION) if version else SETTINGS_VERSION
     return data
 

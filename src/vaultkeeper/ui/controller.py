@@ -8,6 +8,7 @@ the whole app flow testable without Qt.
 
 from __future__ import annotations
 
+import contextlib
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
@@ -1119,6 +1120,69 @@ class ProfileController:
         else:
             campaign = ""
         return {"dependants": dependants, "campaign": campaign}
+
+    def delete_mods(self, names: list[str], *, uninstall: bool = True) -> dict:
+        """Delete mods as NIT's Delete does (VB ``DeleteSelectedMods`` + ``RemoveMods``).
+
+        Installed ones are uninstalled first when ``uninstall`` (VB
+        ``BehaviourUninstallDeletes``, on by default) — otherwise their files stay
+        in the game owned by nothing. The mod folders then go to the recycle bin
+        (or are deleted, per the recycle setting), the mods leave the profile and
+        other mods' dependency lists (VB ``ModDeleted``), and the mods that shared
+        their files are annealed so the right copy is in the game. Returns
+        ``{"deleted", "uninstalled", "failed", "message"}``.
+        """
+        from vaultkeeper.core import fs
+
+        names = [n for n in names if (m := self.pd.mod_item(n)) is not None and not m.is_group_item]
+        removing = {n.lower() for n in names}
+        installed = [n for n in names if self.pd.mod_item(n).installed]
+        message = ""
+        if uninstall and installed:
+            message = self.uninstall(installed)
+
+        anneals: list[str] = []
+        for name in names:
+            for fk in self.pd.mod_item(name).files:
+                ifd = self.pd.installed_item(fk.installed_key)
+                if ifd is None:
+                    continue
+                for cfk in ifd.mod_file_conflicts:
+                    if cfk.mod_name.lower() not in removing and cfk.mod_name not in anneals:
+                        anneals.append(cfk.mod_name)
+
+        to_trash = bool(self._settings().recycle_on_delete)
+        deleted: list[str] = []
+        failed: list[str] = []
+        for name in names:
+            folder = self.ctx.profile_mods_dir / name
+            try:
+                if folder.exists():
+                    fs.delete(folder, to_trash=to_trash, missing_ok=True)
+            except OSError:
+                failed.append(name)
+                continue
+            self.pd.remove_mod(name)
+            for md in self.pd.mod_list.values():
+                md.dependencies[:] = [d for d in md.dependencies if d.lower() != name.lower()]
+            deleted.append(name)
+
+        if anneals:
+            self.engine.anneal(anneals)
+        self.save()
+        parts = [f"Deleted {len(deleted)} mod(s)."]
+        if uninstall and installed:
+            parts.append(message)
+        elif installed:
+            parts.append(f"{len(installed)} were installed and left in the game.")
+        if failed:
+            parts.append(f"Could not delete: {', '.join(failed)}.")
+        return {
+            "deleted": deleted,
+            "uninstalled": installed if uninstall else [],
+            "failed": failed,
+            "message": " ".join(p for p in parts if p),
+        }
 
     def remove_mods(self, names: list[str]) -> int:
         """Remove mod definitions from the profile; return how many were removed."""
@@ -2826,11 +2890,18 @@ class ProfileController:
         return False
 
     def _convert_bik_files(self) -> bool:
-        """The profile's BIK→WBM preference (VB ``ProfileInfo.ConvertBikFiles``)."""
+        """Whether this build converts BIK movies (VB ``ProfileInfo.ConvertBikFiles``).
+
+        ``Edition = EE AndAlso BehaviourConvertBik`` in NIT; also only when a
+        converter is available here, because a movie collected for conversion
+        that cannot be converted would otherwise be left out of the installer.
+        """
         from vaultkeeper.config.settings import load_settings
 
         settings = load_settings(self._settings_path)
-        return bool(getattr(settings, "convert_bik_files", False))
+        if not (self.ctx.is_ee and getattr(settings, "convert_bik_files", False)):
+            return False
+        return bool(self._bik_converter().available)
 
     def _wizard_ignore_paths(
         self,
@@ -3000,13 +3071,20 @@ class ProfileController:
         from vaultkeeper.core import fs
 
         converter = self._bik_converter()
-        if not converter.available:
-            return 0
         converted = 0
         for bik in bik_files:
             wbm_name = f"{bik.stem}.wbm"
             wbm_tmp = work_dir / "wbm" / wbm_name
-            if not converter.convert(bik, wbm_tmp):
+            if not converter.available or not converter.convert(bik, wbm_tmp):
+                # Keep the movie as it came rather than leave it out of the
+                # installer: a Bink the game cannot play is still the file the
+                # user has, and a failed conversion must not lose it.
+                folder = self.ctx.mapper.get_mapped_folder(bik.name)
+                if folder:
+                    dest = installer / folder / bik.name
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    with contextlib.suppress(OSError):
+                        fs.copy_file(bik, dest, overwrite=True)
                 continue
             folder = self.ctx.mapper.get_mapped_folder(wbm_name)
             if not folder:
@@ -3714,10 +3792,23 @@ class ProfileController:
           between machines is to end up with both machines' history.
 
         The mod's group is created if this profile does not have it.
+
+        For a mod this profile already has, as VB does: **your group wins** over
+        the exported one; **your properties** (rating, best weapon, levels,
+        henchmen, web link) are kept when set, unless "Retain your existing Mod
+        Properties when importing Mods" is off (VB ``BehaviourRetainProperties``);
+        the old folder goes to the recycle bin before the import is unpacked, so
+        files the new export no longer has do not linger; and an installed mod is
+        uninstalled first and reinstalled from the imported files.
         """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+        from vaultkeeper.core.state import Ratings, Weapon
         from vaultkeeper.game.mod_transfer import describe, extract
         from vaultkeeper.persistence.profile_store import _mod_from_dict
 
+        retain = bool(self._settings().retain_properties_on_import)
+        reinstall: list[str] = []
         imported, failed = [], []
         for path in paths:
             info = describe(path)
@@ -3733,6 +3824,20 @@ class ProfileController:
             # Read this machine's play times *before* extracting: the archive
             # carries the other machine's file and would otherwise replace them.
             local_times = self._read_play_times(info.mod_name)
+            if existing is not None:
+                if existing.installed:
+                    self.engine.uninstall_files(list(existing.files))
+                    reinstall.append(info.mod_name)
+                try:
+                    if folder.exists():
+                        fs.delete(
+                            folder,
+                            to_trash=bool(self._settings().recycle_on_delete),
+                            missing_ok=True,
+                        )
+                except OSError as exc:
+                    failed.append((path.name, f"could not replace the old folder: {exc}"))
+                    continue
             try:
                 record, notes = extract(path, folder)
             except (OSError, ValueError) as exc:
@@ -3749,6 +3854,17 @@ class ProfileController:
             if existing is not None:
                 md.date_completed = existing.date_completed
                 md.completed_count = existing.completed_count
+                md.group = existing.group
+                if retain:
+                    if existing.rating != Ratings.NONE:
+                        md.rating = existing.rating
+                    if existing.best_weapon != Weapon.NONE:
+                        md.best_weapon = existing.best_weapon
+                    for name in ("level_start", "level_end", "hench_count"):
+                        if getattr(existing, name) != C.NULL_VALUE:
+                            setattr(md, name, getattr(existing, name))
+                    if existing.web_link:
+                        md.web_link = existing.web_link
             else:
                 from datetime import datetime
 
@@ -3771,6 +3887,13 @@ class ProfileController:
             self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
             imported.append(info.mod_name)
 
+        # Recompute states with the imported files' checksums, then put back
+        # what was installed before (VB InstallFiles of the reinstall list).
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        again = [n for n in reinstall if n in imported]
+        if again:
+            self.engine.install_files(self.mod_files(again), again)
         if imported:
             self.save()
         message = f"Imported {len(imported):,} mod(s)."
@@ -4204,6 +4327,30 @@ class ProfileController:
             required = source.fetch_required_projects(url)
             title = files[0].project_title if files else ""
         return self._apply_project_rules(title, files, required, only_files=only_files)
+
+    def download_group(self, mod_folder: str, rule_group: str = "") -> str:
+        """The group a downloaded project goes in (VB ``PopulateProject``).
+
+        A mod that already exists keeps its group; otherwise the rule's group;
+        otherwise the default group — yours if you set one, else the rules'
+        ``DefaultGroup`` ("DefaultName" = "810.  Evaluating", VB
+        ``DefaultGroupName``).
+        """
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(mod_folder) if mod_folder else None
+        if md is not None and not md.is_group_item and md.group:
+            return md.group
+        if rule_group:
+            return rule_group
+        own = (self._settings().default_group or "").strip()
+        if own:
+            return own
+        try:
+            configured = self.download_rules(network=False).default_group
+        except Exception:
+            configured = "DefaultName"
+        return C.DEFAULT_GROUP if configured in ("", "DefaultName") else configured
 
     def _game_rule(self, title: str):
         """The published rule for a project, settled for this profile's game.
