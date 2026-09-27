@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from pathlib import PurePath
 
 from nwnfile.log import get_logger
-from PySide6.QtCore import QSignalBlocker, Qt, QUrl
+from PySide6.QtCore import QEvent, QSignalBlocker, Qt, QTimer, QUrl
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -1345,6 +1345,59 @@ class MainWindow(QMainWindow):
             self._mod_info.setText("")
             self._update_played_info(None)
 
+    # -- Window activation (VB NIT.Monitor OnActivated) ------------------- #
+    def changeEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        super().changeEvent(event)
+        if event.type() != QEvent.Type.ActivationChange:
+            return
+        if not self.isActiveWindow():
+            self._was_deactivated = True
+            return
+        # Coming back from another program; startup already did this work.
+        if getattr(self, "_was_deactivated", False):
+            self._was_deactivated = False
+            QTimer.singleShot(0, self._on_reactivated)
+
+    def _on_reactivated(self) -> None:
+        """Pick up what other programs changed (VB ``ActivatedEventProcessing``)."""
+        from PySide6.QtWidgets import QApplication
+
+        if (
+            self.controller is None
+            or QApplication.activeModalWidget() is not None
+            or getattr(self, "_game_process", None) is not None
+            or getattr(self, "_activating", False)
+        ):
+            return
+        self._activating = True
+        try:
+            self._reload_notes_if_changed()
+            note = self.controller.on_window_activated()
+            if note:
+                self.refresh()
+                self.nit_status.set_info(note)
+        except Exception:
+            log.exception("Activation processing failed")
+        finally:
+            self._activating = False
+
+    def _notes_file_stamp(self, mod_name: str):
+        try:
+            return self.controller.mod_notes_path(mod_name).stat().st_mtime_ns
+        except (OSError, AttributeError):
+            return None
+
+    def _reload_notes_if_changed(self) -> None:
+        """Reload notes another program edited, unless they are being edited here."""
+        mod = self._notes_mod
+        if mod is None or self._details.document().isModified():
+            return
+        stamp = self._notes_file_stamp(mod)
+        if stamp is not None and stamp != getattr(self, "_notes_stamp", None):
+            self._details.setPlainText(self.controller.read_notes(mod))
+            self._details.document().setModified(False)
+            self._notes_stamp = stamp
+
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Persist unsaved notes, where they were left, and the geometry."""
         self._save_current_notes()
@@ -1831,6 +1884,7 @@ class MainWindow(QMainWindow):
         if self.controller is not None:
             self._details.setPlainText(self.controller.read_notes(md.mod_name))
         self._details.document().setModified(False)
+        self._notes_stamp = self._notes_file_stamp(md.mod_name)
         self._restore_notes_position(md.mod_name)
 
     def _remember_notes_position(self) -> None:
@@ -1911,6 +1965,7 @@ class MainWindow(QMainWindow):
             return
         self.controller.save_notes(self._notes_mod, self._details.toPlainText())
         self._details.document().setModified(False)
+        self._notes_stamp = self._notes_file_stamp(self._notes_mod)
 
     def _confirm_save_notes(self, mod_name: str) -> bool:
         """Ask whether to save edited mod notes (VB BehaviourConfirmSaves). True = save."""

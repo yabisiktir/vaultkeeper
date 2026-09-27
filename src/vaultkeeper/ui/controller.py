@@ -235,6 +235,8 @@ class ProfileController:
             # VB HakPatchManager.New on every load: new patch haks → rebuild the INI.
             with contextlib.suppress(OSError):
                 controller._hpm.refresh_on_load()
+        # The baseline for on_window_activated's change check.
+        controller._mods_signature = controller._mods_folder_signature()
         return controller
 
     def _update_ee_files_after_game_update(self) -> None:
@@ -331,6 +333,66 @@ class ProfileController:
                 )
         except Exception:
             get_logger(__name__).exception("checking the game folder on open failed")
+
+    def _mods_folder_signature(self) -> tuple:
+        """Folder timestamps that change when anything is added, removed or renamed
+        in the profile's mod folders (what NIT's file-system watcher reacts to)."""
+        from vaultkeeper.core import constants as C
+
+        stamps: list[tuple[str, int]] = []
+
+        def stamp(path: Path) -> None:
+            with contextlib.suppress(OSError):
+                stamps.append((str(path), path.stat().st_mtime_ns))
+
+        root = self.ctx.profile_mods_dir
+        stamp(root)
+        try:
+            mods = [p for p in root.iterdir() if p.is_dir()]
+        except OSError:
+            mods = []
+        for mod in mods:
+            stamp(mod)
+            installer = mod / C.MOD_INSTALLER_DIR
+            if installer.is_dir():
+                stamp(installer)
+                with contextlib.suppress(OSError):
+                    for sub in installer.iterdir():
+                        if sub.is_dir():
+                            stamp(sub)
+        return tuple(sorted(stamps))
+
+    def on_window_activated(self) -> str:
+        """What NIT does when its window is activated again (VB ``ActivatedEventProcessing``).
+
+        Changes another program made in the mod folders are taken in (NIT's
+        watcher; here a folder-timestamp check, then the Validate Mods resync);
+        new patch haks rebuild the patch INI; the Auto restorers run. Returns a
+        note for the status bar ("" when nothing changed).
+        """
+        notes: list[str] = []
+        signature = self._mods_folder_signature()
+        if signature != getattr(self, "_mods_signature", None):
+            known = getattr(self, "_mods_signature", None) is not None
+            self._mods_signature = signature
+            if known:
+                result = self.pd.validate_mod_and_file_data(
+                    self.ctx.profile_mods_dir, self.ctx.game_folders
+                )
+                self.save()
+                self._mods_signature = self._mods_folder_signature()
+                if any(result.values()):
+                    notes.append(
+                        "Detected changes made by another program: mods added "
+                        f"{result['mods_added']}, installer files added "
+                        f"{result['files_added']}, removed {result['files_removed']}."
+                    )
+        with contextlib.suppress(OSError):
+            self._hpm.refresh_on_load()
+        auto = self.run_auto_restorers()
+        if auto["message"]:
+            notes.append(auto["message"])
+        return " ".join(notes)
 
     def check_game_folder(self) -> str:
         """Check the game folders against the records and anneal (VB analyser ``BtRefresh``)."""
