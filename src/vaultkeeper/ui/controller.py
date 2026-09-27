@@ -4323,6 +4323,79 @@ class ProfileController:
             return []
         return superseded(existing, list(incoming))
 
+    #: NIT leaves the CEP 2 wizard alone when downloads change (VB definition
+    #: ``CepWizardTitle``): CEP's parts are named so that a rename would break it.
+    CEP_WIZARD_TITLE = "CEP v2.x Installer Wizard"
+
+    def wizard_update_for_download(
+        self, mod_name: str, downloaded: list[str], replaced: list
+    ) -> dict | None:
+        """The mod's wizard with old file names swapped for new ones (VB ``UpdateWizard``).
+
+        When a download replaces older files, a wizard that names the old ones
+        would offer choices that no longer exist, and the new file would be
+        installed without being asked about. NIT rewrites the entries: an old
+        name sharing the new file's version stem (``mymod_v1_2`` for
+        ``mymod_v1_3``) or its dated name is replaced — unless the wizard already
+        names the new file. Returns ``{"source", "text"}`` — ``"file"`` for the
+        mod's own wizard, ``"rules"`` for one from the download rules (NIT asks
+        before saving that as the mod's own) — or None when nothing changes.
+        """
+        import re
+
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.wizard import convert_to_text
+        from vaultkeeper.vault.old_downloads import date_stem, version_stem
+
+        md = self.pd.mod_item(mod_name)
+        if md is None or md.is_group_item or not downloaded or not replaced:
+            return None
+        wizard_file = self.ctx.profile_mods_dir / mod_name / C.WIZARD_FILE
+        if wizard_file.is_file():
+            try:
+                text = wizard_file.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                return None
+            source = "file"
+        else:
+            info = self.rule_wizard(mod_name)
+            if info is None or info.title == self.CEP_WIZARD_TITLE:
+                return None
+            text = convert_to_text(info)
+            source = "rules"
+
+        old_names = [Path(p).name for p in replaced]
+        updated = text
+        for new in (Path(n).name for n in downloaded):
+            stem = version_stem(new).lower()
+            if new.lower() not in text.lower():
+                for old in old_names:
+                    if old.lower().startswith(stem):
+                        updated = re.sub(
+                            re.escape(old), lambda _m, n=new: n, updated, flags=re.IGNORECASE
+                        )
+            dated = date_stem(new)
+            if dated:
+                for old in old_names:
+                    if date_stem(old) == dated:
+                        updated = updated.replace(old, new)
+                        break
+        if updated == text:
+            return None
+        return {"source": source, "text": updated}
+
+    def save_wizard_text(self, mod_name: str, text: str) -> bool:
+        """Write ``text`` as the mod's wizard file; True on success."""
+        from vaultkeeper.core import constants as C
+
+        try:
+            (self.ctx.profile_mods_dir / mod_name / C.WIZARD_FILE).write_text(
+                text, encoding="utf-8"
+            )
+        except OSError:
+            return False
+        return True
+
     def remove_old_downloads(
         self, paths: list, *, to_history: bool = False, to_trash: bool | None = None
     ) -> dict:

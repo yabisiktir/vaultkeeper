@@ -784,10 +784,37 @@ class DownloadProjectDialog(QDialog):
         dlg = OldDownloadsDialog(mod, old, self)
         if dlg.exec() != QDialog.DialogCode.Accepted or not dlg.action:
             return
+        self._update_wizard(mod, names, dlg.checked_paths())
         result = self.controller.remove_old_downloads(
             dlg.checked_paths(), to_history=dlg.action == "history"
         )
         self.status.setText(f"{self.status.text()} {result['message']}")
+
+    def _update_wizard(self, mod: str, downloaded: list[str], replaced: list) -> None:
+        """Point the mod's wizard at the new file names (VB ``UpdateWizard``).
+
+        A wizard file of the mod's own is updated without asking; one that comes
+        from the download rules is saved as the mod's own only if the user agrees,
+        as NIT asks.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        update = self.controller.wizard_update_for_download(mod, downloaded, replaced)
+        if update is None:
+            return
+        if update["source"] == "rules":
+            answer = QMessageBox.question(
+                self,
+                "Download Project",
+                f"The Download Rules Wizard for {mod} uses an old file name instead "
+                "of the one you downloaded.\n\nDo you want to create an updated "
+                "Wizard?  (Recommended)",
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        if self.controller.save_wizard_text(mod, update["text"]):
+            verb = "created" if update["source"] == "rules" else "updated"
+            self.status.setText(f"{self.status.text()} {mod} Wizard {verb}.")
 
     def closeEvent(self, event) -> None:
         """Refuse to close mid-job — the signals would arrive at a deleted dialog."""

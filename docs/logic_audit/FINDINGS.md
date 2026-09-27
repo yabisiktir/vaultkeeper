@@ -101,10 +101,12 @@ inside an archive (`aribeth_4.7z\override_1.79.8191+`, used by many rule
 wizards) could never match, because VK extracted archives into `x0000` folders;
 archives now extract into a folder named after the archive, as NIT's
 `ExtractedZips`, and the ignore list accepts folders. Verified with real 7-Zip.
-**Still missing (new, lower impact):** NIT's download-time `UpdateWizard`, which
-renames a wizard's file entries when a newer download replaces an older file
-(and offers to save an updated copy of a rules wizard). VK has no equivalent for
-wizard files either.
+**Fixed too (tenth batch):** NIT's download-time `UpdateWizard` — when Download
+Project retires or deletes files a new download replaces, the wizard's entries
+that name them are rewritten (same version stem or dated name), the mod's own
+wizard silently, a rules wizard saved as the mod's own only after asking; the
+CEP 2 wizard is left alone. `ProfileController.wizard_update_for_download`,
+`tests/test_wizard_update_on_download.py`.
 
 **Fixed (sixth batch):** `DownloadRules` now reads every per-project field NIT
 reads and the file-wide exclusion tables. Game-dependent lines are kept aside
