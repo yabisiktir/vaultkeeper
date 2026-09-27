@@ -137,6 +137,28 @@ def test_original_source_files_excludes_mod_owned(tmp_path):
     assert original_source_files(ctrl.pd, ctrl.ctx.mapper, is_ee=True) == []
 
 
+def test_original_source_files_includes_a_stale_original_restorer_copy(tmp_path):
+    # VB OriginalSourceFile: held by an original restorer whose copy differs.
+    from vaultkeeper.core.file_data import FileData
+    from vaultkeeper.core.mod_data import ModData
+
+    ctrl = _controller(tmp_path)
+    table = original_crc_table(is_ee=True)
+    restorer = C.CORE_FILES_RESTORER
+    ctrl.pd.add_mod(ModData(group=C.RESTORER_GROUP, mod_name=restorer))
+    fk = FileKeyInfo(C.RESTORER_GROUP, restorer, "nwn", "dialog.tlk")
+    ctrl.pd.add_file(FileData(key=fk, file_state=State.INSTALLED, extension=".tlk", file_crc=1))
+    _install_original(
+        ctrl.pd, "nwn", "dialog.tlk", table["nwn/dialog.tlk"], installer=restorer
+    )
+
+    names = {k.filename for k in original_source_files(ctrl.pd, ctrl.ctx.mapper, is_ee=True)}
+    assert "dialog.tlk" in names
+
+    ctrl.pd.file_list[fk].file_crc = table["nwn/dialog.tlk"]
+    assert original_source_files(ctrl.pd, ctrl.ctx.mapper, is_ee=True) == []
+
+
 def test_validate_originals_relabels_unknown(tmp_path):
     ctrl = _controller(tmp_path)
     table = original_crc_table(is_ee=True)

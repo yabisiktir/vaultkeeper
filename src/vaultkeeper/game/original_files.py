@@ -119,7 +119,20 @@ def original_source_files(pd, mapper, *, is_ee: bool) -> list[FileKeyInfo]:
             continue
         if ifd.installer == C.INSTALLER_ORIGINAL or ifd.installer not in mod_names:
             result.append(fk)
+        elif ifd.installer.lower() in _ORIGINAL_RESTORERS:
+            # Held by an original restorer whose copy is not this file: NIT backs
+            # it up again (VB OriginalSourceFile's last branch).
+            owner = pd.mod_item(ifd.installer)
+            held = pd.file_item(FileKeyInfo(owner.group, owner.mod_name, fk.folder, fk.filename))
+            if held is None or (int(held.file_crc) & _MASK) != (int(ifd.file_crc) & _MASK):
+                result.append(fk)
     return result
+
+
+_ORIGINAL_RESTORERS = frozenset(
+    n.lower()
+    for n in (C.CORE_FILES_RESTORER, C.INI_FILES_RESTORER, C.CHARACTER_FILES_RESTORER)
+)
 
 
 def validate_originals(pd, mapper, *, is_ee: bool) -> int:
