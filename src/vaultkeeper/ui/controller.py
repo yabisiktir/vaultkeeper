@@ -3966,6 +3966,29 @@ class ProfileController:
         except OSError:
             return ""
 
+    def read_notes_document(self, mod_name: str) -> list:
+        """The mod's notes with their formatting (VB ``RtModNotes`` rich text)."""
+        from vaultkeeper.core.rich_rtf import read_rich_rtf
+
+        path = self.mod_notes_path(mod_name)
+        if not path.is_file():
+            return []
+        try:
+            return read_rich_rtf(path.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            return []
+
+    def save_notes_document(self, mod_name: str, paragraphs: list) -> None:
+        """Write formatted notes as RTF a Windows RichTextBox opens (deleted when empty)."""
+        from vaultkeeper.core.rich_rtf import write_rich_rtf
+
+        path = self.mod_notes_path(mod_name)
+        if not any(p.text.strip() for p in paragraphs):
+            path.unlink(missing_ok=True)
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(write_rich_rtf(paragraphs), encoding="utf-8")
+
     def save_notes(self, mod_name: str, text: str) -> None:
         """Write the mod's notes as an RTF file (deleting it when empty)."""
         from vaultkeeper.core.rtf import write_rtf

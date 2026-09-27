@@ -40,6 +40,7 @@ from vaultkeeper.ui.file_view import ContentsView, FileView
 from vaultkeeper.ui.menu_bar import NitMenuBar
 from vaultkeeper.ui.quick_toolbar import QuickToolbar
 from vaultkeeper.ui.ribbon import Ribbon
+from vaultkeeper.ui.rich_notes import fill_notes, notes_paragraphs
 from vaultkeeper.ui.status_bar import (
     SELECT_HISTORY,
     SELECT_PLAY_TIME,
@@ -153,9 +154,20 @@ class MainWindow(QMainWindow):
         sc_contents.setStretchFactor(0, 3)
         sc_contents.setStretchFactor(1, 1)
 
+        # The notes pane with its formatting bar (VB RtModNotes is rich text).
+        from vaultkeeper.ui.rich_notes import NotesFormatBar
+
+        notes_panel = QWidget()
+        notes_layout = QVBoxLayout(notes_panel)
+        notes_layout.setContentsMargins(0, 0, 0, 0)
+        notes_layout.setSpacing(0)
+        self._notes_bar = NotesFormatBar(self._details, notes_panel)
+        notes_layout.addWidget(self._notes_bar)
+        notes_layout.addWidget(self._details)
+
         sc_details = QSplitter(Qt.Orientation.Vertical)
         sc_details.addWidget(self._details_list)
-        sc_details.addWidget(self._details)
+        sc_details.addWidget(notes_panel)
         sc_details.setStretchFactor(0, 2)
         sc_details.setStretchFactor(1, 3)
 
@@ -1420,7 +1432,7 @@ class MainWindow(QMainWindow):
             return
         stamp = self._notes_file_stamp(mod)
         if stamp is not None and stamp != getattr(self, "_notes_stamp", None):
-            self._details.setPlainText(self.controller.read_notes(mod))
+            fill_notes(self._details, self.controller.read_notes_document(mod))
             self._details.document().setModified(False)
             self._notes_stamp = stamp
 
@@ -1908,7 +1920,7 @@ class MainWindow(QMainWindow):
         self._save_current_notes()
         self._notes_mod = md.mod_name
         if self.controller is not None:
-            self._details.setPlainText(self.controller.read_notes(md.mod_name))
+            fill_notes(self._details, self.controller.read_notes_document(md.mod_name))
         self._details.document().setModified(False)
         self._notes_stamp = self._notes_file_stamp(md.mod_name)
         self._restore_notes_position(md.mod_name)
@@ -1989,7 +2001,9 @@ class MainWindow(QMainWindow):
             # The user declined: discard the edit rather than save it.
             self._details.document().setModified(False)
             return
-        self.controller.save_notes(self._notes_mod, self._details.toPlainText())
+        self.controller.save_notes_document(
+            self._notes_mod, notes_paragraphs(self._details.document())
+        )
         self._details.document().setModified(False)
         self._notes_stamp = self._notes_file_stamp(self._notes_mod)
 
