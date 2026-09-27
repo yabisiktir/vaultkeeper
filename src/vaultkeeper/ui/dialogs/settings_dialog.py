@@ -460,6 +460,26 @@ class SettingsDialog(QDialog):
         self.move_added_mods.setChecked(settings.move_added_mods)
         form.addRow(self.move_added_mods)
 
+        # VB ConfigSavesThreshold / ConfigWizardFileThreshold.
+        self.saves_threshold = QSpinBox()
+        self.saves_threshold.setRange(1, 100_000)
+        self.saves_threshold.setValue(settings.saves_threshold)
+        self.saves_threshold.setToolTip(
+            "After a game session, warn when the saves folder holds more saves\n"
+            "than this: the game slows down with many saves."
+        )
+        form.addRow("Warn about game saves above:", self.saves_threshold)
+
+        self.wizard_file_threshold = QSpinBox()
+        self.wizard_file_threshold.setRange(1, 10_000_000)
+        self.wizard_file_threshold.setSingleStep(1000)
+        self.wizard_file_threshold.setValue(settings.wizard_file_threshold)
+        self.wizard_file_threshold.setToolTip(
+            "The Wizard Builder warns before listing more files than this\n"
+            "in its Archive Folder Files view."
+        )
+        form.addRow("Wizard Builder file warning above:", self.wizard_file_threshold)
+
         self.use_move_on_add = QCheckBox(
             "Use Move (rather than Copy) when adding files"
         )
@@ -1291,6 +1311,8 @@ class SettingsDialog(QDialog):
         settings.startup_sound = self.startup_sound.isChecked()
         settings.default_group = self.default_group.text().strip()
         settings.move_added_mods = self.move_added_mods.isChecked()
+        settings.saves_threshold = self.saves_threshold.value()
+        settings.wizard_file_threshold = self.wizard_file_threshold.value()
         settings.use_move_on_add = self.use_move_on_add.isChecked()
         settings.manage_steam_workshop = self.manage_steam_workshop.isChecked()
         settings.confirm_actions = self.confirm_actions.isChecked()

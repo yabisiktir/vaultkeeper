@@ -439,3 +439,19 @@ def test_use_move_preference_round_trips(qtbot):
     dlg.use_move_on_add.setChecked(False)
     dlg.apply_to(settings)
     assert settings.use_move_on_add is False
+
+
+def test_the_two_thresholds_are_editable(qtbot) -> None:
+    # VB ConfigSavesThreshold / ConfigWizardFileThreshold were honoured but not editable.
+    settings = Settings(saves_threshold=700, wizard_file_threshold=15000)
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    assert dlg.saves_threshold.value() == 700
+    dlg.saves_threshold.setValue(250)
+    dlg.wizard_file_threshold.setValue(40000)
+
+    out = Settings()
+    dlg.apply_to(out)
+
+    assert out.saves_threshold == 250
+    assert out.wizard_file_threshold == 40000
