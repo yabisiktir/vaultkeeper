@@ -134,6 +134,17 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | N1 ✅ | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — fixed: `core/mod_names.mod_name_from_file` ports `ModNameFromFile`'s word rules for raw names (underscores or no capitals) and leaves clean names alone. Checked with the harness `modname` query on 26 names: 23 identical to NIT; the 3 others are deliberate (NIT's "MIX of Things", "Tales of Arterra ( EE)", "CEP V2.x"). Applies to archives; a pasted *folder* keeps its name (its installer identifier carries it). |
 | M2 ✅ | `nitconfig` folders always excluded — verified harmless and kept (VK-better): the only files there are identifiers. The mod's own identifier is written by the build anyway; a foreign `.nitins`/`.nitres` that NIT would copy into the installer would mark that other mod installed (or make this mod look like a restorer) whenever this one is installed. Pinned by `tests/test_installer_nitconfig_source.py`. |
 
+## Stage 1c follow-up — download selection (details: `stage1_findings.md`)
+
+NIT's real Download Project form vs Vaultkeeper on 23 projects: 19 → 21
+identical; the other two differ only by a NIT artefact (R13).
+
+| ID | Finding |
+|---|---|
+| R10 ✅ | Redirects not applied to prerequisites (superseded Abyss Tileset offered) |
+| R11 ✅ | Rule-added prerequisites named (and foldered) from their URL |
+| R12 ✅ | Prerequisites added by a prerequisite's rule not followed |
+
 ## Stage 3a — first run, profiles, INI (details: `stage3a_first_run.md`)
 
 | ID | Finding |
@@ -256,8 +267,6 @@ layouts.
 
 ## Still open
 
-- Stage 1c follow-up: replay recorded Vault responses to both apps' download
-  selection (which files each offers) for the R-findings' projects.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Owner decision: mod notes are edited as plain text, so editing a note NIT
   formatted drops its formatting (3i N4).

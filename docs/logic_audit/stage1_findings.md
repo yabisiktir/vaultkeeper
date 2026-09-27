@@ -85,10 +85,34 @@ uses". Measured on the live rules: NIT 239 projects, VK 227.
 | R7 | NIT decodes `’` in one prerequisite URL as U+FFFD; VK decodes cp1252 correctly. | 1 | VK better |
 | R8 | Coldhearth exclude list differs in content (to inspect). | 1 | **VERIFY** |
 
-Next for 1c: these are parse-level results. Stage 2 should run the *download
-selection* itself (which files each app offers/ticks for a project) on a few of
-the affected projects, with the Vault responses recorded once and replayed to
-both apps (no repeated downloads, no disk cost).
+### 1c follow-up — download selection (DONE)
+
+Method: the harness's `vault-select` query drives NIT's **real Download Project
+form** (set the URL, `RetrieveProject`, read `LvProject` and `LvRequirements`);
+`stage1/vault_select_vk.py` asks Vaultkeeper's `fetch_vault_project` +
+`expand_prerequisites` the same thing, isolated from the real store. Both query the
+live Vault API in the same session (the answers are small JSON; no files are
+downloaded). `compare_vault_select.py` compares, per project: mod folder, group,
+offered files, prerequisite projects and their offered files. 23 projects,
+chosen to cover every rule feature (edition blocks, whitelists,
+`IncludeExtensions`, `RequiredFiles From`, `IgnoreExcludes`, `ExcludeDirectLinks`,
+`ExcludeRequiredProjects`, `ExcludeFiles From`) plus plain ones.
+Run: `stage1/run_nit_select.sh OUT` and
+`vault_select_vk.py select vault_select_urls.txt > vk.tsv`.
+
+First run: 19 of 23 identical (every main project's files, folder and group
+matched: the R-fixes hold end to end).
+
+| # | Finding | Triage |
+|---|---|---|
+| R10 ✅ | The rules' `Redirects` were not applied to prerequisite (or project) URLs: the Aielund Saga offered the superseded Abyss Tileset instead of Abyss Tileset Redux. | **BUG** → fixed |
+| R11 ✅ | A prerequisite the rules add (`RequiredProjects`) kept a title made from its URL ("Sands Fate 2 Gem Tower") after it was fetched; that is also its mod folder name. | **BUG** → fixed |
+| R12 ✅ | Prerequisites a prerequisite's own rule adds were not followed (NIT's `ProcessRulesAddAndExcludes` recurses): Sinister Inc. 2 lacked Fixed CTP Loadscreens, which the Community Tileset Project rule adds. The project itself is skipped when a chain leads back to it (Sands of Fate 2's rule requires Sands of Fate 1). | **BUG** → fixed |
+| R13 | NIT offers "Direct links to files" that the project's `ExcludeDirectLinks` rule names (Sands of Fate 1, Sinister Inc. 2): it compares the API's download-counter link with the rule's file address, which never match, so the rule has had no effect since NIT moved to the API. The files are also offered under their own projects (duplicates). VK applies the rule. | NIT artefact (VK does what the rule means) |
+| R14 | A prerequisite with no rule of its own goes into the *parent's* mod folder in NIT; VK gives it its own folder. | DELIBERATE (documented in `expand_prerequisites`) |
+
+After the fixes: 21 of 23 identical; the two left differ only by R13.
+R8 (Coldhearth exclude list) is settled by this run: its selection is identical.
 ## 1d. Dependency + conflict detection — moved to stage 2
 
 `GetConflicts`, `HasDependants`, `GetDependants`, `GetInstalledDependants`,
