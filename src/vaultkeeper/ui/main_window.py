@@ -4930,7 +4930,8 @@ class MainWindow(QMainWindow):
         prompt = (
             f"Delete {len(groups)} group(s)?\n"
             f"NOTE: all {members} mod(s) belonging to the selected group(s) will "
-            "also be removed from the profile (installed mods are uninstalled first)."
+            "also be deleted: installed mods are uninstalled first and their "
+            "folders go to the recycle bin."
         )
         if not self._confirm("Delete Groups", prompt):
             return

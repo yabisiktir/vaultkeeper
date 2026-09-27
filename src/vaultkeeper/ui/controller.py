@@ -3861,9 +3861,23 @@ class ProfileController:
         return True
 
     def move_to_group(self, names: list[str], group: str) -> None:
-        """Move the named mods into ``group`` (creating it if new); persist."""
+        """Move the named mods into ``group`` (creating it if new); persist.
+
+        A group decides a mod's priority, so the moved mods are annealed (VB
+        ``MoveModsToGroup``): a file they share with another installed mod gets
+        the copy of whichever now wins.
+        """
+        moved = [
+            n for n in names
+            if (m := self.pd.mod_item(n)) is not None and m.is_not_group_item and m.group != group
+        ]
         self.pd.move_mods_to_group(names, group)
         self.save()
+        if moved:
+            self.pd.changes.save_info()
+            self.pd.changes.reset_changes()
+            self.engine.anneal(moved)
+            self.pd.changes.restore_saved_info()
 
     def rename_group(self, old: str, new: str) -> bool:
         """Rename a (non-reserved) group and its members; persist on success."""
@@ -3893,14 +3907,10 @@ class ProfileController:
         failed_groups: list[str] = []
         for group in group_names:
             members = self.group_member_names(group)
-            installed = [
-                n for n in members if (m := self.pd.mod_item(n)) is not None and m.installed
-            ]
-            if uninstall and installed:
-                self.uninstall(installed)
-            for name in members:
-                if self.pd.remove_mod(name):
-                    deleted_mods += 1
+            # VB deletes the member mods as Delete does: folders to the recycle
+            # bin, notes with them, sharers annealed (not only the definitions).
+            result = self.delete_mods(members, uninstall=uninstall)
+            deleted_mods += len(result["deleted"])
             # Success if the group row was removed, or the group was implicit (no
             # row) and now has no members left — either way it is gone.
             gone = self.pd.remove_group(group) or (

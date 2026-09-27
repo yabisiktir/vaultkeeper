@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.mod_data import ModData
 from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.core.state import State
+from vaultkeeper.ui.controller import ProfileController
 
 
 def _pd_with_mods(*names: str) -> ProfileData:
@@ -140,3 +143,47 @@ def test_delete_groups_removes_members_row_and_persists(tmp_path) -> None:
     assert "Adventures" not in [
         m.group for m in reloaded.mod_list.values() if m.is_group_item
     ]
+
+
+def test_deleting_a_group_recycles_its_mod_folders(tmp_path: Path, recycle_bin: Path) -> None:
+    # VB DeleteSelectedGroups deletes the member mods (folders included), as Delete does.
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods, game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    c.create_group("Adventures")
+    c.create_mod("A", "Adventures")
+    (profile_mods / "A" / "readme.txt").write_text("x")
+
+    c.delete_groups(["Adventures"])
+
+    assert not (profile_mods / "A").exists()
+    assert any(recycle_bin.iterdir())
+
+
+def test_moving_mods_to_another_group_anneals_them(tmp_path: Path) -> None:
+    # VB MoveModsToGroup: the group sets priority, so the winner's copy goes in.
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods, game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    for name, data in (("Low", b"low"), ("High", b"high")):
+        c.create_mod(name)
+        payload = profile_mods / name / C.MOD_INSTALLER_DIR / "override"
+        payload.mkdir(parents=True)
+        (payload / "x.2da").write_bytes(data)
+        c.create_installer(name)
+    c.install(["Low", "High"])
+    ifk = FileKeyInfo.installed("override", "x.2da")
+    before = c.pd.installed_item(ifk).installer
+    loser = "Low" if before == "High" else "High"
+
+    c.create_group("999.  Top")
+    c.move_to_group([loser], "999.  Top")
+
+    assert c.pd.installed_item(ifk).installer == loser
+    assert (c.ctx.game_folders["override"] / "x.2da").read_bytes() == loser.lower().encode()
