@@ -34,7 +34,7 @@ artefact`, `n/a`); `triage.py` then lists what is left in `stage4/residual.csv`.
 | 2 | ProfileData.vb, ProfileData.Properties.vb, GroupMemberData.vb | 107 | ✅ |
 | 3 | Paths.vb, ProfileInfo.vb, ProfileInfoManager.vb, NwnFolderInfo.vb | 111 | ✅ |
 | 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | ✅ |
-| 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | ~160 | |
+| 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | 177 | ✅ |
 | 6 | Defs.vb, Settings.* | ~70 | |
 | 7 | the rest (viewers, GameManager, ModExplorer, …); NetworkManager.vb as one verdict (not ported) | ~200 | |
 
@@ -119,3 +119,30 @@ Regression tests: `tests/test_alias_repair.py`, `tests/test_rules_source.py`,
 Regression tests: `tests/test_hak_patch_parity.py`, `tests/test_hak_patch_editor.py`,
 `tests/test_validate_mods.py`, `tests/test_module_reader.py::…module_data_table…`,
 `tests/test_installation_analyser.py` (last two).
+
+## Batch 5 — NIT.* (main window: Menu, Common, Workers, ModView, views, Monitor)
+
+177 verdicts: 94 same, 59 n/a, 16 fixed, 8 deliberate. Many members belong to
+features already diffed in stages 1–3 (Auto restorers S2, original restorers 3a,
+Workshop 3h, portraits and start screens 3g, Doc Organiser 3i, recovery 3c,
+Create Restorer R1); those verdicts cite the stage. The n/a rows are WinForms
+view/menu plumbing, NetworkManager sync (not ported) and NIT's own data-version
+migrations.
+
+| Member | Finding | Verdict |
+|---|---|---|
+| `ActivatedEventProcessing` + watcher (`Created/Deleted/RenamedChange`) | When its window is activated again NIT applies what other programs did to the mod folders, reloads notes edited elsewhere, rebuilds the patch INI for new patch haks and runs the Auto restorers. VK did none of it until restarted. Now `on_window_activated` on returning from another program: a folder-timestamp signature (cheap) decides whether to run the Validate Mods resync (1.3 s on the owner's profile); a renamed mod folder is matched through the identifier it still carries and renamed in place (group kept) instead of re-added ungrouped; notes being edited are never reloaded over. | MISSING → fixed |
+| `HealthCheck` / `BtHealth` | The status bar's health icon existed but was never shown. NIT shows it while `AR_ERROR.LOG` or `logs/nwclienterror1.txt` has content, lists them and offers Reset Log Files. Ported (neither file exists on the owner's machine). | MISSING → fixed |
+| `LoadProfile` | NIT anneals **every** mod on each load, copies EE's `credits.wbm` to `movies/credits.bik.wbm` when missing, and removes illegal installer items. VK did none. Dry runs on the owner's profile: 0 files to anneal, 0 illegal items, credits fix already present. | MISSING → fixed |
+| `MoveModsToGroup` | A group sets priority; NIT anneals the moved mods so a shared file gets the new winner's copy. VK only re-stated them. | BUG → fixed |
+| `DeleteSelectedGroups` | NIT deletes the member mods (folders to the recycle bin, notes, sharers annealed). VK removed only their definitions, leaving the folders on disk. | BUG → fixed |
+| `MoveToFolder` | NIT uninstalls, moves, rebuilds the mod's patch INI and **reinstalls**. VK left the mod uninstalled and never wrote the patch INI a hak moved into `patch` needs. | BUG → fixed |
+| `RemoveInstallerFiles` | NIT recycles (per the setting) and anneals sharers; VK hard-deleted with `unlink`. | BUG → fixed |
+| `MsRepairCrcs` | NIT offers missing values / unknown originals / all / one file key. VK's Calculate CRCs used the "pending" list, empty once a profile has loaded, so it did nothing. Ported; the owner's profile has ~2,670 records without a checksum that "missing" repairs. | BUG → fixed |
+| Rename / New Folder / New Text File in Contents | Not offered; the mod folder opens in the file manager, and the activation resync now keeps records right after changes made there. | deliberate |
+| `AutoModDependenciesPrompt` | A one-time prompt for profiles created before NIT v8 (new ones start at None). | n/a |
+| `RemoveEmptyFolders` | NIT prunes empty installer sub-folders on load; cosmetic. | deliberate |
+
+Regression tests: `tests/test_activation.py`, `tests/test_groups.py` (last two),
+`tests/test_details_parity.py`, `tests/test_maintenance.py` (CRC tests),
+`tests/test_remove_illegal_files.py::…_when_the_profile_opens`.

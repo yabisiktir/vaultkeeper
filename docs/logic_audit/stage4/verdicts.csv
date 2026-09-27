@@ -288,3 +288,180 @@ ErfFileReader.vb,DownloadModuleData,fixed,fetch_module_data with the rules fetch
 ErfFileReader.vb,GetDescription,same,_read_description
 ErfFileReader.vb,FindFile,same,_find_resource
 ErfFileReader.vb,GetResourcePosition,same,_resource_position
+NIT.Common.vb,SetRunApplicationSetup,n/a,Windows installer
+NIT.Common.vb,RefreshModsExported,n/a,NetworkManager shared store
+NIT.Common.vb,ImportModsExported,n/a,NetworkManager shared store
+NIT.Common.vb,ImportPatchFile,same,ported UI command; behaviour checked against the VB handler
+NIT.Common.vb,MergePlayTimes,same,3e play data
+NIT.Common.vb,ModPropertySyncFile,n/a,NetworkManager sync
+NIT.Common.vb,ModPropertySourceFile,n/a,NetworkManager sync
+NIT.Common.vb,AddPropertySync,n/a,NetworkManager sync
+NIT.Common.vb,SyncModProperties,n/a,NetworkManager sync
+NIT.Common.vb,RefreshContents,same,ported UI command; behaviour checked against the VB handler
+NIT.Common.vb,CreateFile,same,ported UI command; behaviour checked against the VB handler
+NIT.Common.vb,SetPropertiesPanelHeight,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Common.vb,AdjustRibbonButtons,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Common.vb,PruneAutoConfig,same,_prune_auto_config
+NIT.Common.vb,RemoveAutoConfigMod,same,_remove_empty_auto_config
+NIT.Common.vb,ClearNwnRunLog,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Common.vb,GetSteamAppId,same,ported UI command; behaviour checked against the VB handler
+NIT.Common.vb,IsRunDocOrganiser,same,3i
+NIT.Common.vb,CloseCommonMsp,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Common.vb,InstallLoadscreen,same,3g
+NIT.Menu.vb,RbnGameSaves_MouseHover,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,RbnBackupData_Click,same,3c
+NIT.Menu.vb,RbnManageWorkshop_Click,same,3h
+NIT.Menu.vb,RbnAdvancedSettings_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsOpen_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsAddFiles_Click,same,3f Add Files to mod folder
+NIT.Menu.vb,MsUpdateDownloads_Click,same,update_downloads + doc organiser offer (3i)
+NIT.Menu.vb,MsNewFolder_Click,deliberate,via Open Mod Folder
+NIT.Menu.vb,MsNewTextFile_Click,deliberate,via Open Mod Folder
+NIT.Menu.vb,MsNewRtfFile_Click,deliberate,via Open Mod Folder
+NIT.Menu.vb,MsRestoreData_Click,same,3c
+NIT.Menu.vb,MsExtractPortraits_Click,same,3g extract_hak_portraits
+NIT.Menu.vb,ExtractHakPortraits,same,3g
+NIT.Menu.vb,MsDisplayInfo_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,OpenImage,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsProperties_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsCopyWebLink_Click,same,copy link
+NIT.Menu.vb,MsEditStartScreenPrefixes_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsCollapseAllGroups_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsExpandAllGroups_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsConflicts_Click,same,conflicts viewer
+NIT.Menu.vb,DisplayLogFile,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,ProcessCreateInstaller,same,3f rebuild_installer
+NIT.Menu.vb,MsCreateRestorer_Click,same,R1
+NIT.Menu.vb,MsCreateOriginalRestorers_Click,same,3a
+NIT.Menu.vb,MsHakPatchEditor_Click,same,batch 4
+NIT.Menu.vb,MsAliasSection_Click,same,Alias editor (batch 3)
+NIT.Menu.vb,MsSynchroniseMods_Click,n/a,NetworkManager sync
+NIT.Menu.vb,MsInstall_Click,same,install
+NIT.Menu.vb,MsDocOrganiser_Click,same,3i
+NIT.Menu.vb,MsInstallationManager_Click,same,installation sets
+NIT.Menu.vb,MsInstallationAnalyser_Click,fixed,batch 4 Refresh/crash
+NIT.Menu.vb,MsWizardBuilder_Click,same,3f
+NIT.Menu.vb,MsDependencyManager_Click,same,batch 4
+NIT.Menu.vb,MsRefreshWorkshopFiles_Click,same,3h
+NIT.Menu.vb,RefreshWorkshopFiles,same,3h
+NIT.Menu.vb,MsValidateMods_Click,same,validate_mods (batch 2)
+NIT.Menu.vb,CheckForInvalidFiles,fixed,Validate NWN exceptions (batch 2); root folder not scanned: deliberate
+NIT.Menu.vb,BgRecoverGroups,same,3c
+NIT.Menu.vb,MsRecoverModProperties_Click,same,3c
+NIT.Menu.vb,MsRepairCrcs_Click,fixed,calculate_crcs with NIT's four modes (was a no-op)
+NIT.Menu.vb,RunMenu_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,SelectGameMod,same,3b select_game_mod
+NIT.Menu.vb,WebMenu_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,BimLink_MouseClick,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsBasicSettings_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsSettings_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsOriginalPortraits_CheckedChanged,same,download_original_portraits
+NIT.Menu.vb,DownloadPortraits,same,download_original_portraits
+NIT.Menu.vb,InstallPortraits,same,download_original_portraits
+NIT.Menu.vb,MsPropertiesHeight_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,LbProperties_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsResetWindow_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsResetWebMenu_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,MsResetTaskbarIcon_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsClearWaitCursors_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsEnableClosing_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsClearSelectionHistory_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsShowRibbon_Clicked,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,DbEnableDevelopmentFolder_Click,same,set_development_folder
+NIT.Menu.vb,DbSetPlayTimeValue_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsSaveNwnInfo_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,DbOriginalFilesReport_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,DbGameMapDataReport_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,DbGameMapUserReport_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,FindBlankTextFiles,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,DbScrollReport_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,ValidateSize,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,Help_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MsHelpContents_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.Menu.vb,BtModCount_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,BtModCount_MouseEnter,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,MgInfo_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Menu.vb,BtWizardReport_Click,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Workers.vb,BgTasks_ProgressChanged,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.Workers.vb,CheckInstallerRestore,fixed,U2 installer_restore default True
+NIT.Workers.vb,RemoveEmptyFolders,deliberate,empty installer sub-folders left (cosmetic)
+NIT.Workers.vb,ValidateInstallerType,same,ported UI command; behaviour checked against the VB handler
+NIT.Workers.vb,ValidateWizardReports,n/a,NIT data migration
+NIT.Workers.vb,RebuildPlayTimeFiles,n/a,NIT data migration
+NIT.Workers.vb,CreateMissingNotes,deliberate,3i N5
+NIT.Workers.vb,DownloadRulesFile,same,"rules_source (fetched, cached)"
+NIT.Workers.vb,RemoveOldBackupFolders,n/a,pre-5.0 cleanup
+NIT.Workers.vb,RemoveOldSettings,n/a,pre-5.0 cleanup
+NIT.Workers.vb,RemoveOldDataFiles,n/a,NIT data-format cleanup
+NIT.Workers.vb,RemoveLetoLogFiles,same,remove_all_leto_log_files
+NIT.Workers.vb,PopulateDateCompleted,n/a,NIT data migration
+NIT.ModView.vb,ApplyGroupsAndStatus,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,SetCountInfo,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,SbRating_MenuItemChecked,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,SbWeapon_ItemSelected,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,ModPropertyText_LostFocus,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,DisplayModProperties,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,SetCharacterIcon,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,ModToolTipText,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,UpdateProfileData,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,UpdateModStates,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,UpdateSelectedModStates,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,RefreshModStates,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,CreateGroup,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,CreateModFolder,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,CreateRestorer,same,R1
+NIT.ModView.vb,DeleteSelectedMods,same,3b delete_mods
+NIT.ModView.vb,RemoveMods,same,3b
+NIT.ModView.vb,RenameMod,same,3i N1 notes follow
+NIT.ModView.vb,InstallSelectedMods,same,install + dependencies
+NIT.ModView.vb,UninstallSelectedMods,same,uninstall + dependants confirm
+NIT.ModView.vb,DeleteSelectedGroups,fixed,delete_groups deletes member mods via delete_mods (folders recycled)
+NIT.ModView.vb,MoveModsToGroup,fixed,move_to_group anneals moved mods
+NIT.ModView.vb,RunAutoRestorers,same,S2 + record_play_files (batch 2)
+NIT.ModView.vb,AutoDatabaseRestorer,same,S2
+NIT.ModView.vb,ValidateDatabaseRestorer,same,S2
+NIT.ModView.vb,AutoIniFileRestorer,same,S2
+NIT.ModView.vb,AutoJournalFileRestorer,same,S2
+NIT.ModView.vb,AutoNitConfigFileRestorer,same,S2
+NIT.ModView.vb,AutoCharacterRestorer,same,auto_character_restorers
+NIT.ModView.vb,ValidateCharacterMod,same,character restorer
+NIT.ModView.vb,AutoOriginalRestorer,same,3a
+NIT.ModView.vb,SetInstallAvailability,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,SetChangeInstallerAvailability,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.ModView.vb,CreateInstallerCandidates,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,SetInstallerSubFolder,same,ported UI command; behaviour checked against the VB handler
+NIT.ModView.vb,UpdateDownloads,same,update_downloads
+NIT.ModView.vb,SelectDownloadsFolder,n/a,view
+NIT.ModView.vb,SetDownloadTarget,same,update_downloads
+NIT.ModView.vb,SelectMod,same,ported UI command; behaviour checked against the VB handler
+NIT.ContentsView.vb,FvContents_ShownCountZero,n/a,view plumbing
+NIT.ContentsView.vb,DeleteSelectedContents,deliberate,Contents lists installer files only; deleting the whole installer / wizard from Contents not offered (Wizard Builder Delete = same as NIT)
+NIT.ContentsView.vb,RemoveModInstaller,deliberate,as DeleteSelectedContents
+NIT.DetailsView.vb,UpdateInstallerFiles,same,ported UI command; behaviour checked against the VB handler
+NIT.DetailsView.vb,InstallerImageKey,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.DetailsView.vb,UnknownImageKey,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.DetailsView.vb,InstallerFileProperties,same,ported UI command; behaviour checked against the VB handler
+NIT.DetailsView.vb,DisplayAdditionalInfo,same,ported UI command; behaviour checked against the VB handler
+NIT.DetailsView.vb,RemoveInstallerFiles,fixed,"recycle per setting, pd.remove_file, anneal sharers"
+NIT.DetailsView.vb,RenameDetails,deliberate,no Rename in the Contents pane; Open Mod Folder + activation resync keep records right
+NIT.DetailsView.vb,MoveToFolder,fixed,reinstall after move + _validate_mod_patch_ini
+NIT.Monitor.vb,ActivatedEventProcessing,fixed,"on_window_activated: mod-folder changes (timestamp signature → Validate Mods resync), notes reload, patch INI, Auto restorers"
+NIT.Monitor.vb,HealthCheck,fixed,game_error_logs + health icon
+NIT.Monitor.vb,ResetErrorLogs,fixed,clear_game_error_logs / Reset Log Files
+NIT.Monitor.vb,CreatedChange,fixed,activation resync adds new mod folders/files
+NIT.Monitor.vb,DeletedChange,fixed,activation resync forgets deleted installer files (mods without folder kept: batch 2 deliberate)
+NIT.Monitor.vb,RenamedChange,fixed,_folders_renamed_elsewhere: renamed mod folder renames the mod (group kept)
+NIT.ProfileView.vb,MsProfileLoader_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.ProfileView.vb,LoadProfile,fixed,"anneal all mods on load, credits movie fix, RemoveIllegalModFiles on load; rest matched (3a check, 3c restore, 3h Workshop, notes, originals)"
+NIT.ProfileView.vb,AutoModDependenciesPrompt,n/a,one-time prompt for profiles from before NIT v8 (new profiles start at None)
+NIT.ProfileView.vb,SetGroupMenus,same,ported UI command; behaviour checked against the VB handler
+NIT.ProfileView.vb,ValidateOriginalEE,fixed,batch 2 E1 (executable CRC per profile)
+NIT.ProfileView.vb,RenameReservedFolders,n/a,pre-5.6.2 migration
+NIT.RecentMods.vb,SaveRecentMods,same,ported UI command; behaviour checked against the VB handler
+NIT.RecentMods.vb,GetRecentModImage,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.RecentMods.vb,MsNumberRecentMods_CheckedChanged,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.RecentMods.vb,LoadSelectionHistory,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.RecentMods.vb,SaveSelectionHistory,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.StatusBar.vb,BtSelectTextFile_Click,same,ported UI command; behaviour checked against the VB handler
+NIT.vb,NIT_ResizeBegin,n/a,WinForms view/menu plumbing (no profile logic)
+NIT.vb,NIT_ResizeEnd,n/a,WinForms view/menu plumbing (no profile logic)
