@@ -392,8 +392,9 @@ class TestProjectRules:
         assert rule.downloads == []
         assert rule.mod_folder == "F"
 
-    def test_a_version_conditional_is_not_treated_as_wanted_files(self):
-        """"If 1.69 Downloads" lists files for a game this port does not target."""
+    def test_a_version_conditional_is_kept_aside_until_a_game_asks(self):
+        """"If 1.69 Downloads" lists files for one game version; the stored rule
+        keeps them aside and :meth:`for_game` folds them in (NIT treats EE as 1.69)."""
         rule = DownloadRules.from_text(
             "Project = P\n"
             "\tDownloads\n\t\tmain.zip\n\tEnd Downloads\n"
@@ -401,6 +402,8 @@ class TestProjectRules:
             "End Project\n"
         ).project_rule("P")
         assert rule.downloads == ["main.zip"]
+        assert rule.for_game(is_ee=True).downloads == ["main.zip", "legacy.zip"]
+        assert rule.for_game(is_ee=False, nwn_version="1.68").downloads == ["main.zip"]
 
     def test_a_mistyped_end_costs_one_block_not_the_file(self):
         """The published file really does close "Excludes" with "End Exclude"."""

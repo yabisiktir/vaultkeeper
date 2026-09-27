@@ -65,13 +65,30 @@ Notes from the fixes:
 
 | ID | Finding |
 |---|---|
-| R2 | `If EE/NWN Downloads` conditionals dropped: Community Patch ×2 lose mod folder + EE archive; 12 wrong/empty download whitelists |
-| R1c | Per-project `ExcludeFiles From` blocks ignored (12 projects offer files NIT holds back) |
+| R2 ✅ | `If EE/NWN Downloads` conditionals dropped: Community Patch ×2 lose mod folder + EE archive; 12 wrong/empty download whitelists |
+| R1c ✅ | Per-project `ExcludeFiles From` blocks ignored (12 projects offer files NIT holds back) |
 | R3 | Rule-defined install wizards (38 projects) never used |
-| R4 | Per-file prerequisites (`RequiredFiles`, 32 projects) ignored |
-| R5 | `IncludeExtensions`, `ExcludeDirectLinks`, `ApplyExcludes`, `ExcludeRequiredProjects`, `ExternalFile` not parsed (26 projects) |
+| R4 ✅ | Per-file prerequisites (`RequiredFiles`, 32 projects) ignored |
+| R5 ✅ | `IncludeExtensions`, `ExcludeDirectLinks`, `ApplyExcludes`, `ExcludeRequiredProjects`, `ExternalFile` not parsed (26 projects) |
+| R9 ✅ | **New, found while fixing R2:** the file-wide exclusions were parsed by nobody. `Contains` / `StartsWith` / `EndsWith` (20 + 9 + 4 description patterns: "outdated", "Mac ", " old", Project Q's "ARCHIVE - QV"…) and the `.txt` extension rule held nothing back in any project. Also a bare `IgnoreExcludes` opened a swallowed block, so Project Q Archive's `Downloads` list was lost. |
 
 (R1c is stage 1's R1 — renamed here to avoid clashing with the restorer finding.)
+
+**Fixed (sixth batch):** `DownloadRules` now reads every per-project field NIT
+reads and the file-wide exclusion tables. Game-dependent lines are kept aside
+and settled per profile by `ProjectRule.for_game` / `DownloadRules.rule_for_game`
+(EE counts as 1.69; `If ERF` files held back, NIT's default). Applied in
+`ProfileController._apply_project_rules` in NIT's order (`IsExcluded` unless
+`IgnoreExcludes`, then the `Downloads` whitelist); external files join the list;
+prerequisites are added, removed (`ExcludeRequiredProjects`,
+`ExcludeDirectLinks`) and given their `RequiredFiles From` list, which overrides
+the prerequisite's own rules as in NIT. Re-diffed against NIT's parse of the same
+2,602-line published file (`stage1/diff_rules_full.py`): all 227 projects agree on
+every field; the three remaining lines are dump-format artefacts (two titles
+contain `|` / `:`) and R7. Regression tests: `tests/test_download_rules_nit_parity.py`
+(all 13 fail on the old code). Not yet done: replaying recorded Vault responses to
+both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
+(1.68 vs 1.69) is not ported; a classic profile is treated as 1.69.
 
 ## Behaviour / defaults / display
 

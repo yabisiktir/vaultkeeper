@@ -4015,13 +4015,18 @@ class ProfileController:
         """Scrape a Vault project page into a list of downloadable files."""
         return self._make_scraper().fetch_project(url)
 
-    def fetch_vault_project(self, url: str) -> dict:
+    def fetch_vault_project(self, url: str, *, only_files: list[str] | None = None) -> dict:
         """A project's files, its prerequisites, and where the rules say it goes.
 
         The dialog wants all of it, and asking twice means two requests to the
         same place for the same answer — which the API in particular does not
         deserve. Returns ``{"files", "required", "title", "mod_folder", "group",
         "excluded"}``.
+
+        ``only_files`` is a dependant's ``RequiredFiles From`` list for this
+        project: those files and no others, whatever this project's own rules
+        would offer (VB ``PopulateRequiredProjects``: "Project Rule's Required
+        Files override all other rules").
         """
         from vaultkeeper.vault.api import VaultApi
 
@@ -4035,10 +4040,24 @@ class ProfileController:
             files = source.fetch_project(url)
             required = source.fetch_required_projects(url)
             title = files[0].project_title if files else ""
-        return self._apply_project_rules(title, files, required)
+        return self._apply_project_rules(title, files, required, only_files=only_files)
 
-    def _apply_project_rules(self, title: str, files: list, required: list) -> dict:
-        """Fold the published per-project rule into a fetched project.
+    def _game_rule(self, title: str):
+        """The published rule for a project, settled for this profile's game.
+
+        NIT reads the rules for the profile it has open, so ``If EE Downloads``
+        and ``If NWN Downloads`` decide the mod folder and the wanted files —
+        the Community Patch is a different archive in a different folder for
+        each edition. A 1.69 game is assumed off EE, as NIT does when it cannot
+        read the version, and ``If ERF`` files are held back as NIT's default
+        "exclude ERF" mapping does.
+        """
+        return self.download_rules().rule_for_game(title, is_ee=self.ctx.is_ee)
+
+    def _apply_project_rules(
+        self, title: str, files: list, required: list, *, only_files: list[str] | None = None
+    ) -> dict:
+        """Fold the published download rules into a fetched project.
 
         This is the part of the rules that says a download belongs in "CEP v3.x"
         under "100.  Community Packs" rather than a folder named after the page,
@@ -4046,6 +4065,18 @@ class ProfileController:
         superseded and should not be offered at all. Published separately from
         the application, so a project that changes shape is fixed for everyone
         without a release.
+
+        Faithful to VB ``VaultScraper`` + ``PopulateProject``: a file is held
+        back when the rules name it for this project (its ``Excludes`` or an
+        ``ExcludeFiles From`` block, which also covers projects with no block of
+        their own), when its type is excluded everywhere (``.txt``) and not taken
+        back by ``IncludeExtensions``, or when its description calls it obsolete;
+        none of that applies to a project marked ``IgnoreExcludes``. A
+        ``Downloads`` list then keeps only what it names. Files the rules fetch
+        from outside the Vault (``ExternalFile``) join the list, and
+        prerequisites are adjusted: added (``RequiredProjects``), removed
+        (``ExcludeRequiredProjects``, ``ExcludeDirectLinks``), and given their
+        per-file lists (``RequiredFiles From``, as ``only_files`` on each).
         """
         result = {
             "files": list(files),
@@ -4057,32 +4088,84 @@ class ProfileController:
         }
         if not self._settings().vault_apply_project_rules:
             return result
-        rule = self.download_rules().project_rule(title)
+        rules = self.download_rules()
+        rule = self._game_rule(title)
+
+        candidates = list(files)
+        if rule is not None and only_files is None:
+            candidates = self._external_rule_files(title, rule) + candidates
+        if only_files is not None:
+            wanted = {name.lower() for name in only_files}
+            kept = [f for f in candidates if (f.filename or f.description).lower() in wanted]
+        else:
+            apply_excludes = rule is None or rule.apply_excludes
+            kept = [
+                f
+                for f in candidates
+                if not (
+                    apply_excludes
+                    and rules.is_excluded(
+                        title, f.filename or f.description, f.description, rule=rule
+                    )
+                )
+                and (rule is None or rule.wanted(f.filename or f.description))
+            ]
+        result["excluded"] = len(candidates) - len(kept)
+        result["files"] = kept
         if rule is None:
             return result
-
-        # Both are ways of saying "not this one": Excludes names what to drop,
-        # Downloads names what to keep. Neither leaves a row behind.
-        kept = [
-            f
-            for f in files
-            if not rule.is_excluded(f.filename or f.description)
-            and rule.wanted(f.filename or f.description)
-        ]
-        result["excluded"] = len(files) - len(kept)
-        result["files"] = kept
         result["mod_folder"] = rule.mod_folder
         result["group"] = rule.group
+
+        from vaultkeeper.vault.scraper import _title_from_url
 
         known = {str(r.get("url", "")).lower() for r in result["required"]}
         for link in rule.required_projects:
             if link.lower() not in known:
-                from vaultkeeper.vault.scraper import _title_from_url
-
+                known.add(link.lower())
                 result["required"].append(
                     {"title": _title_from_url(link).title(), "url": link, "type": ""}
                 )
+        dropped_titles = {t.lower() for t in rule.exclude_required_projects}
+        dropped_links = {u.lower() for u in rule.exclude_direct_links}
+        result["required"] = [
+            r
+            for r in result["required"]
+            if str(r.get("title", "")).lower() not in dropped_titles
+            and str(r.get("url", "")).lower() not in dropped_links
+        ]
+        for entry in result["required"]:
+            names = rule.required_files_for(
+                str(entry.get("title", "")),
+                _title_from_url(str(entry.get("url", ""))),
+            )
+            if names is not None:
+                entry["only_files"] = list(names)
         return result
+
+    @staticmethod
+    def _external_rule_files(title: str, rule) -> list:
+        """Files the rules fetch from outside the Vault project (VB ``ExternalFiles``).
+
+        Sanctum of the Archmage's module is hosted by its author, a different
+        archive per edition; NIT lists it with the Vault's own attachments.
+        """
+        from vaultkeeper.vault.download_rules import external_filename
+        from vaultkeeper.vault.scraper_info import VaultScraperInfo
+
+        out = []
+        for url in rule.external_files:
+            name = external_filename(url)
+            out.append(
+                VaultScraperInfo(
+                    project_title=title,
+                    description=name,
+                    counter_url=url,
+                    direct_url=url,
+                    filename=name,
+                )
+            )
+        return out
 
     def project_required_projects(self, url: str) -> list[dict]:
         """The projects a Vault page lists as required (VB Required-Projects field).
@@ -4296,8 +4379,13 @@ class ProfileController:
                 "external": external,
             }
             if url and not external and not have_mod:
+                only_files = entry.get("only_files")
                 try:
-                    project = self.fetch_vault_project(url)
+                    project = (
+                        self.fetch_vault_project(url, only_files=only_files)
+                        if only_files is not None
+                        else self.fetch_vault_project(url)
+                    )
                 except Exception as ex:  # a moved page / network — surface, don't crash
                     from nwnfile.log import get_logger
 
@@ -5345,16 +5433,20 @@ class ProfileController:
             return []
         key = search_name(mod_name)
         out: list[dict] = []
-        for title, rule in rules.projects.items():
+        for raw in rules.projects.values():
+            # Settled for this game: the Community Patch's folder is only named
+            # inside its "If EE Downloads" / "If NWN Downloads" blocks.
+            rule = raw.for_game(is_ee=self.ctx.is_ee)
             if not rule.mod_folder or search_name(rule.mod_folder) != key:
                 continue
             for url in rule.required_projects:
-                out.append({"title": self._project_title_for(url, rules), "url": url})
-            del title
+                out.append(
+                    {"title": self._project_title_for(url, rules, self.ctx.is_ee), "url": url}
+                )
         return out
 
     @staticmethod
-    def _project_title_for(url: str, rules) -> str:
+    def _project_title_for(url: str, rules, is_ee: bool = True) -> str:
         """A required URL's project title, from the rules or from its own slug.
 
         The rules do not store each project's URL, but a Vault slug is its title
@@ -5369,7 +5461,7 @@ class ProfileController:
         wanted = search_name(slug)
         for title, rule in rules.projects.items():
             if search_name(title) == wanted:
-                return rule.mod_folder or title
+                return rule.for_game(is_ee=is_ee).mod_folder or title
         return slug
 
     def _find_missing_web_links(self, mods: list, *, on_progress=None) -> int:
