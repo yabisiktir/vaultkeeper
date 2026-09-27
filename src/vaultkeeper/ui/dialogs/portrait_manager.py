@@ -559,7 +559,8 @@ class PortraitManager(SettingsAccess, QDialog):
         entry = self._current()
         if entry is None or not entry.get("mod") or self._controller is None:
             return
-        built = self._controller.create_installer(entry["mod"])
+        # VB RbCreateInstaller: a real rebuild, with installer-restore forced on.
+        built = self._controller.rebuild_installer(entry["mod"], restore=True)["ok"]
         self._entries = self._load_entries()
         self._populate(select=self._index())
         QMessageBox.information(
@@ -578,7 +579,10 @@ class PortraitManager(SettingsAccess, QDialog):
             return
         import subprocess
 
-        files = [str(p) for _s, p in sorted(entry["sizes"].items()) if p.exists()]
+        # The mod's source files when there are some (VB SourceFiles), so the edit
+        # survives the next Create Installer.
+        candidates = self._controller.portrait_edit_files(entry)
+        files = [str(p) for p in candidates if p.exists()]
         if not files:
             QMessageBox.information(
                 self, "Edit Portrait", "None of this portrait's files are on disk."

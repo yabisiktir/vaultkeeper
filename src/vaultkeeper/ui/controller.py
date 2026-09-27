@@ -6960,6 +6960,14 @@ class ProfileController:
             if folder not in folders or not ifk.filename.lower().endswith("h.tga"):
                 continue
             base = ifk.filename[:-5]  # strip the "h.tga" size+ext
+            if folder != _PORTRAIT_FOLDER and not all(
+                FileKeyInfo.installed(folder, f"{base}{size}.tga") in self.pd.installed_list
+                for size in ("m", "t")
+            ):
+                # VB IsPortraitFile: outside the portraits folder an "…h.tga" is a
+                # portrait only with its m and t sizes beside it; otherwise it is
+                # a texture whose name happens to end in "h".
+                continue
             game_folder = self.ctx.game_folders.get(folder)
             sizes: dict[str, Path] = {}
             for size in PORTRAIT_SIZES:
@@ -6978,8 +6986,37 @@ class ProfileController:
                     "sizes": sizes,
                 }
             )
-        entries.sort(key=lambda e: (e["mod"].lower(), e["resref"].lower()))
+        # VB sorts the FileKeyInfo list: group, then mod, then file.
+        entries.sort(key=lambda e: (e["group"].lower(), e["mod"].lower(), e["resref"].lower()))
         return {"portraits": entries, "count": len(entries)}
+
+    def portrait_edit_files(self, entry: dict) -> list[Path]:
+        """The files Edit Portrait opens (VB ``RbEditPortrait`` / ``SourceFiles``).
+
+        NIT edits the mod's *source*: the one ``<resref>h.tga`` under the mod's
+        ``_Downloads`` (outside excluded folders) and its other sizes beside it,
+        so the change survives the next Create Installer. Editing the installed
+        copy instead is overwritten by the next install. When no single source
+        file is found NIT offers no edit; Vaultkeeper falls back to the
+        installed files.
+        """
+        from vaultkeeper.core import constants as C
+
+        mod = entry.get("mod") or ""
+        downloads = self.ctx.profile_mods_dir / mod / C.DOWNLOADS_DIR if mod else None
+        wanted = f"{entry['resref']}h.tga".lower()
+        found: list[Path] = []
+        if downloads is not None and downloads.is_dir():
+            found = [
+                f
+                for f in downloads.rglob("*.tga")
+                if f.name.lower() == wanted
+                and not self.ctx.mapper.contains_excluded_folder(str(f.parent))
+            ]
+        if len(found) == 1:
+            base = str(found[0])[:-5]
+            return [Path(f"{base}{size}.tga") for size in "hlmst"]  # VB PortraitSizes
+        return [p for _s, p in sorted(entry.get("sizes", {}).items())]
 
     #: Every portrait size's required pixel dimensions (VB ``Defs.PortraitInfo``).
     PORTRAIT_REQUIRED_SIZES: Final = {
@@ -7040,7 +7077,11 @@ class ProfileController:
 
         Returns ``{"ok", "excluded", "message"}``.
         """
+        from pathlib import PurePath
+
         from nwnfile.character import PORTRAIT_SIZES
+
+        from vaultkeeper.core.archive import is_extractable
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
@@ -7054,8 +7095,13 @@ class ProfileController:
         wanted = {
             f"{resref}{size}.tga".lower() for resref in resrefs for size in PORTRAIT_SIZES
         }
+        # Portraits usually arrive inside an archive; NIT builds this list with
+        # the archives extracted (PopulateWizard: ExtractArchives).
+        sources = self.wizard_source_files(mod_name)
+        if any(is_extractable(PurePath(s.replace("\\", "/")).suffix) for s in sources):
+            sources += self.wizard_source_files(mod_name, view=self.WIZARD_VIEW_FOLDER_FILES)
         added = 0
-        for source in self.wizard_source_files(mod_name):
+        for source in sources:
             name = source.replace("\\", "/").rsplit("/", 1)[-1].lower()
             if name in wanted and source.lower() not in known:
                 excludes.append(source)
@@ -7081,7 +7127,7 @@ class ProfileController:
         if not saved.get("ok"):
             return {"ok": False, "excluded": 0, "message": saved.get("message", "")}
 
-        built = self.create_installer(mod_name)
+        built = self.rebuild_installer(mod_name, restore=True)["ok"]
         return {
             "ok": bool(built),
             "excluded": added,
@@ -7092,6 +7138,25 @@ class ProfileController:
                 else f"Wizard updated, but '{mod_name}'s installer could not be rebuilt."
             ),
         }
+
+    def rebuild_installer(self, mod_name: str, *, restore: bool | None = None) -> dict:
+        """Rebuild a mod's installer and put it back in the game if it was there.
+
+        VB ``PerformCreateInstaller`` for one mod, without the wizard prompts:
+        the build uninstalls an installed mod first, so it is reinstalled when
+        ``restore`` (default: the installer-restore preference) or install-after-
+        create is on. The Portrait Manager forces ``restore`` on, as NIT does.
+        Returns :meth:`build_installer_payload`'s result.
+        """
+        was_installed = self._mod_installed(mod_name)
+        result = self.build_installer_payload(mod_name)
+        if result["ok"]:
+            settings = self._settings()
+            if restore is None:
+                restore = settings.installer_restore
+            if settings.install_after_create or (restore and was_installed):
+                self.install([mod_name])
+        return result
 
     def remove_installed_portrait(self, resref: str) -> dict:
         """Remove an installed portrait (all sizes) from the game + its mod's installer.

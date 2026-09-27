@@ -30,14 +30,15 @@ def _controller(portraits, *, settings=None, **overrides):
         calls["exclude"].append((mod, sorted(resrefs)))
         return {"ok": True, "excluded": len(resrefs), "message": f"Excluded from {mod}."}
 
-    def create_installer(mod):
-        calls["installer"].append(mod)
-        return True
+    def rebuild_installer(mod, *, restore=None):
+        calls["installer"].append((mod, restore))
+        return {"ok": True}
 
     controller = SimpleNamespace(
         installed_portraits_report=report,
         exclude_portraits_from_installer=exclude,
-        create_installer=create_installer,
+        rebuild_installer=rebuild_installer,
+        portrait_edit_files=lambda entry: [p for _s, p in sorted(entry["sizes"].items())],
         invalid_portrait_sizes=lambda *, include_override=False: {
             "invalid": [],
             "checked": 0,
