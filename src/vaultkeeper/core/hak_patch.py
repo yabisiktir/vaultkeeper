@@ -66,8 +66,32 @@ def update_patch_sequence(profile_data_dir: Path, hak_stems: list[str]) -> list[
     return sequence
 
 
+def patch_ini_haks(ini_path: Path) -> list[str]:
+    """Hak names (no extension) listed in a patch INI, in file order (VB ``GetPatchHaks``)."""
+    try:
+        text = ini_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    haks: list[str] = []
+    for line in text.splitlines():
+        _key, sep, value = line.partition("=")
+        value = value.strip()
+        if sep and value:
+            haks.append(value[: -len(HAK_EXT)] if value.lower().endswith(HAK_EXT) else value)
+    return haks
+
+
 class HakPatchManager:
-    """Rebuilds ``nwnpatch.ini`` from the installed patch-haks."""
+    """Rebuilds ``nwnpatch.ini`` / ``userpatch.ini`` from the installed patch-haks.
+
+    With ``sequence_dir`` the manager owns the saved load order
+    (``PatchFileSequence.txt``): it is read before every rebuild, seeded from the
+    current patch INI when it does not exist yet, and extended with newly
+    installed haks (VB ``HakPatchManager.New`` / ``UpdateSequenceFile``). With
+    ``patch_dir`` the installed haks are the ``.hak`` files in the game's patch
+    folder on disk (VB ``GetInstalledPatchHaks``); a hak whose record outlived
+    its file must not be listed, as a missing patch hak stops modules loading.
+    """
 
     def __init__(
         self,
@@ -75,34 +99,85 @@ class HakPatchManager:
         patch_ini_path: Path,
         *,
         sequence: list[str] | None = None,
+        sequence_dir: Path | None = None,
+        patch_dir: Path | None = None,
     ) -> None:
         self.pd = pd
         self.patch_ini_path = patch_ini_path
+        self.sequence_dir = sequence_dir
+        self.patch_dir = patch_dir
         #: Ordered hak names (without extension); maintained across ops.
         self.sequence = list(sequence) if sequence else []
 
+    def load_sequence(self) -> list[str]:
+        """The saved order, seeded from the current patch INI the first time."""
+        if self.sequence_dir is None:
+            return self.sequence
+        path = self.sequence_dir / PATCH_SEQUENCE_FILE
+        if path.is_file():
+            raw = read_patch_sequence(self.sequence_dir)
+        else:
+            raw = patch_ini_haks(self.patch_ini_path)
+        seen: set[str] = set()
+        sequence: list[str] = []
+        for name in raw:
+            stem = name[: -len(HAK_EXT)] if name.lower().endswith(HAK_EXT) else name
+            if stem.lower() not in seen:
+                seen.add(stem.lower())
+                sequence.append(stem)
+        self.sequence = sequence
+        return sequence
+
     def installed_patch_haks(self) -> list[str]:
         """Names (without ``.hak``) of haks installed in the game's patch folder."""
+        if self.patch_dir is not None:
+            try:
+                return sorted(
+                    p.stem
+                    for p in self.patch_dir.iterdir()
+                    if p.is_file() and p.suffix.lower() == HAK_EXT
+                )
+            except OSError:
+                return []
         haks: list[str] = []
         for ifk in self.pd.installed_list:
             if ifk.folder.lower() == PATCH_FOLDER and ifk.extension.lower() == HAK_EXT:
                 haks.append(Path(ifk.filename).stem)
         return haks
 
+    def new_patch_haks(self) -> list[str]:
+        """Installed patch haks the saved order does not list yet."""
+        known = {h.lower() for h in self.load_sequence()}
+        return [h for h in self.installed_patch_haks() if h.lower() not in known]
+
     def ordered_haks(self) -> list[str]:
         """Public alias of :meth:`_ordered_haks` (the effective patch-hak order)."""
         return self._ordered_haks()
 
     def _ordered_haks(self) -> list[str]:
+        self.load_sequence()
         installed = self.installed_patch_haks()
         lowered = {h.lower() for h in installed}
         ordered = [h for h in self.sequence if h.lower() in lowered]
-        present = {h.lower() for h in ordered}
-        for hak in sorted(installed):
+        present = {h.lower() for h in self.sequence}
+        added = False
+        for hak in installed:
             if hak.lower() not in present:
                 ordered.append(hak)
+                self.sequence.append(hak)
                 present.add(hak.lower())
+                added = True
+        if self.sequence_dir is not None and (
+            added or not (self.sequence_dir / PATCH_SEQUENCE_FILE).is_file()
+        ):
+            save_patch_sequence(self.sequence_dir, self.sequence)
         return ordered
+
+    def refresh_on_load(self) -> bool:
+        """Rebuild the patch INI when new patch haks appeared (VB ``HakPatchManager.New``)."""
+        if self.patch_dir is None or not self.patch_dir.is_dir() or not self.new_patch_haks():
+            return False
+        return self.create_nwn_patch_ini_file()
 
     def create_nwn_patch_ini_file(self) -> bool:
         """Regenerate ``nwnpatch.ini``; update the installed patch-ini record."""

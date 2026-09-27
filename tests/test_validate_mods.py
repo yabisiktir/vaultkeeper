@@ -73,7 +73,7 @@ def test_patch_ini_created_from_patch_haks(tmp_path: Path) -> None:
         / "Mod"
         / C.MOD_INSTALLER_DIR
         / C.MOD_ROOT_FOLDER
-        / C.PATCH_INI_FILE
+        / C.USER_PATCH_INI_FILE
     )
     assert ini.is_file()
     text = ini.read_text(encoding="utf-8")
@@ -81,7 +81,7 @@ def test_patch_ini_created_from_patch_haks(tmp_path: Path) -> None:
     assert "PatchFile000=cep1patch" in text
     assert "PatchFile001=cep2patch" in text
     # The ini is now a tracked file of the mod.
-    assert any(fk.filename == C.PATCH_INI_FILE for fk in controller.pd.mod_item("Mod").files)
+    assert any(fk.filename == C.USER_PATCH_INI_FILE for fk in controller.pd.mod_item("Mod").files)
 
 
 def test_patch_ini_deleted_when_no_patch_haks(tmp_path: Path) -> None:
@@ -94,7 +94,7 @@ def test_patch_ini_deleted_when_no_patch_haks(tmp_path: Path) -> None:
         / "Mod"
         / C.MOD_INSTALLER_DIR
         / C.MOD_ROOT_FOLDER
-        / C.PATCH_INI_FILE
+        / C.USER_PATCH_INI_FILE
     )
     ini.parent.mkdir(parents=True, exist_ok=True)
     ini.write_text("[Patch]\n", encoding="utf-8")
@@ -103,7 +103,8 @@ def test_patch_ini_deleted_when_no_patch_haks(tmp_path: Path) -> None:
     result = controller._validate_mod_patch_ini(controller.pd.mod_item("Mod"))
     assert result == "deleted"
     assert not ini.exists()
-    assert not any(fk.filename == C.PATCH_INI_FILE for fk in controller.pd.mod_item("Mod").files)
+    names = [fk.filename for fk in controller.pd.mod_item("Mod").files]
+    assert C.USER_PATCH_INI_FILE not in names
 
 
 def test_patch_ini_skips_ini_only_installer(tmp_path: Path) -> None:

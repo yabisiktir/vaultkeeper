@@ -355,6 +355,13 @@ def parse_patch_haks(ini_text: str) -> list[str]:
     return haks
 
 
+def active_patch_ini_names(*, is_ee: bool) -> tuple[str, str]:
+    """``(active, inactive)`` patch INI names for an edition (VB ``PatchIniFilename``)."""
+    if is_ee:
+        return C.USER_PATCH_INI_FILE, C.PATCH_INI_FILE
+    return C.PATCH_INI_FILE, C.USER_PATCH_INI_FILE
+
+
 def process_patch_files(copy_list: CopyList, mapper: Mapper) -> None:
     """Move a mod's patch haks from the ``hak`` folder to the ``patch`` folder.
 
@@ -370,12 +377,17 @@ def process_patch_files(copy_list: CopyList, mapper: Mapper) -> None:
     """
     hak_folder = mapper.get_primary_folder(_HAK_EXT)
     patch_folder = mapper.get_secondary_folder(_HAK_EXT)
+    active, inactive = active_patch_ini_names(is_ee=getattr(mapper, "is_ee", True))
 
     for folders in list(copy_list.values()):
         root = folders.get(C.MOD_ROOT_FOLDER)
-        if root is None or C.PATCH_INI_FILE not in root or hak_folder not in folders:
+        # VB ScanFolder/ImportPatchFile: a patch INI takes the edition's name
+        # (userpatch.ini on EE), or it installs as a stray file the game ignores.
+        if root is not None and inactive in root and active not in root:
+            root[active] = root.pop(inactive)
+        if root is None or active not in root or hak_folder not in folders:
             continue
-        ini_info = root[C.PATCH_INI_FILE]
+        ini_info = root[active]
         try:
             ini_text = ini_info.source.path.read_text(encoding="utf-8", errors="replace")
         except OSError:

@@ -20,7 +20,10 @@ def _controller(tmp_path: Path, *patch_haks: str) -> ProfileController:
         game_root=tmp_path / "NWN",
         store_path=tmp_path / "Data" / "P.json",
     )
+    patch_dir = ctrl.ctx.game_folders["patch"]
+    patch_dir.mkdir(parents=True, exist_ok=True)
     for name in patch_haks:
+        (patch_dir / f"{name}.hak").write_bytes(b"HAK")
         ifk = FileKeyInfo.installed("patch", f"{name}.hak")
         ctrl.pd.installed_list[ifk] = InstalledFileData(
             key=ifk, file_state=State.INSTALLED, extension=".hak"
@@ -55,6 +58,7 @@ def test_newly_installed_hak_appended(tmp_path):
     ctrl = _controller(tmp_path, "aaa", "bbb")
     ctrl.save_patch_hak_sequence(["bbb", "aaa"])
     # A new patch hak appears after the sequence was saved.
+    (ctrl.ctx.game_folders["patch"] / "zzz.hak").write_bytes(b"HAK")
     ifk = FileKeyInfo.installed("patch", "zzz.hak")
     ctrl.pd.installed_list[ifk] = InstalledFileData(
         key=ifk, file_state=State.INSTALLED, extension=".hak"

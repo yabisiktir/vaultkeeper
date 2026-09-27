@@ -126,7 +126,7 @@ class ProfileController:
         #: One-line notes from start-up housekeeping, for the status bar.
         self.startup_notes: list[str] = []
         self._migrate_ee_root_files()
-        self._hpm = HakPatchManager(pd, self.patch_ini_path)
+        self._hpm = self._make_hak_patch_manager()
         self.engine = ModInstallationManager(
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
         )
@@ -232,6 +232,9 @@ class ProfileController:
             with contextlib.suppress(OSError):
                 controller.validate_notes()
             controller._update_ee_files_after_game_update()
+            # VB HakPatchManager.New on every load: new patch haks → rebuild the INI.
+            with contextlib.suppress(OSError):
+                controller._hpm.refresh_on_load()
         return controller
 
     def _update_ee_files_after_game_update(self) -> None:
@@ -3781,26 +3784,36 @@ class ProfileController:
         return removed
 
     def _validate_mod_patch_ini(self, md: ModData) -> str:
-        """Create/delete a mod's ``nwnpatch.ini`` from its patch-folder haks.
+        """Create/delete a mod's patch INI from its patch-folder haks.
 
-        Faithful port of ``HakPatchManager.ValidateMod``: skip restorers, file-less
-        mods and mods with no haks (leaving INI-only installers alone). If the mod
-        has ``.hak`` files in the ``patch`` folder, write
-        ``.Mod Installer/nwn/nwnpatch.ini`` listing them and register the file; else
-        delete any existing mod ini and drop its key. Returns
-        ``"created"``/``"deleted"``/``"none"``.
-
-        The global patch-hak sequence file (VB ``PatchSequence`` ordering) is
-        deferred — entries are ordered by Windows sort, which is deterministic and
-        correct for a single mod's own haks.
+        Port of ``HakPatchManager.ValidateMod``: skip restorers, file-less mods
+        and mods with no haks (leaving INI-only installers alone). If the mod has
+        ``.hak`` files in the ``patch`` folder, write
+        ``.Mod Installer/nwn/<patch ini>`` listing them in the saved patch order
+        and register it; else delete any existing mod INI and drop its key. The
+        INI takes the edition's name (``userpatch.ini`` on EE); one under the
+        other name is renamed first (VB ``ValidateAll``). Returns
+        ``"created"``/``"unchanged"``/``"deleted"``/``"none"``.
         """
         from functools import cmp_to_key
 
         from nwnfile.win_sort import win_compare
 
         from vaultkeeper.core import constants as C
+        from vaultkeeper.game.installer_build import active_patch_ini_names
 
-        if md is None or md.is_group_item or md.is_restorer() or not md.files:
+        if md is None or md.is_group_item:
+            return "none"
+        active, inactive = active_patch_ini_names(is_ee=self.ctx.is_ee)
+        root_dir = self.ctx.profile_mods_dir / md.mod_name / C.MOD_INSTALLER_DIR / C.MOD_ROOT_FOLDER
+        old_ini, mod_ini = root_dir / inactive, root_dir / active
+        if old_ini.is_file() and not mod_ini.exists():
+            old_ini.rename(mod_ini)
+            old_fk = FileKeyInfo(md.group, md.mod_name, C.MOD_ROOT_FOLDER, inactive)
+            if old_fk in self.pd.file_list:
+                self.pd.remove_file(md, old_fk)
+            self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        if md.is_restorer() or not md.files:
             return "none"
         hak_files = [fk for fk in md.files if fk.extension.lower() == ".hak"]
         if not hak_files:
@@ -3808,20 +3821,23 @@ class ProfileController:
 
         patch_folder = self.ctx.mapper.get_secondary_folder(".hak")
         patch_haks = [fk for fk in hak_files if fk.folder.lower() == patch_folder.lower()]
-        mod_ini = (
-            self.ctx.profile_mods_dir
-            / md.mod_name
-            / C.MOD_INSTALLER_DIR
-            / C.MOD_ROOT_FOLDER
-            / C.PATCH_INI_FILE
-        )
 
         if patch_haks:
+            # VB CreateModPatchIniFile: the saved patch order, new haks appended.
             stems = sorted(
-                (Path(fk.filename).stem for fk in patch_haks),
-                key=cmp_to_key(win_compare),
+                (Path(fk.filename).stem for fk in patch_haks), key=cmp_to_key(win_compare)
             )
-            lines = ["[Patch]"] + [f"PatchFile{i:03d}={s}" for i, s in enumerate(stems)]
+            sequence = self._hpm.load_sequence()
+            known = {h.lower() for h in sequence}
+            added = [h for h in stems if h.lower() not in known]
+            if added:
+                from vaultkeeper.core.hak_patch import save_patch_sequence
+
+                sequence.extend(added)
+                save_patch_sequence(self._profile_data_dir(), sequence)
+            wanted = {h.lower() for h in stems}
+            ordered = [h for h in sequence if h.lower() in wanted]
+            lines = ["[Patch]"] + [f"PatchFile{i:03d}={h}" for i, h in enumerate(ordered)]
             existed = mod_ini.is_file()
             mod_ini.parent.mkdir(parents=True, exist_ok=True)
             mod_ini.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -3831,7 +3847,7 @@ class ProfileController:
 
         if mod_ini.is_file():
             mod_ini.unlink()
-            fk = FileKeyInfo(md.group, md.mod_name, C.MOD_ROOT_FOLDER, C.PATCH_INI_FILE)
+            fk = FileKeyInfo(md.group, md.mod_name, C.MOD_ROOT_FOLDER, active)
             self.pd.file_list.pop(fk, None)
             if fk in md.files:
                 md.files.remove(fk)
@@ -4166,9 +4182,24 @@ class ProfileController:
                 f"folder already has a file of that name: {', '.join(sorted(kept))}."
             )
 
+    def _make_hak_patch_manager(self) -> HakPatchManager:
+        """The patch-hak manager, reading the saved order and the patch folder.
+
+        Without the saved order every install rewrote the patch INI in
+        alphabetical order, whatever order the user had set (logic audit
+        stage 4 batch 4).
+        """
+        patch_folder = self.ctx.mapper.get_secondary_folder(".hak") or "patch"
+        return HakPatchManager(
+            self.pd,
+            self.patch_ini_path,
+            sequence_dir=self._profile_data_dir(),
+            patch_dir=self.ctx.game_folders.get(patch_folder),
+        )
+
     def _rebuild_engine(self) -> None:
         """Rebuild the engine/hak-patch against ``self.pd`` and drop the play loop."""
-        self._hpm = HakPatchManager(self.pd, self.patch_ini_path)
+        self._hpm = self._make_hak_patch_manager()
         self.engine = ModInstallationManager(
             self.pd, self.ctx, hak_patch=self._hpm.create_nwn_patch_ini_file,
             on_save=self.save,
