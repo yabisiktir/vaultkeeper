@@ -225,8 +225,10 @@ class ProfileController:
             ee_user_files_dir=folder_user_dir if is_ee else None,
         )
         controller = cls(pd, ctx, store_path=store_path, settings_path=settings_path)
+        controller._copy_credits_movie_fix()
         if check_game:
             controller._check_game_on_open()
+            controller._anneal_all_on_open()
             controller.validate_installer_types()
             # VB ProfileData.Load ends with ValidateNotes: orphans to the recycle bin.
             with contextlib.suppress(OSError):
@@ -424,6 +426,57 @@ class ProfileController:
                 Path(entry["path"]).write_bytes(b"")
                 cleared += 1
         return cleared
+
+    def _copy_credits_movie_fix(self) -> None:
+        """EE: put ``credits.bik.wbm`` in the movies folder (VB ``LoadProfile``).
+
+        The end credits are looked up under that name; NIT copies the game's own
+        ``data/mov/credits.wbm`` there on each load when it is missing.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        if not self.ctx.is_ee:
+            return
+        folder = self.ctx.game_folders.get(self.ctx.mapper.ext_mapping.get(".wbm", ""))
+        source = self.ctx.game_root / "data" / "mov" / "credits.wbm"
+        if folder is None or not source.is_file():
+            return
+        target = folder / C.CREDITS_MOVIE_FIX
+        if target.exists():
+            return
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+            fs.copy_file(source, target)
+        except OSError:
+            from nwnfile.log import get_logger
+
+            get_logger(__name__).warning("Credits movie copy failed", exc_info=True)
+
+    def _anneal_all_on_open(self) -> None:
+        """Anneal every mod when a profile loads (VB ``LoadProfile``).
+
+        "Fast enough to be worth correcting any anomalies": whichever installed
+        mod should own a file but does not gets its copy put back. Usually
+        nothing to do (none on the owner's real profile).
+        """
+        from nwnfile.log import get_logger
+
+        try:
+            self.pd.changes.save_info()
+            self.pd.changes.reset_changes()
+            self.engine.anneal(self.pd.mod_keys)
+            count = self.engine.anneal_count
+            errors = self.engine.anneal_errors
+            self.pd.changes.restore_saved_info()
+            if count:
+                self.startup_notes.append(f"Annealed {count} file(s) on load.")
+            if errors:
+                self.startup_notes.append(
+                    "Profile data may be corrupted: run Validate Profile Data."
+                )
+        except Exception:
+            get_logger(__name__).exception("annealing on open failed")
 
     def check_game_folder(self) -> str:
         """Check the game folders against the records and anneal (VB analyser ``BtRefresh``)."""

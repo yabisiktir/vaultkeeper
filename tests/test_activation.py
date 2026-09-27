@@ -98,3 +98,41 @@ def test_the_health_icon_follows_the_game_error_logs(qtbot, tmp_path: Path) -> N
     assert c.clear_game_error_logs() == 1
     win._health_check()
     assert not win.nit_status.bt_health.isVisible()
+
+
+def _mod(c: ProfileController, name: str, data: bytes) -> None:
+    c.create_mod(name)
+    payload = c.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR / "override"
+    payload.mkdir(parents=True)
+    (payload / "x.2da").write_bytes(data)
+    c.create_installer(name)
+
+
+def test_every_mod_is_annealed_when_the_profile_opens(tmp_path: Path) -> None:
+    # VB LoadProfile anneals all mods: a record naming the wrong owner is put right.
+    from vaultkeeper.core.file_key import FileKeyInfo
+
+    c = _open(tmp_path)
+    _mod(c, "Alpha", b"alpha")
+    _mod(c, "Beta", b"beta")
+    c.install(["Alpha", "Beta"])
+    ifk = FileKeyInfo.installed("override", "x.2da")
+    winner = c.pd.installed_item(ifk).installer
+    loser = "Alpha" if winner == "Beta" else "Beta"
+    c.pd.installed_item(ifk).installer = loser
+    c.save()
+
+    c = _open(tmp_path)
+
+    assert c.pd.installed_item(ifk).installer == winner
+    assert (c.ctx.game_folders["override"] / "x.2da").read_bytes() == winner.lower().encode()
+
+
+def test_the_credits_movie_fix_is_copied_on_ee(tmp_path: Path) -> None:
+    (tmp_path / "NWN" / "data" / "mov").mkdir(parents=True)
+    (tmp_path / "NWN" / "data" / "mov" / "credits.wbm").write_bytes(b"movie")
+
+    c = _open(tmp_path)
+
+    movies = c.ctx.game_folders[c.ctx.mapper.ext_mapping[".wbm"]]
+    assert (movies / C.CREDITS_MOVIE_FIX).read_bytes() == b"movie"
