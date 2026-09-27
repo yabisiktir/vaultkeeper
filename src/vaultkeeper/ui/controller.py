@@ -946,13 +946,18 @@ class ProfileController:
                 failures.append(f"{filename}: {ex}")
 
         self.pd.scan_mod_files(md, self.ctx.profile_mods_dir)
+        # VB MoveToFolder: a hak moved into (or out of) the patch folder changes
+        # the mod's patch INI (HakPatchManager.ValidateMod).
+        self._validate_mod_patch_ini(md)
         self.pd.update_file_states()
         self.pd.update_mod_states()
         self.save()
 
         message = f"Moved {moved} file{'s' if moved != 1 else ''} to {target_folder}."
         if uninstalled:
-            message += " The mod was uninstalled first."
+            # ...and the mod goes back in, from its files' new places.
+            self.install([mod_name])
+            message += " The mod was reinstalled."
         if failures:
             message += f" {len(failures)} could not be moved."
         return {"ok": not failures, "moved": moved, "message": message}
@@ -1700,19 +1705,30 @@ class ProfileController:
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
             return 0
+        from vaultkeeper.core import fs
+
         installer = self.ctx.profile_mods_dir / mod_name / C.MOD_INSTALLER_DIR
+        to_trash = bool(self._settings().recycle_on_delete)
         removed = 0
+        anneals: list[str] = []
         for fk in list(md.files):
             if matches(fk):
-                (installer / fk.folder / fk.filename).unlink(missing_ok=True)
-                self.pd.file_list.pop(fk, None)
-                if fk in md.files:
-                    md.files.remove(fk)
-                self.pd.changes.file.removed(fk)
+                # VB RemoveInstallerFiles: to the recycle bin, the installed copy's
+                # owner re-resolved, and the mods sharing the file annealed.
+                ifd = self.pd.installed_item(fk.installed_key)
+                if ifd is not None:
+                    anneals.extend(
+                        c.mod_name for c in ifd.mod_file_conflicts
+                        if c.mod_name.lower() != mod_name.lower()
+                    )
+                fs.delete(installer / fk.folder / fk.filename, to_trash=to_trash, missing_ok=True)
+                self.pd.remove_file(md, fk)
                 removed += 1
         if removed:
             self.pd.update_file_states()
             self.pd.update_mod_states()
+            if anneals:
+                self.engine.anneal(list(dict.fromkeys(anneals)))
             self.save()
         return removed
 
