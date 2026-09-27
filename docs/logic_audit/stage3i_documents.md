@@ -18,5 +18,23 @@ CRC match, unique numbering) and `NIT.Common.IsRunDocOrganiser` with its callers
 | D7 | Several mods | NIT steps through mods with Next; VK shows all selected mods in one view. | DELIBERATE (UI) |
 | D8 | Speed | VK describes archive docs from the 7-Zip index (path, size, CRC) instead of extracting; archives are unpacked only when they cannot be listed or hold archives. | VK-better |
 
+## Mod notes
+
+Method: NIT's `ModData.Notes` / `Rename`, `NIT.ModView` notes display,
+`ProfileData.ValidateNotes`, `ProcessNotesSaved` and `CreateMissingNotes` against
+the controller's `mod_notes_path` / `read_notes` / `save_notes` / `validate_notes`
+and the main window's notes pane.
+
+| ID | Area | Finding | Verdict |
+|---|---|---|---|
+| N1 ✅ | Rename | NIT renames the notes file with the mod. VK did not (single or bulk rename), so the notes were orphaned, and N2 then deleted them. Both renames now take the notes along; open, edited notes are saved first. | BUG (data loss) → fixed |
+| N2 ✅ | Orphaned notes | NIT sends them to the recycle bin; VK used `unlink`. | BUG → fixed |
+| N3 | Saving | Saved only when edited, with the confirm-saves question; remembered position per mod. | same |
+| N4 | Formatting | NIT's notes pane is a rich-text editor. VK reads the RTF as plain text and writes plain RTF, so *editing* a note NIT formatted (bold, colour, fonts) drops the formatting; merely viewing it does not. | GAP, flagged for the owner (needs a rich-text editor) |
+| N5 | Empty notes | NIT creates an empty notes file for every mod (`CreateMissingNotes`, and on display); VK writes one only when there is text and deletes it when cleared. | DELIBERATE |
+| N6 | Sync | `BehaviourSyncNotes` syncs through NIT's shared network profile (`SharedNit`), which VK does not port (export/import instead). | n/a |
+
+Regression tests: `tests/test_notes_parity.py` (the three controller tests fail on the old code).
+
 Regression tests: `tests/test_doc_organiser_parity.py` (D2 tests fail on the old
 code) and `tests/test_doc_organiser.py`.

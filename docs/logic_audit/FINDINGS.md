@@ -225,6 +225,9 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | D1 ✅ | No offer to run the Documentation Organiser after downloading |
 | D2 ✅ | Docs inside archives inside archives were never found |
 | D3 ✅ | Archive-index docs lost the versionless qualifier (Version toggle) |
+| N1 ✅ | Renaming a mod orphaned its notes (then Validate Mods deleted them) |
+| N2 ✅ | Orphaned notes were hard-deleted (NIT recycles) |
+| N4 | Editing NIT-formatted notes drops the formatting (plain-text editor) — owner decision |
 
 ## Vaultkeeper better than NIT
 
