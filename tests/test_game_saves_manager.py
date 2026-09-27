@@ -660,3 +660,17 @@ def test_save_table_ctrl_o_opens_the_folder(qtbot, tmp_path, monkeypatch):
     dlg.table.setCurrentItem(dlg.table.topLevelItem(0))
     shortcut.activated.emit()
     assert len(opened) == 1
+
+
+def test_deleting_a_game_takes_its_archived_saves(tmp_path, recycle_bin):
+    # VB DeleteGame deletes Paths.ArchivedSaves\<game> too, then records play time.
+    controller = _controller(tmp_path)
+    controller.deactivate_current_game()
+    archived = controller.archived_saves_root() / "Adventure" / "000010-000020"
+    archived.mkdir(parents=True)
+    (archived / "x.sav").write_bytes(b"x")
+
+    result = controller.delete_game_backup("Adventure")
+
+    assert result["ok"] and "archived saves were deleted" in result["message"]
+    assert not (controller.archived_saves_root() / "Adventure").exists()

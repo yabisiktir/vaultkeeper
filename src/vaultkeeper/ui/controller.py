@@ -7364,11 +7364,39 @@ class ProfileController:
         ``restoringdeletedsavesfromtherecy.htm`` untrue for the one command
         most likely to be regretted: a deactivated game is a whole playthrough.
         """
+        from vaultkeeper.core import fs
         from vaultkeeper.game.game_backup import delete_game_backup
 
         recycle = self._settings().recycle_game_saves if to_trash is None else to_trash
         result = delete_game_backup(self.game_backup_root() / name, to_trash=recycle)
-        return {"ok": result.ok, "message": result.message}
+        if not result.ok:
+            return {"ok": False, "message": result.message}
+        message = result.message
+        # VB DeleteGame: the game's archived saves go with it...
+        archived = self.archived_saves_root() / name
+        if archived.is_dir():
+            try:
+                fs.delete(archived, to_trash=recycle)
+                message += " Its archived saves were deleted too."
+            except OSError:
+                message += " Its archived saves could not be deleted."
+        # ...and play time is recorded for games whose saves are all gone
+        # (PlayDataManager.RecordDeletedGames).
+        loop = self.play_loop
+        if loop is not None:
+            try:
+                gs = loop.game_saves()
+                current = gs.current_game_save
+                names = [current] + [
+                    f.game_save_name for f in gs.folders if f.game_save_name != current
+                ]
+                loop.play_data.record_deleted_games(self.game_backup_root(), names)
+                loop.play_data.save()
+            except Exception:
+                from nwnfile.log import get_logger
+
+                get_logger(__name__).exception("recording deleted games failed")
+        return {"ok": True, "message": message}
 
     # -- Characters / portraits (VB BicFileInfo / CharacterViewer) --------- #
     def character_files(self, *, save_folder: Path | None = None) -> list:
