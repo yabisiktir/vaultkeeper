@@ -6156,6 +6156,16 @@ class ProfileController:
         rows.sort(key=lambda r: r["file"].lower())
         return {"rows": rows, "count": len(rows), "scope": scope, "mods": len(mods)}
 
+    def saves_count(self) -> int:
+        """How many saves the game's saves folder holds (VB ``NwGs.Count``)."""
+        if self.ctx.game_user_dir is None:
+            return 0
+        saves = self.ctx.game_user_dir / "saves"
+        try:
+            return sum(1 for p in saves.iterdir() if p.is_dir())
+        except OSError:
+            return 0
+
     def game_saves_report(self) -> dict:
         """The current game saves as display rows plus totals (prompt-free).
 

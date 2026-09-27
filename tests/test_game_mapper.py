@@ -174,6 +174,22 @@ class TestScanAndSaveName:
         assert gm.is_save_name("Beorunna")
         assert gm.save_name_to_mod_name("Beorunna") == "My Adventure"
 
+    def test_save_names_ignore_case_as_nit_does(self, tmp_path):
+        """NIT's SaveNames/SaveNameMap/rules are case-insensitive (logic audit 3d)."""
+        self._make_profile_tree(tmp_path, "Profile A", "My Adventure", "adv.mod")
+        pd = ProfileData()
+        _installed_mod(pd, "Adventures", "My Adventure")
+        reader = FakeReader({"adv.mod": ModuleInfo("Beorunna", "An epic", "adv.mod")})
+        prompter = RecordingPrompter(specify=(True, "Asked"))
+        gm = _mapper(
+            pd, _ctx(tmp_path), reader=reader, prompter=prompter,
+            save_name_rules={"OLD NAME": "Beorunna"},
+        )
+        gm.refresh(force=True)
+        assert gm.save_name_to_mod_name("BEORUNNA") == "My Adventure"
+        assert gm.save_name_to_mod_name("old name") == "My Adventure"
+        assert prompter.specify_calls == []
+
     @pytest.mark.skipif(
         not _CAN_SYMLINK,
         reason="Windows only allows symlinks under Developer Mode or elevation",

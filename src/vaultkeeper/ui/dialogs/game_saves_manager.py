@@ -76,7 +76,11 @@ class GameSavesManager(QDialog):
         self.keep_spin = QSpinBox()
         self.keep_spin.setRange(30, 900)
         self.keep_spin.setSingleStep(20)
-        self.keep_spin.setValue(100)
+        # Remembered between uses, 50 by default (VB ConfigSavesRetention).
+        from vaultkeeper.config.settings import load_settings
+
+        self.keep_spin.setValue(load_settings().saves_retention)
+        self.keep_spin.valueChanged.connect(self._remember_keep)
         reduce_row.addWidget(self.keep_spin)
         self.summary_button = QPushButton("Character Summary")
         self.summary_button.setIcon(R.get_icon("LookupUser_16x"))
@@ -371,6 +375,14 @@ class GameSavesManager(QDialog):
             self._populate(report)
 
     # -- Actions ---------------------------------------------------------- #
+    def _remember_keep(self, value: int) -> None:
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings()
+        if settings.saves_retention != value:
+            settings.saves_retention = value
+            save_settings(settings)
+
     def _on_reduce(self) -> None:
         if self._controller is None:
             return

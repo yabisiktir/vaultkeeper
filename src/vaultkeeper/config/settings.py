@@ -204,6 +204,12 @@ class Settings:
     #: them ungrouped. Vaultkeeper's own: NIT's similarly named
     #: BehaviourMoveAddedMods is the move-or-copy choice (``use_move_on_add``).
     move_added_mods: bool = False
+    #: How many game saves Reduce keeps (VB ``ConfigSavesRetention``; the Game
+    #: Saves Manager's "Number of game saves to keep", remembered between uses).
+    saves_retention: int = 50
+    #: After a game session, warn when the saves folder holds more saves than
+    #: this (VB ``ConfigSavesThreshold``): the game slows down with many saves.
+    saves_threshold: int = 700
     #: Keep your own rating, best weapon, levels, henchmen and web link for a mod
     #: you already have when importing its export (VB ``BehaviourRetainProperties``).
     retain_properties_on_import: bool = True

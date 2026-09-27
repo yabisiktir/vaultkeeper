@@ -165,6 +165,14 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | C3 ✅ | Restore Data trusted the backup's picture of the game (NIT's restart re-checks it) |
 | C4 | Rebuild Database keeps groups/properties in VK (NIT loses them) — VK better |
 
+## Stage 3d — game saves (details: `stage3d_saves.md`)
+
+| ID | Finding |
+|---|---|
+| G1 ✅ | Save-name → mod mapping was case-sensitive (NIT's is not): a case difference made VK ask the user |
+| G2 ✅ | Reduce kept 100 saves, not remembered (NIT: 50, remembered) |
+| G3 ✅ | No warning after play when there are more than 700 saves (NIT warns) |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |

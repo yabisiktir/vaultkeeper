@@ -34,6 +34,7 @@ from typing import Protocol
 from nwnfile.log import get_logger
 
 from vaultkeeper.core import constants as C
+from vaultkeeper.core.ci_dict import CIStrDict
 from vaultkeeper.core.file_key import FileKeyInfo
 from vaultkeeper.core.profile_data import ProfileData
 from vaultkeeper.persistence.json_store import read_json, write_json
@@ -206,9 +207,9 @@ class UserResponses:
 
     def __init__(self) -> None:
         self.mod_choices: list[str] = []
-        self.log_to_mod_names: dict[str, str] = {}
-        self.sav_to_mod_names: dict[str, str] = {}
-        self.profile_choices: dict[str, str] = {}
+        self.log_to_mod_names: CIStrDict[str] = CIStrDict()
+        self.sav_to_mod_names: CIStrDict[str] = CIStrDict()
+        self.profile_choices: CIStrDict[str] = CIStrDict()
 
     def add(self, identifier: str, mod_name: str, response_type: ResponseType) -> str:
         """Record a resolved answer of the given type and return the mod name."""
@@ -246,18 +247,18 @@ class UserResponses:
     def to_dict(self) -> dict:
         return {
             "mod_choices": self.mod_choices,
-            "log_to_mod_names": self.log_to_mod_names,
-            "sav_to_mod_names": self.sav_to_mod_names,
-            "profile_choices": self.profile_choices,
+            "log_to_mod_names": dict(self.log_to_mod_names),
+            "sav_to_mod_names": dict(self.sav_to_mod_names),
+            "profile_choices": dict(self.profile_choices),
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> UserResponses:
         ur = cls()
         ur.mod_choices = list(data.get("mod_choices", []))
-        ur.log_to_mod_names = dict(data.get("log_to_mod_names", {}))
-        ur.sav_to_mod_names = dict(data.get("sav_to_mod_names", {}))
-        ur.profile_choices = dict(data.get("profile_choices", {}))
+        ur.log_to_mod_names = CIStrDict(dict(data.get("log_to_mod_names", {})))
+        ur.sav_to_mod_names = CIStrDict(dict(data.get("sav_to_mod_names", {})))
+        ur.profile_choices = CIStrDict(dict(data.get("profile_choices", {})))
         return ur
 
 
@@ -298,11 +299,13 @@ class GameMapper:
         self.module_reader = module_reader
         self.prompter = prompter or DefaultPrompter()
         #: VaultDownloadRules save-name rules (Phase 6); empty until wired.
-        self.save_name_rules = save_name_rules or {}
+        # Case-insensitive, as NIT's dictionaries are (``CurrentCultureIgnoreCase``):
+        # a save's module name and a rule or scan can differ only in case.
+        self.save_name_rules = CIStrDict(dict(save_name_rules or {}))
         self.save_name_removed_chars = save_name_removed_chars
 
-        self.save_names: dict[str, SaveNameInfo] = {}
-        self.save_name_map: dict[str, str] = {}
+        self.save_names: CIStrDict[SaveNameInfo] = CIStrDict()
+        self.save_name_map: CIStrDict[str] = CIStrDict()
         self.user_choices = UserResponses()
         self._last_refresh = datetime.min
         self._scanning = False
@@ -328,7 +331,7 @@ class GameMapper:
         data = read_json(self._map_data_file, default=None)
         if not data:
             return False
-        self.save_names = {}
+        self.save_names = CIStrDict()
         for save_name, sni_data in data.items():
             sni = SaveNameInfo()
             for path, mfi in sni_data.get("mod_files", {}).items():
@@ -382,7 +385,7 @@ class GameMapper:
             return
         self._scanning = True
         self._empty_profile = False
-        self.save_names = {}
+        self.save_names = CIStrDict()
         self.scan_profiles()
         self._last_refresh = datetime.now()
         self.create_map_entries()
@@ -458,7 +461,7 @@ class GameMapper:
 
     def create_map_entries(self) -> None:
         """Build SaveNameMap from SaveNames + the download-rule save-name rules."""
-        self.save_name_map = {}
+        self.save_name_map = CIStrDict()
         for key in self.save_names:
             map_key = key.rstrip(".")
             for ch in self.save_name_removed_chars:
@@ -774,7 +777,7 @@ class GameMapper:
     # -- Mutation ---------------------------------------------------------- #
     def clear(self) -> None:
         """Forget the SaveNames dictionary and its cache file."""
-        self.save_names = {}
+        self.save_names = CIStrDict()
         self._map_data_file.unlink(missing_ok=True)
 
     def remove_user_response(self, category: str, key: str) -> bool:

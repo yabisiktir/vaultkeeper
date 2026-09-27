@@ -4041,6 +4041,13 @@ class MainWindow(QMainWindow):
                 note = f"{note} {auto['message']}".rstrip()
         except Exception:
             log.exception("Auto restorers failed after play")
+        # VB exit processing: too many saves slow the game down; say so.
+        count = self.controller.saves_count()
+        if count > self.controller._settings().saves_threshold:
+            note = (
+                f"{note} There are {count:,} game saves. I recommend using the Game "
+                "Saves Manager's Reduce function."
+            )
         self.refresh()
         mods = summary.get("mods", {})
         if mods:
