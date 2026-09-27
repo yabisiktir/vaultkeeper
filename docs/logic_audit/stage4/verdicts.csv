@@ -465,3 +465,77 @@ NIT.RecentMods.vb,SaveSelectionHistory,n/a,WinForms view/menu plumbing (no profi
 NIT.StatusBar.vb,BtSelectTextFile_Click,same,ported UI command; behaviour checked against the VB handler
 NIT.vb,NIT_ResizeBegin,n/a,WinForms view/menu plumbing (no profile logic)
 NIT.vb,NIT_ResizeEnd,n/a,WinForms view/menu plumbing (no profile logic)
+Defs.vb,StartupType,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,DefaultWebMenu,same,default_web_links
+Defs.vb,SuppressGotFocus,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,MissingModFiles,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,DevUser,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,ScreenImageCrop,same,3g P10 display
+Defs.vb,TitleInfo,same,window title
+Defs.vb,PlayedTodayText,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,DrawingEnabled,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,EditionFull,same,edition names
+Defs.vb,EditionStd,same,edition names
+Defs.vb,OpenAndSaveSettings,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,ForceNitUpdate,n/a,NIT self-update
+Defs.vb,HelpLayoutPanels,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,SteamWorkshopUrl,same,workshop link
+Defs.vb,ExportedModsCount,n/a,shared-store export count
+Defs.vb,ProgressBarPrefs,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,DefaultToolTipPlus,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,SaveCopiesPerByte,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,ZipExeOption,n/a,WinForms settings/view plumbing (no profile logic)
+Defs.vb,GetLocationInGameSave,same,save location
+Defs.vb,ModHasWizard,same,wizard present
+Defs.vb,ReadCrashReportFiles,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.Advanced.vb,DefaultGroupOptions,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.Classes.vb,Options,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.Common.vb,ValidateExtensionName,same,extension validation
+Settings.Config.vb,SetListViewDefs,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.Locations.vb,ResetLocationItem,same,Locations tab
+Settings.Locations.vb,ImportLocations,fixed,as TsImport_Click
+Settings.Locations.vb,SaveLocations,same,Locations tab
+Settings.Locations.vb,EditFolder,same,folder picker
+Settings.Locations.vb,EditFile,same,file picker
+Settings.Locations.vb,EditNetwork,n/a,shared NIT store
+Settings.Locations.vb,EditSharedProfile,n/a,shared NIT store
+Settings.MapExcludes.vb,AddMapExcludes,fixed,Map Excludes lists mod exclusions too
+Settings.MapExcludes.vb,ImportMapExcludes,same,settings import
+Settings.MapExcludes.vb,SetMapExcludes,fixed,deletable defaults removable
+Settings.MapExcludes.vb,SaveMapExcludes,fixed,removed_<kind> persisted
+Settings.MapExcludes.vb,LvMapExcludesItemChanged,fixed,Remove enabled for removable entries
+Settings.MapExcludes.vb,CexNewExclusion_Click,same,add_map_exclude (File/Folder/Mod)
+Settings.MapExcludes.vb,CexEditExclusion_Click,deliberate,edit = remove + add
+Settings.MapExcludes.vb,CexAddPlayerExclusions_Click,same,answer_player_excludes / apply_player_excludes
+Settings.MapExcludes.vb,CexRemovePlayerExclusions_Click,deliberate,player exclusions removed one by one (they are user additions)
+Settings.MapExtensions.vb,AddMapExtensions,same,folder_mapping Extensions
+Settings.MapExtensions.vb,ImportMapExtensions,same,settings import
+Settings.MapExtensions.vb,SetMapExtensions,same,set_map_extension + secondary/prefixes
+Settings.MapExtensions.vb,SaveMapExtensions,deliberate,"built-in mappings can be overridden, not deleted (a deleted mapping would leave files unmapped)"
+Settings.MapExtensions.vb,LvMapExtensionsItemChanged,same,
+Settings.MapFiles.vb,AddMapFiles,same,Map Files tab
+Settings.MapFiles.vb,ImportMapFiles,same,settings import
+Settings.MapFiles.vb,SaveMapFiles,deliberate,as SaveMapExtensions
+Settings.MapFiles.vb,CmfNewFileName_Click,same,set_map_file_exception
+Settings.MapFiles.vb,CmfFileName_Click,same,set_map_file_exception
+Settings.MapFolders.vb,AddMapFolders,same,Map Folders tab
+Settings.MapFolders.vb,ImportMapFolders,same,settings import
+Settings.MapFolders.vb,SaveMapFolders,deliberate,as SaveMapExtensions
+Settings.MapFolders.vb,CmdNewSourceFolder_Click,same,set_map_folder
+Settings.MapFolders.vb,CmdSourceFolder_Click,same,set_map_folder
+Settings.Profiles.vb,AddProfiles,same,Profiles tab (3a P3)
+Settings.Profiles.vb,ImportProfiles,fixed,as TsImport_Click
+Settings.Profiles.vb,SaveProfiles,same,3a P3
+Settings.Profiles.vb,ApplyProfileFolderChanges,same,3a P3 (game map rebuilt from disk each session)
+Settings.Profiles.vb,RenameProfile,same,3a P3
+Settings.Profiles.vb,CmpNewProfile_Click,same,create profile
+Settings.Profiles.vb,CmpNwnPath_Click,same,profile_game_paths
+Settings.Profiles.vb,CmpCreateNwnPath_Click,same,CreateNwnFolderDialog; copied aliases repaired on open (batch 3)
+Settings.RunMenu.vb,SaveRunMenu,same,run_links
+Settings.WebMenu.vb,SaveWebMenu,same,web_links
+Settings.vb,Settings_Load,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.vb,TsToolbar_Click,n/a,WinForms settings/view plumbing (no profile logic)
+Settings.vb,TsExport_Click,same,export_settings (timestamped)
+Settings.vb,TsImport_Click,fixed,import_settings keeps profile editions + EE signatures; imported paths only if they exist here
+Settings.vb,TsImportMaps_Click,deliberate,import map customisations from another settings file not offered; whole-settings import carries them
+Settings.vb,BtSave_Click,same,settings dialog Save

@@ -35,7 +35,7 @@ artefact`, `n/a`); `triage.py` then lists what is left in `stage4/residual.csv`.
 | 3 | Paths.vb, ProfileInfo.vb, ProfileInfoManager.vb, NwnFolderInfo.vb | 111 | ✅ |
 | 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | ✅ |
 | 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | 177 | ✅ |
-| 6 | Defs.vb, Settings.* | ~70 | |
+| 6 | Defs.vb, Settings.* | 74 | ✅ |
 | 7 | the rest (viewers, GameManager, ModExplorer, …); NetworkManager.vb as one verdict (not ported) | ~200 | |
 
 ## Batch 1 — ModData.vb
@@ -146,3 +146,18 @@ migrations.
 Regression tests: `tests/test_activation.py`, `tests/test_groups.py` (last two),
 `tests/test_details_parity.py`, `tests/test_maintenance.py` (CRC tests),
 `tests/test_remove_illegal_files.py::…_when_the_profile_opens`.
+
+## Batch 6 — Defs, Settings.*
+
+74 verdicts: 39 same, 22 n/a, 7 fixed, 6 deliberate.
+
+| Member | Finding | Verdict |
+|---|---|---|
+| `TsImport_Click` / `ImportLocations` / `ImportProfiles` | NIT imports a folder or file location only when it exists on this machine, and a profile's edition is stored outside the settings, so an import never changes it. VK kept only the store, game paths, active profile and window geometry, and imported per-profile editions and game folders wholesale: an older or foreign export could flip a profile's edition (relocating every file key) or point it at folders that are not here. Now editions and EE executable checksums are kept, and other locations are imported only if they exist (the message says how many were not). | BUG → fixed |
+| Map Excludes (`SetExcludes`, `SaveMapExcludes`, `LvMapExcludesItemChanged`) | NIT locks only the mandatory defaults (`$PLUGINSDIR`, `__MACOSX`, NIT's own folders, the 1.69 patch installers); every other exclusion, defaults included, can be removed. VK allowed removing only user additions and did not list the mod exclusions (demo/test/starter modules) at all. Now both, with removed defaults persisted and re-addable. | MISSING → fixed |
+| Map Extensions / Files / Folders delete | NIT can delete a built-in mapping; VK lets it be overridden (another folder) but not deleted: a deleted extension mapping leaves those files unmapped (never installed). | deliberate |
+| `ApplyProfileFolderChanges` | NIT clears its game map after a profile rename/delete; VK's map is rebuilt from disk on the first refresh of each session, which drops stale paths. | same |
+| `CmpCreateNwnPath` | Create NWN Folder is ported; a copied user folder's stale aliases are offered for repair on open (batch 3). | same |
+
+Regression tests: `tests/test_session.py::test_import_keeps_editions_and_takes_only_paths_that_exist_here`,
+`tests/test_folder_mapping.py::test_a_deletable_default_exclude_can_be_removed_and_stays_removed`.
