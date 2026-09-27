@@ -171,6 +171,10 @@ class Settings:
     #: interfere with your live gaming environment"
     #: (``specifyaneverwinternightsfolder.htm``).
     profile_game_paths: dict[str, str] = field(default_factory=dict)
+    #: Per-profile checksum of the game executable when Update EE Files last ran
+    #: (VB ``ExtendedVersionFileName`` + ``OperationStates(UpdateEeFiles)``): a
+    #: different one means the game was updated, so it runs again on open.
+    ee_files_signatures: dict[str, str] = field(default_factory=dict)
     profile_game_user_paths: dict[str, str] = field(default_factory=dict)
     #: Per-profile edition, profile name → ``True`` for Enhanced Edition. Fixed
     #: when the profile is made (``definenewprofiles.htm``: "You cannot change

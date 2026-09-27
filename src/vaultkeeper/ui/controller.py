@@ -231,7 +231,52 @@ class ProfileController:
             # VB ProfileData.Load ends with ValidateNotes: orphans to the recycle bin.
             with contextlib.suppress(OSError):
                 controller.validate_notes()
+            controller._update_ee_files_after_game_update()
         return controller
+
+    def _update_ee_files_after_game_update(self) -> None:
+        """Run Update EE Files when the game has been updated (VB ``NIT.ProfileView``).
+
+        NIT compares the game executable's version and checksum with those it
+        recorded and, when they differ, runs Update EE Files for each profile as it
+        loads, so the originals table follows the game. Here the executable's
+        checksum is recorded per profile. The first sighting only records it:
+        NIT first ran on a fresh install, but by now the folders may hold files
+        changed outside any mod (a PRC-ified campaign, say), which must not become
+        "originals". Update EE Files by hand still learns them. Best-effort.
+        """
+        from nwnfile.locations import HostOS
+        from nwnfile.log import get_logger
+
+        from vaultkeeper.config.settings import save_settings
+        from vaultkeeper.core.crc import crc32_file
+        from vaultkeeper.game.game_launch import run_binary
+
+        if not self.ctx.is_ee or self.store_path is None:
+            return
+        try:
+            exe = run_binary(self.ctx.game_root, HostOS.current())
+            if exe is None or not exe.is_file():
+                return
+            signature = f"{crc32_file(exe) & 0xFFFFFFFF:08X}"
+            settings = self._settings()
+            profile = self.store_path.stem
+            recorded = settings.ee_files_signatures.get(profile)
+            if recorded is None:
+                settings.ee_files_signatures[profile] = signature
+                save_settings(settings, self._settings_path)
+                return
+            if recorded == signature:
+                return
+            result = self.update_ee_files()
+            if not result["ok"]:
+                return
+            settings.ee_files_signatures[profile] = signature
+            save_settings(settings, self._settings_path)
+            if result["added"] or result["changed"]:
+                self.startup_notes.append(result["message"])
+        except Exception:
+            get_logger(__name__).exception("updating the EE originals on open failed")
 
     def validate_installer_types(self) -> int:
         """Correct every mod's identifier (VB ``NIT.Workers.ValidateInstallerType``).
@@ -2310,6 +2355,7 @@ class ProfileController:
                 ),
             }
         known = original_crc_table(is_ee=True, overrides=dict(self.pd.original_ee_files))
+        scanned = self._ee_original_crcs(scanned, known)
         changes = ee_original_changes(scanned, known=known)
 
         for key, crc in {**changes["added"], **changes["changed"]}.items():
@@ -2699,6 +2745,56 @@ class ProfileController:
         self.pd.update_mod_states()
         self.save()
         return len(recorded)
+
+    def _ee_original_crcs(self, scanned: dict[str, int], known: dict[str, int]) -> dict[str, int]:
+        """The original's checksum for each scanned file (VB ``UpdateOriginalEeFilesThread``).
+
+        A file a mod installed over the original is not the original: NIT keeps
+        the known checksum for it (and drops a file it does not know), and for a
+        file one of the default restorers holds a copy of, it takes that copy's
+        checksum. Everything else is the game's own and is taken as scanned.
+        """
+        from vaultkeeper.core import constants as C
+
+        campaigns = (
+            "Contest of Champions (EE)",
+            "1. Neverwinter Nights (EE)",
+            "2. The Shadow of Undrentide (EE)",
+            "3. Hordes of the Underdark (EE)",
+        )
+        defaults = {
+            n.lower()
+            for n in (
+                C.CORE_FILES_RESTORER,
+                C.INI_FILES_RESTORER,
+                C.CHARACTER_FILES_RESTORER,
+                *campaigns,
+            )
+        }
+        result: dict[str, int] = {}
+        for key, crc in scanned.items():
+            folder, _, filename = key.partition("/")
+            ifd = self.pd.installed_item(
+                FileKeyInfo.installed(folder, filename, root_folder_name=self.ctx.root_folder_name)
+            )
+            if ifd is None or ifd.is_default_installer:
+                result[key] = crc
+                continue
+            owner = self.pd.mod_item(ifd.installer)
+            if owner is not None and owner.is_installer():
+                if key in known:
+                    result[key] = known[key]
+                continue
+            held = next(
+                (
+                    self.pd.file_item(mfk)
+                    for mfk in ifd.mod_file_conflicts
+                    if mfk.mod_name.lower() in defaults and self.pd.file_item(mfk) is not None
+                ),
+                None,
+            )
+            result[key] = (int(held.file_crc) & 0xFFFFFFFF) if held is not None else crc
+        return result
 
     def _refresh_installed_facts(self, keys) -> None:
         """Re-read size/date/checksum of installed files (VB ``CheckAutoFileChanges``).

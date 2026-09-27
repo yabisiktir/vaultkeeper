@@ -122,3 +122,61 @@ def test_the_command_is_live(qtbot, controller):
     win = MainWindow(controller)
     qtbot.addWidget(win)
     assert "MsUpdateEeFiles" in win.implemented_commands()
+
+
+def test_a_file_a_mod_installed_over_keeps_the_original_checksum(controller):
+    # VB UpdateOriginalEeFilesThread: an installed mod's copy is not the original.
+    from vaultkeeper.core import constants as C
+
+    controller.update_ee_files()
+    original = controller.pd.original_ee_files["ovr/patch.2da"]
+    controller.create_mod("Patch")
+    payload = controller.ctx.profile_mods_dir / "Patch" / C.MOD_INSTALLER_DIR / "ovr"
+    payload.mkdir(parents=True)
+    (payload / "patch.2da").write_bytes(b"modded rows")
+    controller.create_installer("Patch")
+    controller.install(["Patch"])
+    assert (controller.ctx.game_root / "ovr" / "patch.2da").read_bytes() == b"modded rows"
+
+    result = controller.update_ee_files()
+
+    assert result["changed"] == 0
+    assert controller.pd.original_ee_files["ovr/patch.2da"] == original
+
+
+def test_it_runs_by_itself_when_the_game_is_updated(tmp_path, monkeypatch):
+    # VB NIT.ProfileView: a changed game executable → Update EE Files on load.
+    from vaultkeeper.game import game_launch
+
+    exe = tmp_path / "nwmain"
+    exe.write_bytes(b"build 1")
+    monkeypatch.setattr(game_launch, "run_binary", lambda *a, **k: exe)
+    game = tmp_path / "NWN"
+    (game / "ovr").mkdir(parents=True)
+    (game / "ovr" / "patch.2da").write_bytes(b"rows")
+    (tmp_path / "user").mkdir()
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+
+    def reopen():
+        return ProfileController.open_profile(
+            profile_mods_dir=profile_mods,
+            game_root=game,
+            store_path=tmp_path / "Data" / "P.json",
+            game_user_dir=tmp_path / "user",
+            settings_path=tmp_path / "settings.json",
+        )
+
+    reopen().save()  # a saved profile: the check runs when one is opened
+    # First sighting: the executable is recorded, the folders are not learned
+    # (they may already hold files changed outside any mod).
+    assert "ovr/patch.2da" not in reopen().pd.original_ee_files
+
+    (game / "ovr" / "patch.2da").write_bytes(b"patched rows")
+    assert "ovr/patch.2da" not in reopen().pd.original_ee_files
+
+    exe.write_bytes(b"build 2")  # the game was updated
+    c = reopen()
+    assert c.pd.original_ee_files["ovr/patch.2da"] == crc32_file(game / "ovr" / "patch.2da")
+    assert any("new" in note for note in c.startup_notes)
+    assert "new" not in " ".join(reopen().startup_notes)
