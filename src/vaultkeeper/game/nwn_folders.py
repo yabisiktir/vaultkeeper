@@ -225,3 +225,47 @@ def write_alias_section(
                 shutil.copy2(ini_path, bak)
         ini_path.write_text("".join(out_lines), encoding="utf-8")
     return changed
+
+
+def stray_alias_updates(user_dir: Path) -> dict[str, str]:
+    """Aliases that point outside ``user_dir``, with where NIT would point them.
+
+    VB ``NwnFolderInfo.PopulateLocations`` (run on every profile load) points each
+    ``[Alias]`` folder at the sub-folder of the same name in the profile's own
+    user folder, and ``HD0`` at the folder itself. A user folder copied for a test
+    profile keeps the old folder's absolute aliases, so without this the game —
+    and every install — would still use the original folder. ``CD0``, ``SAVES``
+    (the user may keep saves elsewhere) and ``NWMFILES`` are left alone, as are
+    relative values and values another operating system wrote (see
+    :func:`alias_target`). Returns ``{key: new value}``; empty when all is well.
+    """
+    user_dir = Path(user_dir)
+    updates: dict[str, str] = {}
+    for key, value in read_alias_section(user_dir):
+        low = key.lower()
+        if low in ("cd0", "saves", _NWM_INI_KEY) or not value:
+            continue
+        if not (_WINDOWS_ABSOLUTE.match(value) or _POSIX_ABSOLUTE.match(value)):
+            continue  # relative: already inside the folder
+        if alias_target(value, user_dir) is None:
+            continue  # written by another OS
+        current = Path(value)
+        wanted = user_dir if low == "hd0" else user_dir / current.name
+        if current != wanted:
+            updates[key] = str(wanted)
+    return updates
+
+
+def saves_folder(user_dir: Path) -> Path:
+    """The game's saves folder: ``nwn.ini``'s ``SAVES`` alias, else ``<user>/saves``.
+
+    VB ``NwnFolderInfo.SetGameSavesPath``. The alias can send saves anywhere (a
+    folder the user renamed, another drive), and the game follows it.
+    """
+    user_dir = Path(user_dir)
+    for key, value in read_alias_section(user_dir):
+        if key.lower() == "saves" and value:
+            target = alias_target(value, user_dir)
+            if target is not None:
+                return target
+    return user_dir / "saves"

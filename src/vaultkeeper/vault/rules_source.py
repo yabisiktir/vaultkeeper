@@ -108,6 +108,58 @@ def _cache_age(data_dir: Path, version: int) -> float:
         return float("inf")
 
 
+#: The user's own rules, appended to the published ones (VB ``Paths.UserRulesFile``).
+USER_RULES_FILENAME = "User Rules.txt"
+
+_USER_RULES_HEADER = """\
+' Your own download rules, added after the published Download Rules each time they
+' are read (VB NIT's "User Rules.txt"). Use the same statements as the published
+' file, typically to add projects to NoInstallerProjects and similar lists.
+'
+' - Lines starting with ' or # are comments.
+' - Nothing here is validated: a rule with a mistake in it can stop downloads
+'   working until it is fixed or removed.
+' - Do not add configuration statements.
+' - Changes take effect the next time the rules are read.
+"""
+
+
+def user_rules_file(data_dir: Path) -> Path:
+    """Where the user's own rules live, beside the cached rules."""
+    return Path(data_dir) / USER_RULES_FILENAME
+
+
+def ensure_user_rules_file(data_dir: Path) -> Path:
+    """The user rules file, created with an explanatory header when missing."""
+    path = user_rules_file(data_dir)
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_USER_RULES_HEADER, encoding="utf-8")
+    return path
+
+
+def user_rules_text(data_dir: Path) -> str:
+    """The rule lines of the user rules file, comments and blanks dropped."""
+    try:
+        raw = _decode(user_rules_file(data_dir).read_bytes())
+    except OSError:
+        return ""
+    lines = []
+    for line in raw.splitlines():
+        stripped = line.strip().strip("\t")
+        if stripped and not stripped.startswith(("'", "#")):
+            lines.append(line)
+    if lines:
+        log.info("Rule lines in the User Rules file: %d", len(lines))
+    return "\n".join(lines)
+
+
+def _with_user_rules(text: str, data_dir: Path) -> str:
+    """The published rules followed by the user's (VB ``ReadFile``)."""
+    extra = user_rules_text(data_dir)
+    return f"{text.rstrip()}\n{extra}\n" if extra else text
+
+
 def fetch_rules_text(http, version: int = RULES_VERSION) -> str:
     """Download the rules from the first host that answers ("" if none do)."""
     for name, url in rules_urls(version):
@@ -149,7 +201,7 @@ def load_rules(
                 cache_file(data_dir, version).write_text(text, encoding="utf-8")
             except OSError as ex:  # a read-only store still gets today's rules
                 log.warning("Could not cache the download rules: %s", ex)
-            return DownloadRules.from_text(text)
+            return DownloadRules.from_text(_with_user_rules(text, data_dir))
 
     text = _cached_text(data_dir, version) or bundled_rules_text(version)
-    return DownloadRules.from_text(text)
+    return DownloadRules.from_text(_with_user_rules(text, data_dir))

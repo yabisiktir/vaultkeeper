@@ -83,8 +83,14 @@ def bootstrap_controller(
     settings: Settings | None = None,
     *,
     discover: Callable[[], list[GameInstall]] = discover_installs,
+    confirm_alias_repair: Callable[[Path, dict[str, str]], bool] | None = None,
 ) -> ProfileController | None:
-    """Open the active profile from settings/discovery, or ``None`` if unconfigured."""
+    """Open the active profile from settings/discovery, or ``None`` if unconfigured.
+
+    ``confirm_alias_repair`` is asked, before the profile opens, whether to point
+    ``nwn.ini`` aliases that lead outside the profile's user folder back into it
+    (VB ``PopulateLocations``); without it nothing is written.
+    """
     settings = settings or load_settings()
     store = settings.resolved_store()
 
@@ -101,6 +107,8 @@ def bootstrap_controller(
         return None
 
     profile = settings.active_profile
+    if confirm_alias_repair is not None and profile_is_ee(profile, settings):
+        _repair_stray_aliases(profile, settings, confirm_alias_repair)
     return ProfileController.open_profile(
         profile_mods_dir=store.profile_dir(profile),
         game_root=Path(nwn_path),
@@ -116,6 +124,27 @@ def bootstrap_controller(
         settings_path=store.settings_file,
         game_user_dir=_profile_user_dir(profile, settings),
     )
+
+
+def _repair_stray_aliases(
+    profile: str, settings: Settings, confirm: Callable[[Path, dict[str, str]], bool]
+) -> None:
+    """Offer to re-point ``nwn.ini`` aliases into the profile's user folder.
+
+    Asked before the profile opens: opening checks the game folders, and an
+    alias into another folder would have that folder checked (and annealed).
+    """
+    from nwnfile.locations import HostOS, user_documents_dir
+
+    from vaultkeeper.game.nwn_folders import stray_alias_updates, write_alias_section
+
+    user_dir = _profile_user_dir(profile, settings) or user_documents_dir(HostOS.current())
+    if user_dir is None:
+        return
+    updates = stray_alias_updates(user_dir)
+    if updates and confirm(Path(user_dir), updates):
+        with contextlib.suppress(OSError):
+            write_alias_section(user_dir, updates)
 
 
 def _profile_user_dir(profile: str, settings: Settings):
@@ -264,6 +293,7 @@ def switch_profile(
     *,
     settings: Settings | None = None,
     settings_path: Path | None = None,
+    confirm_alias_repair: Callable[[Path, dict[str, str]], bool] | None = None,
 ) -> ProfileController | None:
     """Make ``profile_name`` the active profile and open it (persisting the choice)."""
     settings = settings or load_settings(settings_path)
@@ -271,7 +301,7 @@ def switch_profile(
     store.profile_dir(profile_name).mkdir(parents=True, exist_ok=True)
     settings.active_profile = profile_name
     save_settings(settings, settings_path)
-    return bootstrap_controller(settings)
+    return bootstrap_controller(settings, confirm_alias_repair=confirm_alias_repair)
 
 
 def list_legacy_profiles(legacy_store_root: str | Path) -> list[str]:

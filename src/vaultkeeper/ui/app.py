@@ -64,12 +64,13 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
 
     first_run = False
     if controller is None:
+        from vaultkeeper.ui.alias_repair import confirm_alias_repair
         from vaultkeeper.ui.session import (
             auto_configure_first_run,
             bootstrap_controller,
         )
 
-        controller = bootstrap_controller()
+        controller = bootstrap_controller(confirm_alias_repair=confirm_alias_repair)
         if controller is None:
             # First run. Two things go wrong in silence if nobody is asked —
             # which of several installations, and which drive the store lands

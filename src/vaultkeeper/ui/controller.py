@@ -4676,7 +4676,7 @@ class ProfileController:
             self.pd,
             profile_mods_dir=self.ctx.profile_mods_dir,
             data_dir=data_dir,
-            saves_dir=self.ctx.game_user_dir / "saves",
+            saves_dir=self.game_saves_dir(),
             log_path=self.ctx.game_user_dir / "logs" / "nwclientlog1.txt",
             on_save=self.save,
             prompter=self.play_prompter,
@@ -4709,6 +4709,14 @@ class ProfileController:
         if method == "scrape":
             return VaultScraper(rules, self._http)
         return VaultApi(rules, self._http)
+
+    def user_rules_path(self) -> Path:
+        """The user's own download rules file, created when missing (VB ``UserRulesFile``)."""
+        from vaultkeeper.app_paths import data_root
+        from vaultkeeper.vault import rules_source
+
+        data_dir = self.store_path.parent if self.store_path else data_root()
+        return rules_source.ensure_user_rules_file(data_dir)
 
     def download_rules(self, *, refresh: bool = False, network: bool = True):
         """The Vault download rules in force, fetching them when allowed.
@@ -6628,11 +6636,23 @@ class ProfileController:
         rows.sort(key=lambda r: r["file"].lower())
         return {"rows": rows, "count": len(rows), "scope": scope, "mods": len(mods)}
 
+    def game_saves_dir(self) -> Path | None:
+        """The game's saves folder, following ``nwn.ini``'s ``SAVES`` alias.
+
+        VB ``NwnFolderInfo.GameSavesPath``. A hard-coded ``<user>/saves`` missed
+        every save of a user whose alias points elsewhere.
+        """
+        from vaultkeeper.game.nwn_folders import saves_folder
+
+        if self.ctx.game_user_dir is None:
+            return None
+        return saves_folder(self.ctx.game_user_dir)
+
     def saves_count(self) -> int:
         """How many saves the game's saves folder holds (VB ``NwGs.Count``)."""
         if self.ctx.game_user_dir is None:
             return 0
-        saves = self.ctx.game_user_dir / "saves"
+        saves = self.game_saves_dir()
         try:
             return sum(1 for p in saves.iterdir() if p.is_dir())
         except OSError:
@@ -7000,7 +7020,7 @@ class ProfileController:
             if user is None:
                 return []
             found = list(scan_character_files(user / "localvault"))
-            saves = user / "saves"
+            saves = self.game_saves_dir()
             if saves.is_dir():
                 for save_dir in sorted(saves.iterdir()):
                     if save_dir.is_dir():

@@ -1388,9 +1388,18 @@ def test_view_menu_shows_the_settings_and_rules_files(qtbot, controller, monkeyp
     monkeypatch.setattr(
         TextViewer, "show_file", lambda path, title, parent: seen.append((path, title))
     )
+    from PySide6.QtGui import QDesktopServices
+
+    opened: list = []
+    monkeypatch.setattr(
+        QDesktopServices, "openUrl", lambda url: opened.append(url.toLocalFile()) or True
+    )
 
     win._on_view_file("MsDisplaySettings")
     win._on_view_file("MsOpenRulesFile")
+    # VB opens the User Rules file for editing too, creating it when missing.
+    assert [Path(p).name for p in opened] == ["User Rules.txt"]
+    assert Path(opened[0]).is_file()
 
     assert [title for _p, title in seen] == [
         "Vaultkeeper User Config File",

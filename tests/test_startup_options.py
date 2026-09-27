@@ -174,7 +174,7 @@ def test_the_recovery_steps_run_before_the_profile_is_loaded(qtbot, monkeypatch)
         def refresh(self):
             pass
 
-    def _bootstrap():
+    def _bootstrap(**_kwargs):
         order.append("load profile")
         return None
 

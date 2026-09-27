@@ -941,9 +941,12 @@ class MainWindow(QMainWindow):
         )
 
     def _switch_profile(self, name: str) -> None:
+        from vaultkeeper.ui.alias_repair import confirm_alias_repair
         from vaultkeeper.ui.session import switch_profile
 
-        controller = switch_profile(name)
+        controller = switch_profile(
+            name, confirm_alias_repair=lambda d, u: confirm_alias_repair(d, u, self)
+        )
         if controller is not None:
             self.set_controller(controller)
             notes = " ".join(controller.startup_notes)
@@ -4103,9 +4106,12 @@ class MainWindow(QMainWindow):
 
     def _reopen_with_new_paths(self) -> None:
         """Re-open the active profile with the freshly-edited game paths."""
+        from vaultkeeper.ui.alias_repair import confirm_alias_repair
         from vaultkeeper.ui.session import bootstrap_controller
 
-        controller = bootstrap_controller()
+        controller = bootstrap_controller(
+            confirm_alias_repair=lambda d, u: confirm_alias_repair(d, u, self)
+        )
         if controller is not None:
             self.set_controller(controller)
             self.nit_status.set_info("Game paths updated.")
@@ -4152,6 +4158,16 @@ class MainWindow(QMainWindow):
             ),
         }
         path, title = specs.get(kind, (None, "File"))
+        if kind == "MsOpenRulesFile":
+            # VB opens the User Rules file for editing beside the rules in force.
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+
+            try:
+                user_rules = self.controller.user_rules_path()
+                QDesktopServices.openUrl(QUrl.fromLocalFile(str(user_rules)))
+            except OSError:
+                log.exception("Could not open the User Rules file")
         from vaultkeeper.ui.dialogs.text_viewer import TextViewer
 
         self._text_viewer = TextViewer.show_file(path, title, self)
