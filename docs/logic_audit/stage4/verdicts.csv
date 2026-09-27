@@ -87,8 +87,8 @@ ProfileData.vb,ValidateNotes,fixed,recycle (3i N2) + on open (batch 2)
 ProfileData.vb,GetInstaller,same,get_installer
 ProfileData.vb,GetConflicts,same,get_conflicts
 ProfileData.vb,FileKeyExists,same,dict membership
-ProfileData.vb,LoadSelections,deliberate,UI state: VK does not restore the selected mod per profile; screen-parity phase
-ProfileData.vb,SaveSelections,deliberate,as LoadSelections
+ProfileData.vb,LoadSelections,fixed,controller.load_selections + MainWindow._restore_selections: selected mods per profile (screen-parity phase; contents selection was already kept per mod)
+ProfileData.vb,SaveSelections,fixed,as LoadSelections (saved on close and on profile switch)
 ProfileData.vb,RecoverUserData,same,stage 3c
 ProfileData.vb,ModRenamed,same,rename_mod
 ProfileData.vb,ModDeleted,same,delete_mods

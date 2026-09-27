@@ -3736,6 +3736,39 @@ class ProfileController:
         """The per-profile data folder (VB ``Paths.ProfileData``)."""
         return self.data_dir() / self.ctx.profile_mods_dir.name
 
+    #: Mods selected when the profile was last closed (VB ``Pdc.ProfileSelections``,
+    #: ``ProfileSelections.txt``). VK writes its own JSON under another name, so
+    #: it never misreads NIT's file in an imported data folder.
+    SELECTIONS_FILE = "ProfileSelections.json"
+
+    def load_selections(self) -> list[str]:
+        """The mods selected when this profile was last closed (VB ``LoadSelections``)."""
+        import json
+
+        try:
+            data = json.loads(
+                (self._profile_data_dir() / self.SELECTIONS_FILE).read_text(encoding="utf-8")
+            )
+        except (OSError, ValueError):
+            return []
+        mods = data.get("mods") if isinstance(data, dict) else None
+        if not isinstance(mods, list):
+            return []
+        return [m for m in mods if isinstance(m, str)]
+
+    def save_selections(self, mods: list[str]) -> None:
+        """Remember the selected mods for next time (VB ``SaveSelections``)."""
+        import json
+
+        path = self._profile_data_dir() / self.SELECTIONS_FILE
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({"mods": list(mods)}, indent=1), encoding="utf-8")
+        except OSError:
+            from nwnfile.log import get_logger
+
+            get_logger(__name__).warning("could not save the mod selection to %s", path)
+
     def _group_filter_file(self) -> Path:
         """Persisted Mod Explorer group filter (VB ``Paths.GroupNameFilters``)."""
         return self._profile_data_dir() / "GroupNameFilters.txt"

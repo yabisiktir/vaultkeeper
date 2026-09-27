@@ -55,8 +55,8 @@ Regression tests: `tests/test_installer_type_parity.py`,
 
 ## Batch 2 — ProfileData, ProfileData.Properties, GroupMemberData
 
-106 verdicts (two `RepairChecksums` overloads share one): 78 same, 15 fixed,
-8 n/a, 5 deliberate.
+106 verdicts (two `RepairChecksums` overloads share one): 78 same, 17 fixed,
+8 n/a, 3 deliberate.
 
 | Member | Finding | Verdict |
 |---|---|---|
@@ -69,7 +69,7 @@ Regression tests: `tests/test_installer_type_parity.py`,
 | `SaveEeFileVersion` / `NIT.ProfileView` | NIT reruns Update EE Files on load when the game executable changed. Ported with per-profile executable CRCs. **Deliberate:** the first sighting only records the CRC. On the owner's install the 15 campaign `.nwm` files were changed on 14–15 Aug outside any mod (the PRC-ified campaign), so learning now would make them the "originals". | MISSING → fixed |
 | `OriginalSourceFile` | A file held by one of the three original restorers whose copy is stale is backed up again in NIT; VK skipped it. | fixed |
 | `UpdateDatabaseFile` | NIT does not count an SQLite file that EE rewrote at the same length as changed; VK re-checksums it, so the Auto restorer may take one extra copy. | deliberate (harmless) |
-| `LoadSelections` / `SaveSelections` | NIT restores the selected mod/contents/details per profile across restarts; VK does not. | deliberate (UI state; screen-parity phase) |
+| `LoadSelections` / `SaveSelections` | NIT restores the selected mod/contents/details per profile across restarts. VK kept the contents selection per mod but not the selected mods; now it saves them per profile on close and profile switch and reselects them on load (screen-parity phase). | fixed |
 | `BuildOriginalFiles` | Classic: NIT can rescan a Diamond install; VK uses the bundled 1.69 table. | deliberate |
 | `GroupMemberData.Rename` | NIT clears the removed list and calls `ResetModFiles` + `FindInstaller` itself; VK re-resolves the removed keys in `update_file_states`, giving the same owners. | same |
 
@@ -180,5 +180,5 @@ Regression test: `tests/test_game_saves_manager.py::test_deleting_a_game_takes_i
 ## Stage 4 result
 
 All 726 residual members have a verdict (`triage.py`: still to review 0):
-408 same, 209 n/a, 69 fixed, 33 deliberate. The deliberate differences are in
+408 same, 209 n/a, 71 fixed, 31 deliberate. The deliberate differences are in
 each batch's table; the owner's decisions are in `FINDINGS.md`.

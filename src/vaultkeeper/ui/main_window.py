@@ -243,6 +243,7 @@ class MainWindow(QMainWindow):
         if controller is not None:
             self._install_prompter()
             self.refresh()
+            self._restore_selections()
             self._health_check()
         else:
             self._show_empty_state()
@@ -667,12 +668,39 @@ class MainWindow(QMainWindow):
 
     def set_controller(self, controller: ProfileController) -> None:
         """Swap in a new active profile controller and repopulate."""
+        self._save_selections()  # the outgoing profile's (VB ProfileView)
         self.controller = controller
         self._install_prompter()
         self.refresh()
+        self._restore_selections()
         self._detect_workshop_changes()
         self._notify_config_drift()
         self._health_check()
+
+    def _save_selections(self) -> None:
+        """Remember this profile's selected mods (VB ``pd.SaveSelections``).
+
+        Best-effort: this runs while the window closes or the profile changes,
+        and neither may fail over a selection.
+        """
+        save = getattr(self.controller, "save_selections", None)
+        if save is not None:
+            save(self._tree.selected_mod_names())
+
+    def _restore_selections(self) -> None:
+        """Reselect the mods selected when this profile was last closed.
+
+        VB ``pd.LoadSelections`` on profile load: you come back to the mod you
+        were working on rather than to the top of the list.
+        """
+        load = getattr(self.controller, "load_selections", None)
+        names = load() if load is not None else []
+        if not names or not self._tree.select_mods(names):
+            return
+        from PySide6.QtCore import QItemSelectionModel
+
+        first = self._tree.selectedItems()[0]
+        self._tree.setCurrentItem(first, 0, QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def _detect_workshop_changes(self) -> None:
         """Notice new or changed Steam subscriptions on load (VB ``newtopic20``).
@@ -1469,8 +1497,9 @@ class MainWindow(QMainWindow):
         self._find_text_dialog.show()
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
-        """Persist unsaved notes, where they were left, and the geometry."""
+        """Persist unsaved notes, where they were left, the selection and the geometry."""
         self._save_current_notes()
+        self._save_selections()
         self._save_notes_positions()
         self._save_geometry()
         super().closeEvent(event)

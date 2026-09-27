@@ -275,7 +275,7 @@ layouts.
 | Orphan folder "Lord Of Destruction" | Recycle it, then run Validate Mods | done on the real store (backup `Store/Backups/pre-audit-2026-09-27_221515`): folder recycled; 1 file added, 12 stale records dropped |
 | ~2,670 records without a checksum | Calculate them, with a backup | the Validate Mods resync checksummed them; 4 more by Calculate CRCs |
 | PRC-modified campaign modules | Do what NIT does | Update EE Files run: 15 changed + 99 new EE files recorded as originals (the PRC modules are the baseline now) |
-| Remember the selected mod per profile | Screen-parity phase | — |
+| Remember the selected mod per profile | Screen-parity phase | ✅ `load_selections`/`save_selections`, restored on load (2026-09-28) |
 
 Real-store state changes from the above: "1. Neverwinter Nights (EE)" SOME_AND_OVERRIDDEN → NOT_INSTALLED (its stale records went); "2.  NWN INI Files Restorer" SOME_AND_MATCH → NOT_INSTALLED (the old "match" was 0 = 0; the restorer has no copy of `userpatch.ini`).
 

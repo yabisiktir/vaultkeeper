@@ -55,6 +55,7 @@ Legend: ✅ fixed in this pass · ➖ VK differs deliberately or does more · �
 | Find Profile Files | NIT's "Find what" is a combo box; VK has a text box plus whole-word and match-case options. | ➖ VK does more. |
 | User Response Editor | Same four categories, different order. | ➖ Cosmetic. |
 | Game Saves Manager, Download Project, Settings, Workshop Viewer, Publish Mod, Wizard Builder, Dependency Manager, Backup Manager, Mod Play Viewer, Installation Analyser | Same actions or more (the Settings depth, Mod Play Viewer and Dependency Manager gaps were closed in earlier passes: see `docs/PARITY.md` and `docs/parity_audit/`). | ➖ |
+| Main window | NIT reselects the mods that were selected when the profile last closed (`LoadSelections` / `SaveSelections`). | ✅ Saved per profile on close and profile switch; reselected on load. |
 | All dialogs | NIT dialogs share one frame: a header (icon, description, round "?" help) and a footer (status text left; Save / Cancel right). VK dialogs put Help bottom-left and the description as plain text, with no header icon. | ⚖ Owner decision. Adopting NIT's frame reshapes every dialog, which `CLAUDE.md` asks not to do without a reason. |
 
 ## Re-running
