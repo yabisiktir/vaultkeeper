@@ -74,6 +74,14 @@ class ProfileData:
         # only consulted for a mod with zero files. Defaults to "has an installer
         # identifier file". A real filesystem-backed check is injected later.
         self._mod_installer_exists = mod_installer_exists or (lambda md: md.is_installer())
+        #: The profile's mods folder, when known. With it, :meth:`update_file_states`
+        #: first checksums the mod files added since the last update, as VB
+        #: ``UpdateProfileData`` runs ``CalculateChecksums`` before
+        #: ``UpdateFileStates``. Without the CRCs every newly scanned file reads 0,
+        #: so any two same-named files "match" — a mod whose file another mod
+        #: overwrote showed "Match Override" instead of "Overridden", and stayed
+        #: "Some Installed" after it was uninstalled (logic audit S3).
+        self.mod_files_root: Path | None = None
 
     @property
     def lock(self) -> threading.RLock:
@@ -565,6 +573,8 @@ class ProfileData:
     def update_file_states(self) -> None:
         """Recompute installed/mod file states from the change lists (UpdateFileStates)."""
         with self._lock:
+            if self.mod_files_root is not None:
+                self._checksum_new_mod_files(self.mod_files_root)
             processed_file_keys: set[str] = set()
 
             for fk in list(self.changes.installed.update_list):
@@ -762,6 +772,18 @@ class ProfileData:
                 continue
             path = self.installed_file_path(game_folders, ifk)
             ifd.file_crc = _safe_crc(path) if path is not None else 0
+
+    def _checksum_new_mod_files(self, profile_mods_dir: Path) -> None:
+        """CRC the pending mod files that have none yet (VB ``CalculateChecksums``).
+
+        Only mod files: an installed file's CRC is set from its mod file when it is
+        copied, so an install does not read the game's copy back.
+        """
+        pending = list(self.changes.file.update_list) + list(self.changes.file.renamed_list)
+        for fk in pending:
+            fd = self.file_list.get(fk)
+            if fd is not None and fd.file_crc == 0:
+                fd.file_crc = _safe_crc(self.mod_file_path(profile_mods_dir, fk))
 
     def check_installed_files(
         self, game_folders: dict[str, Path], root_folder_name: str

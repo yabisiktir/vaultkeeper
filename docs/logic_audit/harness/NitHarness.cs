@@ -258,7 +258,7 @@ class NitHarness
     static string Describe(object o)
     {
         return "{" + string.Join(";", o.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.GetIndexParameters().Length == 0 && (p.PropertyType == typeof(string) || p.PropertyType.IsPrimitive))
+            .Where(p => p.GetIndexParameters().Length == 0 && (p.PropertyType == typeof(string) || p.PropertyType.IsPrimitive || p.PropertyType.IsEnum))
             .Select(p => { try { return p.Name + "=" + p.GetValue(o); } catch { return p.Name + "=?"; } })) + "}";
     }
 

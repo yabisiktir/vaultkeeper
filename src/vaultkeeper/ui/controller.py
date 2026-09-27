@@ -64,6 +64,18 @@ class ProfileController:
     #: ``nwnsaveeditor.ui.editor.host.wordmark_for``).
     wordmark = "VAULTKEEPER"
 
+    @property
+    def pd(self) -> ProfileData:
+        return self._pd
+
+    @pd.setter
+    def pd(self, value: ProfileData) -> None:
+        # Let the profile data checksum the mod files it scans (VB UpdateProfileData).
+        self._pd = value
+        ctx = getattr(self, "ctx", None)
+        if value is not None and ctx is not None:
+            value.mod_files_root = ctx.profile_mods_dir
+
     def __init__(
         self,
         pd: ProfileData,
@@ -72,8 +84,8 @@ class ProfileController:
         store_path: Path | None = None,
         settings_path: Path | None = None,
     ) -> None:
-        self.pd = pd
         self.ctx = ctx
+        self.pd = pd
         self.store_path = store_path
         #: Settings file for persisting non-profile prefs (map overrides); None =
         #: the platform default location.
