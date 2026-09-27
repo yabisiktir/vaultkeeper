@@ -106,21 +106,6 @@ NIT.Workers.vb,RemoveOldSettings,NIT.Workers.vb:580,Deferred,22,deletefile direc
 NIT.Workers.vb,RemoveOldDataFiles,NIT.Workers.vb:613,Deferred,19,deletefile fs. my.computer.filesystem pim.,unported subsystem (restorer/update/crypt/shared-store/portrait-mgr integration).
 NIT.Workers.vb,RemoveLetoLogFiles,NIT.Workers.vb:657,Ported,42,deletefile directory. fs. movefile my.computer.filesystem pd.,verified: launch/play-data
 NIT.Workers.vb,PopulateDateCompleted,NIT.Workers.vb:731,Ported,33,pd. pim.,verified present in port (subagent/orchestrator swept 2026-07-15).
-HakPatchManager.vb,PatchSequenceFile,HakPatchManager.vb:43,Divergence,5,my.computer.filesystem,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,ModIniFileFolder,HakPatchManager.vb:89,Ported,5,my.computer.filesystem pd.,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,ModIniFile,HakPatchManager.vb:98,Ported,5,my.computer.filesystem pim.,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,GetInstalledPatchHaks,HakPatchManager.vb:174,Ported,17,map.,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,UpdateSequenceFile,HakPatchManager.vb:197,Divergence,9,,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,SaveSequenceFile,HakPatchManager.vb:212,Divergence,7,file. my.computer.filesystem writealltext,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,GetNwnIniHaks,HakPatchManager.vb:223,Ported,4,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,GetModIniHaks,HakPatchManager.vb:239,Ported,4,,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,ValidateAll,HakPatchManager.vb:249,Deferred,23,fs. pd. pim. renamefile,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-HakPatchManager.vb,ValidateAllThread,HakPatchManager.vb:280,Deferred,20,pd.,BackupManager + NetworkManager shared-store/sync + find-rename + original-restorers + legacy migrate. The SlideShow and prefix-editor items named here previously are done.
-HakPatchManager.vb,ValidateMod,HakPatchManager.vb:314,Divergence,31,deletefile fs. movefile my.computer.filesystem pd. pim.,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,CreateNwnPatchIniFile,HakPatchManager.vb:360,Divergence,61,copyfile directory. file. fs. my.computer.filesystem pd.,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,GetPatchHaks,HakPatchManager.vb:447,Divergence,23,my.computer.filesystem,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
-HakPatchManager.vb,CreateModPatchIniFile,HakPatchManager.vb:478,Ported,39,file. fs. my.computer.filesystem writealltext,"port view/domain layer (details/contents/status/paste/recent/profile views, hak-patch, play-data viewer, find-files, conflicts, workshop, publish)."
-HakPatchManager.vb,UpdateProfileData,HakPatchManager.vb:534,Divergence,21,my.computer.filesystem pd. pim.,WinForms lifecycle/event/virtual-list/background-worker/mouse-hover plumbing.
 Defs.vb,StartupType,Defs.vb:477,Divergence,46,vault,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
 Defs.vb,DefaultWebMenu,Defs.vb:691,Ported,7,vault,verified: constants/editions/helpers
 Defs.vb,SuppressGotFocus,Defs.vb:753,Divergence,8,,WinForms UI-state/lifecycle/version/image-editor/crash glue; not applicable in Qt.
@@ -183,32 +168,6 @@ NIT.ModView.vb,UpdateDownloads,NIT.ModView.vb:2604,Ported,41,fs. my.computer.fil
 NIT.ModView.vb,SelectDownloadsFolder,NIT.ModView.vb:2666,Partial,12,my.computer.filesystem,installer-subfolder/download-target/map-exception editing present but bounded.
 NIT.ModView.vb,SetDownloadTarget,NIT.ModView.vb:2689,Partial,4,my.computer.filesystem,installer-subfolder/download-target/map-exception editing present but bounded.
 NIT.ModView.vb,SelectMod,NIT.ModView.vb:2704,Ported,19,pd.,verified present in port (subagent/orchestrator swept 2026-07-15).
-InstallationAnalyser.vb,FileDetails,InstallationAnalyser.vb:48,Ported,28,pd.,install engine + rename + analyser browser report (subagent-swept).
-InstallationAnalyser.vb,TsMiniDumpInfo_Click,InstallationAnalyser.vb:213,Deferred,19,pd.,"installation-sets editor BOUNDED tail (group add/remove selector, prune, sort-by-date, virtual-list plumbing) + nwm-convert + crash-dump. The manager core + apply + create/rename/delete are Ported (see install_sets_ported)."
-InstallationAnalyser.vb,BtConvert_Click,InstallationAnalyser.vb:249,Deferred,12,file. pd.,"installation-sets editor BOUNDED tail (group add/remove selector, prune, sort-by-date, virtual-list plumbing) + nwm-convert + crash-dump. The manager core + apply + create/rename/delete are Ported (see install_sets_ported)."
-InstallationAnalyser.vb,BtRefresh_Click,InstallationAnalyser.vb:270,Divergence,20,.save( pd.,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
-InstallationAnalyser.vb,BtSelect_Click,InstallationAnalyser.vb:300,Divergence,5,pd.,"bounded read-only viewer port: VB filters/navigation/editors/bg-workers/Windows-shell handlers intentionally not ported (PARITY.md recurring pattern). SOME are owner-confirm candidates: ModExplorer filter subsystem, PortraitManager prev/next navigation."
-InstallationAnalyser.vb,CmOpenFolder_Click,InstallationAnalyser.vb:325,Divergence,3,runprogram,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
-InstallationAnalyser.vb,LvFiles_RetrieveVirtualItem,InstallationAnalyser.vb:460,Divergence,34,pd.,WinForms lifecycle/virtual-list/shell-integration/key plumbing.
-InstallationAnalyser.vb,LvFiles_SelectedIndexChanged,InstallationAnalyser.vb:504,Ported,8,pd.,install engine + rename + analyser browser report (subagent-swept).
-InstallationAnalyser.vb,PopulateFolderList,InstallationAnalyser.vb:546,Ported,62,map. my.computer.filesystem pd. pim.,install engine + rename + analyser browser report (subagent-swept).
-InstallationAnalyser.vb,PopulateCrashFiles,InstallationAnalyser.vb:639,Deferred,32,my.computer.filesystem pd.,"installation-sets editor BOUNDED tail (group add/remove selector, prune, sort-by-date, virtual-list plumbing) + nwm-convert + crash-dump. The manager core + apply + create/rename/delete are Ported (see install_sets_ported)."
-DependencyManager.vb,ExplanationText,DependencyManager.vb:25,Divergence,18,vault,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
-DependencyManager.vb,ShowDialog,DependencyManager.vb:80,Ported,9,pd.,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-DependencyManager.vb,DependencyManager_Load,DependencyManager.vb:99,Divergence,61,pd.,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
-DependencyManager.vb,TsModDependenciesReport_Click,DependencyManager.vb:204,Divergence,17,pd.,Classes/Skills/Feats + Dependency editor + Basic Settings are ported in dedicated modules; these VB dialog methods are WinForms/virtual-list plumbing.
-DependencyManager.vb,BtSave_Click,DependencyManager.vb:244,Ported,28,installmods pd. uninstallmods,DocOrganiser/ModPlayViewer/WizardBuilder core report/view/save logic (subagent+orchestrator).
-DependencyManager.vb,LvGroups_SelectedIndexChanged,DependencyManager.vb:290,Deferred,16,pd.,"installation-sets editor BOUNDED tail (group add/remove selector, prune, sort-by-date, virtual-list plumbing) + nwm-convert + crash-dump. The manager core + apply + create/rename/delete are Ported (see install_sets_ported)."
-DependencyManager.vb,LvMods_RetrieveVirtualItem,DependencyManager.vb:320,Deferred,8,pd.,ModFindAndRename (dead MsFindAndRename) + wizard file-threshold. DocOrganiser Properties is done; its Reset is the port's Refresh.
-ErfFileReader.vb,ModuleDataFileName,ErfFileReader.vb:34,Ported,5,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ErfFileReader.vb,ModuleDataOnlineFile,ErfFileReader.vb:44,Deferred,5,,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-ErfFileReader.vb,OpenModFile,ErfFileReader.vb:136,Ported,43,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ErfFileReader.vb,ValidateModInfo,ErfFileReader.vb:203,Ported,22,,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ErfFileReader.vb,LoadModuleData,ErfFileReader.vb:235,Ported,44,my.computer.filesystem,"confirmed in port (nwn.ini/alias read, ERF/module decode, status counts+confirm, profile mgmt, editions)."
-ErfFileReader.vb,DownloadModuleData,ErfFileReader.vb:299,Deferred,17,deletefile fs. my.computer.filesystem,config-isolation writes NOT done / alias editor / online module fetch / patch file.
-ErfFileReader.vb,GetDescription,ErfFileReader.vb:341,Ported,17,,verified: module_reader/erf_reader
-ErfFileReader.vb,FindFile,ErfFileReader.vb:372,Ported,16,,verified: module_reader/erf_reader
-ErfFileReader.vb,GetResourcePosition,ErfFileReader.vb:397,Ported,7,,verified: module_reader/erf_reader
 ApplicationEvents.vb,MyApplication_Startup,ApplicationEvents.vb:28,Divergence,18,deletefile fs.,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ApplicationEvents.vb,MyApplication_UnhandledException,ApplicationEvents.vb:65,Divergence,59,,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.
 ApplicationEvents.vb,LogExceptionInfo,ApplicationEvents.vb:156,Divergence,16,,WinForms app-lifecycle/exception + dialog events + ListView map/web editors + bg-worker + colour constants + Windows taskbar.

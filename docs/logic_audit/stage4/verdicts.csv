@@ -247,3 +247,44 @@ NwnFolderInfo.vb,LoadNwnIniFile,same,read_alias_section; a missing [Alias] secti
 NwnFolderInfo.vb,SaveNwnIniFile,same,write_alias_section keeps nwn.ini.bak once
 NwnFolderInfo.vb,LoadCustomAliasFile,deliberate,as CustomAliasFile
 NwnFolderInfo.vb,SaveCustomAliasFile,deliberate,as CustomAliasFile
+HakPatchManager.vb,PatchSequenceFile,same,PATCH_SEQUENCE_FILE in the profile data folder
+HakPatchManager.vb,ModIniFileFolder,same,<installer>/nwn
+HakPatchManager.vb,ModIniFile,fixed,edition name (userpatch.ini on EE)
+HakPatchManager.vb,GetInstalledPatchHaks,fixed,"patch folder on disk, not records"
+HakPatchManager.vb,UpdateSequenceFile,fixed,manager extends and saves the sequence
+HakPatchManager.vb,SaveSequenceFile,same,save_patch_sequence
+HakPatchManager.vb,GetNwnIniHaks,fixed,patch_ini_haks seeds the first sequence
+HakPatchManager.vb,GetModIniHaks,same,parse_patch_haks
+HakPatchManager.vb,ValidateAll,fixed,"Validate Mods: inactive-named mod INI renamed; sequence kept (stale names are skipped when writing, not pruned from the file: deliberate)"
+HakPatchManager.vb,ValidateAllThread,fixed,as ValidateAll
+HakPatchManager.vb,ValidateMod,fixed,"_validate_mod_patch_ini: saved order, edition name"
+HakPatchManager.vb,CreateNwnPatchIniFile,fixed,saved order used on every install (was alphabetical after a restart); Auto INI restorer copy refreshed by run_auto_restorers instead of immediately
+HakPatchManager.vb,GetPatchHaks,same,parse_patch_haks / patch_ini_haks
+HakPatchManager.vb,CreateModPatchIniFile,fixed,as ValidateMod
+HakPatchManager.vb,UpdateProfileData,same,scan_mod_files registers the INI
+InstallationAnalyser.vb,FileDetails,same,installation_browser_report
+InstallationAnalyser.vb,TsMiniDumpInfo_Click,fixed,Crash Reports button
+InstallationAnalyser.vb,BtConvert_Click,same,convert_nwm_to_mod
+InstallationAnalyser.vb,BtRefresh_Click,fixed,check_game_folder + anneal before re-reading
+InstallationAnalyser.vb,BtSelect_Click,same,select mod
+InstallationAnalyser.vb,CmOpenFolder_Click,same,open folder
+InstallationAnalyser.vb,LvFiles_RetrieveVirtualItem,n/a,virtual list plumbing
+InstallationAnalyser.vb,LvFiles_SelectedIndexChanged,same,Convert shown for .nwm
+InstallationAnalyser.vb,PopulateFolderList,same,installation_browser_report
+InstallationAnalyser.vb,PopulateCrashFiles,fixed,crash_reports()
+DependencyManager.vb,ExplanationText,same,auto-dependency explanation
+DependencyManager.vb,ShowDialog,same,
+DependencyManager.vb,DependencyManager_Load,same,dependency_editor_data (restorer/auto groups skipped; VK also excludes the mod itself: VK-better)
+DependencyManager.vb,TsModDependenciesReport_Click,same,dependencies_report
+DependencyManager.vb,BtSave_Click,same,set_mod_dependencies branch for branch
+DependencyManager.vb,LvGroups_SelectedIndexChanged,same,group → mods
+DependencyManager.vb,LvMods_RetrieveVirtualItem,n/a,virtual list plumbing
+ErfFileReader.vb,ModuleDataFileName,fixed,bundled game/data/Module Data IFO.txt
+ErfFileReader.vb,ModuleDataOnlineFile,fixed,"MODULE_DATA_URL, cached in Data"
+ErfFileReader.vb,OpenModFile,same,ErfModuleReader.read
+ErfFileReader.vb,ValidateModInfo,fixed,ErfModuleReader._validate (IgnoreModFile gate not applied: only skips a log line for campaign patch files)
+ErfFileReader.vb,LoadModuleData,fixed,load_module_data
+ErfFileReader.vb,DownloadModuleData,fixed,fetch_module_data with the rules fetch
+ErfFileReader.vb,GetDescription,same,_read_description
+ErfFileReader.vb,FindFile,same,_find_resource
+ErfFileReader.vb,GetResourcePosition,same,_resource_position

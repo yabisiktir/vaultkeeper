@@ -33,7 +33,7 @@ artefact`, `n/a`); `triage.py` then lists what is left in `stage4/residual.csv`.
 | 1 | ModData.vb | 31 | ✅ |
 | 2 | ProfileData.vb, ProfileData.Properties.vb, GroupMemberData.vb | 107 | ✅ |
 | 3 | Paths.vb, ProfileInfo.vb, ProfileInfoManager.vb, NwnFolderInfo.vb | 111 | ✅ |
-| 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | |
+| 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | ✅ |
 | 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | ~160 | |
 | 6 | Defs.vb, Settings.* | ~70 | |
 | 7 | the rest (viewers, GameManager, ModExplorer, …); NetworkManager.vb as one verdict (not ported) | ~200 | |
@@ -100,3 +100,22 @@ one-line path properties that map onto the store layout.
 Regression tests: `tests/test_alias_repair.py`, `tests/test_rules_source.py`,
 `tests/test_ui_main_window.py` (rules-file command), nwn-save-editor
 `tests/test_steam_libraries.py`.
+
+## Batch 4 — HakPatchManager, ErfFileReader, InstallationAnalyser, DependencyManager
+
+41 verdicts: 22 same, 17 fixed, 2 n/a.
+
+| Member | Finding | Verdict |
+|---|---|---|
+| `CreateNwnPatchIniFile` / `PatchSequence` | The patch INI's order decides which patch hak wins. The controller built its `HakPatchManager` without the saved order (`PatchFileSequence.txt`); only the Hak Patch editor loaded it. So after a restart every install or uninstall rewrote the INI **alphabetically**, whatever order the user had set. Reproduced on the old code (saved zeta, alpha → written alpha, zeta). The manager now reads the saved order before every rebuild. | BUG → fixed |
+| `New` / `GetNwnIniHaks` | NIT seeds the order from the existing patch INI the first time and, on every profile load, rebuilds the INI when new patch haks have appeared. Both ported (`load_sequence`, `refresh_on_load`). | MISSING → fixed |
+| `GetInstalledPatchHaks` | NIT lists the `.hak` files in the patch folder on disk; VK used its records, so a hak whose file had gone was still listed (a missing patch hak stops modules loading) and one never recorded was left out. | BUG → fixed |
+| `ModIniFile` / `ValidateAll` / `CreateInstaller.ScanFolder` | A mod's patch INI takes the edition's name (`userpatch.ini` on EE), renamed when the installer is built and by Validate Mods. VK kept `nwnpatch.ini`, which on EE installed as a stray file into the user folder. The mod INI now also lists its haks in the saved order (VK used name order). | BUG → fixed |
+| `ValidateModInfo` / Module Data IFO | For a module with no usable `Mod_Name` (or an unreadable description) NIT takes both from its "Module Data IFO" table (fetched from its site, bundled copy as the floor); VK showed "Unable to retrieve the Game Save Name". Bundled, refreshed with the download rules, cached in Data. The table currently names 5 modules (The Lord of Terror, Icewind Dale ×3, a music-player demo). | MISSING → fixed |
+| `BtRefresh_Click` | NIT's analyser Refresh runs `CheckInstalledFiles` and anneals before re-reading; VK re-read its records only, so changes to the game since the profile opened never showed. Now `check_game_folder()` (shared with the check on open). | BUG → fixed |
+| `TsMiniDumpInfo_Click` | The analyser opens the crash-dump manager when crash files exist. Added (the manager itself came in batch 2). | MISSING → fixed |
+| `BtSave_Click` (DependencyManager) | Saving uninstalls dependencies no other installed mod needs and installs new ones: same. | same |
+
+Regression tests: `tests/test_hak_patch_parity.py`, `tests/test_hak_patch_editor.py`,
+`tests/test_validate_mods.py`, `tests/test_module_reader.py::…module_data_table…`,
+`tests/test_installation_analyser.py` (last two).
