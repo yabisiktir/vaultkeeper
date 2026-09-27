@@ -65,7 +65,7 @@ compared by reading, and the finding says so.
 | 3d ✅ | **Game saves** | Game Saves Manager: save → mod mapping (`GameSaveNameMap`), backup / restore / delete / move of saves | harness queries on real save names + scenario on fixture saves | mapping identical on the corpus; scenario end state identical |
 | 3e ✅ | **Play data and logs** | play-time records, client/engine log parsing, played-module detection | feed the same log files to both | parsed records identical |
 | 3f ✅ | **Installer tooling** | Wizard Builder validate/save, Publish, Change Installer, Update Installer (installer paste) | scenarios on fixture mods | resulting files identical |
-| 3g | **Portraits and start screens** | Portrait Manager, load screens, `po_*` handling | fixture portraits | resulting files identical |
+| 3g ✅ | **Portraits and start screens** | Portrait Manager, load screens, `po_*` handling | fixture portraits | resulting files identical |
 | 3h | **Steam Workshop** | Workshop import, ID map (`WorkshopIdMap`), subscription handling | fixture Workshop folder | imported mods identical |
 | 3i | **Documents** | DocOrganiser, related files, notes | fixture mod folders | resulting layout identical |
 | 3j | **Characters** | BIC reading (VK's is far richer; check only NIT's fields) | real `.bic` corpus | NIT's fields identical |

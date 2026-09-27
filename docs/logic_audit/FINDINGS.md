@@ -194,6 +194,18 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | F8 ✅ | No offer to build the installer after saving a wizard |
 | F9 ✅ | No wizard file-count threshold warning |
 
+## Stage 3g — portraits and start screens (details: `stage3g_portraits_start_screens.md`)
+
+| ID | Finding |
+|---|---|
+| P1–P3 ✅ | Portrait excludes / Create Installer never rebuilt the payload; excludes missed portraits inside archives |
+| P4 ✅ | Override textures ending in "h" listed as portraits |
+| P6 ✅ | Edit Portrait edited the installed copy, not the mod's source |
+| T1–T2 ✅ | Auto-Start Screen Selection never rotated; Shift/Ctrl+right-click Play missing |
+| T3 ✅ | Start-screen delete was a hard delete (NIT recycles) |
+| T4 ✅ | Reselection after delete could pick an excluded image and flip the set |
+| T5 ✅ | NIT's rename bug was replicated by default and stopped rotation |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
@@ -213,6 +225,6 @@ layouts.
 
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
-- Stage 3g–3j: portraits/start screens, Workshop, documents, characters.
+- Stage 3h–3j: Workshop, documents, characters.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Stage 4 residual code review; Stage 5 fixes.
