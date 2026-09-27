@@ -206,6 +206,18 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | T4 ✅ | Reselection after delete could pick an excluded image and flip the set |
 | T5 ✅ | NIT's rename bug was replicated by default and stopped rotation |
 
+## Stage 3h — Steam Workshop (details: `stage3h_workshop.md`)
+
+| ID | Finding |
+|---|---|
+| W1 ✅ | Managed Workshop: new subscriptions never became (installed) mods automatically |
+| W2 ✅ | Changed subscriptions never reached the game |
+| W3 ✅ | Unsubscribed items: no keep/delete question, dead Steam link kept |
+| W4 ✅ | Stop Managing → delete left the files in the game and folders on disk |
+| W5 ✅ | Turning management off/on in Settings did nothing to the mods |
+| W6 ✅ | A module already provided by another mod was duplicated |
+| W7 ✅ | No MapId rules or Steam titles: non-module items named "Mod <id>" |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
@@ -225,6 +237,6 @@ layouts.
 
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
-- Stage 3h–3j: Workshop, documents, characters.
+- Stage 3i–3j: documents, characters.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Stage 4 residual code review; Stage 5 fixes.
