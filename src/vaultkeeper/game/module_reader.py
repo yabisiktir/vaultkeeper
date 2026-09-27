@@ -53,7 +53,31 @@ def _i16(f: BinaryIO) -> int:
 
 
 class ErfModuleReader:
-    """Reads :class:`ModuleInfo` from an NWN ``.mod``/``.nwm`` (ERF) file."""
+    """Reads :class:`ModuleInfo` from an NWN ``.mod``/``.nwm`` (ERF) file.
+
+    ``data_dir`` is where a fetched Module Data IFO table is cached (see
+    :mod:`vaultkeeper.game.module_data`); the bundled table is used otherwise.
+    """
+
+    def __init__(self, data_dir: Path | None = None) -> None:
+        self.data_dir = data_dir
+
+    def _validate(self, path: Path, save_name: str, description: str) -> tuple[str, str]:
+        """Fill a missing save name / description from the table (VB ``ValidateModInfo``)."""
+        if save_name != UNKNOWN_SAVE_NAME and description != READ_FAILURE_TEXT:
+            return save_name, description
+        from vaultkeeper.game.module_data import load_module_data
+
+        entry = load_module_data(self.data_dir).get(path.name.lower())
+        if entry is None:
+            log.info("No Module Data IFO entry for %s", path.name)
+            return save_name, description
+        known_save, known_description = entry
+        if description in (READ_FAILURE_TEXT, known_save):
+            description = known_description
+        if save_name == UNKNOWN_SAVE_NAME:
+            save_name = known_save
+        return save_name, description
 
     def read(self, path: Path) -> ModuleInfo | None:
         try:
@@ -78,6 +102,7 @@ class ErfModuleReader:
                     save_name = _read_ifo_mod_name(f, res_pos) or UNKNOWN_SAVE_NAME
 
                 save_name = save_name.lstrip()
+                save_name, description = self._validate(path, save_name, description)
                 for ch in _ILLEGAL_FOLDER_CHARS:
                     save_name = save_name.replace(ch, "")
 

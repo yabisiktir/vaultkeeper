@@ -61,7 +61,7 @@ class PlayLoop:
                 active_profile=profile_mods_dir.name,
                 data_dir=data_dir,
             ),
-            module_reader=ErfModuleReader(),
+            module_reader=ErfModuleReader(data_dir),
             prompter=prompter,
             save_name_rules=rules.save_name_rules,
             save_name_removed_chars=rules.save_name_removed_chars,

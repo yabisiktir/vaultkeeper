@@ -1,0 +1,24 @@
+#Module:The_Lord_of_Terror_2_0_5.mod
+ModSavName=The Lord of Terror 2.0.5
+The Lord of Terror - The Diablo Campaign (v2.0.5)
+
+This is a remake of the original Diablo game published by Blizzard Entertainment, along with its expansion, Hellfire, published by Sierra Online.  This reimagining of the Diablo saga features all the original quests, plus additional story-related side quests that will further enhance the engrossing story of the Diablo saga.
+
+This module was created by Tolitz Rosel.  Version 1.06 last updated November 27, 2004.  For game hints and walkthrough, visit http://nwn.tolitz.com/lordofterror/
+
+Version 2.0.0 and beyond updated and enhanced by Jeff McClure in 2024, https://github.com/jeffmcclure/lot https://github.com/jeffmcclure/lot
+#Module:DEMO-Music-Playerv2.mod
+ModSavName=DEMO-Music-Player
+NUI - Music Player
+
+Music Player adds a bard-inspired music selection system.
+Players can open a custom NUI window, browse available tracks, and play them using a handcrafted Play button.
+Music can be shared across the area (e.g., in taverns) or played locally for the player — this mode requires NWNX.
+
+The demo focuses on MP3 CBR files (required for reliable seeking/looping — see the tutorial). There are a few minor quirks, but the core functions work as intended.
+#Module:IcewindDale_0.mod
+ModSavName=Icewindale_0.sav
+#Module:IcewindDale_1.mod
+ModSavName=Icewindale_1
+#Module:IcewindDale_2.mod
+ModSavName=Icewindale_2

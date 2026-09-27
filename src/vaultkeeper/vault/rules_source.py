@@ -195,6 +195,10 @@ def load_rules(
     stale = refresh or _cache_age(data_dir, version) > CACHE_MAX_AGE
     if http is not None and stale:
         text = fetch_rules_text(http, version)
+        # NIT fetches its Module Data IFO table from the same site; refresh it too.
+        from vaultkeeper.game.module_data import fetch_module_data
+
+        fetch_module_data(http, data_dir)
         if text:
             try:
                 data_dir.mkdir(parents=True, exist_ok=True)

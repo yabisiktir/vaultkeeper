@@ -111,6 +111,30 @@ class TestSyntheticModule:
         p = _write(tmp_path, "adv.mod", data)
         assert ErfModuleReader().read(p).save_name == UNKNOWN_SAVE_NAME
 
+    def test_the_module_data_table_names_what_the_module_does_not(self, tmp_path):
+        # VB ValidateModInfo: "Module Data IFO" supplies the save name (and a
+        # fetched copy in the Data folder wins over the bundled one).
+        gff = _gff("x")
+        key = b"other".ljust(16, b"\x00") + struct.pack("<ih", 0, 9999) + b"\x00\x00"
+        loc_off, keys_off = 32, 32
+        res_off = keys_off + len(key)
+        data = (
+            b"MOD V1.0"
+            + struct.pack("<6i", 0, 0, 1, loc_off, keys_off, res_off)
+            + key
+            + struct.pack("<Ii", res_off + 8, len(gff))
+            + gff
+        )
+        p = _write(tmp_path, "IcewindDale_0.mod", data)
+        assert ErfModuleReader().read(p).save_name != UNKNOWN_SAVE_NAME
+
+        data_dir = tmp_path / "Data"
+        data_dir.mkdir()
+        (data_dir / "Module Data IFO.txt").write_text(
+            "#Module:IcewindDale_0.mod\nModSavName=IWD Chapter 0\nThe first chapter.\n"
+        )
+        assert ErfModuleReader(data_dir).read(p).save_name == "IWD Chapter 0"
+
     def test_missing_file_returns_none(self, tmp_path):
         assert ErfModuleReader().read(tmp_path / "nope.mod") is None
 
