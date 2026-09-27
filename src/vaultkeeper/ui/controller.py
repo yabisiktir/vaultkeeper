@@ -2529,12 +2529,10 @@ class ProfileController:
         dialog presents these (SelectOne → pick one; SelectMany → check any) and feeds
         the decisions back into :meth:`build_installer_payload`.
         """
-        from vaultkeeper.game.wizard import load_wizard
-
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
             return {"run_wizard": False}
-        info = load_wizard(self.ctx.profile_mods_dir / mod_name, mod_name)
+        info, _source = self._mod_wizard(self.ctx.profile_mods_dir / mod_name, mod_name)
         if info is None or not info.run_wizard:
             return {"run_wizard": False}
         return {
@@ -2630,13 +2628,15 @@ class ProfileController:
         fs.delete(installer, to_trash=True)
         installer.mkdir(parents=True, exist_ok=True)
 
-        # RunWizard: resolve the installer wizard's ignore list from the decisions.
-        ignore = self._wizard_ignore_paths(mod_folder, mod_name, wizard_choice, wizard_checked)
-
         converted = 0
         say = on_phase if on_phase is not None else lambda *_: None
         # Extract archives into a temp area that survives until the copy is done.
         with tempfile.TemporaryDirectory(prefix="vk-installer-") as extract_dir:
+            # RunWizard: resolve the installer wizard's ignore list from the
+            # decisions; entries inside an archive resolve under the extract area.
+            ignore = self._wizard_ignore_paths(
+                mod_folder, mod_name, wizard_choice, wizard_checked, Path(extract_dir)
+            )
             plan = build_copy_plan(
                 mod_name,
                 mod_folder,
@@ -2727,21 +2727,73 @@ class ProfileController:
         mod_name: str,
         wizard_choice: str | None,
         wizard_checked: set[str] | None,
+        extract_root: Path | None = None,
     ) -> set[Path]:
         """Resolve the installer wizard's ignore list for a build (VB ``RunWizard``)."""
-        from vaultkeeper.game.wizard import (
-            load_wizard,
-            resolve_wizard_ignores,
-            wizard_ignore_paths,
-        )
+        from vaultkeeper.game.wizard import resolve_wizard_ignores, wizard_ignore_paths
 
-        info = load_wizard(mod_folder, mod_name)
+        info, _source = self._mod_wizard(mod_folder, mod_name)
         if info is None or not info.run_wizard:
             return set()
         keys = resolve_wizard_ignores(
             info, chosen_one=wizard_choice, checked_many=wizard_checked
         )
-        return wizard_ignore_paths(mod_folder, keys)
+        return wizard_ignore_paths(mod_folder, keys, extract_root)
+
+    def _mod_wizard(self, mod_folder: Path, mod_name: str):
+        """The mod's installer wizard and where it came from (VB ``Load`` → ``GetWizardInfo``).
+
+        A wizard file in the mod folder wins. Without one, NIT falls back to the
+        wizard the download rules define for the project — 38 projects carry one
+        (Custom Menus' choice of menu screen, Project Q's version picker…), and
+        every place NIT reads a wizard does this. Returns ``(info, "file")``,
+        ``(info, "rules")`` or ``(None, "")``.
+        """
+        from vaultkeeper.game.wizard import load_wizard
+
+        info = load_wizard(mod_folder, mod_name)
+        if info is not None:
+            return info, "file"
+        info = self.rule_wizard(mod_name)
+        if info is not None:
+            return info, "rules"
+        return None, ""
+
+    def rule_wizard(self, mod_name: str):
+        """The installer wizard the download rules define for a mod (VB ``GetWizardInfo``).
+
+        Looked up as NIT does: the mod name as a project title; failing that, a
+        project whose mod folder is this mod, or whose wizard is titled
+        "<mod> Installer Wizard". A lone SelectOne choice is no choice and is
+        dropped (VB ``End Project``). None when the rules are off or define no
+        wizard with anything to ask.
+        """
+        from vaultkeeper.game.wizard import parse_wizard_text
+
+        if not self._settings().vault_apply_project_rules:
+            return None
+        try:
+            rules = self.download_rules(network=False)
+        except Exception:
+            return None
+        name = (mod_name or "").strip().lower()
+        rule = rules.project_rule(name)
+        if rule is None:
+            titled = f"{name} installer wizard"
+            for candidate in rules.projects.values():
+                settled = candidate.for_game(is_ee=self.ctx.is_ee)
+                wizard = parse_wizard_text(settled.wizard_text) if settled.wizard_text else None
+                if settled.mod_folder.lower() == name or (
+                    wizard is not None and wizard.title_value.lower() == titled
+                ):
+                    rule = settled
+                    break
+        if rule is None or not rule.wizard_text:
+            return None
+        info = parse_wizard_text(rule.wizard_text, mod_name)
+        if len(info.select_one) == 1:
+            info.select_one.clear()
+        return info if info.run_wizard else None
 
     def _update_patch_sequence(self, plan) -> None:  # noqa: ANN001
         """Add a plan's patch-folder haks to the persisted sequence (VB UpdateSequenceFile)."""
@@ -7987,14 +8039,13 @@ class ProfileController:
         is false when no wizard file exists. Read-only — the authoring/build action
         (Save/Delete, validation against the mod's real files) is deferred.
         """
-        from vaultkeeper.game.wizard import load_wizard
-
         md = self.pd.mod_item(mod_name)
         title = mod_name
         info = None
+        source = ""
         if md is not None and not md.is_group_item:
             mod_folder = self.ctx.profile_mods_dir / mod_name
-            info = load_wizard(mod_folder, mod_name)
+            info, source = self._mod_wizard(mod_folder, mod_name)
 
         if info is None:
             return {
@@ -8022,6 +8073,8 @@ class ProfileController:
         return {
             "mod": mod_name,
             "has_wizard": True,
+            # "rules" when it comes from the download rules, not a file of the mod's.
+            "source": source,
             "title": info.title,
             "extract_archives": info.extract_archives,
             "select_one_text": info.select_one_text,
@@ -8064,13 +8117,13 @@ class ProfileController:
         force the extract pass on/off (VB ``Validate``'s ``extract`` argument);
         ``None`` (default) follows the wizard's ``ExtractArchives`` flag.
         """
-        from vaultkeeper.game.wizard import load_wizard, save_wizard, validate
+        from vaultkeeper.game.wizard import save_wizard, validate
 
         md = self.pd.mod_item(mod_name)
         if md is None or md.is_group_item:
             return _wizard_op_result(False, message=f"Unknown mod: {mod_name}")
         mod_folder = self.ctx.profile_mods_dir / mod_name
-        info = load_wizard(mod_folder, mod_name)
+        info, _source = self._mod_wizard(mod_folder, mod_name)
         if info is None:
             return _wizard_op_result(
                 True,

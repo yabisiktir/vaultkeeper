@@ -13,7 +13,11 @@ The **View** box picks what the source list shows (VB ``ExtractType``): the
 mod's own files, the sub-folders inside its archives, or every file inside them.
 The archive views are what a "pick one of these" wizard is built from — a mod
 that ships a single archive of alternatives has none of them as loose files
-(``newtopic21.htm``). Bounded: the download-rules wizard source is deferred.
+(``newtopic21.htm``).
+
+A mod with no wizard file of its own opens on the wizard the download rules
+define for its project, when there is one (VB ``WizardType.DownloadRules``):
+Save writes it as the mod's own file; there is no file to Delete until then.
 """
 
 from __future__ import annotations
@@ -190,7 +194,12 @@ class WizardBuilder(QDialog):
         self.select_one_text_edit.setText(report["select_one_text"])
         self.select_many_text_edit.setText(report["select_many_text"])
         self._extract_archives = report["extract_archives"]
-        self.summary.setText(report["summary"])
+        from_rules = report.get("source") == "rules"
+        self.summary.setText(
+            f"{report['summary']} (from the download rules — Save to keep your own copy)"
+            if from_rules
+            else report["summary"]
+        )
 
         self.choices.clear()
         for row in report["choices"]:
@@ -208,7 +217,7 @@ class WizardBuilder(QDialog):
 
         has_wizard = report["has_wizard"]
         self.validate_button.setEnabled(has_wizard)
-        self.delete_button.setEnabled(has_wizard)
+        self.delete_button.setEnabled(has_wizard and not from_rules)
         self.display_name_edit.setEnabled(False)
         self.display_name_edit.clear()
 

@@ -281,6 +281,7 @@ def build_copy_plan(
     # Queue of (modname, directory) to scan — extracted dirs are added as found.
     scan_queue: deque[Path] = deque([mod_folder])
     extract_counter = 0
+    used_names: set[str] = set()
 
     while scan_queue:
         folder = scan_queue.popleft()
@@ -291,8 +292,15 @@ def build_copy_plan(
         for archive in archives:
             if extractor is None or not is_extractable(archive.suffix):
                 continue
-            dest = extract_root / f"x{extract_counter:04d}"
-            extract_counter += 1
+            # Named after the archive, as NIT's ExtractedZips is, so a wizard entry
+            # that points inside one ("aribeth_4.7z\\override_1.79.8191+") names a
+            # real folder. A second archive of the same name gets a numbered one.
+            if archive.name.lower() not in used_names:
+                used_names.add(archive.name.lower())
+                dest = extract_root / archive.name
+            else:
+                dest = extract_root / f"x{extract_counter:04d}"
+                extract_counter += 1
             say(f"Extracting {archive.name}", 0, 0)
             result = extractor.extract(archive, dest)
             if result.ok:
@@ -394,7 +402,7 @@ def _scan_folder(
         if erf_excluded:
             continue
         # Skip files the installer wizard's decisions dropped (VB RunWizard ignores).
-        if ignore and fi.resolve() in ignore:
+        if ignore and is_ignored(fi, ignore):
             continue
 
         if is_extractable(fi.suffix):
@@ -430,6 +438,18 @@ def _scan_folder(
         )
 
     return archives
+
+
+def is_ignored(path: Path, ignore: set[Path]) -> bool:
+    """Whether the wizard's decisions drop ``path`` (VB ``RunWizard`` ignore list).
+
+    An entry may be a file or a whole folder — a SelectOne choice is often a
+    folder inside an archive — and names are compared without regard to case,
+    as on Windows, where the wizards were written.
+    """
+    wanted = {str(p).lower() for p in ignore}
+    current = path.resolve()
+    return any(str(c).lower() in wanted for c in (current, *current.parents))
 
 
 def _build_items(copy_list: CopyList, plan: InstallerPlan) -> None:

@@ -67,12 +67,30 @@ Notes from the fixes:
 |---|---|
 | R2 ✅ | `If EE/NWN Downloads` conditionals dropped: Community Patch ×2 lose mod folder + EE archive; 12 wrong/empty download whitelists |
 | R1c ✅ | Per-project `ExcludeFiles From` blocks ignored (12 projects offer files NIT holds back) |
-| R3 | Rule-defined install wizards (38 projects) never used |
+| R3 ✅ | Rule-defined install wizards (38 projects) never used |
 | R4 ✅ | Per-file prerequisites (`RequiredFiles`, 32 projects) ignored |
 | R5 ✅ | `IncludeExtensions`, `ExcludeDirectLinks`, `ApplyExcludes`, `ExcludeRequiredProjects`, `ExternalFile` not parsed (26 projects) |
 | R9 ✅ | **New, found while fixing R2:** the file-wide exclusions were parsed by nobody. `Contains` / `StartsWith` / `EndsWith` (20 + 9 + 4 description patterns: "outdated", "Mac ", " old", Project Q's "ARCHIVE - QV"…) and the `.txt` extension rule held nothing back in any project. Also a bare `IgnoreExcludes` opened a swallowed block, so Project Q Archive's `Downloads` list was lost. |
 
 (R1c is stage 1's R1 — renamed here to avoid clashing with the restorer finding.)
+
+**R3 fixed (seventh batch):** wherever a mod's wizard is read (install prompt,
+installer build, Wizard Builder, Validate), a mod without a wizard file now falls
+back to the rules' wizard, looked up as VB `GetWizardInfo` does (project title,
+else mod folder or "<mod> Installer Wizard" title); a lone SelectOne is dropped.
+`stage1/diff_rule_wizards.py`: all 38 live-file wizards match NIT on title,
+ExtractArchives, texts, SelectOne, SelectMany (keys, labels, default ticks),
+InstallerExcludes and RunWizard; one cosmetic difference — a default label NIT
+builds with its CamelCase splitter ("Th1 Bonus Portraits" vs VK "Th1
+Bonusportraits"). **Found on the way (also fixed):** wizard entries that point
+inside an archive (`aribeth_4.7z\override_1.79.8191+`, used by many rule
+wizards) could never match, because VK extracted archives into `x0000` folders;
+archives now extract into a folder named after the archive, as NIT's
+`ExtractedZips`, and the ignore list accepts folders. Verified with real 7-Zip.
+**Still missing (new, lower impact):** NIT's download-time `UpdateWizard`, which
+renames a wizard's file entries when a newer download replaces an older file
+(and offers to save an updated copy of a rules wizard). VK has no equivalent for
+wizard files either.
 
 **Fixed (sixth batch):** `DownloadRules` now reads every per-project field NIT
 reads and the file-wide exclusion tables. Game-dependent lines are kept aside

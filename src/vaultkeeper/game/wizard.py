@@ -331,17 +331,39 @@ def resolve_wizard_ignores(
     return ignore
 
 
-def wizard_ignore_paths(mod_folder: Path, keys: list[str]) -> set[Path]:
+def archive_partial_path(key: str) -> list[str] | None:
+    """A wizard key that points inside an archive, as parts under its extract folder.
+
+    VB ``GetPartialPath`` + ``IsExtractedFile``: archives are extracted into a
+    folder named after the archive, nested ones too, so ``a.zip\\b.7z\\x`` lives
+    at ``b.7z/x``. None when no part of the key names an archive.
+    """
+    parts = [p for p in key.replace("\\", "/").split("/") if p]
+    for index in range(len(parts) - 2, -1, -1):
+        if is_zip_extension(PurePosixPath(parts[index]).suffix):
+            return parts[index:]
+    return None
+
+
+def wizard_ignore_paths(
+    mod_folder: Path, keys: list[str], extract_root: Path | None = None
+) -> set[Path]:
     """Resolve wizard ignore ``keys`` to real files under a mod (VB fullnameList).
 
-    Each key is looked for under ``_Downloads/<key>``, ``<key>`` and
-    ``_Published/<key>`` (VB order) and the first that exists is returned. Keys that
-    match nothing are dropped.
+    A key that points inside an archive resolves under ``extract_root``, where
+    the build extracts each archive into a folder of the archive's name (VB
+    ``ZipManager.ExtractedZips``); it need not exist yet. Any other key is looked
+    for under ``_Downloads/<key>``, ``<key>`` and ``_Published/<key>`` (VB order)
+    and the first that exists is returned. Keys that match nothing are dropped.
     """
     from vaultkeeper.core import constants as C
 
     resolved: set[Path] = set()
     for key in keys:
+        inside = archive_partial_path(key)
+        if inside is not None and extract_root is not None:
+            resolved.add(extract_root.resolve().joinpath(*inside))
+            continue
         # Wizard keys use "\" separators; split into OS path parts.
         parts = key.replace("\\", "/").split("/")
         for base in (
