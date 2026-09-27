@@ -83,3 +83,19 @@ def test_deleting_a_mod_recycles_its_notes(tmp_path: Path, recycle_bin: Path) ->
 
     assert not c.mod_notes_path("Old Name").exists()
     assert [p.name for p in recycle_bin.rglob("Old Name.rtf")] == ["Old Name.rtf"]
+
+
+def test_orphaned_notes_are_recycled_when_the_profile_opens(tmp_path: Path, recycle_bin) -> None:
+    """VB ProfileData.Load runs ValidateNotes on every load."""
+    c = _controller(tmp_path)
+    orphan = c.mod_notes_path("Long Gone")
+    orphan.write_text("{\\rtf1 x}", encoding="utf-8")
+
+    ProfileController.open_profile(
+        profile_mods_dir=c.ctx.profile_mods_dir,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+
+    assert not orphan.exists()
+    assert c.mod_notes_path("Old Name").exists()  # a real mod's notes stay

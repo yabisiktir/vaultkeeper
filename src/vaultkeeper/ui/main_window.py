@@ -4272,6 +4272,7 @@ class MainWindow(QMainWindow):
                     note = f"{note} {screen['message']}".rstrip()
             except Exception:
                 log.exception("Auto start screen failed after play")
+        self._report_new_crash_files()
         # VB exit processing: too many saves slow the game down; say so.
         count = self.controller.saves_count()
         if count > self.controller._settings().saves_threshold:
@@ -4286,6 +4287,29 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(f"Recorded play time for: {names}.{note}")
         else:
             self.nit_status.set_info(f"Finished playing (no play time recorded).{note}")
+
+    def _report_new_crash_files(self) -> None:
+        """Show the crash files the session produced (VB NWN exit processing).
+
+        NIT: "N crash information files were created during your last Neverwinter
+        Nights session", in the Crash Dump File Manager, when
+        ``FileShowCrashFileManager`` is on (the default).
+        """
+        try:
+            fresh = self.controller.new_crash_reports()
+        except Exception:
+            log.exception("Checking for crash files failed")
+            return
+        if not fresh or not self.controller._settings().show_crash_file_manager:
+            return
+        from vaultkeeper.ui.dialogs.crash_reports import CrashReportsDialog
+
+        n = len(fresh)
+        text = (
+            f"{'A' if n == 1 else n} crash information file{'' if n == 1 else 's'} "
+            f"{'was' if n == 1 else 'were'} created during your last Neverwinter Nights session."
+        )
+        CrashReportsDialog(self.controller, text, self).exec()
 
     def _report_missing_haks(self, haks: list[str]) -> None:
         """Say which hak files the game could not load (VB ``AddLoggedTimes``).

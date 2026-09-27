@@ -211,6 +211,10 @@ class Settings:
     #: After downloading, open the Documentation Organiser: "ask", "yes" or "no"
     #: (VB ``ConfigRunDocOrganiser``: Ask each time, with "Always take this action").
     run_doc_organiser: str = "ask"
+    #: After play, show the crash files the session produced (VB
+    #: ``FileShowCrashFileManager``, "Display the Crash Dump File Manager when new
+    #: files are detected", on by default).
+    show_crash_file_manager: bool = True
     #: The Wizard Builder warns when the Archive Folder Files view would list more
     #: files than this (VB ``ConfigWizardFileThreshold``).
     wizard_file_threshold: int = 15000

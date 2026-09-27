@@ -197,6 +197,9 @@ class ProfileController:
         if check_game:
             controller._check_game_on_open()
             controller.validate_installer_types()
+            # VB ProfileData.Load ends with ValidateNotes: orphans to the recycle bin.
+            with contextlib.suppress(OSError):
+                controller.validate_notes()
         return controller
 
     def validate_installer_types(self) -> int:
@@ -7588,6 +7591,34 @@ class ProfileController:
         if not installed["ok"]:
             return result(False, message=installed["message"])
         return result(True, chosen, f"Start Screen Installed: {chosen}.")
+
+    def new_crash_reports(self) -> list:
+        """Crash files the last session produced (VB ``AddCrashDumpFiles``); EE only."""
+        from vaultkeeper.game.crash_reports import new_crash_files
+
+        if not self.ctx.is_ee:
+            return []
+        user = self.ctx.ee_user_files_dir or self.ctx.game_user_dir
+        return new_crash_files(user, self._profile_data_dir())
+
+    def crash_reports(self) -> list:
+        """Every crash file in the user folder, newest first (the manager's list)."""
+        from vaultkeeper.game.crash_reports import crash_files
+
+        return crash_files(self.ctx.ee_user_files_dir or self.ctx.game_user_dir)
+
+    def delete_crash_reports(self, paths: list) -> int:
+        """Send crash files to the recycle bin (VB ``CrashDumpManager.DeleteFiles``)."""
+        from vaultkeeper.core import fs
+
+        deleted = 0
+        for path in paths:
+            try:
+                fs.delete(Path(path), to_trash=True)
+                deleted += 1
+            except OSError:
+                continue
+        return deleted
 
     def installed_loadscreen_path(self) -> Path | None:
         """The start screen in the game's override folder, if NIT installed one."""
