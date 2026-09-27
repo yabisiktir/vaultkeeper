@@ -4525,6 +4525,9 @@ class ProfileController:
         from vaultkeeper.vault.api import VaultApi
 
         source = self._make_scraper()
+        # VB VaultScraper.New: ProjectUrl = GetFinalUrl(projectUrl) — a project the
+        # rules redirect is fetched from its new page.
+        url = self.download_rules().get_final_url(url)
         if isinstance(source, VaultApi):
             project = source.project_for(url)
             files = project.files if project else []
@@ -4607,6 +4610,14 @@ class ProfileController:
         if not self._settings().vault_apply_project_rules:
             return result
         rules = self.download_rules()
+        # A prerequisite that has moved is fetched from where it went (VB
+        # GetFinalUrl / RulesRedirects): Abyss Tileset -> Abyss Tileset Redux.
+        for entry in result["required"]:
+            url = str(entry.get("url", ""))
+            final = rules.get_final_url(url) if url else url
+            if final != url:
+                entry["url"] = final
+                entry["redirected"] = True  # its listed title is the old project's
         rule = self._game_rule(title)
 
         candidates = list(files)
@@ -4641,8 +4652,9 @@ class ProfileController:
         for link in rule.required_projects:
             if link.lower() not in known:
                 known.add(link.lower())
+                # Named from its address until it is fetched (see expand_prerequisites).
                 result["required"].append(
-                    {"title": _title_from_url(link).title(), "url": link, "type": ""}
+                    {"title": _title_from_url(link).title(), "url": link, "type": "", "rule": True}
                 )
         dropped_titles = {t.lower() for t in rule.exclude_required_projects}
         dropped_links = {u.lower() for u in rule.exclude_direct_links}
@@ -4921,7 +4933,14 @@ class ProfileController:
                 FileStatus.DOWNLOADED if name.lower() in existing else FileStatus.AVAILABLE
             )
 
-    def expand_prerequisites(self, required: list, *, exclude_mod: str = "") -> list[dict]:
+    def expand_prerequisites(
+        self,
+        required: list,
+        *,
+        exclude_mod: str = "",
+        project_url: str = "",
+        project_title: str = "",
+    ) -> list[dict]:
         """Expand a module's required projects into their files (VB ``LvRequirements``).
 
         Faithful to VB's DownloadProject: each required project is fetched and routed
@@ -4931,11 +4950,13 @@ class ProfileController:
         external reference (a Steam Workshop item, a tool's home page) resolves to no
         files and is surfaced but cannot be downloaded here.
 
-        One level only, matching VB: ``PopulateRequiredProjects`` reads each
-        requirement's ``Scraper.RequiredFiles`` (its own file list) but never turns
-        around and expands *that* project's own Required Projects. A prerequisite
-        that itself needs something is surfaced once installed, on its own next
-        Download Project pass, not unrolled recursively here.
+        A requirement's own Vault prerequisites are not unrolled (VB reads only
+        each requirement's file list), but prerequisites its *rule* adds are, as
+        VB's ``ProcessRulesAddAndExcludes`` recurses: Community Tileset Project's
+        rule adds Fixed CTP Loadscreens to anything that requires the CTP. The
+        project being downloaded (``project_url`` / ``project_title``) is never
+        its own prerequisite, which such a chain can otherwise produce (Sands of
+        Fate 2's rule requires Sands of Fate 1).
 
         Returns one bundle per requirement:
         ``{title, url, mod_folder, group, files, have, have_mod, external}``.
@@ -4950,7 +4971,13 @@ class ProfileController:
         by_name = {search_name(n): n for n in self.pd.mod_keys}
 
         bundles: list[dict] = []
-        for entry in required or []:
+        queue = list(required or [])
+        seen = {str(e.get("url", "")).lower() for e in queue if e.get("url")}
+        if project_url:
+            seen.add(self.download_rules(network=False).get_final_url(project_url).lower())
+            seen.add(project_url.lower())
+        while queue:
+            entry = queue.pop(0)
             title = str(entry.get("title", "")).strip()
             if not title:
                 continue
@@ -4985,11 +5012,28 @@ class ProfileController:
                     )
                     project = None
                 if project:
+                    # The project's own title: a prerequisite the rules add is
+                    # known only by its address until now ("Sands Fate 2 Gem Tower"
+                    # for "Sands of Fate 2 - Gem Tower").
+                    fetched = str(project.get("title") or "")
+                    if project_title and fetched.lower() == project_title.lower():
+                        continue  # the project itself, reached through a chain
+                    # Only where the listed title is known to be wrong: named from
+                    # its address (rule-added) or the page it listed has moved.
+                    if fetched and (entry.get("rule") or entry.get("redirected")):
+                        bundle["title"] = title = fetched
                     bundle["files"] = project["files"]
                     # The requirement's own folder from the rules, else its title —
                     # never the parent's folder, which would merge two projects.
                     bundle["mod_folder"] = project["mod_folder"] or title
                     bundle["group"] = project["group"]
+                    # VB ProcessRulesAddAndExcludes: prerequisites a prerequisite's
+                    # own rule adds are required too (CTP -> Fixed CTP Loadscreens).
+                    for nested in project.get("required") or []:
+                        link = str(nested.get("url", "")).lower()
+                        if nested.get("rule") and link and link not in seen:
+                            seen.add(link)
+                            queue.append(nested)
             bundles.append(bundle)
         return bundles
 

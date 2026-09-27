@@ -401,7 +401,10 @@ class DownloadProjectDialog(QDialog):
         # requirement's page, so it is done here on the retrieve, not the download.
         self.populate_required(
             self.controller.expand_prerequisites(
-                self._required, exclude_mod=self.mod_name_edit.text().strip()
+                self._required,
+                exclude_mod=self.mod_name_edit.text().strip(),
+                project_url=url,
+                project_title=project.get("title", ""),
             )
         )
         if not project["files"]:

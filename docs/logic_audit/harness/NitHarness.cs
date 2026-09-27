@@ -457,6 +457,58 @@ class NitHarness
         }
     }
 
+    static object DownloadForm;
+
+    // Drive NIT's real Download Project form: set the URL, run RetrieveProject, and read
+    // the two lists it fills (LvProject = the project's offered files, LvRequirements =
+    // prerequisite projects and their offered files), plus the mod folder and group.
+    static string VaultSelect(string url)
+    {
+        var dpT = T("DownloadProject");
+        if (DownloadForm == null)
+        {
+            DownloadForm = Activator.CreateInstance(dpT);
+            ((Form)DownloadForm).Show();
+            var until = DateTime.Now.AddSeconds(3);
+            while (DateTime.Now < until) { Application.DoEvents(); Thread.Sleep(50); }
+        }
+        var form = (Form)DownloadForm;
+        // VB WithEvents controls are properties over a "_Name" field; plain fields otherwise.
+        Func<string, object> field = n =>
+        {
+            var pr = dpT.GetProperty(n, All);
+            if (pr != null) return pr.GetValue(form);
+            var f = dpT.GetField(n, All) ?? dpT.GetField("_" + n, All);
+            return f.GetValue(form);
+        };
+        ((TextBox)field("TxUrl")).Text = url;
+        var retrieve = dpT.GetMethod("RetrieveProject", All);
+        var ok = (bool)retrieve.Invoke(form, new object[] { Type.Missing });
+        var lines = new List<string>();
+        Action<string, string> w = (k, v) => lines.Add(url + "\t" + k + "\t" + v);
+        w("ok", ok.ToString());
+        var scraper = field("Scraper");
+        if (scraper != null) w("title", Convert.ToString(scraper.GetType().GetProperty("ProjectTitle").GetValue(scraper)));
+        w("mod_folder", ((Control)field("TxModName")).Text);
+        var mb = field("MbGroup");
+        w("group", Convert.ToString(mb.GetType().GetProperty("DisplayMember").GetValue(mb)));
+        foreach (ListViewItem item in ((ListView)field("LvProject")).Items)
+        {
+            if (item.Tag == null) { w("file", "(none)"); continue; }
+            w("file", Convert.ToString(item.Tag.GetType().GetProperty("Filename").GetValue(item.Tag)));
+        }
+        foreach (ListViewItem item in ((ListView)field("LvRequirements")).Items)
+        {
+            if (item.Tag == null) { w("req", "(none)"); continue; }
+            var t = item.Tag.GetType();
+            var project = Convert.ToString(t.GetProperty("ProjectTitle").GetValue(item.Tag));
+            var file = Convert.ToString(t.GetProperty("Filename").GetValue(item.Tag));
+            w("req", project + " | " + file + " | " + item.Text);
+        }
+        File.AppendAllLines(Path.Combine(Root, "select.tsv"), lines);
+        return ok + " " + lines.Count;
+    }
+
     static string Query(object map, string cmd, string arg)
     {
         switch (cmd)
@@ -502,6 +554,8 @@ class NitHarness
             }
             case "scenario":    // run a stage-2 scenario script; snapshots -> C:\nitdiff\snaps.tsv
                 return RunScenario(arg);
+            case "vault-select":  // DownloadProject for a URL: offered files + prerequisites -> select.tsv
+                return VaultSelect(arg);
             case "wincompare":  // LazWorks WinCompare(x, y) — NIT's sort for priorities; arg "x|y"
             {
                 var parts = arg.Split(new[] { '|' });
