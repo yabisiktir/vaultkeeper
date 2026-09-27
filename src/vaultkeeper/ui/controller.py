@@ -3660,11 +3660,15 @@ class ProfileController:
     def validate_mods(self) -> str:
         """Validate all mods and hak-patch information (VB ``ValidateMods``).
 
-        Runs the maintenance pass MsValidateMods performs: prune dependencies on
+        Runs the maintenance pass MsValidateMods performs: resync mods and
+        installer files with the mod folders (``ValidateModAndFileData``), prune dependencies on
         missing mods, delete orphaned Mod Notes, (re)build each mod's
         ``nwnpatch.ini`` from its patch haks, and rebuild the game's ``nwnpatch.ini``
         from the installed patch haks. Recomputes states and persists.
         """
+        resync = self.pd.validate_mod_and_file_data(
+            self.ctx.profile_mods_dir, self.ctx.game_folders
+        )
         removed_deps = self.pd.validate_dependencies()
         self.validate_installer_types()
         orphaned_notes = self.validate_notes()
@@ -3680,7 +3684,9 @@ class ProfileController:
         self.pd.update_mod_states()
         self.save()
         return (
-            f"Validated mods. Dependencies removed: {removed_deps}. "
+            f"Validated mods. Mods added: {resync['mods_added']}. Installer files "
+            f"added: {resync['files_added']:,}, removed: {resync['files_removed']:,}. "
+            f"Dependencies removed: {removed_deps}. "
             f"Orphaned notes: {orphaned_notes}. "
             f"Patch INI created: {ini_created}, deleted: {ini_deleted}."
         )

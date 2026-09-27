@@ -1023,6 +1023,89 @@ class ProfileData:
             self.update_mod_states()
             self.changes.reset_changes()
 
+    def validate_mod_and_file_data(
+        self, profile_mods_dir: Path, game_folders: dict[str, Path] | None = None
+    ) -> dict[str, int]:
+        """Resync mods and installer files with the mod folders (VB ``ValidateModAndFileData``).
+
+        Adds mod folders the database does not know (to the Ungrouped group, with
+        their files), adds installer files that appeared in a known mod's folder,
+        forgets records of installer files that were deleted or sit under the wrong
+        group, re-links each record to its mod, then recomputes every file and mod
+        state (new files are checksummed first).
+
+        One deliberate difference: NIT also removes every mod whose folder is gone.
+        Here a mod without a folder is kept with its file records, because a profile
+        imported from NIT carries mod definitions with no folder at all; those
+        records are what places its installed files (see ``rescan_installed_state``).
+        With ``game_folders``, a game copy that has no checksum yet is checksummed
+        with its mod file, or a newly checksummed mod file would read as overridden.
+        Returns counts: ``mods_added``, ``files_added``, ``files_removed``.
+        """
+        with self._lock:
+            known = set(self.mod_list)
+            self.scan_mods(profile_mods_dir)
+            mods_added = len(set(self.mod_list) - known)
+            files_before = set(self.file_list)
+
+            stale: list[FileKeyInfo] = []
+            for md in list(self.mod_list.values()):
+                if md.is_group_item:
+                    continue
+                if not (profile_mods_dir / md.mod_name).is_dir():
+                    continue  # imported definition (see docstring): keep as is
+                self.scan_mod_files(md, profile_mods_dir)
+                md.files[:] = [fk for fk in md.files if fk in self.file_list]
+                for fk in md.files:
+                    if fk.group != md.group:
+                        stale.append(fk)
+
+            for fk, fd in list(self.file_list.items()):
+                md = self.mod_item(fk.mod_name)
+                if md is None or md.is_group_item:
+                    continue
+                if not (profile_mods_dir / md.mod_name).is_dir():
+                    continue
+                if not self.mod_file_path(profile_mods_dir, fk).is_file():
+                    stale.append(fk)
+                    continue
+                if fk.group not in self.mod_list:
+                    self.mod_list[fk.group] = ModData(group=fk.group)
+                    self.initialise_groups()
+                if not fd.crc_calculated:
+                    self.changes.file.changed(fk)
+                if md.group != fk.group:
+                    stale.append(fk)
+                elif fk not in md.files:
+                    md.files.append(fk)
+
+            removed = 0
+            for fk in dict.fromkeys(stale):
+                md = self.mod_item(fk.mod_name)
+                if fk in self.file_list and md is not None:
+                    self.remove_file(md, fk)
+                    removed += 1
+
+            if game_folders is not None:
+                for fk in self.changes.file.update_list:
+                    ifd = self.installed_list.get(fk.installed_key)
+                    if ifd is not None and not ifd.crc_calculated:
+                        path = self.installed_file_path(game_folders, ifd.key)
+                        if path is not None:
+                            ifd.file_crc = _safe_crc(path)
+            self._checksum_new_mod_files(profile_mods_dir)
+            # NIT forces a full refresh: every file state, then every mod state.
+            self.changes.file.update_list[:] = list(self.file_list)
+            self.update_file_states()
+            for name in self.mod_keys:
+                self.changes.mods.affected(name)
+            self.update_mod_states()
+            return {
+                "mods_added": mods_added,
+                "files_added": len(set(self.file_list) - files_before),
+                "files_removed": removed,
+            }
+
 
 def _safe_crc(path: Path) -> int:
     try:
