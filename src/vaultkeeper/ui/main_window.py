@@ -671,12 +671,55 @@ class MainWindow(QMainWindow):
         """
         if self.controller is None or not self.controller.ctx.is_ee:
             return
+        if self.controller.workshop_management_enabled():
+            # VB ProfileView → WorkShop.LoadMods: act on the changes, not just say.
+            self._sync_workshop_mods()
+            return
         try:
             diff = self.controller.workshop_refresh()
         except Exception:
             return
         if diff["added"] or diff["updated"] or diff["unsubscribed"]:
             self.nit_status.set_info(diff["summary"])
+
+    def _sync_workshop_mods(self) -> None:
+        """Run :meth:`ProfileController.sync_workshop_mods` with NIT's keep question."""
+        from PySide6.QtWidgets import QApplication, QCheckBox
+
+        same_for_all: list[bool] = []
+
+        def keep(name: str) -> bool:
+            if same_for_all:
+                return same_for_all[0]
+            box = QMessageBox(self)
+            box.setWindowTitle("Steam Workshop")
+            box.setIcon(QMessageBox.Icon.Question)
+            box.setText(
+                f"You no longer subscribe to the Steam Workshop Mod {name}.\n\n"
+                "Answer Yes if you want to retain this tool's copy of the Mod, "
+                f"otherwise answer No to delete it.\n\nDo you want to keep {name}?"
+            )
+            box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            check = QCheckBox("Take the same action for all Unsubscribed Workshop items.")
+            box.setCheckBox(check)
+            answer = box.exec() == QMessageBox.StandardButton.Yes
+            if check.isChecked():
+                same_for_all.append(answer)
+            return answer
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            result = self.controller.sync_workshop_mods(keep_unsubscribed=keep)
+        except Exception:
+            log.exception("Steam Workshop processing failed")
+            return
+        finally:
+            QApplication.restoreOverrideCursor()
+        if result["message"]:
+            self.refresh()
+            self.nit_status.set_info(result["message"])
 
     def _notify_config_drift(self) -> None:
         """Non-modal notice if the game's config changed since we last saw it."""
@@ -2872,6 +2915,8 @@ class MainWindow(QMainWindow):
             QApplication.restoreOverrideCursor()
         self.refresh()
         self.nit_status.set_info(diff["summary"])
+        if self.controller.workshop_management_enabled():
+            self._sync_workshop_mods()
 
     def _on_send_diagnostics(self) -> None:
         """Gather what a bug report needs (VB ``MsSendDiagInfo``).
@@ -3957,6 +4002,9 @@ class MainWindow(QMainWindow):
         from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
 
         before = self._current_game_paths()
+        from vaultkeeper.config.settings import load_settings
+
+        was_managing = load_settings().manage_steam_workshop
         settings = SettingsDialog.edit(
             parent=self, controller=self.controller, start_tab=start_tab
         )
@@ -3979,6 +4027,13 @@ class MainWindow(QMainWindow):
             if (settings.nwn_path, settings.game_user_path) != before:
                 self._reopen_with_new_paths()
             self.nit_status.set_info("Settings saved.")
+            # VB Settings → BehaviourWorkshop changed: turning it off asks what to
+            # do with the managed mods (UnsubscribeAll); on, processes them.
+            if self.controller is not None and was_managing != settings.manage_steam_workshop:
+                if settings.manage_steam_workshop:
+                    self._sync_workshop_mods()
+                elif self.controller.managed_workshop_mods():
+                    self._on_stop_managing_workshop()
 
     def _current_game_paths(self) -> tuple:
         from vaultkeeper.config.settings import load_settings

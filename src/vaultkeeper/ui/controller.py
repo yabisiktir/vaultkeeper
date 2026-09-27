@@ -8335,7 +8335,9 @@ class ProfileController:
                 md.web_link = ""
                 kept += 1
         if not keep:
-            removed = self.remove_mods([n for n in names if self.pd.mod_item(n)])
+            # VB Unsubscribe → DeleteSelectedMods: uninstall, recycle the folder,
+            # anneal. Dropping only the definition left the files in the game.
+            removed = len(self.delete_mods([n for n in names if self.pd.mod_item(n)])["deleted"])
         if names:
             self.save()
         verb = (
@@ -8393,7 +8395,11 @@ class ProfileController:
         if not id_folder.is_dir():
             return result(False, "", f"Workshop item {workshop_id} is not subscribed.")
 
-        mod_name = resolve_mod_name(id_folder, workshop_id)
+        # The name the user gave the subscription wins (VB IdInfo.ModFolderName).
+        stored = self._read_workshop_contents().get(workshop_id)
+        mod_name = (
+            stored.mod_name if stored is not None else resolve_mod_name(id_folder, workshop_id)
+        )
         existing = self.pd.mod_item(mod_name)
         if existing is not None:
             if existing.workshop_id == workshop_id:
@@ -8405,6 +8411,12 @@ class ProfileController:
                 self.save()
                 return result(True, mod_name, f"Re-linked {mod_name} to Steam Workshop.")
             return result(False, mod_name, f"A mod named {mod_name} already exists.")
+        owner = self._mod_owning_module(mod_name)
+        if owner:
+            # VB ModInfo.SteamOnly: the module came from somewhere else already.
+            return result(
+                False, mod_name, f"{owner} already provides {mod_name}.mod; not added."
+            )
 
         # Create the mod under the Workshop group and link it to Steam.
         self.create_mod(mod_name, group=WORKSHOP_GROUP)
@@ -8445,6 +8457,10 @@ class ProfileController:
         workshop_folder.mkdir(parents=True, exist_ok=True)
         display = WorkshopIdInfo(workshop_id, mod_name).display_name
         archive_path = workshop_folder / f"{display}.7z"
+        # VB UpdateWorkshopFile deletes the old archive first: 7-Zip's "a" adds
+        # into an existing one, keeping files the item no longer has.
+        if archive_path.exists():
+            archive_path.unlink()
         # Store the id folder's contents at the archive root (VB "<IdFolder>\*").
         sources = [Path(p.name) for p in sorted(id_folder.iterdir())]
         if not sources:
@@ -8452,6 +8468,124 @@ class ProfileController:
         return self._archive_backend().create(
             archive_path, sources, base_dir=id_folder
         ).ok
+
+    def _mod_owning_module(self, module_name: str) -> str:
+        """A mod that already installs ``modules/<module_name>.mod`` (VB ``SteamOnly``)."""
+        wanted = f"{module_name}.mod".lower()
+        for md in self.pd.mod_list.values():
+            if md.is_group_item or md.workshop_id:
+                continue
+            if any(
+                fk.folder.lower() == "modules" and fk.filename.lower() == wanted
+                for fk in md.files
+            ):
+                return md.mod_name
+        return ""
+
+    def _workshop_applied_file(self) -> Path:
+        """What each managed item looked like when its mod was last packed."""
+        return self._profile_data_dir() / "WorkshopApplied.json"
+
+    @staticmethod
+    def _workshop_signature(info) -> dict:
+        return {k: [f.size, f.mtime] for k, f in sorted(info.files.items())}
+
+    def sync_workshop_mods(self, *, keep_unsubscribed=None) -> dict:
+        """Bring the managed Workshop mods in line with Steam (VB ``SteamWorkshop.LoadMods``).
+
+        With "Use NIT to manage Steam's Workshop Content" on, NIT does this when
+        a profile loads and on Refresh Workshop Files:
+
+        * a managed mod whose subscription is gone: ask whether to keep this
+          tool's copy (the Steam link is cut) or delete it (``keep_unsubscribed``
+          is asked with the mod name; no callback keeps it);
+        * a subscription whose files changed: repack the mod's Workshop archive
+          and rebuild its installer, reinstalling it per installer-restore;
+        * a new subscription: create its mod in the Workshop group, pack and
+          build it, and install it, unless another mod already provides its
+          ``.mod`` file (``SteamOnly``).
+
+        NIT spots a change by comparing the item's files with the installer's
+        checksums; this compares them with what was last packed, recorded per
+        item, so a change seen while management was off is not lost. Returns
+        ``{"created", "updated", "kept", "deleted", "skipped", "message"}``.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.workshop import WorkshopIdInfo
+        from vaultkeeper.persistence.json_store import read_json, write_json
+
+        report = {"created": [], "updated": [], "kept": [], "deleted": [], "skipped": []}
+        content = self.workshop_content_dir()
+        if not self.workshop_management_enabled() or content is None:
+            return {**report, "message": ""}
+        self.workshop_refresh()
+        contents = self._read_workshop_contents()
+        applied_path = self._workshop_applied_file()
+        applied = read_json(applied_path, default={}) or {}
+
+        # Unsubscribed (VB LoadMods → Unsubscribe).
+        for name in self.managed_workshop_mods():
+            md = self.pd.mod_item(name)
+            if md.workshop_id in contents and (content / md.workshop_id).is_dir():
+                continue
+            applied.pop(md.workshop_id, None)
+            if keep_unsubscribed is None or keep_unsubscribed(name):
+                md.workshop_id = ""
+                md.web_link = ""
+                report["kept"].append(name)
+            else:
+                self.delete_mods([name])
+                report["deleted"].append(name)
+
+        # Changed (VB ValidateModContent → UpdateWorkshopFile → Create Installer).
+        for name in self.managed_workshop_mods():
+            md = self.pd.mod_item(name)
+            info = contents[md.workshop_id]
+            signature = self._workshop_signature(info)
+            recorded = applied.get(md.workshop_id)
+            archive = (
+                self.ctx.profile_mods_dir / name / C.WORKSHOP_DIR
+                / f"{WorkshopIdInfo(md.workshop_id, name).display_name}.7z"
+            )
+            if recorded == signature:
+                continue
+            if recorded is None and archive.exists():
+                applied[md.workshop_id] = signature  # first sight: take it as packed
+                continue
+            if self._archive_workshop_item(name, md.workshop_id, content / md.workshop_id):
+                self.rebuild_installer(name)
+                applied[md.workshop_id] = signature
+                report["updated"].append(name)
+
+        # New (VB CreateMods → CreateInstallers → InstallMods).
+        managed_ids = {self.pd.mod_item(n).workshop_id for n in self.managed_workshop_mods()}
+        for workshop_id, info in sorted(contents.items()):
+            if workshop_id in managed_ids or not (content / workshop_id).is_dir():
+                continue
+            added = self.add_workshop_mod(workshop_id)
+            if not added["created"]:
+                if added["ok"]:  # re-linked to an existing Workshop mod
+                    applied.setdefault(workshop_id, self._workshop_signature(info))
+                else:
+                    report["skipped"].append(added["mod_name"] or workshop_id)
+                continue
+            if added["installer"]:
+                self.install([added["mod_name"]])
+            applied[workshop_id] = self._workshop_signature(info)
+            report["created"].append(added["mod_name"])
+
+        applied_path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(applied_path, applied)
+        self.save()
+        parts = []
+        for key, label in (
+            ("created", "Added"), ("updated", "Updated"),
+            ("kept", "Retained"), ("deleted", "Removed"),
+        ):
+            if report[key]:
+                parts.append(f"{label}: {len(report[key])}.")
+        message = f"Workshop Mods {' '.join(parts)}" if parts else ""
+        return {**report, "message": message}
 
     def doc_organiser_report(
         self,
