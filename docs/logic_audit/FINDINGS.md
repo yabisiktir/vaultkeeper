@@ -259,4 +259,8 @@ layouts.
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
+- Owner decision: mod notes are edited as plain text, so editing a note NIT
+  formatted drops its formatting (3i N4).
+- Owner decision: NIT asks for a name for each unidentified Workshop item on
+  load (3h W9); VK leaves "Mod <id>" with Rename in the viewer.
 - Stage 4 residual code review; Stage 5 fixes.
