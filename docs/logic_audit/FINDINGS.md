@@ -229,6 +229,16 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | N2 ✅ | Orphaned notes were hard-deleted (NIT recycles) |
 | N4 | Editing NIT-formatted notes drops the formatting (plain-text editor) — owner decision |
 
+## Stage 3j — characters (details: `stage3j_characters.md`)
+
+NIT's own `BicFileReader.dll` diffed against Vaultkeeper's reader on 37 real
+characters: every field identical apart from a NIT reader quirk (C2).
+
+| ID | Finding |
+|---|---|
+| C3 ✅ | `PortraitId` ignored: stock portraits stored by row showed nothing (fixed in nwn-save-editor) |
+| C4 ✅ | Portraits folder searched before hak portraits (NIT: haks first) |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
@@ -248,6 +258,5 @@ layouts.
 
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
-- Stage 3j: characters.
 - `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Stage 4 residual code review; Stage 5 fixes.
