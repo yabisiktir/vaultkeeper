@@ -36,7 +36,7 @@ artefact`, `n/a`); `triage.py` then lists what is left in `stage4/residual.csv`.
 | 4 | HakPatchManager.vb, ErfFileReader.vb, InstallationAnalyser.vb, DependencyManager.vb | 41 | ✅ |
 | 5 | NIT.Menu.vb, NIT.Common.vb, NIT.Workers.vb, NIT.ModView.vb, NIT.* views | 177 | ✅ |
 | 6 | Defs.vb, Settings.* | 74 | ✅ |
-| 7 | the rest (viewers, GameManager, ModExplorer, …); NetworkManager.vb as one verdict (not ported) | ~200 | |
+| 7 | the rest (viewers, GameManager, ModExplorer, …); NetworkManager.vb as one verdict (not ported) | 183 | ✅ |
 
 ## Batch 1 — ModData.vb
 
@@ -161,3 +161,24 @@ Regression tests: `tests/test_activation.py`, `tests/test_groups.py` (last two),
 
 Regression tests: `tests/test_session.py::test_import_keeps_editions_and_takes_only_paths_that_exist_here`,
 `tests/test_folder_mapping.py::test_a_deletable_default_exclude_can_be_removed_and_stays_removed`.
+
+## Batch 7 — the rest
+
+179 verdicts: 65 same, 105 n/a, 8 deliberate, 1 fixed.
+NetworkManager (23 rows) is NIT's shared network store and is not ported (VK moves
+mods between machines with `.vkmod` export/import): one n/a verdict for all.
+
+| Member | Finding | Verdict |
+|---|---|---|
+| `GameManager.DeleteGame` | NIT deletes the game's archived saves with its backup (per the Recycle Bin for Game Saves preference) and then records the finished game's play time (`RecordDeletedGames`). VK left the archives behind and never recorded the time: `record_deleted_games` existed but nothing called it. | BUG → fixed |
+| `SanitiseGameSaves` | Each time NIT's Game Saves Manager opens, it moves every save that is not the current game's into a per-game backup (one game in the saves folder at a time). That silently changes what the game's Load screen shows; VK lists mixed saves and moves them only on an explicit Deactivate. | deliberate |
+| `DeleteFinished` | VK archives rather than deletes on Finished (restorable), recording the time the same way. | deliberate (VK better) |
+| Activate / Deactivate / right-click swap, Installation Manager Apply, download post-processing (superseded files, UpdateWizard) | Same logic. | same |
+
+Regression test: `tests/test_game_saves_manager.py::test_deleting_a_game_takes_its_archived_saves`.
+
+## Stage 4 result
+
+All 726 residual members have a verdict (`triage.py`: still to review 0):
+407 same, 209 n/a, 69 fixed, 34 deliberate. The deliberate differences are in
+each batch's table; the owner's decisions are in `FINDINGS.md`.

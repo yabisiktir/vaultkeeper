@@ -539,3 +539,182 @@ Settings.vb,TsExport_Click,same,export_settings (timestamped)
 Settings.vb,TsImport_Click,fixed,import_settings keeps profile editions + EE signatures; imported paths only if they exist here
 Settings.vb,TsImportMaps_Click,deliberate,import map customisations from another settings file not offered; whole-settings import carries them
 Settings.vb,BtSave_Click,same,settings dialog Save
+ApplicationEvents.vb,MyApplication_Startup,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ApplicationEvents.vb,MyApplication_UnhandledException,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ApplicationEvents.vb,LogExceptionInfo,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ApplicationEvents.vb,MyApplication_StartupNextInstance,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ApplicationEvents.vb,MyApplication_Shutdown,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+BackupManager.Methods.vb,DeleteFiles,same,crash/backup deletes recycle
+BackupManager.Methods.vb,DeleteMods,same,backup manager delete
+BackupManager.vb,BtDelete_Click,same,recycle per setting
+BikToWbmDialogue.vb,BgConverter_DoWork,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+BikToWbmDialogue.vb,BgConverter_ProgressChanged,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+CalculateCRCs.vb,ShowDialog,same,calculate_crcs
+CalculateCRCs.vb,CalculateCRCs_FormClosing,n/a,viewer/dialog plumbing (no profile logic)
+ClassesSkillsAndFeats.vb,LoadClassDescriptions,same,character explorer data
+ClassesSkillsAndFeats.vb,LoadInfoFiles,n/a,viewer/dialog plumbing (no profile logic)
+CrashDumpManager.vb,CrashDumpManager_FormClosing,n/a,UI
+CrashDumpManager.vb,BtSubmit_Click,n/a,NIT diagnostic submission
+CrashDumpManager.vb,BtDeleteAll_Click,same,CrashReportsDialog Delete All
+CrashDumpManager.vb,BtDelete_Click,same,recycle per setting
+CrashDumpManager.vb,DeleteFiles,same,crash/backup deletes recycle
+DailyPlayTimeInfo.vb,InfoFile,same,DailyPlayTime.json
+DailyPlayTimeInfo.vb,TodaysTime,same,3e
+DailyPlayTimeInfo.vb,Save,same,GameMapper/daily play save
+DailyPlayTimeInfo.vb,GetDailyPlayInfo,same,3e
+DownloadProject.Files.vb,DownloadMarkedFiles,same,stage 1/2 download flow
+DownloadProject.Files.vb,CreateModFolder,same,download creates mod + _Downloads + web link
+DownloadProject.Files.vb,DownloadFile,same,streamed download (vault/downloader)
+DownloadProject.Files.vb,CreateInstallers,same,"build + install after download; superseded downloads offered (old_downloads), UpdateWizard"
+DownloadProject.Files.vb,SetEstimate,n/a,viewer/dialog plumbing (no profile logic)
+ErfFileReader.IfoReader.vb,GetFieldText,same,module_reader IFO
+ErfFileReader.IfoReader.vb,ReadHeader,same,module_reader
+ErfFileReader.IfoReader.vb,GetFieldDataCExoLocString,same,module_reader
+ErfFileReader.IfoReader.vb,GetLabel,same,module_reader
+FileConflictsViewer.vb,BtInstalled_Click,same,conflicts viewer
+FileConflictsViewer.vb,BtAll_Click,same,conflicts viewer
+FileConflictsViewer.vb,LvFiles_SelectedIndexChanged,same,conflicts viewer
+FileConflictsViewer.vb,BgProcessModFiles_DoWork,n/a,viewer/dialog plumbing (no profile logic)
+FindProfileFilesDialogue.vb,Folder,n/a,viewer/dialog plumbing (no profile logic)
+FindProfileFilesDialogue.vb,CmDisplayInfo_Click,n/a,viewer/dialog plumbing (no profile logic)
+FindProfileFilesDialogue.vb,SelectDetails,same,find profile files
+FindProfileFilesDialogue.vb,BgGetFiles_DoWork,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.GameManagerInfo.vb,GetArchives,same,archived ranges
+GameManager.MenuActions.vb,ArchiveGames,same,3d G4 Reduce
+GameManager.MenuActions.vb,RestoreGames,same,3d
+GameManager.MenuActions.vb,DeactivateGame,same,deactivate_current_game
+GameManager.MenuActions.vb,ActivateGame,same,activate_game
+GameManager.MenuActions.vb,DeleteGame,fixed,delete_game_backup also deletes the game's archived saves and runs record_deleted_games
+GameManager.MenuActions.vb,DeleteFinished,deliberate,"Finished archives rather than deletes (VK-better, restorable)"
+GameManager.Methods.vb,PopulateSaveList,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.Methods.vb,SanitiseGameSaves,deliberate,NIT moves every save not of the current game into per-game backups whenever the manager opens; VK shows mixed saves and moves only on an explicit Deactivate
+GameManager.Methods.vb,Backup,same,game_backup
+GameManager.Methods.vb,CreateBackupFolder,same,game_backup
+GameManager.Methods.vb,Restore,same,game_backup / restore_game_saves
+GameManager.Methods.vb,AddItems,same,game saves report
+GameManager.Methods.vb,SortDisplayedGames,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.Methods.vb,ValidateAndRepair,deliberate,NIT redoes an interrupted deactivation by restarting the manager; VK's deactivate is one operation (not reported interrupted)
+GameManager.Properties.vb,FinishedEnabled,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.Properties.vb,ActiveGameKey,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.Properties.vb,UninstallMods,same,ported; checked against the VB handler
+GameManager.vb,GameManager_Load,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.vb,BtClose_Click,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.vb,CmOpen_Click,n/a,viewer/dialog plumbing (no profile logic)
+GameManager.vb,TsActivate_MouseUp,same,"swap_game_mods (right-click Activate installs the game's mod, uninstalls the previous)"
+GameManager.vb,TsDeactivate_MouseUp,same,uninstall_game_mod
+GameManager.vb,TsDelete_Click,same,ported; checked against the VB handler
+GameManager.vb,TsFinished_Click,n/a,viewer/dialog plumbing (no profile logic)
+GameManagerRestore.vb,SelectedRangeDisplayName,n/a,viewer/dialog plumbing (no profile logic)
+GameManagerRestore.vb,GameManagerRestore_Load,n/a,viewer/dialog plumbing (no profile logic)
+GameManagerRestore.vb,BtDelete_Click,same,recycle per setting
+GameManagerRestore.vb,FvGameSaves_KeyPress,n/a,viewer/dialog plumbing (no profile logic)
+GameManagerRestore.vb,CmOpen_Click,n/a,viewer/dialog plumbing (no profile logic)
+GameMapper.Defs.vb,FileScanCurrent,same,
+GameMapper.Defs.vb,GameMapData,same,GameMapData.json
+GameMapper.Defs.vb,UserResponsesFile,same,GameMapChoices.json
+GameMapper.Internal.vb,Load,same,GameMapper _load (3d)
+GameMapper.Internal.vb,Save,same,GameMapper/daily play save
+GameMapper.Internal.vb,GetDescriptionFromFile,same,3d
+GameMapper.Internal.vb,IsNotPatch,same,3d G5
+GameMapper.Internal.vb,AskUser,same,prompter (3d G5)
+GameMapper.Internal.vb,FindModNames,same,3d
+GameMapper.Internal.vb,ValidateName,n/a,viewer/dialog plumbing (no profile logic)
+GameMapper.Internal.vb,GetSaveInfo,same,3d
+GameMapper.SaveNameInfo.vb,Add,same,SaveNameInfo.add
+GameMapper.Workers.vb,BgModScanner_DoWork,n/a,viewer/dialog plumbing (no profile logic)
+GameMapper.Workers.vb,BgModScanner_ProgressChanged,n/a,viewer/dialog plumbing (no profile logic)
+GameMapper.Workers.vb,ScanProfiles,same,scan_profiles
+GameMapper.Workers.vb,ModFileExists,same,_mod_file_exists
+GameMapper.Workers.vb,IgnoreModFile,same,ignore_mod_file
+GameSavesPathDialogue.vb,GameSavesPathDialogue_Load,n/a,viewer/dialog plumbing (no profile logic)
+GameSavesPathDialogue.vb,TxGameSaves_TextChanged,n/a,viewer/dialog plumbing (no profile logic)
+GameSavesPathDialogue.vb,BtSave_Click,deliberate,shared saves-folder setting not ported (batch 3)
+HakPatchEditor.vb,HakPatchEditor_Load,same,batch 4
+HakPatchEditor.vb,BtSave_Click,same,ported; checked against the VB handler
+InstallationManager.GroupInfo.vb,ModCount,same,installation sets
+InstallationManager.GroupInfo.vb,ModItems,same,installation sets
+InstallationManager.GroupInfo.vb,GroupState,same,installation sets
+InstallationManager.ModInfo.vb,CurrentState,same,installation sets
+InstallationManagerEditor.vb,InstallationManager_Load,n/a,viewer/dialog plumbing (no profile logic)
+InstallationManagerEditor.vb,InstallationManagerEditor_FormClosing,n/a,viewer/dialog plumbing (no profile logic)
+InstallationManagerEditor.vb,BtApply_Click,same,apply_installation_set (uninstalls then installs)
+MenuItemEditor.vb,MenuItemEditor_Load,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+MenuItemEditor.vb,TxProgramLocation_TextChanged,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ModExplorer.Common.vb,PopulateGroupFilters,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.Common.vb,UseDefaultGroupFilters,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.Common.vb,PopulateModPrefixes,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.Common.vb,SavePrefixFilters,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.ListManager.vb,PopulateModList,same,Mod Explorer
+ModExplorer.ListManager.vb,NotFiltered,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.ListManager.vb,LvExplorer_RetrieveVirtualItem,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.Properties.vb,SelectedMod,same,Mod Explorer
+ModExplorer.vb,ModExplorer_Load,same,Mod Explorer filters (viewer)
+ModExplorer.vb,ModExplorer_FormClosing,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.vb,TsStateOperand_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.vb,CmOperand_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.vb,TsAddToRecentMods_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorer.vb,BgNotes_DoWork,n/a,viewer/dialog plumbing (no profile logic)
+ModExplorerExtensions.vb,ToggleFilter,n/a,viewer/dialog plumbing (no profile logic)
+ModExport.vb,ExportMod,deliberate,.vkmod export instead of NIT's shared-store export
+ModExport.vb,GetImports,deliberate,as ExportMod
+ModExport.vb,GetList,deliberate,as ExportMod
+ModExport.vb,ModFolder,deliberate,as ExportMod
+ModFindAndRename.ModNames.vb,GetNames,n/a,viewer/dialog plumbing (no profile logic)
+ModFindAndRename.vb,BtApply_Click,n/a,MsFindAndRename is dead in NIT; VK has Rename Mods
+ModPlayViewer.vb,ModPlayViewer_Load,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,BtRecent_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,BtSelect_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,ModPlayViewer_FormClosing,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,Ts_CheckedChanged,n/a,viewer filter
+ModPlayViewer.vb,TsEndFilter_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,TsFilters_Click,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,TsRestoreSelected_CheckedChanged,n/a,viewer/dialog plumbing (no profile logic)
+ModPlayViewer.vb,BgGetPlayedInfo_DoWork,n/a,viewer/dialog plumbing (no profile logic)
+NetworkManager.vb,Enabled,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,Connected,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,HasProfile,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,ProfileDataPath,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,ProfilePaths,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,UserName,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncCount,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,ModSyncInfo,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,Connect,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,WaitForNetwork,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,GetFullPath,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,ProcessGetFullPath,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncListLoad,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncListAdd,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncFiles,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,WaitForSync,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,ModSynced,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncListSaveAll,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncListSave,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,SyncReport,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,BgNetwork_DoWork,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NetworkManager.vb,BgSync_DoWork,n/a,NetworkManager / shared NIT store: not ported (VK uses export/import)
+NitDownload.vb,BtOpen_Click,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+NitUserInterface.vb,SetPrefs,same,theme
+PlayDataViewer.vb,PlayDataViewer_Load,n/a,viewer/dialog plumbing (no profile logic)
+PlayDataViewer.vb,PlayDataViewer_FormClosing,n/a,viewer/dialog plumbing (no profile logic)
+PlayDataViewer.vb,LtxHoursPerDay_TextChanged,n/a,viewer/dialog plumbing (no profile logic)
+ProfileData.Config.vb,OrangeRed,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Config.vb,Green,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Config.vb,DodgerBlue,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,Report,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,ReportFileKey,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,OriginalDataReport,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,Matched,n/a,diagnostic
+ProfileData.Diag.vb,InstallDataReport,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,InstallDataReportItem,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,ModDataReport,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,ModDataReportItem,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,FileDataReport,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,FileDataReportItem,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileData.Diag.vb,FileKeyInfoReport,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+ProfileDataExtensions.vb,ToFullName,same,path helpers
+ProfileDataExtensions.vb,ToStateColour,same,theme.status_colour
+RtfThemeManager.vb,RtfThemeManager_Shown,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+RtfThemeManager.vb,SetColourTable,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+RtfThemeManager.vb,ProcessFile,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+TaskbarProgress.vb,Update,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)
+TaskbarProgress.vb,Reset,n/a,diagnostics / app plumbing / theme-RTF rewriting (VK themes via the palette; black text follows the theme)

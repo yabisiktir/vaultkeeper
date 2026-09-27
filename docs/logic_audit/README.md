@@ -42,8 +42,8 @@ not "done" until its findings are triaged.
 | 1 ✅ | **Install core: function diffs** | File mapping (target folder, excludes, exceptions, prefixes, moves, ERF/demo checks), mod-name/version parsing, Vault download rules + prerequisites, dependency and conflict detection, change tracking | Every function pair run on the full corpus; every mismatch listed with input + both outputs | `stage1_findings.md` |
 | 2 ✅ | **Install core: scenario diffs** | Same scripted sequences in both apps on identical sandboxes: install, install-with-conflict, reinstall, uninstall (incl. dependants), move/rename, profile switch. Diff files on disk + persisted records after each step | All scripts run; every divergence in resulting state listed | `stage2_findings.md` |
 | 3 ✅ | **Beyond install: other features** (separate phase; plan below) | Game Saves Manager + backups/restore, play-data/client-log, character/BIC reading, portraits + start screens, installer/wizard creation, Workshop, DocOrganiser, INI/alias handling, settings import/export, validation/recovery tools | Same method as 1-2, feature by feature, each with its own corpus | `stage3_<feature>.md` |
-| 4 ▶ | **Residual code review** | Ledger rows no stage could execute (UI-coupled logic), core files first | Every residual row has a verdict backed by a VB-vs-Python branch comparison, not a note | `stage4_review.md` |
-| 5 | **Triage + fix** | Each finding: bug / deliberate improvement / platform difference; fix bugs with a regression test that encodes NIT's answer | No untriaged findings | `FINDINGS.md` |
+| 4 ✅ | **Residual code review** | Ledger rows no stage could execute (UI-coupled logic), core files first | Every residual row has a verdict backed by a VB-vs-Python branch comparison, not a note | `stage4_review.md` |
+| 5 ✅ | **Triage + fix** | Each finding: bug / deliberate improvement / platform difference; fix bugs with a regression test that encodes NIT's answer | No untriaged findings | `FINDINGS.md` |
 
 Stages 0–2 are done (2026-09-27; findings ranked in `FINDINGS.md`), and their
 findings are triaged and fixed (stage 5 batches 1–10).
@@ -79,3 +79,9 @@ triaged, so the method is calibrated first.
 - NIT's bundled `DownloadRulesV3.txt` / `Application Definitions.txt`.
 - Synthetic edge cases generated per function (case, missing extension, nested
   folders, prefix/suffix matches, reserved names).
+
+**Status (2026-09-28):** stages 0–5 complete. Stage 5 was done alongside each
+stage rather than as a separate pass: every finding in `FINDINGS.md` and
+`stage4_review.md` is triaged (bug, deliberate, VK better, NIT artefact, n/a),
+and every bug fix has a regression test that fails on the old code. Owner
+decisions are recorded under "Owner decisions" in `FINDINGS.md`.

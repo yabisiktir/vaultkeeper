@@ -33,10 +33,9 @@ Notes from the fixes:
   in the install folder and identical to the mod's copy, moves to the user
   folder (never over an existing file); nothing else in the install folder is
   touched. Dry run on the owner's real data: only `desktop.ini` (Adreannadreas
-  Portrait Collections) moves. Remaining fresh-start differences vs NIT: NIT's
-  first run asks "Create Restorers for files installed by NWN?" (→ "2. NWN INI
-  Files Restorer") and creates an empty `userpatch.ini`; VK does neither at
-  first run (stage 3, first-run flow).
+  Portrait Collections) moves. The fresh-start differences found then (NIT's
+  first-run "Create Restorers for files installed by NWN?" and the empty
+  `userpatch.ini`) were closed in stage 3a.
 - **S2 fixed** (third batch): `ProfileController.run_auto_restorers` ports
   `RunAutoRestorers` (database, INI, journal, NIT config; the character one
   already existed), run at start-up and after a game/toolset session.
@@ -120,8 +119,8 @@ the prerequisite's own rules as in NIT. Re-diffed against NIT's parse of the sam
 2,602-line published file (`stage1/diff_rules_full.py`): all 227 projects agree on
 every field; the three remaining lines are dump-format artefacts (two titles
 contain `|` / `:`) and R7. Regression tests: `tests/test_download_rules_nit_parity.py`
-(all 13 fail on the old code). Not yet done: replaying recorded Vault responses to
-both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
+(all 13 fail on the old code). Replaying the same Vault projects through both
+apps' download dialogs was done in the stage 1c follow-up (R10–R14). NIT's non-EE version detection
 (1.68 vs 1.69) is not ported; a classic profile is treated as 1.69.
 
 ## Behaviour / defaults / display
