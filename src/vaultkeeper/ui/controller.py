@@ -10025,18 +10025,29 @@ class ProfileController:
         ``is_excluded_folder``); ``override`` marks a user addition (removable).
         """
         mapper = self.ctx.mapper
-        files = [
-            {"name": name, "override": mapper.is_exclude_override("files", name)}
-            for name in sorted(mapper.exclude_files)
-        ]
-        folders = [
-            {"name": name, "override": mapper.is_exclude_override("folders", name)}
-            for name in sorted(mapper.exclude_folders)
-        ]
+
+        def rows(kind: str, table) -> list[dict]:
+            return [
+                {
+                    "name": name,
+                    "override": mapper.is_exclude_override(kind, name),
+                    # VB: every entry but the mandatory defaults can be removed.
+                    "removable": mapper.is_exclude_removable(kind, name),
+                }
+                for name in sorted(table)
+            ]
+
+        files = rows("files", mapper.exclude_files)
+        folders = rows("folders", mapper.exclude_folders)
+        mods = rows("mods", mapper.exclude_mods)
         return {
             "files": files,
             "folders": folders,
-            "summary": f"Excluded files: {len(files)}. Excluded folders: {len(folders)}.",
+            "mods": mods,
+            "summary": (
+                f"Excluded files: {len(files)}. Excluded folders: {len(folders)}. "
+                f"Excluded mods: {len(mods)}."
+            ),
         }
 
     def player_excludes_pending(self) -> int:
@@ -10079,7 +10090,7 @@ class ProfileController:
         self._persist_map_overrides()
 
     def remove_map_exclude(self, kind: str, name: str) -> bool:
-        """Remove a user-added exclude and persist. Defaults are not removable."""
+        """Remove an exclude and persist; mandatory defaults are not removable."""
         removed = self.ctx.mapper.remove_exclude(kind, name)
         if removed:
             self._persist_map_overrides()

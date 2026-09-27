@@ -43,8 +43,10 @@ from vaultkeeper.ui import resources as R
 #: Tab-name -> index, so callers/tests can request a start page by name.
 TAB_INDEX = {"Extensions": 0, "Map Files": 1, "Map Folders": 2, "Map Excludes": 3}
 
-#: The Excludes tab index (edit shape differs: name + File/Folder type).
+#: The Excludes tab index (edit shape differs: name + File/Folder/Mod type).
 _EXCLUDES_TAB = 3
+#: Exclude kinds and their Type column label (VB LvMapExcludes groups).
+_EXCLUDE_KINDS = {"files": "File", "folders": "Folder", "mods": "Mod"}
 
 #: Per-map-tab (override-table name, key-column label) used by the edit controls.
 _TAB_TABLES = [
@@ -190,20 +192,23 @@ class FolderMapping(QDialog):
         )
         self._fill(
             self.excludes,
-            [(r["name"], (r["name"], "File"), r["override"]) for r in excludes["files"]]
-            + [
-                (r["name"], (r["name"], "Folder"), r["override"])
-                for r in excludes["folders"]
+            [
+                (r["name"], (r["name"], label), r["override"], r["removable"])
+                for kind, label in _EXCLUDE_KINDS.items()
+                for r in excludes.get(kind, [])
             ],
         )
         self._update_buttons()
 
     @staticmethod
-    def _fill(tree: QTreeWidget, rows: list[tuple[str, tuple[str, ...], bool]]) -> None:
+    def _fill(tree: QTreeWidget, rows: list[tuple]) -> None:
+        """Rows are ``(key, columns, is_override[, removable])``; removable
+        defaults to is_override (a user override is what Remove deletes)."""
         tree.clear()
-        for key, columns, is_override in rows:
+        for key, columns, is_override, *rest in rows:
+            removable = rest[0] if rest else is_override
             item = QTreeWidgetItem(list(columns))
-            item.setData(0, Qt.ItemDataRole.UserRole, (key, is_override))
+            item.setData(0, Qt.ItemDataRole.UserRole, (key, removable))
             if is_override:
                 font = item.font(0)
                 font.setWeight(QFont.Weight.Bold)
@@ -222,7 +227,7 @@ class FolderMapping(QDialog):
         self._folder_combo.clear()
         if index == _EXCLUDES_TAB:
             self._key_label.setText("Excluded Item:")
-            self._folder_combo.addItems(["File", "Folder"])
+            self._folder_combo.addItems(list(_EXCLUDE_KINDS.values()))
         else:
             self._key_label.setText(f"{_TAB_TABLES[index][1]}:")
             self._folder_combo.addItems(_FOLDER_CHOICES)
@@ -279,9 +284,8 @@ class FolderMapping(QDialog):
         elif index == 2:
             self._controller.set_map_folder(key, choice)
         else:
-            self._controller.add_map_exclude(
-                "files" if choice == "File" else "folders", key
-            )
+            kind = next(k for k, label in _EXCLUDE_KINDS.items() if label == choice)
+            self._controller.add_map_exclude(kind, key)
         self._key_edit.clear()
         self.refresh()
 
@@ -289,12 +293,12 @@ class FolderMapping(QDialog):
         item = self._current_tree().currentItem()
         if item is None:
             return
-        key, is_override = item.data(0, Qt.ItemDataRole.UserRole)
-        if not is_override:
+        key, removable = item.data(0, Qt.ItemDataRole.UserRole)
+        if not removable:
             return
         index = self.tabs.currentIndex()
         if index == _EXCLUDES_TAB:
-            kind = "files" if item.text(1) == "File" else "folders"
+            kind = next(k for k, label in _EXCLUDE_KINDS.items() if label == item.text(1))
             self._controller.remove_map_exclude(kind, key)
         else:
             self._controller.remove_map_override(_TAB_TABLES[index][0], key)

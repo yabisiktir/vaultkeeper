@@ -178,3 +178,39 @@ def test_dialog_excludes_tab_add_and_remove(tmp_path, qtbot) -> None:
     assert dialog._remove_button.isEnabled()
     dialog._on_remove()
     assert not controller.ctx.mapper.is_excluded_file("mymod_bad.hak")
+
+
+def test_a_deletable_default_exclude_can_be_removed_and_stays_removed(tmp_path):
+    # VB SetExcludes: only the mandatory defaults are locked; the rest can go.
+    from vaultkeeper.config.settings import load_settings
+    from vaultkeeper.core.mapper import Mapper
+
+    c = _stage4_controller(tmp_path)
+    report = c.map_excludes_report()
+    removable = {r["name"]: r["removable"] for r in report["folders"]}
+    assert removable["optional override files"] is True
+    assert removable["__macosx"] is False
+    assert any(r["name"] == "demo" for r in report["mods"])
+
+    assert c.remove_map_exclude("folders", "optional override files")
+    assert not c.remove_map_exclude("folders", "__macosx")
+    assert not c.ctx.mapper.is_excluded_folder("optional override files")
+
+    saved = load_settings(c._settings_path).map_exclude_overrides
+    reopened = Mapper(exclude_overrides=saved)
+    assert not reopened.is_excluded_folder("optional override files")
+    reopened.add_exclude("folders", "optional override files")  # put back
+    assert reopened.is_excluded_folder("optional override files")
+
+
+def _stage4_controller(tmp_path):
+    from vaultkeeper.ui.controller import ProfileController
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    return ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        settings_path=tmp_path / "settings.json",
+    )

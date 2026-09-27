@@ -294,7 +294,7 @@ class Mapper:
         self.overrides: dict[str, dict[str, str]] = {t: {} for t in self._OVERRIDE_TABLES}
         #: User-added exclude entries ``{"files": [...], "folders": [...]}`` added to
         #: the exclude tables so the installer scan skips them (VB LvMapExcludes).
-        self.exclude_overrides: dict[str, list[str]] = {k: [] for k in self._EXCLUDE_KINDS}
+        self.exclude_overrides: dict[str, list[str]] = self._empty_exclude_overrides()
         if overrides:
             self.apply_overrides(overrides)
         if exclude_overrides:
@@ -431,7 +431,15 @@ class Mapper:
         """Discard all user overrides + excludes, restoring the default v21 tables."""
         self._build_default_tables()
         self.overrides = {t: {} for t in self._OVERRIDE_TABLES}
-        self.exclude_overrides = {k: [] for k in self._EXCLUDE_KINDS}
+        self.exclude_overrides = self._empty_exclude_overrides()
+
+    @classmethod
+    def _empty_exclude_overrides(cls) -> dict[str, list[str]]:
+        """User additions per kind, plus the deletable defaults the user removed
+        (``removed_<kind>``; VB keeps the whole edited list in My.Settings)."""
+        empty = {k: [] for k in cls._EXCLUDE_KINDS}
+        empty.update({f"removed_{k}": [] for k in cls._EXCLUDE_KINDS})
+        return empty
 
     def _reapply(self) -> None:
         """Rebuild defaults, then re-merge the tracked folder + exclude overrides."""
@@ -458,12 +466,27 @@ class Mapper:
         }[kind]
 
     def apply_exclude_overrides(self, excludes: dict[str, list[str]]) -> None:
-        """Add user exclude entries (``{"files": [...], "folders": [...]}``)."""
+        """Add user exclude entries (``{"files": [...], "folders": [...]}``) and drop
+        the deletable defaults listed under ``removed_<kind>``."""
         for kind in self._EXCLUDE_KINDS:
+            table = self._exclude_table(kind)
+            for name in excludes.get(f"removed_{kind}") or []:
+                if not isinstance(name, str):
+                    continue
+                low = name.lower()
+                if table.get(low) is True and low not in self.exclude_overrides[kind]:
+                    del table[low]
+                    if low not in self.exclude_overrides[f"removed_{kind}"]:
+                        self.exclude_overrides[f"removed_{kind}"].append(low)
             for name in excludes.get(kind) or []:
                 if not isinstance(name, str) or not name:
                     continue
                 low = name.lower()
+                removed = self.exclude_overrides[f"removed_{kind}"]
+                if low in removed:  # a removed default added back
+                    removed.remove(low)
+                    self._exclude_table(kind)[low] = True
+                    continue
                 self._exclude_table(kind)[low] = True
                 if low not in self.exclude_overrides[kind]:
                     self.exclude_overrides[kind].append(low)
@@ -475,15 +498,28 @@ class Mapper:
         self.apply_exclude_overrides({kind: [name]})
 
     def remove_exclude(self, kind: str, name: str) -> bool:
-        """Remove a *user-added* exclude entry (defaults are not removable)."""
+        """Remove an exclude entry: a user addition, or a default NIT lets the user
+        delete (``True`` in its default table). Mandatory defaults stay (VB
+        ``SetExcludes``: "Set dictionaries to mandatory entries")."""
         if kind not in self._EXCLUDE_KINDS:
             raise ValueError(f"unknown exclude kind: {kind}")
         low = name.lower()
-        if low not in self.exclude_overrides[kind]:
-            return False
-        self.exclude_overrides[kind].remove(low)
-        self._reapply()
-        return True
+        if low in self.exclude_overrides[kind]:
+            self.exclude_overrides[kind].remove(low)
+            self._reapply()
+            return True
+        if self._exclude_table(kind).get(low) is True:
+            self.exclude_overrides[f"removed_{kind}"].append(low)
+            self._reapply()
+            return True
+        return False
+
+    def is_exclude_removable(self, kind: str, name: str) -> bool:
+        """True unless ``name`` is a mandatory default exclude."""
+        low = name.lower()
+        return low in self.exclude_overrides.get(kind, []) or (
+            self._exclude_table(kind).get(low) is True
+        )
 
     def is_exclude_override(self, kind: str, name: str) -> bool:
         """True if ``name`` is a user-added exclude (vs a built-in default)."""
