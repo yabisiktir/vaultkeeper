@@ -109,6 +109,13 @@ CHARACTER_RESTORER_GROUP: Final = "010.  Character Restorers"
 DEFAULT_GROUP: Final = "810.  Evaluating"
 #: Group of restorers the application maintains itself (Pdc.AutoGroup).
 AUTO_GROUP: Final = "ZZZ.  NIT Managed Restorers (Auto)"
+#: NIT-managed restorers kept up to date automatically (Pdc.Auto*).
+AUTO_DATABASE: Final = "NWN Database Files (Auto)"
+AUTO_INI_FILES: Final = "NWN INI Files (Auto)"
+AUTO_NIT_CONFIG: Final = "NIT Configuration Files (Auto)"
+AUTO_JOURNAL_FILES: Final = "NWN Character Journal Files (Auto)"
+#: EE credits-movie fix NIT writes into the movies folder (Paths.C.CreditsMovieFix).
+CREDITS_MOVIE_FIX: Final = "credits.bik.wbm"
 #: Group of premium ``.nwm`` modules converted to installable mods (Pdc.NwmGroup).
 NWM_GROUP: Final = "ZZZ.  NIT Converted NWM Mods"
 #: The groups whose contents are the application's or the game's own files rather

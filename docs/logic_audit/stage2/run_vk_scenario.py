@@ -179,6 +179,8 @@ def main() -> None:
             if sb not in Path(path).parents and Path(path) != sb:
                 sys.exit(f"ABORT: game folder {name} outside sandbox: {path}")
         log.write(f"first run: {ctl.answer_player_excludes(player=True)}\n")
+        # app.py start-up: NIT's managed restorers (VB RunAutoRestorers on first activation).
+        log.write(f"auto restorers: {ctl.run_auto_restorers()}\n")
 
         with (outdir / "vk_snaps.tsv").open("w", encoding="utf-8") as out:
             snapshot(out, "00 start", p, ctl, "")

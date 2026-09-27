@@ -2182,7 +2182,12 @@ class ProfileController:
             fd = self.pd.file_item(FileKeyInfo(md.group, name, ifk.folder, ifk.filename))
             if ifd is None or fd is None:
                 continue
-            if fd.byte_size == ifd.byte_size:
+            if existing is not None:
+                # Updating a restorer overwrites its copy: always take the new facts.
+                fd.file_crc = ifd.file_crc
+                fd.byte_size = ifd.byte_size
+                fd.modified = ifd.modified
+            elif fd.byte_size == ifd.byte_size:
                 fd.file_crc = ifd.file_crc
             self.pd.set_mod_files(ifk)
         self.pd.changes.mods.affected(name)
@@ -2196,6 +2201,257 @@ class ProfileController:
             if existing is None
             else f"Added {copied} file(s) to restorer '{name}'.",
         }
+
+    # -- NIT-managed "(Auto)" restorers (VB RunAutoRestorers) ---------------- #
+    def run_auto_restorers(self) -> dict:
+        """Keep NIT's managed restorers current (VB ``RunAutoRestorers``).
+
+        Four restorers in "ZZZ.  NIT Managed Restorers (Auto)" back up files the
+        game and the tool rewrite as you play, so they can be put back:
+
+        * **NWN Database Files (Auto)** — unowned database files;
+        * **NWN INI Files (Auto)** — ``settings.tml`` and the game's own ``.ini`` /
+          ``.tml`` files, re-copied whenever they change;
+        * **NWN Character Journal Files (Auto)** — journals in the vault folders,
+          re-copied whenever they change;
+        * **NIT Configuration Files (Auto)** — unowned ``nitconfig`` identifiers
+          (and EE's credits-movie fix).
+
+        VB runs this when its window is activated and after the game or toolset
+        exits. Returns ``{"database", "ini", "journal", "config", "message"}``.
+        """
+        counts = {
+            "database": self._auto_database_restorer(),
+            "ini": self._auto_ini_file_restorer(),
+            "journal": self._auto_journal_file_restorer(),
+            "config": self._auto_nit_config_restorer(),
+        }
+        parts = [
+            f"{label}: {counts[key]:,}."
+            for key, label in (
+                ("database", "Database"),
+                ("ini", "INI"),
+                ("config", "Config"),
+                ("journal", "Journal"),
+            )
+            if counts[key]
+        ]
+        counts["message"] = ("Restorer files updated. " + " ".join(parts)) if parts else ""
+        return counts
+
+    def _refresh_installed_facts(self, keys) -> None:
+        """Re-read size/date/checksum of installed files (VB ``CheckAutoFileChanges``).
+
+        The game rewrites its INI files and databases while it runs; the recorded
+        checksum is what tells an auto restorer its copy is out of date.
+        """
+        from datetime import datetime
+
+        from vaultkeeper.core.crc import crc32_file
+
+        for ifk in keys:
+            ifd = self.pd.installed_item(ifk)
+            path = self.ctx.installed_path(ifk)
+            if ifd is None or not path.is_file():
+                continue
+            stat = path.stat()
+            if ifd.byte_size != stat.st_size or ifd.modified != datetime.fromtimestamp(
+                stat.st_mtime
+            ):
+                ifd.byte_size = stat.st_size
+                ifd.modified = datetime.fromtimestamp(stat.st_mtime)
+                ifd.file_crc = crc32_file(path)
+
+    def _auto_restorer(self, name: str, keys: list[FileKeyInfo]) -> int:
+        """Create or update the named auto restorer with ``keys`` (VB ``CreateRestorer``)."""
+        from vaultkeeper.core import constants as C
+
+        if not keys:
+            return 0
+        md = self.pd.mod_item(name)
+        if md is not None and md.group != C.AUTO_GROUP:
+            self.move_to_group([name], C.AUTO_GROUP)
+        result = self.create_restorer_from_installed(name, keys, group=C.AUTO_GROUP)
+        return result["files"] if result["ok"] else 0
+
+    def _drop_vanished_backups(self, name: str, *, any_file: bool = True) -> int:
+        """Remove a restorer's copies of files no longer in the game.
+
+        VB ``ValidateDatabaseRestorer`` / the INI restorer's pre-pass. The copies
+        go to the recycle bin; the records go with them.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        md = self.pd.mod_item(name)
+        if md is None or md.is_group_item:
+            return 0
+        installer = self.ctx.profile_mods_dir / name / C.MOD_INSTALLER_DIR
+        removed = 0
+        for fk in list(md.files):
+            if self._is_own_identifier(md, fk):
+                continue
+            # The record can outlive the file (a rescan keeps it), so ask the disk.
+            if not self.ctx.installed_path(fk.installed_key).is_file():
+                fs.delete(installer / fk.folder / fk.filename, to_trash=True)
+                self.pd.remove_file(md, fk)
+                removed += 1
+        if removed:
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+        return removed
+
+    @staticmethod
+    def _is_own_identifier(md: ModData, fk: FileKeyInfo) -> bool:
+        """The mod's own ``nitconfig/<mod>.nit*`` file — not an identifier it backs up."""
+        from vaultkeeper.core import constants as C
+
+        return fk.folder.lower() == C.MOD_NIT_DIR.lower() and fk.filename.lower().startswith(
+            f"{md.mod_name.lower()}."
+        )
+
+    def _changed_or_unowned(self, name: str, candidates: list[FileKeyInfo]) -> list[FileKeyInfo]:
+        """Candidates not owned by ``name``, or whose game copy changed since backup."""
+        md = self.pd.mod_item(name)
+        backup_crc: dict[FileKeyInfo, int] = {}
+        if md is not None:
+            for fk in md.files:
+                fd = self.pd.file_item(fk)
+                if fd is not None:
+                    backup_crc[fk.installed_key] = fd.file_crc
+        result = []
+        for ifk in candidates:
+            ifd = self.pd.installed_item(ifk)
+            if ifd is None:
+                continue
+            if ifd.installer.lower() != name.lower() or (
+                ifk in backup_crc and backup_crc[ifk] != ifd.file_crc
+            ):
+                result.append(ifk)
+        return result
+
+    def _auto_database_restorer(self) -> int:
+        """VB ``AutoDatabaseRestorer``: back up unowned database files."""
+        from vaultkeeper.core import constants as C
+
+        self._drop_vanished_backups(C.AUTO_DATABASE)
+        mapper = self.ctx.mapper
+        unowned = [
+            ifk
+            for ifk, ifd in self.pd.installed_list.items()
+            if ifd.is_unknown_installer and mapper.is_database_extension(ifd.extension)
+        ]
+        return self._auto_restorer(C.AUTO_DATABASE, unowned)
+
+    def _auto_ini_file_restorer(self) -> int:
+        """VB ``AutoIniFileRestorer``: ``settings.tml`` and the game's own INI/TML files."""
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.game.original_files import original_crc_table
+
+        # The game's own INI files are the ones in the known-originals table (VB
+        # OriginalFiles); settings.tml always, for switching Retail/Dev EE builds.
+        originals = original_crc_table(
+            is_ee=self.ctx.is_ee, overrides=dict(self.pd.original_ee_files) or None
+        )
+        candidates = [
+            ifk
+            for ifk, ifd in self.pd.installed_list.items()
+            if ifk.filename.lower() == "settings.tml"
+            or (
+                ifd.extension.lower() in (".ini", ".tml")
+                and ifk.file_key.lower().replace("\\", "/") in originals
+            )
+        ]
+        self._refresh_installed_facts(candidates)
+        # A game update can drop INI files the restorer still holds copies of.
+        self._drop_vanished_backups(C.AUTO_INI_FILES)
+        changed = self._changed_or_unowned(C.AUTO_INI_FILES, candidates)
+        return self._auto_restorer(C.AUTO_INI_FILES, changed)
+
+    def _auto_journal_file_restorer(self) -> int:
+        """VB ``AutoJournalFileRestorer``: character journals in the vault folders."""
+        from vaultkeeper.core import constants as C
+
+        candidates = [
+            ifk
+            for ifk in self.pd.installed_list
+            if ifk.extension.lower() == ".txt"
+            and ifk.filename != C.LETO_LOG_FILENAME
+            and ifk.folder.lower() in ("localvault", "dmvault")
+        ]
+        self._refresh_installed_facts(candidates)
+        changed = self._changed_or_unowned(C.AUTO_JOURNAL_FILES, candidates)
+        return self._auto_restorer(C.AUTO_JOURNAL_FILES, changed)
+
+    def _auto_nit_config_restorer(self) -> int:
+        """VB ``AutoNitConfigFileRestorer``: unowned ``nitconfig`` identifiers."""
+        from vaultkeeper.core import constants as C
+
+        self._prune_auto_config()
+        unowned = [
+            ifk
+            for ifk, ifd in self.pd.installed_list.items()
+            if ifd.is_unknown_installer and ifk.folder.lower() == C.MOD_NIT_DIR.lower()
+        ]
+        if self.ctx.is_ee:
+            movies = self.ctx.mapper.ext_mapping.get(".wbm", "")
+            fix = self.pd.installed_item(FileKeyInfo.installed(movies, C.CREDITS_MOVIE_FIX))
+            if fix is not None and fix.is_unknown_installer:
+                unowned.append(fix.key)
+        created = self._auto_restorer(C.AUTO_NIT_CONFIG, unowned)
+        self._remove_empty_auto_config()
+        return created
+
+    def _prune_auto_config(self) -> None:
+        """VB ``PruneAutoConfig``: drop backups of identifiers another mod now owns."""
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core import fs
+
+        md = self.pd.mod_item(C.AUTO_NIT_CONFIG)
+        if md is None or md.is_group_item:
+            return
+        installer = self.ctx.profile_mods_dir / C.AUTO_NIT_CONFIG / C.MOD_INSTALLER_DIR
+        pruned = False
+        for fk in list(md.files):
+            if self._is_own_identifier(md, fk):
+                continue
+            ifd = self.pd.installed_item(fk.installed_key)
+            if ifd is not None and len(ifd.mod_file_conflicts) > 1:
+                fs.delete(installer / fk.folder / fk.filename, to_trash=True)
+                self.pd.remove_file(md, fk)
+                self.pd.set_mod_files(fk.installed_key)
+                pruned = True
+        if pruned:
+            self.pd.update_file_states()
+            self.pd.update_mod_states()
+            self.save()
+
+    def _remove_empty_auto_config(self) -> None:
+        """VB ``RemoveAutoConfigMod``: the config restorer goes once it backs up nothing."""
+        from vaultkeeper.core import constants as C
+
+        md = self.pd.mod_item(C.AUTO_NIT_CONFIG)
+        if md is None or md.is_group_item:
+            return
+        # VB: gone once it holds nothing but its own identifier.
+        if any(not self._is_own_identifier(md, fk) for fk in md.files):
+            return
+        from vaultkeeper.core import fs
+
+        # The whole mod goes, including its identifier in the game's nitconfig
+        # folder — left behind, that file would itself be "unowned config" and
+        # bring the restorer straight back on the next run.
+        nit_folder = self.ctx.game_folders.get(C.MOD_NIT_DIR)
+        self.remove_mods([C.AUTO_NIT_CONFIG])
+        if nit_folder is not None:
+            fs.delete(nit_folder / f"{C.AUTO_NIT_CONFIG}{C.EXT_RESTORER}", to_trash=True)
+            self.pd.installed_list.pop(
+                FileKeyInfo.installed(C.MOD_NIT_DIR, f"{C.AUTO_NIT_CONFIG}{C.EXT_RESTORER}"),
+                None,
+            )
+        fs.delete(self.ctx.profile_mods_dir / C.AUTO_NIT_CONFIG, to_trash=True)
+        self.save()
 
     def auto_character_restorers(self, played_mod: str = "") -> dict:
         """Create restorers for unowned characters (VB ``AutoCharacterRestorer``).

@@ -11,7 +11,8 @@ Ranked by user impact. Details and evidence in `stage1_findings.md` /
 | U1 ✅ | Conflict winner follows batch order, not mod priority (install A+B together → VK keeps A's file, NIT B's) | install |
 | S1 ✅ | EE patch-hak list written to `<game install>/nwnpatch.ini` instead of `<user>/userpatch.ini`; VK also writes into the install folder | install |
 | U3 ✅ | Files deleted from a mod's source survive an installer rebuild and stay in the game | installer build |
-| S2 | NIT-managed "(Auto)" restorers (database, INI, journals, NIT config) missing | restorers |
+| S2 ✅* | NIT-managed "(Auto)" restorers (database, INI, journals, NIT config) missing | restorers |
+| M3 | **EE root folder maps to the install folder.** NIT's live table: on EE `nwn` = the *user* folder (`NwnFolders=nwn=<user>`); VK maps it to `game_root`. So VK installs mods' `.ini`/`.tml`/`.key`/`.dll`/`dialog.tlk` into the game installation folder, and never scans the user folder's own `nwn.ini`/`settings.tml` — which is why the INI auto-restorer (S2) finds nothing on EE. Fixing it moves where root files install, so existing installs need a migration. | mapping |
 | M1 | Mods shipping `ovr/`, `mus/`, `txpk/`, EE `mod/` folders are routed by extension instead of into those folders | mapping |
 
 ✅ = fixed 2026-09-27 (stage 5, first batch). Each has regression tests that fail
@@ -21,6 +22,12 @@ on the old code (`tests/test_install_conflict_priority.py`,
 the stage-2 scenarios (deps, update, restorer: final game state identical).
 
 Notes from the fixes:
+- **S2 fixed** (third batch): `ProfileController.run_auto_restorers` ports
+  `RunAutoRestorers` (database, INI, journal, NIT config; the character one
+  already existed), run at start-up and after a game/toolset session.
+  *Caveat:* on EE the INI restorer finds nothing until M3 is fixed; the other
+  three work. Also found: `rescan_installed_state` keeps the record of a game
+  file that has vanished from disk (the restorers check the disk instead).
 - **U2 fixed too** (second batch): `installer_restore` defaults to True as in
   NIT, and settings version 2 turns it on once in existing settings files (every
   field is saved, so the old wrong default was in all of them). The update

@@ -226,6 +226,18 @@ class ProfileData:
             self.update_file_states()
             self.update_mod_states()
 
+    def remove_file(self, md: ModData, fk: FileKeyInfo, conflicts: bool = True) -> None:
+        """Forget one file of a mod (VB ``ModData.RemoveFile``); disk is untouched."""
+        with self._lock:
+            self.file_list.pop(fk, None)
+            ifd = self.installed_item(fk.installed_key)
+            if ifd is not None:
+                self.remove_mod_file(ifd, fk, conflicts)
+            if fk in md.files:
+                md.files.remove(fk)
+            self.changes.file.removed(fk)
+            self.changes.mods.affected(md.mod_name)
+
     def _remove_all_files(self, md: ModData) -> None:
         for fk in list(md.files):
             self.changes.file.removed(fk)

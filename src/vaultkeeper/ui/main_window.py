@@ -3077,6 +3077,12 @@ class MainWindow(QMainWindow):
         )
         if not ok or not name.strip():
             return
+        from vaultkeeper.core.reserved import is_reserved_name_or_prefix
+
+        if is_reserved_name_or_prefix(name.strip()):
+            # VB ValidateName: "(Auto)" names and reserved prefixes are the tool's own.
+            self.nit_status.set_info(f"'{name.strip()}' is a reserved name; choose another.")
+            return
         result = self.controller.create_restorer_from_installed(name.strip(), unowned)
         self.refresh()
         self.nit_status.set_info(result["message"])
@@ -3999,6 +4005,14 @@ class MainWindow(QMainWindow):
             return
         summary = self.controller.process_play_session(started, datetime.now())
         note = self._auto_character_restorer(summary)
+        # The game rewrites its INI files, databases and journals while it runs:
+        # bring NIT's managed restorers up to date (VB RunAutoRestorers on exit).
+        try:
+            auto = self.controller.run_auto_restorers()
+            if auto["message"]:
+                note = f"{note} {auto['message']}".rstrip()
+        except Exception:
+            log.exception("Auto restorers failed after play")
         self.refresh()
         mods = summary.get("mods", {})
         if mods:

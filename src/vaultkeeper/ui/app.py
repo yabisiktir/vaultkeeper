@@ -102,6 +102,18 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     # so a local would play nothing at all.
     window.startup_sound = _play_startup_sound(settings, controller, options)
 
+    # NIT's managed "(Auto)" restorers (VB RunAutoRestorers, first run from the
+    # window's activation): back up the INI, database, journal and nitconfig files
+    # the game rewrites. Before the Leto cleanup, as in VB. Best-effort.
+    if controller is not None:
+        try:
+            auto = controller.run_auto_restorers()
+            if auto["message"]:
+                window.refresh()
+                window.nit_status.set_info(auto["message"])
+        except Exception:
+            logger.exception("Auto restorers failed; continuing")
+
     # Auto-move Leto log files to the recycle bin on startup, when enabled (VB
     # DeleteLetoLogs, run from the Shown event). Best-effort: never block startup.
     if controller is not None:
