@@ -4842,10 +4842,43 @@ class ProfileController:
         for name in (
             "store_root", "nwn_path", "game_user_path", "active_profile",
             "window_geometry",
+            # A profile's edition is fixed when it is made (NIT keeps it outside
+            # the settings, so an import never changes it), and the executable
+            # checksums describe this machine's game.
+            "profile_editions", "ee_files_signatures",
         ):
             setattr(imported, name, getattr(current, name))
+
+        # VB ImportLocations / ImportProfiles: an imported path is taken only
+        # when it exists on this machine; otherwise the current one stays.
+        def exists(value: str) -> bool:
+            return bool(value) and Path(value).exists()
+
+        kept = 0
+        for name in ("startup_sound_path", "workshop_content_dir", "tga_editor_path"):
+            value = getattr(imported, name)
+            if value and not exists(value):
+                setattr(imported, name, getattr(current, name))
+                kept += 1
+        for name in ("profile_game_paths", "profile_game_user_paths"):
+            merged = dict(getattr(current, name) or {})
+            for profile, value in (getattr(imported, name) or {}).items():
+                if exists(value):
+                    merged[profile] = value
+                elif value:
+                    kept += 1
+            setattr(imported, name, merged)
+        extra = [d for d in imported.extra_save_dirs if exists(d)]
+        kept += len(imported.extra_save_dirs) - len(extra)
+        imported.extra_save_dirs = extra or list(current.extra_save_dirs)
         save_settings(imported, self._settings_path)
-        return {"ok": True, "message": f"Settings imported from {source.name}."}
+        message = f"Settings imported from {source.name}."
+        if kept:
+            message += (
+                f" {kept} folder or file location(s) that do not exist here "
+                "were not imported."
+            )
+        return {"ok": True, "message": message}
 
     def backup_data(self, dest_zip: Path) -> str:
         """Zip the whole Data directory to ``dest_zip`` (VB Backup Data)."""

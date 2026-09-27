@@ -207,6 +207,35 @@ def test_import_restores_preferences_but_not_this_machines_paths(tmp_path: Path)
     assert after.store_root == before.store_root
 
 
+def test_import_keeps_editions_and_takes_only_paths_that_exist_here(tmp_path: Path) -> None:
+    # VB ImportLocations/ImportProfiles: a path is imported only when it exists
+    # on this machine; a profile's edition is never part of an import.
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    controller = _controller_with_store(tmp_path)
+    here = tmp_path / "exists here"
+    here.mkdir()
+    current = load_settings(controller._settings_path)
+    current.profile_editions = {"Mine": True}
+    current.profile_game_paths = {"Mine": str(tmp_path)}
+    save_settings(current, controller._settings_path)
+    exported = controller.export_settings()["path"]
+
+    foreign = load_settings(exported)
+    foreign.profile_editions = {"Mine": False}
+    foreign.profile_game_paths = {"Mine": "/not/on/this/machine", "Other": str(here)}
+    foreign.workshop_content_dir = "/not/here/workshop"
+    save_settings(foreign, exported)
+
+    result = controller.import_settings(exported)
+
+    after = load_settings(controller._settings_path)
+    assert after.profile_editions == {"Mine": True}
+    assert after.profile_game_paths == {"Mine": str(tmp_path), "Other": str(here)}
+    assert after.workshop_content_dir == current.workshop_content_dir
+    assert "do not exist here" in result["message"]
+
+
 def test_importing_a_bad_file_reports_rather_than_raises(tmp_path: Path) -> None:
     controller = _controller_with_store(tmp_path)
     missing = controller.import_settings(tmp_path / "nope.json")
