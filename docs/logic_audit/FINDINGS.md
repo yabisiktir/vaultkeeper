@@ -265,22 +265,21 @@ conflict annealing for sequential installs; dependency install/uninstall; outsid
 edits + rescan; archive extraction incl. nested archives and single-top-folder
 layouts.
 
+## Owner decisions (2026-09-27)
+
+| Item | Decision | Done |
+|---|---|---|
+| Mod notes formatting (3i N4) | Build a rich-text editor | `f30998f`: formatting read, edited and written back as RTF |
+| Workshop unknown names (3h W9) | Keep VK's way (Rename in the viewer, no prompt on load) | — (deliberate) |
+| `wizard_file_threshold`, `saves_threshold` | Add to Settings | `6629933` (Behaviour tab) |
+| `userpatch.ini` CRLF rewrite | Leave as is | — |
+| Orphan folder "Lord Of Destruction" | Recycle it, then run Validate Mods | done on the real store (backup `Store/Backups/pre-audit-2026-09-27_221515`): folder recycled; 1 file added, 12 stale records dropped |
+| ~2,670 records without a checksum | Calculate them, with a backup | the Validate Mods resync checksummed them; 4 more by Calculate CRCs |
+| PRC-modified campaign modules | Do what NIT does | Update EE Files run: 15 changed + 99 new EE files recorded as originals (the PRC modules are the baseline now) |
+| Remember the selected mod per profile | Screen-parity phase | — |
+
+Real-store state changes from the above: "1. Neverwinter Nights (EE)" SOME_AND_OVERRIDDEN → NOT_INSTALLED (its stale records went); "2.  NWN INI Files Restorer" SOME_AND_MATCH → NOT_INSTALLED (the old "match" was 0 = 0; the restorer has no copy of `userpatch.ini`).
+
 ## Still open
 
-- `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
-- Owner decision: mod notes are edited as plain text, so editing a note NIT
-  formatted drops its formatting (3i N4).
-- Owner decision: NIT asks for a name for each unidentified Workshop item on
-  load (3h W9); VK leaves "Mod <id>" with Rename in the viewer.
-- Owner heads-up (stage 4 batch 2): the campaign `.nwm` files in the Steam
-  install were changed on 14–15 Aug outside any mod (the PRC-ified campaign).
-  Running *Update EE Files* by hand would record them as the game's originals;
-  the automatic run after a game update does not start until the executable
-  changes.
-- Owner heads-up: *Validate Mods* on the real profile would add the orphan
-  folder "Lord Of Destruction" to Ungrouped and drop 12 records of installer
-  files that are gone (mostly "1. Neverwinter Nights (EE)", whose folder holds a
-  `.nitins` while the database says restorer).
-- Stage 4 batch 3 fixed a user-visible bug for the owner: the Game Saves Manager
-  ignored the `SAVES` alias, so the saves in `saves___` never showed.
-- Stage 4 residual code review (batches 4–7; see `stage4_review.md`); Stage 5 fixes.
+- Stage 4 residual code review, batch 7 (see `stage4_review.md`); Stage 5 fixes.
