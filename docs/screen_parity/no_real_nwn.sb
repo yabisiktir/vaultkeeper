@@ -1,0 +1,4 @@
+(version 1)
+(allow default)
+(deny file-write* (subpath (param "NWN")))
+(deny file-write* (subpath (param "STORE")))

@@ -105,7 +105,9 @@ class NitHarness
                     var rule = rules.FirstOrDefault(r => text.IndexOf(r[0], StringComparison.OrdinalIgnoreCase) >= 0);
                     if (rule == null) { Log("DIALOG (no rule, aborting): " + text); Environment.Exit(4); }
                     if (rule[1] == "-") continue;   // known progress window: let it finish
-                    var button = FindButton(f, rule[1]);
+                    // "*" = dismiss (screen parity: a form's Load may put up a message).
+                    var button = rule[1] != "*" ? FindButton(f, rule[1])
+                        : new[] { "OK", "Cancel", "No", "Close", "Continue" }.Select(b => FindButton(f, b)).FirstOrDefault(b => b != null);
                     if (button == null) { Log("DIALOG rule matched but no button '" + rule[1] + "': " + text); Environment.Exit(4); }
                     if (rule.Length > 3 && rule[3] != "")   // text to type into the first empty-able TextBox
                     {
@@ -509,6 +511,62 @@ class NitHarness
         return ok + " " + lines.Count;
     }
 
+    // Render one of NIT's forms the way it opens (Load runs, NIT's own main window is
+    // loaded behind it) and write its image plus its control tree (type, name, caption,
+    // bounds, toolstrip items) for structural comparison with Vaultkeeper's screen.
+    static string Screenshot(string name)
+    {
+        string dir = Path.Combine(Root, "shots"); Directory.CreateDirectory(dir);
+        Form form;
+        bool own = name != "NIT";
+        if (!own) form = (Form)nitFormRef;
+        else
+        {
+            var t = T(name);
+            if (t == null) return "NO-TYPE";
+            var ctor = t.GetConstructor(Type.EmptyTypes);
+            if (ctor == null) return "NO-DEFAULT-CTOR";
+            form = (Form)ctor.Invoke(null);
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = new System.Drawing.Point(20, 20);
+            form.Show((Form)nitFormRef);
+        }
+        var until = DateTime.Now.AddSeconds(2.5);
+        while (DateTime.Now < until) { Application.DoEvents(); Thread.Sleep(50); }
+        var bmp = new System.Drawing.Bitmap(Math.Max(1, form.Width), Math.Max(1, form.Height));
+        form.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height));
+        bmp.Save(Path.Combine(dir, name + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+        var lines = new List<string> { "FORM\t" + form.Text + "\t" + form.Width + "x" + form.Height };
+        DumpControls(form, 0, lines);
+        File.WriteAllLines(Path.Combine(dir, name + ".controls.txt"), lines);
+        if (own) { try { form.Close(); form.Dispose(); } catch { } }
+        return lines.Count + " lines";
+    }
+
+    static void DumpControls(Control c, int depth, List<string> lines)
+    {
+        foreach (Control k in c.Controls)
+        {
+            string pad = new string(' ', depth * 2);
+            lines.Add(pad + k.GetType().Name + "\t" + k.Name + "\t" + (k.Text ?? "").Replace("\r", " ").Replace("\n", " ")
+                + "\t" + k.Bounds.X + "," + k.Bounds.Y + "," + k.Bounds.Width + "," + k.Bounds.Height + (k.Visible ? "" : "\thidden"));
+            var ts = k as ToolStrip;
+            if (ts != null) foreach (ToolStripItem item in ts.Items) DumpItem(item, depth + 1, lines);
+            var lv = k as ListView;
+            if (lv != null) foreach (ColumnHeader col in lv.Columns) lines.Add(pad + "  Column\t" + col.Text + "\t" + col.Width);
+            DumpControls(k, depth + 1, lines);
+        }
+    }
+
+    static void DumpItem(ToolStripItem item, int depth, List<string> lines)
+    {
+        string pad = new string(' ', depth * 2);
+        lines.Add(pad + item.GetType().Name + "\t" + item.Name + "\t" + (item.Text ?? "").Replace("&", "")
+            + "\t" + (item.Image != null ? "img" : "") + (item.Available ? "" : "\thidden") + "\t" + (item.ToolTipText ?? ""));
+        var dd = item as ToolStripDropDownItem;
+        if (dd != null) foreach (ToolStripItem sub in dd.DropDownItems) DumpItem(sub, depth + 1, lines);
+    }
+
     static string Query(object map, string cmd, string arg)
     {
         switch (cmd)
@@ -556,6 +614,8 @@ class NitHarness
                 return RunScenario(arg);
             case "vault-select":  // DownloadProject for a URL: offered files + prerequisites -> select.tsv
                 return VaultSelect(arg);
+            case "screenshot":  // screen parity: render a form -> C:\nitdiff\shots\<Form>.png + .controls.txt
+                return Screenshot(arg);
             case "wincompare":  // LazWorks WinCompare(x, y) — NIT's sort for priorities; arg "x|y"
             {
                 var parts = arg.Split(new[] { '|' });

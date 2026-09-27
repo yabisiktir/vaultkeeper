@@ -68,7 +68,8 @@ class AliasSectionEditor(QDialog):
         self.tree.setRootIsDecorated(False)
         header = self.tree.header()
         header.setStretchLastSection(True)
-        for row in self._rows:
+        # Alphabetical, as VB lists them (LvFolders.WindowsSort), not in file order.
+        for row in sorted(self._rows, key=lambda r: r["key"].lower()):
             item = QTreeWidgetItem([row["key"], row["value"]])
             # Only the location (column 1) is editable; the alias key is fixed.
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)

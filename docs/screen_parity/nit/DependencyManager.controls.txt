@@ -1,0 +1,24 @@
+FORM	Dependency Manager	887x565
+TableLayoutPanel	LpMain		0,0,881,533
+  TableLayoutPanel	LpActionButtons		0,504,881,29
+    ButtonPlus	BtCancel	Cancel	803,3,75,23
+    ButtonPlus	BtSave	Save	722,3,75,23
+    MsgLabel	MlStatus	Preparing information...	3,5,632,18
+    ButtonPlus	BtAuto	Auto	641,3,75,23
+  TableLayoutPanel	LpMainHeading		3,3,875,38
+    PictureBox	PicHeading		3,3,32,32
+    Label	LbHeading	Manage the Mods that must be installed to play ModName	41,10,782,18
+    ToolStrip	TsActions		826,6,49,25
+      ToolStripButton	TsModDependenciesReport		img	Display Dependency Report for all Mods.
+      ToolStripButton	BhDependencyManager		img	
+  TableLayoutPanel	LpListViews		0,45,881,458
+    ListViewPlus	LvDependencies		587,0,294,458
+      Column	Dependencies	223
+    ListViewPlus	LvMods		293,0,293,458
+      Column	Mods	223
+    ListViewPlus	LvGroups		0,0,292,458
+      Column	Groups	223
+    SplitterLine	SplitterLine3		292,0,1,458
+    SplitterLine	SplitterLine4		586,0,1,458
+  SplitterLine	SplitterLine1		0,44,881,1
+  SplitterLine	SplitterLine2		0,503,881,1

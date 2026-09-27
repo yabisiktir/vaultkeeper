@@ -134,7 +134,12 @@ class ModExplorer(QDialog):
         self._search.setPlaceholderText("Filter by mod or group name…")
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(self._populate)
+        self._search.setMinimumWidth(220)
         bar.addWidget(self._search, 1)
+        top = bar
+        # Second row: the play-data filters. On one row with the rest they
+        # squeezed the name filter to nothing at the dialog's normal width.
+        bar = QHBoxLayout()
         # State, with the comparison VB offers (TsStateLess / TsStateEqual /
         # TsStateGreater). The State enum runs from "no installer" up through
         # partly-installed to overridden, so "more files installed" really is a
@@ -207,6 +212,8 @@ class ModExplorer(QDialog):
         self._weapon_filter.setFixedWidth(90)
         self._weapon_filter.textChanged.connect(self._populate)
         bar.addWidget(self._weapon_filter)
+        bar.addStretch(1)
+        play_row, bar = bar, top
 
         self._filters_btn = QPushButton("Filters…")
         self._filters_btn.setIcon(R.get_icon("Filter_16x"))
@@ -256,6 +263,7 @@ class ModExplorer(QDialog):
         bar.addWidget(self._ignore_btn)
         self._show_ignore_filters()
         layout.addLayout(bar)
+        layout.addLayout(play_row)
 
         self.table = QTreeWidget()
         self.table.setHeaderLabels(_HEADERS)

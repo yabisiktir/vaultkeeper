@@ -1,0 +1,35 @@
+FORM	Basic Settings	555x442
+TableLayoutPanel	LpMain		0,0,549,410
+  TabControl	TbPreferences		4,41,543,338
+    TabPage	TpBehaviour	Behaviour	4,24,535,310
+      TableLayoutPanel	LpBehaviour		3,3,529,304
+        Label	LbInstallActions	Install action to take after creating Mod Installers	3,108,394,18
+        CheckBox	CbInstallAuto	Always install Mods	21,132,130,19
+        CheckBox	CbInstallRestore	Only install Mods that were already installed	21,157,262,19
+        Label	LbStartupActions	Actions to take when you start the Installer Tool	3,6,383,18
+        RadioButton	RbWindowRestore	Restore Window position and layout	21,30,218,19
+        RadioButton	RbWindowDefault	Use default Window position and layout	21,55,237,19
+        CheckBox	CbPlayStartSound	Play NIT's start-up sound	21,80,158,19
+        Label	LbPlayNwn	Actions to take when you start and close Neverwinter Nights	3,185,482,18
+        CheckBox	CbBehaviourSelectGameMod	Select the Mod being played when you press Play Neverwinter Nights	21,209,401,19
+        CheckBox	CbBehaviourAutoCharacter	Create Character Restorers automatically when you close Neverwinter Nights	21,284,443,19
+        CheckBox	CbCopyDebugModeOnPlay	Copy DebugMode 1 to the clipboard when playing an existing Neverwinter Nights game	21,259,499,19
+        CheckBox	CbConfigCopyOnPlay	Copy the Mod name to the clipboard when starting a new Neverwinter Nights game	21,234,473,19
+    TabPage	TpUserInterface	User Interface	4,24,535,310	hidden
+      TableLayoutPanel	LpUserInterface		3,3,529,304	hidden
+        Label	LbSplitterLine	Thickness of line used to change panel size	3,6,356,18	hidden
+        RadioButton	RbDefaultLine	Default line thickness	21,43,138,19	hidden
+        RadioButton	RbMediumLine	Medium line thickness	21,68,143,19	hidden
+        RadioButton	RbLargeLine	Large line thickness	21,93,131,19	hidden
+        RadioButton	RbExtraLargeLine	Extra large line thickness	21,118,158,19	hidden
+        SplitterLine	LnSample		6,33,353,1	hidden
+        Label	LbTitleColour	Windows Title Bar Colour  ―  Windows Default (Unknown colour)	3,146,523,34	hidden
+  TableLayoutPanel	LpActions		0,379,549,31
+    ButtonPlus	BtCancel	Cancel	477,3,69,25
+    ButtonPlus	BtApply	Apply	402,3,69,25
+    ButtonPlus	BtAdvanced	Advanced	327,3,69,25
+    ButtonPlus	BtSelection	Selection	252,3,69,25
+  TableLayoutPanel	LpHeading		0,0,549,38
+    Label	LbHeading	Change selected Behaviour and User Interface Preferences	41,10,477,18
+    PictureBox	PicHeading		3,3,32,32
+    ButtonLabel	BhBasicSettings	ButtonLabel1	524,8,22,22

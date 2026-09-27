@@ -3989,6 +3989,19 @@ class ProfileController:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(write_rich_rtf(paragraphs), encoding="utf-8")
 
+    def notes_file_for_editing(self, mod_name: str, paragraphs: list) -> Path:
+        """Write the notes and return their file, for another program to edit.
+
+        VB ``RichTextToolbar.TsWordPad`` saves pending changes, then opens the
+        file. Empty notes still get a file here, so there is something to open.
+        """
+        from vaultkeeper.core.rich_rtf import Paragraph, write_rich_rtf
+
+        path = self.mod_notes_path(mod_name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(write_rich_rtf(paragraphs or [Paragraph()]), encoding="utf-8")
+        return path
+
     def save_notes(self, mod_name: str, text: str) -> None:
         """Write the mod's notes as an RTF file (deleting it when empty)."""
         from vaultkeeper.core.rtf import write_rtf

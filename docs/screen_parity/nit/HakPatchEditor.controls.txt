@@ -1,0 +1,21 @@
+FORM	Hak Patch Priority Editor	486x415
+TableLayoutPanel	LpMain		0,0,480,383
+  TableLayoutPanel	LpMainHdg		3,3,474,38
+    PictureBox	PicHakEditor		3,3,32,32
+    Label	LbHakEditor	Define the order in which hak patch files are applied. You only need to change the priority to deal with conflicts.	41,2,402,33
+    ButtonLabel	BhHelp		449,8,22,22
+  ListViewPlus	LvPatchList		2,68,478,285
+    Column	Hak Patch Files	478
+  TableLayoutPanel	LpActions		0,354,480,29
+    ButtonPlus	BtSave	Save	321,3,75,23
+    ButtonPlus	BtCancel	Cancel	402,3,75,23
+    MsgLabel	MiStatus	Patch Hak files detected: None.	3,5,312,18
+  SplitterLine	SplitterLine1		0,353,480,1
+  TableLayoutPanel	LpMenu		0,44,480,24
+    Label	LbRegistered	Registered Patch Hak Files	3,3,221,18
+    MenuStrip	MsMain	MenuStrip1	227,0,253,24
+      ToolStripMenuItem	MsMoveDown		img	hidden	Move Down (Higher priority)
+Ctrl+Down
+
+      ToolStripMenuItem	MsMoveUp		img	hidden	Move Up (Lower priority)
+Ctrl+Up

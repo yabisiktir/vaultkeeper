@@ -1,0 +1,70 @@
+FORM	Game Saves Manager	719x525
+TableLayoutPanel	LpGameManager		0,0,713,493
+  Label	LbGameSaves	Manage your game saves (C:\nitdiff\sb\user\saves)	0,44,713,25
+  TableLayoutPanel	LpGameManagerHdg		3,3,707,38
+    PictureBox	PicGameManager		3,3,32,32
+    Label	LbGameManager	Play mods concurrently by switching between game save backups	41,10,591,18
+    ToolStrip	TsActions	ToolStrip1	635,6,72,25
+      ToolStripButton	TsCharacterSummary	ToolStripButton1	img	Display Character Summary
+      ToolStripButton	TsOpen	ToolStripButton1	img	Open with File Explorer
+      ToolStripButton	BhGameManager	ToolStripButton1	img	
+  Label	LbGameListHelp	Activate - Move your current game saves to NIT's backup folder and then copy the selected game to NWN's Saves folder.  Deactivate - Move your current game saves to NIT's backup folder so you can start a new game without losing your saves.  Auto and Quick Saves are always at the end of the Game Saves list.	3,71,707,50
+  TableLayoutPanel	LpGameManagerActions		0,462,713,31
+    ButtonPlus	BtClose	Close	635,3,75,25
+    Label	LbSavedGames	Saved Games:	3,7,84,18
+    Label	LbSavedGamesCount	None.	87,7,51,18
+    MsgLabel	MgInfo		141,7,488,18
+  TableLayoutPanel	LpGameList		0,160,713,257
+    ToolStrip	TsGameManager	ToolStrip1	0,0,462,38
+      ToolStripButton	TsArchive	Reduce	img	Retain the latest 50 saves and move the older ones to
+the Archive folder to reduce the number of save items.
+Ctrl+Minus
+      ToolStripButton	TsRestore	Restore	img	Restore NWN game saves from Archive folder.
+Ctrl+Plus
+      ToolStripSeparator	ToolStripSeparator1			
+      ToolStripButton	TsActivate	Activate	img	Deactive the current game and move the selected game
+saves to the NWN Saves folder.
+Ctrl+A
+
+Right-click to Install and select Mod if required.
+
+Press the Control Key to close the Game Saves Manager
+after activation has completed.
+      ToolStripButton	TsDeactivate	Deactivate	img	Moves the current NWN games saves to the backup folder.
+This allows you to start a new game without losing your
+current saves.
+Ctrl+D
+
+Right-click to Uninstall Mod if required.
+      ToolStripSeparator	ToolStripSeparator3			
+      ToolStripButton	TsDelete	Delete	img	Delete game saves (move to the Recyle Bin).
+Del
+      ToolStripButton	TsFinished	Finished	img	
+    ListViewPlus	LvGames		0,38,462,219
+      Column	Saved Games	462
+    FileView	FvGameSaves		463,38,250,219
+      Column	Items	250
+    SplitterLine	SplitterLine2		462,0,1,257
+    Label	LbLocation		466,10,244,18
+  SplitterLine	SplitterLine1		0,125,713,1
+  SplitterLine	SpTotals		0,417,713,1
+  SplitterLine	SplitterLine3		0,461,713,1
+  TableLayoutPanel	LpKeepCount		0,126,713,33
+    NumericUpDown	NudKeep	50	6,6,48,21
+      UpDownButtons			28,0,16,17
+      UpDownEdit		50	2,2,24,13
+    Label	LbKeep	Number of game saves to keep when you Reduce NWN game saves	60,6,650,20
+  SplitterLine	SplitterLine4		0,159,713,1
+  TableLayoutPanel	LpUsedSpace		0,421,713,36
+    Label	LbSaves	Space used:	3,0,72,18
+    Label	LbSavesSpace	0 Bytes	75,0,160,18
+    Label	LbArchives	Archives:	241,0,71,18
+    Label	LbArchivesSpace	None	312,0,160,18
+    Label	LbTotal	Total:	478,0,71,18
+    Label	LbTotalSpace	0 Bytes	549,0,161,18
+    Label	LbBackups	Backups:	3,18,72,18
+    Label	LbBackupsSpace	0 Bytes	75,18,160,18
+    Label	LbAllArchives	All Archives:	241,18,71,18
+    Label	LbAllArchivesSpace	0 Bytes	312,18,160,18
+    Label	LbGrandTotal	Grand Total:	478,18,71,18
+    Label	LbGrandTotalSpace	0 Bytes	549,18,161,18

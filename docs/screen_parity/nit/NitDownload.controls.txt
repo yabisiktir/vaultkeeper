@@ -1,0 +1,15 @@
+FORM	NitHarness version check failed	477x217
+TableLayoutPanel	LpMain		0,0,471,185
+  TableLayoutPanel	LpNitDownloadHdg		3,3,465,39
+    Label	LbInstructions	Specify whether you want to update the Installer Tool or open your preferred site for downloading and installing updates manually.  	3,3,431,33
+    ButtonLabel	BhNitDownload	ButtonLabel1	440,8,22,22
+  RadioButton	RbVault	Open The Neverwinter Vault Installer Tool's page	6,102,288,19
+  RadioButton	RbNexus	Open the Nexus Neverwinter Nights Installer Tool's page	6,127,329,19
+  TableLayoutPanel	LpActions		0,154,471,31
+    ButtonPlus	BtOpen	Update	354,3,54,25
+    ButtonPlus	BtCancel	Cancel	414,3,54,25
+    CheckBox	CbPrompt	Ask each time	6,6,99,19
+  SplitterLine	SplitterLine1		0,153,471,1
+  SplitterLine	SplitterLine2		0,45,471,1
+  RadioButton	RbUpdate	Update from The Neverwinter Vault	6,52,213,19
+  RadioButton	RbProjectDownload	Update using Download Project	6,77,195,19

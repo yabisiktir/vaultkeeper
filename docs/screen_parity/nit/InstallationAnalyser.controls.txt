@@ -1,0 +1,34 @@
+FORM	Installation Analyser	904x685
+TableLayoutPanel	LpMain		0,0,896,651
+  TableLayoutPanel	LpMainHeading		0,0,896,48
+    PictureBox	PicAnalyser		3,6,32,36
+    Label	LbAnalyser	View information about the folders and files in your profile's Neverwinter Nights Enhanced Edition User Files directory:  C:\nitdiff\sb\user	41,7,824,33
+    ButtonLabel	BhInstallationAnalyser	ButtonLabel1	871,13,22,22
+  TableLayoutPanel	LpActions		0,620,896,31
+    ButtonPlus	BtClose	&Close	822,3,71,25
+    ButtonPlus	BtRefresh	&Refresh	668,3,71,25
+    ToolStrip	TsInfo	ToolStrip1	0,0,665,31
+      ToolStripLabel	LbTotal	EE User:		
+      ToolStripLabel	LbTotalSize	2 KB		
+      ToolStripSeparator	ToolStripSeparator1			
+      ToolStripLabelPlus	LbFilesInFolder	Ambient Files:		Open Ambient
+      ToolStripLabel	LbFileCount	None		
+      ToolStripSeparator	SsFileSize			
+      MsgItemLabel	MiDetails			
+      ToolStripButton	TsMiniDumpInfo		img	hidden	Neverwinter Nights crash information detected.
+Click to view and, if required, delete the files.
+    ButtonPlus	BtSelect	&Select	745,3,71,25
+    ButtonPlus	BtConvert	Convert	591,3,71,25	hidden
+  SplitterLine	SplitterLine1		0,619,896,1
+  TableLayoutPanel	LpAnalyserLists		0,48,896,571
+    ListViewPlus	LvFolders		0,27,115,544
+      Column	NWN Folders	115
+    ListViewPlus	LvFiles		116,27,780,544
+      Column	File Name	390
+      Column	Installation Source	390
+    SplitterLine	SplitterLine2		115,0,1,571
+    Label	LbFolders	NWN Folders	0,0,115,27
+    TableLayoutPanel	LpFilesHeader		116,0,780,27
+      Label	LbFileName	File Name	0,0,389,27
+      Label	LbInstallationSource	Installation Source	390,0,390,27
+      SplitterLine	SplitterLine3		389,0,1,27

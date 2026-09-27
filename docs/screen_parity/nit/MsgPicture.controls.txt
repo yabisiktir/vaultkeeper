@@ -1,0 +1,9 @@
+FORM	Filename	450x300
+Panel	PnMain		1,1,448,298
+  Panel	PnImage		0,30,448,268
+    PictureBox	PicFile		0,0,100,50
+  Panel	PnActions		0,0,448,30
+    TableLayoutPanel	LpActions		0,0,448,30
+      PictureBox	PicFullscreen		368,0,40,29
+      ButtonLabel	BtOpen	Open with	3,3,91,25
+      PictureBox	PicClose		408,0,40,29

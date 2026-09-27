@@ -10,24 +10,26 @@ Built on the headless :mod:`vaultkeeper.game.installation_sets` + the controller
 ``load_installation_sets`` / ``save_installation_sets`` / ``create_*`` / ``apply_*``.
 
 BOUNDED PORT (noted): the VB editor also lets you add/remove whole groups within a set,
-drag to reorder, sort by created/updated date, and import sets; here a set is built from
+drag to reorder and import sets; here a set is built from
 a checkpoint of installed mods and refined by toggling desired states. Group/mod rename
 propagation into saved sets is handled by load-time pruning rather than rewrites.
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialog,
     QHBoxLayout,
     QInputDialog,
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QMessageBox,
     QPushButton,
+    QToolBar,
     QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -74,35 +76,77 @@ class InstallationManager(QDialog):
             QLabel("Installation sets — snapshots of which mods are installed:")
         )
 
-        body = QHBoxLayout()
-        outer.addLayout(body, 1)
+        # The action bar (VB TsActions): NIT's icons, text under each.
+        bar = QToolBar()
+        bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        bar.setIconSize(QSize(16, 16))
 
-        # Left: the set list + create/rename/delete buttons.
-        left = QVBoxLayout()
+        def action(icon: str, text: str, tip: str, slot) -> QAction:  # noqa: ANN001
+            act = bar.addAction(R.get_icon(icon), text)
+            act.setToolTip(tip)
+            act.triggered.connect(slot)
+            return act
+
+        action("CameraBlue_16x", "Checkpoint", "Checkpoint the installed mods",
+               self._on_new_checkpoint)
+        action("Installed", "Create Set", "Create a new set", self._on_new_set)
+        bar.addSeparator()
+        action("RenameBlack", "Rename", "Rename Set (F2)", self._on_rename)
+        action("PruneMods", "Prune", "Remove uninstalled mods (Ctrl+P)", self._on_prune)
+        action("delete_16x16", "Delete", "Delete Set (Delete)", self._on_delete)
+        bar.addSeparator()
+
         # VB sorts the set list by Created / Updated / Set Name, ascending or
         # descending (TsCreated / TsUpdated / TsSetName + TsAscending /
         # TsDescending). Sets accumulate, and the one you want is usually the
         # newest — which is exactly the order you cannot get without this.
-        sort_row = QHBoxLayout()
-        sort_row.addWidget(QLabel("Sort:"))
-        self.sort_key = QComboBox()
-        for label, key in (("Name", "name"), ("Created", "created"), ("Updated", "updated")):
-            self.sort_key.addItem(label, key)
-        self.sort_key.currentIndexChanged.connect(lambda *_: self._reload(self._selected_name()))
-        sort_row.addWidget(self.sort_key)
-        self.sort_desc = QToolButton()
+        sort_menu = QMenu(self)
+        keys = QActionGroup(self)
+        self.sort_actions: dict[str, QAction] = {}
+        for label, key in (("Created", "created"), ("Updated", "updated"), ("Name", "name")):
+            act = sort_menu.addAction(label)
+            act.setCheckable(True)
+            act.setChecked(key == "name")
+            act.triggered.connect(lambda _c=False, k=key: self._set_sort_key(k))
+            keys.addAction(act)
+            self.sort_actions[key] = act
+        self._sort_key = "name"
+        sort_menu.addSeparator()
+        direction = QActionGroup(self)
+        ascending = sort_menu.addAction("Ascending")
+        ascending.setCheckable(True)
+        ascending.setChecked(True)
+        direction.addAction(ascending)
+        self.sort_desc = sort_menu.addAction("Descending")
         self.sort_desc.setCheckable(True)
-        self.sort_desc.setText("▼")
-        self.sort_desc.setToolTip("Descending (newest or last, first)")
-        self.sort_desc.toggled.connect(
-            lambda checked: (
-                self.sort_desc.setText("▲" if checked else "▼"),
-                self._reload(self._selected_name()),
-            )
+        direction.addAction(self.sort_desc)
+        self.sort_desc.toggled.connect(lambda *_: self._reload(self._selected_name()))
+        sort_button = QToolButton()
+        sort_button.setIcon(R.get_icon("SortOffice2016"))
+        sort_button.setText("Sort By")
+        sort_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        sort_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        sort_button.setMenu(sort_menu)
+        # Room for the drop-down arrow after the text (as VB draws it). Scoped by
+        # object name so it cannot restyle the button's tooltip.
+        sort_button.setObjectName("SortBy")
+        sort_button.setStyleSheet("QToolButton#SortBy { padding-right: 12px; }")
+        bar.addWidget(sort_button)
+        # The Group Selector pane (VB LvGroupSelector, behind TsGroupSelector).
+        self.selector_toggle = action(
+            "Group", "Selector",
+            "Display Group Selector: add or remove whole groups (user sets only)",
+            lambda: None,
         )
-        sort_row.addWidget(self.sort_desc)
-        sort_row.addStretch(1)
-        left.addLayout(sort_row)
+        self.selector_toggle.setCheckable(True)
+        self.selector_toggle.toggled.connect(self._on_toggle_selector)
+        outer.addWidget(bar)
+
+        body = QHBoxLayout()
+        outer.addLayout(body, 1)
+
+        # Left: the set list, with the Group Selector under it (as in VB).
+        left = QVBoxLayout()
         self.set_list = QListWidget()
         self.set_list.currentRowChanged.connect(self._on_set_selected)
         # renameinstallationsets.htm: "press F2 or click Rename". Scoped to the
@@ -123,16 +167,13 @@ class InstallationManager(QDialog):
         prune_key.setContext(Qt.ShortcutContext.WidgetShortcut)
         prune_key.activated.connect(self._on_prune)
         left.addWidget(self.set_list, 1)
-        for label, slot in (
-            ("New Checkpoint", self._on_new_checkpoint),
-            ("New Set", self._on_new_set),
-            ("Rename", self._on_rename),
-            ("Prune", self._on_prune),
-            ("Delete", self._on_delete),
-        ):
-            btn = QPushButton(label)
-            btn.clicked.connect(slot)
-            left.addWidget(btn)
+        # Ticking a group adds it whole to the set; unticking removes it. Shown
+        # only for User sets, because the others are snapshots and not editable.
+        self.group_selector = QListWidget()
+        self.group_selector.setVisible(False)
+        self.group_selector.itemChanged.connect(self._on_group_selector_changed)
+        left.addWidget(self.group_selector, 1)
+        self._selector_widgets = (self.group_selector,)
         body.addLayout(left, 2)
 
         # Right: the selected set's groups -> mods with desired + current states.
@@ -140,28 +181,6 @@ class InstallationManager(QDialog):
         self.tree.setHeaderLabels(["Mod", "Current State"])
         self.tree.itemChanged.connect(self._on_item_changed)
         body.addWidget(self.tree, 3)
-
-        # The Group Selector pane (VB LvGroupSelector, behind TsGroupSelector).
-        # Ticking a group adds it whole to the set; unticking removes it. Shown
-        # only for User sets, because the others are snapshots and not editable.
-        selector = QVBoxLayout()
-        selector_header = QHBoxLayout()
-        selector_header.addWidget(QLabel("Groups"))
-        selector_header.addStretch(1)
-        self.selector_toggle = QToolButton()
-        self.selector_toggle.setText("Group Selector")
-        self.selector_toggle.setCheckable(True)
-        self.selector_toggle.setToolTip(
-            "Add or remove whole groups from this set (user sets only)"
-        )
-        self.selector_toggle.toggled.connect(self._on_toggle_selector)
-        selector_header.addWidget(self.selector_toggle)
-        selector.addLayout(selector_header)
-        self.group_selector = QListWidget()
-        self.group_selector.itemChanged.connect(self._on_group_selector_changed)
-        selector.addWidget(self.group_selector, 1)
-        self._selector_widgets = (self.group_selector,)
-        body.addLayout(selector, 2)
 
         # Reconciliation summary (VB ChangesInfo) — shown when a load pruned sets.
         self._status = QLabel()
@@ -223,12 +242,17 @@ class InstallationManager(QDialog):
         live state rather than a saved snapshot, and burying it under a date
         order would make the list read as if it were missing.
         """
-        key = self.sort_key.currentData() or "name"
+        key = self._sort_key
         rest = [s for s in sets if s.set_type != SET_CURRENT]
         pinned = [s for s in sets if s.set_type == SET_CURRENT]
         rest.sort(key=lambda s: (getattr(s, key, "") or "", s.name.lower()),
                   reverse=self.sort_desc.isChecked())
         return pinned + rest
+
+    def _set_sort_key(self, key: str) -> None:
+        self._sort_key = key
+        self.sort_actions[key].setChecked(True)
+        self._reload(self._selected_name())
 
     # -- Group Selector (VB TsGroupSelector / LvGroupSelector) -------------- #
     def _on_toggle_selector(self, checked: bool) -> None:

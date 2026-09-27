@@ -1,0 +1,26 @@
+FORM	Screen Position Adjustments	590x420
+TableLayoutPanel	LpMain		0,0,584,388
+  TableLayoutPanel	LpActions		0,359,584,29
+    ButtonPlus	BtAccept	Accept	425,3,75,23
+    ButtonPlus	BtCancel	Cancel	506,3,75,23
+    ButtonPlus	BtTest	Test	344,3,75,23
+    ButtonPlus	BtStop	Stop	263,3,75,23	hidden
+  SplitterLine	SplitterLine1		0,358,584,1
+  TableLayoutPanel	LpAdjust		0,0,584,135
+    Label	Label1	Screen Position	3,6,130,18
+    Label	Label2	Horizontal Adjustment	139,6,179,18
+    Label	Label3	Vertical Adjustment	324,6,158,18
+    Label	Label5	Bottom Left	68,85,65,18
+    TextBox	TxBottomLeftH	14	139,84,100,21
+    TextBox	TxBottomLeftV	14	324,84,100,21
+    Label	Label6	Bottom Right	59,112,74,18
+    TextBox	TxBottomRightH	14	139,111,100,21
+    TextBox	TxBottomRightV	14	324,111,100,21
+    Label	Label7	Top Left	85,31,48,18
+    TextBox	TxTopLeftH	14	139,30,100,21
+    TextBox	TxTopLeftV	3	324,30,100,21
+    Label	Label8	Top Right	76,58,57,18
+    TextBox	TxTopRightH	14	139,57,100,21
+    TextBox	TxTopRightV	3	324,57,100,21
+  SplitterLine	SplitterLine2		0,141,584,1
+  RichTextBoxPlus	RtbHelp	Specifies the horizontal and vertical adjustments for each corner of the screen when using non-centred message positioning.  The default horizontal and vertical pixel values are designed to leave a 3-pixel border around the message displayed in one of the corners. The default values work as intended for 1920 x 1080 screen resolutions.  You should only need to change these values if the message is not aligned correctly for your configuration.  Your current Message Position preference in Settings is Bottom Right.	3,145,578,210

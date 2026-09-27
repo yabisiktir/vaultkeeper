@@ -1,0 +1,35 @@
+FORM	Find and Rename Mods	660x553
+TableLayoutPanel	LpMain		0,0,654,521
+  TableLayoutPanel	LpFindReplace		0,0,654,66
+    Label	LbFind	Fin&d:	3,7,53,18
+    TextBox	TxFind		56,6,345,21
+    Label	LbReplace	Replac&e:	3,38,53,18
+    TextBox	TxReplace		56,36,345,21
+    ButtonLabel	BuClearFind	ButtonLabel1	402,8,18,16
+    ButtonLabel	BuClearReplace		402,40,18,16
+    TableLayoutPanel	LpMatchOptions		423,0,231,66
+      CheckBox	CbMatchStart	Match &start	146,6,82,19
+      CheckBox	CbMatchCase	&Match case	143,31,85,19
+  ToolStrip	TsTools	ToolStrip1	0,67,654,38
+    ToolStripButton	TsFindNext	Find Next	img	
+    ToolStripButton	TsReplace	Replace	img	
+    ToolStripButton	TsReplaceAll	Replace All	img	
+    ToolStripSeparator	ToolStripSeparator1			
+    ToolStripButton	TsUndo	Undo	img	
+    ToolStripButton	TsUndoAll	Undo All	img	
+    ToolStripButton	TsHelpFindAndRename	ToolStripButton6	img	
+  Label	LbProfileName	Enhanced Edition Mods	0,105,654,27
+  TableLayoutPanel	LpActions		0,492,654,29
+    ButtonPlus	BtApply	&Apply	495,3,75,23
+    ButtonPlus	BtCancel	Cancel	576,3,75,23
+    ToolStrip	TsStatus	ToolStrip1	0,0,492,29
+      ToolStripLabel	LbMods	Mods:		
+      ToolStripLabel	LbModCount	2		
+      ToolStripSeparator	ToolStripSeparator2			
+      ToolStripLabel	LbFound	Found:		
+      ToolStripLabel	LbFoundCount	None		
+      MsgItemLabel	MiStatus			
+  SplitterLine	SplitterLine1		0,491,654,1
+  ListViewPlus	LvMods		0,132,654,359
+    Column	Mods	654
+  SplitterLine	SplitterLine2		0,66,654,1

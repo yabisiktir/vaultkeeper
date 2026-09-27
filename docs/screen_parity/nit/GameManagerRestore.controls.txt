@@ -1,0 +1,20 @@
+FORM	Restore Archived Game Saves	719x446
+TableLayoutPanel	LpMain		0,0,713,414
+  TableLayoutPanel	LpArchiveList		0,0,713,382
+    FileView	FvRanges		0,26,356,356
+      Column	Game Name	356
+    FileView	FvGameSaves		357,26,356,356
+      Column	Game Save Range	356
+    SplitterLine	SplitterLine1		356,0,1,382
+    Label	LbGameName		0,0,356,26
+    Label	LbRange	Game Save Range	357,0,356,26
+  TableLayoutPanel	LpActions		0,383,713,31
+    ButtonPlus	BtRestore	Restore	554,3,75,25
+    ButtonPlus	BtClose	Close	635,3,75,25
+    Label	LbLocationHdg	Location:	3,6,54,18
+    Label	LbLocation	The mist room	57,6,115,18
+    ButtonPlus	BtDelete	Delete	473,3,75,25
+    ToolStrip	TsActions	ToolStrip1	421,3,49,25
+      ToolStripButton	TsCharacterSummary	ToolStripButton1	img	Display Character Summary
+      ToolStripButton	TsOpen	ToolStripButton1	img	Open with File Explorer
+  SplitterLine	SplitterLine2		0,382,713,1

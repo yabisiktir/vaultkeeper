@@ -10,15 +10,18 @@ the light/dark theme.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import (
     QAction,
     QColor,
     QFont,
     QFontInfo,
+    QGuiApplication,
     QIcon,
+    QImage,
     QKeySequence,
-    QPainter,
     QPalette,
     QPixmap,
     QTextBlockFormat,
@@ -133,27 +136,62 @@ def notes_paragraphs(doc: QTextDocument) -> list[Paragraph]:
 class NotesFormatBar(QToolBar):
     """The formatting bar above the notes pane."""
 
-    def __init__(self, edit: QTextEdit, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        edit: QTextEdit,
+        parent: QWidget | None = None,
+        *,
+        open_external: Callable[[], None] | None = None,
+        find: Callable[[], None] | None = None,
+    ) -> None:
         super().__init__(parent)
         self.setObjectName("NotesFormatBar")
         self._edit = edit
+        self._glyph_actions: list[tuple[QAction, str]] = []
         self.setIconSize(self.iconSize().scaled(16, 16, Qt.AspectRatioMode.KeepAspectRatio))
 
-        self.bold = self._toggle("boldhs", "Bold", QKeySequence.StandardKey.Bold, self._on_bold)
+        # NIT's RichTextToolbar, in its order and with its icons and keys
+        # (LazWorks RichTextToolbar.ButtonDesigner.vb): open with WordPad | cut,
+        # copy, paste, paste as text | bold, italic, underline, strike-through,
+        # colour | undo, redo | select all, find.
+        if open_external is not None:
+            self.open_external = self._button(
+                "WordPad", "Open with your text editor", "Ctrl+O", open_external
+            )
+            self.addSeparator()
+        self._button("Cut-006", "Cut", "Ctrl+X", edit.cut, scoped=False)
+        self._button("CopyOffice2016", "Copy", "Ctrl+C", edit.copy, scoped=False)
+        self._button("PasteW10", "Paste", "Ctrl+V", edit.paste, scoped=False)
+        self._button("PasteText", "Paste as Text", "Ctrl+T", self._on_paste_text)
+        self.addSeparator()
+
+        self.bold = self._toggle("Bold_16x", "Bold", QKeySequence.StandardKey.Bold, self._on_bold)
         self.italic = self._toggle(
-            "ItalicHS", "Italic", QKeySequence.StandardKey.Italic,
+            "Italic_16x", "Italic", QKeySequence.StandardKey.Italic,
             lambda on: self._merge(lambda f: f.setFontItalic(on)),
         )
         self.underline = self._toggle(
-            "Underline", "Underline", QKeySequence.StandardKey.Underline,
+            "Underline_16x", "Underline", QKeySequence.StandardKey.Underline,
             lambda on: self._merge(lambda f: f.setFontUnderline(on)),
         )
         self.strike = self._toggle(
-            "StrikeoutHs", "Strike-through", None,
+            "StrikeThrough_16x", "Strike-through", "Ctrl+K",
             lambda on: self._merge(lambda f: f.setFontStrikeOut(on)),
         )
+        color = QAction(self._glyph_icon("FontColor_16x"), "Font Colour…", self)
+        self._glyph_actions.append((color, "FontColor_16x"))
+        color.triggered.connect(self._on_color)
+        self.addAction(color)
         self.addSeparator()
+        self._button("UndoOffice2017", "Undo", "Ctrl+Z", edit.undo, scoped=False)
+        self._button("RedoOffice2017", "Redo", "Ctrl+Y", edit.redo, scoped=False)
+        self.addSeparator()
+        self._button("SelectAllRows", "Select All", "Ctrl+A", edit.selectAll, scoped=False)
+        if find is not None:
+            self._button("Search16", "Find", "Ctrl+F", find, scoped=False)
 
+        # Beyond NIT: font, size, highlight, alignment, clear formatting.
+        self.addSeparator()
         self.font_box = QFontComboBox()
         self.font_box.setToolTip("Font")
         self.font_box.setMaximumWidth(160)
@@ -168,10 +206,6 @@ class NotesFormatBar(QToolBar):
         self.size_box.setMaximumWidth(56)
         self.size_box.textActivated.connect(self._on_size)
         self.addWidget(self.size_box)
-        self.addSeparator()
-
-        color = self.addAction(R.get_icon("ColorPalette_32x"), "Text Colour…")
-        color.triggered.connect(self._on_color)
         highlight = self.addAction(R.get_icon("fontandcolour x16x"), "Highlight…")
         highlight.triggered.connect(self._on_highlight)
         self.addSeparator()
@@ -190,35 +224,41 @@ class NotesFormatBar(QToolBar):
     # -- helpers ----------------------------------------------------------- #
     #: NIT's formatting glyphs are black line art; they are drawn in the text
     #: colour so they stay visible on a dark palette.
-    _GLYPHS = ("boldhs", "ItalicHS", "Underline", "StrikeoutHs")
+    _GLYPHS = ("Bold_16x", "Italic_16x", "Underline_16x", "StrikeThrough_16x", "FontColor_16x")
 
     def _glyph_icon(self, name: str) -> QIcon:
+        """NIT's glyph, lightness-inverted on a dark palette so it stays legible.
+
+        The glyphs are dark line work on a white fill; inverting lightness (hue
+        and alpha kept) gives light lines on a dark fill. On a light palette the
+        original icon is used as it is.
+        """
         icon = R.get_icon(name)
-        if name not in self._GLYPHS:
+        text = self.palette().color(QPalette.ColorRole.WindowText)
+        if name not in self._GLYPHS or text.lightness() < 128:
             return icon
         pixmap = icon.pixmap(16, 16)
         if pixmap.isNull():
             return icon
-        tinted = QPixmap(pixmap.size())
+        image = pixmap.toImage().convertToFormat(QImage.Format.Format_ARGB32)
+        for y in range(image.height()):
+            for x in range(image.width()):
+                pixel = image.pixelColor(x, y)
+                if pixel.alpha():
+                    h, sat, light, alpha = pixel.getHslF()
+                    image.setPixelColor(x, y, QColor.fromHslF(max(h, 0.0), sat, 1 - light, alpha))
+        tinted = QPixmap.fromImage(image)
         tinted.setDevicePixelRatio(pixmap.devicePixelRatio())
-        tinted.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(tinted)
-        painter.drawPixmap(0, 0, pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-        painter.fillRect(tinted.rect(), self.palette().color(QPalette.ColorRole.WindowText))
-        painter.end()
         return QIcon(tinted)
 
     def changeEvent(self, event) -> None:  # noqa: N802 (Qt override)
         super().changeEvent(event)
         if event.type() == QEvent.Type.PaletteChange:
-            for action, name in getattr(self, "_glyph_actions", []):
+            for action, name in self._glyph_actions:
                 action.setIcon(self._glyph_icon(name))
 
     def _toggle(self, icon: str, text: str, key, handler) -> QAction:  # noqa: ANN001
         action = QAction(self._glyph_icon(icon), text, self)
-        if not hasattr(self, "_glyph_actions"):
-            self._glyph_actions = []
         self._glyph_actions.append((action, icon))
         action.setCheckable(True)
         if key is not None:
@@ -232,6 +272,32 @@ class NotesFormatBar(QToolBar):
         action.toggled.connect(handler)
         self.addAction(action)
         return action
+
+    def _button(
+        self, icon: str, text: str, key: str, slot: Callable[[], None], *, scoped: bool = True
+    ) -> QAction:
+        """A plain toolbar button. ``scoped`` binds ``key`` to the notes pane only.
+
+        Cut, copy, paste, undo, redo, select all and find are not bound here: the
+        pane already has those keys (Qt's own, or the window's Find, which
+        searches the notes when they have focus). The key is shown in the tip.
+        """
+        action = QAction(R.get_icon(icon), text, self)
+        native = QKeySequence(key).toString(QKeySequence.SequenceFormat.NativeText)
+        action.setToolTip(f"{text} ({native})")
+        if scoped:
+            action.setShortcut(QKeySequence(key))
+            action.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+            self._edit.addAction(action)
+        action.triggered.connect(lambda _c=False: slot())
+        self.addAction(action)
+        return action
+
+    def _on_paste_text(self) -> None:
+        """Paste the clipboard's plain text, in the formatting at the cursor."""
+        text = QGuiApplication.clipboard().text()
+        if text:
+            self._edit.textCursor().insertText(text)
 
     def _merge(self, change) -> None:  # noqa: ANN001
         if getattr(self, "_syncing", False):

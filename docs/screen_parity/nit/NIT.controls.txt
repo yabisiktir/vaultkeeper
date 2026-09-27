@@ -1,0 +1,551 @@
+FORM	NitHarness v0.0	1201x685
+TableLayoutPanel	LpNit		0,27,1193,599
+  SplitContainer	ScProfile		0,73,1193,525
+    SplitterPanel			0,0,284,525
+      TableLayoutPanel	TlMods		0,0,284,525
+        ButtonLabel	LbProfile	Enhanced Edition Mods	0,0,284,23
+        FileView	FvMods		0,23,284,502
+          Column	Items	284
+    SplitterPanel			285,0,908,525
+      SplitContainer	ScMod		0,0,908,525
+        SplitterPanel			0,0,370,525
+          SplitContainer	ScContents		0,0,370,525
+            SplitterPanel			0,0,370,525
+              TableLayoutPanel	TlContents		0,0,370,525
+                ButtonLabel	LbContents		0,0,370,23
+                FileView	FvContents		0,23,370,502
+                  Column	Items	370
+            SplitterPanel			0,269,368,292	hidden
+              TableLayoutPanel	TlModInfoContainer		0,0,368,292	hidden
+                TableLayoutPanel	TlModProperties		0,0,368,50	hidden
+                  TextBox	TxHenchmen		302,24,35,23	hidden
+                  TextBox	TxLevelStart		220,24,35,23	hidden
+                  TextBox	TxLevelEnd		261,24,35,23	hidden
+                  Label	lbHenchmen	Hench	299,3,66,18	hidden
+                  Label	lbLevelEnd	End	258,3,41,18	hidden
+                  Label	lbLevelStart	Start	217,3,41,18	hidden
+                  Label	lbWeapon	Weapon	84,3,133,18	hidden
+                  Label	lbRating	Rating	3,3,81,18	hidden
+                  ComboTextBox	SbWeapon	None	87,24,127,23	hidden
+                    TextBoxBorder	TxBox	None	0,0,127,23	hidden
+                    ComboBoxPlus	CbBox		0,0,127,23	hidden
+                  ButtonLabel	SbRating	None	6,24,75,23	hidden
+                TableLayoutPanel	tlModNotes		0,71,368,221	hidden
+                  RichTextBoxPlus	RtModNotes		3,0,365,221	hidden
+                  TableLayoutPanel	LpNotesToolbar		0,0,368,1	hidden
+                    SplitterLine	SpNotes		0,0,368,1	hidden
+                    RichTextToolbar	RttNotes	Open with wordpad      Ctrl+O	0,0,368,1	hidden
+                      ToolStripButton	TsWordPad	Open with wordpad      Ctrl+O	img	Open with wordpad      Ctrl+O
+                      ToolStripSeparator	SsWordPad			
+                      ToolStripButton	TsCut	Cut      Ctrl+X	img	Cut      Ctrl+X
+                      ToolStripButton	TsCopy	Copy      Ctrl+C	img	Copy      Ctrl+C
+                      ToolStripButton	TsPaste	Paste      Ctrl+V	img	Paste      Ctrl+V
+                      ToolStripButton	TsPasteText	Paste as Text      Ctrl+T	img	Paste as Text      Ctrl+T
+                      ToolStripSeparator	SsBold			
+                      ToolStripButton	TsBold	Bold      Ctrl+B	img	Bold      Ctrl+B
+                      ToolStripButton	TsItalics	Italics      Ctrl+I	img	Italics      Ctrl+I
+                      ToolStripButton	TsUnderline	Underline      Ctrl+U	img	Underline      Ctrl+U
+                      ToolStripButton	TsStrikeout	Strikeout      Ctrl+K	img	Strikeout      Ctrl+K
+                      ToolStripButton	TsFontColour	Font Colour	img	Font Colour
+                      ToolStripSeparator	SsUndoRedo			
+                      ToolStripButton	TsUndo	Undo      Ctrl+Z	img	Undo      Ctrl+Z
+                      ToolStripButton	TsRedo	Redo      Ctrl+Y	img	Redo      Ctrl+Y
+                      ToolStripSeparator	SsSelectAll			hidden	
+                      ToolStripButton	TsSelectAll	Select All      Ctrl+A	img	Select All      Ctrl+A
+                      ToolStripButton	TsFind	Find      Ctrl+F	img	Find      Ctrl+F
+                TableLayoutPanel	tlModStatus		0,50,368,21	hidden
+                  Label	lbModState	Mod Installer has not been created	23,0,343,18	hidden
+                  ButtonLabel	BimLink		5,1,16,16	hidden
+        SplitterPanel			371,0,537,525
+          SplitContainer	ScDetails		0,0,537,525
+            SplitterPanel			0,0,537,525
+              TableLayoutPanel	TlDetails		0,0,537,525
+                ButtonLabel	LbDetails		0,0,537,23
+                Panel	PnDetails		0,23,537,502
+                  Panel	PnDetailsText		0,0,537,502
+                    RichTextBoxPlus	RtDetails		4,0,533,502
+                  Panel	PnDetailsList		0,0,537,502
+                    FileView	FvDetails		0,0,537,502
+                      Column	Items	537
+                TableLayoutPanel	LpDetailsToolbar		0,23,537,1
+                  RichTextToolbar	RttDetails	Open with wordpad      Ctrl+O	0,0,537,1	hidden
+                    ToolStripButton	TsWordPad	Open with wordpad      Ctrl+O	img	Open with wordpad      Ctrl+O
+                    ToolStripSeparator	SsWordPad			
+                    ToolStripButton	TsCut	Cut      Ctrl+X	img	Cut      Ctrl+X
+                    ToolStripButton	TsCopy	Copy      Ctrl+C	img	Copy      Ctrl+C
+                    ToolStripButton	TsPaste	Paste      Ctrl+V	img	Paste      Ctrl+V
+                    ToolStripButton	TsPasteText	Paste as Text      Ctrl+T	img	Paste as Text      Ctrl+T
+                    ToolStripSeparator	SsBold			hidden	
+                    ToolStripButton	TsBold	Bold      Ctrl+B	img	hidden	Bold      Ctrl+B
+                    ToolStripButton	TsItalics	Italics      Ctrl+I	img	hidden	Italics      Ctrl+I
+                    ToolStripButton	TsUnderline	Underline      Ctrl+U	img	hidden	Underline      Ctrl+U
+                    ToolStripButton	TsStrikeout	Strikeout      Ctrl+K	img	hidden	Strikeout      Ctrl+K
+                    ToolStripButton	TsFontColour	Font Colour	img	hidden	Font Colour
+                    ToolStripSeparator	SsUndoRedo			
+                    ToolStripButton	TsUndo	Undo      Ctrl+Z	img	Undo      Ctrl+Z
+                    ToolStripButton	TsRedo	Redo      Ctrl+Y	img	Redo      Ctrl+Y
+                    ToolStripSeparator	SsSelectAll			hidden	
+                    ToolStripButton	TsSelectAll	Select All      Ctrl+A	img	Select All      Ctrl+A
+                    ToolStripButton	TsFind	Find      Ctrl+F	img	Find      Ctrl+F
+                  SplitterLine	SpDetails		0,0,537,1	hidden
+            SplitterPanel			0,349,537,176	hidden
+              TableLayoutPanel	LpProperties		0,0,537,176	hidden
+                ButtonLabel	LbProperties		0,0,537,23	hidden
+                Panel	pnPropertiesText		0,23,537,153	hidden
+                  RichTextBoxPlus	RtProperties		4,0,533,153	hidden
+                TableLayoutPanel	LpPropertiesToolbar		0,23,537,1	hidden
+                  RichTextToolbar	RttProperties	Open with wordpad      Ctrl+O	0,0,533,1	hidden
+                    ToolStripButton	TsWordPad	Open with wordpad      Ctrl+O	img	Open with wordpad      Ctrl+O
+                    ToolStripSeparator	SsWordPad			
+                    ToolStripButton	TsCut	Cut      Ctrl+X	img	Cut      Ctrl+X
+                    ToolStripButton	TsCopy	Copy      Ctrl+C	img	Copy      Ctrl+C
+                    ToolStripButton	TsPaste	Paste      Ctrl+V	img	Paste      Ctrl+V
+                    ToolStripButton	TsPasteText	Paste as Text      Ctrl+T	img	Paste as Text      Ctrl+T
+                    ToolStripSeparator	SsBold			hidden	
+                    ToolStripButton	TsBold	Bold      Ctrl+B	img	hidden	Bold      Ctrl+B
+                    ToolStripButton	TsItalics	Italics      Ctrl+I	img	hidden	Italics      Ctrl+I
+                    ToolStripButton	TsUnderline	Underline      Ctrl+U	img	hidden	Underline      Ctrl+U
+                    ToolStripButton	TsStrikeout	Strikeout      Ctrl+K	img	hidden	Strikeout      Ctrl+K
+                    ToolStripButton	TsFontColour	Font Colour	img	hidden	Font Colour
+                    ToolStripSeparator	SsUndoRedo			
+                    ToolStripButton	TsUndo	Undo      Ctrl+Z	img	Undo      Ctrl+Z
+                    ToolStripButton	TsRedo	Redo      Ctrl+Y	img	Redo      Ctrl+Y
+                    ToolStripSeparator	SsSelectAll			hidden	
+                    ToolStripButton	TsSelectAll	Select All      Ctrl+A	img	Select All      Ctrl+A
+                    ToolStripButton	TsFind	Find      Ctrl+F	img	Find      Ctrl+F
+  TableLayoutPanel	LpToolbar		0,73,1193,1
+    ToolStrip	TsQuick	ToolStrip1	0,0,1193,1	hidden
+      ToolStripMenuItem	TsSelectAll	Select All	img	Select All
+      ToolStripSeparator	ToolStripSeparator2			
+      ToolStripMenuItem	TsCut	Cut	img	Cut
+      ToolStripMenuItem	TsCopy	Copy	img	Copy
+      ToolStripMenuItem	TsCopyName	Name	img	Copy Name
+      ToolStripMenuItem	TsPaste	Paste	img	Paste
+      ToolStripSeparator	ToolStripSeparator14			
+      ToolStripMenuItem	TsDelete	Delete	img	Delete
+      ToolStripMenuItem	TsRename	Rename	img	Rename...
+      ToolStripMenuItem	TsFind	Find	img	Find...
+      ToolStripSeparator	ToolStripSeparator15			
+      ToolStripMenuItem	TsNewGroup	New Group	img	New Group
+      ToolStripMenuItem	TsNewMod	New Mod	img	New Mod
+      ToolStripDropDownButton	TsMoveToGroup	Move to	img	Move to Group...
+        ToolStripMenuItem		Cancel	img	
+        ToolStripMenuItem		None	img	
+        ToolStripMenuItem		000.  Restorers	img	
+        ToolStripMenuItem		010.  Character Restorers	img	
+        ToolStripMenuItem		100.  Community Packs	img	
+        ToolStripMenuItem		110.  Utility Mods	img	
+        ToolStripMenuItem		120.  UI, Texture and Music	img	
+        ToolStripMenuItem		130.  Portrait Packs	img	
+        ToolStripMenuItem		140.  Common Resources	img	
+        ToolStripMenuItem		200.  Not worth playing	img	
+        ToolStripMenuItem		210.  Unlikely to play	img	
+        ToolStripMenuItem		220.  Might try one day	img	
+        ToolStripMenuItem		300.  New Mods	img	
+        ToolStripMenuItem		700.  Borderline Worth Playing	img	
+        ToolStripMenuItem		800.  Worth Playing	img	
+        ToolStripMenuItem		810.  Evaluating	img	
+        ToolStripMenuItem		900.  Patches	img	
+        ToolStripMenuItem		990.  Install Last	img	
+      ToolStripDropDownButton	TsGoToGroup	Go to	img	Go to Group...
+        ToolStripMenuItem		Cancel	img	
+        ToolStripMenuItem		None	img	hidden	
+        ToolStripMenuItem		000.  Restorers	img	
+        ToolStripMenuItem		010.  Character Restorers	img	
+        ToolStripMenuItem		100.  Community Packs	img	
+        ToolStripMenuItem		110.  Utility Mods	img	
+        ToolStripMenuItem		120.  UI, Texture and Music	img	
+        ToolStripMenuItem		130.  Portrait Packs	img	
+        ToolStripMenuItem		140.  Common Resources	img	
+        ToolStripMenuItem		200.  Not worth playing	img	
+        ToolStripMenuItem		210.  Unlikely to play	img	
+        ToolStripMenuItem		220.  Might try one day	img	
+        ToolStripMenuItem		300.  New Mods	img	
+        ToolStripMenuItem		700.  Borderline Worth Playing	img	
+        ToolStripMenuItem		800.  Worth Playing	img	
+        ToolStripMenuItem		810.  Evaluating	img	
+        ToolStripMenuItem		900.  Patches	img	
+        ToolStripMenuItem		990.  Install Last	img	
+      ToolStripSeparator	ToolStripSeparator16			
+      ToolStripMenuItem	TsDownloadProject	Project	img	Download Project
+      ToolStripMenuItem	TsAddFiles	Add Files	img	Add Files to Mod
+      ToolStripMenuItem	TsUpdateDownloads	Downloads	img	Move to Downloads
+      ToolStripMenuItem	TsCreateInstaller	Installer	img	Create Installer
+      ToolStripSeparator	ToolStripSeparator17			
+      ToolStripMenuItem	TsInstall	Install	img	Install
+      ToolStripMenuItem	TsUninstall	Uninstall	img	hidden	Uninstall
+      ToolStripMenuItem	TsCreateRestorer	Restorer	img	Create Restorer
+      ToolStripSeparator	ToolStripSeparator19			
+      ToolStripMenuItem	TsModExplorer	Explorer	img	Mod Explorer
+      ToolStripMenuItem	TsGameSaves	Saves	img	Game Saves Manager
+      ToolStripMenuItem	TsPlayNeverwinterNights	Play NWN	img	Neverwinter Nights
+  TableLayoutPanel	LpRibbon		0,0,1193,73
+    TabControl	TbRibbon		2,0,1191,73
+      TabPage	TpPlay	Play	4,24,1183,45
+        TableLayoutPanel	LpPlay		0,0,1183,45
+          ButtonLabel	RbnDownloadProject	Download and Install  Neverwinter Vault Project	9,3,184,40
+          ButtonLabel	RbnPlay	Play Neverwinter  Nights	211,3,171,40
+          ButtonLabel	RbnGameSaves	Manage your  Game Saves	400,3,150,40
+          ButtonLabel	RbnInstallUninstall	Uninstall  Mod	568,3,126,40	hidden
+          ButtonLabel	RbnChangeInstaller	Change Mod  Installer Options	712,3,134,40	hidden
+          ButtonLabel	RbnReCreateInstaller	Create Mod  Installer	864,3,110,40	hidden
+      TabPage	TpMod	Work with Mods	4,24,1183,45	hidden
+        TableLayoutPanel	LpMod		0,0,1183,45	hidden
+          ButtonLabel	RbnAddFiles	Move Downloaded  Files to Selected Mod	170,3,163,40	hidden
+          ButtonLabel	RbnUpdateDownloads	Move Compressed Files to  Mod's Downloads Folder	351,3,223,40	hidden
+          ButtonLabel	RbnNewMod	Create New  Mod Folder	9,3,143,40	hidden
+          ButtonLabel	RbnCreateInstaller	Create Mod  Installer	592,3,142,40	hidden
+          ButtonLabel	RbnToolset	Neverwinter  Nights Toolset	752,3,124,40	hidden
+      TabPage	TpInstallers	Work with Installers	4,24,1183,45	hidden
+        TableLayoutPanel	TableLayoutPanel1		0,0,1183,45	hidden
+          ButtonLabel	RbnBuildInstaller	Create Mod  Installer	544,3,110,40	hidden
+          ButtonLabel	RbnWizardBuilder	Mod Installer  Wizard Builder	9,3,126,40	hidden
+          ButtonLabel	RbnDependencyManager	Dependency  Manager	153,3,148,40	hidden
+          ButtonLabel	RbnMapFiles	Map  Files	424,3,102,40	hidden
+          ButtonLabel	RbnMapFolders	Map  Folders	319,3,87,40	hidden
+      TabPage	TpTools	Tools	4,24,1183,45	hidden
+        TableLayoutPanel	LpTools		0,0,1183,45	hidden
+          ButtonLabel	RbnModExplorer	Mod  Explorer	9,3,92,40	hidden
+          ButtonLabel	RbnInstallationManager	Installation  Manager	414,3,137,40	hidden
+          ButtonLabel	RbnDocOrganise	Organise Mod  Documentation	237,3,159,40	hidden
+          ButtonLabel	RbnPortraitManager	Portrait  Manager	569,3,95,40	hidden
+          ButtonLabel	RbnCharacterExplorer	Character  Explorer	119,3,132,40	hidden
+      TabPage	TpDiagnose	Diagnose	4,24,1183,45	hidden
+        TableLayoutPanel	LpDiagnose		0,0,1183,45	hidden
+          ButtonLabel	RbnNwnLog	View Neverwinter  Nights Client Log	9,3,174,40	hidden
+          ButtonLabel	RbnNwnIni	Open Neverwinter  Nights INI File	397,3,177,40	hidden
+          ButtonLabel	RbnNitLog	View Installer  Tool Log File	777,3,151,40	hidden
+          ButtonLabel	RbnDisplaySettings	View Installer Tool  Configuration File	946,3,146,40	hidden
+          ButtonLabel	RbnNwnSettingsFile	Open Enhanced  Edition Settings	592,3,167,40	hidden
+          ButtonLabel	RbnNwnEngineLog	View Neverwinter  Nights Engine Log	201,3,178,40	hidden
+      TabPage	TpBackup	Backup and Recovery	4,24,1183,45	hidden
+        TableLayoutPanel	LpMaintain		0,0,1183,45	hidden
+          ButtonLabel	RbnBackupData	Backup Installer  Tool Information	335,3,165,40	hidden
+          ButtonLabel	RbnRestoreData	Restore Installer  Tool Information	518,3,135,40	hidden
+          ButtonLabel	RbnExportSettings	Export your  Settings	177,3,140,40	hidden
+          ButtonLabel	RbnCreateRestorer	Create Restorer for  Unregistered Files	9,3,182,40	hidden
+      TabPage	TpCustomise	Customise	4,24,1183,45	hidden
+        TableLayoutPanel	LpCustomise		0,0,1183,45	hidden
+          ButtonLabel	RbnAdvancedSettings	Advanced  Settings	555,3,101,40	hidden
+          ButtonLabel	RbnBasicSettings	Change Behaviour and  User Interface Preferences	9,3,191,40	hidden
+          ButtonLabel	RbnFontAndColour	Change Text Size  and Theme Colours	218,3,154,40	hidden
+          ButtonLabel	RbnManageWorkshop	Manage Steam  Workshop Content	390,3,147,40	hidden
+ToolStrip	TsStatus	ToolStrip1	0,626,1193,25
+  ToolStripButton	BtMods	Mods:		Click to show Recent Mods.
+  ToolStripButton	BtRecycleToggle	btRecycleToggle	img	Send to Recycle Bin.
+
+Right-Click to open the Recycle Bin.
+  ToolStripButton	BtOverwrite	Overwrite:	img	Overwrite Off
+  ToolStripButton	BtSelectTextFile	Select:	img	Click to open the Contents and Details Item Selection Preferences.
+Right-Click to open the Document Organiser.
+
+Current selection preferences priority...
+- Selection History
+- First Item.
+  ToolStripButton	BtCharacter		img	hidden	Click to Open Character Restorer Viewer.
+Right-Click to View Character Summary.
+  ToolStripButton	BtWizardReport		img	hidden	Click to display the Create Installer Wizard Report.
+Right-Click to open the Wizard Builder.
+  ToolStripButton	BtHealth	NWN Health	img	hidden	NWN error logs contain information.
+There might be a potential issue.
+  ToolStripButton	BtFileCheckInfo	ToolStripButton1	img	hidden	Display details about files added, removed or changed
+in the NWN installation folder
+  ToolStripSeparator	tsIconSeparator			
+  MsgItemLabel	MgInfo			Click to clear information message
+  ToolStripButton	BtModCount	2/2	img	2 Mods defined of which 2 are installed.
+
+Click to see how many Mods are available for
+import and have been exported.
+  ToolStripSeparator	ToolStripSeparator1			
+  ToolStripButton	BtGroupHdg	Group:		Click to display Go to Group menu.
+  ToolStripButton	BtGroup	000.  Restorers (1/1)	img	1 Mod defined in this Group of which 1 is installed.
+
+Click to Collapse Group.
+  DbgStripLabel				
+MenuStrip	MsMenu		0,0,1193,27
+  ToolStripMenuItem	MsFile	File		
+    ToolStripMenuItem	MsLoadProfile	Load Profile	img	
+      ToolStripMenuItem	Enhanced Edition Mods	Enhanced Edition Mods		User Files Folder:
+C:\nitdiff\sb\user
+    ToolStripMenuItem	MsOpen	Open	img	
+    ToolStripMenuItem	MsDownloadProject	Download Project	img	
+    ToolStripMenuItem	MsAddFiles	Add Files to Mod	img	
+    ToolStripMenuItem	MsAddMods	Add Mods from Files	img	
+    ToolStripSeparator	ToolStripSeparator31			
+    ToolStripMenuItem	MsUpdateDownloads	Move to Downloads	img	
+    ToolStripMenuItem	MsMoveToFolder	Move to Folder	img	hidden	
+    ToolStripMenuItem	MsMoveToHistory	Move to History	img	
+    ToolStripMenuItem	MsMoveToDev	Move to Development	img	hidden	
+    ToolStripSeparator	ToolStripSeparator28			
+    ToolStripMenuItem	MsNewFolder	New Folder	img	
+    ToolStripMenuItem	MsNewTextFile	New Text File	img	
+    ToolStripMenuItem	MsNewRtfFile	New RTF File	img	
+    ToolStripSeparator	ToolStripSeparator4			
+    ToolStripMenuItem	MsBackupData	Backup Data	img	
+    ToolStripMenuItem	MsRestoreData	Restore Data	img	
+    ToolStripMenuItem	MsExportMods	Export Mods	img	hidden	
+    ToolStripMenuItem	MsImportMods	Import Mods	img	hidden	
+    ToolStripSeparator	SepSharedNit			hidden	
+    ToolStripMenuItem	MsOpenSharedStore	Open Shared NIT Store	img	hidden	
+    ToolStripMenuItem	MsCopyToShared	Copy to Shared NIT Store	img	hidden	
+    ToolStripMenuItem	MsConnect	Connect to Shared NIT Store	img	hidden	
+    ToolStripSeparator	ToolStripSeparator7			
+    ToolStripMenuItem	MsExtractPortraits	Extract Portrait Images	img	hidden	
+    ToolStripMenuItem	MsDisplayInfo	Display Additional Info		hidden	
+    ToolStripMenuItem	MsProperties	Properties	img	
+    ToolStripSeparator	ToolStripSeparator38			
+    ToolStripMenuItem	MsRestart	Restart	img	Remove all temporary files, close NIT and start it again
+    ToolStripMenuItem	MsExit	Exit	img	Remove all temporary files and close NIT
+  ToolStripMenuItem	MsEdit	Edit		
+    RecentMenuItem	MsRecentMods	Recent Mods	img	
+    ToolStripMenuItem	MsSelectAll	Select All	img	
+    ToolStripSeparator	ToolStripSeparator6			
+    ToolStripMenuItem	MsCut	Cut	img	
+    ToolStripMenuItem	MsCopy	Copy	img	
+    ToolStripMenuItem	MsCopyName	Copy Name	img	
+    ToolStripMenuItem	MsPaste	Paste	img	
+    ToolStripSeparator	ToolStripSeparator24			
+    ToolStripMenuItem	MsDelete	Delete	img	
+    ToolStripSeparator	ToolStripSeparator5			
+    ToolStripMenuItem	MsRename	Rename...	img	
+    ToolStripMenuItem	MsFind	Find...	img	
+    ToolStripMenuItem	MsFindAndRename	Find and Rename Mods...	img	
+    ToolStripMenuItem	MsGoToGroup	Go to Group...	img	
+      ToolStripMenuItem		Cancel	img	
+      ToolStripMenuItem		None	img	hidden	
+      ToolStripMenuItem		000.  Restorers	img	
+      ToolStripMenuItem		010.  Character Restorers	img	
+      ToolStripMenuItem		100.  Community Packs	img	
+      ToolStripMenuItem		110.  Utility Mods	img	
+      ToolStripMenuItem		120.  UI, Texture and Music	img	
+      ToolStripMenuItem		130.  Portrait Packs	img	
+      ToolStripMenuItem		140.  Common Resources	img	
+      ToolStripMenuItem		200.  Not worth playing	img	
+      ToolStripMenuItem		210.  Unlikely to play	img	
+      ToolStripMenuItem		220.  Might try one day	img	
+      ToolStripMenuItem		300.  New Mods	img	
+      ToolStripMenuItem		700.  Borderline Worth Playing	img	
+      ToolStripMenuItem		800.  Worth Playing	img	
+      ToolStripMenuItem		810.  Evaluating	img	
+      ToolStripMenuItem		900.  Patches	img	
+      ToolStripMenuItem		990.  Install Last	img	
+    ToolStripSeparator	ToolStripSeparator9			
+    ToolStripMenuItem	MsEditWebLink	Edit Link to Mod's Web Page	img	
+    ToolStripMenuItem	MsCopyWebLink	Copy Mod's Web Page Link	img	
+    ToolStripMenuItem	MsFindWebLink	Find Mod's Web Page Link	img	
+    ToolStripMenuItem	MsCheckForUpdates	Check for Mod Updates	img	
+    ToolStripSeparator	ToolStripSeparator39			
+    ToolStripMenuItem	MsConvertRestorer	Convert Restorer to Mod	img	
+    ToolStripMenuItem	MsEditStartScreenPrefixes	Edit Start Screen Prefixes	img	hidden	
+  ToolStripMenuItem	MsView	View		
+    ToolStripMenuItem	MsCollapseAllGroups	Collapse All Groups	img	
+    ToolStripMenuItem	MsExpandAllGroups	Expand All Groups	img	
+    ToolStripSeparator	ToolStripSeparator37			
+    ToolStripMenuItem	MsCharacterSummary	Character Summary	img	
+    ToolStripMenuItem	MsModsPlayed	Mods Sorted by Date Completed	img	
+    ToolStripMenuItem	MsConflicts	Mod File Conflicts	img	
+    ToolStripMenuItem	MsWorkshopViewer	Steam Workshop Subscriptions	img	hidden	
+    ToolStripSeparator	SepWorkshopViewer			
+    ToolStripMenuItem	MsLogFile	NIT Log File	img	
+    ToolStripMenuItem	MsDisplaySettings	NIT User Config File	img	
+    ToolStripMenuItem	MsOpenRulesFile	Download Rules File	img	hidden	
+    ToolStripSeparator	ToolStripSeparator11			
+    ToolStripMenuItem	MsNwnClientLogFile	NWN Client Log File	img	
+    ToolStripMenuItem	MsNwnEngineLogFile	NWN Engine Log File	img	hidden	
+    ToolStripSeparator	ToolStripSeparator47			
+    ToolStripMenuItem	MsNWNIniFile	NWN Ini File	img	
+    ToolStripMenuItem	MsNwnSettingsFile	NWN Settings File	img	
+    ToolStripMenuItem	MsNWNPlayerIniFile	NWN Player Ini File	img	
+    ToolStripSeparator	ToolStripSeparator29			
+    ToolStripMenuItem	MsNwnPatchIniFile	NWN Patch Ini File	img	
+    ToolStripMenuItem	MsNwnToolsetIniFile	NWN Toolset Ini File	img	
+    ToolStripMenuItem	MsNwnConfigIniFile	NWN Config Ini File	img	hidden	
+    ToolStripSeparator	ToolStripSeparator20			
+    ToolStripMenuItem	MsViewClipboard	Clipboard	img	
+  ToolStripMenuItem	MsManage	Manage		
+    ToolStripMenuItem	MsNewGroup	New Group	img	
+    ToolStripMenuItem	MsMoveToGroup	Move to Group...	img	
+      ToolStripMenuItem		Cancel	img	
+      ToolStripMenuItem		None	img	
+      ToolStripMenuItem		000.  Restorers	img	
+      ToolStripMenuItem		010.  Character Restorers	img	
+      ToolStripMenuItem		100.  Community Packs	img	
+      ToolStripMenuItem		110.  Utility Mods	img	
+      ToolStripMenuItem		120.  UI, Texture and Music	img	
+      ToolStripMenuItem		130.  Portrait Packs	img	
+      ToolStripMenuItem		140.  Common Resources	img	
+      ToolStripMenuItem		200.  Not worth playing	img	
+      ToolStripMenuItem		210.  Unlikely to play	img	
+      ToolStripMenuItem		220.  Might try one day	img	
+      ToolStripMenuItem		300.  New Mods	img	
+      ToolStripMenuItem		700.  Borderline Worth Playing	img	
+      ToolStripMenuItem		800.  Worth Playing	img	
+      ToolStripMenuItem		810.  Evaluating	img	
+      ToolStripMenuItem		900.  Patches	img	
+      ToolStripMenuItem		990.  Install Last	img	
+    ToolStripMenuItem	MsNewMod	New Mod	img	
+    ToolStripSeparator	ToolStripSeparator13			
+    ToolStripMenuItem	MsCreateInstaller	Create Installer	img	
+    ToolStripMenuItem	MsCreateMissingInstallers	Create Missing Installers	img	
+    ToolStripMenuItem	MsChangeInstaller	Change Installer Options	img	
+    ToolStripMenuItem	MsCreateRestorer	Create Restorer	img	
+    ToolStripMenuItem	MsCreateOriginalRestorers	Create Original Restorers	img	
+    ToolStripSeparator	ToolStripSeparator42			
+    ToolStripMenuItem	MsLoadscreens	NWN's Start Screens	img	
+    ToolStripMenuItem	MsHakPatchEditor	Hak Patch Priority	img	
+    ToolStripMenuItem	MsAliasSection	Alias Section (nwn.ini)	img	
+    ToolStripSeparator	ToolStripSeparator25			
+    ToolStripMenuItem	MsPublishMod	Publish Mod	img	
+    ToolStripMenuItem	MsAnneal	Anneal	img	Checks that the correct conflicting files are installed
+based on a Mod's priority (sequence). 
+    ToolStripSeparator	ToolStripSeparator27			
+    ToolStripMenuItem	MsRemoveIllegalModFiles	Remove Illegal Mod Files	img	
+    ToolStripMenuItem	MsRemoveErfs	Remove ERF Files	img	Removes all non-Texturepack ERF files from
+your Mod Installers and NWN Installation
+    ToolStripMenuItem	MsRemoveLetoLogFiles	Remove Leto Log Files	img	hidden	
+    ToolStripSeparator	ToolStripSeparator46			
+    ToolStripMenuItem	MsSynchroniseMods	Synchronise Mods	img	hidden	
+    ToolStripMenuItem	MsCompact	Compress Mod Folder	img	
+    ToolStripSeparator	ToolStripSeparator26			
+    ToolStripMenuItem	MsInstall	Install	img	
+    ToolStripMenuItem	MsUninstall	Uninstall	img	
+  ToolStripMenuItem	MsTools	Tools		
+    ToolStripMenuItem	MsModExplorer	Mod Explorer	img	
+    ToolStripMenuItem	MsCharacterExplorer	Character Explorer	img	
+    ToolStripMenuItem	MsDocOrganiser	Documentation Organiser	img	
+    ToolStripSeparator	ToolStripSeparator22			
+    ToolStripMenuItem	MsGameSaves	Game Saves Manager	img	
+    ToolStripMenuItem	MsBackupManager	Backup and Export Manager	img	
+    ToolStripMenuItem	MsInstallationManager	Installation Manager	img	
+    ToolStripMenuItem	MsInstallationAnalyser	Installation Analyser	img	
+    ToolStripSeparator	ToolStripSeparator36			
+    ToolStripMenuItem	MsWizardBuilder	Installer Wizard Builder	img	
+    ToolStripMenuItem	MsDependencyManager	Dependency Manager	img	
+    ToolStripMenuItem	MsPortraitManager	Portrait Manager	img	
+    ToolStripSeparator	ToolStripSeparator10			
+    ToolStripMenuItem	MsUpdateEeFiles	Update Enhanced Edition Files	img	Run after Beamdog, GOG or Steam has updated your installation files.
+    ToolStripMenuItem	MsRefreshWorkshopFiles	Refresh Steam Workshop Files	img	hidden	Run after your Steam Workshop Subscriptions have been changed or updated.
+    ToolStripSeparator	TsUpdateEeSeparator			
+    ToolStripMenuItem	MsValidateMovieFiles	Validate Movie Files	img	
+    ToolStripMenuItem	MsValidateProfileData	Validate Profile Data	img	
+    ToolStripMenuItem	MsValidateMods	Validate Mods	img	
+    ToolStripMenuItem	MsValidateModWebLinks	Validate Mod Web Links	img	The validation process can take some time depending on
+the number of Mods and your Internet download speed.
+
+Internet access is restricted to using The Neverwinter Vault's API.
+No files are downloaded.
+    ToolStripMenuItem	MsValidateInstalledData	Validate Installed Data	img	
+    ToolStripMenuItem	MsValidate	Validate Neverwinter Nights	img	
+    ToolStripSeparator	ToolStripSeparator44			
+    ToolStripMenuItem	MsRecoverGroups	Recover Groups	img	
+    ToolStripMenuItem	MsRecoverModProperties	Recover Mod Properties	img	
+    ToolStripMenuItem	MsRepairCrcs	Calculate CRCs	img	
+    ToolStripMenuItem	MsRebuildDatabase	Rebuild Database	img	
+  ToolStripMenuItem	MsRun	Run		
+    ToolStripMenuItem	MsPlayNeverwinterNights	Neverwinter Nights	img	
+    ToolStripMenuItem	MsToolset	Neverwinter Nights Toolset	img	
+    ToolStripSeparator	MsRunSeparator			hidden	
+  ToolStripMenuItem	MsWeb	Web		
+    ToolStripMenuItem	MsUserTheNeverwinterVault	The Neverwinter Vault	img	https://neverwintervault.org
+    ToolStripMenuItem	MsUserNexusNeverwinterNights	Nexus Neverwinter Nights	img	https://www.nexusmods.com/neverwinter
+  ToolStripMenuItem	MsOptions	Options		
+    ToolStripMenuItem	MsBasicSettings	Basic Settings	img	
+    ToolStripMenuItem	MsSettings	Advanced Settings	img	
+    ToolStripMenuItem	MsFontAndColour	Text Size and Theme Colours	img	
+    ToolStripMenuItem	MsTitleBarColour	Windows Title Bar Colour	img	Windows Default (Unknown colour)
+    ToolStripSeparator	ToolStripSeparator21			
+    ToolStripMenuItem	MsOriginalPortraits	Show BioWare's Portrait Images		Download BioWare's original portrait files so that
+character information displays the portrait image.
+    ToolStripMenuItem	MsNumberRecentMods	Number Recent Mods		Use sequence numbers in the Recent Mods
+list instead of Install Status icons.
+    ToolStripMenuItem	MsPropertiesHeight	Automatic Properties Panel Height		Automatically adjust the height of the Properties panel based
+on the type of item selected.
+
+The height will be the same as the Mod Properties panel when
+a file list is displayed and reduced for file contents.
+    ToolStripSeparator	ToolStripSeparator40			
+    ToolStripMenuItem	MsResetWindow	Reset Window Layout	img	Restore NIT's default Window size, position and panel layout
+    ToolStripMenuItem	MsResetWebMenu	Reset Web Menu Icons	img	
+    ToolStripMenuItem	MsResetTaskbarIcon	Reset Taskbar Icon	img	
+    ToolStripMenuItem	MsClearWaitCursors	Clear Wait Cursors	img	
+    ToolStripMenuItem	MsEnableClosing	Enable Closing	img	hidden	Closing NIT is disabled when NWN or the Toolset is running.
+Use this to enable closing if something has gone wrong.
+    ToolStripSeparator	ToolStripSeparator43			
+    ToolStripMenuItem	MsClearScrollInfo	Clear Text Position Information	img	Deletes text position information for the Details Panel and Mod Notes.
+
+You can also use this option to change your text position preferences.
+    ToolStripMenuItem	MsClearSelectionHistory	Clear Selection History	img	
+    ToolStripMenuItem	MsClearHakPortraits	Clear Extracted Hak Portraits	img	hidden	
+    ToolStripSeparator	ToolStripSeparator18			
+    ToolStripMenuItem	MsShowRibbon	Show Ribbon Interface		
+    ToolStripSeparator	ToolStripSeparator12			
+    ToolStripMenuItem	MsShowToolbar	Show Toolbar		
+    ToolStripMenuItem	MsShowText	Show Text on Toolbar		
+    ToolStripMenuItem	MsCustomise	Customise Toolbar	img	
+    ToolStripSeparator	DbSeparator			
+    ToolStripMenuItem	MsDebugOptionsMenu	Debug Options Menu	img	hidden	
+      ToolStripMenuItem	DbEnableDevelopmentFolder	Enable Development Folder		
+      ToolStripMenuItem	DbRedoDateCompleted	Redo Mod Completed Dates	img	
+      ToolStripMenuItem	DbSetPlayTimeValue	Set Play Time Value	img	
+      ToolStripMenuItem	MsSaveNwnInfo	Recreate original NWN file information	img	hidden	Only run after you have done a clean install of NWN
+and have not added any Mods or other files.
+      ToolStripSeparator	SepSaveNwnInfo			
+      ToolStripMenuItem	DbOriginalFilesReport	Original Files Report	img	
+      ToolStripMenuItem	DbInstalledFilesReport	Installed Files Report	img	
+      ToolStripSeparator	ToolStripSeparator32			
+      ToolStripMenuItem	DbModDataReport	Mod Data Report	img	
+      ToolStripMenuItem	DbModFileReport	Mod File Report	img	
+      ToolStripSeparator	ToolStripSeparator34			
+      ToolStripMenuItem	DbGameMapDataReport	Game Map Data Report	img	
+      ToolStripMenuItem	DbGameMapUserReport	Game Map User Responses Report	img	
+      ToolStripSeparator	ToolStripSeparator3			
+      ToolStripMenuItem	DbBlankFilesReport	Blank Text Files Report	img	Produces a report showing any empty text files (txt, rtf, bat and ini).
+The search includes files from all Profiles.
+      ToolStripMenuItem	DbSyncReport	Synchronisation Report	img	hidden	
+      ToolStripMenuItem	DbScrollReport	Text Scroll Position Report	img	
+      ToolStripMenuItem	DbSelectionHistory	Selection History Report	img	
+      ToolStripMenuItem	DbExtractedPortraits	Hak Extracted Portraits Report	img	
+      ToolStripMenuItem	DbStartScreenInfo	Start Screen Information Report	img	
+  ToolStripMenuItem	DbNIT	NIT		hidden	
+    ToolStripMenuItem	DbColourSettings	Copy Colour Settings		
+    ToolStripMenuItem	DbChangedColours	Copy Changed Colours (for Help)		When standard Theme is active, this will generate a crash.
+
+Useful to test crash handling routines.
+    ToolStripSeparator	ToolStripSeparator41			
+    ToolStripMenuItem	DbActionList	Action List		
+    ToolStripMenuItem	DbEnableVaultDownloadCounter	Enable Vault Download Counter		This no longer seems to work with the new file URLs.
+Always counts regardless of this setting.
+    ToolStripSeparator	ToolStripSeparator30			
+    ToolStripMenuItem	DbHelpLayout	Layout for Help		
+    ToolStripMenuItem	DbSetSize	Set Size	img	
+    ToolStripMenuItem	DbDisableAltKey	Disable Alt-Key		
+    ToolStripSeparator	ToolStripSeparator48			
+    ToolStripMenuItem	DbShowNitAvailable	Show NIT is available		
+    ToolStripMenuItem	DbAppDefsReport	Application Definitions File Report	img	
+    ToolStripSeparator	ToolStripSeparator35			
+    ToolStripMenuItem	DbOriginalFiles	Create Original Files Dictionary		
+    ToolStripMenuItem	DbEeOriginalFiles	Create EE Original Files Dictionary		
+    ToolStripSeparator	ToolStripSeparator23			
+    ToolStripMenuItem	MsValidateOnActivateStatus	Validate on Activate Status		
+    ToolStripMenuItem	DbMethod	Debug Method		
+  ToolStripMenuItem	MsHelp	Help		
+    ToolStripMenuItem	MsViewHelp	View Help	img	
+    ToolStripMenuItem	MsGetStarted	Get Started	img	
+    ToolStripMenuItem	MsFAQ	Frequently Asked Questions (FAQ)	img	
+    ToolStripMenuItem	MsWhatsNew	What's New?	img	
+    ToolStripMenuItem	MsHistory	Version History	img	
+    ToolStripSeparator	ToolStripSeparator8			
+    ToolStripMenuItem	MsClassesSkillsAndFeats	Classes, Skills and Feats Information	img	
+    ToolStripSeparator	ToolStripSeparator45			
+    ToolStripMenuItem	MsUpdateNow	Update Now	img	
+    ToolStripMenuItem	MsSendFeedback	Send Feedback	img	
+    ToolStripMenuItem	MsSendDiagInfo	Send Diagnostic Information	img	
+    ToolStripSeparator	ToolStripSeparator33			
+    ToolStripMenuItem	MsAbout	About NitHarness	img	
+  ToolStripMenuItem	MsHelpContents		img	
+  ToolStripComboTextBox	TsbModSelector	Mod Selector		
+  ToolStripMenuItem	MsGetUpdate	NIT version check failed		hidden	
+  ToolStripMenuItem	MsPlayedInfo	NWN not played		
+  ComboTextBox	ComboTextBox	Mod Selector	884,2,284,23
+    TextBoxBorder	TxBox	Mod Selector	0,0,284,23
+    ComboBoxPlus	CbBox		0,0,284,23

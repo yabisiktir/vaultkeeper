@@ -371,12 +371,12 @@ def test_sets_sort_by_the_chosen_key_and_direction(tmp_path, qtbot):
     dlg = _sort_dialog(tmp_path, qtbot)
     sets = _named_sets()
 
-    dlg.sort_key.setCurrentIndex(dlg.sort_key.findData("name"))
+    dlg._set_sort_key("name")
     assert [s.name for s in dlg._sorted_sets(sets)] == [
         "Current", "Alpha", "Beta", "Gamma",
     ]
 
-    dlg.sort_key.setCurrentIndex(dlg.sort_key.findData("created"))
+    dlg._set_sort_key("created")
     assert [s.name for s in dlg._sorted_sets(sets)] == [
         "Current", "Beta", "Gamma", "Alpha",
     ], "oldest first"
@@ -396,7 +396,7 @@ def test_the_current_set_stays_at_the_top_whatever_the_sort(tmp_path, qtbot):
     dlg = _sort_dialog(tmp_path, qtbot)
     sets = _named_sets()
     for key in ("name", "created", "updated"):
-        dlg.sort_key.setCurrentIndex(dlg.sort_key.findData(key))
+        dlg._set_sort_key(key)
         for descending in (False, True):
             dlg.sort_desc.setChecked(descending)
             assert dlg._sorted_sets(sets)[0].name == "Current"

@@ -1,0 +1,53 @@
+FORM	Wizard Builder	1004x685
+TableLayoutPanel	LpMain		0,0,996,651
+  TableLayoutPanel	LpWizardHdg		3,3,990,38
+    PictureBox	PicWizard		3,3,32,32
+    Label	LbWizard	Generate Mod Installer Wizard	41,10,736,18
+    ButtonLabel	BhWizardBuilder	ButtonLabel1	965,8,22,22
+    ButtonLabel	BnView	Files	811,6,151,25
+    Label	LbView	View	780,8,31,18
+  Label	LbBuilderHdg	Title Information	0,44,996,24
+  TableLayoutPanel	LpTextFields		0,71,996,81
+    Label	LbTitle	Wizard Title	4,4,99,18
+    TextBox	TxTitle	Mod Installer Wizard	109,3,439,21
+    Label	LbSelectOne	Choices	34,31,69,18
+    Label	LbSelectMany	Preferences	3,58,100,18
+    TextBox	TxSelectOne	Choose which file you want to use.	109,30,878,21
+    TextBox	TxSelectMany	Select which files, if any, you want to use.	109,57,878,21
+  TableLayoutPanel	LpBuilder		0,159,996,462
+    ListViewPlus	LvFiles		0,0,455,462
+      Column	Items Processed by Installer	455
+    TableLayoutPanel	LpSelectLists		540,0,456,462
+      ListViewPlus	LvExcludes		0,324,456,138
+        Column	Exclude from Installer	456
+      ListViewPlus	LvSelectOne		0,0,456,161
+        Column	Choices (Only one item can be selected)	456
+      ListViewPlus	LvSelectMany		0,162,456,161
+        Column	Preferences (Optional items)	456
+      SplitterLine	SplitterLine5		0,161,456,1
+      SplitterLine	SplitterLine6		0,323,456,1
+    TableLayoutPanel	LpMoveButtons		456,0,83,462
+      TableLayoutPanel	LpMoveExcludes		0,322,83,140
+        ButtonPlus	BtAddExclude	Add >>	3,27,77,25
+        ButtonPlus	BtAddAllExclude	Add All >>	3,58,77,25
+        ButtonPlus	BtRemoveExclude	<< Remove	3,89,77,25
+      TableLayoutPanel	LpMoveMany		0,161,83,161
+        ButtonPlus	BtAddMany	Add >>	3,27,77,25
+        ButtonPlus	BtAddAllMany	Add All >>	3,58,77,25
+        ButtonPlus	BtRemoveMany	<< Remove	3,89,77,25
+      TableLayoutPanel	LpMoveOne		0,0,83,161
+        ButtonPlus	BtAddOne	Add >>	3,22,77,25
+        ButtonPlus	BtAddAllOne	Add All >>	3,53,77,25
+        ButtonPlus	BtRemoveOne	<< Remove	3,84,77,25
+        Label	LbButtons		0,0,83,19
+    SplitterLine	SplitterLine1		455,0,1,462
+    SplitterLine	SplitterLine2		539,0,1,462
+  SplitterLine	SplitterLine3		0,158,996,1
+  SplitterLine	SplitterLine4		0,621,996,1
+  TableLayoutPanel	LpActionButtons		0,622,996,29
+    ButtonPlus	BtCancel	Cancel	918,3,75,23
+    MsgLabel	MlStatus	Source: New Wizard.	3,5,828,18
+    ButtonPlus	BtSave	Save	837,3,75,23
+    ButtonPlus	BtDelete	Delete	837,3,75,23	hidden
+    Label	LbDisplayName	Display Name:	421,5,119,18	hidden
+    TextBox	TxDisplayName		540,3,291,23	hidden

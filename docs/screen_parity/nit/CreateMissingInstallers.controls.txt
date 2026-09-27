@@ -1,0 +1,13 @@
+FORM	Create Missing Installers	527x430
+TableLayoutPanel	LpMain		0,0,521,398
+  Label	LbInstructions	Set or clear the tick (check or uncheck) to specify the action to take for each Mod in the list.	3,9,515,18
+  TableLayoutPanel	LpActions		0,367,521,31
+    ButtonPlus	BtCreate	Create	362,3,75,25
+    ButtonPlus	BtCancel	Cancel	443,3,75,25
+    MsgLabel	MgInfo	Info	3,6,353,18
+  SplitterLine	SplitterLine1		0,366,521,1
+  ListViewPlus	LvModNames		0,36,521,304
+    Column	Mods that do not have an Installer	354
+    Column	Action	167
+  CheckBox	CbExcludes	Include Mods previously excluded	6,344,208,19
+  SplitterLine	SplitterLine3		0,340,521,1

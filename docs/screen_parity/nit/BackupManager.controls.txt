@@ -1,0 +1,35 @@
+FORM	Backup and Export Manager	640x461
+TableLayoutPanel	TlBackupManager		0,0,634,429
+  TableLayoutPanel	TlActions		0,398,634,31
+    ButtonPlus	BtAction	Restore	394,3,75,25
+    ButtonPlus	BtDelete	Delete	475,3,75,25
+    ButtonPlus	BtCancel	Cancel	556,3,75,25
+    MsgLabel	MlStatus	Data Backups: None.	3,6,385,18
+  TableLayoutPanel	TlBackupManagerHdg		0,0,634,44
+    PictureBox	PicBackupManager		3,6,32,32
+    Label	LbBackupManager	Manage and view your Data Backups, Exported Settings and Mod Exports	41,13,562,18
+    ButtonLabel	BhBackupManager	ButtonLabel1	609,11,22,22
+  TabControl	TbBackupManager		4,47,628,351
+    TabPage	TpBackups	Data Backups	4,24,620,323
+      TableLayoutPanel	TlBackups		0,0,620,323
+        ListViewPlus	LvBackups		0,0,618,323
+          Column	Date Saved	95
+          Column	Time Saved	95
+          Column	Version	152
+          Column	Size	65
+          Column	User	211
+    TabPage	TpSettings	Exported Settings	4,24,620,323	hidden
+      TableLayoutPanel	TlSettings		0,0,620,323	hidden
+        ListViewPlus	LvSettings		0,0,618,323	hidden
+          Column	Date Saved	95
+          Column	Time Saved	95
+          Column	Version	152
+          Column	Size	65
+          Column	User	211
+    TabPage	TpMods	Exported Mods	4,24,620,323	hidden
+      TableLayoutPanel	TlMods		0,0,620,323	hidden
+        ListViewPlus	LvMods		0,0,618,323	hidden
+          Column	Mod Name	360
+          Column	Date Saved	95
+          Column	Time Saved	95
+          Column	Size	68

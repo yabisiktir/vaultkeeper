@@ -1,0 +1,126 @@
+FORM	Mod Explorer	1201x685
+TableLayoutPanel	LpMain		0,0,1193,651
+  SplitContainer	ScMain		0,39,1193,582
+    SplitterPanel			0,0,555,582
+      ListViewPlus	LvExplorer		0,0,555,582
+        Column	Enhanced Edition Mods	155
+        Column	Rating	86
+        Column	Weapon	150
+        Column	Start	43
+        Column	End	43
+        Column	Hench	78
+    SplitterPanel			556,0,637,582
+      SplitContainer	ScDetails		0,0,637,582
+        SplitterPanel			0,0,637,385
+          TableLayoutPanel	LpNotes		0,0,637,385
+            RichTextBoxPlus	RtbNotes		3,19,634,273
+            LinkLabelPlus	LbModLink		0,0,637,19
+            SplitterLine	SpEditLine		0,44,637,1	hidden
+            RichTextToolbar	RttNotes	Open with wordpad      Ctrl+O	0,19,637,25	hidden
+              ToolStripButton	TsWordPad	Open with wordpad      Ctrl+O	img	Open with wordpad      Ctrl+O
+              ToolStripSeparator	SsWordPad			
+              ToolStripButton	TsCut	Cut      Ctrl+X	img	Cut      Ctrl+X
+              ToolStripButton	TsCopy	Copy      Ctrl+C	img	Copy      Ctrl+C
+              ToolStripButton	TsPaste	Paste      Ctrl+V	img	Paste      Ctrl+V
+              ToolStripButton	TsPasteText	Paste as Text      Ctrl+T	img	Paste as Text      Ctrl+T
+              ToolStripSeparator	SsBold			hidden	
+              ToolStripButton	TsBold	Bold      Ctrl+B	img	hidden	Bold      Ctrl+B
+              ToolStripButton	TsItalics	Italics      Ctrl+I	img	hidden	Italics      Ctrl+I
+              ToolStripButton	TsUnderline	Underline      Ctrl+U	img	hidden	Underline      Ctrl+U
+              ToolStripButton	TsStrikeout	Strikeout      Ctrl+K	img	hidden	Strikeout      Ctrl+K
+              ToolStripButton	TsFontColour	Font Colour	img	hidden	Font Colour
+              ToolStripSeparator	SsUndoRedo			
+              ToolStripButton	TsUndo	Undo      Ctrl+Z	img	Undo      Ctrl+Z
+              ToolStripButton	TsRedo	Redo      Ctrl+Y	img	Redo      Ctrl+Y
+              ToolStripSeparator	SsSelectAll			hidden	
+              ToolStripButton	TsSelectAll	Select All      Ctrl+A	img	Select All      Ctrl+A
+              ToolStripButton	TsFind	Find      Ctrl+F	img	Find      Ctrl+F
+            ListViewPlus	LvPlayTimes		0,293,637,92
+              Column	Completed	112
+              Column	Time Played	398
+              Column	User	127
+            SplitterLine	SplitterLine4		0,292,637,1
+        SplitterPanel			0,386,637,196
+          TableLayoutPanel	LpFilters		0,0,637,196
+            ListViewPlus	LvGroupFilters		0,0,318,196
+              Column	Group Filter	301
+            ListViewPlus	LvPrefixFilters		319,0,318,196
+              Column	Mod Prefix Filter	318
+            SplitterLine	SplitterLine3		318,0,1,196
+  ToolStrip	TsMenu	ToolStrip1	0,0,1193,38
+    ToolStripDropDownButton	TsModStateFilter	Mod State Filter	img	Mod State Filter
+      ToolStripMenuItem	TsStateClear	Clear	img	
+      ToolStripSeparator	ToolStripSeparator8			
+      ToolStripMenuItem	TsStateGreater	More files installed		
+      ToolStripMenuItem	TsStateLess	Less files installed		
+      ToolStripMenuItem	TsStateEqual	Matching Mod State		
+      ToolStripSeparator	TsStateSeparator			
+      ToolStripMenuItem	None	Mod Installer has not been created	img	
+      ToolStripMenuItem	Unknown	Unknown	img	
+      ToolStripMenuItem	NotInstalled	Not Installed	img	
+      ToolStripMenuItem	SomeInstalled	Some files are installed, but others are not	img	
+      ToolStripMenuItem	SomeAndMatch	Some files not installed, some overridden by the same file	img	
+      ToolStripMenuItem	SomeAndOverridden	Some files not installed, some overridden	img	
+      ToolStripSeparator				
+      ToolStripMenuItem	Installed	Installed	img	
+      ToolStripMenuItem	MatchOverride	Installed, but some files overridden by the same files	img	
+      ToolStripMenuItem	InstalledAndOverridden	Installed, but some files overridden	img	
+      ToolStripMenuItem	Overridden	Installed, but all files overridden	img	
+    ToolStripTextBox	TxModFilter	Mod Filter		
+    ToolStripTextBox	TxRating	Rating		
+    ToolStripTextBox	TxWeapon	Weapon		
+    ToolStripTextBox	TxStart	Start		Prefix your filter with ">" (default), "<" or "=" to refine your search.
+    ToolStripTextBox	TxEnd	End		Prefix your filter with ">" (default), "<" or "=" to refine your search.
+    ToolStripTextBox	TxHench	Hench		Prefix your filter with ">" (default), "<" or "=" to refine your search.
+    ToolStripButton	TsClearTextFilters	Clear	img	Clear Column Filters
+    ToolStripSeparator	TsMarker			
+    ToolStripTextBox	TxNotesFilter	Notes Filter		
+    ToolStripButton	TsClearNotesFilter	Clear	img	Clear Notes Filter
+    ToolStripSeparator	ToolStripSeparator5			
+    ToolStripButton	TsModFiles	Mod Files	img	Check to only include Mods that have
+.mod or .nwm files
+    ToolStripButton	TsInstallers	Installers	img	Check to include Mods that have Installers
+(ie has a Mod Installer folder)
+    ToolStripButton	TsRestorers	Restorers	img	Check to include Mod Restorers
+    ToolStripButton	TsIgnoreFilters	Filters On	img	Filters Off: All current filters are ignored.
+Filters On: All current filters are applied.
+    ToolStripSeparator	ToolStripSeparator7			
+    ToolStripDropDownButton	TsTools	Tools	img	
+      ToolStripMenuItem	TsUndoGroups	Undo Group Changes	img	Undo Group filter changes
+(filters set to what they were when you started the Mod Explorer)
+      ToolStripSeparator	ToolStripSeparator6			
+      ToolStripMenuItem	TsAddPrefix	Add Prefix Filter	img	
+      ToolStripMenuItem	TsEditPrefix	Edit Prefix Filter	img	
+      ToolStripMenuItem	TsUndoPrefix	Undo Prefix Changes	img	Undo Prefix filter changes
+(filters set to what they were when you started the Mod Explorer)
+      ToolStripMenuItem	TsRemovePrefix	Remove Prefix	img	
+      ToolStripSeparator	ToolStripSeparator9			
+      ToolStripMenuItem	TsCopyNames	Copy Mod Names	img	Copy filtered Mod names to the Clipboard
+      ToolStripMenuItem	TsAddToRecentMods	Add to Recent Mods	img	
+    ToolStripButton	TsHelpExplorer	ToolStripButton1	img	
+    ToolStripTextBoxControl	TxModFilter.TextBox	Mod Filter	21,8,133,21
+    ToolStripTextBoxControl	TxRating.TextBox	Rating	156,8,84,21
+    ToolStripTextBoxControl	TxWeapon.TextBox	Weapon	242,8,148,21
+    ToolStripTextBoxControl	TxStart.TextBox	Start	392,8,41,21
+    ToolStripTextBoxControl	TxEnd.TextBox	End	435,8,41,21
+    ToolStripTextBoxControl	TxHench.TextBox	Hench	478,8,49,21
+    ToolStripTextBoxControl	TxNotesFilter.TextBox	Notes Filter	561,8,120,21
+  SplitterLine	SplitterLine2		0,38,1193,1
+  SplitterLine	SplitterLine1		0,621,1193,1
+  TableLayoutPanel	LpActions		0,622,1193,29
+    ButtonPlus	BtSelect	Select	1035,3,75,23
+    ButtonPlus	BtClose	Close	1116,3,74,23
+    ToolStrip	TsStatus	ToolStrip1	0,0,1032,29
+      ToolStripLabel	LbMods	Mods:		
+      ToolStripLabel	LbModTotals	2/2		
+      ToolStripSeparator	ToolStripSeparator1			
+      ToolStripLabel	LbFiltered	Filtered Mods:		
+      ToolStripLabel	LbModsFiltered	0/0		
+      ToolStripSeparator	ToolStripSeparator2			
+      ToolStripLabel	LbGroup	Group:		hidden	
+      ToolStripLabel	LbGroupName			
+      ToolStripSeparator	ToolStripSeparator3			
+      ToolStripButton	TsCharacter	ToolStripButton1	img	hidden	
+      MsgItemLabel	MgStatus			
+      ToolStripSeparator	SepPlayedInfo			hidden	
+      ToolStripLabel	LbPlayedInfo			

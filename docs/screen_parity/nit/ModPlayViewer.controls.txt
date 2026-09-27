@@ -1,0 +1,82 @@
+FORM	Mods Sorted by Date Completed	1201x685
+TableLayoutPanel	LpMain		0,0,1195,653
+  TableLayoutPanel	LpActions		0,624,1195,29
+    ToolStrip	TsStatus	ToolStrip1	0,0,952,29
+      ToolStripLabel	LbMods	Mods:		
+      ToolStripLabel	LbModTotals	0/0		
+      ToolStripSeparator	ToolStripSeparator1			
+      ToolStripLabel	LbFiltered	Filtered Mods:		
+      ToolStripLabel	LbModsFiltered	0/0		
+      ToolStripSeparator	ToolStripSeparator2			
+      ToolStripLabel	LbGroup	Group:		hidden	
+      ToolStripLabel	LbGroupName			
+      ToolStripDropDownButton	TsFilterOptions	Filter Options	img	Include uncompleted Mods.
+Exclude End Levels that have not been set.
+Show all End Level values.
+        ToolStripMenuItem	TsOnlyShowCompleted	Only Show Completed		
+        ToolStripMenuItem	TsShowNoEndLevel	Show no End Level		
+        ToolStripSeparator	ToolStripSeparator4			
+        ToolStripMenuItem	TsEndFilter	Show all End Level values	img	
+        ToolStripMenuItem	TsFilters	Group and Rating Filters...	img	
+        ToolStripSeparator	ToolStripSeparator6			
+        ToolStripMenuItem	TsRestoreSelected	Restore selection at start-up		
+      ToolStripSeparator	ToolStripSeparator3			
+      ToolStripButton	TsCharacter	ToolStripButton1	img	hidden	
+      MsgItemLabel	MgStatus			
+      ToolStripSeparator	SepPlayedInfo			hidden	
+      ToolStripLabel	LbPlayedInfo			
+    ButtonPlus	BtSelect	Select	1036,3,75,23
+    ButtonPlus	BtClose	Close	1117,3,75,23
+    ButtonPlus	BtRecent	Recent	955,3,75,23
+  TableLayoutPanel	LpMainHeading		0,0,1195,48
+    PictureBox	PicModPlay		3,6,32,36
+    Label	LbModPlay	List of Mods sorted by the last date the Mod was completed and ordered from the oldest to the most recent.  You may find this list useful when choosing which Mod you want to replay.	41,7,1123,33
+    ButtonLabel	BhModsPlayed	ButtonLabel1	1170,13,22,22
+  SplitterLine	SplitterLine1		0,623,1195,1
+  SplitterLine	SplitterLine2		0,48,1195,1
+  SplitContainer	ScMain		0,49,1195,574
+    SplitterPanel			0,0,718,574
+      TableLayoutPanel	LpModList		0,0,718,574
+        ListViewPlus	LvModInfo		0,0,718,574
+          Column	Mod Name	293
+          Column	Completed	91
+          Column	Time Played	123
+          Column	Rating	103
+          Column	Start	40
+          Column	End	68
+    SplitterPanel			719,0,476,574
+      SplitContainer	ScModInfo		0,0,476,574
+        SplitterPanel			0,0,476,429
+          TableLayoutPanel	LpModNotes		0,0,476,429
+            RichTextToolbar	RttNotes	Open with wordpad      Ctrl+O	0,45,476,25	hidden
+              ToolStripButton	TsWordPad	Open with wordpad      Ctrl+O	img	Open with wordpad      Ctrl+O
+              ToolStripSeparator	SsWordPad			
+              ToolStripButton	TsCut	Cut      Ctrl+X	img	Cut      Ctrl+X
+              ToolStripButton	TsCopy	Copy      Ctrl+C	img	Copy      Ctrl+C
+              ToolStripButton	TsPaste	Paste      Ctrl+V	img	Paste      Ctrl+V
+              ToolStripButton	TsPasteText	Paste as Text      Ctrl+T	img	Paste as Text      Ctrl+T
+              ToolStripSeparator	SsBold			hidden	
+              ToolStripButton	TsBold	Bold      Ctrl+B	img	hidden	Bold      Ctrl+B
+              ToolStripButton	TsItalics	Italics      Ctrl+I	img	hidden	Italics      Ctrl+I
+              ToolStripButton	TsUnderline	Underline      Ctrl+U	img	hidden	Underline      Ctrl+U
+              ToolStripButton	TsStrikeout	Strikeout      Ctrl+K	img	hidden	Strikeout      Ctrl+K
+              ToolStripButton	TsFontColour	Font Colour	img	hidden	Font Colour
+              ToolStripSeparator	SsUndoRedo			
+              ToolStripButton	TsUndo	Undo      Ctrl+Z	img	Undo      Ctrl+Z
+              ToolStripButton	TsRedo	Redo      Ctrl+Y	img	Redo      Ctrl+Y
+              ToolStripSeparator	SsSelectAll			hidden	
+              ToolStripButton	TsSelectAll	Select All      Ctrl+A	img	Select All      Ctrl+A
+              ToolStripButton	TsFind	Find      Ctrl+F	img	Find      Ctrl+F
+            RichTextBoxPlus	RtModInfo		3,45,473,384
+            LinkLabelPlus	LbModLink		0,0,476,19
+            SplitterLine	SpEditLine		0,70,476,1	hidden
+            ToolStrip	TsWeapon	ToolStrip1	0,19,476,25
+              ToolStripLabel	ToolStripLabel1	Best Weapon:		
+              ToolStripLabel	LbWeapon			
+            SplitterLine	SplitterLine3		0,44,476,1
+        SplitterPanel			0,430,476,144
+          TableLayoutPanel	LpPlayTimes		0,0,476,144
+            ListViewPlus	LvPlayTimes		0,0,476,144
+              Column	Completed	112
+              Column	Time Played	167
+              Column	User	197

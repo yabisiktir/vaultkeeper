@@ -1,0 +1,19 @@
+FORM	90	609x239
+TableLayoutPanel	LpMain		0,0,603,207
+  TableLayoutPanel	LpVersion		0,70,603,96
+    Label	LbVersion	&Version:	3,3,49,18
+    Label	LbOptions	Options:	3,68,49,23
+    CheckBox	CbGuide	&Generate Installation Guide	58,74,172,19
+    Label	LbVersionHelp	Version text is appended to the Mod Name. Leave it blank if you do not want the compressed file name to include the version.	55,3,524,33
+    TableLayoutPanel	LpZipFileInfo		55,36,548,28
+      TextBox	TxVersion		3,4,216,21
+      Label	LbArchiveName	Mod Name.7z	222,5,326,18
+  TableLayoutPanel	LpMainHdg		0,0,603,38
+    PictureBox	PicHeading		3,3,32,32
+    Label	LbHeading	Package your Mod for publishing (Uploading)	41,10,531,18
+    ButtonLabel	BhPublishMod	ButtonLabel1	578,8,22,22
+  Label	LbVersionHdg	Configuration	0,38,603,29
+  SplitterLine	SplitterLine1		0,176,603,1
+  TableLayoutPanel	LpActions		0,177,603,30
+    ButtonPlus	BtCancel	&Cancel	525,3,75,25
+    ButtonPlus	BtPublish	&Publish	435,3,84,25

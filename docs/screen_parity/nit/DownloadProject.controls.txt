@@ -1,0 +1,74 @@
+FORM	Download Project                     Online Rules File Version 3 Revision 223	757x217
+TableLayoutPanel	LpMain		0,0,751,185
+  TableLayoutPanel	LpProject		0,152,751,1	hidden
+    TableLayoutPanel	LpRequiredConfig		376,27,375,1	hidden
+      TableLayoutPanel	LpRequiredFile		0,119,357,57	hidden
+        Label	LbRequiredFile	File Name:	4,9,63,18	hidden
+        Label	LbRequiredFilename	File	67,9,287,18	hidden
+        Label	LbRequiredStatus	File Status:	3,36,64,18	hidden
+        Label	LbRequiredFileStatus	Already downloaded	67,36,287,18	hidden
+      Label	LbRequiredModName	Mod Folder Name	3,3,102,18	hidden
+      TextBox	TxRequiredModName		6,24,348,21	hidden
+      Label	LbRequiredGroup	Group	3,48,38,18	hidden
+      LinkLabel	LkRequiredProject	Open Required Project Page	3,104,351,15	hidden
+      ButtonLabel	MbRequiredGroup	None	6,69,348,23	hidden
+    ListViewPlus	LvProject		0,26,375,1	hidden
+      Column	Project	375
+    SplitterLine	SplitterLine1		375,0,1,1	hidden
+    ListViewPlus	LvRequirements		0,27,375,1	hidden
+      Column	Required Projects	375
+    SplitterLine	SplitterLine4		0,0,751,1	hidden
+    SplitterLine	SplitterLine5		375,1,1,1	hidden
+    TableLayoutPanel	LpProjectConfig		376,26,375,1	hidden
+      Label	LbModName	Mod Folder Name	3,3,102,18	hidden
+      TextBox	TxModName		6,24,348,21	hidden
+      Label	LbGroup	Group	3,48,38,18	hidden
+      TableLayoutPanel	LpProjectFile		0,119,357,57	hidden
+        Label	LbProjectFile	File Name:	4,9,63,18	hidden
+        Label	LbProjectFilename	File	67,9,287,18	hidden
+        Label	LbStatus	File Status:	3,36,64,18	hidden
+        Label	LbFileStatus	Already downloaded	67,36,287,18	hidden
+      LinkLabel	LkProject	Open Project Page	3,104,351,15	hidden
+      ButtonLabel	MbGroup	None	6,69,348,23	hidden
+    Label	LbProjectFiles	Project Files	0,0,375,26	hidden
+    Label	LbProjectName	Project Configuration	376,0,375,26	hidden
+    Label	LbRequiredProjects	Required Projects	0,1,375,26	hidden
+    Label	LbRequiredConfig	Required Project Configuration	376,1,375,26	hidden
+  Label	LbDownloadHelp	Specify The Neverwinter Vault's Project page web address (URL) and click Retrieve.	3,72,745,23
+  Label	LbDownload	Download Project	0,44,751,26
+  TableLayoutPanel	LpDownloadProjectHdg		3,3,745,38
+    PictureBox	PicDownloadProject		3,3,32,32
+    Label	LbDownloadProject	Download a Project from The Neverwinter Vault to create or update a Mod	41,10,655,18
+    ToolStrip	TsPrefsStrip	ToolStrip1	699,6,46,25
+      ToolStripButton	TsOpenRulesFile	ToolStripButton1	img	hidden	Open Download Rules File
+      ToolStripButton	TsReloadDownloadRulesFile	ToolStripButton1	img	hidden	Reload Download Rules File
+      ToolStripDropDownButton	TsRulePrefs	ToolStripDropDownButton1	img	Project Download Rules Preferences
+        ToolStripMenuItem	RulesEnabled	Enable all Rules when downloading Projects from The Neverwinter Vault		
+        ToolStripMenuItem	RulesProjectFiles	Apply Project Download Files rules		
+        ToolStripSeparator				
+        ToolStripMenuItem	RulesProject	Apply all Project download rules		
+        ToolStripMenuItem	RulesRedirects	Redirect Project URLs to improved or updated Projects		
+        ToolStripSeparator				
+        ToolStripMenuItem	RulesContains	Exclude files when the description contains one of the exclusion clauses		
+        ToolStripMenuItem	RulesStartsWith	Exclude files when the description starts with one of the exclusion clauses		
+        ToolStripMenuItem	RulesEndsWith	Exclude files when the description ends with one of the exclusion clauses		
+        ToolStripSeparator				
+        ToolStripMenuItem	RulesExtensions	Exclude files when the extension name matches one of the excluded names		
+        ToolStripMenuItem	RulesExcludeFiles	Exclude files that match one of the filenames in the Exclude Files list		
+      ToolStripButton	BhDownloadProject	ToolStripButton1	img	
+  Label	LbUrl	Project Web Address (URL)	3,100,154,18
+  TableLayoutPanel	LpUrl		0,118,751,31
+    TextBox	TxUrl		6,5,642,21
+    ButtonPlus	BtRetrieve	Retrieve	673,3,75,25
+    ButtonLabel	BlClear	ButtonLabel1	652,5,18,20
+  SplitterLine	SplitterLine3		0,153,751,1
+  TableLayoutPanel	LpActions		0,154,751,31
+    ButtonPlus	BtCancel	Close	673,3,75,25
+    ButtonPlus	BtInstall	Install	592,3,75,25
+    ButtonPlus	BtDownload	Download	511,3,75,25
+    MsgLabel	MgInfo	Existing files detected: 0.	3,6,502,18
+  TableLayoutPanel	LpProgress		0,153,751,1
+    Label	LbFile	Downloading Filename	3,47,131,18
+    Label	LbProcessing	Processing Mod Folder Name	3,118,166,18
+    TextProgressBar	PbFile	Downloaded 10 of 20 MB	0,18,751,26
+    TextProgressBar	PbTotal	Downloaded 20 of 200 MB	0,89,751,26

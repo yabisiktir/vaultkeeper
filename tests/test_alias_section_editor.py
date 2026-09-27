@@ -123,6 +123,14 @@ def test_save_alias_locations_writes(tmp_path):
 
 
 # -- dialog ---------------------------------------------------------------- #
+def _row(dlg, key: str):
+    return next(
+        dlg.tree.topLevelItem(i)
+        for i in range(dlg.tree.topLevelItemCount())
+        if dlg.tree.topLevelItem(i).text(0) == key
+    )
+
+
 def test_dialog_lists_and_pending_updates(tmp_path, qtbot):
     from vaultkeeper.ui.dialogs.alias_section_editor import AliasSectionEditor
 
@@ -130,9 +138,11 @@ def test_dialog_lists_and_pending_updates(tmp_path, qtbot):
     dlg = AliasSectionEditor(ctrl)
     qtbot.addWidget(dlg)
     assert dlg.tree.topLevelItemCount() == 4
+    keys = [dlg.tree.topLevelItem(i).text(0) for i in range(4)]
+    assert keys == sorted(keys, key=str.lower), "listed alphabetically, as NIT does"
     assert dlg.save_button.isEnabled()
     # Edit the OVERRIDE row's value.
-    dlg.tree.topLevelItem(2).setText(1, "/edited/override")
+    _row(dlg, "OVERRIDE").setText(1, "/edited/override")
     assert dlg.pending_updates() == {"OVERRIDE": "/edited/override"}
 
 
@@ -144,7 +154,7 @@ def test_dialog_save_confirm_gate(tmp_path, qtbot, monkeypatch):
     ctrl = _controller(tmp_path)
     dlg = AliasSectionEditor(ctrl)
     qtbot.addWidget(dlg)
-    dlg.tree.topLevelItem(0).setText(1, "/new/hak")
+    _row(dlg, "HAK").setText(1, "/new/hak")
 
     # Declining the config-isolation confirm must NOT write nwn.ini.
     monkeypatch.setattr(

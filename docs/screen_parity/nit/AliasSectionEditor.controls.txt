@@ -1,0 +1,16 @@
+FORM	Alias Section Editor ― Enhanced Edition Mods	769x535
+TableLayoutPanel	LpMain		0,0,763,503
+  TableLayoutPanel	LpActions		0,474,763,29
+    ButtonPlus	BtSave	Save	604,3,75,23
+    ButtonPlus	BtCancel	Cancel	685,3,75,23
+    MsgLabel	MiStatus	Standard Alias Definitions applied.	3,5,515,18
+    ButtonPlus	BtDelete	Delete	524,3,75,23	hidden
+  TableLayoutPanel	LpMainHdg		3,3,757,38
+    PictureBox	PicAliasEditor		3,3,32,32
+    Label	LbAliasEditor	Specify the location of the folders defined in the Alias Section of the Enhanced Edition Mods NWN.ini file. You only need to change these entries if you have moved folders from the installation folder to another location.	41,2,685,33
+    ButtonLabel	BhAliasEditor		732,8,22,22
+  SplitterLine	SplitterLine1		0,473,763,1
+  ListViewPlus	LvFolders		0,45,763,428
+    Column	Alias	141
+    Column	Folder Location	605
+  SplitterLine	SplitterLine2		0,44,763,1

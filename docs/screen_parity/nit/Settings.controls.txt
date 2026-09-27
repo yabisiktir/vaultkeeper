@@ -1,0 +1,129 @@
+FORM	Advanced Settings	739x622
+TableLayoutPanel	TlSettings		0,0,731,588
+  Splitter	TsSettingsSplitter		104,0,1,556
+  TableLayoutPanel	TlActions		0,557,731,31
+    ButtonPlus	BtSave	Save	491,3,75,25
+    ButtonPlus	BtReset	Reset...	572,3,75,25
+    ButtonPlus	BtCancel	Cancel	653,3,75,25
+    MsgLabel	MlStatus		3,6,482,18
+  Splitter	Splitter2		0,556,731,1
+  ToolStrip	TsSettings	ToolStrip1	0,0,104,556
+    ToolStripButton	TsPreferences	Preferences		
+    ToolStripButton	TsLocations	Locations		
+    ToolStripButton	TsProfiles	Profiles		
+    ToolStripButton	TsAdvanced	Configuration		
+    ToolStripSeparator	ToolStripSeparator4			
+    ToolStripButton	TsRunMenu	Run Menu		
+    ToolStripButton	TsWebMenu	Web Menu		
+    ToolStripSeparator	ToolStripSeparator1			
+    ToolStripButton	TsMapExtensions	Map Extensions		
+    ToolStripButton	TsMapFolders	Map Folders		
+    ToolStripButton	TsMapFiles	Map Files		
+    ToolStripButton	TsMapExcludes	Map Excludes		
+    ToolStripSeparator	ToolStripSeparator2			
+    ToolStripButton	TsFontAndColor	Font and Colour		
+    ToolStripButton	TsToolbar	Toolbar		
+    ToolStripSeparator	ToolStripSeparator3			
+    ToolStripButton	TsExport	Export		
+    ToolStripButton	TsImport	Import		
+    ToolStripButton	TsImportMaps	Import Maps	img	
+  SplitContainer	ScSettings		105,0,626,556
+    SplitterPanel			0,0,626,394
+      Panel	PnSettings		0,0,626,394
+        Panel	PnPreferences		0,0,626,394
+          TableLayoutPanel	TlPrefs		0,0,626,394
+            TableLayoutPanel	TlPreferencesHdg		3,3,620,38
+              PictureBox	PicPrefs		3,3,32,32
+              Label	LbPrefs	Specify your preferences	41,10,548,18
+              ButtonLabel	BhPreferences		595,3,22,22
+            ListViewPlus	LvPreferences		0,44,626,350
+              Column	Preference Settings	609
+        Panel	PnMapExtensions		0,0,626,394
+          TableLayoutPanel	TlMapExtensions		0,0,626,394
+            TableLayoutPanel	TlMapExtensionsHdg		3,3,620,38
+              PictureBox	PicMapExtensions		3,3,32,32
+              Label	LbMapExtensions	Map file extension names to their associated NWN folder 	41,10,548,18
+              ButtonLabel	BhMapExtensions		595,3,22,22
+            TableLayoutPanel	TlExtensionList		0,44,626,350
+              ListViewPlus	LvExceptions		438,0,188,350
+                Column		188
+              ListViewPlus	LvMapExtensions		0,0,438,350
+                Column	Extension	109
+                Column	Default Folder	165
+                Column	Secondary Folder	147
+        Panel	PnProfiles		0,0,626,394
+          TableLayoutPanel	TlProfiles		0,0,626,394
+            TableLayoutPanel	TlProfilesHdg		3,3,620,38
+              PictureBox	PicProfiles		3,3,32,32
+              Label	LbProfiles	Define one or more mod profiles	41,10,548,18
+              ButtonLabel	BhProfiles		595,3,22,22
+            ListViewPlus	LvProfiles		0,44,626,350
+              Column	Profile Name	212
+              Column	Type	42
+              Column	Neverwinter Nights Folder	372
+        Panel	PnMapFiles		0,0,626,394
+          TableLayoutPanel	TlMapFiles		0,0,626,394
+            ListViewPlus	LvMapFiles		0,44,626,350
+              Column	File Name	308
+              Column	NWN Folder	318
+            TableLayoutPanel	TlMapFilesHdg		3,3,620,38
+              PictureBox	PicMapFiles		3,3,32,32
+              Label	LbMapFiles	Map files to NWN folders (has priority over the extension map)	41,10,548,18
+              ButtonLabel	BhMapFiles		595,3,22,22
+        Panel	PnMapExcludes		0,0,626,394
+          TableLayoutPanel	TlMapExcludes		0,0,626,394
+            TableLayoutPanel	TlMapExcludesHdg		3,3,620,38
+              PictureBox	PicMapExcludes		3,3,32,32
+              Label	LbMapExcludes	Specify demo mods, files and folders to be excluded when creating Installers	41,10,548,18
+              ButtonLabel	BhMapExcludes		595,3,22,22
+            ListViewPlus	LvMapExcludes		0,44,626,350
+              Column	Excluded Items	609
+        Panel	PnMapFolders		0,0,626,394
+          TableLayoutPanel	TlMapFolders		0,0,626,394
+            TableLayoutPanel	TlMapFoldersHdg		3,3,620,38
+              PictureBox	PicMapFolders		3,3,32,32
+              Label	LbMapFolders	Map source folders to NWN folders (has priority over extension map)	41,10,548,18
+              ButtonLabel	BhMapFolders		595,3,22,22
+            ListViewPlus	LvMapFolders		0,44,626,350
+              Column	Source Folder	308
+              Column	NWN Folder	318
+        Panel	PnLocations		0,0,626,394
+          TableLayoutPanel	TlLocations		0,0,626,394
+            TableLayoutPanel	TlLocationsHdg		3,3,620,38
+              PictureBox	PicLocations		3,3,32,32
+              Label	LbLocations	Specify program and file locations	41,10,548,18
+              ButtonLabel	BhLocations		595,3,22,22
+            ListViewPlus	LvLocations		0,44,626,350
+              Column	Location	203
+              Column	Path	406
+        Panel	PnWebMenu		0,0,626,394
+          TableLayoutPanel	TlWebMenu		0,0,626,394
+            TableLayoutPanel	TlWebMenuHdg		3,3,620,38
+              PictureBox	PicWebMenu		3,3,32,32
+              Label	LbWebMenu	Define and manage your Web Menu page links	41,10,548,18
+              ButtonLabel	BhWebMenu		595,3,22,22
+            ListViewPlus	LvWebMenu		0,44,626,350
+              Column	Menu Text	240
+              Column	Web Address	386
+        Panel	PnRunMenu		0,0,626,394
+          TableLayoutPanel	TlRunMenu		0,0,626,394
+            TableLayoutPanel	TlRunMenuHdg		3,3,620,38
+              PictureBox	PicRunMenu		3,3,32,32
+              Label	LbRunMenu	Define and manage your Run Menu programs	41,10,548,18
+              ButtonLabel	BhRunMenu		595,3,22,22
+            ListViewPlus	LvRunMenu		0,44,626,350
+              Column	Menu Text	240
+              Column	Location	386
+        Panel	PnAdvanced		0,0,626,394
+          TableLayoutPanel	TlAdvanced		0,0,626,394
+            TableLayoutPanel	TlAdvancedHdg		3,3,620,38
+              PictureBox	PicAdvanced		3,3,32,32
+              Label	LbAdvanced	Change NWN Installer Tool's configuration settings	41,10,548,18
+              ButtonLabel	BhAdvanced		595,3,22,22
+            ListViewPlus	LvAdvanced		0,44,626,350
+              Column	Configuration Setting	368
+              Column	Setting	241
+    SplitterPanel			0,395,626,161
+      TableLayoutPanel	TlInfo		0,0,626,161
+        RichTextBoxPlus	RtInfo	Descriptions are shown in Italics when you change the current Preference setting. Click the Preference description to view more information about the Preference.  Click the box to enable (ticked) or disable (unticked) a preference. You can also press the keyboard's Space Bar to toggle between enabled and disabled.  Note: Changes are only applied when you click the Save button. 	3,29,623,132
+        Label	LbInfo	Preferences	0,0,626,29

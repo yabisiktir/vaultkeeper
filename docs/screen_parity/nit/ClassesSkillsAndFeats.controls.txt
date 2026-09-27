@@ -1,0 +1,50 @@
+FORM	Classes, Skills and Feats Information	743x627
+TableLayoutPanel	LpMain		0,0,737,595
+  TableLayoutPanel	LpActions		0,566,737,29
+    ButtonPlus	BtClose	Close	659,3,75,23
+    ListViewSearchBox	LsbFeats		288,2,1,25
+      ToolStrip	TsSearch	ToolStrip1	4,0,284,25
+        ToolStripTextBox	TsSearchBox	Search Feats		
+        ToolStripButton	TsFindClear	Clear Search	img	Clears search text or exits Search Mode.
+Press Esc to always exit Search mode.
+        ToolStripButton	TsFindNext	Find Next	img	Find Next      Down
+        ToolStripButton	TsFindPrevious	Find Previous	img	Find Previous      Up
+        ToolStripTextBoxControl		Search Feats	0,2,211,21
+    ListViewSearchBox	LsbSkills		288,2,1,25
+      ToolStrip	TsSearch	ToolStrip1	4,0,284,25
+        ToolStripTextBox	TsSearchBox	Search Skills		
+        ToolStripButton	TsFindClear	Clear Search	img	Clears search text or exits Search Mode.
+Press Esc to always exit Search mode.
+        ToolStripButton	TsFindNext	Find Next	img	Find Next      Down
+        ToolStripButton	TsFindPrevious	Find Previous	img	Find Previous      Up
+        ToolStripTextBoxControl		Search Skills	0,2,211,21
+    ListViewSearchBox	LsbClasses		0,2,288,25
+      ToolStrip	TsSearch	ToolStrip1	4,0,284,25
+        ToolStripTextBox	TsSearchBox	Search Classes		
+        ToolStripButton	TsFindClear	Clear Search	img	Clears search text or exits Search Mode.
+Press Esc to always exit Search mode.
+        ToolStripButton	TsFindNext	Find Next	img	Find Next      Down
+        ToolStripButton	TsFindPrevious	Find Previous	img	Find Previous      Up
+        ToolStripTextBoxControl		Search Classes	0,2,211,21
+  TabControl	TabMain		4,3,730,563
+    TabPage	TpClasses	Classes	4,24,722,535
+      TableLayoutPanel	TableLayoutPanel1		0,0,722,535
+        ListViewPlus	LvClasses		0,0,151,535
+          Column	Classes	151
+        SplitterLine	SplitterLine3		151,0,1,535
+        PanelLabel	LbClass	ARCANE ARCHER    (PRESTIGE CLASS)  Master of the elven warbands, the Arcane Archer is a warrior skilled in using magic to supplement their combat prowess. Fighters, rangers, paladins, and barbarians become arcane archers to add a little magic to their combat abilities. Conversely, wizards and sorcerers may take this prestige class to add combat capabilities to their repertoire.    - Hit Die: d8.  - Proficiencies: All simple and martial weapons, light and medium armor, and shields.  - Skill Points: 4 + Int Modifier.    REQUIREMENTS:    Race: Elf or half-elf.  Base Attack Bonus: +6  Feats: Weapon Focus Longbow or Weapon Focus Shortbow, Point Blank Shot.  Spellcasting: Able to cast 1st-level arcane spells.    ABILITIES:    Level  1: Enchant Arrow +1 - All arrows fired have +1 enchantment.  2: Imbue Arrow - Shoot a fireball arrow three times a day.  3: Enchant Arrow +2.  4: Seeker Arrow - Fire an arrow that cannot miss, once per day.  5: Enchant Arrow +3.  6: Seeker Arrow - Able to fire 2 seeker arrows a day.  7: Enchant Arrow +4.  8: Hail of Arrows - Fire an arrow at each and every target.  9: Enchant Arrow +5.  10: Arrow of Death - Fire an arrow that can instantly kill an opponent.	152,0,570,535
+          Label	PnLabel	ARCANE ARCHER    (PRESTIGE CLASS)  Master of the elven warbands, the Arcane Archer is a warrior skilled in using magic to supplement their combat prowess. Fighters, rangers, paladins, and barbarians become arcane archers to add a little magic to their combat abilities. Conversely, wizards and sorcerers may take this prestige class to add combat capabilities to their repertoire.    - Hit Die: d8.  - Proficiencies: All simple and martial weapons, light and medium armor, and shields.  - Skill Points: 4 + Int Modifier.    REQUIREMENTS:    Race: Elf or half-elf.  Base Attack Bonus: +6  Feats: Weapon Focus Longbow or Weapon Focus Shortbow, Point Blank Shot.  Spellcasting: Able to cast 1st-level arcane spells.    ABILITIES:    Level  1: Enchant Arrow +1 - All arrows fired have +1 enchantment.  2: Imbue Arrow - Shoot a fireball arrow three times a day.  3: Enchant Arrow +2.  4: Seeker Arrow - Fire an arrow that cannot miss, once per day.  5: Enchant Arrow +3.  6: Seeker Arrow - Able to fire 2 seeker arrows a day.  7: Enchant Arrow +4.  8: Hail of Arrows - Fire an arrow at each and every target.  9: Enchant Arrow +5.  10: Arrow of Death - Fire an arrow that can instantly kill an opponent.	0,0,558,393
+    TabPage	TpSkills	Skills	4,24,722,535	hidden
+      TableLayoutPanel	LpSkills		0,0,722,535	hidden
+        ListViewPlus	LvSkills		0,0,132,535	hidden
+          Column	Skills	132
+        SplitterLine	SplitterLine1		132,0,1,535	hidden
+        PanelLabel	LbSkill	ANIMAL EMPATHY    Ability: Charisma.    Requires Training: Yes.  Classes: Druid and ranger.    A successful check allows a character to charm or dominate certain creatures.    Check: Animals and dire animals have a DC of 15 + the creature's hit die. For beasts and magical beasts, the DC is 19 + the creature's hit die. If the check succeeds, the creature is dominated.    Special: If the character fails their check by five or more, the creature will go hostile.    Use: Select this skill and then select the target creature. Dominated creatures are commanded as if they were henchmen. The creature will remain dominated for one turn per level of the character using the skill.  	133,0,589,535	hidden
+          Label	PnLabel	ANIMAL EMPATHY    Ability: Charisma.    Requires Training: Yes.  Classes: Druid and ranger.    A successful check allows a character to charm or dominate certain creatures.    Check: Animals and dire animals have a DC of 15 + the creature's hit die. For beasts and magical beasts, the DC is 19 + the creature's hit die. If the check succeeds, the creature is dominated.    Special: If the character fails their check by five or more, the creature will go hostile.    Use: Select this skill and then select the target creature. Dominated creatures are commanded as if they were henchmen. The creature will remain dominated for one turn per level of the character using the skill.  	0,0,572,153	hidden
+    TabPage	TpFeats	Feats	4,24,722,535	hidden
+      TableLayoutPanel	LpFeats		0,0,722,535	hidden
+        ListViewPlus	LvFeats		0,0,294,535	hidden
+          Column	Feats	277
+        SplitterLine	SplitterLine2		294,0,1,535	hidden
+        PanelLabel	LbFeat	AIR DOMAIN POWERS    Type of Feat: Domain    Prerequisite: Access to the Air domain.    Specifics:  Elemental Turning: Able to turn elementals as if they were undead.  Bonus Spells: The cleric gains access to the following spells at the specified spell level: Call Lightning (3), Chain Lightning (6).    Use: Automatic.  	295,0,427,535	hidden
+          Label	PnLabel	AIR DOMAIN POWERS    Type of Feat: Domain    Prerequisite: Access to the Air domain.    Specifics:  Elemental Turning: Able to turn elementals as if they were undead.  Bonus Spells: The cleric gains access to the following spells at the specified spell level: Call Lightning (3), Chain Lightning (6).    Use: Automatic.  	0,0,414,123	hidden

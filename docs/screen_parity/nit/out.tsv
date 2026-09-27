@@ -1,0 +1,47 @@
+screenshot	AliasSectionEditor	16 lines
+screenshot	BackupManager	35 lines
+screenshot	BasicSettings	35 lines
+screenshot	BikToWbmDialogue	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'BikToWbmDialogue'.
+screenshot	CalculateCRCs	EXC:ArgumentException:TimeSpan does not accept floating point Not-a-Number values.
+screenshot	CharacterFilter	15 lines
+screenshot	CharacterViewer	35 lines
+screenshot	ClassesSkillsAndFeats	47 lines
+screenshot	CommonFiltersDialogue	NO-DEFAULT-CTOR
+screenshot	CrashDumpManager	NO-DEFAULT-CTOR
+screenshot	CreateInstaller	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'CreateInstaller'.
+screenshot	CreateMissingInstallers	13 lines
+screenshot	CreateNwnFolder	NO-DEFAULT-CTOR
+screenshot	DependencyManager	24 lines
+screenshot	DocOrganiser	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'DocOrganiser'.
+screenshot	DownloadDeleteMsg	NO-DEFAULT-CTOR
+screenshot	DownloadProject	74 lines
+screenshot	ExtendedEditionDialogue	19 lines
+screenshot	FileConflictsViewer	EXC:NullReferenceException:Object reference not set to an instance of an object.
+screenshot	FindDialogue	NO-DEFAULT-CTOR
+screenshot	FindProfileFilesDialogue	19 lines
+screenshot	GameManager	54 lines
+screenshot	GameManagerRestore	20 lines
+screenshot	GameSavesPathDialogue	NO-DEFAULT-CTOR
+screenshot	HakPatchEditor	18 lines
+screenshot	InstallationAnalyser	33 lines
+screenshot	InstallationManagerEditor	58 lines
+screenshot	MenuItemEditor	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'MenuItemEditor'.
+screenshot	ModExplorer	121 lines
+screenshot	ModFindAndRename	35 lines
+screenshot	ModPlayViewer	80 lines
+screenshot	MsgPicture	9 lines
+screenshot	NIT	514 lines
+screenshot	NitDownload	15 lines
+screenshot	PlayDataViewPending	NO-DEFAULT-CTOR
+screenshot	PlayDataViewer	NO-DEFAULT-CTOR
+screenshot	PortraitManager	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'PortraitManager'.
+screenshot	PublishMod	19 lines
+screenshot	RtfThemeManager	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'RtfThemeManager'.
+screenshot	ScreenPosAdjust	26 lines
+screenshot	Settings	129 lines
+screenshot	SlideShow	EXC:NullReferenceException:Object reference not set to an instance of an object.
+screenshot	StartScreenManager	EXC:ObjectDisposedException:Cannot access a disposed object. Object name: 'StartScreenManager'.
+screenshot	UserResponseEditor	9 lines
+screenshot	WizardBuilder	53 lines
+screenshot	WorkshopNameEditor	17 lines
+screenshot	WorkshopViewer	20 lines

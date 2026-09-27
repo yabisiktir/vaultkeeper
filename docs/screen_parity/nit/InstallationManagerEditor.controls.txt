@@ -1,0 +1,63 @@
+FORM	Installation Manager	955x571
+TableLayoutPanel	LpMain		0,0,947,537
+  TableLayoutPanel	LpMainHeading		3,3,941,38
+    PictureBox	PicHeading		3,3,32,32
+    Label	LbHeading	Manage your Mod Installation Sets so you can reinstall your Mods after a fresh NWN installation or uninstall selected Mods and Sets to help resolve problems	41,10,869,18
+    ButtonLabel	BhInstallationManager	ButtonLabel1	916,8,22,22
+  TableLayoutPanel	LpActions		0,508,947,29
+    MsgLabel	MiStatus		291,5,413,18
+    Label	LbUpdatedHdg	Updated:	3,5,54,18
+    Label	LbUpdated	20 Dec 2017 at 04:30:33 pm	57,5,228,18
+    ButtonPlus	BtApply	&Apply	710,3,74,23
+    ButtonPlus	BtSave	&Save	790,3,74,23
+    ButtonPlus	BtCancel	Canc&el	870,3,74,23
+  SplitterLine	SplitterLine1		0,507,947,1
+  SplitContainer	ScMain		0,84,947,423
+    SplitterPanel			0,0,315,423
+      SplitContainer	ScSets		0,0,315,423
+        SplitterPanel			0,0,315,226
+          TableLayoutPanel	LpSets		0,0,315,226
+            Label	LbSets	Installation Sets	0,0,315,23
+            ListViewPlus	LvSets		0,23,315,203
+              Column	Installation Sets	315
+        SplitterPanel			0,227,315,196
+          TableLayoutPanel	LpGroupSelector		0,0,315,196
+            Label	LbGroupSelector	Group Selector	0,0,315,24
+            ListViewPlus	LvGroupSelector		0,24,315,172
+              Column	Groups	298
+    SplitterPanel			316,0,631,423
+      SplitContainer	ScGroups		0,0,631,423
+        SplitterPanel			0,0,315,423
+          TableLayoutPanel	LpGroups		0,0,315,423
+            Label	LbGroups	Set Name	0,0,315,23
+            ListViewPlus	LvGroups		0,23,315,400
+              Column	Groups	315
+        SplitterPanel			316,0,315,423
+          TableLayoutPanel	LpMods		0,0,315,423
+            Label	LbMods	Group Name	0,0,315,23
+            ListViewPlus	LvMods		0,23,315,400
+              Column	Modules	315
+  SplitterLine	SplitterLine2		0,44,947,1
+  TableLayoutPanel	LpToolstrip		0,45,947,38
+    ToolStrip	TsActions	ToolStrip1	0,0,947,38
+      ToolStripButton	TsCheckpoint	Checkpoint	img	Ctrl+C
+      ToolStripButton	TsCreateSet	Create Set	img	Ctrl+N
+      ToolStripSeparator	ToolStripSeparator1			
+      ToolStripButton	TsRename	Rename	img	Rename Set
+F2
+      ToolStripButton	TsPrune	Prune	img	Remove uninstalled mods
+from Set
+Ctrl+P
+      ToolStripButton	TsDelete	Delete	img	Delete Set
+Del
+      ToolStripSeparator	ToolStripSeparator2			
+      ToolStripDropDownButton	TsSortBy	Sort By	img	
+        ToolStripMenuItem	TsCreated	Created		
+        ToolStripMenuItem	TsUpdated	Updated		
+        ToolStripMenuItem	TsSetName	Name		
+        ToolStripSeparator	ToolStripSeparator3			
+        ToolStripMenuItem	TsAscending	Ascending		
+        ToolStripMenuItem	TsDescending	Descending		
+      ToolStripButton	TsGroupSelector	Selector	img	Display Group Selector
+Ctrl+G
+  SplitterLine	SplitterLine3		0,83,947,1

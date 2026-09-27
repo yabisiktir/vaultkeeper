@@ -587,7 +587,7 @@ GameManager.MenuActions.vb,ActivateGame,same,activate_game
 GameManager.MenuActions.vb,DeleteGame,fixed,delete_game_backup also deletes the game's archived saves and runs record_deleted_games
 GameManager.MenuActions.vb,DeleteFinished,deliberate,"Finished archives rather than deletes (VK-better, restorable)"
 GameManager.Methods.vb,PopulateSaveList,n/a,viewer/dialog plumbing (no profile logic)
-GameManager.Methods.vb,SanitiseGameSaves,deliberate,NIT moves every save not of the current game into per-game backups whenever the manager opens; VK shows mixed saves and moves only on an explicit Deactivate
+GameManager.Methods.vb,SanitiseGameSaves,same,auto_backup_other_games (game/game_backup.py) runs when the manager opens: other games' saves move to per-game backups; Quick/Auto Saves stay (corrected 2026-09-28; first marked deliberate in error)
 GameManager.Methods.vb,Backup,same,game_backup
 GameManager.Methods.vb,CreateBackupFolder,same,game_backup
 GameManager.Methods.vb,Restore,same,game_backup / restore_game_saves

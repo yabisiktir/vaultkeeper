@@ -74,3 +74,62 @@ def test_plain_notes_still_save_as_plain_text(qtbot, tmp_path) -> None:
     _win, c = _window(qtbot, tmp_path)
     c.save_notes_document("Noted", [Paragraph([("just text", Style())])])
     assert c.read_notes("Noted") == "just text"
+
+
+# -- NIT's RichTextToolbar (screen parity) ------------------------------------ #
+def test_the_bar_leads_with_nits_buttons_in_nits_order(qtbot, tmp_path) -> None:
+    """LazWorks RichTextToolbar: WordPad | cut..paste as text | B I U S colour |
+    undo redo | select all, find. Vaultkeeper's extras come after them."""
+    win, _c = _window(qtbot, tmp_path)
+    texts = [a.text() for a in win._notes_bar.actions() if a.text()][:14]
+    assert texts == [
+        "Open with your text editor", "Cut", "Copy", "Paste", "Paste as Text",
+        "Bold", "Italic", "Underline", "Strike-through", "Font Colour…",
+        "Undo", "Redo", "Select All", "Find",
+    ]
+    assert all(not a.icon().isNull() for a in win._notes_bar.actions()[:5] if a.text())
+
+
+def test_paste_as_text_drops_the_clipboards_formatting(qtbot, tmp_path, monkeypatch) -> None:
+    from PySide6.QtCore import QMimeData
+    from PySide6.QtGui import QGuiApplication
+
+    win, _c = _window(qtbot, tmp_path)
+    monkeypatch.setattr(win, "_confirm_save_notes", lambda _m: True)
+    mime = QMimeData()
+    mime.setHtml("<b>loud</b>")
+    mime.setText("loud")
+    QGuiApplication.clipboard().setMimeData(mime)
+    win._details.moveCursor(QTextCursor.MoveOperation.End)
+    next(a for a in win._notes_bar.actions() if a.text() == "Paste as Text").trigger()
+
+    assert win._details.toPlainText().endswith("loud")
+    assert not win._details.currentCharFormat().fontWeight() > 400
+
+
+def test_open_with_text_editor_saves_then_opens_the_notes_file(
+    qtbot, tmp_path, monkeypatch
+) -> None:
+    from PySide6.QtGui import QDesktopServices
+
+    win, c = _window(qtbot, tmp_path)
+    opened = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url) or True)
+    win._details.moveCursor(QTextCursor.MoveOperation.End)
+    win._details.insertPlainText(" Edited.")
+
+    win._notes_bar.open_external.trigger()
+
+    assert [u.toLocalFile() for u in opened] == [str(c.mod_notes_path("Noted"))]
+    assert "Edited." in "".join(p.text for p in c.read_notes_document("Noted"))
+    assert not win._details.document().isModified()
+
+
+def test_empty_notes_still_get_a_file_to_open(tmp_path) -> None:
+    c = ProfileController.open_profile(
+        profile_mods_dir=tmp_path / "Profiles" / "P",
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    path = c.notes_file_for_editing("Blank", [])
+    assert path.is_file() and path.read_text().startswith("{\\rtf1")

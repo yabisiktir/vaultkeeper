@@ -164,14 +164,14 @@ Regression tests: `tests/test_session.py::test_import_keeps_editions_and_takes_o
 
 ## Batch 7 — the rest
 
-179 verdicts: 65 same, 105 n/a, 8 deliberate, 1 fixed.
+179 verdicts: 66 same, 105 n/a, 7 deliberate, 1 fixed.
 NetworkManager (23 rows) is NIT's shared network store and is not ported (VK moves
 mods between machines with `.vkmod` export/import): one n/a verdict for all.
 
 | Member | Finding | Verdict |
 |---|---|---|
 | `GameManager.DeleteGame` | NIT deletes the game's archived saves with its backup (per the Recycle Bin for Game Saves preference) and then records the finished game's play time (`RecordDeletedGames`). VK left the archives behind and never recorded the time: `record_deleted_games` existed but nothing called it. | BUG → fixed |
-| `SanitiseGameSaves` | Each time NIT's Game Saves Manager opens, it moves every save that is not the current game's into a per-game backup (one game in the saves folder at a time). That silently changes what the game's Load screen shows; VK lists mixed saves and moves them only on an explicit Deactivate. | deliberate |
+| `SanitiseGameSaves` | Each time NIT's Game Saves Manager opens, it moves every save that is not the current game's into a per-game backup, leaving Quick and Auto Saves. VK does the same (`game_backup.auto_backup_other_games`, called when the manager opens). *Corrected 2026-09-28: first recorded here as deliberate/not ported, in error.* | same |
 | `DeleteFinished` | VK archives rather than deletes on Finished (restorable), recording the time the same way. | deliberate (VK better) |
 | Activate / Deactivate / right-click swap, Installation Manager Apply, download post-processing (superseded files, UpdateWizard) | Same logic. | same |
 
@@ -180,5 +180,5 @@ Regression test: `tests/test_game_saves_manager.py::test_deleting_a_game_takes_i
 ## Stage 4 result
 
 All 726 residual members have a verdict (`triage.py`: still to review 0):
-407 same, 209 n/a, 69 fixed, 34 deliberate. The deliberate differences are in
+408 same, 209 n/a, 69 fixed, 33 deliberate. The deliberate differences are in
 each batch's table; the owner's decisions are in `FINDINGS.md`.

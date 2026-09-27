@@ -1,0 +1,19 @@
+FORM	Neverwinter Nights Enhanced Edition Information	590x221
+TableLayoutPanel	LpMain		0,0,584,189
+  Label	LbInfo	Please specify the Enhanced Edition's folder information.	3,6,578,18
+  SplitterLine	SplitterLine1		0,30,584,1
+  TableLayoutPanel	LpFolders		0,37,584,56
+    CheckBox	CbDisable	Disable Enhanced Edition detection at &start-up (then click Save to continue)	65,62,431,19	hidden
+    Label	LbUserFolder	&User Files:	3,4,62,20
+    Label	LbLibrary	&Library:	3,32,62,20
+    TextBox	TxUserFolder		65,3,482,21
+    ButtonLabel	BuUser	ButtonLabel1	553,3,22,22
+    TextBox	TxLibrary		65,31,482,21
+    ButtonLabel	BuLibrary	ButtonLabel1	553,31,22,22
+  SplitterLine	SplitterLine2		0,157,584,1
+  TableLayoutPanel	LpActions		0,158,584,31
+    ButtonPlus	BtSave	Save	425,3,75,25
+    MsgLabel	MiStatus		3,6,416,18
+    ButtonPlus	BtCancel	Cancel	506,3,75,25
+  SplitterLine	SplitterLine3		0,99,584,1
+  Label	LbHelp	The folder containing User files such as nwn.ini (eg ..\Documents\Neverwinter Nights). This folder is created the first time you run the Enhanced Edition via Beamdog, GOG or Steam.	3,106,541,33

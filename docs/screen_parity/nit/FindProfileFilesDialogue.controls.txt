@@ -1,0 +1,19 @@
+FORM	Find Files in Profile  ―  Enhanced Edition Mods	543x439
+TableLayoutPanel	LpMain		0,0,535,405
+  Label	LbFind	&Find what:	3,12,60,18
+  ComboBox	CbxFind		69,10,363,23
+  TableLayoutPanel	LpActions		0,372,535,33
+    ButtonPlus	BtClose	&Close	454,4,75,25
+    ButtonPlus	BtSelect	&Select	373,4,75,25
+    ToolStrip	TsStatus	ToolStrip1	0,0,370,33
+      ToolStripLabel	LbFilesFoundHdg	Files Found:		
+      ToolStripLabel	LbFilesFound	None		
+      MsgItemLabel	MiStatus	Profile Files: 6		
+  SplitterLine	SplitterLine1		0,371,535,1
+  Label	LbOptions	Options:	3,47,60,18
+  CheckBox	CbMatchWord	Match &whole word only	69,48,148,19
+  CheckBox	CbMatchCase	M&atch case	69,73,85,19
+  ListViewPlus	LvFound		0,95,535,276
+    Column	Mod Name	181
+    Column	File Name	181
+    Column	Sub-Folder	173

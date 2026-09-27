@@ -1,0 +1,36 @@
+FORM	Character Summary Information	1710x1107
+TableLayoutPanel	LpMain		0,0,1704,1075
+  TableLayoutPanel	LpActions		0,1044,1704,31
+    ButtonPlus	BtSelect	Restorer	1529,3,83,25	hidden
+    ButtonPlus	BtClose	Close	1618,3,83,25
+    CheckBox	CbRanked	Only show Ranked Skills	1365,6,158,19
+    ButtonPlus	BtDescription	Description	1529,3,83,25
+    LabelCheckBox	LcbFilter		293,3,0,24	hidden
+    ListViewSearchBox	LsbCharacters		0,2,290,27
+      ToolStrip	TsSearch	ToolStrip1	6,2,284,25
+        ToolStripTextBox	TsSearchBox	Search Names		
+        ToolStripButton	TsFindClear	Clear Search	img	Clears search text or exits Search Mode.
+Press Esc to always exit Search mode.
+        ToolStripButton	TsFindNext	Find Next	img	Find Next      Down
+        ToolStripButton	TsFindPrevious	Find Previous	img	Find Previous      Up
+        ToolStripTextBoxControl		Search Names	0,2,211,21
+    ToolStrip	TsMenu	ToolStrip1	1330,3,32,25
+      ToolStripDropDownButton	TsClipboard		img	
+        ToolStripMenuItem	TsCopyDetails	Copy Summary Details to the Clipboard	img	
+        ToolStripMenuItem	TsCopyLevel	Copy Level Summary to the Clipboard	img	
+  TableLayoutPanel	LpCharacterInfo		0,0,1704,1043
+    TabControl	TabCharacter		268,6,1430,1031
+      TabPage	TabSummary	Summary	4,24,1422,1003
+        Label	LbInfo	Character Info	0,0,86,19
+      TabPage	TabSkills	Skills	4,24,736,553	hidden
+        ListViewPlus	LvSkills		0,0,736,553	hidden
+          Column	Skill	212
+          Column	Rank	39
+      TabPage	TabFeats	Feats	4,24,736,553	hidden
+        ListViewPlus	LvFeats		0,0,736,553	hidden
+          Column	ColumnHeader	278
+    PictureBox	PicPortrait		6,6,256,400
+    Panel	PnCharacters		6,6,1,1029
+      ListViewPlus	LvCharacters		1,1,0,1027
+        Column	Files	25
+  SplitterLine	SplitterLine1		0,1043,1704,1

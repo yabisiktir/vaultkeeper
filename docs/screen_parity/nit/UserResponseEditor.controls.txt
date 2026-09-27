@@ -1,0 +1,9 @@
+FORM	Game Map User Responses Report	638x512
+TableLayoutPanel	LpMain		0,0,632,480
+  ListViewPlus	LvResponses		0,0,632,450
+    Column	Game Save Name	319
+    Column	Mod Name	313
+  TableLayoutPanel	LpActions		0,451,632,29
+    ButtonPlus	BtClose	Close	554,3,75,23
+    ButtonPlus	BtDelete	Delete	473,3,75,23
+  SplitterLine	SplitterLine1		0,450,632,1

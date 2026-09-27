@@ -161,7 +161,12 @@ class MainWindow(QMainWindow):
         notes_layout = QVBoxLayout(notes_panel)
         notes_layout.setContentsMargins(0, 0, 0, 0)
         notes_layout.setSpacing(0)
-        self._notes_bar = NotesFormatBar(self._details, notes_panel)
+        self._notes_bar = NotesFormatBar(
+            self._details,
+            notes_panel,
+            open_external=self._open_notes_externally,
+            find=self._find_in_notes,
+        )
         notes_layout.addWidget(self._notes_bar)
         notes_layout.addWidget(self._details)
 
@@ -1435,6 +1440,33 @@ class MainWindow(QMainWindow):
             fill_notes(self._details, self.controller.read_notes_document(mod))
             self._details.document().setModified(False)
             self._notes_stamp = stamp
+
+    def _open_notes_externally(self) -> None:
+        """Open the mod's notes in the system's RTF editor (VB ``TsWordPad``).
+
+        Changes made there come back when this window is next activated
+        (:meth:`_reload_notes_if_changed`).
+        """
+        mod = self._notes_mod
+        if self.controller is None or mod is None:
+            self.nit_status.set_info("Select a mod to edit its notes.")
+            return
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        path = self.controller.notes_file_for_editing(
+            mod, notes_paragraphs(self._details.document())
+        )
+        self._details.document().setModified(False)
+        self._notes_stamp = self._notes_file_stamp(mod)
+        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
+            self.nit_status.set_info(f"No program is set to open {path.name}.")
+
+    def _find_in_notes(self) -> None:
+        from vaultkeeper.ui.dialogs.find_text import FindTextDialog
+
+        self._find_text_dialog = FindTextDialog(self._details, self)
+        self._find_text_dialog.show()
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Persist unsaved notes, where they were left, and the geometry."""

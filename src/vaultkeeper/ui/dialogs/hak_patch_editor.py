@@ -13,6 +13,8 @@ no game *config* is touched, so no config-isolation prompt is needed.
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -49,10 +51,24 @@ class HakPatchEditor(QDialog):
         body.addWidget(self.list, 1)
 
         side = QVBoxLayout()
-        self.up_button = QPushButton("Move Up")
+        # VB MsMoveUp / MsMoveDown: NIT's blue arrows and Ctrl+Up / Ctrl+Down,
+        # also on the list's context menu.
+        self.up_button = QPushButton(R.get_icon("UpArrowBlue"), "Move Up")
+        self.up_button.setToolTip("Move Up (Lower priority)  Ctrl+Up")
         self.up_button.clicked.connect(lambda: self._move(-1))
-        self.down_button = QPushButton("Move Down")
+        self.down_button = QPushButton(R.get_icon("DownArrowBlue"), "Move Down")
+        self.down_button.setToolTip("Move Down (Higher priority)  Ctrl+Down")
         self.down_button.clicked.connect(lambda: self._move(1))
+        self.list.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        for text, key, delta, icon in (
+            ("Move Up (Lower priority)", "Ctrl+Up", -1, "UpArrowBlue"),
+            ("Move Down (Higher priority)", "Ctrl+Down", 1, "DownArrowBlue"),
+        ):
+            act = QAction(R.get_icon(icon), text, self.list)
+            act.setShortcut(QKeySequence(key))
+            act.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+            act.triggered.connect(lambda _c=False, d=delta: self._move(d))
+            self.list.addAction(act)
         side.addWidget(self.up_button)
         side.addWidget(self.down_button)
         side.addStretch(1)
