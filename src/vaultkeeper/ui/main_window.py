@@ -4431,7 +4431,12 @@ class MainWindow(QMainWindow):
         new = new.strip()
         if not ok or not new or new == old:
             return
+        # Save any edit to the open notes under the current name, so the rename
+        # carries it along (a later save would land under the old name).
+        self._save_current_notes()
         if self.controller.rename_mod(old, new):
+            if self._notes_mod == old:
+                self._notes_mod = new
             self.refresh()
             self.nit_status.set_info(f"Renamed '{old}' to '{new}'")
         else:
@@ -4649,6 +4654,7 @@ class MainWindow(QMainWindow):
             return
         from vaultkeeper.ui.dialogs.find_and_rename import FindAndRenameDialog
 
+        self._save_current_notes()  # so a rename takes the latest notes along
         self._find_rename_dialog = FindAndRenameDialog.show_for(
             self.controller,
             self._on_renames_applied,
@@ -4661,6 +4667,10 @@ class MainWindow(QMainWindow):
 
     def _on_renames_applied(self, _report: dict) -> None:
         """Refresh the mod list after a bulk rename (VB reselect + refresh)."""
+        # The open notes' mod may have been renamed: save under the old name
+        # first would be too late, so drop the link and let refresh reload them.
+        if self._notes_mod is not None and self.controller.pd.mod_item(self._notes_mod) is None:
+            self._notes_mod = None
         self.refresh()
 
     def _select_mod_by_name(self, mod_name: str) -> None:

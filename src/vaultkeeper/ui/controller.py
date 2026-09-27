@@ -1196,8 +1196,21 @@ class ProfileController:
             old_name, new_name, self.ctx.profile_mods_dir, self.ctx.game_folders
         )
         if ok:
+            self._rename_notes(old_name, new_name)
             self.save()
         return ok
+
+    def _rename_notes(self, old_name: str, new_name: str) -> None:
+        """Take the notes file along with a renamed mod (VB ``ModData.Rename``).
+
+        Left behind, the notes belonged to no mod, and Validate Mods deleted them.
+        """
+        old = self.mod_notes_path(old_name)
+        new = self.mod_notes_path(new_name)
+        if not old.is_file() or (new.exists() and old.name.lower() != new.name.lower()):
+            return
+        with contextlib.suppress(OSError):
+            old.rename(new)
 
     # -- Bulk find & rename (VB ModFindAndRename) -------------------------- #
     def mod_rename_set(self) -> ModRenameSet:
@@ -1220,6 +1233,7 @@ class ProfileController:
             if self.pd.rename_mod(
                 old, new, self.ctx.profile_mods_dir, self.ctx.game_folders
             ):
+                self._rename_notes(old, new)
                 renamed.append(new)
             else:
                 failed.append(old)
@@ -3521,6 +3535,8 @@ class ProfileController:
         mod folder of that name exists (the latter guards a just-added mod whose DB
         row is not yet present). Returns the number deleted.
         """
+        from vaultkeeper.core import fs
+
         notes_dir = self.mod_notes_path("_").parent
         if not notes_dir.is_dir():
             return 0
@@ -3528,8 +3544,9 @@ class ProfileController:
         for path in sorted(p for p in notes_dir.iterdir() if p.is_file()):
             orphan = path.suffix.lower() != ".rtf" or path.stem not in self.pd.mod_list
             if orphan and not (self.ctx.profile_mods_dir / path.stem).is_dir():
+                # VB ValidateNotes: to the recycle bin, never a hard delete.
                 try:
-                    path.unlink()
+                    fs.delete(path, to_trash=True)
                     removed += 1
                 except OSError:
                     pass
