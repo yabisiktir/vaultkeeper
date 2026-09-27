@@ -127,11 +127,13 @@ def parse_client_log(
         if process_hak_inline and _COULD_NOT_LOAD_HAK.lower() in entry.lower():
             result.missing_hak_files.append(_extract_hak_name(entry))
             continue
-        if not entry.startswith(time_entry):
+        # Case-insensitive, as NIT compares them (``Option Compare Text``).
+        low = entry.lower()
+        if not low.startswith(time_entry.lower()):
             continue
 
         # Server shutting down: close out the current module.
-        if entry.rstrip().endswith(_CLOSE_ENTRY):
+        if low.rstrip().endswith(_CLOSE_ENTRY.lower()):
             shut_down = True
             log_time = _log_date(entry, started)
             if log_time is None:
@@ -145,7 +147,7 @@ def parse_client_log(
             current_mod = ""
             continue
 
-        load_index = entry.find(_LOAD_ENTRY)
+        load_index = low.find(_LOAD_ENTRY.lower())
         if load_index == -1:
             continue
         shut_down = False

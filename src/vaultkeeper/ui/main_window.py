@@ -4032,6 +4032,7 @@ class MainWindow(QMainWindow):
         if self.controller is None or started is None:
             return
         summary = self.controller.process_play_session(started, datetime.now())
+        self._report_missing_haks(summary.get("missing_hak_files") or [])
         note = self._auto_character_restorer(summary)
         # The game rewrites its INI files, databases and journals while it runs:
         # bring NIT's managed restorers up to date (VB RunAutoRestorers on exit).
@@ -4055,6 +4056,29 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(f"Recorded play time for: {names}.{note}")
         else:
             self.nit_status.set_info(f"Finished playing (no play time recorded).{note}")
+
+    def _report_missing_haks(self, haks: list[str]) -> None:
+        """Say which hak files the game could not load (VB ``AddLoggedTimes``).
+
+        The module will have failed to load, or loaded without its content; the
+        log is the only place that says why. NIT shows the list and offers to
+        copy it, which is what someone asking for help needs.
+        """
+        if not haks:
+            return
+        text = "Missing Hak files detected:\n" + "\n".join(f"    {h}" for h in haks)
+        log.warning(text)
+        box = QMessageBox(self)
+        box.setWindowTitle("Module Load Failure")
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setText(text)
+        copy = box.addButton("Copy to Clipboard", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("Close", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        if box.clickedButton() is copy:
+            from PySide6.QtWidgets import QApplication
+
+            QApplication.clipboard().setText(text)
 
     def _auto_character_restorer(self, summary: dict) -> str:
         """Save the character just played, when asked to (VB ``BehaviourAutoCharacter``).

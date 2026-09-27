@@ -173,6 +173,13 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | G2 ✅ | Reduce kept 100 saves, not remembered (NIT: 50, remembered) |
 | G3 ✅ | No warning after play when there are more than 700 saves (NIT warns) |
 
+## Stage 3e — play data and logs (details: `stage3e_play_data.md`)
+
+| ID | Finding |
+|---|---|
+| E1 ✅ | Hak files the game could not load were parsed but never shown (NIT: "Module Load Failure") |
+| E2 ✅ | Log markers matched case-sensitively (NIT: case-insensitive) |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
