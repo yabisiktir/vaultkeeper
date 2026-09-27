@@ -16,6 +16,7 @@ from vaultkeeper.config.settings import load_settings, save_settings
 from vaultkeeper.core import constants as C
 from vaultkeeper.core.archive import FakeArchiveExtractor
 from vaultkeeper.ui.controller import ProfileController
+from vaultkeeper.vault.http import FakeHttpClient, HttpResponse
 
 
 def _setup(tmp_path: Path, *, managed: bool = True):
@@ -37,6 +38,7 @@ def _setup(tmp_path: Path, *, managed: bool = True):
         store_path=tmp_path / "Data" / "P.json",
         is_ee=True,
     )
+    c._http = FakeHttpClient()  # never reach Steam from a test
     c._extractor = FakeArchiveExtractor(
         contents={"Cool Module (123).7z": {"modules/Cool Module.mod": b"MOD v1"}}
     )
@@ -187,3 +189,36 @@ def test_profile_load_runs_the_sync_and_asks_once_for_all(qtbot, tmp_path: Path,
     assert len(asked) == 1  # "Take the same action for all"
     assert c.pd.mod_item("Cool Module").workshop_id == ""
     assert c.pd.mod_item("Other").workshop_id == ""
+
+
+def test_a_hak_only_item_is_named_from_its_steam_page(tmp_path: Path) -> None:
+    """VB ``ModNameFromWeb``: an item with no .mod file was left as "Mod <id>"."""
+    c, content = _setup(tmp_path)
+    (content / "789" / "hak").mkdir(parents=True)
+    (content / "789" / "hak" / "tiles.hak").write_bytes(b"H")
+    url = "https://steamcommunity.com/sharedfiles/filedetails/?id=789"
+    c._http.responses[url] = HttpResponse(
+        url=url, status=200, text="<html><title>Steam Workshop::Lovely &amp; Tiles.</title>"
+    )
+    c._extractor._contents["Lovely & Tiles (789).7z"] = {"hak/tiles.hak": b"H"}
+
+    assert "Lovely & Tiles" in c.sync_workshop_mods()["created"]
+
+
+def test_a_mapid_rule_names_the_item_without_asking_steam(tmp_path: Path) -> None:
+    from vaultkeeper.vault.download_rules import DownloadRules
+
+    c, _content = _setup(tmp_path)
+    c._download_rules = DownloadRules.from_text(
+        "WorkshopIdMap\n\tMapId 123 = Cool Module (Workshop)\nEnd WorkshopIdMap\n"
+    )
+    c._extractor._contents["Cool Module (Workshop) (123).7z"] = {"modules/Cool Module.mod": b"x"}
+
+    assert c.sync_workshop_mods()["created"] == ["Cool Module (Workshop)"]
+    assert not c._http.calls
+
+
+def test_steam_titles_are_not_fetched_while_unmanaged(tmp_path: Path) -> None:
+    c, _content = _setup(tmp_path, managed=False)
+    c.workshop_refresh()
+    assert not c._http.calls

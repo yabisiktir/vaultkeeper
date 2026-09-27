@@ -317,6 +317,8 @@ def _parse_project(title: str, lines: list[str], index: int) -> tuple[ProjectRul
 _STATEMENTS: dict[str, str] = {
     "GameSaveNameMap": "save_names",
     "End GameSaveNameMap": "reset",
+    "WorkshopIdMap": "workshop_ids",
+    "End WorkshopIdMap": "reset",
     "PrefixFilenames": "prefixes",
     "End PrefixFilenames": "reset",
     "Extensions": "extensions",
@@ -361,6 +363,8 @@ class DownloadRules:
     """Parsed Vault download rules (the subset the port currently uses)."""
 
     save_name_rules: dict[str, str] = field(default_factory=dict)
+    #: Steam Workshop id → mod name (VB ``WorkshopFileMap``, ``MapId <id> = <name>``).
+    workshop_file_map: dict[str, str] = field(default_factory=dict)
     save_name_removed_chars: str = DEFAULT_REMOVED_CHARS
     prefix_filenames: list[str] = field(default_factory=list)
     exclude_extensions: list[str] = field(default_factory=list)
@@ -448,6 +452,15 @@ class DownloadRules:
                 continue
             if line.lower().startswith("fileidprefix"):
                 rules.file_id_prefix = _equals_param(line)
+                continue
+            if section == "workshop_ids":
+                # VB: "MapId <id> = <mod name>"; the first mapping of an id wins.
+                spaced = line.replace("\t", " ")
+                at = spaced.lower().find("mapid ")
+                if at != -1:
+                    wid, sep, name = spaced[at + 6 :].partition("=")
+                    if sep and wid.strip() and name.strip():
+                        rules.workshop_file_map.setdefault(wid.strip(), name.strip())
                 continue
             if rules._settle_keyword(line):
                 continue

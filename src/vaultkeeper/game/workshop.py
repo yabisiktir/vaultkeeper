@@ -111,12 +111,17 @@ def unknown_mod_name(id_: str) -> str:
     return f"Mod {id_}"
 
 
-def resolve_mod_name(id_folder: Path, id_: str, *, web_title: str = "") -> str:
+def resolve_mod_name(
+    id_folder: Path, id_: str, *, web_title: str = "", mapped: str = ""
+) -> str:
     """Name a workshop subscription (VB ``IdInfo.GetModFolderName``).
 
-    A web title (injected — network fetch is out of scope) wins; otherwise the first
-    ``.mod`` file's stem in the item's ``modules`` folder; otherwise ``Mod <id>``.
+    In NIT's order: a ``MapId`` rule from the download rules (``mapped``); the
+    item's Steam page title (``web_title``, see :func:`steam_page_title`); the
+    first ``.mod`` file's stem in the item's ``modules`` folder; ``Mod <id>``.
     """
+    if mapped:
+        return mapped
     if web_title:
         return web_title
     modules = id_folder / _MODULES_FOLDER
@@ -125,6 +130,22 @@ def resolve_mod_name(id_folder: Path, id_: str, *, web_title: str = "") -> str:
         if mods:
             return mods[0].stem
     return unknown_mod_name(id_)
+
+
+def steam_page_title(html: str) -> str:
+    """A mod name from a Workshop item page (VB ``GetSteamTitle``).
+
+    The ``<title>`` text, HTML-decoded, without "Steam Workshop::" and trailing
+    dots, and with characters a folder name cannot hold removed.
+    """
+    import html as html_lib
+    import re
+
+    match = re.search(r"<title>(.*?)</title>", html or "", re.IGNORECASE | re.DOTALL)
+    if not match:
+        return ""
+    title = html_lib.unescape(match.group(1)).replace("Steam Workshop::", "").strip(".")
+    return re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", title).strip()
 
 
 def scan_id_files(id_folder: Path) -> dict[str, WorkshopFile]:

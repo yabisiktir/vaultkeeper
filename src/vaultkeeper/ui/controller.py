@@ -8263,7 +8263,7 @@ class ProfileController:
                 "removed_files": 0,
                 "summary": "This is not a Steam install.",
             }
-        diff = diff_workshop(content, stored)
+        diff = diff_workshop(content, stored, resolve_name=self._workshop_name)
         self._save_workshop_contents(diff.contents)
         return {
             "added": diff.added,
@@ -8274,6 +8274,34 @@ class ProfileController:
             "removed_files": diff.removed_files,
             "summary": diff.summary,
         }
+
+    def _workshop_name(self, id_folder: Path, workshop_id: str) -> str:
+        """Name a new subscription as NIT does (VB ``IdInfo.GetModFolderName``).
+
+        A ``MapId`` rule, then the item's Steam page title, then its first
+        ``.mod`` file, then ``Mod <id>``. The page is fetched only while the
+        tool manages Workshop content (NIT reads the content only then); an
+        item first seen before that is named again when its mod is created.
+        """
+        from nwnfile.log import get_logger
+
+        from vaultkeeper.game.workshop import resolve_mod_name, steam_page_title, workshop_url
+
+        log = get_logger(__name__)
+        mapped = ""
+        try:
+            mapped = self.download_rules(network=False).workshop_file_map.get(workshop_id, "")
+        except Exception:
+            log.debug("No download rules for Workshop names", exc_info=True)
+        title = ""
+        if not mapped and self.workshop_management_enabled():
+            try:
+                page = self._vault_http().get(workshop_url(workshop_id), timeout=15)
+                if page.ok:
+                    title = steam_page_title(page.text)
+            except Exception:
+                log.debug("Steam page for %s not read", workshop_id, exc_info=True)
+        return resolve_mod_name(id_folder, workshop_id, web_title=title, mapped=mapped)
 
     def rename_workshop_mod(self, workshop_id: str, new_name: str) -> dict:
         """Rename a stored workshop subscription's mod name (VB ``RenameMod``)."""
@@ -8559,6 +8587,13 @@ class ProfileController:
 
         # New (VB CreateMods → CreateInstallers → InstallMods).
         managed_ids = {self.pd.mod_item(n).workshop_id for n in self.managed_workshop_mods()}
+        renamed = False
+        for workshop_id, info in contents.items():
+            if workshop_id not in managed_ids and info.unknown_name:
+                info.mod_name = self._workshop_name(content / workshop_id, workshop_id)
+                renamed = renamed or not info.unknown_name
+        if renamed:
+            self._save_workshop_contents(contents)
         for workshop_id, info in sorted(contents.items()):
             if workshop_id in managed_ids or not (content / workshop_id).is_dir():
                 continue
