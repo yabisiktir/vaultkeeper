@@ -136,3 +136,25 @@ def test_the_credits_movie_fix_is_copied_on_ee(tmp_path: Path) -> None:
 
     movies = c.ctx.game_folders[c.ctx.mapper.ext_mapping[".wbm"]]
     assert (movies / C.CREDITS_MOVIE_FIX).read_bytes() == b"movie"
+
+
+def test_a_mod_folder_renamed_elsewhere_keeps_its_group(tmp_path: Path) -> None:
+    # VB RenamedChange: the mod is renamed, not re-added as a new ungrouped mod.
+    c = _open(tmp_path)
+    c.create_group("300.  Adventures")
+    c.create_mod("Old Name", "300.  Adventures")
+    payload = c.ctx.profile_mods_dir / "Old Name" / C.MOD_INSTALLER_DIR / "override"
+    payload.mkdir(parents=True)
+    (payload / "a.2da").write_bytes(b"x")
+    c.create_installer("Old Name")
+    c.on_window_activated()
+
+    (c.ctx.profile_mods_dir / "Old Name").rename(c.ctx.profile_mods_dir / "New Name")
+    note = c.on_window_activated()
+
+    assert c.pd.mod_item("Old Name") is None
+    md = c.pd.mod_item("New Name")
+    assert md is not None and md.group == "300.  Adventures"
+    assert "renamed" in note
+    ident = c.ctx.profile_mods_dir / "New Name" / C.MOD_INSTALLER_DIR / C.MOD_NIT_DIR
+    assert (ident / "New Name.nitins").is_file()

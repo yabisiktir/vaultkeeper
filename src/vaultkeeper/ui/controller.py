@@ -369,6 +369,42 @@ class ProfileController:
                             stamp(sub)
         return tuple(sorted(stamps))
 
+    def _folders_renamed_elsewhere(self) -> list[tuple[str, str]]:
+        """Mod folders another program renamed, as ``(old, new)`` (VB ``RenamedChange``).
+
+        A renamed folder still holds its identifier under the old mod name
+        (``nitconfig/<old>.nitins``); matched to a known mod whose folder is gone,
+        the mod is renamed rather than re-added as a new, ungrouped mod.
+        """
+        from vaultkeeper.core import constants as C
+
+        root = self.ctx.profile_mods_dir
+        try:
+            folders = [p for p in root.iterdir() if p.is_dir()]
+        except OSError:
+            return []
+        renames: list[tuple[str, str]] = []
+        for folder in folders:
+            if folder.name in self.pd.mod_list or folder.name in C.RESERVED_MOD_NAMES:
+                continue
+            nit_dir = folder / C.MOD_INSTALLER_DIR / C.MOD_NIT_DIR
+            try:
+                idents = [p for p in nit_dir.iterdir() if p.is_file()]
+            except OSError:
+                continue
+            for ident in idents:
+                if ident.suffix.lower() not in (C.EXT_INSTALLER, C.EXT_RESTORER):
+                    continue
+                old = self.pd.mod_item(ident.stem)
+                if (
+                    old is not None
+                    and old.is_not_group_item
+                    and not (root / old.mod_name).exists()
+                ):
+                    renames.append((old.mod_name, folder.name))
+                    break
+        return renames
+
     def on_window_activated(self) -> str:
         """What NIT does when its window is activated again (VB ``ActivatedEventProcessing``).
 
@@ -383,6 +419,9 @@ class ProfileController:
             known = getattr(self, "_mods_signature", None) is not None
             self._mods_signature = signature
             if known:
+                for old_name, new_name in self._folders_renamed_elsewhere():
+                    if self.rename_mod(old_name, new_name):
+                        notes.append(f"Mod renamed by another program: {old_name} → {new_name}.")
                 result = self.pd.validate_mod_and_file_data(
                     self.ctx.profile_mods_dir, self.ctx.game_folders
                 )
