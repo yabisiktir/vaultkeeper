@@ -43,8 +43,8 @@ def sf(path: str, *, size: int = 100, mtime: float = 1000.0) -> SourceFile:
 
 def test_simple_extension_mapping() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/cep.tlk"))
-    a.analyse("Mod", sf("/mod/patch.hak"))
+    a.analyse("Mod", sf("/mymod/cep.tlk"))
+    a.analyse("Mod", sf("/mymod/patch.hak"))
     assert set(a.copy_list["Mod"]) == {"tlk", "hak"}
     assert "cep.tlk" in a.copy_list["Mod"]["tlk"]
     assert "patch.hak" in a.copy_list["Mod"]["hak"]
@@ -52,45 +52,45 @@ def test_simple_extension_mapping() -> None:
 
 def test_unsupported_extension_skipped() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/readme.xyz"))
+    a.analyse("Mod", sf("/mymod/readme.xyz"))
     assert not a.copy_list
 
 
 def test_excluded_file_recorded_and_skipped() -> None:
     a = _Analyser(Mapper())
     # gxpa_shld.tga is a default MapExcludes entry.
-    a.analyse("Mod", sf("/mod/gxpa_shld.tga"))
+    a.analyse("Mod", sf("/mymod/gxpa_shld.tga"))
     assert not a.copy_list
     assert a.excluded == ["gxpa_shld.tga"]
 
 
 def test_demo_mod_skipped() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/demo.mod", size=PLACEHOLDER_MOD_SIZE + 1))
+    a.analyse("Mod", sf("/mymod/demo.mod", size=PLACEHOLDER_MOD_SIZE + 1))
     assert not a.copy_list
     assert a.excluded == ["demo.mod"]
 
 
 def test_last_write_time_tie_break_keeps_newer() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/a.hak", size=10, mtime=1000.0))
-    a.analyse("Mod", sf("/mod/a.hak", size=20, mtime=2000.0))  # newer wins
+    a.analyse("Mod", sf("/mymod/a.hak", size=10, mtime=1000.0))
+    a.analyse("Mod", sf("/mymod/a.hak", size=20, mtime=2000.0))  # newer wins
     winner = a.copy_list["Mod"]["hak"]["a.hak"]
     assert winner.source.mtime == 2000.0 and winner.source.size == 20
 
 
 def test_last_write_time_tie_break_keeps_existing_when_older() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/a.hak", size=10, mtime=2000.0))
-    a.analyse("Mod", sf("/mod/a.hak", size=20, mtime=1000.0))  # older loses
+    a.analyse("Mod", sf("/mymod/a.hak", size=10, mtime=2000.0))
+    a.analyse("Mod", sf("/mymod/a.hak", size=20, mtime=1000.0))  # older loses
     assert a.copy_list["Mod"]["hak"]["a.hak"].source.mtime == 2000.0
 
 
 def test_placeholder_mod_guard_retains_larger_older_mod() -> None:
     """A newer but tiny (placeholder) .mod must not displace a larger older one."""
     a = _Analyser(Mapper())
-    big_old = sf("/mod/quest.mod", size=PLACEHOLDER_MOD_SIZE + 5000, mtime=1000.0)
-    tiny_new = sf("/mod/quest.mod", size=1024, mtime=2000.0)
+    big_old = sf("/mymod/quest.mod", size=PLACEHOLDER_MOD_SIZE + 5000, mtime=1000.0)
+    tiny_new = sf("/mymod/quest.mod", size=1024, mtime=2000.0)
     a.analyse("Mod", big_old)
     a.analyse("Mod", tiny_new)
     kept = a.copy_list["Mod"]["modules"]["quest.mod"]
@@ -100,8 +100,8 @@ def test_placeholder_mod_guard_retains_larger_older_mod() -> None:
 
 def test_placeholder_guard_allows_newer_large_mod() -> None:
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/quest.mod", size=1024, mtime=1000.0))
-    big_new = sf("/mod/quest.mod", size=PLACEHOLDER_MOD_SIZE + 1, mtime=2000.0)
+    a.analyse("Mod", sf("/mymod/quest.mod", size=1024, mtime=1000.0))
+    big_new = sf("/mymod/quest.mod", size=PLACEHOLDER_MOD_SIZE + 1, mtime=2000.0)
     a.analyse("Mod", big_new)
     assert a.copy_list["Mod"]["modules"]["quest.mod"].source is big_new
 
@@ -112,7 +112,7 @@ def test_secondary_folder_override_kept_in_source_dir() -> None:
     assert mapper.get_secondary_folder(".tga") == "override"
     a = _Analyser(mapper)
     # Parent dir == the secondary folder → GetMappedFolder returns 'override'.
-    a.analyse("Mod", sf("/mod/override/skin.tga"))
+    a.analyse("Mod", sf("/mymod/override/skin.tga"))
     assert "override" in a.copy_list["Mod"]
     assert "skin.tga" in a.copy_list["Mod"]["override"]
 
@@ -123,11 +123,11 @@ def test_primary_and_secondary_reconcile_removes_primary() -> None:
     mapper = Mapper()
     a = _Analyser(mapper)
     # portraits is the primary for .tga; override the secondary.
-    a.analyse("Mod", sf("/mod/po_hero.tga", size=10, mtime=1000.0))  # → portraits
+    a.analyse("Mod", sf("/mymod/po_hero.tga", size=10, mtime=1000.0))  # → portraits
     assert "portraits" in a.copy_list["Mod"]
-    a.analyse("Mod", sf("/mod/override/po_hero.tga", size=10, mtime=1000.0))  # → override
+    a.analyse("Mod", sf("/mymod/override/po_hero.tga", size=10, mtime=1000.0))  # → override
     # Now a third copy whose parent == override, forcing the reconcile branch.
-    a.analyse("Mod", sf("/mod/override/po_hero.tga", size=10, mtime=3000.0))
+    a.analyse("Mod", sf("/mymod/override/po_hero.tga", size=10, mtime=3000.0))
     assert "po_hero.tga" not in a.copy_list["Mod"].get("portraits", {})
     assert "po_hero.tga" in a.copy_list["Mod"]["override"]
 
@@ -135,8 +135,8 @@ def test_primary_and_secondary_reconcile_removes_primary() -> None:
 def test_copy_list_is_case_insensitive() -> None:
     """A file differing only in case is the same CopyList slot (VB CI dedup)."""
     a = _Analyser(Mapper())
-    a.analyse("Mod", sf("/mod/A.hak", mtime=1000.0))
-    a.analyse("Mod", sf("/mod/a.hak", mtime=2000.0))  # newer, same slot
+    a.analyse("Mod", sf("/mymod/A.hak", mtime=1000.0))
+    a.analyse("Mod", sf("/mymod/a.hak", mtime=2000.0))  # newer, same slot
     assert len(a.copy_list["mod"]["HAK"]) == 1  # folder + mod keys also CI
     assert a.copy_list["Mod"]["hak"]["a.HAK"].source.mtime == 2000.0
 
@@ -196,12 +196,14 @@ def test_process_patch_files_noop_without_ini(tmp_path: Path) -> None:
 
 
 def test_scan_loose_files(tmp_path: Path) -> None:
-    mod = tmp_path / "Mod"
+    # Not "Mod": on EE a folder named mod/mus/ovr/txpk is itself a folder rule
+    # (VB DefineEeFolders), as it is in NIT.
+    mod = tmp_path / "MyMod"
     mod.mkdir()
     (mod / "cep.tlk").write_bytes(b"x")
     (mod / "big.hak").write_bytes(b"y")
     (mod / "notes.txt").write_bytes(b"z")  # unsupported → skipped
-    plan = build_copy_plan("Mod", mod, mapper=Mapper(), extractor=None)
+    plan = build_copy_plan("MyMod", mod, mapper=Mapper(), extractor=None)
     folders = {item.folder for item in plan.items}
     assert folders == {"tlk", "hak"}
     assert plan.files_scanned == 3  # txt scanned but not mapped

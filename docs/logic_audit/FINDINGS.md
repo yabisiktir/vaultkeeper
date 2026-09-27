@@ -13,7 +13,7 @@ Ranked by user impact. Details and evidence in `stage1_findings.md` /
 | U3 ✅ | Files deleted from a mod's source survive an installer rebuild and stay in the game | installer build |
 | S2 ✅ | NIT-managed "(Auto)" restorers (database, INI, journals, NIT config) missing | restorers |
 | M3 ✅ | **EE root folder maps to the install folder.** NIT's live table: on EE `nwn` = the *user* folder (`NwnFolders=nwn=<user>`); VK maps it to `game_root`. So VK installs mods' `.ini`/`.tml`/`.key`/`.dll`/`dialog.tlk` into the game installation folder, and never scans the user folder's own `nwn.ini`/`settings.tml` — which is why the INI auto-restorer (S2) finds nothing on EE. Fixing it moves where root files install, so existing installs need a migration. | mapping |
-| M1 | Mods shipping `ovr/`, `mus/`, `txpk/`, EE `mod/` folders are routed by extension instead of into those folders | mapping |
+| M1 ✅ | Mods shipping `ovr/`, `mus/`, `txpk/`, EE `mod/` folders are routed by extension instead of into those folders | mapping |
 
 ✅ = fixed 2026-09-27 (stage 5, first batch). Each has regression tests that fail
 on the old code (`tests/test_install_conflict_priority.py`,
@@ -22,6 +22,11 @@ on the old code (`tests/test_install_conflict_priority.py`,
 the stage-2 scenarios (deps, update, restorer: final game state identical).
 
 Notes from the fixes:
+- **M1 fixed** (fifth batch): `Mapper._apply_ee` adds VB DefineEeFolders' rules
+  (ovr, mod, mus, txpk); without EE, "ovr" rules use override. Stage-1 corpus
+  rerun vs NIT: 3,234 → 386 mismatches per mode, all M2 (nitconfig). Note: as in
+  NIT, a folder literally named mod/mus/ovr/txpk (even a mod's own folder) is a
+  folder rule.
 - **M3 fixed** (fourth batch): on EE `nwn` resolves to the user folder and
   root files are keyed by its name. Profiles made earlier are migrated when
   opened: a root file recorded as installed by one of the profile's mods, still

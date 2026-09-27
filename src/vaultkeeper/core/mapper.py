@@ -325,6 +325,11 @@ class Mapper:
 
         if self.is_ee:
             self._apply_ee()
+        else:
+            # VB DefineEeFolders, EE not installed: "ovr" rules use override instead.
+            for key, folder in list(self.dir_mapping.items()):
+                if folder == FOLDER_OVR:
+                    self.dir_mapping[key] = FOLDER_OVERRIDE
         if self.development_folder_enabled:
             self._apply_development_folder()
 
@@ -489,9 +494,16 @@ class Mapper:
         return {k: list(v) for k, v in self.exclude_overrides.items() if v}
 
     def _apply_ee(self) -> None:
-        """EE reclassifies .gui/.shd as ovr for NwnExtensions (DefineEeFolders)."""
+        """VB ``DefineEeFolders``: EE folders become folder rules; .gui/.shd go to ovr.
+
+        A mod laid out for the EE library — files inside ``ovr/``, ``mus/``,
+        ``txpk/`` or the EE ``mod/`` folder — installs them into that folder rather
+        than wherever their extension would send them.
+        """
         for ext in (".gui", ".shd"):
             self.nwn_extensions[ext] = FOLDER_OVR
+        for folder in (FOLDER_OVR, FOLDER_MOD_EE, FOLDER_EE_MUS, FOLDER_EE_TEXTUREPACKS):
+            self.dir_mapping.setdefault(folder, folder)
 
     # -- Core dispatch ----------------------------------------------------- #
     def get_mapped_folder(self, source: str | PurePath, *, erf_check: bool = False) -> str:

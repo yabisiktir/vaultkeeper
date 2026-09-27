@@ -41,63 +41,63 @@ def test_unsupported_extension_returns_empty(mapper: Mapper) -> None:
 # --- directory mapping precedence (step 2) -------------------------------- #
 def test_dir_mapping_takes_precedence(mapper: Mapper) -> None:
     # A .dds normally maps to override, but a file inside a "music" dir maps to music.
-    assert mapper.get_mapped_folder("mod/music/track.bmu") == M.FOLDER_MUSIC
+    assert mapper.get_mapped_folder("mymod/music/track.bmu") == M.FOLDER_MUSIC
     # A .tga inside a known override-alias dir goes to override, not portraits.
     assert (
-        mapper.get_mapped_folder("mod/sh_miscmed_override/x.tga") == M.FOLDER_OVERRIDE
+        mapper.get_mapped_folder("mymod/sh_miscmed_override/x.tga") == M.FOLDER_OVERRIDE
     )
 
 
 def test_dir_mapping_grandparent(mapper: Mapper) -> None:
     # erf dir maps erf files; check parent-name mapping resolves.
-    assert mapper.get_mapped_folder("mod/erf/pack.erf") == M.FOLDER_ERF
+    assert mapper.get_mapped_folder("mymod/erf/pack.erf") == M.FOLDER_ERF
 
 
 # --- exception files (step 3) --------------------------------------------- #
 def test_exception_file(mapper: Mapper) -> None:
     # dungeonmaster.bic -> dmvault (overrides the .bic -> localvault default)
-    assert mapper.get_mapped_folder("mod/localvault/dungeonmaster.bic") == M.FOLDER_DMVAULT
+    assert mapper.get_mapped_folder("mymod/localvault/dungeonmaster.bic") == M.FOLDER_DMVAULT
     # dialog.tlk -> nwn root (overrides .tlk -> tlk)
-    assert mapper.get_mapped_folder("mod/random/dialog.tlk") == M.FOLDER_ROOT
+    assert mapper.get_mapped_folder("mymod/random/dialog.tlk") == M.FOLDER_ROOT
     # a normal .bic still goes to localvault
-    assert mapper.get_mapped_folder("mod/x/hero.bic") == M.FOLDER_LOCALVAULT
+    assert mapper.get_mapped_folder("mymod/x/hero.bic") == M.FOLDER_LOCALVAULT
 
 
 # --- folder-move-if-already-there (step 5 tail) --------------------------- #
 def test_keeps_file_in_secondary_folder(mapper: Mapper) -> None:
     # .hak default is "hak"; if the file already sits in "patch" (its move target),
     # it stays in patch.
-    assert mapper.get_mapped_folder("mod/patch/late.hak") == M.FOLDER_PATCH
+    assert mapper.get_mapped_folder("mymod/patch/late.hak") == M.FOLDER_PATCH
     # but a .hak elsewhere maps to hak
-    assert mapper.get_mapped_folder("mod/whatever/late.hak") == M.FOLDER_HAK
+    assert mapper.get_mapped_folder("mymod/whatever/late.hak") == M.FOLDER_HAK
 
 
 # --- filename-prefix exceptions (step 6) ---------------------------------- #
 def test_prefix_moves_gui_tga_to_override(mapper: Mapper) -> None:
     # A gui_ prefixed .tga is a UI texture -> override, not a portrait.
-    assert mapper.get_mapped_folder("mod/x/gui_button.tga") == M.FOLDER_OVERRIDE
+    assert mapper.get_mapped_folder("mymod/x/gui_button.tga") == M.FOLDER_OVERRIDE
     # A voice .wav (c_ prefix) -> override, not ambient.
-    assert mapper.get_mapped_folder("mod/x/c_bark.wav") == M.FOLDER_OVERRIDE
+    assert mapper.get_mapped_folder("mymod/x/c_bark.wav") == M.FOLDER_OVERRIDE
     # A normal portrait .tga stays in portraits.
-    assert mapper.get_mapped_folder("mod/x/po_hero.tga") == M.FOLDER_PORTRAITS
+    assert mapper.get_mapped_folder("mymod/x/po_hero.tga") == M.FOLDER_PORTRAITS
 
 
 # --- ERF exclusion (step 4) ----------------------------------------------- #
 def test_erf_excluded_on_create_check(mapper: Mapper) -> None:
     # With erf_check, a stray .erf not in texturepacks is excluded.
-    assert mapper.get_mapped_folder("mod/random/pack.erf", erf_check=True) == ""
+    assert mapper.get_mapped_folder("mymod/random/pack.erf", erf_check=True) == ""
     # In texturepacks it is kept.
     assert (
-        mapper.get_mapped_folder("mod/texturepacks/pack.erf", erf_check=True)
+        mapper.get_mapped_folder("mymod/texturepacks/pack.erf", erf_check=True)
         == M.FOLDER_TEXTUREPACKS
     )
     # Without erf_check, normal extension mapping applies.
-    assert mapper.get_mapped_folder("mod/random/pack.erf") == M.FOLDER_ERF
+    assert mapper.get_mapped_folder("mymod/random/pack.erf") == M.FOLDER_ERF
 
 
 def test_erf_not_excluded_when_setting_off() -> None:
     m = Mapper(is_ee=True, exclude_erf=False)
-    assert m.get_mapped_folder("mod/random/pack.erf", erf_check=True) == M.FOLDER_ERF
+    assert m.get_mapped_folder("mymod/random/pack.erf", erf_check=True) == M.FOLDER_ERF
 
 
 # --- predicates ----------------------------------------------------------- #
@@ -160,7 +160,7 @@ def test_ee_reclassifies_gui_shd() -> None:
     assert ee.nwn_extensions[".gui"] == M.FOLDER_OVR
     assert nwn.nwn_extensions[".gui"] == M.FOLDER_OVERRIDE
     # But get_mapped_folder placement still uses ext_mapping (override) for both.
-    assert ee.get_mapped_folder("mod/x/panel.gui") == M.FOLDER_OVERRIDE
+    assert ee.get_mapped_folder("mymod/x/panel.gui") == M.FOLDER_OVERRIDE
 
 
 # -- Development folder (VB Mapper.DevelopmentFolder / ConfigDevelopmentFolder) -- #
@@ -171,7 +171,7 @@ def test_development_folder_off_by_default(mapper: Mapper) -> None:
     assert not mapper.is_legal_folder(M.FOLDER_DEV)
     assert M.FOLDER_DEV not in mapper.dir_mapping
     # A supported file sitting in a development sub-folder maps by its extension.
-    assert mapper.get_mapped_folder("mod/development/hero.utc") == M.FOLDER_OVERRIDE
+    assert mapper.get_mapped_folder("mymod/development/hero.utc") == M.FOLDER_OVERRIDE
 
 
 def test_development_folder_enabled_via_constructor() -> None:
@@ -180,17 +180,17 @@ def test_development_folder_enabled_via_constructor() -> None:
     assert m.is_legal_folder(M.FOLDER_DEV)
     assert m.dir_mapping[M.FOLDER_DEV] == M.FOLDER_DEV
     # dir_mapping precedence keeps a file already in development mapped there.
-    assert m.get_mapped_folder("mod/development/hero.utc") == M.FOLDER_DEV
+    assert m.get_mapped_folder("mymod/development/hero.utc") == M.FOLDER_DEV
 
 
 def test_development_folder_toggle_at_runtime(mapper: Mapper) -> None:
     mapper.set_development_folder(True)
     assert mapper.is_legal_folder(M.FOLDER_DEV)
-    assert mapper.get_mapped_folder("mod/development/panel.gui") == M.FOLDER_DEV
+    assert mapper.get_mapped_folder("mymod/development/panel.gui") == M.FOLDER_DEV
     mapper.set_development_folder(False)
     assert not mapper.is_legal_folder(M.FOLDER_DEV)
     assert M.FOLDER_DEV not in mapper.dir_mapping
-    assert mapper.get_mapped_folder("mod/development/panel.gui") == M.FOLDER_OVERRIDE
+    assert mapper.get_mapped_folder("mymod/development/panel.gui") == M.FOLDER_OVERRIDE
 
 
 def test_development_folder_survives_override_reset() -> None:

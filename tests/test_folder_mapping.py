@@ -48,7 +48,10 @@ def test_report_mirrors_mapper_tables(tmp_path):
 
     assert len(report["extensions"]) == len(default_ext_mapping())
     assert len(report["files"]) == len(default_exception_files())
-    assert len(report["folders"]) == len(default_dir_mapping())
+    # The live table: the defaults plus, on EE, the EE library folders (ovr,
+    # mod, mus, txpk — VB DefineEeFolders).
+    assert len(report["folders"]) == len(controller.ctx.mapper.dir_mapping)
+    assert len(report["folders"]) >= len(default_dir_mapping())
 
     # A known extension maps to its default folder (.hak -> hak on a base install).
     by_ext = {r["ext"]: r for r in report["extensions"]}
