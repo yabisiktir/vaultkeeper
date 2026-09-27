@@ -27,7 +27,7 @@ def test_validate_profile_data_removes_bad_dependency(tmp_path):
         ModData(group="G", mod_name="Beta", dependencies=["Ghost", "Alpha"])
     )
     message = controller.validate_profile_data()
-    assert "Removed 1" in message  # "Ghost" doesn't exist; "Alpha" does
+    assert "Dependencies removed: 1" in message  # "Ghost" does not exist; "Alpha" does
     assert controller.pd.mod_item("Beta").dependencies == ["Alpha"]
 
 
@@ -61,4 +61,4 @@ def test_maintenance_via_window(qtbot, tmp_path):
     win = MainWindow(controller)
     qtbot.addWidget(win)
     win._on_command("MsValidateProfileData")
-    assert "Validation complete" in win.nit_status.mg_info.text()
+    assert "Installed File Data validated" in win.nit_status.mg_info.text()

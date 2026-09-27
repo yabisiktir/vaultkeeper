@@ -3327,12 +3327,15 @@ class ProfileController:
 
     # -- Maintenance (Tools menu) ----------------------------------------- #
     def validate_profile_data(self) -> str:
-        """Remove dependencies on non-existent mods + recompute states (VB Validate)."""
-        removed = self.pd.validate_dependencies()
-        self.pd.update_file_states()
-        self.pd.update_mod_states()
-        self.save()
-        return f"Validation complete. Removed {removed} invalid dependency(ies)."
+        """Validate the whole profile (VB ``MsValidateProfileData``).
+
+        As NIT: Validate Installed Data (check the game, anneal, repair every
+        installed record), then Validate Mods (dependencies, notes, patch INIs).
+        Vaultkeeper's version only pruned dependencies before (logic audit 3c).
+        """
+        installed = self.validate_installed_data()
+        mods = self.validate_mods()
+        return f"{installed} {mods}"
 
     # -- Validate Mods (VB MsValidateMods / ValidateMods) ------------------ #
     def validate_notes(self) -> int:
@@ -3526,15 +3529,24 @@ class ProfileController:
         result = self.pd.check_installed_files(
             self.ctx.game_folders, root_folder_name=self.ctx.root_folder_name
         )
+        # VB: anneal the mods the check affected, then repair every record.
+        affected = list(self.pd.changes.mods.affected_list)
+        if affected:
+            self.pd.changes.save_info()
+            self.engine.anneal(affected)
+            self.pd.changes.restore_saved_info()
+        repair = self.pd.validate_installed_file_data(
+            self.ctx.game_folders, is_ee=self.ctx.is_ee
+        )
         self.pd.changes.reset_changes()
         self.save()
-        total = result["removed"] + result["added"] + result["changed"]
+        total = result["removed"] + result["added"] + result["changed"] + repair["repaired"]
         if total == 0:
             return "Installed File Data validated. Problems detected: None."
         return (
-            f"Repaired installed file records. Missing files removed: "
-            f"{result['removed']:,}. Added: {result['added']:,}. "
-            f"Changed: {result['changed']:,}."
+            f"Repaired installed file records: {repair['repaired']:,}. Missing files "
+            f"removed: {result['removed'] + repair['removed']:,}. Added: "
+            f"{result['added']:,}. Changed: {result['changed'] + repair['rechecked']:,}."
         )
 
     def _backup_profile_store(self, tag: str) -> Path | None:
@@ -4119,6 +4131,9 @@ class ProfileController:
                 self.pd = restored
                 self.pd.initialise_groups()
                 self._rebuild_engine()
+                # The backup describes the game as it was then. NIT restarts,
+                # and its profile load checks the game; do the same here.
+                self._check_game_on_open()
         return f"Restored data from {src_zip.name}."
 
     # -- Recovery (VB MsRecoverGroups / MsRecoverModProperties) ------------ #

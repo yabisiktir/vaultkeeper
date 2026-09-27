@@ -156,6 +156,15 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | B5 ✅ | Importing a mod you have lost your group/properties, merged over the old folder, left the install stale |
 | B6 ✅ | A download with no rule group went into "000.  Restorers" (first group) instead of "810.  Evaluating" |
 
+## Stage 3c — backups and recovery (details: `stage3c_recovery.md`)
+
+| ID | Finding |
+|---|---|
+| C1 ✅ | Validate Profile Data only pruned dependencies (NIT: Validate Installed Data + Validate Mods) |
+| C2 ✅ | Validate Installed Data skipped the anneal and NIT's per-record repair (`ValidateInstalledFileData`) |
+| C3 ✅ | Restore Data trusted the backup's picture of the game (NIT's restart re-checks it) |
+| C4 | Rebuild Database keeps groups/properties in VK (NIT loses them) — VK better |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |

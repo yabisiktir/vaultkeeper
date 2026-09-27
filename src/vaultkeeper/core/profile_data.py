@@ -829,6 +829,79 @@ class ProfileData:
             self.update_mod_states()
             return {"removed": removed, "added": len(new_keys), "changed": len(changed_keys)}
 
+    def validate_installed_file_data(
+        self, game_folders: dict[str, Path], *, is_ee: bool = True
+    ) -> dict[str, int]:
+        """Repair every installed-file record (VB ``ValidateInstalledFileData``).
+
+        For each record: drop links to mods or mod files that no longer exist;
+        forget a file that has gone; re-take the size, date and CRC of one that
+        changed, and the CRC of one never checksummed; re-resolve the owner when
+        it is missing, names a mod that no longer exists, or lost mod files; and
+        relabel an "unknown" file whose CRC is a game original's (EE updates).
+        Then the states are recomputed. Returns counts of what was repaired.
+        """
+        from vaultkeeper.game.original_files import original_crc_table
+
+        with self._lock:
+            table = None
+            repaired = removed = rechecked = 0
+            for ifk in list(self.installed_list):
+                ifd = self.installed_list[ifk]
+                changed = False
+                live = [
+                    m
+                    for m in ifd.mod_file_conflicts
+                    if m is not None and m.mod_name in self.mod_list
+                ]
+                if len(live) != len(ifd.mod_file_conflicts):
+                    ifd.mod_file_conflicts[:] = live
+                    changed = True
+                lost_files = False
+                for mfk in list(ifd.mod_files):
+                    if mfk.mod_name not in self.mod_list or mfk not in self.file_list:
+                        self.file_list.pop(mfk, None)
+                        self.changes.file.removed(mfk)
+                        ifd.mod_files.remove(mfk)
+                        lost_files = True
+                path = self.installed_file_path(game_folders, ifk)
+                if path is None or not path.is_file():
+                    self.changes.installed.removed(ifk)
+                    self.remove_installed_file(ifd)
+                    removed += 1
+                    continue
+                stat = path.stat()
+                modified = datetime.fromtimestamp(stat.st_mtime)
+                if ifd.modified != modified or ifd.byte_size != stat.st_size or (
+                    ifd.file_crc == 0 and stat.st_size > 0
+                ):
+                    ifd.modified = modified
+                    ifd.byte_size = stat.st_size
+                    ifd.file_crc = _safe_crc(path)
+                    rechecked += 1
+                    changed = True
+                if ifd.installer is None or (
+                    not ifd.is_default_installer and ifd.installer not in self.mod_list
+                ):
+                    changed = True
+                if ifd.installer == C.INSTALLER_UNKNOWN:
+                    if table is None:
+                        table = original_crc_table(
+                            is_ee=is_ee, overrides=dict(self.original_ee_files)
+                        )
+                    key = ifk.file_key.lower().replace("\\", "/")
+                    if table.get(key) == (int(ifd.file_crc) & 0xFFFFFFFF):
+                        ifd.installer = C.INSTALLER_ORIGINAL
+                        changed = True
+                if changed or lost_files:
+                    self.changes.installed.changed(ifk)
+                    for mfk in ifd.mod_file_conflicts:
+                        self.changes.mods.affected(mfk.mod_name)
+                    repaired += 1
+            self.update_file_states()
+            self.update_mod_states()
+            return {"repaired": repaired, "removed": removed, "rechecked": rechecked}
+
     def rescan_installed_state(
         self, game_folders: dict[str, Path], root_folder_name: str
     ) -> None:
