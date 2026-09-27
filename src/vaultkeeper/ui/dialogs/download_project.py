@@ -50,6 +50,9 @@ class DownloadProjectDialog(QDialog):
     ) -> None:
         super().__init__(parent)
         self.controller = controller
+        #: Mods that received files while the dialog was open (VB ModDownloaded),
+        #: for the Documentation Organiser offer when it closes.
+        self.downloaded_mods: list[str] = []
         self._files: list = []
         self._required: list[dict] = []
         self._prereqs: list[dict] = []  # required projects expanded into their files
@@ -704,7 +707,9 @@ class DownloadProjectDialog(QDialog):
                 f"Downloaded {ok} of {len(results)} file(s). {verb} mod '{mod}'.{extra}"
             )
             if ok:
+                self.downloaded_mods.append(mod)
                 self.offer_old_downloads(mod, [r.info for r in results if r.ok])
+            self.downloaded_mods.extend(got)
 
         self.start_job(work, done)
 
@@ -762,7 +767,9 @@ class DownloadProjectDialog(QDialog):
                 parts.append(f"Could not install: {', '.join(unresolved)}.")
             self.status.setText(" ".join(parts))
             if result["downloaded"]:
+                self.downloaded_mods.append(mod)
                 self.offer_old_downloads(mod, files)
+            self.downloaded_mods.extend(installed)
 
         self.start_job(work, done)
 

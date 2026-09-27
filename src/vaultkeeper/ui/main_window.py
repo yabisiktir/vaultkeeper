@@ -2405,6 +2405,66 @@ class MainWindow(QMainWindow):
         if result["errors"]:
             msg += f" Errors: {result['errors']}."
         self.nit_status.set_info(msg)
+        if result["files"]:
+            count = len(names)
+            self._offer_doc_organiser(
+                names, f"{names[0]} processed" if count == 1 else f"{count} Mods processed"
+            )
+
+    def _after_download_dialog(self, *_args) -> None:
+        self.refresh()
+        dialog = getattr(self, "_download_dialog", None)
+        mods = list(dict.fromkeys(getattr(dialog, "downloaded_mods", []) or []))
+        if mods:
+            self._offer_doc_organiser(
+                mods, f"{mods[0]} downloaded" if len(mods) == 1 else f"{len(mods)} Mods downloaded"
+            )
+
+    def _offer_doc_organiser(self, names: list[str], heading: str) -> None:
+        """Offer the Documentation Organiser after a download (VB ``IsRunDocOrganiser``).
+
+        NIT asks "Do you want to run the Documentation Organiser?" with "Always
+        take this action." (ticked), unless the answer is already stored, and the
+        organiser closes itself when there is nothing to copy. Here the question
+        is skipped when there is nothing to copy, rather than asked for nothing.
+        """
+        from PySide6.QtWidgets import QCheckBox
+
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        if self.controller is None or not names:
+            return
+        choice = load_settings().run_doc_organiser
+        if choice == "no":
+            return
+        try:
+            report = self.controller.doc_organiser_report(names)
+        except Exception:
+            log.exception("Documentation scan after download failed")
+            return
+        if not any(row.get("copy") for row in report.get("downloads", [])):
+            return
+        if choice != "yes":
+            box = QMessageBox(self)
+            box.setWindowTitle(heading)
+            box.setIcon(QMessageBox.Icon.Question)
+            box.setText("Do you want to run the Documentation Organiser?")
+            box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            always = QCheckBox("Always take this action.")
+            always.setChecked(True)
+            box.setCheckBox(always)
+            run = box.exec() == QMessageBox.StandardButton.Yes
+            if always.isChecked():
+                settings = load_settings()
+                settings.run_doc_organiser = "yes" if run else "no"
+                save_settings(settings)
+            if not run:
+                return
+        from vaultkeeper.ui.dialogs.doc_organiser import DocOrganiser
+
+        self._doc_organiser = DocOrganiser.show_for(self.controller, names, self)
 
     def _on_compact(self) -> None:
         names = self.selected_mod_names()
@@ -3938,7 +3998,7 @@ class MainWindow(QMainWindow):
             self.controller, default_mod=selected[0] if selected else "", parent=self
         )
         # Refresh the mod list when the dialog closes (a download can create a mod).
-        self._download_dialog.finished.connect(self.refresh)
+        self._download_dialog.finished.connect(self._after_download_dialog)
         self._download_dialog.show()
 
     def _on_prc_module(self) -> None:
@@ -4540,7 +4600,7 @@ class MainWindow(QMainWindow):
         self._download_dialog = DownloadProjectDialog(
             self.controller, default_mod=mod, parent=self
         )
-        self._download_dialog.finished.connect(self.refresh)
+        self._download_dialog.finished.connect(self._after_download_dialog)
         self._download_dialog.show()
         self._download_dialog.url_edit.setText(link)
         self._download_dialog._on_fetch()

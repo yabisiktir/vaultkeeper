@@ -8869,8 +8869,31 @@ class ProfileController:
         candidate = temp_root / sel["inner"]
         if candidate.is_file():
             return candidate
-        name = Path(sel["inner"]).name
-        return next((p for p in temp_root.rglob(name) if p.is_file()), None)
+        name = Path(sel["inner"].replace("!", "/")).name
+        found = next((p for p in temp_root.rglob(name) if p.is_file()), None)
+        if found is not None:
+            return found
+        # A doc from an archive inside the archive: unpack those too (NIT's
+        # extract loop), each into a folder beside it, and look again.
+        from vaultkeeper.core.archive import is_extractable
+
+        backend = self._archive_backend()
+        for _level in range(5):
+            inner = [
+                p
+                for p in temp_root.rglob("*")
+                if p.is_file()
+                and is_extractable(p.suffix)
+                and not p.with_name(p.name + ".x").exists()
+            ]
+            if not inner:
+                break
+            for archive in inner:
+                backend.extract(archive, archive.with_name(archive.name + ".x"))
+            found = next((p for p in temp_root.rglob(name) if p.is_file()), None)
+            if found is not None:
+                return found
+        return None
 
     def wizard_report(self, mod_name: str) -> dict:
         """The installer wizard defined for a mod (VB ``WizardBuilder``/``WizardInfo``).

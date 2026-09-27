@@ -457,8 +457,10 @@ def _scan_archives(
         # VB qualifier for extracted docs = the zip folder name, title-cased.
         qualifier = _to_title_case_sentence(_filename_only(archive.name), "_")
         listed = _list_entries(archive, extractor)
-
-        if listed is not None:
+        # NIT extracts archives found inside archives too (the extractList loop),
+        # so a readme in a .zip inside a .7z is found; the index alone cannot see
+        # into those, so such an archive is unpacked.
+        if listed is not None and not _has_nested_archive(archive, extractor):
             entries.extend(
                 _entry_from_listing(
                     mod_name, archive, rel_archive, qualifier, member, remove_version
@@ -467,21 +469,66 @@ def _scan_archives(
             )
             continue
 
-        # Could not be listed: unpack and scan as before.
-        with tempfile.TemporaryDirectory(prefix="vk_docorg_") as tmp:
-            result = extractor.extract(archive, Path(tmp))
-            if not result.ok:
-                continue
-            found, _ = _scan_download_tree(
-                mod_name,
-                Path(tmp),
-                Path(tmp),
-                folder_prefix=f"{rel_archive}{ARCHIVE_SEPARATOR}",
-                qualifier=qualifier,
-                from_archive=True,
-                remove_version=remove_version,
+        # Could not be listed, or holds archives of its own: unpack and scan.
+        entries.extend(
+            _scan_extracted(
+                mod_name, archive, f"{rel_archive}{ARCHIVE_SEPARATOR}", qualifier,
+                extractor, remove_version,
             )
-            entries.extend(found)
+        )
+    return entries
+
+
+def _has_nested_archive(archive: Path, extractor) -> bool:
+    """Whether the archive's index lists an archive inside it."""
+    lister = getattr(extractor, "list_entries", None)
+    members = lister(archive) if callable(lister) else None
+    return any(is_extractable(PurePosixPath(m["path"]).suffix) for m in members or [])
+
+
+def _scan_extracted(
+    mod_name: str,
+    archive: Path,
+    prefix: str,
+    qualifier: str,
+    extractor,
+    remove_version: bool,
+    depth: int = 0,
+) -> list[DocEntry]:
+    """Unpack an archive and collect its docs, and those of archives inside it.
+
+    A doc from an inner archive is qualified by that archive's name, as NIT
+    qualifies each extracted file by the archive it was extracted from.
+    """
+    entries: list[DocEntry] = []
+    with tempfile.TemporaryDirectory(prefix="vk_docorg_") as tmp:
+        result = extractor.extract(archive, Path(tmp))
+        if not result.ok:
+            return entries
+        found, inner_archives = _scan_download_tree(
+            mod_name,
+            Path(tmp),
+            Path(tmp),
+            folder_prefix=prefix,
+            qualifier=qualifier,
+            from_archive=True,
+            remove_version=remove_version,
+        )
+        entries.extend(found)
+        if depth < 5:
+            for inner in inner_archives:
+                rel = inner.relative_to(Path(tmp)).as_posix()
+                entries.extend(
+                    _scan_extracted(
+                        mod_name,
+                        inner,
+                        f"{prefix}{rel}{ARCHIVE_SEPARATOR}",
+                        _to_title_case_sentence(_filename_only(inner.name), "_"),
+                        extractor,
+                        remove_version,
+                        depth + 1,
+                    )
+                )
     return entries
 
 
@@ -496,7 +543,7 @@ def _entry_from_listing(
     """One report row built from an archive's index rather than its contents."""
     inner = PurePosixPath(member["path"])
     folder = f"{rel_archive}{ARCHIVE_SEPARATOR}{inner.parent.as_posix()}"
-    doc_name, _, _ = _doc_name_for(inner.name, qualifier, True, remove_version)
+    doc_name, qualifier, versionless = _doc_name_for(inner.name, qualifier, True, remove_version)
     return DocEntry(
         mod=mod_name,
         file_name=inner.name,
@@ -509,5 +556,7 @@ def _entry_from_listing(
         full_path=archive.parent / f"{archive.name}{ARCHIVE_SEPARATOR}{inner}",
         doc_name=doc_name,
         checksum=member.get("crc", 0),
+        qualifier=qualifier,
+        versionless_qualifier=versionless,
         from_archive=True,
     )

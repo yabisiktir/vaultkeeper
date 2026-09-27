@@ -208,6 +208,9 @@ class Settings:
     #: or "no" (VB ``ConfigRunCreateInstaller``: Ask each time, with "Always take
     #: this action" to stop asking).
     run_create_installer: str = "ask"
+    #: After downloading, open the Documentation Organiser: "ask", "yes" or "no"
+    #: (VB ``ConfigRunDocOrganiser``: Ask each time, with "Always take this action").
+    run_doc_organiser: str = "ask"
     #: The Wizard Builder warns when the Archive Folder Files view would list more
     #: files than this (VB ``ConfigWizardFileThreshold``).
     wizard_file_threshold: int = 15000
