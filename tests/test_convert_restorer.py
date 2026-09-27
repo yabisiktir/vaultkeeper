@@ -71,3 +71,43 @@ def test_convert_restorer_rejects_non_restorer(tmp_path):
 def test_convert_restorer_unknown_mod(tmp_path):
     controller = _controller(tmp_path)
     assert controller.convert_restorer("Nope") == -1
+
+
+def test_the_payload_becomes_the_mods_source(tmp_path):
+    """VB moves the restorer's folders to _Downloads and runs Create Installer."""
+    controller = _controller(tmp_path)
+    _restorer_with_payload(controller, tmp_path, "Base Restorer")
+    mod = tmp_path / "Profiles" / "P" / "Base Restorer"
+
+    assert controller.convert_restorer("Base Restorer") == 1
+
+    assert (mod / C.DOWNLOADS_DIR / "override" / "a.tga").read_bytes() == b"TGADATA"
+    assert (mod / C.MOD_INSTALLER_DIR / "override" / "a.tga").read_bytes() == b"TGADATA"
+
+
+def test_a_converted_restorer_keeps_its_payload_through_a_rebuild(tmp_path):
+    """Before: the payload lived only in the installer, so adding a file and
+    rebuilding recycled it and built the mod from the new file alone."""
+    controller = _controller(tmp_path)
+    _restorer_with_payload(controller, tmp_path, "Base Restorer")
+    controller.convert_restorer("Base Restorer")
+    extra = tmp_path / "extra.hak"
+    extra.write_bytes(b"HAK")
+
+    controller.add_files_to_mod("Base Restorer", [extra])
+    assert controller.build_installer_payload("Base Restorer")["ok"]
+
+    files = {fk.filename for fk in controller.pd.mod_item("Base Restorer").files}
+    assert {"a.tga", "extra.hak"} <= files
+
+
+def test_an_installed_restorer_is_installed_again(tmp_path):
+    controller = _controller(tmp_path)
+    _restorer_with_payload(controller, tmp_path, "Base Restorer")
+    controller.install(["Base Restorer"])
+    assert controller._mod_installed("Base Restorer")
+
+    controller.convert_restorer("Base Restorer")
+
+    assert controller._mod_installed("Base Restorer")
+    assert controller.pd.mod_item("Base Restorer").is_installer()

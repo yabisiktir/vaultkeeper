@@ -3259,6 +3259,10 @@ class MainWindow(QMainWindow):
             self.nit_status.set_info(
                 "The Restorer does not contain any files to convert."
             )
+        elif result == -2:
+            self.nit_status.set_info(
+                f"Unable to move all of {name}'s Restorer folders to Downloads."
+            )
         else:
             self.nit_status.set_info(f"Unable to convert {name}.")
 

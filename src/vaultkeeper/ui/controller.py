@@ -2805,18 +2805,21 @@ class ProfileController:
     def convert_restorer(self, mod_name: str) -> int:
         """Convert a Restorer into an installable Mod (VB ``MsConvertRestorer``).
 
-        VB (``NIT.Menu.vb`` MsConvertRestorer_Click @2738) moves the restorer's
-        payload folders into ``_Downloads`` and re-runs Create Installer. The port's
-        mod *type* is identifier-based — a ``<mod>.nitres`` vs ``<mod>.nitins`` file
-        in ``nitconfig`` — and the payload lives in ``.Mod Installer`` regardless of
-        type, so conversion simply swaps the identifier and rescans: the same
-        observable end state (the mod becomes an installer). The payload does not
-        need relocating in the port's model (noted divergence).
+        As NIT does: the restorer's payload folders move from the installer into
+        ``_Downloads``, and Create Installer builds the mod from there. The mod
+        then has source files of its own, so a later rebuild (after Add Files, a
+        wizard, an update) still includes them. Swapping the identifier alone,
+        as this used to, left the payload only in the installer, which a rebuild
+        from any newly added file would recycle. An installed restorer is put
+        back after the build (installer-restore / install-after-create).
 
         Returns ``-1`` when the mod is missing or is not a restorer, ``0`` when the
         restorer has no payload files to convert (VB "The Restorer does not contain
-        any files to convert."), and ``1`` when converted.
+        any files to convert."), ``-2`` when a folder could not be moved, and ``1``
+        when converted.
         """
+        import shutil
+
         from vaultkeeper.core import constants as C
 
         md = self.pd.mod_item(mod_name)
@@ -2824,16 +2827,49 @@ class ProfileController:
             return -1
         # VB gathers folders from files whose extension isn't the restorer marker;
         # if there are none, there is nothing to convert.
-        payload = [fk for fk in md.files if fk.extension.lower() != C.EXT_RESTORER]
-        if not payload:
+        folders = sorted(
+            {fk.folder for fk in md.files if fk.extension.lower() != C.EXT_RESTORER}
+        )
+        if not folders:
             return 0
+        was_installed = self._mod_installed(mod_name)
+        mod_folder = self.ctx.profile_mods_dir / mod_name
+        installer = mod_folder / C.MOD_INSTALLER_DIR
+        downloads = mod_folder / C.DOWNLOADS_DIR
+
+        def move_tree(src: Path, dst: Path) -> None:
+            if not dst.exists():
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(src), str(dst))
+                return
+            for child in list(src.iterdir()):
+                if child.is_dir():
+                    move_tree(child, dst / child.name)
+                else:
+                    shutil.move(str(child), str(dst / child.name))
+            src.rmdir()
+
+        failed = 0
+        for folder in folders:
+            source = installer / folder
+            if not source.is_dir():
+                continue
+            try:
+                move_tree(source, downloads / folder)
+            except OSError:
+                failed += 1
+        if failed:
+            return -2
         # Drop the restorer identifier file + its FileKey via the safe removal path
         # (a plain rescan only *adds* keys, so the stale .nitres would linger).
         self._remove_mod_files(
             mod_name, lambda fk: fk.extension.lower() == C.EXT_RESTORER
         )
-        # Write the installer identifier + rescan + recompute states + persist.
-        self.create_installer(mod_name)
+        if not self.build_installer_payload(mod_name)["ok"]:
+            return -2
+        settings = self._settings()
+        if settings.install_after_create or (settings.installer_restore and was_installed):
+            self.install([mod_name])
         return 1
 
     def wizard_install_prompt(self, mod_name: str) -> dict:
