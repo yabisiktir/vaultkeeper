@@ -1597,12 +1597,16 @@ class ProfileController:
         created: list[str] = []
         ignored: list[str] = []
         errors: list[str] = []
+        from vaultkeeper.core.mod_names import mod_name_from_file
+
         for raw in paths:
             source = Path(raw)
             if not is_extractable(source.suffix):
                 errors.append(source.name)
                 continue
-            name = source.stem
+            # "angel_falls_prelude_v24.7z" makes "Angel Falls Prelude v24" (VB
+            # ModNameFromFile); a name that is already clean is kept as it is.
+            name = mod_name_from_file(source.stem)
             if self.pd.mod_item(name) is not None:
                 ignored.append(name)
                 continue
@@ -1656,10 +1660,10 @@ class ProfileController:
         neither a directory nor an extractable archive is an error. Returns
         ``{"created", "ignored", "errors", "message"}``.
 
-        NOTE (divergence): VB derives the mod name from the source via
-        ``ModNameFromFile`` (title-casing / roman-numeral normalisation via the
-        LazWorks ``ToSentence`` helper). The port uses the source folder/stem name
-        verbatim, matching the convention already used by :meth:`add_mods_from_files`.
+        An archive's raw file name is tidied into a mod name as VB
+        ``ModNameFromFile`` does (see :func:`vaultkeeper.core.mod_names.mod_name_from_file`).
+        NOTE (divergence): a pasted *folder* keeps its name — it is usually a mod
+        folder from another profile, whose installer identifier carries that name.
         """
         import shutil
 

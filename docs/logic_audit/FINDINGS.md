@@ -46,12 +46,26 @@ Notes from the fixes:
   NIT, and settings version 2 turns it on once in existing settings files (every
   field is saved, so the old wrong default was in all of them). The update
   scenario now matches NIT at the rebuild step.
-- **Open question — natural sort of `.` vs digits.** NIT's `WinCompare`
+- **Resolved — natural sort of `.` vs digits: VK is right.** NIT's `WinCompare`
   (`StrCmpLogicalW`) measured under Wine sorts `.` *after* digits, so ungrouped
-  mods (`......001`) outrank "000.  Restorers" and even "100.  Community Packs";
-  VK's `win_compare` sorts `.` *before* digits. Group priority therefore differs
-  whenever an ungrouped mod conflicts with a grouped one. Needs a check on real
-  Windows before deciding which is right.
+  mods (`......001`) outrank "000.  Restorers"; VK's `win_compare` sorts `.`
+  *before* digits. NIT's own help settles it for Windows: "Ungrouped Mods always
+  appear at the top of your Mod list, which means they will have the lowest
+  priority when the Installer Tool is dealing with file conflicts." So under
+  Wine NIT gets its own priority wrong. Consequence for comparisons: in the
+  "restorer" scenario (a restorer holding a user file, then an *ungrouped* mod
+  with the same file installed) NIT-under-Wine installs the mod's copy, VK keeps
+  the restorer's — VK matches NIT on Windows. (Before the S3 fix this was hidden:
+  with CRC 0 the restorer never counted as installed.)
+- **Stage-2 re-run after the sixth–ninth batches (2026-09-27):** basic, deps,
+  update, restorer, archives. deps and basic identical in every mod state and
+  game file; archives identical (A1 kept archive and N1 names now agree; only a
+  1-byte fixture-size difference, each side generates its own archives);
+  restorer differs only by the Wine sort above. update: NIT labels Alpha
+  *Installed* while its own file data has Alpha's `shared.2da` *Overridden*;
+  NIT's `SetModState` gives *Installed and Overridden* for those file states (as
+  NIT shows in "basic"), so NIT's label is stale — its `UpdateFileStates` runs on
+  a background thread (`ProcessAsThread`). VK shows *Installed and Overridden*.
 - NIT creates an empty `userpatch.ini` at first run; VK creates it at the first
   install (the game treats a missing file as empty).
 - **Incident:** the first S1 fix wrote `userpatch.ini` into the developer's real
@@ -115,7 +129,7 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | U2 ✅ | Rebuilt installer of an installed mod isn't reinstalled (VK `installer_restore` default False; NIT True) |
 | A1 ✅ | Pasted archive not kept in the mod's `_Downloads` — fixed: Add Mods from Files moves it there (copies when "Use Move (rather than Copy) when adding files" is off), a clipboard paste copies it. Note: NIT's `BehaviourMoveAddedMods` *is* that move/copy preference; VK's `move_added_mods` is a separate VK default-group option that reused the name. |
 | S3 ✅ | Mod state after uninstall/override differs (VK shows "Some and Match" for a mod whose file is another mod's copy) — fixed: the cause was missing CRCs. After building an installer VK scanned its files but never checksummed them (VB `UpdateProfileData` runs `CalculateChecksums` first), so every new file had CRC 0 and same-named files "matched". `ProfileData.update_file_states` now checksums pending mod files first. Re-ran stage 2 "basic" against NIT: every mod state matches at every step. NIT's earlier "Not Installed" for Alpha after its uninstall did not reproduce — NIT now gives "Some and Overridden", like VK: NIT runs `UpdateFileStates` on a background thread (`ProcessAsThread`), so that label is timing-dependent in NIT. The harness snapshot now includes enum properties (`FileState`). |
-| N1 | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — port the tidy-up without NIT's `( EE)` bug |
+| N1 ✅ | Mod names from raw archive names not tidied (`angel_falls_prelude_v24`) — fixed: `core/mod_names.mod_name_from_file` ports `ModNameFromFile`'s word rules for raw names (underscores or no capitals) and leaves clean names alone. Checked with the harness `modname` query on 26 names: 23 identical to NIT; the 3 others are deliberate (NIT's "MIX of Things", "Tales of Arterra ( EE)", "CEP V2.x"). Applies to archives; a pasted *folder* keeps its name (its installer identifier carries it). |
 | M2 | `nitconfig` folders always excluded (deliberate; effect on re-created installers unverified) |
 
 ## Vaultkeeper better than NIT

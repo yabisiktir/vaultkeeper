@@ -1057,7 +1057,7 @@ def test_add_mods_from_files(controller, tmp_path) -> None:
         contents={"cool.zip": {"hak/c.hak": b"CCC", "readme.txt": b"hi"}}
     )
     result = controller.add_mods_from_files([tmp_path / "cool.zip"], group="100. Packs")
-    assert result["created"] == ["cool"]
+    assert result["created"] == ["Cool"]  # tidied as NIT does (ModNameFromFile)
     md = controller.pd.mod_item("cool")
     assert md is not None and md.group == "100. Packs"
     mod_dir = controller.ctx.profile_mods_dir / "cool"
@@ -1068,7 +1068,7 @@ def test_add_mods_from_files(controller, tmp_path) -> None:
     r2 = controller.add_mods_from_files(
         [tmp_path / "notes.txt", tmp_path / "cool.zip"]
     )
-    assert r2["errors"] == ["notes.txt"] and r2["ignored"] == ["cool"]
+    assert r2["errors"] == ["notes.txt"] and r2["ignored"] == ["Cool"]
     assert not r2["created"]
 
 

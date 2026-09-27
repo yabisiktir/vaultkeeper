@@ -189,9 +189,15 @@ def main() -> None:
                 if not raw.strip() or raw.startswith("#"):
                     continue
                 a = raw.split("\t")
-                # "@stem" = the mod VK creates from a pasted source of that name (verbatim stem)
-                a = [x[1:] if x.startswith("@") else x for x in a]
-                op, lst = a[0], ([x.lstrip("@") for x in a[1].split("|")] if len(a) > 1 else [])
+                # "@stem" = the mod VK creates from a pasted source of that name
+                # (the stem tidied into a mod name, as VB ModNameFromFile does).
+                from vaultkeeper.core.mod_names import mod_name_from_file
+
+                def named(x: str) -> str:
+                    return mod_name_from_file(x[1:]) if x.startswith("@") else x
+
+                a = [named(x) for x in a]
+                op, lst = a[0], ([named(x) for x in a[1].split("|")] if len(a) > 1 else [])
                 n += 1
                 step = f"{n:02d} {raw.replace(chr(9), ' ')}"
                 status = ""

@@ -62,7 +62,7 @@ def test_paste_archive_delegates_to_add_mods(tmp_path):
     archive.write_bytes(b"")  # must exist on disk to be seen as a file source
 
     result = controller.paste_mod_sources([archive], group="100. Packs")
-    assert result["created"] == ["cool"]
+    assert result["created"] == ["Cool"]  # tidied as NIT does (ModNameFromFile)
     assert (controller.ctx.profile_mods_dir / "cool" / "override" / "o.2da").is_file()
 
 
@@ -85,7 +85,7 @@ def test_paste_mixed_dir_and_archive(tmp_path):
     archive.write_bytes(b"")
 
     result = controller.paste_mod_sources([src_dir, archive])
-    assert set(result["created"]) == {"Folder Mod", "pack"}
+    assert set(result["created"]) == {"Folder Mod", "Pack"}
 
 
 # -- UI: copy selected mods to the system clipboard ------------------------- #

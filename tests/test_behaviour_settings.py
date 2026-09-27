@@ -49,7 +49,7 @@ def test_move_added_mods_uses_default_group(tmp_path):
     archive.write_bytes(b"")
 
     result = ctrl.add_mods_from_files([archive])
-    assert result["created"] == ["cool"]
+    assert result["created"] == ["Cool"]  # tidied as NIT does (ModNameFromFile)
     assert ctrl.pd.mod_item("cool").group == "Downloads"
 
 

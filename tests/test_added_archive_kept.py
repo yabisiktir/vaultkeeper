@@ -37,7 +37,7 @@ def _download(tmp_path: Path) -> Path:
 
 
 def _kept(c: ProfileController) -> Path:
-    return c.ctx.profile_mods_dir / "cool_mod" / C.DOWNLOADS_DIR / "cool_mod.7z"
+    return c.ctx.profile_mods_dir / "Cool Mod" / C.DOWNLOADS_DIR / "cool_mod.7z"
 
 
 def test_add_mods_from_files_moves_the_archive_by_default(tmp_path: Path) -> None:
@@ -69,10 +69,10 @@ def test_a_pasted_archive_is_copied_into_downloads(tmp_path: Path) -> None:
 
     result = c.paste_mod_sources([source])
 
-    assert result["created"] == ["cool_mod"]
+    assert result["created"] == ["Cool Mod"]
     assert _kept(c).read_bytes() == b"ARCHIVE"
     assert source.exists()  # a paste leaves the clipboard's original alone
-    assert (c.ctx.profile_mods_dir / "cool_mod" / "hak" / "c.hak").is_file()
+    assert (c.ctx.profile_mods_dir / "Cool Mod" / "hak" / "c.hak").is_file()
 
 
 def test_the_installer_builds_once_from_both_copies(tmp_path: Path) -> None:
@@ -81,10 +81,10 @@ def test_the_installer_builds_once_from_both_copies(tmp_path: Path) -> None:
     c = _controller(tmp_path)
     c.add_mods_from_files([_download(tmp_path)])
 
-    result = c.build_installer_payload("cool_mod")
+    result = c.build_installer_payload("Cool Mod")
 
     assert result["ok"]
-    installer = c.ctx.profile_mods_dir / "cool_mod" / C.MOD_INSTALLER_DIR
+    installer = c.ctx.profile_mods_dir / "Cool Mod" / C.MOD_INSTALLER_DIR
     payload = sorted(
         p.relative_to(installer).as_posix()
         for p in installer.rglob("*")
