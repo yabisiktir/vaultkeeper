@@ -180,6 +180,20 @@ both apps' download dialogs (stage 1c follow-up). NIT's non-EE version detection
 | E1 ✅ | Hak files the game could not load were parsed but never shown (NIT: "Module Load Failure") |
 | E2 ✅ | Log markers matched case-sensitively (NIT: case-insensitive) |
 
+## Stage 3f — installer tooling (details: `stage3f_installer_tooling.md`)
+
+| ID | Finding |
+|---|---|
+| F1 ✅ | Add Files put files in the installer, not the mod folder: lost on the next rebuild, archives left packed |
+| F2 ✅ | No way to add files to an installer (NIT's installer paste / `UpdateInstaller`) |
+| F3 ✅ | The status bar's Overwrite toggle was read by nothing |
+| F4 ✅ | Re-publishing added into the old archive (stale files kept); NIT asks and recycles it |
+| F5 ✅ | Publish could not generate the Installation Guide |
+| F6 ✅ | "Install after create" left a rebuilt, previously installed mod uninstalled |
+| F7 ✅ | Convert Restorer left the payload only in the installer (latent loss on rebuild) |
+| F8 ✅ | No offer to build the installer after saving a wizard |
+| F9 ✅ | No wizard file-count threshold warning |
+
 ## Vaultkeeper better than NIT
 
 | ID | Finding |
@@ -199,6 +213,6 @@ layouts.
 
 - Stage 1c follow-up: replay recorded Vault responses to both apps' download
   selection (which files each offers) for the R-findings' projects.
-- Stage 3 (other features), incl. profile create/switch, INI aliases (S4),
-  Game Saves Manager, backups, play data, portraits/start screens, Workshop.
+- Stage 3g–3j: portraits/start screens, Workshop, documents, characters.
+- `wizard_file_threshold` and `saves_threshold` are not in the Settings dialog.
 - Stage 4 residual code review; Stage 5 fixes.
