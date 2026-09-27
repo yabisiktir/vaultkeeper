@@ -152,3 +152,18 @@ def test_user_restorer_names_cannot_take_an_auto_name(qtbot, tmp_path: Path, mon
     win._on_create_restorer()
 
     assert win.controller.pd.mod_item("Sneaky (Auto)") is None
+
+
+def test_files_written_while_playing_are_backed_up_straight_away(tmp_path: Path) -> None:
+    # VB CheckSelectedFiles/CheckAutoFileChanges run on game exit, so a database or
+    # journal the game created is recorded and backed up without reopening.
+    _game(tmp_path, GAME)
+    c = _controller(tmp_path)
+    c.run_auto_restorers()
+    _game(tmp_path, {"database/new.sqlite3": "NEW", "localvault/second.txt": "j2"})
+
+    result = c.run_auto_restorers()
+
+    assert result["database"] == 1 and result["journal"] == 1
+    assert _backup(tmp_path, C.AUTO_DATABASE, "database", "new.sqlite3").read_text() == "NEW"
+    assert _backup(tmp_path, C.AUTO_JOURNAL_FILES, "localvault", "second.txt").read_text() == "j2"

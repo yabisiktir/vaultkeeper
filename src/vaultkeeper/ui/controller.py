@@ -56,6 +56,37 @@ _GAME_SAVES_PROTECTED = (
 )
 
 
+#: Game files NIT does not call illegal although their extension is not NWN's
+#: (``Application Definitions.txt`` ValidInstalledFilenames / ValidInstalledExtensions,
+#: plus the patch-INI backups). ``"*"`` = any folder.
+_VALID_INSTALLED_FILENAMES: Final = frozenset(
+    {"2dasource.zip", "cryptographic_secret", "nwn.ini.bak", "nwnpatch.ini.bak",
+     "userpatch.ini.bak"}
+)
+_VALID_INSTALLED_EXTENSIONS: Final = {
+    ".log": ("*",),
+    ".gif": ("ovr",),
+    ".jpg": ("ovr", "mod"),
+    ".png": ("ovr",),
+    ".json": ("mod", "nwm"),
+}
+
+
+def _valid_installed_file(folder: str, filename: str) -> bool:
+    """True for a non-NWN file that belongs in a game folder (VB ``IsIllegalFile``).
+
+    Also the ``vk_*.json`` manifests the save editor keeps beside the haks and
+    override files it writes: deleting one would orphan those files.
+    """
+    name = filename.lower()
+    if name in _VALID_INSTALLED_FILENAMES:
+        return True
+    if name.startswith("vk_") and name.endswith(".json"):
+        return True
+    folders = _VALID_INSTALLED_EXTENSIONS.get(Path(name).suffix)
+    return folders is not None and ("*" in folders or folder.lower() in folders)
+
+
 class ProfileController:
     """Owns the active profile and drives install/uninstall/save."""
 
@@ -1527,7 +1558,9 @@ class ProfileController:
                 if not path.is_file():
                     continue
                 scanned += 1
-                if mapper.is_nwn_extension(path.suffix):
+                if mapper.is_nwn_extension(path.suffix) or _valid_installed_file(
+                    name, path.name
+                ):
                     continue
                 try:
                     size = path.stat().st_size
@@ -2595,6 +2628,7 @@ class ProfileController:
         VB runs this when its window is activated and after the game or toolset
         exits. Returns ``{"database", "ini", "journal", "config", "message"}``.
         """
+        self.record_play_files()
         counts = {
             "database": self._auto_database_restorer(),
             "ini": self._auto_ini_file_restorer(),
@@ -2613,6 +2647,58 @@ class ProfileController:
         ]
         counts["message"] = ("Restorer files updated. " + " ".join(parts)) if parts else ""
         return counts
+
+    def record_play_files(self) -> int:
+        """Record database files and journals the game wrote (VB ``CheckSelectedFiles``).
+
+        NIT adds new database files and vault journals to its installed records,
+        and refreshes changed ones, when the game exits and when its window is
+        activated (``CheckSelectedFiles`` / ``CheckAutoFileChanges``), so the auto
+        restorers back them up straight away. Without this a database created
+        while playing was seen only when the profile next opened. Mods that ship a
+        file of the same name are re-stated. Returns the number of files recorded.
+        """
+        from vaultkeeper.core import constants as C
+        from vaultkeeper.core.crc import crc32_file
+
+        def is_journal(path: Path) -> bool:
+            return path.suffix.lower() == ".txt" and path.name != C.LETO_LOG_FILENAME
+
+        scans = (
+            ("database", lambda p: self.ctx.mapper.is_database_extension(p.suffix)),
+            ("localvault", is_journal),
+            ("dmvault", is_journal),
+        )
+        recorded: list[FileKeyInfo] = []
+        for folder, wanted in scans:
+            base = self.ctx.game_folders.get(folder)
+            if base is None or not base.is_dir():
+                continue
+            for path in base.iterdir():
+                if not path.is_file() or not wanted(path):
+                    continue
+                ifk = FileKeyInfo.installed(
+                    path.parent.name, path.name, root_folder_name=self.ctx.root_folder_name
+                )
+                ifd = self.pd.installed_item(ifk)
+                stat = path.stat()
+                if ifd is not None and ifd.byte_size == stat.st_size and (
+                    ifd.modified == datetime.fromtimestamp(stat.st_mtime)
+                ):
+                    continue
+                self.pd.add_installed_file(ifk, path)
+                self.pd.installed_item(ifk).file_crc = crc32_file(path)
+                recorded.append(ifk)
+        if not recorded:
+            return 0
+        keys = {ifk.file_key.lower() for ifk in recorded}
+        for fk in self.pd.file_list:
+            if fk.file_key.lower() in keys:
+                self.pd.changes.mods.affected(fk.mod_name)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        return len(recorded)
 
     def _refresh_installed_facts(self, keys) -> None:
         """Re-read size/date/checksum of installed files (VB ``CheckAutoFileChanges``).

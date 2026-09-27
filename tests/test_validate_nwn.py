@@ -154,3 +154,36 @@ def test_deleting_takes_only_the_ticked_ones(qtbot, controller, monkeypatch):
     assert not (user / "hak" / "manual.doc").exists()
     assert (user / "override" / "readme.pdf").exists(), "not ticked, not touched"
     assert dlg.table.topLevelItemCount() == 1
+
+
+def test_files_nit_allows_are_not_reported(tmp_path):
+    # VB IsIllegalFile exceptions (Application Definitions.txt), plus the save
+    # editor's own vk_*.json manifests beside the haks it writes.
+    user = tmp_path / "user"
+    for folder in ("hak", "mod", "override", "logs"):
+        (user / folder).mkdir(parents=True)
+    allowed = {
+        "mod": ["repository.json", "shot.jpg"],
+        "hak": ["vk_power_haks.json"],
+        "logs": ["nwclientLog1.log"],
+    }
+    for folder, names in allowed.items():
+        for name in names:
+            (user / folder / name).write_bytes(b"x")
+    (user / "hak" / "stray.json").write_bytes(b"x")
+    (user / "override" / "shot.jpg").write_bytes(b"x")
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+        game_user_dir=user,
+    )
+
+    flagged = {(r["folder"], r["filename"]) for r in c.validate_neverwinter_nights()["rows"]}
+
+    assert ("hak", "stray.json") in flagged
+    for folder, names in allowed.items():
+        for name in names:
+            assert (folder, name) not in flagged
