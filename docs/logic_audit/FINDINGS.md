@@ -11,8 +11,8 @@ Ranked by user impact. Details and evidence in `stage1_findings.md` /
 | U1 ✅ | Conflict winner follows batch order, not mod priority (install A+B together → VK keeps A's file, NIT B's) | install |
 | S1 ✅ | EE patch-hak list written to `<game install>/nwnpatch.ini` instead of `<user>/userpatch.ini`; VK also writes into the install folder | install |
 | U3 ✅ | Files deleted from a mod's source survive an installer rebuild and stay in the game | installer build |
-| S2 ✅* | NIT-managed "(Auto)" restorers (database, INI, journals, NIT config) missing | restorers |
-| M3 | **EE root folder maps to the install folder.** NIT's live table: on EE `nwn` = the *user* folder (`NwnFolders=nwn=<user>`); VK maps it to `game_root`. So VK installs mods' `.ini`/`.tml`/`.key`/`.dll`/`dialog.tlk` into the game installation folder, and never scans the user folder's own `nwn.ini`/`settings.tml` — which is why the INI auto-restorer (S2) finds nothing on EE. Fixing it moves where root files install, so existing installs need a migration. | mapping |
+| S2 ✅ | NIT-managed "(Auto)" restorers (database, INI, journals, NIT config) missing | restorers |
+| M3 ✅ | **EE root folder maps to the install folder.** NIT's live table: on EE `nwn` = the *user* folder (`NwnFolders=nwn=<user>`); VK maps it to `game_root`. So VK installs mods' `.ini`/`.tml`/`.key`/`.dll`/`dialog.tlk` into the game installation folder, and never scans the user folder's own `nwn.ini`/`settings.tml` — which is why the INI auto-restorer (S2) finds nothing on EE. Fixing it moves where root files install, so existing installs need a migration. | mapping |
 | M1 | Mods shipping `ovr/`, `mus/`, `txpk/`, EE `mod/` folders are routed by extension instead of into those folders | mapping |
 
 ✅ = fixed 2026-09-27 (stage 5, first batch). Each has regression tests that fail
@@ -22,11 +22,20 @@ on the old code (`tests/test_install_conflict_priority.py`,
 the stage-2 scenarios (deps, update, restorer: final game state identical).
 
 Notes from the fixes:
+- **M3 fixed** (fourth batch): on EE `nwn` resolves to the user folder and
+  root files are keyed by its name. Profiles made earlier are migrated when
+  opened: a root file recorded as installed by one of the profile's mods, still
+  in the install folder and identical to the mod's copy, moves to the user
+  folder (never over an existing file); nothing else in the install folder is
+  touched. Dry run on the owner's real data: only `desktop.ini` (Adreannadreas
+  Portrait Collections) moves. Remaining fresh-start differences vs NIT: NIT's
+  first run asks "Create Restorers for files installed by NWN?" (→ "2. NWN INI
+  Files Restorer") and creates an empty `userpatch.ini`; VK does neither at
+  first run (stage 3, first-run flow).
 - **S2 fixed** (third batch): `ProfileController.run_auto_restorers` ports
   `RunAutoRestorers` (database, INI, journal, NIT config; the character one
   already existed), run at start-up and after a game/toolset session.
-  *Caveat:* on EE the INI restorer finds nothing until M3 is fixed; the other
-  three work. Also found: `rescan_installed_state` keeps the record of a game
+  On EE the INI restorer needed M3 (fixed in the next batch). Also found: `rescan_installed_state` keeps the record of a game
   file that has vanished from disk (the restorers check the disk instead).
 - **U2 fixed too** (second batch): `installer_restore` defaults to True as in
   NIT, and settings version 2 turns it on once in existing settings files (every

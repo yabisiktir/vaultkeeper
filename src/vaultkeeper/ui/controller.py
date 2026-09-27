@@ -79,6 +79,9 @@ class ProfileController:
         #: the platform default location.
         self._settings_path = settings_path
         self._restore_ee_install_patch_ini()
+        #: One-line notes from start-up housekeeping, for the status bar.
+        self.startup_notes: list[str] = []
+        self._migrate_ee_root_files()
         self._hpm = HakPatchManager(pd, self.patch_ini_path)
         self.engine = ModInstallationManager(
             pd, ctx, hak_patch=self._hpm.create_nwn_patch_ini_file, on_save=self.save
@@ -142,11 +145,17 @@ class ProfileController:
             ),
         )
 
+        # Root-level installed files are keyed "nwn\\<file>" by matching their folder
+        # name; on EE the root is the user folder (see Mapper.nwn_folder_paths).
+        root_folder_name = (
+            Path(folder_user_dir).name if is_ee and folder_user_dir else game_root.name
+        )
+
         pd = load_profile(store_path) if store_path else None
         if pd is None:
             pd = ProfileData()
             pd.scan_mods(profile_mods_dir)
-            pd.scan_installed(game_folders, root_folder_name=game_root.name)
+            pd.scan_installed(game_folders, root_folder_name=root_folder_name)
             pd.calculate_checksums(profile_mods_dir, game_folders)
             pd.update_file_states()
             pd.update_mod_states()
@@ -156,13 +165,13 @@ class ProfileController:
             # A profile imported from a legacy NIT Store carries mod definitions +
             # file keys but no FileList/InstalledList — rebuild install state from
             # the live game so already-installed mods show correctly (first open).
-            pd.rescan_installed_state(game_folders, root_folder_name=game_root.name)
+            pd.rescan_installed_state(game_folders, root_folder_name=root_folder_name)
 
         ctx = InstallContext(
             profile_mods_dir=profile_mods_dir,
             game_root=game_root,
             game_folders=game_folders,
-            root_folder_name=game_root.name,
+            root_folder_name=root_folder_name,
             mapper=mapper,
             is_ee=is_ee,
             game_user_dir=game_user_dir,
@@ -3388,6 +3397,92 @@ class ProfileController:
 
             get_logger(__name__).warning(
                 "Could not restore %s from %s", installed, backup, exc_info=True
+            )
+
+    def _migrate_ee_root_files(self) -> None:
+        """Move EE root files an older version put in the install folder (audit M3).
+
+        On EE the game's root folder ("nwn") is the user files folder — where NIT
+        installs a mod's ``.ini``/``.tml``/``.key``/``.dll``/``dialog.tlk`` and
+        where ``nwn.ini`` and ``settings.tml`` live. Older versions used the install
+        folder instead. For each root file recorded as installed by a mod of this
+        profile that is still in the install folder and still identical to that
+        mod's copy, move it to the user folder — unless one is already there, which
+        is left alone and reported. Nothing else in the install folder is touched.
+        Then the root folder's records are re-read from the user folder.
+        """
+        import shutil
+
+        from vaultkeeper.core import constants as C
+
+        new_root = self.ctx.ee_user_files_dir
+        if not self.ctx.is_ee or new_root is None:
+            return
+        old_root = self.ctx.game_root
+        if old_root.resolve() == Path(new_root).resolve():
+            return
+        root_keys = [
+            ifk for ifk in self.pd.installed_list if ifk.folder.lower() == C.MOD_ROOT_FOLDER
+        ]
+        new_root_files = (
+            {p.name.lower() for p in Path(new_root).iterdir() if p.is_file()}
+            if Path(new_root).is_dir()
+            else set()
+        )
+        recorded = {ifk.filename.lower() for ifk in root_keys}
+        stale = [ifk for ifk in root_keys if ifk.filename.lower() not in new_root_files]
+        if not stale and new_root_files <= recorded:
+            return  # already migrated: the records describe the user folder
+        moved: list[str] = []
+        kept: list[str] = []
+        for ifk in root_keys:
+            ifd = self.pd.installed_item(ifk)
+            owner = self.pd.mod_item(ifd.installer) if ifd is not None else None
+            old = old_root / ifk.filename
+            if owner is None or owner.is_group_item or not old.is_file():
+                continue
+            mod_copy = self.ctx.mod_path(
+                FileKeyInfo(owner.group, owner.mod_name, ifk.folder, ifk.filename)
+            )
+            if not mod_copy.is_file() or mod_copy.read_bytes() != old.read_bytes():
+                continue  # not the mod's file any more: not ours to move
+            new = Path(new_root) / ifk.filename
+            if new.exists():
+                kept.append(ifk.filename)
+                continue
+            new.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(old), str(new))
+            moved.append(ifk.filename)
+
+        # Re-read the root folder: records for install-folder files go, the user
+        # folder's own root files (nwn.ini, settings.tml, …) come in.
+        for ifk in root_keys:
+            if not (Path(new_root) / ifk.filename).is_file():
+                self.pd.installed_list.pop(ifk, None)
+        self.pd.scan_installed(
+            {C.MOD_ROOT_FOLDER: Path(new_root)}, root_folder_name=self.ctx.root_folder_name
+        )
+        for ifk in [k for k in self.pd.installed_list if k.folder.lower() == C.MOD_ROOT_FOLDER]:
+            self.pd.set_mod_files(ifk)
+        for ifk in [k for k in self.pd.installed_list if k.folder.lower() == C.MOD_ROOT_FOLDER]:
+            for mfk in self.pd.installed_item(ifk).mod_file_conflicts:
+                self.pd.changes.mods.affected(mfk.mod_name)
+        for ifk in stale:
+            for fk in self.pd.file_list:
+                if fk.installed_key == ifk:
+                    self.pd.changes.mods.affected(fk.mod_name)
+        self.pd.update_file_states()
+        self.pd.update_mod_states()
+        self.save()
+        if moved:
+            self.startup_notes.append(
+                f"Moved {len(moved)} file(s) mods had put in the game's install folder "
+                f"to your user folder: {', '.join(sorted(moved))}."
+            )
+        if kept:
+            self.startup_notes.append(
+                f"Left {len(kept)} file(s) in the game's install folder because your user "
+                f"folder already has a file of that name: {', '.join(sorted(kept))}."
             )
 
     def _rebuild_engine(self) -> None:

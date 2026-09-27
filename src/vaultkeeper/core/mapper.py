@@ -778,7 +778,7 @@ class Mapper:
         * the ``data`` sub-folders ``mod``/``nwm``/``mus``/``txpk`` →
           ``<ee_library>/data/<name>`` (``Paths.ExtendedDataPath``),
         * ``ovr`` → ``<ee_library>/ovr`` (``Paths.ExtendedOvrPath``),
-        * the "nwn" root → ``game_root``,
+        * the "nwn" root → ``user_dir`` (VB ``Paths.Nwn`` is the user folder on EE),
         * any folder named in ``alias_locations`` (from ``nwn.ini`` ``[Alias]``,
           see :func:`vaultkeeper.game.nwn_folders.read_alias_locations`) → that path,
         * everything else (hak/tlk/override/ambient/movies/music/portraits/…) →
@@ -801,7 +801,11 @@ class Mapper:
                 paths[name] = game_root if low == FOLDER_ROOT else game_root / name
                 continue
             if low == FOLDER_ROOT:
-                paths[name] = game_root
+                # VB DefineNwnFolders: NwnRootFolder = Paths.Nwn, which for an EE
+                # profile is the user files folder (NIT's live table maps "nwn" there).
+                # Root-mapped files (.ini/.tml/.key/.dll, dialog.tlk) and nwn.ini /
+                # settings.tml / userpatch.ini all live there, not in the install.
+                paths[name] = Path(user_dir)
             elif low in self._EE_DATA_SUBFOLDERS:
                 paths[name] = ee_data / name
             elif low == FOLDER_OVR:

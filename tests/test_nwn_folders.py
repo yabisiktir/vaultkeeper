@@ -192,8 +192,9 @@ def test_folder_paths_ee_splits_user_and_install() -> None:
     assert paths["txpk"] == install / "data" / "txpk"
     # ovr is the install-side EE override.
     assert paths["ovr"] == install / "ovr"
-    # The root marker stays the install root.
-    assert paths["nwn"] == install
+    # The root marker is the user folder on EE, as in NIT (its live folder table
+    # maps "nwn" to the user folder; logic audit finding M3).
+    assert paths["nwn"] == user
     # User content resolves under the user dir.
     assert paths["hak"] == user / "hak"
     assert paths["tlk"] == user / "tlk"
@@ -220,7 +221,7 @@ def test_folder_paths_ee_library_override() -> None:
     paths = mapper.nwn_folder_paths(root, user_dir=user, ee_library=lib)
     assert paths["mod"] == lib / "data" / "mod"
     assert paths["ovr"] == lib / "ovr"
-    assert paths["nwn"] == root
+    assert paths["nwn"] == user
 
 
 # --- Real-data golden test (opt-in; see tests/real_data.py) --------------- #

@@ -108,9 +108,11 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
     if controller is not None:
         try:
             auto = controller.run_auto_restorers()
-            if auto["message"]:
+            notes = [*getattr(controller, "startup_notes", []), auto["message"]]
+            notes = [n for n in notes if n]
+            if notes:
                 window.refresh()
-                window.nit_status.set_info(auto["message"])
+                window.nit_status.set_info(" ".join(notes))
         except Exception:
             logger.exception("Auto restorers failed; continuing")
 
