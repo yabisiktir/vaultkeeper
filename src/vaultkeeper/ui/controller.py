@@ -6944,7 +6944,9 @@ class ProfileController:
         generic icon, so there is nothing to re-fetch — the useful half is the
         validation, which is what this does.
         """
-        links = list(self._settings().web_links)
+        from vaultkeeper.config.settings import is_menu_separator
+
+        links = [link for link in self._settings().web_links if not is_menu_separator(link)]
         findings: list[dict] = []
         for index, link in enumerate(links):
             url = str(link.get("url", "")).strip()
@@ -7195,6 +7197,17 @@ class ProfileController:
                     "range": rng.name,
                     "count": rng.saves.count,
                     "size": _fmt_size(rng.saves.total_size),
+                    # The range folder and its saves, for VB GameManagerRestore's
+                    # FvGameSaves (CmOpen / CmCharacterSummary act on a save).
+                    "path": str(rng.folder),
+                    "saves": [
+                        {
+                            "name": info.name,
+                            "size": _fmt_size(info.byte_size),
+                            "path": str(info.full_name),
+                        }
+                        for info in rng.saves.folders
+                    ],
                 }
             )
         return rows

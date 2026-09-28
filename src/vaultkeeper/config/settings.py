@@ -38,6 +38,15 @@ def default_web_links() -> list[dict[str, str]]:
     ]
 
 
+#: A separator in the Run or Web menu (VB ``ToolStripSeparator`` entries; NIT
+#: lists them as ``<Separator>``).
+MENU_SEPARATOR: dict[str, str] = {"separator": "true"}
+
+
+def is_menu_separator(entry: dict) -> bool:
+    return str(entry.get("separator", "")).lower() == "true"
+
+
 def default_run_links() -> list[dict[str, str]]:
     """The default Run-menu programs (VB ``Defs.DefaultRunMenu`` / ``My.Settings.MenuRun``).
 

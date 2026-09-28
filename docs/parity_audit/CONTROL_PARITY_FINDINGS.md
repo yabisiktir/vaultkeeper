@@ -131,6 +131,6 @@ the orchestrator decides THIN-OUT vs BOUNDED.
 | StartScreen Options ribbon + Slideshow | ✅ done: Options menu (auto-selection, exclusions, report, slide-show interval and continuous mode) and Slide Show |
 | PortraitManager `RbOptions` | ✅ done: Options menu |
 | DependencyManager `BtAuto` | ✅ done: Auto |
-| GameManagerRestore `CmCharacterSummary` / `CmOpen` | still BOUNDED: archived save ranges have Restore and Delete Archive but no Character Summary or Open Folder of their own (the live saves list has both) |
-| AliasSectionEditor `RestoreFolder` / `CmUndo` | still BOUNDED: no per-row "back to the standard folder" or undo of an edit before Save (Close discards everything) |
+| GameManagerRestore `CmCharacterSummary` / `CmOpen` | ✅ done: archived ranges open to their saves; right-click offers Open with File Explorer and Display Character Summary |
+| AliasSectionEditor `RestoreFolder` / `CmUndo` | ✅ done: per-row Edit / Undo (Ctrl+Z) on right-click, Edit/Undo row icons, Save only once something changed |
 | NitDownload (self-update) | still DEFERRED: no update server for Vaultkeeper |

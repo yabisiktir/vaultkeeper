@@ -81,12 +81,11 @@ def _seed_archive(controller: ProfileController) -> Path:
 
 def test_report_lists_archived_ranges(qtbot, tmp_path):
     controller = _controller(tmp_path)
-    _seed_archive(controller)
+    root = _seed_archive(controller)
     report = controller.game_saves_report()
-    assert report["archived"] == [
-        {"range": "000005-000005", "count": 1, "size": report["archived"][0]["size"]}
-    ]
-    assert report["archived"][0]["count"] == 1
+    (arc,) = report["archived"]
+    assert (arc["range"], arc["count"], arc["path"]) == ("000005-000005", 1, str(root))
+    assert [s["name"] for s in arc["saves"]] == ["000005 - archived"]
 
 
 def test_reduce_game_saves_controller(tmp_path):
@@ -674,3 +673,30 @@ def test_deleting_a_game_takes_its_archived_saves(tmp_path, recycle_bin):
 
     assert result["ok"] and "archived saves were deleted" in result["message"]
     assert not (controller.archived_saves_root() / "Adventure").exists()
+
+
+def test_archived_ranges_open_to_their_saves(qtbot, tmp_path, monkeypatch):
+    """VB GameManagerRestore: a range lists its saves, and a save can be opened
+    or summarised (CmOpen / CmCharacterSummary); Restore takes the whole range."""
+    from PySide6.QtGui import QDesktopServices
+
+    controller = _controller(tmp_path)
+    root = _seed_archive(controller)
+    dlg = GameSavesManager.show_for(controller)
+    qtbot.addWidget(dlg)
+
+    range_item = dlg.archives.topLevelItem(0)
+    assert range_item.childCount() == 1
+    save_item = range_item.child(0)
+    dlg.archives.setCurrentItem(save_item)
+    assert dlg._selected_range() is range_item
+    assert dlg.restore_button.isEnabled()
+    assert dlg._archive_save_path() == (str(root / "000005 - archived"), "000005 - archived")
+
+    dlg.archives.setCurrentItem(range_item)
+    assert dlg._archive_save_path()[0].endswith("000005 - archived"), "a range: its newest save"
+
+    opened = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url) or True)
+    dlg._reveal(range_item.data(0, 256))
+    assert [u.toLocalFile() for u in opened] == [str(root)]

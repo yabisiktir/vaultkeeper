@@ -151,7 +151,26 @@ def _more_builders(c):
         img.save(str(picture))
         return image_viewer.ImageViewer(picture)
 
+    def web_menu_tab():
+        from vaultkeeper.config.settings import MENU_SEPARATOR, Settings
+        from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+        links = [
+            {"text": "The Neverwinter &Vault", "url": "https://neverwintervault.org"},
+            dict(MENU_SEPARATOR),
+            {"text": "&Nexus Neverwinter Nights", "url": "https://www.nexusmods.com/neverwinter"},
+            {"text": "Beamdog Forums", "url": "https://forums.beamdog.com"},
+        ]
+        dlg = SettingsDialog(Settings(web_links=links))
+        for i in range(dlg.tabs.count()):
+            if dlg.tabs.tabText(i) == "Web Menu":
+                dlg.tabs.setCurrentIndex(i)
+        dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(3))
+        dlg._menu_remove("web")  # a saved item: marked until OK
+        return dlg
+
     return {
+        "SettingsWebMenu": web_menu_tab,
         "CharacterFilter": lambda: character_filter.CharacterFilter(["Fighter", "Wizard"]),
         "ClassesSkillsAndFeats": lambda: classes_skills_feats.ClassesSkillsAndFeatsDialog(),
         "CommonFiltersDialogue": lambda: common_filters.CommonFiltersDialog(

@@ -74,7 +74,18 @@ class AliasSectionEditor(QDialog):
             # Only the location (column 1) is editable; the alias key is fixed.
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
             self.tree.addTopLevelItem(item)
+            self._show_state(item)
         outer.addWidget(self.tree, 1)
+        # VB: each row's icon says Edit (as loaded) or Undo (changed); right-click
+        # offers Edit (choose a folder) and, on a changed row, Undo (RestoreFolder).
+        self.tree.itemChanged.connect(lambda item, _col: self._on_row_changed(item))
+        self.tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self._show_row_menu)
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        undo_key = QShortcut(QKeySequence("Ctrl+Z"), self.tree)
+        undo_key.setContext(Qt.ShortcutContext.WidgetShortcut)
+        undo_key.activated.connect(self._on_undo)
 
         if not self._exists:
             note = QLabel(
@@ -95,12 +106,45 @@ class AliasSectionEditor(QDialog):
         buttons.addStretch(1)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._on_save)
-        self.save_button.setEnabled(self._exists)
+        # VB: Save only once something has changed.
+        self.save_button.setEnabled(False)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)
         buttons.addWidget(self.save_button)
         buttons.addWidget(close_button)
         outer.addLayout(buttons)
+
+    def _is_changed(self, item: QTreeWidgetItem) -> bool:
+        return item.text(1).strip() != self._original.get(item.text(0), "")
+
+    def _show_state(self, item: QTreeWidgetItem) -> None:
+        changed = self._is_changed(item)
+        self.tree.blockSignals(True)
+        item.setIcon(0, R.get_icon("UndoLight_16x" if changed else "EditCheckBox"))
+        self.tree.blockSignals(False)
+
+    def _on_row_changed(self, item: QTreeWidgetItem) -> None:
+        self._show_state(item)
+        self.save_button.setEnabled(self._exists and bool(self.pending_updates()))
+
+    def _on_undo(self) -> None:
+        """VB RestoreFolder: the row back to the location it had when opened."""
+        item = self.tree.currentItem()
+        if item is not None and self._is_changed(item):
+            item.setText(1, self._original.get(item.text(0), ""))
+
+    def _show_row_menu(self, pos) -> None:
+        from PySide6.QtWidgets import QMenu
+
+        item = self.tree.currentItem()
+        if item is None:
+            return
+        menu = QMenu(self)
+        menu.addAction(R.get_icon("EditCheckBox"), "Edit", self._on_browse)
+        if self._is_changed(item):
+            menu.addAction(R.get_icon("UndoLight_16x"), "Undo", self._on_undo)
+        # popup(), not exec(): a nested event loop a headless test cannot leave.
+        menu.popup(self.tree.viewport().mapToGlobal(pos))
 
     def _on_browse(self) -> None:
         item = self.tree.currentItem()

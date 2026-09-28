@@ -13,7 +13,7 @@ the Mapper editors (see the FolderMapping viewer) and run/web menus come later.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QCursor, QIcon, QPixmap
+from PySide6.QtGui import QColor, QCursor, QIcon, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
     QColorDialog,
@@ -84,7 +84,11 @@ def _install_actions_menu(tree: QTreeWidget, actions: list[tuple[str, object]]) 
     # QMenu.exec cannot be patched away in PySide6, it dispatches to C++ either
     # way and blocks forever.
     menu = QMenu(tree)
-    for label, slot, *icon in actions:
+    for entry in actions:
+        if entry is None:
+            menu.addSeparator()
+            continue
+        label, slot, *icon = entry
         action = menu.addAction(label, slot)
         if icon:
             action.setIcon(R.get_icon(icon[0]))
@@ -760,14 +764,27 @@ class SettingsDialog(QDialog):
         return page
 
     # -- Run and Web menus (VB Settings.RunMenu / WebMenu + MenuItemEditor) -- #
-    #: NIT's commands for both menu pages: text, icon, key (VB CmRunMenu/CmWebMenu).
+    #: NIT's commands for both menu pages, in its order: text, icon, key, name
+    #: (VB CmRunMenu / CmWebMenu). ``None`` is a separator in the menu.
     _MENU_COMMANDS = (
         ("New Menu Item", "NewConstant_16x", "Ins", "add"),
+        ("Insert Separator", "MenuSeparator_16x", "Ctrl+Ins", "separator"),
         ("Edit Menu Item", "RowUpdating_16x", "Ctrl+E", "edit"),
-        ("Remove", "delete_16x16", "Del", "remove"),
+        ("Undo", "Undo_16x", "Ctrl+Z", "undo"),
+        None,
         ("Move Up", "UpArrowBlue", "", "up"),
         ("Move Down", "DownArrowBlue", "", "down"),
+        ("Move To", "MoveTo", "", "move_to"),
+        None,
+        ("Remove", "delete_16x16", "Del", "remove"),
     )
+    #: Row data: the saved (text, location), or None for a row added here; the
+    #: Remove mark; the separator flag.
+    _ROW_SAVED = Qt.ItemDataRole.UserRole
+    _ROW_DELETED = Qt.ItemDataRole.UserRole + 1
+    _ROW_SEPARATOR = Qt.ItemDataRole.UserRole + 2
+    #: How NIT shows a separator row (LazWorks ``ToolbarManager.SeparatorDisplay``).
+    SEPARATOR_TEXT = ("<Separator>", "\u2500" * 10)
 
     def _menu_page(
         self, kind: str, heading: str, headers: list[str]
@@ -784,21 +801,38 @@ class SettingsDialog(QDialog):
         tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         tree.setRootIsDecorated(False)
         tree.itemDoubleClicked.connect(lambda *_: self._menu_edit(kind))
+        tree.itemClicked.connect(lambda item, _col: self._menu_move_to_target(kind, item))
         row.addWidget(tree, 1)
         slots = {
             "add": lambda: self._menu_add(kind),
+            "separator": lambda: self._menu_insert_separator(kind),
             "edit": lambda: self._menu_edit(kind),
-            "remove": lambda: self._menu_remove(kind),
+            "undo": lambda: self._menu_undo(kind),
             "up": lambda: self._menu_move(kind, -1),
             "down": lambda: self._menu_move(kind, 1),
+            "move_to": lambda: self._menu_move_to(kind),
+            "remove": lambda: self._menu_remove(kind),
         }
         buttons = QVBoxLayout()
-        for text, icon, key, name in self._MENU_COMMANDS:
+        if not hasattr(self, "_move_to_buttons"):
+            self._move_to_buttons: dict[str, QPushButton] = {}
+            self._move_from: dict[str, QTreeWidgetItem | None] = {}
+        for command in self._MENU_COMMANDS:
+            if command is None:
+                buttons.addSpacing(8)
+                continue
+            text, icon, key, name = command
             btn = QPushButton(R.get_icon(icon), text)
             if key:
                 native = QKeySequence(key).toString(QKeySequence.SequenceFormat.NativeText)
                 btn.setToolTip(f"{text} ({native})")
-            btn.clicked.connect(slots[name])
+            if name == "move_to":
+                btn.setCheckable(True)
+                btn.setToolTip("Then click the row to move the selected item to")
+                btn.clicked.connect(lambda _c=False, k=kind: self._menu_move_to(k))
+                self._move_to_buttons[kind] = btn
+            else:
+                btn.clicked.connect(slots[name])
             buttons.addWidget(btn)
         reset = QPushButton("Reset")
         reset.clicked.connect(self._web_reset if kind == "web" else self._run_reset)
@@ -808,10 +842,15 @@ class SettingsDialog(QDialog):
         outer.addLayout(row)
         _install_actions_menu(
             tree,
-            [(text, slots[name], icon) for text, icon, _key, name in self._MENU_COMMANDS],
+            [
+                None if c is None else (c[0], slots[c[3]], c[1])
+                for c in self._MENU_COMMANDS
+            ],
         )
-        # Insert comes with the actions menu; Ctrl+E and Delete as NIT has them.
-        for key, name in (("Ctrl+E", "edit"), ("Del", "remove")):
+        # Insert comes with the actions menu; NIT's other keys, widget-scoped.
+        for key, name in (
+            ("Ctrl+Ins", "separator"), ("Ctrl+E", "edit"), ("Ctrl+Z", "undo"), ("Del", "remove"),
+        ):
             shortcut = QShortcut(QKeySequence(key), tree)
             shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
             shortcut.activated.connect(slots[name])
@@ -819,6 +858,46 @@ class SettingsDialog(QDialog):
 
     def _menu_tree(self, kind: str) -> QTreeWidget:
         return self.web_tree if kind == "web" else self.run_tree
+
+    def _menu_row(
+        self, kind: str, text: str, location: str, *, saved: bool, separator: bool = False
+    ) -> QTreeWidgetItem:
+        """A row at the end of the list; ``saved`` rows remember their values for Undo."""
+        item = QTreeWidgetItem(list(self.SEPARATOR_TEXT) if separator else [text, location])
+        self._mark_row(item, separator=separator)
+        if saved and not separator:
+            item.setData(0, self._ROW_SAVED, (text, location))
+        self._menu_tree(kind).addTopLevelItem(item)
+        return item
+
+    def _mark_row(self, item: QTreeWidgetItem, *, separator: bool) -> None:
+        item.setData(0, self._ROW_SEPARATOR, separator)
+        if separator:
+            dim = self.palette().color(QPalette.ColorRole.PlaceholderText)
+            for col in (0, 1):
+                item.setForeground(col, dim)
+
+    @classmethod
+    def _is_separator(cls, item: QTreeWidgetItem) -> bool:
+        return bool(item.data(0, cls._ROW_SEPARATOR))
+
+    @classmethod
+    def _is_deleted(cls, item: QTreeWidgetItem) -> bool:
+        return bool(item.data(0, cls._ROW_DELETED))
+
+    def _set_deleted(self, item: QTreeWidgetItem, deleted: bool) -> None:
+        """NIT's Remove on a saved item: shown struck through in red until OK."""
+        from vaultkeeper.ui.theme import status_colour
+
+        item.setData(0, self._ROW_DELETED, deleted)
+        for col in (0, 1):
+            font = item.font(col)
+            font.setStrikeOut(deleted)
+            item.setFont(col, font)
+            if deleted:
+                item.setForeground(col, status_colour("duplicate"))
+            else:
+                item.setData(col, Qt.ItemDataRole.ForegroundRole, None)
 
     def _open_menu_item_editor(self, kind: str, text: str, location: str, others: list[str]):
         """The editor, or ``None`` when cancelled; a seam for tests."""
@@ -837,18 +916,25 @@ class SettingsDialog(QDialog):
             tree.topLevelItem(i).text(0)
             for i in range(tree.topLevelItemCount())
             if tree.topLevelItem(i) is not skip
+            and not self._is_separator(tree.topLevelItem(i))
         ]
 
     def _menu_add(self, kind: str) -> None:
         """VB NewMenuItem: the editor, then insert after the selected row."""
         result = self._open_menu_item_editor(kind, "", "", self._menu_texts(kind))
         if result is not None:
-            _insert_after_current(self._menu_tree(kind), list(result))
+            item = _insert_after_current(self._menu_tree(kind), list(result))
+            self._mark_row(item, separator=False)
+
+    def _menu_insert_separator(self, kind: str) -> None:
+        """VB Cm_InsertSeparator: a separator after the selected row."""
+        item = _insert_after_current(self._menu_tree(kind), list(self.SEPARATOR_TEXT))
+        self._mark_row(item, separator=True)
 
     def _menu_edit(self, kind: str) -> None:
-        """VB ChangeMenuItem."""
+        """VB ChangeMenuItem (not for a separator or a removed item)."""
         item = self._menu_tree(kind).currentItem()
-        if item is None:
+        if item is None or self._is_separator(item) or self._is_deleted(item):
             return
         result = self._open_menu_item_editor(
             kind, item.text(0), item.text(1), self._menu_texts(kind, skip=item)
@@ -857,11 +943,31 @@ class SettingsDialog(QDialog):
             item.setText(0, result[0])
             item.setText(1, result[1])
 
+    def _menu_undo(self, kind: str) -> None:
+        """VB Cm_Undo: the selected item back to its saved values, un-removed."""
+        item = self._menu_tree(kind).currentItem()
+        if item is None:
+            return
+        saved = item.data(0, self._ROW_SAVED)
+        if saved:
+            item.setText(0, saved[0])
+            item.setText(1, saved[1])
+        if self._is_deleted(item):
+            self._set_deleted(item, False)
+
     def _menu_remove(self, kind: str) -> None:
+        """VB Cm_Remove: a new item or separator goes now; a saved one is marked."""
         tree = self._menu_tree(kind)
-        index = tree.indexOfTopLevelItem(tree.currentItem())
-        if index >= 0:
+        item = tree.currentItem()
+        if item is None:
+            return
+        if self._is_separator(item) or not item.data(0, self._ROW_SAVED):
+            index = tree.indexOfTopLevelItem(item)
             tree.takeTopLevelItem(index)
+            if tree.topLevelItemCount():
+                tree.setCurrentItem(tree.topLevelItem(min(index, tree.topLevelItemCount() - 1)))
+        else:
+            self._set_deleted(item, True)
 
     def _menu_move(self, kind: str, delta: int) -> None:
         tree = self._menu_tree(kind)
@@ -873,21 +979,71 @@ class SettingsDialog(QDialog):
         tree.insertTopLevelItem(target, item)
         tree.setCurrentItem(item)
 
+    def _menu_move_to(self, kind: str) -> None:
+        """VB Cm_MoveTo: pick the item, then click where it goes (again to cancel)."""
+        tree = self._menu_tree(kind)
+        button = self._move_to_buttons[kind]
+        if self._move_from.get(kind) is None and tree.currentItem() is not None:
+            self._move_from[kind] = tree.currentItem()
+            tree.setCursor(Qt.CursorShape.SplitVCursor)
+            button.setChecked(True)
+        else:
+            self._end_move_to(kind)
+
+    def _end_move_to(self, kind: str) -> None:
+        self._move_from[kind] = None
+        self._menu_tree(kind).unsetCursor()
+        self._move_to_buttons[kind].setChecked(False)
+
+    def _menu_move_to_target(self, kind: str, target: QTreeWidgetItem) -> None:
+        """VB MoveItems: up the list it lands before the target, down it lands after."""
+        source = self._move_from.get(kind)
+        if source is None or target is source:
+            return
+        tree = self._menu_tree(kind)
+        moving_up = tree.indexOfTopLevelItem(target) < tree.indexOfTopLevelItem(source)
+        tree.takeTopLevelItem(tree.indexOfTopLevelItem(source))
+        index = tree.indexOfTopLevelItem(target) + (0 if moving_up else 1)
+        tree.insertTopLevelItem(index, source)
+        tree.setCurrentItem(source)
+        self._end_move_to(kind)
+
+    def _menu_entries(self, kind: str, location_key: str) -> list[dict[str, str]]:
+        """The list as saved: removed rows dropped, separators kept, blanks dropped."""
+        from vaultkeeper.config.settings import MENU_SEPARATOR
+
+        tree = self._menu_tree(kind)
+        entries: list[dict[str, str]] = []
+        for i in range(tree.topLevelItemCount()):
+            item = tree.topLevelItem(i)
+            if self._is_deleted(item):
+                continue
+            if self._is_separator(item):
+                entries.append(dict(MENU_SEPARATOR))
+                continue
+            text, location = item.text(0).strip(), item.text(1).strip()
+            if text or location:
+                entries.append({"text": text, location_key: location})
+        return entries
+
     def _build_web_menu(self, settings: Settings) -> QWidget:
         """The Web-menu links (VB Settings WebMenu: Menu Text / Web Address)."""
+        from vaultkeeper.config.settings import is_menu_separator
+
         page, self.web_tree = self._menu_page(
             "web",
             "Links shown in the Web menu (double-click an item to change it):",
             ["Menu Text", "Web Address"],
         )
         for link in settings.web_links:
-            self._add_web_row(link.get("text", ""), link.get("url", ""))
+            self._menu_row(
+                "web", link.get("text", ""), link.get("url", ""),
+                saved=True, separator=is_menu_separator(link),
+            )
         return page
 
     def _add_web_row(self, text: str, url: str) -> QTreeWidgetItem:
-        item = QTreeWidgetItem([text, url])
-        self.web_tree.addTopLevelItem(item)
-        return item
+        return self._menu_row("web", text, url, saved=False)
 
     def _web_add(self) -> None:
         self._menu_add("web")
@@ -904,30 +1060,27 @@ class SettingsDialog(QDialog):
             self._add_web_row(link["text"], link["url"])
 
     def web_links(self) -> list[dict[str, str]]:
-        """The current Web-menu links from the tree (blank rows dropped)."""
-        links = []
-        for i in range(self.web_tree.topLevelItemCount()):
-            item = self.web_tree.topLevelItem(i)
-            text, url = item.text(0).strip(), item.text(1).strip()
-            if text or url:
-                links.append({"text": text, "url": url})
-        return links
+        """The Web-menu links as they will be saved."""
+        return self._menu_entries("web", "url")
 
     def _build_run_menu(self, settings: Settings) -> QWidget:
         """The Run-menu programs (VB Settings RunMenu: Menu Text / Program path)."""
+        from vaultkeeper.config.settings import is_menu_separator
+
         page, self.run_tree = self._menu_page(
             "run",
             "Programs shown in the Run menu (double-click an item to change it):",
             ["Menu Text", "Program Path"],
         )
         for entry in settings.run_links:
-            self._add_run_row(entry.get("text", ""), entry.get("path", ""))
+            self._menu_row(
+                "run", entry.get("text", ""), entry.get("path", ""),
+                saved=True, separator=is_menu_separator(entry),
+            )
         return page
 
     def _add_run_row(self, text: str, path: str) -> QTreeWidgetItem:
-        item = QTreeWidgetItem([text, path])
-        self.run_tree.addTopLevelItem(item)
-        return item
+        return self._menu_row("run", text, path, saved=False)
 
     def _run_add(self) -> None:
         self._menu_add("run")
@@ -947,14 +1100,8 @@ class SettingsDialog(QDialog):
             self._add_run_row(entry.get("text", ""), entry.get("path", ""))
 
     def run_links(self) -> list[dict[str, str]]:
-        """The current Run-menu programs from the tree (blank rows dropped)."""
-        entries = []
-        for i in range(self.run_tree.topLevelItemCount()):
-            item = self.run_tree.topLevelItem(i)
-            text, path = item.text(0).strip(), item.text(1).strip()
-            if text or path:
-                entries.append({"text": text, "path": path})
-        return entries
+        """The Run-menu programs as they will be saved."""
+        return self._menu_entries("run", "path")
 
     def _build_profiles(self, settings: Settings) -> QWidget:
         """The Profiles page (VB Settings ``LvProfiles``).

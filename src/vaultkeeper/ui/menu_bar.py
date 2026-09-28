@@ -547,8 +547,13 @@ class NitMenuBar(QMenuBar):
         menu.clear()
         menu.menuAction().setVisible(bool(links))
         menu.setEnabled(bool(links))
+        from vaultkeeper.config.settings import is_menu_separator
+
         icon = R.get_icon("ASPNETWeb_16x")
         for link in links:
+            if is_menu_separator(link):
+                menu.addSeparator()
+                continue
             url = link.get("url", "")
             act = QAction(icon, link.get("text", url), self)
             act.setToolTip(url)
@@ -570,12 +575,19 @@ class NitMenuBar(QMenuBar):
         for act in self._run_user_actions:
             menu.removeAction(act)
         self._run_user_actions = []
-        entries = [e for e in entries if e.get("text") or e.get("path")]
-        if not entries:
+        from vaultkeeper.config.settings import is_menu_separator
+
+        entries = [
+            e for e in entries if is_menu_separator(e) or e.get("text") or e.get("path")
+        ]
+        if not any(not is_menu_separator(e) for e in entries):
             return
         self._run_user_actions.append(menu.addSeparator())
         icon = R.get_icon("StatusRun_16x")
         for entry in entries:
+            if is_menu_separator(entry):
+                self._run_user_actions.append(menu.addSeparator())
+                continue
             path = entry.get("path", "")
             act = QAction(icon, entry.get("text", path), self)
             act.setToolTip(path)

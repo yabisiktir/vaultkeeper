@@ -99,7 +99,7 @@ blank, so for those forms the dump is the reference.
 | NIT's dialog frame | Keep VK's; document it so it can be chosen later | ✅ [DIALOG_FRAME.md](DIALOG_FRAME.md) |
 | Cancel while creating an installer | As NIT: stop, keep what was copied, warn "may be incomplete", skip the rest of the batch, reinstall nothing | ✅ |
 | Default "Copy from" folder | Add NIT's: a check box in Create NWN Folder, one default per edition, shown on Locations | ✅ |
-| Run/Web menu items | NIT's one-item editor: 35-character limit with a counter, duplicate check, Save only for an existing program or a URL that answers, clipboard URL; New (Insert), Edit (Ctrl+E), Remove (Delete), Move Up/Down with NIT's icons | ✅ Separators, Move To and Undo in those menus are not ported yet |
+| Run/Web menu items | NIT's one-item editor: 35-character limit with a counter, duplicate check, Save only for an existing program or a URL that answers, clipboard URL; New (Insert), Edit (Ctrl+E), Remove (Delete), Move Up/Down with NIT's icons | ✅ Also NIT's Insert Separator (Ctrl+Ins), Move To, Undo (Ctrl+Z), and Remove that marks a saved item until OK |
 
 ## Re-running
 

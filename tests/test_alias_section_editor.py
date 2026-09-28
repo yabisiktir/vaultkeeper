@@ -140,9 +140,10 @@ def test_dialog_lists_and_pending_updates(tmp_path, qtbot):
     assert dlg.tree.topLevelItemCount() == 4
     keys = [dlg.tree.topLevelItem(i).text(0) for i in range(4)]
     assert keys == sorted(keys, key=str.lower), "listed alphabetically, as NIT does"
-    assert dlg.save_button.isEnabled()
+    assert not dlg.save_button.isEnabled(), "NIT: Save only once something changed"
     # Edit the OVERRIDE row's value.
     _row(dlg, "OVERRIDE").setText(1, "/edited/override")
+    assert dlg.save_button.isEnabled()
     assert dlg.pending_updates() == {"OVERRIDE": "/edited/override"}
 
 
@@ -184,3 +185,23 @@ def test_command_opens_and_enabled(tmp_path, qtbot):
     assert win.nit_menu.actions_by_id["MsAliasSection"].isEnabled()
     win._on_command("MsAliasSection")
     assert win._alias_editor.isVisible()
+
+
+def test_undo_puts_a_row_back_as_it_was_opened(tmp_path, qtbot):
+    """VB CmUndo → RestoreFolder, with the row icon showing Edit or Undo."""
+    from vaultkeeper.ui.dialogs.alias_section_editor import AliasSectionEditor
+
+    ctrl = _controller(tmp_path)
+    dlg = AliasSectionEditor(ctrl)
+    qtbot.addWidget(dlg)
+    row = _row(dlg, "HAK")
+    original = row.text(1)
+
+    row.setText(1, "/elsewhere/hak")
+    assert dlg._is_changed(row)
+    dlg.tree.setCurrentItem(row)
+    dlg._on_undo()
+
+    assert row.text(1) == original
+    assert dlg.pending_updates() == {}
+    assert not dlg.save_button.isEnabled()

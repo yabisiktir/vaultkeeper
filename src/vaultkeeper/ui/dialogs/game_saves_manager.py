@@ -112,9 +112,13 @@ class GameSavesManager(QDialog):
         layout.addWidget(QLabel("Archived game saves"))
         self.archives = QTreeWidget()
         self.archives.setHeaderLabels(["Archived Range", "Saves", "Size"])
-        self.archives.setRootIsDecorated(False)
+        # Each range opens to its saves (VB GameManagerRestore FvRanges → FvGameSaves),
+        # which a right-click can open or summarise, as the live list can.
+        self.archives.setRootIsDecorated(True)
         self.archives.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.archives.itemSelectionChanged.connect(self._sync_buttons)
+        self.archives.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.archives.customContextMenuRequested.connect(self._show_archive_menu)
         layout.addWidget(self.archives)
 
         # -- Deactivated games (backups) + Activate/Delete -------------------- #
@@ -238,19 +242,24 @@ class GameSavesManager(QDialog):
     def _on_character_summary(self) -> None:
         """Show the character stored in the selected save (VB CmCharacterSummary)."""
         row = self._selected_save()
-        if row is None or self._controller is None:
+        if row is None:
+            return
+        self._show_character_summary(row.get("path", ""), row["name"])
+
+    def _show_character_summary(self, folder_path: str, name: str) -> None:
+        if self._controller is None or not folder_path:
             return
         from pathlib import Path as _Path
 
         from vaultkeeper.ui.dialogs.character_viewer import CharacterViewer
 
-        folder = _Path(row.get("path", ""))
+        folder = _Path(folder_path)
         characters = self._controller.character_files(save_folder=folder)
         if not characters:
             QMessageBox.information(
                 self,
                 "Character Summary",
-                f"No character file was found in {row['name']}.",
+                f"No character file was found in {name}.",
             )
             return
         self._character_viewer = CharacterViewer(
@@ -262,17 +271,49 @@ class GameSavesManager(QDialog):
 
     def _on_open_folder(self) -> None:
         """Reveal the selected save's folder (VB CmOpen — "Open with File Explorer")."""
+        row = self._selected_save()
+        if row is not None:
+            self._reveal(row.get("path", ""))
+
+    @staticmethod
+    def _reveal(folder_path: str) -> None:
         from pathlib import Path as _Path
 
         from PySide6.QtCore import QUrl
         from PySide6.QtGui import QDesktopServices
 
-        row = self._selected_save()
-        if row is None:
-            return
-        folder = _Path(row.get("path", ""))
-        if folder.is_dir():
+        folder = _Path(folder_path) if folder_path else None
+        if folder is not None and folder.is_dir():
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+
+    def _archive_save_path(self) -> tuple[str, str]:
+        """The archived save to summarise: the one selected, else a range's newest."""
+        item = self.archives.currentItem()
+        if item is None:
+            return "", ""
+        if item.parent() is None:
+            if not item.childCount():
+                return "", ""
+            item = item.child(item.childCount() - 1)
+        return item.data(0, Qt.ItemDataRole.UserRole) or "", item.text(0)
+
+    def _show_archive_menu(self, pos) -> None:
+        """VB GameManagerRestore CmOpen / CmCharacterSummary, on an archived save."""
+        from PySide6.QtWidgets import QMenu
+
+        item = self.archives.currentItem()
+        if item is None:
+            return
+        menu = QMenu(self)
+        menu.addAction(
+            "Open with File Explorer",
+            lambda: self._reveal(item.data(0, Qt.ItemDataRole.UserRole) or ""),
+        )
+        menu.addAction(
+            "Display Character Summary",
+            lambda: self._show_character_summary(*self._archive_save_path()),
+        )
+        menu.popup(self.archives.viewport().mapToGlobal(pos))
 
     def _show_save_menu(self, pos) -> None:
         """Right-click a save row (openagamesavefolderwithwindowsfi / newtopic60).
@@ -313,11 +354,13 @@ class GameSavesManager(QDialog):
 
         self.archives.clear()
         for arc in report.get("archived", []):
-            self.archives.addTopLevelItem(
-                QTreeWidgetItem(
-                    [arc["range"], f"{arc['count']:,}", arc["size"]]
-                )
-            )
+            range_item = QTreeWidgetItem([arc["range"], f"{arc['count']:,}", arc["size"]])
+            range_item.setData(0, Qt.ItemDataRole.UserRole, arc.get("path", ""))
+            for save in arc.get("saves", []):
+                child = QTreeWidgetItem([save["name"], "", save["size"]])
+                child.setData(0, Qt.ItemDataRole.UserRole, save["path"])
+                range_item.addChild(child)
+            self.archives.addTopLevelItem(range_item)
 
         # "Protect game saves" locks every action that removes saves from the live
         # folder — the controller refuses them too, this just greys the buttons.
@@ -400,8 +443,13 @@ class GameSavesManager(QDialog):
         self._refresh()
         self._report(result["message"], result["ok"])
 
-    def _on_restore(self) -> None:
+    def _selected_range(self):
+        """The selected archived range: the row itself, or the range a save is in."""
         item = self.archives.currentItem()
+        return item.parent() or item if item is not None else None
+
+    def _on_restore(self) -> None:
+        item = self._selected_range()
         if self._controller is None or item is None:
             return
         range_name = item.text(0)
@@ -420,7 +468,7 @@ class GameSavesManager(QDialog):
 
     def _on_delete_archive(self) -> None:
         """Throw an archived range away (``deletearchives.htm``)."""
-        item = self.archives.currentItem()
+        item = self._selected_range()
         if self._controller is None or item is None:
             return
         range_name = item.text(0)

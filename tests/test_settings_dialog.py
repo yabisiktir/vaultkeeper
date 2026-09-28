@@ -180,9 +180,12 @@ def test_web_menu_remove_and_move(qtbot):
     dlg._web_move(-1)
     assert [dlg.web_tree.topLevelItem(i).text(0) for i in range(3)] == ["B", "A", "C"]
 
-    # Remove the currently selected (B).
+    # Remove the currently selected (B): a saved item is marked, not dropped
+    # (VB Cm_Remove), so Undo can bring it back; it is gone from what is saved.
     dlg._web_remove()
-    assert [dlg.web_tree.topLevelItem(i).text(0) for i in range(2)] == ["A", "C"]
+    assert [link["text"] for link in dlg.web_links()] == ["A", "C"]
+    dlg._menu_undo("web")
+    assert [link["text"] for link in dlg.web_links()] == ["B", "A", "C"]
 
 
 def test_new_menu_item_lands_after_the_selected_one(qtbot):
@@ -255,11 +258,14 @@ def test_menu_editors_answer_a_right_click(qtbot):
         # NIT's keys (Insert, Ctrl+E, Delete), all *widget* shortcuts so they
         # never take a key from another field (the Rename regression).
         shortcuts = tree.findChildren(QShortcut)
-        assert [s.key().toString() for s in shortcuts] == ["Ins", "Ctrl+E", "Del"]
+        assert [s.key().toString() for s in shortcuts] == [
+            "Ins", "Ctrl+Ins", "Ctrl+E", "Ctrl+Z", "Del",
+        ]
         assert all(s.context() == Qt.ShortcutContext.WidgetShortcut for s in shortcuts)
 
     assert offered[0] == offered[1] == [
-        "New Menu Item", "Edit Menu Item", "Remove", "Move Up", "Move Down",
+        "New Menu Item", "Insert Separator", "Edit Menu Item", "Undo", "",
+        "Move Up", "Move Down", "Move To", "", "Remove",
     ]
 
 
@@ -477,3 +483,74 @@ def test_edit_changes_the_selected_item_through_the_editor(qtbot):
 
     assert seen == [("web", "A", "a", ["B"])]
     assert dlg.web_links()[0] == {"text": "A2", "url": "https://a2.example"}
+
+
+def test_separators_round_trip_and_reach_the_menus(qtbot):
+    """VB Insert Separator (Ctrl+Insert): a <Separator> row, saved and shown as one."""
+    from PySide6.QtWidgets import QMenu
+
+    from vaultkeeper.config.settings import MENU_SEPARATOR
+    from vaultkeeper.ui.menu_bar import NitMenuBar
+
+    settings = Settings(web_links=[{"text": "A", "url": "https://a"}, {"text": "B", "url": "https://b"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(0))
+    dlg._menu_insert_separator("web")
+    assert dlg.web_tree.topLevelItem(1).text(0) == "<Separator>"
+    assert dlg.web_links()[1] == MENU_SEPARATOR
+
+    dlg.apply_to(settings)
+    again = SettingsDialog(settings)
+    qtbot.addWidget(again)
+    assert again.web_tree.topLevelItem(1).text(0) == "<Separator>"
+
+    bar = NitMenuBar()
+    qtbot.addWidget(bar)
+    bar.populate_web_menu(settings.web_links, lambda _u: None)
+    menu: QMenu = bar.menus["MsWeb"]
+    assert [a.isSeparator() for a in menu.actions()] == [False, True, False]
+
+    # A separator has nothing to edit and goes at once on Remove.
+    again.web_tree.setCurrentItem(again.web_tree.topLevelItem(1))
+    again._menu_remove("web")
+    assert all("separator" not in link for link in again.web_links())
+
+
+def test_move_to_puts_the_item_where_you_click(qtbot):
+    """VB Cm_MoveTo / MoveItems: up the list before the target, down it after."""
+    settings = Settings(web_links=[{"text": t, "url": t} for t in "ABCD"])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    tree = dlg.web_tree
+
+    def names():
+        return [tree.topLevelItem(i).text(0) for i in range(tree.topLevelItemCount())]
+
+    tree.setCurrentItem(tree.topLevelItem(0))
+    dlg._menu_move_to("web")
+    dlg._menu_move_to_target("web", tree.topLevelItem(2))  # A down onto C
+    assert names() == ["B", "C", "A", "D"]
+    assert not dlg._move_to_buttons["web"].isChecked()
+
+    tree.setCurrentItem(tree.topLevelItem(3))
+    dlg._menu_move_to("web")
+    dlg._menu_move_to_target("web", tree.topLevelItem(0))  # D up onto B
+    assert names() == ["D", "B", "C", "A"]
+
+    # Clicking a row with no Move To in progress moves nothing.
+    dlg._menu_move_to_target("web", tree.topLevelItem(2))
+    assert names() == ["D", "B", "C", "A"]
+
+
+def test_undo_restores_an_edited_item(qtbot):
+    settings = Settings(run_links=[{"text": "Leto", "path": "/leto"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    dlg._open_menu_item_editor = lambda *_a: ("Leto II", "/leto2")
+    dlg.run_tree.setCurrentItem(dlg.run_tree.topLevelItem(0))
+    dlg._menu_edit("run")
+    assert dlg.run_links() == [{"text": "Leto II", "path": "/leto2"}]
+
+    dlg._menu_undo("run")
+    assert dlg.run_links() == [{"text": "Leto", "path": "/leto"}]
