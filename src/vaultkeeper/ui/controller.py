@@ -3364,6 +3364,7 @@ class ProfileController:
         wizard_choice: str | None = None,
         wizard_checked: set[str] | None = None,
         on_phase=None,
+        cancelled=None,
     ) -> dict:
         """Populate a mod's ``.Mod Installer`` payload from its raw/downloaded files.
 
@@ -3455,10 +3456,16 @@ class ProfileController:
                 convert_bik=convert_bik,
                 ignore=ignore,
                 on_phase=say,
+                cancelled=cancelled,
             )
             copied = 0
+            stopped = plan.cancelled
             total = len(plan.items)
-            for index, item in enumerate(plan.items, start=1):
+            for index, item in enumerate([] if stopped else plan.items, start=1):
+                # VB BtCancel: stop where it is and keep what was copied.
+                if cancelled is not None and cancelled():
+                    stopped = True
+                    break
                 dest = installer / item.folder / item.filename
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 try:
@@ -3471,9 +3478,33 @@ class ProfileController:
 
             # BIK→WBM: convert each collected .bik and copy the .wbm into the movies
             # folder the Mapper assigns for it (VB BgConverter → WbmFiles copy).
-            if convert_bik and plan.bik_files:
+            if convert_bik and plan.bik_files and not stopped:
                 say("Converting movies", 0, 0)
                 converted = self._convert_bik_movies(plan.bik_files, installer, Path(extract_dir))
+
+        if stopped:
+            # VB ProcessCreateInstaller on Cancel: warn, then UpdateProfileData —
+            # the records follow whatever was copied. A partial payload is still
+            # an installer (incomplete); nothing copied means no installer.
+            if copied:
+                self._create_identifier(mod_name, C.EXT_INSTALLER)
+            else:
+                self._create_identifier_refresh(mod_name)
+                self.pd.update_file_states()
+                self.pd.update_mod_states()
+                self.save()
+            return {
+                "ok": False,
+                "cancelled": True,
+                "copied": copied,
+                "excluded": 0,
+                "archives": plan.archives_extracted,
+                "converted": 0,
+                "message": (
+                    f"Mod Installer creation was cancelled: the installer for {mod_name} "
+                    f"may be incomplete ({copied} file(s) copied)."
+                ),
+            }
 
         # Persist the patch-hak ordering (VB UpdateSequenceFile): add this mod's
         # patch-folder haks to the global PatchFileSequence.txt.
@@ -10039,6 +10070,19 @@ class ProfileController:
                 ],
             ),
         ]
+        # VB Locations lists the default "Copy from" folders (ProfileNwnSource /
+        # ProfileEeSource) once one has been chosen.
+        settings = self._settings()
+        sources = [
+            (label, Path(value))
+            for label, value in (
+                ('Default "Copy from" (Enhanced Edition)', settings.profile_ee_source),
+                ('Default "Copy from" (Diamond)', settings.profile_nwn_source),
+            )
+            if value
+        ]
+        if sources:
+            groups.append(("Create Neverwinter Nights Folder", sources))
         rows = [
             {
                 "group": group,

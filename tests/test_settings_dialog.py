@@ -200,13 +200,14 @@ def test_new_menu_item_lands_after_the_selected_one(qtbot):
     )
     dlg = SettingsDialog(settings)
     qtbot.addWidget(dlg)
+    # The item comes from NIT's editor dialog (stood in for here).
+    dlg._open_menu_item_editor = lambda *_a: ("New Link", "https://new.example")
 
     dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(0))
     dlg._web_add()
     names = [dlg.web_tree.topLevelItem(i).text(0) for i in range(4)]
     assert names == ["A", "New Link", "B", "C"]
-    # And the new row is what you are now editing.
-    assert dlg.web_tree.currentItem().text(0) == "New Link"
+    assert dlg.web_tree.currentItem().text(1) == "https://new.example"
 
     # Nothing selected: it goes on the end, which is the only place left.
     dlg.web_tree.setCurrentItem(None)
@@ -220,6 +221,7 @@ def test_run_menu_new_item_also_inserts_after(qtbot):
     )
     dlg = SettingsDialog(settings)
     qtbot.addWidget(dlg)
+    dlg._open_menu_item_editor = lambda *_a: ("New Program", "/new")
 
     dlg.run_tree.setCurrentItem(dlg.run_tree.topLevelItem(0))
     dlg._run_add()
@@ -250,14 +252,15 @@ def test_menu_editors_answer_a_right_click(qtbot):
         tree.customContextMenuRequested.emit(QPoint(4, 4))
         assert menu.isVisible()
         menu.hide()
-        # Insert is a *widget* shortcut, so the inline editor keeps its own keys
-        # (the Rename regression in ui/file_view.py).
+        # NIT's keys (Insert, Ctrl+E, Delete), all *widget* shortcuts so they
+        # never take a key from another field (the Rename regression).
         shortcuts = tree.findChildren(QShortcut)
-        assert [s.key().toString() for s in shortcuts] == ["Ins"]
+        assert [s.key().toString() for s in shortcuts] == ["Ins", "Ctrl+E", "Del"]
         assert all(s.context() == Qt.ShortcutContext.WidgetShortcut for s in shortcuts)
 
-    assert offered[0][0] == "New Menu Item"
-    assert "Browse…" in offered[1]
+    assert offered[0] == offered[1] == [
+        "New Menu Item", "Edit Menu Item", "Remove", "Move Up", "Move Down",
+    ]
 
 
 def test_web_menu_keeps_an_ampersand_as_an_alt_key(qtbot):
@@ -455,3 +458,22 @@ def test_the_two_thresholds_are_editable(qtbot) -> None:
 
     assert out.saves_threshold == 250
     assert out.wizard_file_threshold == 40000
+
+
+def test_edit_changes_the_selected_item_through_the_editor(qtbot):
+    """VB ChangeMenuItem: the editor gets the item and every *other* item's text."""
+    settings = Settings(web_links=[{"text": "A", "url": "a"}, {"text": "B", "url": "b"}])
+    dlg = SettingsDialog(settings)
+    qtbot.addWidget(dlg)
+    seen = []
+
+    def editor(kind, text, location, others):
+        seen.append((kind, text, location, others))
+        return ("A2", "https://a2.example")
+
+    dlg._open_menu_item_editor = editor
+    dlg.web_tree.setCurrentItem(dlg.web_tree.topLevelItem(0))
+    dlg._menu_edit("web")
+
+    assert seen == [("web", "A", "a", ["B"])]
+    assert dlg.web_links()[0] == {"text": "A2", "url": "https://a2.example"}

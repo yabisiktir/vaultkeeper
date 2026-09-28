@@ -2716,10 +2716,27 @@ class MainWindow(QMainWindow):
             was_installed = self.controller._mod_installed(name)
             # RunWizard: present the installer wizard's choices before building.
             choice, checked = self._run_installer_wizard(name)
-            with self._phase_progress("Create Mod Installer", name) as on_phase:
+            with self._phase_progress(
+                "Create Mod Installer", name, cancellable=True
+            ) as on_phase:
                 result = self.controller.build_installer_payload(
-                    name, wizard_choice=choice, wizard_checked=checked, on_phase=on_phase
+                    name,
+                    wizard_choice=choice,
+                    wizard_checked=checked,
+                    on_phase=on_phase,
+                    cancelled=on_phase.cancelled,
                 )
+                if result.get("cancelled"):
+                    # VB ProcessCreateInstaller: warn, keep what is there, stop the
+                    # batch, reinstall nothing (the installer may be incomplete).
+                    self.refresh()
+                    self.nit_status.set_info(result["message"])
+                    QMessageBox.warning(
+                        self,
+                        "Create Mod Installer",
+                        "Mod Installer creation was cancelled - Installer/s may be incomplete.",
+                    )
+                    return
                 if result["ok"]:
                     built += 1
                     copied += result["copied"]
@@ -4650,29 +4667,41 @@ class MainWindow(QMainWindow):
         return kept
 
     @contextmanager
-    def _phase_progress(self, title: str, heading: str):
+    def _phase_progress(self, title: str, heading: str, *, cancellable: bool = False):
         """A progress window fed by ``on_phase(label, done, total)`` (VB CreateInstaller).
 
-        Yields the callback. ``total`` 0 shows a busy bar. No Cancel: the work it
-        narrates cannot be stopped half-way without leaving a partial result.
+        Yields the callback. ``total`` 0 shows a busy bar. With ``cancellable``
+        the window has a Cancel button and ``on_phase.cancelled()`` says whether
+        it was pressed; without, the work it narrates always finishes.
         """
         from PySide6.QtWidgets import QApplication, QProgressDialog
 
-        dialog = QProgressDialog(heading, "", 0, 0, self)
+        dialog = QProgressDialog(heading, "Cancel" if cancellable else "", 0, 0, self)
         dialog.setWindowTitle(title)
-        dialog.setCancelButton(None)
+        if not cancellable:
+            dialog.setCancelButton(None)
+        dialog.setAutoReset(False)
+        dialog.setAutoClose(False)
         dialog.setWindowModality(Qt.WindowModality.WindowModal)
         dialog.setMinimumDuration(400)
         dialog.setMinimumWidth(460)
 
         def on_phase(label: str, done: int = 0, total: int = 0) -> None:
-            dialog.setMaximum(max(total, 0))
-            dialog.setLabelText(
-                f"{heading}\n{label}" + (f"\n{done:,} of {total:,}" if total else "")
-            )
-            dialog.setValue(min(done, total) if total else 0)
+            if dialog.wasCanceled():
+                dialog.setLabelText(f"{heading}\nCancelling operation…")
+            else:
+                dialog.setMaximum(max(total, 0))
+                dialog.setLabelText(
+                    f"{heading}\n{label}" + (f"\n{done:,} of {total:,}" if total else "")
+                )
+                dialog.setValue(min(done, total) if total else 0)
             QApplication.processEvents()
 
+        def cancelled() -> bool:
+            QApplication.processEvents()
+            return dialog.wasCanceled()
+
+        on_phase.cancelled = cancelled
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             yield on_phase

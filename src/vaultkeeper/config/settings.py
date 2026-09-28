@@ -346,6 +346,11 @@ class Settings:
     #: and should not be offered. Off means a project is taken exactly as the
     #: Vault presents it (VB's Download Project rule preferences).
     vault_apply_project_rules: bool = True
+    #: The default "Copy from" folder for Create Neverwinter Nights Folder, per
+    #: edition (VB ``ProfileNwnSource`` / ``ProfileEeSource``, set from that
+    #: dialog's "Make this the default" box). Empty: the profile's own install.
+    profile_nwn_source: str = ""
+    profile_ee_source: str = ""
     #: NIT's other rule preferences (VB ``Rules*``, the Download Project dialog's
     #: rules menu). Each one off empties one table of the rules in force
     #: (VB ``VaultDownloadRules`` "Apply rule preferences"); ``rules_enabled``

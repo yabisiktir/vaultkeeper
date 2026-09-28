@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QFileDialog,
     QHBoxLayout,
@@ -37,10 +38,13 @@ class CreateNwnFolderDialog(QDialog):
         parent_dir: str = "",
         is_ee: bool = True,
         config_ini_source: str = "",
+        default_source: str = "",
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self._is_ee = is_ee
+        #: Set on Create: the source used, and whether it becomes the default.
+        self.source_path: str = ""
         self._config_ini_source = config_ini_source
         self.created_path: str = ""
         self.setWindowTitle("Create Neverwinter Nights Folder")
@@ -61,8 +65,12 @@ class CreateNwnFolderDialog(QDialog):
             )
         layout.addLayout(self._path_row("New folder (target):", self._target))
 
-        self._source = QLineEdit(source)
+        self._source = QLineEdit(default_source or source)
         layout.addLayout(self._path_row("Copy from (source):", self._source))
+        # VB CbDefaultSource: remember this source for the next folder.
+        self.make_default = QCheckBox('Make this the default "Copy from" folder')
+        self.make_default.setChecked(bool(default_source) and default_source == self._source.text())
+        layout.addWidget(self.make_default)
 
         self._status = QLabel("")
         self._status.setWordWrap(True)
@@ -118,6 +126,7 @@ class CreateNwnFolderDialog(QDialog):
         )
         if result.ok:
             self.created_path = target
+            self.source_path = source
             QMessageBox.information(
                 self, "Create Neverwinter Nights Folder", result.message
             )

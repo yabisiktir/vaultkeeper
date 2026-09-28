@@ -114,6 +114,12 @@ def test_a_game_folder_can_be_created_for_the_selected_profile(
 
     class _FakeDialog:
         created_path = created
+        source_path = ""
+
+        class make_default:  # noqa: N801 - stands in for the dialog's check box
+            @staticmethod
+            def isChecked():
+                return False
 
         def __init__(self, **kwargs):
             self.kwargs = kwargs
@@ -302,3 +308,35 @@ def test_the_button_renames_the_row(qtbot, settings, monkeypatch):
     dlg._on_rename_profile()
 
     assert dlg.profiles_tree.currentItem().text(0) == "Old School"
+
+
+def test_a_ticked_copy_from_becomes_the_editions_default(qtbot, settings, tmp_path):
+    """VB CbDefaultSource → ProfileNwnSource / ProfileEeSource, saved with the settings."""
+    dlg = _page(qtbot, settings)
+
+    class _Done:
+        source_path = str(tmp_path / "GoldenEE")
+
+        class make_default:  # noqa: N801
+            @staticmethod
+            def isChecked():
+                return True
+
+    dlg._remember_copy_source(_Done, is_ee=True)
+    assert dlg._default_copy_source(True) == _Done.source_path
+    assert dlg._default_copy_source(False) == ""
+    dlg.apply_to(settings)
+    assert settings.profile_ee_source == _Done.source_path
+
+
+def test_the_folder_dialog_starts_from_the_default_and_ticks_the_box(qtbot, tmp_path):
+    from vaultkeeper.ui.dialogs.create_nwn_folder import CreateNwnFolderDialog
+
+    golden = str(tmp_path / "GoldenEE")
+    dlg = CreateNwnFolderDialog(source=str(tmp_path / "Live"), default_source=golden)
+    qtbot.addWidget(dlg)
+    assert dlg._source.text() == golden and dlg.make_default.isChecked()
+
+    plain = CreateNwnFolderDialog(source=str(tmp_path / "Live"))
+    qtbot.addWidget(plain)
+    assert plain._source.text().endswith("Live") and not plain.make_default.isChecked()

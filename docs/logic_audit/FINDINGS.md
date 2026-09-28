@@ -276,6 +276,10 @@ layouts.
 | ~2,670 records without a checksum | Calculate them, with a backup | the Validate Mods resync checksummed them; 4 more by Calculate CRCs |
 | PRC-modified campaign modules | Do what NIT does | Update EE Files run: 15 changed + 99 new EE files recorded as originals (the PRC modules are the baseline now) |
 | Remember the selected mod per profile | Screen-parity phase | ✅ `load_selections`/`save_selections`, restored on load (2026-09-28) |
+| NIT's common dialog frame (screen parity) | Keep VK's; document fully to choose later | `docs/screen_parity/DIALOG_FRAME.md` (2026-09-28) |
+| Cancel while creating an installer | As NIT (stop, keep what was copied, warn) | ✅ 2026-09-28 |
+| Default "Copy from" folder (CreateNwnFolder) | Add NIT's | ✅ `profile_ee_source` / `profile_nwn_source` (2026-09-28) |
+| Run/Web menu item editing | NIT's one-item editor | ✅ `ui/dialogs/menu_item_editor.py` (2026-09-28) |
 
 Real-store state changes from the above: "1. Neverwinter Nights (EE)" SOME_AND_OVERRIDDEN → NOT_INSTALLED (its stale records went); "2.  NWN INI Files Restorer" SOME_AND_MATCH → NOT_INSTALLED (the old "match" was 0 = 0; the restorer has no copy of `userpatch.ini`).
 

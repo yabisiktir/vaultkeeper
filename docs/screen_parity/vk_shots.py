@@ -133,6 +133,7 @@ def _more_builders(c):
         doc_organiser,
         find_text,
         image_viewer,
+        menu_item_editor,
         old_downloads,
         play_data_view_pending,
         play_data_viewer,
@@ -167,6 +168,9 @@ def _more_builders(c):
         "PlayDataViewer": lambda: play_data_viewer.PlayDataViewer.show_for(c),
         "PortraitManager": lambda: portrait_manager.PortraitManager.show_for(c),
         "StartScreenManager": lambda: start_screen_manager.StartScreenManager.show_for(c),
+        "MenuItemEditor": lambda: menu_item_editor.MenuItemEditor(
+            "web", text="Neverwinter Vault", location="https://neverwintervault.org/"
+        ),
     }
 
 

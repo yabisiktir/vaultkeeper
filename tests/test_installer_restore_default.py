@@ -95,3 +95,66 @@ def test_create_installer_shows_the_builds_phases(qtbot, tmp_path, monkeypatch) 
     win._on_create_installer(["Alpha Pack"])
 
     assert any("Alpha Pack" in t and "Building the installer" in t for t in labels)
+
+
+def _two_file_mod(tmp_path: Path) -> ProfileController:
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    c.create_mod("Alpha Pack")
+    for name in ("a.hak", "b.hak", "c.hak"):
+        (profile_mods / "Alpha Pack" / name).write_text(name)
+    return c
+
+
+def test_cancelling_a_build_keeps_what_was_copied_as_nit_does(tmp_path: Path) -> None:
+    """VB CreateInstaller Cancel: stop, keep the partial installer, warn it may be incomplete."""
+    c = _two_file_mod(tmp_path)
+    asked = []
+
+    result = c.build_installer_payload(
+        "Alpha Pack", cancelled=lambda: asked.append(1) or len(asked) > 2
+    )
+
+    assert result["cancelled"] and not result["ok"]
+    assert 0 < result["copied"] < 3
+    assert "may be incomplete" in result["message"]
+    installer = tmp_path / "Profiles" / "P" / "Alpha Pack" / ".Mod Installer" / "hak"
+    assert len(list(installer.glob("*.hak"))) == result["copied"]
+    assert c.pd.mod_item("Alpha Pack").is_installer(), "a partial installer is still one"
+
+
+def test_cancelling_before_anything_is_copied_leaves_no_installer(tmp_path: Path) -> None:
+    c = _two_file_mod(tmp_path)
+
+    result = c.build_installer_payload("Alpha Pack", cancelled=lambda: True)
+
+    assert result["cancelled"] and result["copied"] == 0
+    assert not c.pd.mod_item("Alpha Pack").is_installer()
+
+
+def test_create_installer_stops_the_batch_on_cancel(qtbot, tmp_path, monkeypatch) -> None:
+    from PySide6.QtWidgets import QMessageBox
+
+    from vaultkeeper.ui.main_window import MainWindow
+
+    c = _two_file_mod(tmp_path)
+    win = MainWindow(c)
+    qtbot.addWidget(win)
+    built, warned = [], []
+    monkeypatch.setattr(
+        c, "build_installer_payload",
+        lambda name, **_k: built.append(name) or {"ok": False, "cancelled": True,
+                                                  "copied": 0, "message": "cancelled"},
+    )
+    monkeypatch.setattr(QMessageBox, "warning", lambda *a, **_k: warned.append(a[2]))
+    monkeypatch.setattr(win, "_run_installer_wizard", lambda _n: (None, None))
+
+    win._on_create_installer(["Alpha Pack", "Beta Pack"])
+
+    assert built == ["Alpha Pack"]
+    assert warned == ["Mod Installer creation was cancelled - Installer/s may be incomplete."]

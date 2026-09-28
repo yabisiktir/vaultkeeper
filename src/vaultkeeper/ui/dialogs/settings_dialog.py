@@ -54,7 +54,6 @@ def _insert_after_current(tree: QTreeWidget, columns: list[str]) -> QTreeWidgetI
     the end meant clicking Move Up as many times as the list is long.
     """
     item = QTreeWidgetItem(columns)
-    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
     current = tree.currentItem()
     index = tree.indexOfTopLevelItem(current) if current is not None else -1
     if index >= 0:
@@ -85,8 +84,10 @@ def _install_actions_menu(tree: QTreeWidget, actions: list[tuple[str, object]]) 
     # QMenu.exec cannot be patched away in PySide6, it dispatches to C++ either
     # way and blocks forever.
     menu = QMenu(tree)
-    for label, slot in actions:
-        menu.addAction(label, slot)
+    for label, slot, *icon in actions:
+        action = menu.addAction(label, slot)
+        if icon:
+            action.setIcon(R.get_icon(icon[0]))
 
     tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
     tree.customContextMenuRequested.connect(
@@ -165,6 +166,8 @@ class SettingsDialog(QDialog):
         self.setWindowIcon(R.get_icon("SettingsCogBlue"))
         geometry.remember(self, "SettingsDialog", 560, 380)
         self._settings = settings
+        #: Default "Copy from" folders chosen in Create NWN Folder, saved on OK.
+        self._default_source_edits: dict[str, str] = {}
         self._controller = controller
         #: Profile → new game folder, from the Profiles page; applied on Save.
         self._profile_folder_edits: dict[str, str] = {}
@@ -756,65 +759,112 @@ class SettingsDialog(QDialog):
         form.addRow("", note)
         return page
 
-    def _build_web_menu(self, settings: Settings) -> QWidget:
-        """Editable Web-menu links (VB Settings WebMenu: Menu Text / Web Address)."""
+    # -- Run and Web menus (VB Settings.RunMenu / WebMenu + MenuItemEditor) -- #
+    #: NIT's commands for both menu pages: text, icon, key (VB CmRunMenu/CmWebMenu).
+    _MENU_COMMANDS = (
+        ("New Menu Item", "NewConstant_16x", "Ins", "add"),
+        ("Edit Menu Item", "RowUpdating_16x", "Ctrl+E", "edit"),
+        ("Remove", "delete_16x16", "Del", "remove"),
+        ("Move Up", "UpArrowBlue", "", "up"),
+        ("Move Down", "DownArrowBlue", "", "down"),
+    )
+
+    def _menu_page(
+        self, kind: str, heading: str, headers: list[str]
+    ) -> tuple[QWidget, QTreeWidget]:
+        """One menu's page: the list, NIT's commands beside it and on right-click."""
+        from PySide6.QtGui import QKeySequence, QShortcut
+
         page = QWidget()
         outer = QVBoxLayout(page)
-        outer.addWidget(
-            QLabel("Links shown in the Web menu (double-click a cell to edit):")
-        )
-
+        outer.addWidget(QLabel(heading))
         row = QHBoxLayout()
-        self.web_tree = QTreeWidget()
-        self.web_tree.setHeaderLabels(["Menu Text", "Web Address"])
-        self.web_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.web_tree.setRootIsDecorated(False)
-        for link in settings.web_links:
-            self._add_web_row(link.get("text", ""), link.get("url", ""))
-        row.addWidget(self.web_tree, 1)
-
+        tree = QTreeWidget()
+        tree.setHeaderLabels(headers)
+        tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        tree.setRootIsDecorated(False)
+        tree.itemDoubleClicked.connect(lambda *_: self._menu_edit(kind))
+        row.addWidget(tree, 1)
+        slots = {
+            "add": lambda: self._menu_add(kind),
+            "edit": lambda: self._menu_edit(kind),
+            "remove": lambda: self._menu_remove(kind),
+            "up": lambda: self._menu_move(kind, -1),
+            "down": lambda: self._menu_move(kind, 1),
+        }
         buttons = QVBoxLayout()
-        for label, slot in (
-            ("Add", self._web_add),
-            ("Remove", self._web_remove),
-            ("Move Up", lambda: self._web_move(-1)),
-            ("Move Down", lambda: self._web_move(1)),
-            ("Reset", self._web_reset),
-        ):
-            btn = QPushButton(label)
-            btn.clicked.connect(slot)
+        for text, icon, key, name in self._MENU_COMMANDS:
+            btn = QPushButton(R.get_icon(icon), text)
+            if key:
+                native = QKeySequence(key).toString(QKeySequence.SequenceFormat.NativeText)
+                btn.setToolTip(f"{text} ({native})")
+            btn.clicked.connect(slots[name])
             buttons.addWidget(btn)
+        reset = QPushButton("Reset")
+        reset.clicked.connect(self._web_reset if kind == "web" else self._run_reset)
+        buttons.addWidget(reset)
         buttons.addStretch(1)
         row.addLayout(buttons)
         outer.addLayout(row)
         _install_actions_menu(
-            self.web_tree,
-            [
-                ("New Menu Item", self._web_add),
-                ("Remove", self._web_remove),
-                ("Move Up", lambda: self._web_move(-1)),
-                ("Move Down", lambda: self._web_move(1)),
-            ],
+            tree,
+            [(text, slots[name], icon) for text, icon, _key, name in self._MENU_COMMANDS],
         )
-        return page
+        # Insert comes with the actions menu; Ctrl+E and Delete as NIT has them.
+        for key, name in (("Ctrl+E", "edit"), ("Del", "remove")):
+            shortcut = QShortcut(QKeySequence(key), tree)
+            shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+            shortcut.activated.connect(slots[name])
+        return page, tree
 
-    def _add_web_row(self, text: str, url: str) -> QTreeWidgetItem:
-        item = QTreeWidgetItem([text, url])
-        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
-        self.web_tree.addTopLevelItem(item)
-        return item
+    def _menu_tree(self, kind: str) -> QTreeWidget:
+        return self.web_tree if kind == "web" else self.run_tree
 
-    def _web_add(self) -> None:
-        item = _insert_after_current(self.web_tree, ["New Link", "https://"])
-        self.web_tree.editItem(item, 0)
+    def _open_menu_item_editor(self, kind: str, text: str, location: str, others: list[str]):
+        """The editor, or ``None`` when cancelled; a seam for tests."""
+        from vaultkeeper.ui.dialogs.menu_item_editor import MenuItemEditor
 
-    def _web_remove(self) -> None:
-        index = self.web_tree.indexOfTopLevelItem(self.web_tree.currentItem())
+        editor = MenuItemEditor(
+            kind, text=text, location=location, other_texts=others, parent=self
+        )
+        if editor.exec() != QDialog.DialogCode.Accepted:
+            return None
+        return editor.item_text, editor.item_location
+
+    def _menu_texts(self, kind: str, skip: QTreeWidgetItem | None = None) -> list[str]:
+        tree = self._menu_tree(kind)
+        return [
+            tree.topLevelItem(i).text(0)
+            for i in range(tree.topLevelItemCount())
+            if tree.topLevelItem(i) is not skip
+        ]
+
+    def _menu_add(self, kind: str) -> None:
+        """VB NewMenuItem: the editor, then insert after the selected row."""
+        result = self._open_menu_item_editor(kind, "", "", self._menu_texts(kind))
+        if result is not None:
+            _insert_after_current(self._menu_tree(kind), list(result))
+
+    def _menu_edit(self, kind: str) -> None:
+        """VB ChangeMenuItem."""
+        item = self._menu_tree(kind).currentItem()
+        if item is None:
+            return
+        result = self._open_menu_item_editor(
+            kind, item.text(0), item.text(1), self._menu_texts(kind, skip=item)
+        )
+        if result is not None:
+            item.setText(0, result[0])
+            item.setText(1, result[1])
+
+    def _menu_remove(self, kind: str) -> None:
+        tree = self._menu_tree(kind)
+        index = tree.indexOfTopLevelItem(tree.currentItem())
         if index >= 0:
-            self.web_tree.takeTopLevelItem(index)
+            tree.takeTopLevelItem(index)
 
-    def _web_move(self, delta: int) -> None:
-        tree = self.web_tree
+    def _menu_move(self, kind: str, delta: int) -> None:
+        tree = self._menu_tree(kind)
         index = tree.indexOfTopLevelItem(tree.currentItem())
         target = index + delta
         if index < 0 or not 0 <= target < tree.topLevelItemCount():
@@ -822,6 +872,31 @@ class SettingsDialog(QDialog):
         item = tree.takeTopLevelItem(index)
         tree.insertTopLevelItem(target, item)
         tree.setCurrentItem(item)
+
+    def _build_web_menu(self, settings: Settings) -> QWidget:
+        """The Web-menu links (VB Settings WebMenu: Menu Text / Web Address)."""
+        page, self.web_tree = self._menu_page(
+            "web",
+            "Links shown in the Web menu (double-click an item to change it):",
+            ["Menu Text", "Web Address"],
+        )
+        for link in settings.web_links:
+            self._add_web_row(link.get("text", ""), link.get("url", ""))
+        return page
+
+    def _add_web_row(self, text: str, url: str) -> QTreeWidgetItem:
+        item = QTreeWidgetItem([text, url])
+        self.web_tree.addTopLevelItem(item)
+        return item
+
+    def _web_add(self) -> None:
+        self._menu_add("web")
+
+    def _web_remove(self) -> None:
+        self._menu_remove("web")
+
+    def _web_move(self, delta: int) -> None:
+        self._menu_move("web", delta)
 
     def _web_reset(self) -> None:
         self.web_tree.clear()
@@ -839,88 +914,29 @@ class SettingsDialog(QDialog):
         return links
 
     def _build_run_menu(self, settings: Settings) -> QWidget:
-        """Editable Run-menu programs (VB Settings RunMenu: Menu Text / Program path).
-
-        Mirrors the Web-menu editor, but each entry is an external program to launch
-        (label + executable path); **Browse…** picks the path for the selected row.
-        """
-        page = QWidget()
-        outer = QVBoxLayout(page)
-        outer.addWidget(
-            QLabel("Programs shown in the Run menu (double-click a cell to edit):")
+        """The Run-menu programs (VB Settings RunMenu: Menu Text / Program path)."""
+        page, self.run_tree = self._menu_page(
+            "run",
+            "Programs shown in the Run menu (double-click an item to change it):",
+            ["Menu Text", "Program Path"],
         )
-
-        row = QHBoxLayout()
-        self.run_tree = QTreeWidget()
-        self.run_tree.setHeaderLabels(["Menu Text", "Program Path"])
-        self.run_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.run_tree.setRootIsDecorated(False)
         for entry in settings.run_links:
             self._add_run_row(entry.get("text", ""), entry.get("path", ""))
-        row.addWidget(self.run_tree, 1)
-
-        buttons = QVBoxLayout()
-        for label, slot in (
-            ("Add", self._run_add),
-            ("Browse…", self._run_browse),
-            ("Remove", self._run_remove),
-            ("Move Up", lambda: self._run_move(-1)),
-            ("Move Down", lambda: self._run_move(1)),
-            ("Reset", self._run_reset),
-        ):
-            btn = QPushButton(label)
-            btn.clicked.connect(slot)
-            buttons.addWidget(btn)
-        buttons.addStretch(1)
-        row.addLayout(buttons)
-        outer.addLayout(row)
-        _install_actions_menu(
-            self.run_tree,
-            [
-                ("New Menu Item", self._run_add),
-                ("Browse…", self._run_browse),
-                ("Remove", self._run_remove),
-                ("Move Up", lambda: self._run_move(-1)),
-                ("Move Down", lambda: self._run_move(1)),
-            ],
-        )
         return page
 
     def _add_run_row(self, text: str, path: str) -> QTreeWidgetItem:
         item = QTreeWidgetItem([text, path])
-        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
         self.run_tree.addTopLevelItem(item)
         return item
 
     def _run_add(self) -> None:
-        item = _insert_after_current(self.run_tree, ["New Program", ""])
-        self.run_tree.editItem(item, 0)
-
-    def _run_browse(self) -> None:
-        from PySide6.QtWidgets import QFileDialog
-
-        item = self.run_tree.currentItem()
-        if item is None:
-            item = self._add_run_row("New Program", "")
-            self.run_tree.setCurrentItem(item)
-        path, _ = QFileDialog.getOpenFileName(self, "Select program", item.text(1))
-        if path:
-            item.setText(1, path)
+        self._menu_add("run")
 
     def _run_remove(self) -> None:
-        index = self.run_tree.indexOfTopLevelItem(self.run_tree.currentItem())
-        if index >= 0:
-            self.run_tree.takeTopLevelItem(index)
+        self._menu_remove("run")
 
     def _run_move(self, delta: int) -> None:
-        tree = self.run_tree
-        index = tree.indexOfTopLevelItem(tree.currentItem())
-        target = index + delta
-        if index < 0 or not 0 <= target < tree.topLevelItemCount():
-            return
-        item = tree.takeTopLevelItem(index)
-        tree.insertTopLevelItem(target, item)
-        tree.setCurrentItem(item)
+        self._menu_move("run", delta)
 
     def _run_reset(self) -> None:
         """Restore the default Run-menu programs (VB ResetRunMenu; empty by default)."""
@@ -1105,16 +1121,19 @@ class SettingsDialog(QDialog):
         if item is None:
             return
         name, source = item.text(0), item.text(2)
+        is_ee = item.text(1) == "Enhanced Edition"
         dlg = CreateNwnFolderDialog(
             profile_name=name,
             source=source,
             parent_dir=str(Path(source).parent.parent) if source else "",
-            is_ee=item.text(1) == "Enhanced Edition",
+            is_ee=is_ee,
             config_ini_source=self._settings.game_user_path or "",
+            default_source=self._default_copy_source(is_ee),
             parent=self,
         )
         if dlg.exec() != QDialog.DialogCode.Accepted or not dlg.created_path:
             return
+        self._remember_copy_source(dlg, is_ee)
         item.setText(2, dlg.created_path)
         self._profile_folder_edits[name] = dlg.created_path
 
@@ -1276,6 +1295,21 @@ class SettingsDialog(QDialog):
         if chosen:
             edit.setText(chosen)
 
+    #: Settings field of the default "Copy from" folder, per edition (VB
+    #: ProfileEeSource / ProfileNwnSource).
+    @staticmethod
+    def _copy_source_key(is_ee: bool) -> str:
+        return "profile_ee_source" if is_ee else "profile_nwn_source"
+
+    def _default_copy_source(self, is_ee: bool) -> str:
+        key = self._copy_source_key(is_ee)
+        return self._default_source_edits.get(key, getattr(self._settings, key, "") or "")
+
+    def _remember_copy_source(self, dlg, is_ee: bool) -> None:  # noqa: ANN001
+        """VB CbDefaultSource: a ticked box makes this source the default (saved on OK)."""
+        if dlg.make_default.isChecked() and dlg.source_path:
+            self._default_source_edits[self._copy_source_key(is_ee)] = dlg.source_path
+
     def _on_create_nwn_folder(self) -> None:
         """Create an isolated NWN game folder for this profile (VB CreateNwnFolder)."""
         from pathlib import Path
@@ -1295,9 +1329,12 @@ class SettingsDialog(QDialog):
             parent_dir=parent_dir,
             is_ee=is_ee,
             config_ini_source=user_dir,
+            default_source=self._default_copy_source(is_ee),
             parent=self,
         )
         accepted = dlg.exec() == QDialog.DialogCode.Accepted
+        if accepted:
+            self._remember_copy_source(dlg, is_ee)
         # Point this profile's Game Installation at the freshly-created folder.
         if accepted and dlg.created_path and self.game_install_edit is not None:
             self.game_install_edit.setText(dlg.created_path)
@@ -1314,6 +1351,8 @@ class SettingsDialog(QDialog):
             active = settings.active_profile
             if active in self._profile_folder_edits:
                 settings.nwn_path = self._profile_folder_edits[active]
+        for key, value in self._default_source_edits.items():
+            setattr(settings, key, value)
         settings.recycle_on_delete = self.recycle.isChecked()
         settings.recycle_game_saves = self.recycle_saves.isChecked()
         settings.protect_game_saves = self.protect_saves.isChecked()

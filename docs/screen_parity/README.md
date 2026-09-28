@@ -59,7 +59,7 @@ Legend: ✅ fixed in this pass · ➖ VK differs deliberately or does more · �
 | User Response Editor | Same four categories, different order. | ➖ Cosmetic. |
 | Game Saves Manager, Download Project, Settings, Workshop Viewer, Publish Mod, Wizard Builder, Dependency Manager, Backup Manager, Mod Play Viewer, Installation Analyser | Same actions or more (the Settings depth, Mod Play Viewer and Dependency Manager gaps were closed in earlier passes: see `docs/PARITY.md` and `docs/parity_audit/`). | ➖ |
 | Main window | NIT reselects the mods that were selected when the profile last closed (`LoadSelections` / `SaveSelections`). | ✅ Saved per profile on close and profile switch; reselected on load. |
-| All dialogs | NIT dialogs share one frame: a header (icon, description, round "?" help) and a footer (status text left; Save / Cancel right). VK dialogs put Help bottom-left and the description as plain text, with no header icon. | ⚖ Owner decision. Adopting NIT's frame reshapes every dialog, which `CLAUDE.md` asks not to do without a reason. |
+| All dialogs | NIT dialogs share one frame: a header (icon, description, round "?" help) and a footer (status text left; Save / Cancel right). VK dialogs put Help bottom-left and the description as plain text, with no header icon. | ⚖ Owner decision (2026-09-28): keep VK's, fully documented so A or B can be chosen later. See [DIALOG_FRAME.md](DIALOG_FRAME.md) (options, previews in `frame/`, per-form inventory, plan). |
 
 ## Second pass: the remaining forms (2026-09-28)
 
@@ -91,6 +91,15 @@ blank, so for those forms the dump is the reference.
 | Screen Position Adjust | Positions NIT's pop-up message. | ➖ VK has no such pop-up. |
 | Workshop Name Editor, Game Saves Path | NIT prompts. | ➖ Owner decisions: VK renames in the Workshop viewer (W9), and has no shared saves folder (logic audit). |
 | NIT main window, Debug menu | Developer reports (Action List, Selection History, Text Scroll Position, title-bar colour…). | ➖ Developer tools, not user features. |
+
+## Owner decisions after the second pass (2026-09-28)
+
+| Question | Decision | Done |
+|---|---|---|
+| NIT's dialog frame | Keep VK's; document it so it can be chosen later | ✅ [DIALOG_FRAME.md](DIALOG_FRAME.md) |
+| Cancel while creating an installer | As NIT: stop, keep what was copied, warn "may be incomplete", skip the rest of the batch, reinstall nothing | ✅ |
+| Default "Copy from" folder | Add NIT's: a check box in Create NWN Folder, one default per edition, shown on Locations | ✅ |
+| Run/Web menu items | NIT's one-item editor: 35-character limit with a counter, duplicate check, Save only for an existing program or a URL that answers, clipboard URL; New (Insert), Edit (Ctrl+E), Remove (Delete), Move Up/Down with NIT's icons | ✅ Separators, Move To and Undo in those menus are not ported yet |
 
 ## Re-running
 

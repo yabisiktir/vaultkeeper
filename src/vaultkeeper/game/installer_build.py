@@ -142,6 +142,9 @@ class InstallerPlan:
     bik_files: list[Path] = field(default_factory=list)
     files_scanned: int = 0
     archives_extracted: int = 0
+    #: True when the caller's ``cancelled`` stopped the scan (VB BgScanner /
+    #: BgExtractor ``CancellationPending``): the plan is incomplete.
+    cancelled: bool = False
 
 
 # --------------------------------------------------------------------------- #
@@ -252,6 +255,7 @@ def build_copy_plan(
     ignore: set[Path] | None = None,
     on_phase=None,
     sources: list[Path] | None = None,
+    cancelled=None,
 ) -> InstallerPlan:
     """Scan ``mod_folder`` and return the installer :class:`InstallerPlan`.
 
@@ -274,6 +278,9 @@ def build_copy_plan(
     and can yield archives of their own. So each archive is named as it is reached
     and ``total`` stays 0, which asks the caller for a busy indicator rather than
     a bar that would have to lie.
+
+    ``cancelled()`` is asked before each folder and archive; once it answers
+    True the scan stops and the plan comes back with ``cancelled`` set.
     """
     plan = InstallerPlan(mod_name=mod_name)
     analyser = _Analyser(mapper)
@@ -298,7 +305,11 @@ def build_copy_plan(
             if found is not None:
                 pending.append(found)
 
+    stop = cancelled if cancelled is not None else lambda: False
     while scan_queue or pending:
+        if stop():
+            plan.cancelled = True
+            return plan
         if pending:
             archives, pending = pending, []
         else:
@@ -319,6 +330,9 @@ def build_copy_plan(
             else:
                 dest = extract_root / f"x{extract_counter:04d}"
                 extract_counter += 1
+            if stop():
+                plan.cancelled = True
+                return plan
             say(f"Extracting {archive.name}", 0, 0)
             result = extractor.extract(archive, dest)
             if result.ok:
