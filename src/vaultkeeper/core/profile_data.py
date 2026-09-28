@@ -965,6 +965,11 @@ class ProfileData:
                     key = ifk.file_key.lower().replace("\\", "/")
                     if table.get(key) == (int(ifd.file_crc) & 0xFFFFFFFF):
                         ifd.installer = C.INSTALLER_ORIGINAL
+                        # Recorded in the profile's originals too (VB OriginalFiles
+                        # holds the EE files), or the next state update, which
+                        # reads that list (default_installer), labels it Unknown
+                        # again and every Validate "repairs" it once more.
+                        self.original_files[ifk.file_key] = int(ifd.file_crc)
                         changed = True
                 if changed or lost_files:
                     self.changes.installed.changed(ifk)

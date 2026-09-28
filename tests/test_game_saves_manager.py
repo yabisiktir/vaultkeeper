@@ -699,4 +699,4 @@ def test_archived_ranges_open_to_their_saves(qtbot, tmp_path, monkeypatch):
     opened = []
     monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url) or True)
     dlg._reveal(range_item.data(0, 256))
-    assert [u.toLocalFile() for u in opened] == [str(root)]
+    assert [Path(u.toLocalFile()) for u in opened] == [root]

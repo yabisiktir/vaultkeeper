@@ -105,6 +105,6 @@ def test_submit_shows_the_crash_file_and_opens_beamdogs_crash_page(
 
     dlg.submit_button.click()
 
-    assert [u.toLocalFile() or u.toString() for u in opened] == [
-        str(crash.parent), BEAMDOG_CRASH_PAGE,
-    ]
+    folder, page = opened
+    assert Path(folder.toLocalFile()) == crash.parent  # separators differ on Windows
+    assert page.toString() == BEAMDOG_CRASH_PAGE

@@ -71,3 +71,28 @@ def test_check_installed_files_counts(tmp_path: Path) -> None:
         controller.ctx.game_folders, root_folder_name=controller.ctx.root_folder_name
     )
     assert result["removed"] >= 1
+
+
+def test_a_file_recognised_as_original_stays_original(tmp_path: Path) -> None:
+    """An unknown game file whose CRC is a game original's is relabelled once.
+
+    Validate relabelled it from the bundled/EE table, but the state update that
+    follows reads the profile's originals list, so it went back to Unknown and
+    every Validate "repaired" it again. Seen on Windows CI, where the generated
+    nwnpatch.ini (CRLF) is byte-identical to the game's own.
+    """
+    from vaultkeeper.core import constants as C
+    from vaultkeeper.core.crc import crc32_file
+
+    controller = _controller(tmp_path)
+    _make_and_install(controller, tmp_path, "Alpha")
+    game_file = controller.ctx.game_folders["override"] / "vanilla.2da"
+    game_file.write_bytes(b"ORIGINAL CONTENT")
+    controller.pd.original_ee_files["override\\vanilla.2da"] = crc32_file(game_file)
+
+    controller.validate_installed_data()
+    msg = controller.validate_installed_data()
+
+    assert "None" in msg
+    records = {k.file_key.lower(): v for k, v in controller.pd.installed_list.items()}
+    assert records["override\\vanilla.2da"].installer == C.INSTALLER_ORIGINAL

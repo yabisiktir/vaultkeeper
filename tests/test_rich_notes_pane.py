@@ -120,7 +120,7 @@ def test_open_with_text_editor_saves_then_opens_the_notes_file(
 
     win._notes_bar.open_external.trigger()
 
-    assert [u.toLocalFile() for u in opened] == [str(c.mod_notes_path("Noted"))]
+    assert [Path(u.toLocalFile()) for u in opened] == [c.mod_notes_path("Noted")]
     assert "Edited." in "".join(p.text for p in c.read_notes_document("Noted"))
     assert not win._details.document().isModified()
 

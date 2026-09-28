@@ -63,7 +63,9 @@ def test_paste_archive_delegates_to_add_mods(tmp_path):
 
     result = controller.paste_mod_sources([archive], group="100. Packs")
     assert result["created"] == ["Cool"]  # tidied as NIT does (ModNameFromFile)
-    assert (controller.ctx.profile_mods_dir / "cool" / "override" / "o.2da").is_file()
+    # The folder carries the tidied name; a case-sensitive filesystem (Linux)
+    # tells "cool" from "Cool".
+    assert (controller.ctx.profile_mods_dir / "Cool" / "override" / "o.2da").is_file()
 
 
 def test_paste_non_extractable_file_errors(tmp_path):

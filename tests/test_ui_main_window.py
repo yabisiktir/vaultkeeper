@@ -1058,9 +1058,9 @@ def test_add_mods_from_files(controller, tmp_path) -> None:
     )
     result = controller.add_mods_from_files([tmp_path / "cool.zip"], group="100. Packs")
     assert result["created"] == ["Cool"]  # tidied as NIT does (ModNameFromFile)
-    md = controller.pd.mod_item("cool")
+    md = controller.pd.mod_item("Cool")
     assert md is not None and md.group == "100. Packs"
-    mod_dir = controller.ctx.profile_mods_dir / "cool"
+    mod_dir = controller.ctx.profile_mods_dir / "Cool"  # case matters on Linux
     assert (mod_dir / "hak" / "c.hak").is_file()
     assert (mod_dir / "_Downloads").is_dir()
 
