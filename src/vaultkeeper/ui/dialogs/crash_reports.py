@@ -23,6 +23,10 @@ from PySide6.QtWidgets import (
 
 from vaultkeeper.ui import geometry
 
+#: Where Beamdog takes crash reports (NIT ``Application Definitions.txt``,
+#: ``BeamdogSupportPage``).
+BEAMDOG_CRASH_PAGE = "https://nwn.beamdog.net/crash"
+
 
 class CrashReportsDialog(QDialog):
     def __init__(self, controller, info: str = "", parent: QWidget | None = None) -> None:
@@ -41,6 +45,11 @@ class CrashReportsDialog(QDialog):
         layout.addWidget(self.files, 1)
 
         buttons = QDialogButtonBox()
+        # VB BtSubmit: show the crash file, then Beamdog's crash-report page, so
+        # the file is at hand to attach.
+        self.submit_button = buttons.addButton("&Submit", QDialogButtonBox.ButtonRole.ActionRole)
+        self.submit_button.setToolTip(f"Show the crash file and open {BEAMDOG_CRASH_PAGE}")
+        self.submit_button.clicked.connect(self._on_submit)
         self.open_button = buttons.addButton("&Open Folder", QDialogButtonBox.ButtonRole.ActionRole)
         self.delete_button = buttons.addButton("&Delete", QDialogButtonBox.ButtonRole.ActionRole)
         self.delete_all_button = buttons.addButton(
@@ -65,11 +74,17 @@ class CrashReportsDialog(QDialog):
         if self.files.count():
             self.files.setCurrentRow(0)
         has = self.files.count() > 0
-        for button in (self.open_button, self.delete_button, self.delete_all_button):
+        for button in (
+            self.submit_button, self.open_button, self.delete_button, self.delete_all_button
+        ):
             button.setEnabled(has)
 
     def _paths(self, items) -> list[str]:
         return [i.data(Qt.ItemDataRole.UserRole) for i in items]
+
+    def _on_submit(self) -> None:
+        self._on_open()
+        QDesktopServices.openUrl(QUrl(BEAMDOG_CRASH_PAGE))
 
     def _on_open(self) -> None:
         item = self.files.currentItem() or self.files.item(0)

@@ -14,7 +14,7 @@ workflow (VaultScraper, DownloadProject) build on top of this later.
 from __future__ import annotations
 
 import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 #: Default characters stripped from save names (VB ``SaveNameRemovedChars``).
 DEFAULT_REMOVED_CHARS = "()&"
@@ -358,6 +358,29 @@ def _equals_param(line: str) -> str:
     return rest.strip()
 
 
+#: The rule preferences in NIT's order and words (VB ``Settings.GetRulePrefs``);
+#: ``None`` marks where NIT draws a separator.
+RULE_PREFERENCES: list[tuple[str, str] | None] = [
+    ("rules_enabled", "Enable all Rules when downloading Projects from The Neverwinter Vault"),
+    ("rules_project_files", "Apply Project Download Files rules"),
+    None,
+    ("vault_apply_project_rules", "Apply all Project download rules"),
+    ("rules_redirects", "Redirect Project URLs to improved or updated Projects"),
+    None,
+    ("rules_exclude_contains",
+     "Exclude files when the description contains one of the exclusion clauses"),
+    ("rules_exclude_starts_with",
+     "Exclude files when the description starts with one of the exclusion clauses"),
+    ("rules_exclude_ends_with",
+     "Exclude files when the description ends with one of the exclusion clauses"),
+    None,
+    ("rules_exclude_extensions",
+     "Exclude files when the extension name matches one of the excluded names"),
+    ("rules_exclude_files",
+     "Exclude files that match one of the filenames in the Exclude Files list"),
+]
+
+
 @dataclass
 class DownloadRules:
     """Parsed Vault download rules (the subset the port currently uses)."""
@@ -551,6 +574,40 @@ class DownloadRules:
         return pending
 
     # -- Accessors --------------------------------------------------------- #
+    def with_preferences(self, settings) -> DownloadRules:  # noqa: ANN001
+        """These rules less the kinds the user turned off (VB "Apply rule preferences").
+
+        Each preference off empties one table, as NIT does after loading;
+        ``rules_enabled`` off empties them all. A copy: the cached rules stay whole.
+        """
+        on = bool(getattr(settings, "rules_enabled", True))
+
+        def pref(name: str) -> bool:
+            return on and bool(getattr(settings, name, True))
+
+        projects = self.projects
+        if not pref("vault_apply_project_rules"):
+            projects = {}
+        elif not pref("rules_project_files"):
+            projects = {
+                key: replace(rule, downloads=[], exclude_required_projects=[])
+                for key, rule in projects.items()
+            }
+        return replace(
+            self,
+            projects=projects,
+            exclude_files=self.exclude_files if pref("rules_exclude_files") else {},
+            exclude_contains=self.exclude_contains if pref("rules_exclude_contains") else [],
+            exclude_starts_with=(
+                self.exclude_starts_with if pref("rules_exclude_starts_with") else []
+            ),
+            exclude_ends_with=self.exclude_ends_with if pref("rules_exclude_ends_with") else [],
+            exclude_extensions=(
+                self.exclude_extensions if pref("rules_exclude_extensions") else []
+            ),
+            redirects=self.redirects if pref("rules_redirects") else {},
+        )
+
     def is_prefix_filename(self, filename: str) -> bool:
         """True if ``filename`` starts with a known download prefix."""
         low = filename.lower()

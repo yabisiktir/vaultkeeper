@@ -1,0 +1,8 @@
+FORM	Create Mod Installer	618x168	(before Load)
+TableLayoutPanel	TlCreateInstaller		0,0,612,136	hidden
+  TableLayoutPanel	TlActions		0,113,612,32	hidden
+    ButtonPlus	BtCancel	Cancel	519,3,87,27	hidden
+  Label	LbOperation	Operation (Analysing, Extracting)...	3,7,606,18	hidden
+  TextProgressBar	PbInfo	Extracting 1 of 10 compressed files	0,32,612,26	hidden
+  Label	LbModname	Mod Name	3,63,606,18	hidden
+  Label	LbFilename	Filename or Folder\Filename	3,86,606,18	hidden

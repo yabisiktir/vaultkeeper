@@ -9,6 +9,7 @@ the whole app flow testable without Qt.
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Callable
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
@@ -4248,7 +4249,12 @@ class ProfileController:
         ("file_key", "Specify the File Key (Folder\\Filename.Extension)..."),
     )
 
-    def calculate_crcs(self, mode: str = "missing", file_key: str = "") -> str:
+    def calculate_crcs(
+        self,
+        mode: str = "missing",
+        file_key: str = "",
+        on_progress: Callable[[int, int, object], bool] | None = None,
+    ) -> str:
         """Recompute CRC-32 checksums (VB ``MsRepairCrcs`` / ``RepairChecksums``).
 
         ``missing``: every record without a checksum, mod and installed side
@@ -4257,6 +4263,8 @@ class ProfileController:
         unknown-source installed files named in the originals table. ``all``:
         everything. ``file_key``: the installed file and every mod copy of
         ``folder\\name``. States are recomputed and the profile saved.
+        ``on_progress`` as :meth:`ProfileData.calculate_checksums` (False cancels;
+        what was calculated by then is kept).
         """
         from vaultkeeper.game.original_files import original_crc_table
 
@@ -4294,14 +4302,28 @@ class ProfileController:
             changes.installed.changed(k)
         for k in files:
             changes.file.changed(k)
-        self.pd.calculate_checksums(self.ctx.profile_mods_dir, self.ctx.game_folders)
+        reached = [0]
+
+        def progress(done: int, count: int, key: object) -> bool:
+            reached[0] = done
+            return on_progress is None or on_progress(done, count, key) is not False
+
+        finished = self.pd.calculate_checksums(
+            self.ctx.profile_mods_dir, self.ctx.game_folders, progress
+        )
         self.pd.update_file_states()
         for name in self.pd.mod_keys:
             changes.mods.affected(name)
         self.pd.update_mod_states()
         changes.reset_changes()
         self.save()
-        return f"CRC values calculated: {len(installed) + len(files):,} file(s)."
+        total = len(installed) + len(files)
+        if not finished:
+            return (
+                f"CRC calculation cancelled after {reached[0]:,} of {total:,} file(s);"
+                " those were kept."
+            )
+        return f"CRC values calculated: {total:,} file(s)."
 
     def rescan_installed_state(self) -> str:
         """Recompute install state for imported mods from the live game, and persist.
@@ -5151,7 +5173,7 @@ class ProfileController:
         from vaultkeeper.vault import rules_source
 
         if self._download_rules is not None and not refresh:
-            return self._download_rules
+            return self._download_rules.with_preferences(self._settings())
         data_dir = self.store_path.parent if self.store_path else data_root()
         wanted = bool(self._settings().vault_rules_online)
         online = network and wanted
@@ -5165,7 +5187,7 @@ class ProfileController:
             # keeping: caching a deliberately-offline read would stop the next
             # caller ever fetching.
             self._download_rules = rules
-        return rules
+        return rules.with_preferences(self._settings())
 
     def scrape_project(self, url: str) -> list:
         """Scrape a Vault project page into a list of downloadable files."""
@@ -8698,6 +8720,11 @@ class ProfileController:
             "most_in_one_day": pdm.format_time(pdm.most_in_one_day, ""),
             "last_played": pdm.last_played,
         }
+
+    def clear_pending_play_times(self) -> None:
+        """Erase every pending play-time record (VB ``PlayDataManager.ClearPendingPlayTimes``)."""
+        if self.play_loop is not None:
+            self.play_loop.play_data.clear_pending_play_times()
 
     def pending_play_report(self) -> dict:
         """Play-time records awaiting attribution to a mod (VB ``PlayDataViewPending``).

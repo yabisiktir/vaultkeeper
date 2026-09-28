@@ -1088,3 +1088,20 @@ def test_turning_rules_off_refetches_what_they_held_back(qtbot, tmp_path, monkey
     dlg._fetched_url = "http://vault/project/my-project"
     dlg.rules_button.setChecked(True)
     assert fetches == ["fetched"]
+
+
+def test_rules_menu_lists_nits_preferences_and_saves_them(tmp_path, qtbot):
+    """VB TsRulePrefs: every rule preference on the rules button's drop-down."""
+    from vaultkeeper.config.settings import load_settings
+    from vaultkeeper.vault.download_rules import RULE_PREFERENCES
+
+    controller = _controller(tmp_path)
+    dlg = DownloadProjectDialog(controller, ["My Mod"])
+    qtbot.addWidget(dlg)
+
+    assert list(dlg.rule_actions) == [e[0] for e in RULE_PREFERENCES if e]
+    dlg.rule_actions["rules_redirects"].setChecked(False)
+    assert load_settings(None).rules_redirects is False
+    dlg.rule_actions["vault_apply_project_rules"].setChecked(False)
+    assert not dlg.rules_button.isChecked()
+    assert load_settings(None).vault_apply_project_rules is False

@@ -1,0 +1,29 @@
+FORM	Play Time Information	608x274
+TableLayoutPanel	LpMain		0,0,602,242
+  TableLayoutPanel	LpMainHdg		0,0,602,38
+    PictureBox	PicPlayTime		3,3,32,32
+    Label	LbMainTitle	Time spent playing Neverwinter Nights	41,10,558,18
+    ButtonLabel	BhPlayTime	ButtonLabel1	577,8,22,22	hidden
+  Label	LbSummary	NWN and Mod Play Time Information	0,38,602,27
+  TableLayoutPanel	LpSummary		0,65,602,162
+    Label	LbTodayHdg	Time played today:	24,90,159,18
+    Label	LbTotalHdg	Total amount of time played:	24,18,159,18
+    Label	LbTotal	None	183,18,419,18
+    Label	LbToday	None	183,90,419,18
+    Label	LbGameHdg	Current Game:	24,126,159,18
+    Label	LbGameTime	None	183,126,419,18
+    Label	LbMostInOneDayHdg	Most time played in one day:	24,54,159,18
+    Label	LbMostInOneDay	Not yet established	183,54,419,18
+  Label	LbBackupGames	Backup Games Play Time	0,227,602,27	hidden
+  TableLayoutPanel	LpActions		0,228,602,14
+    ButtonPlus	BtClose	Close	523,3,76,25
+    ButtonPlus	BtPending	Pending	359,3,76,25	hidden
+    Label	LbHoursPerDay	Play Time Hours per Day:	3,5,206,20
+    ButtonLabel	LtxHoursPerDay	24	212,4,64,23
+    ButtonPlus	BtReport	Report	441,3,76,25
+  SplitterLine	SplitterLine1		0,227,602,1
+  ListViewPlus	LvGameTimes		0,227,602,19	hidden
+    Column	ColumnHeader	0
+    Column	ColumnHeader	24
+    Column	Game	159
+    Column	Play Time	419

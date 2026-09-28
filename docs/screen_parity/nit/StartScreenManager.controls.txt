@@ -1,0 +1,75 @@
+FORM	NWN's Start Screen Manager	960x552	(before Load)
+TableLayoutPanel	LpMain		0,0,954,520	hidden
+  RibbonPageToolstrip	RbToolstrip	RibbonPageToolstrip1	0,4,954,40	hidden
+    RibbonButtonSmall	RbPrevious		img	Previous Loadscreen
+    RibbonButtonSmall	RbNext		img	Next Loadscreen
+    ToolStripSeparator	ToolStripSeparator1			
+    RibbonButton	RbAddFolders	Add Images
+from Folders	img	
+    RibbonButton	RbAddFiles	Add Image
+Files	img	
+    ToolStripSeparator	ToolStripSeparator3			
+    RibbonButton	RbRename	Rename
+Start Screen	img	
+    RibbonButton	RbExport	Export Start
+Screen File	img	
+    RibbonButton	RbDeleteFile	Remove
+Image File	img	
+    ToolStripSeparator	ToolStripSeparator2			
+    RibbonButton	RbInstall	Install Selected
+Start Screen	img	
+    RibbonOptionsButton	RbOptions	Options	img	Options
+      ToolStripMenuItem	RbAutoSelect	Auto-Start Screen Selection		
+      ToolStripMenuItem	RbShowPrefixed	Show Prefixed Images only		
+      ToolStripMenuItem	RbRepairPrefixed	Repair Prefixed Image Exclusions	img	
+      ToolStripSeparator	ToolStripSeparator5			
+      ToolStripMenuItem	RbAddAutoExclusion	Add to Auto Exclusion List	img	
+      ToolStripMenuItem	RbRemoveAutoExclusion	Remove from Auto Exclusion List	img	
+      ToolStripMenuItem	RbInfoReport	View Information Report	img	
+      ToolStripSeparator	ToolStripSeparator6			
+      ToolStripMenuItem	RbSlideShowInterval	Slide Show Interval: 10	img	The number of seconds that each Start Screen image
+is shown when running an automatic slide show.
+      ToolStripMenuItem	RbSlideShowContinuous	Continuous Slide Show		Enable to start at the first Start Screen after the last one
+has been shown.
+
+Applied when automatically cycling through each image.
+      ToolStripSeparator	TsSeparator			
+      ToolStripMenuItem	RbImport	Import Start Screen Files	img	
+      ToolStripMenuItem	RbClearExported	Clear Exported Start Screen Files	img	Permanently delete any exported Start
+Screem image files.
+      ToolStripSeparator	TsImportSep			
+      ToolStripMenuItem	RbUninstall	Uninstall the Start Screen's Mod	img	
+      ToolStripMenuItem	RbRemove	Remove Start Screen Manager	img	
+      ToolStripSeparator	ToolStripSeparator4			
+      ToolStripMenuItem	RbClose	Close	img	
+    RibbonButtonSmall	RbLoadscreenHelp	RibbonButtonSmall1	img	
+    RibbonButtonSmall	RbSlideshow	RibbonButtonSmall1	img	Start Screen Slide Show.
+
+Right+Click to start at the selected image.
+Shift+Click to automatically cycle through each image.
+  TableLayoutPanel	LpImages		0,49,954,443	hidden
+    FileView	FvImages		0,0,220,443	hidden
+      Column	Image Files	205
+    PictureBox	PicScreen		221,0,733,443	hidden
+    SplitterLine	SplitterLine3		220,0,1,443	hidden
+  SplitterLine	SpLine		0,48,954,1	hidden
+  SplitterLine	SplitterLine2		0,492,954,1	hidden
+  TableLayoutPanel	LpInfo		0,493,954,27	hidden
+    MsgLabel	MgStatus	Status	732,4,38,18	hidden
+    LabelCheckBox	LcbExcluded	Excluded: No.	110,1,80,24	hidden
+    SplitterLine	SplResolution		197,0,1,27	hidden
+    Label	LbResolution	1920 x 1080	267,4,72,18	hidden
+    Label	LbResolutionHdg	Resolution:	201,6,66,15	hidden
+    SplitterLine	SplitterLine1		773,0,1,27	hidden
+    LabelCheckBox	LcbInstalled	Neverwinter Nights installation	777,1,170,24	hidden
+    LabelCheckBox	LcbStats	Start Screens: 1/5	3,1,100,24	hidden
+    SplitterLine	SplitterLine5		106,0,1,27	hidden
+    ListViewSearchBox	LsbImages		364,0,291,26	hidden
+      ToolStrip	TsSearch	ToolStrip1	7,1,284,25	hidden
+        ToolStripTextBox	TsSearchBox	Search Image Files		
+        ToolStripButton	TsFindClear	Clear Search	img	Clears search text or exits Search Mode.
+Press Esc to always exit Search mode.
+        ToolStripButton	TsFindNext	Find Next	img	Find Next      Down
+        ToolStripButton	TsFindPrevious	Find Previous	img	Find Previous      Up
+        ToolStripTextBoxControl		Search Image Files	0,2,211,21	hidden
+    ButtonLabel	BtSearch		342,2,22,22	hidden

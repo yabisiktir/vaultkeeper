@@ -1,0 +1,13 @@
+FORM	Find	450x198
+TableLayoutPanel	LpMain		0,0,444,166
+  Label	LbFind	&Find what:	3,11,60,18
+  ComboBox	CbxFind		69,10,365,23
+  TableLayoutPanel	LpActions		0,133,444,33
+    ButtonPlus	BtClose	&Close	363,4,75,25
+    ButtonPlus	BtFindPrevious	&Previous	282,4,75,25
+    ButtonPlus	BtFindNext	Find &Next	201,4,75,25
+  Label	LbInfo		3,96,438,18
+  SplitterLine	SplitterLine1		0,132,444,1
+  Label	LbOptions	Options:	3,45,60,18
+  CheckBox	CbMatchWord	Match &whole word only	69,46,148,19
+  CheckBox	CbMatchCase	M&atch case	69,71,85,19

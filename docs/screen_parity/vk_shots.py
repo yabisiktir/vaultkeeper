@@ -115,6 +115,58 @@ def _builders(c):
         "UserResponseEditor": lambda: user_response_editor.UserResponseEditor(c),
         "WizardBuilder": lambda: wizard_builder.WizardBuilder(c, "Alpha"),
         "WorkshopViewer": lambda: workshop_viewer.WorkshopViewer(c),
+        **_more_builders(c),
+    }
+
+
+def _more_builders(c):
+    """The second pass: the forms not paired in the first."""
+    from PySide6.QtWidgets import QTextEdit
+
+    from vaultkeeper.ui.dialogs import (
+        character_filter,
+        classes_skills_feats,
+        common_filters,
+        conflicts_viewer,
+        crash_reports,
+        create_nwn_folder,
+        doc_organiser,
+        find_text,
+        image_viewer,
+        old_downloads,
+        play_data_view_pending,
+        play_data_viewer,
+        portrait_manager,
+        start_screen_manager,
+    )
+
+    picture = c.ctx.game_user_dir / "portraits" / "po_alpha_h.png"
+
+    def image():
+        from PySide6.QtGui import QColor, QImage
+
+        img = QImage(128, 200, QImage.Format.Format_RGB32)
+        img.fill(QColor("steelblue"))
+        img.save(str(picture))
+        return image_viewer.ImageViewer(picture)
+
+    return {
+        "CharacterFilter": lambda: character_filter.CharacterFilter(["Fighter", "Wizard"]),
+        "ClassesSkillsAndFeats": lambda: classes_skills_feats.ClassesSkillsAndFeatsDialog(),
+        "CommonFiltersDialogue": lambda: common_filters.CommonFiltersDialog(
+            ["Worth Playing"], ["Good"], {"Worth Playing": True}, {"Good": True}
+        ),
+        "CrashDumpManager": lambda: crash_reports.CrashReportsDialog(c),
+        "CreateNwnFolder": lambda: create_nwn_folder.CreateNwnFolderDialog(profile_name="Test"),
+        "DocOrganiser": lambda: doc_organiser.DocOrganiser(c, ["Alpha"]),
+        "DownloadDeleteMsg": lambda: old_downloads.OldDownloadsDialog("Alpha", []),
+        "FileConflictsViewer": lambda: conflicts_viewer.ConflictsViewer.show_for(c),
+        "FindDialogue": lambda: find_text.FindTextDialog(QTextEdit()),
+        "MsgPicture": image,
+        "PlayDataViewPending": lambda: play_data_view_pending.PlayDataViewPending.show_for(c),
+        "PlayDataViewer": lambda: play_data_viewer.PlayDataViewer.show_for(c),
+        "PortraitManager": lambda: portrait_manager.PortraitManager.show_for(c),
+        "StartScreenManager": lambda: start_screen_manager.StartScreenManager.show_for(c),
     }
 
 
@@ -144,6 +196,34 @@ def _isolate(root: Path) -> None:
     send2trash.send2trash = lambda path: Path(path).rename(bin_dir / Path(path).name)
 
 
+def _actions(widget) -> list[str]:
+    """Every action a user can take on ``widget``: button, check box, menu and toolbar captions."""
+    from PySide6.QtGui import QAction
+    from PySide6.QtWidgets import QAbstractButton, QMenu, QTabWidget, QToolButton
+
+    seen: list[str] = []
+
+    def add(kind: str, text: str) -> None:
+        text = text.replace("&", "").strip()
+        if text and f"{kind}\t{text}" not in seen:
+            seen.append(f"{kind}\t{text}")
+
+    for button in widget.findChildren(QAbstractButton):
+        if isinstance(button, QToolButton) and button.defaultAction() is not None:
+            continue
+        add(type(button).__name__, button.text() or button.toolTip())
+        menu = button.menu() if hasattr(button, "menu") else None
+        if isinstance(menu, QMenu):
+            for act in menu.actions():
+                add("MenuItem", act.text())
+    for act in widget.findChildren(QAction):
+        add("Action", act.text())
+    for tabs in widget.findChildren(QTabWidget):
+        for i in range(tabs.count()):
+            add("Tab", tabs.tabText(i))
+    return seen
+
+
 def main(wanted: list[str]) -> None:
     app = QApplication.instance() or QApplication([])
     from vaultkeeper.ui.theme import apply_appearance
@@ -165,6 +245,7 @@ def main(wanted: list[str]) -> None:
                 widget.show()
                 app.processEvents()
                 widget.grab().save(str(OUT / f"{name}.png"))
+                (OUT / f"{name}.controls.txt").write_text("\n".join(_actions(widget)) + "\n")
                 widget.close()
                 print(f"{name}: ok")
             except Exception as exc:  # noqa: BLE001 - report and go on

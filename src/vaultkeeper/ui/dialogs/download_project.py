@@ -442,9 +442,49 @@ class DownloadProjectDialog(QDialog):
             "Turn this off to see every file a project offers."
         )
         self.rules_button.toggled.connect(self._on_rules_toggled)
+        # VB TsRulePrefs: every rule preference, in NIT's order and words, on
+        # the button's drop-down; a click on the button itself still toggles
+        # the project rules.
+        from PySide6.QtWidgets import QMenu
+
+        from vaultkeeper.vault.download_rules import RULE_PREFERENCES
+
+        menu = QMenu(self.rules_button)
+        self.rule_actions = {}
+        settings = load_settings()
+        for entry in RULE_PREFERENCES:
+            if entry is None:
+                menu.addSeparator()
+                continue
+            key, text = entry
+            act = menu.addAction(text)
+            act.setCheckable(True)
+            act.setChecked(bool(getattr(settings, key)))
+            act.toggled.connect(lambda on, k=key: self._on_rule_preference(k, on))
+            self.rule_actions[key] = act
+        self.rules_button.setMenu(menu)
+        self.rules_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         return self.rules_button
 
+    def _on_rule_preference(self, key: str, on: bool) -> None:
+        """Save one rule preference and re-read the project (VB RulePreference_Click)."""
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        if key == "vault_apply_project_rules":
+            self.rules_button.setChecked(on)  # the same preference: one handler
+            return
+        settings = load_settings()
+        setattr(settings, key, on)
+        save_settings(settings)
+        if self._fetched_url:
+            self._on_fetch()
+
     def _on_rules_toggled(self, applied: bool) -> None:
+        act = getattr(self, "rule_actions", {}).get("vault_apply_project_rules")
+        if act is not None and act.isChecked() != applied:
+            act.blockSignals(True)
+            act.setChecked(applied)
+            act.blockSignals(False)
         from vaultkeeper.config.settings import load_settings, save_settings
 
         settings = load_settings()

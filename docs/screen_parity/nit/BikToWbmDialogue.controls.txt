@@ -1,0 +1,8 @@
+FORM	Movie File Conversion	618x168	(before Load)
+TableLayoutPanel	LpMain		0,0,612,136	hidden
+  TableLayoutPanel	LpActions		0,113,612,32	hidden
+    ButtonPlus	BtCancel	Cancel	519,3,87,27	hidden
+  Label	LbOperation	Converting bik movie files to wbm format...	3,7,606,18	hidden
+  TextProgressBar	PbInfo	Converted 1 of 10 bik files	0,32,612,26	hidden
+  Label	LbFolder	Folder Name	3,63,606,18	hidden
+  Label	LbFilename	Filename	3,86,606,18	hidden

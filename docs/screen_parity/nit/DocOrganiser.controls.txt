@@ -1,0 +1,39 @@
+FORM	Mod Documentation Organiser	914x685	(before Load)
+TableLayoutPanel	LpMain		0,0,906,651	hidden
+  TableLayoutPanel	LpActions		0,620,906,31	hidden
+    ButtonPlus	BtCopy	Copy	666,3,75,25	hidden
+    ButtonPlus	BtCancel	Close	828,3,75,25	hidden
+    TextProgressBar	PbInfo		0,0,660,31	hidden
+    ButtonPlus	BtNext	Next	747,3,75,25	hidden
+  TableLayoutPanel	LpHeading		3,3,900,38	hidden
+    PictureBox	PicHeading		3,3,32,32	hidden
+    Label	LbHeading	Copy Mod information documents (ReadMe, Walkthrough, etc) from the Downloads folder to the Contents Panel for easier access.	41,10,828,18	hidden
+    ButtonLabel	BhDocManager	ButtonLabel1	875,8,22,22	hidden
+  SplitterLine	SplitterLine1		0,619,906,1	hidden
+  SplitterLine	SplitterLine3		0,87,906,1	hidden
+  TableLayoutPanel	LpDocLists		0,88,906,531	hidden
+    TableLayoutPanel	LpTextDisplay		372,0,534,531	hidden
+      SplitterLine	SplitterLine7		0,264,534,1	hidden
+      RichTextBoxPlus	RtfDoc		3,24,531,240	hidden
+      ButtonLabel	BuContentsFile	File Name	0,265,534,24	hidden
+      ButtonLabel	BuFile	File Name	0,0,534,24	hidden
+      RichTextBoxPlus	RtfContents		3,289,531,240	hidden
+    SplitterLine	SplitterLine5		371,0,1,531	hidden
+    TableLayoutPanel	LpFileLists		0,0,371,531	hidden
+      ListViewPlus	LvDocs		0,24,371,240	hidden
+        Column	Documents	317
+      ButtonLabel	BuDocs	Downloads Folder Documents	0,0,371,24	hidden
+      SplitterLine	SplitterLine6		0,264,371,1	hidden
+      ButtonLabel	BuContents	Contents Panel Documents	0,265,371,24	hidden
+      ListViewPlus	LvContents		0,289,371,240	hidden
+        Column	Documents	317
+  ToolStrip	TsQuick	ToolStrip1	0,48,906,36	hidden
+    ToolStripButton	TsVersion	Version	img	
+    ToolStripButton	TsRename	Rename	img	
+    ToolStripDropDownButton	TsRenameTo	Rename to...	img	Use an existing Contents Panel Document name
+    ToolStripButton	TsProperties	Properties	img	
+    ToolStripButton	TsReset	Reset	img	Discards all your document name changes
+    ToolStripButton	TsUncheck	Uncheck All	img	Clears the ticks (unchecks) from all items.
+
+Use when you only want to copy a few of many items.
+  SplitterLine	SplitterLine2		0,44,906,1	hidden

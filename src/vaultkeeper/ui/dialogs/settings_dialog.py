@@ -597,6 +597,19 @@ class SettingsDialog(QDialog):
         )
         form.addRow(self.vault_apply_project_rules)
 
+        # NIT's finer rule preferences (VB Rules*), in its order and words.
+        from vaultkeeper.vault.download_rules import RULE_PREFERENCES
+
+        self.rule_preferences: dict[str, QCheckBox] = {}
+        for entry in RULE_PREFERENCES:
+            if entry is None or entry[0] == "vault_apply_project_rules":
+                continue
+            key, text = entry
+            box = QCheckBox(text)
+            box.setChecked(bool(getattr(settings, key)))
+            self.rule_preferences[key] = box
+            form.addRow(box)
+
         self.vault_include_prerequisites = QCheckBox(
             "Include a project's required projects, pre-ticked"
         )
@@ -1332,6 +1345,8 @@ class SettingsDialog(QDialog):
         ]
         settings.vault_rules_online = self.vault_rules_online.isChecked()
         settings.vault_apply_project_rules = self.vault_apply_project_rules.isChecked()
+        for key, box in self.rule_preferences.items():
+            setattr(settings, key, box.isChecked())
         settings.vault_include_prerequisites = (
             self.vault_include_prerequisites.isChecked()
         )

@@ -130,3 +130,49 @@ def test_rules_feed_game_mapper(tmp_path):
     )
     assert loop.game_mapper.save_name_rules["Raw Name"] == "Canonical"
     assert loop.game_mapper.save_name_removed_chars == "()&"
+
+
+class TestRulePreferences:
+    """VB VaultDownloadRules "Apply rule preferences": each one off empties a table."""
+
+    @staticmethod
+    def _prefs(**off):
+        from vaultkeeper.config.settings import Settings
+
+        settings = Settings()
+        for key, value in off.items():
+            setattr(settings, key, value)
+        return settings
+
+    def test_everything_applies_by_default(self):
+        rules = DownloadRules.from_text(_RULES).with_preferences(self._prefs())
+        assert rules.get_final_url("http://old.example/x") == "http://new.example/x"
+        assert rules.is_excluded_extension(".tmp")
+
+    def test_one_preference_off_leaves_the_others(self):
+        rules = DownloadRules.from_text(_RULES)
+        no_redirects = rules.with_preferences(self._prefs(rules_redirects=False))
+        assert no_redirects.get_final_url("http://old.example/x") == "http://old.example/x"
+        assert no_redirects.is_excluded_extension(".tmp")
+        assert rules.redirects, "the cached rules stay whole"
+
+        no_extensions = rules.with_preferences(self._prefs(rules_exclude_extensions=False))
+        assert not no_extensions.is_excluded_extension(".tmp")
+        assert no_extensions.get_final_url("http://old.example/x") == "http://new.example/x"
+
+    def test_the_master_switch_turns_every_rule_off(self):
+        rules = DownloadRules.from_text(_RULES).with_preferences(
+            self._prefs(rules_enabled=False)
+        )
+        assert rules.get_final_url("http://old.example/x") == "http://old.example/x"
+        assert not rules.is_excluded_extension(".tmp")
+        assert rules.projects == {}
+
+    def test_project_files_off_keeps_folder_and_group(self):
+        from vaultkeeper.vault.download_rules import ProjectRule
+
+        rules = DownloadRules(
+            projects={"x": ProjectRule(title="X", mod_folder="Xm", downloads=["a.zip"])}
+        ).with_preferences(self._prefs(rules_project_files=False))
+        assert rules.projects["x"].mod_folder == "Xm"
+        assert rules.projects["x"].downloads == []

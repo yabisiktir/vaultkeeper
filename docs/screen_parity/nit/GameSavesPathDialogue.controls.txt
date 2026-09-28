@@ -1,0 +1,16 @@
+FORM	Neverwinter Nights Games Saves Folder	578x432
+TableLayoutPanel	LpMain		0,0,572,400
+  TableLayoutPanel	LpPathText		0,6,572,28
+    Label	LbGameSaves	Game Saves:	3,5,77,18
+    TextBox	TxGameSaves	C:\nitdiff\sb\user\saves	80,3,461,21
+    ButtonLabel	BuBrowse	ButtonLabel1	544,3,22,22
+  TableLayoutPanel	LpActions		0,369,572,31
+    ButtonPlus	BtSave	Save	413,3,75,25
+    ButtonPlus	BtCancel	Cancel	494,3,75,25
+  ListViewPlus	LvGameSaves		0,40,572,135
+    Column	Game Save Folders	522
+    Column	Saves	50
+  SplitterLine	SplitterLine1		0,368,572,1
+  SplitterLine	SplitterLine2		0,175,572,1
+  Label	LbHelp	The Games Saves folder is the directory Neverwinter Nights uses to save games. For example, ..\Saved Games\NeverwinterNights\Saves.    Specify a Games Saves folder to use for all your Profiles. NIT's Game Saves Manager and Play Time Monitor work best when all NWN saved games are stored in the same place.    The Neverwinter Nights INI file (nwn.ini) is updated to ensure that "SAVES=" points to the location you specify.    Leave this location blank if you want to have multiple locations for your game saves (not recommended).  When blank, you can use the Alias Section Editor (Manage, Alias Section) to specify the Saves location for each Profile you load.	3,209,562,153
+  Label	LbHelpHdg	Information	0,176,572,27

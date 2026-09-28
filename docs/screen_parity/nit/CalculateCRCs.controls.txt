@@ -1,0 +1,18 @@
+FORM	CRC	582x374	(before Load)
+TableLayoutPanel	tlCRC		0,0,576,342	hidden
+  Label	lbFolder	Folder (NWN\Ambient)	3,91,570,18	hidden
+  Label	lbMod	Processing: Modname	3,70,570,18	hidden
+  Label	lbOperation	Operation (Calculating file CRCs)	3,7,570,18	hidden
+  Label	lbFileName	Filename	3,112,570,18	hidden
+  Label	lbMod1	Processing: Modname 1	3,139,570,18	hidden
+  Label	lbFolder1	Folder 1	3,160,570,18	hidden
+  Label	lbFileName1	Filename 1	3,181,570,18	hidden
+  Label	lbMod2	Processing: Modname 2	3,208,570,18	hidden
+  Label	lbFolder2	Folder 2	3,229,570,18	hidden
+  Label	lbFileName2	Filename 2	3,250,570,18	hidden
+  Label	lbMod3	Processing: Modname 3	3,277,570,18	hidden
+  Label	lbFolder3	Folder 3	3,298,570,18	hidden
+  Label	lbFileName3	Filename 3	3,319,570,18	hidden
+  TableLayoutPanel	tlActions		0,349,576,32	hidden
+    ButtonPlus	btCancel	Cancel	483,3,87,27	hidden
+  TextProgressBar	pbInfo	Progress Information	0,35,576,26	hidden

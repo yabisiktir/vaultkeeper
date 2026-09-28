@@ -52,6 +52,9 @@ class FindTextDialog(QDialog):
         row.addWidget(self.text, 1)
         layout.addLayout(row)
 
+        # VB FindDialogue: "Match whole word only" and "Match case".
+        self.whole_word = QCheckBox("Match whole word only")
+        layout.addWidget(self.whole_word)
         self.match_case = QCheckBox("Match case")
         layout.addWidget(self.match_case)
 
@@ -99,6 +102,8 @@ class FindTextDialog(QDialog):
             flags |= QTextDocument.FindFlag.FindBackward
         if self.match_case.isChecked():
             flags |= QTextDocument.FindFlag.FindCaseSensitively
+        if self.whole_word.isChecked():
+            flags |= QTextDocument.FindFlag.FindWholeWords
         if self._target.find(needle, flags):
             return True
         # Wrapping is not "no more occurrences": say nothing found only when a
@@ -132,10 +137,24 @@ class FindTextDialog(QDialog):
 
         haystack = (lambda s: s) if self.match_case.isChecked() else str.lower
         target = haystack(needle)
+        if self.whole_word.isChecked():
+            import re
+
+            word = re.compile(
+                rf"(?<!\w){re.escape(needle)}(?!\w)",
+                0 if self.match_case.isChecked() else re.IGNORECASE,
+            )
+
+            def contains(text: str) -> bool:
+                return word.search(text) is not None
+        else:
+
+            def contains(text: str) -> bool:
+                return target in haystack(text)
         for index in list(order) + list(wrapped):
             item = rows[index]
             columns = self._target.columnCount()
-            if any(target in haystack(item.text(c)) for c in range(columns)):
+            if any(contains(item.text(c)) for c in range(columns)):
                 self._target.setCurrentItem(item)
                 self._target.scrollToItem(item)
                 return True

@@ -1,15 +1,15 @@
-FORM	Filter Characters	808x548
-TableLayoutPanel	LpMain		0,0,802,516
-  Label	LbLevel	Character Level Filter	3,6,121,18
-  Label	LbClass	Character Class Filter	484,6,122,18
-  ListViewPlus	LvClassNames		481,30,321,456
+FORM	Filter Characters	808x548	(before Load)
+TableLayoutPanel	LpMain		0,0,802,516	hidden
+  Label	LbLevel	Character Level Filter	3,6,121,18	hidden
+  Label	LbClass	Character Class Filter	484,6,122,18	hidden
+  ListViewPlus	LvClassNames		481,30,321,456	hidden
     Column	Class Names	321
-  TableLayoutPanel	LpLevelFilter		0,30,481,456
-    TextBox	TxLevel	1	3,3,475,21
-    Label	LbLevelHelp	Enter a value between 1 and 40 to show all characters with the specified level and higher.  Specify 1 to show all characters regardless of Level.  Use equals to show characters with a specific level (eg =20 shows all level 20 characters).  Use less than to show characters with the specified level and lower (eg <20 shows character levels 20 and lower).  Use a hyphen to separate a start and end level (eg 15-20 shows characters with levels between 15 and 20).	3,27,471,138
-  TableLayoutPanel	LpActions		0,487,802,29
-    ButtonPlus	BtCancel	Cancel	724,3,75,23
-    ButtonPlus	BtApply	Apply	643,3,75,23
-    MsgLabel	MsgStatus		3,5,553,18
-    ButtonPlus	BtReset	Reset	562,3,75,23
-  SplitterLine	SplitterLine1		0,486,802,1
+  TableLayoutPanel	LpLevelFilter		0,30,481,456	hidden
+    TextBox	TxLevel		3,3,475,21	hidden
+    Label	LbLevelHelp	Label1	3,27,42,18	hidden
+  TableLayoutPanel	LpActions		0,487,802,29	hidden
+    ButtonPlus	BtCancel	Cancel	724,3,75,23	hidden
+    ButtonPlus	BtApply	Apply	643,3,75,23	hidden
+    MsgLabel	MsgStatus	Status	3,5,553,18	hidden
+    ButtonPlus	BtReset	Reset	562,3,75,23	hidden
+  SplitterLine	SplitterLine1		0,486,802,1	hidden

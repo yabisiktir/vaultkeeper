@@ -27,8 +27,11 @@ from vaultkeeper.ui import resources as R
 class PlayDataViewPending(QDialog):
     """A read-only table of pending (unattributed) play-time records."""
 
-    def __init__(self, report: dict, parent: QWidget | None = None) -> None:
+    def __init__(
+        self, report: dict, parent: QWidget | None = None, *, on_clear=None
+    ) -> None:
         super().__init__(parent)
+        self._on_clear = on_clear
         self.setWindowTitle("Pending Play Data")
         self.setWindowIcon(R.get_icon("Time_Green_16x"))
         geometry.remember(self, "PlayDataViewPending", 560, 380)
@@ -57,14 +60,41 @@ class PlayDataViewPending(QDialog):
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
+        # VB BtClear: erase every pending record, after asking.
+        self.clear_button = QPushButton("Clear")
+        self.clear_button.setToolTip("Erase all pending play times")
+        self.clear_button.setEnabled(on_clear is not None and bool(report.get("rows")))
+        self.clear_button.clicked.connect(self._clear)
+        buttons.addWidget(self.clear_button)
         close = QPushButton("Close")
         close.clicked.connect(self.reject)
         buttons.addWidget(close)
         layout.addLayout(buttons)
 
+    def _clear(self) -> None:
+        from PySide6.QtWidgets import QMessageBox
+
+        if (
+            QMessageBox.question(
+                self,
+                "Pending Play Data",
+                "Do you want to permanently erase all pending play times?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
+            return
+        self._on_clear()
+        self.table.clear()
+        self.summary.setText("Pending records: 0")
+        self.clear_button.setEnabled(False)
+
     @classmethod
     def show_for(cls, controller, parent: QWidget | None = None) -> PlayDataViewPending:
         """Build and show the pending-play-data view for a controller."""
-        dlg = cls(controller.pending_play_report(), parent)
+        dlg = cls(
+            controller.pending_play_report(),
+            parent,
+            on_clear=controller.clear_pending_play_times,
+        )
         dlg.show()
         return dlg

@@ -813,27 +813,38 @@ class ProfileData:
         return base / ifk.filename if base is not None else None
 
     def calculate_checksums(
-        self, profile_mods_dir: Path, game_folders: dict[str, Path]
-    ) -> None:
+        self,
+        profile_mods_dir: Path,
+        game_folders: dict[str, Path],
+        on_progress: Callable[[int, int, object], bool] | None = None,
+    ) -> bool:
         """Compute CRC-32 for every pending file in the change update lists.
 
-        Mirrors CalculateChecksums headlessly (no dialog): walks
-        Changes.File.UpdateList and Changes.Installed.UpdateList, computes CRCs from
-        the real files, and stores them. Missing/unreadable files are left at 0.
-        """
-        for fk in self.changes.file.update_list:
-            fd = self.file_list.get(fk)
-            if fd is None:
-                continue
-            path = self.mod_file_path(profile_mods_dir, fk)
-            fd.file_crc = _safe_crc(path)
+        Mirrors CalculateChecksums headlessly: walks Changes.File.UpdateList and
+        Changes.Installed.UpdateList, computes CRCs from the real files, and
+        stores them. Missing/unreadable files are left at 0.
 
-        for ifk in self.changes.installed.update_list:
-            ifd = self.installed_list.get(ifk)
-            if ifd is None:
-                continue
-            path = self.installed_file_path(game_folders, ifk)
-            ifd.file_crc = _safe_crc(path) if path is not None else 0
+        ``on_progress(done, total, key)`` is called before each file (VB's
+        CalculateCRCs dialog); returning False stops there. Files already done
+        keep their new checksum and the rest their old one, so stopping early
+        leaves nothing half-written. Returns False when stopped early.
+        """
+        work = [(fk, True) for fk in self.changes.file.update_list] + [
+            (ifk, False) for ifk in self.changes.installed.update_list
+        ]
+        for done, (key, is_mod_file) in enumerate(work):
+            if on_progress is not None and on_progress(done, len(work), key) is False:
+                return False
+            if is_mod_file:
+                fd = self.file_list.get(key)
+                if fd is not None:
+                    fd.file_crc = _safe_crc(self.mod_file_path(profile_mods_dir, key))
+            else:
+                ifd = self.installed_list.get(key)
+                if ifd is not None:
+                    path = self.installed_file_path(game_folders, key)
+                    ifd.file_crc = _safe_crc(path) if path is not None else 0
+        return True
 
     def _checksum_new_mod_files(self, profile_mods_dir: Path) -> None:
         """CRC the pending mod files that have none yet (VB ``CalculateChecksums``).

@@ -1,0 +1,11 @@
+FORM	Crash Dump File Manager	450x440
+TableLayoutPanel	LpMain		0,0,444,408
+  TableLayoutPanel	LpActions		0,379,444,29
+    ButtonPlus	BtClose	&Close	366,3,75,23
+    ButtonPlus	BtDeleteAll	Delete &All	204,3,75,23
+    ButtonPlus	BtDelete	&Delete	285,3,75,23
+    ButtonPlus	BtSubmit	&Submit	123,3,75,23
+  ListViewPlus	LvCrashFiles		0,0,444,378
+    Column	Date and Time of Crash	444
+  SplitterLine	SplitterLine1		0,378,444,1
+  Label	LbInfo		3,6,0,18	hidden

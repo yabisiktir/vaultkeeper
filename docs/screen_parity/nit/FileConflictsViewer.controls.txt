@@ -1,0 +1,17 @@
+FORM	Mod File Conflicts	723x519	(before Load)
+TableLayoutPanel	LpMain		0,0,717,487	hidden
+  TableLayoutPanel	LpConflicts		0,0,717,457	hidden
+    ListViewPlus	LvFiles		0,24,358,433	hidden
+      Column	Files	199
+    ButtonLabel	LbFiles	Files	0,0,358,24	hidden
+    ButtonLabel	LbMods	Mods	359,0,358,24	hidden
+    ListViewPlus	LvMods		359,24,358,433	hidden
+      Column	Files	199
+    SplitterLine	SplitterLine2		358,0,1,457	hidden
+  SplitterLine	SplitterLine1		0,457,717,1	hidden
+  TableLayoutPanel	LpActions		0,458,717,29	hidden
+    ButtonPlus	BtClose	Close	639,3,75,23	hidden
+    ButtonPlus	BtAll	All	559,3,74,23	hidden
+    TextProgressBar	PbStatus	Progress	0,0,394,29	hidden
+    ButtonPlus	BtInstalled	Installed	478,3,75,23	hidden
+    ButtonPlus	BtSelected	Selected	397,3,75,23	hidden

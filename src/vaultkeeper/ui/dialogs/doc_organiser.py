@@ -144,6 +144,8 @@ class DocOrganiser(QDialog):
         self.copy_button = QPushButton("Copy")
         self.copy_button.clicked.connect(self._on_copy)
         self.refresh_button = QPushButton("Refresh")
+        # Rebuilding from disk is also VB's Reset (TsReset / CmReset).
+        self.refresh_button.setToolTip("Rescan the documents, discarding your name changes")
         self.refresh_button.clicked.connect(self.refresh)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.reject)

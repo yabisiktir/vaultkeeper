@@ -37,6 +37,9 @@ Nights` and lost two of the owner's saves. So there are now two guards:
    changed.
 
 Always render through `run_vk_shots.sh`, never `vk_shots.py` directly.
+`run_nit_shots.sh` uses the same sandbox and check: NIT's forms get neutral
+constructor arguments and every prompt is answered automatically, and the
+bottle's Documents folder is the real one.
 
 ## Findings (2026-09-28)
 
@@ -58,10 +61,42 @@ Legend: ✅ fixed in this pass · ➖ VK differs deliberately or does more · �
 | Main window | NIT reselects the mods that were selected when the profile last closed (`LoadSelections` / `SaveSelections`). | ✅ Saved per profile on close and profile switch; reselected on load. |
 | All dialogs | NIT dialogs share one frame: a header (icon, description, round "?" help) and a footer (status text left; Save / Cancel right). VK dialogs put Help bottom-left and the description as plain text, with no header icon. | ⚖ Owner decision. Adopting NIT's frame reshapes every dialog, which `CLAUDE.md` asks not to do without a reason. |
 
+## Second pass: the remaining forms (2026-09-28)
+
+All 47 NIT forms now have a control dump (`nit/results.tsv` lists how each was
+captured). Two harness changes made that possible:
+- forms that close themselves in `Load` are dumped straight after construction;
+- forms with no parameterless constructor are built with neutral arguments.
+
+`vk_shots.py` also writes each Vaultkeeper screen's action list, and
+`actions_diff.py` lists every NIT button, check box, menu item and tab with no
+matching Vaultkeeper caption (`actions_diff.md`). That list is a prompt to check,
+not a verdict; the verdicts are below. Many of NIT's never-shown renders come out
+blank, so for those forms the dump is the reference.
+
+| Screen | Finding | Status |
+|---|---|---|
+| Calculate CRCs (NIT `CalculateCRCs`) | NIT shows the file in hand, a progress bar and Cancel. VK showed a wait cursor only, and "all files" can take minutes. | ✅ Progress window with the mod, the file, "n of N" and Cancel. Cancelling keeps the checksums done so far; the rest keep their old values. |
+| Create Installer (NIT `CreateInstaller`) | NIT shows the operation, the file and "n of N". VK showed nothing while extracting and copying. | ✅ Progress window fed by the build's phases. No Cancel: the old installer is already gone at that point, so stopping would leave a partial one. |
+| Download Project, rules menu (NIT `TsRulePrefs`) | NIT has nine rule preferences; VK had one (project rules). | ✅ All of them, in NIT's order and words, on the rules button's drop-down and in Settings → Downloads. Each one off empties one table of the rules in force, as NIT does. |
+| Crash Dump Manager | NIT's Submit shows the crash file and opens Beamdog's crash page. | ✅ Submit added; VK keeps its Open Folder too. |
+| Find (NIT `FindDialogue`) | "Match whole word only" was missing. | ✅ Added, for text and for lists. |
+| Pending Play Data | NIT's Clear erases all pending play times, after asking. | ✅ Added. |
+| Doc Organiser | NIT's Reset discards pending name changes. | ➖ VK's Refresh already does this (it rebuilds from disk); its tooltip now says so. |
+| Classes, Skills and Feats; Character Explorer | NIT's search steps through matches (Find Next / Previous); VK filters the list. Also NIT's Description button, where VK shows descriptions in a pane. | ➖ Same capability. |
+| Create NWN Folder | NIT can make the chosen source the default "Copy from" folder. | ➖ VK takes the source from the profile each time and has no default-source setting. |
+| Menu Item Editor | NIT edits one Run/Web item at a time, with a 35-character limit and a clipboard URL. | ➖ VK edits the items inline in Settings and checks the web links with its own command. |
+| Game Manager Restore | NIT's separate restore window. | ➖ VK's Game Saves Manager has an Archived section with Restore and Delete Archive. |
+| Movie conversion, RTF theme recolouring, Slide Show, NIT update | Progress or utility windows. | ➖ VK converts movies inside the installer build (now shown by its progress window); VK notes follow the theme, so no recolouring is needed; the Start Screen Manager has a Slide Show; self-update is deferred. |
+| Screen Position Adjust | Positions NIT's pop-up message. | ➖ VK has no such pop-up. |
+| Workshop Name Editor, Game Saves Path | NIT prompts. | ➖ Owner decisions: VK renames in the Workshop viewer (W9), and has no shared saves folder (logic audit). |
+| NIT main window, Debug menu | Developer reports (Action List, Selection History, Text Scroll Position, title-bar colour…). | ➖ Developer tools, not user features. |
+
 ## Re-running
 
 ```bash
-docs/screen_parity/run_nit_shots.sh        # needs the CrossOver "NIT" bottle
+docs/screen_parity/run_nit_shots.sh [Form …]   # CrossOver "NIT" bottle; batches of ~12
 docs/screen_parity/run_vk_shots.sh [Form …]
 QT_QPA_PLATFORM=offscreen .venv/bin/python docs/screen_parity/pairs.py [Form …]
+.venv/bin/python docs/screen_parity/actions_diff.py > docs/screen_parity/actions_diff.md
 ```

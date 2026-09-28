@@ -1,0 +1,19 @@
+FORM	Create Neverwinter Nights Folder for	590x232
+TableLayoutPanel	LpMain		0,0,584,200
+  Label	LbInfo	Create a Neverwinter Nights Installation or Enhanced Edition User Files folder.	3,6,429,18
+  TableLayoutPanel	LpFolders		0,37,584,81
+    ButtonLabel	BuTarget		553,3,22,22
+    ButtonLabel	BuSource		553,31,22,22
+    TextBox	TxTarget		77,3,470,21
+    Label	LbNwnFolder	&NWN Folder:	3,4,74,20
+    Label	LbSourceFolder	Copy &from:	3,32,74,20
+    TextBox	TxSource		77,31,470,21
+    CheckBox	CbDefaultSource	&Make this this the default "Copy from" folder	77,59,258,19
+  SplitterLine	SplitterLine3		0,30,584,1
+  SplitterLine	SplitterLine4		0,124,584,1
+  Label	LbHelp	Enter the path of the folder containing the Enhanced Edition User Files you want to copy.  You can use the Browse button to select the User Files folder.	3,131,482,33
+  TableLayoutPanel	TlActions		0,169,584,31
+    ButtonPlus	BtSave	Create	425,3,75,25
+    ButtonPlus	BtCancel	Cancel	506,3,75,25
+    MsgLabel	MlErrors	Error messages	3,6,416,18
+  SplitterLine	SplitterLine1		0,168,584,1

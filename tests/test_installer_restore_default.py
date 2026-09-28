@@ -68,3 +68,30 @@ def test_create_installer_reinstalls_a_rebuilt_installed_mod(qtbot, tmp_path, mo
     assert c.pd.mod_item("Alpha Pack").installed
     assert (hak / "alpha.hak").read_text() == "v2"
     assert not (hak / "old.hak").exists()
+
+
+def test_create_installer_shows_the_builds_phases(qtbot, tmp_path, monkeypatch) -> None:
+    """VB CreateInstaller shows what it is doing; the build's phases reach a progress window."""
+    from PySide6.QtWidgets import QProgressDialog
+
+    from vaultkeeper.ui.main_window import MainWindow
+
+    profile_mods = tmp_path / "Profiles" / "P"
+    profile_mods.mkdir(parents=True)
+    c = ProfileController.open_profile(
+        profile_mods_dir=profile_mods,
+        game_root=tmp_path / "NWN",
+        store_path=tmp_path / "Data" / "P.json",
+    )
+    c.create_mod("Alpha Pack")
+    (profile_mods / "Alpha Pack" / "alpha.hak").write_text("v1")
+    win = MainWindow(c)
+    qtbot.addWidget(win)
+    labels: list[str] = []
+    monkeypatch.setattr(
+        QProgressDialog, "setLabelText", lambda self, text: labels.append(text)
+    )
+
+    win._on_create_installer(["Alpha Pack"])
+
+    assert any("Alpha Pack" in t and "Building the installer" in t for t in labels)

@@ -57,3 +57,25 @@ def test_pending_dialog_populates(qtbot):
     qtbot.addWidget(dlg)
     assert dlg.table.topLevelItemCount() == 2
     assert "Pending records: 2" in dlg.summary.text()
+
+
+def test_clear_erases_every_pending_record_after_asking(tmp_path, qtbot, monkeypatch):
+    """VB PlayDataViewPending.BtClear → PlayDataManager.ClearPendingPlayTimes."""
+    from PySide6.QtWidgets import QMessageBox
+
+    controller = _controller(tmp_path)
+    controller.play_loop.play_data.pending_play_times["Mystery Mod"] = [
+        PlayTimeInfo(completed="01 Jan 2024", play_time="2 hours", user_name="sam")
+    ]
+    dlg = PlayDataViewPending.show_for(controller)
+    qtbot.addWidget(dlg)
+    assert dlg.clear_button.isEnabled()
+
+    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.No)
+    dlg.clear_button.click()
+    assert controller.pending_play_report()["count"] == 1
+
+    monkeypatch.setattr(QMessageBox, "question", lambda *a, **k: QMessageBox.StandardButton.Yes)
+    dlg.clear_button.click()
+    assert controller.pending_play_report()["count"] == 0
+    assert dlg.table.topLevelItemCount() == 0 and not dlg.clear_button.isEnabled()

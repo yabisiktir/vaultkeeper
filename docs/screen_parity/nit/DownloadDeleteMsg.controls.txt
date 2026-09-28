@@ -1,0 +1,14 @@
+FORM	Manage Previously Downloaded Files	653x445
+TableLayoutPanel	LpMain		0,0,647,413
+  TableLayoutPanel	LpActions		0,382,647,31
+    Button	BtHistory	History	487,3,75,25
+    Button	BtCancel	Close	568,3,75,25
+    Button	BtDelete	Delete	406,3,75,25
+    Label	LbStatus	Marked Files: None.	3,6,113,18
+  TableLayoutPanel	LpInfo		0,0,647,97
+    PictureBox	PicInfo		9,9,32,32
+    Label	LbInfo	The files you are downloading could be a later version of existing files. Tick the files you want to Delete or Move to History and click...    - Delete to remove ticked files.  - History to move ticked files to the History Folder.  - Cancel to take no action.	47,12,597,78
+    SplitterLine	SplitterLine1		44,96,603,1
+  ListViewPlus	LvFileList		44,97,603,284
+    Column	 previously downloaded files	603
+  SplitterLine	SplitterLine2		0,381,647,1

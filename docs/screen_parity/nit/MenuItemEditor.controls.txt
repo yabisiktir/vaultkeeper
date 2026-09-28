@@ -1,0 +1,18 @@
+FORM	Menu Item Editor	575x238	(before Load)
+TableLayoutPanel	TlRunMenuEditor		0,0,569,206	hidden
+  TableLayoutPanel	TlActions		0,185,569,29	hidden
+    ButtonPlus	BtSave	Save	410,3,75,23	hidden
+    ButtonPlus	BtCancel	Cancel	491,3,75,23	hidden
+    MsgLabel	MlErrors	Error messages	3,5,401,18	hidden
+  Label	LbMenuTextInfo	The text you enter is displayed on the list of items that are displayed when you click the Run menu. Usually, this the name of the program.	3,139,563,33	hidden
+  Label	LbMenuText	Menu Text:	3,90,563,18	hidden
+  Label	LbLocation	Location Type:	3,5,563,18	hidden
+  TableLayoutPanel	TlProgramPath		0,23,569,31	hidden
+    TextBox	TxLocation	Location information	5,5,536,21	hidden
+    ButtonLabel	BhBrowseLocation		544,4,22,22	hidden
+  Label	LbLocationInfo	Type in the full path of the program's executable file or click the Browse button to select the file.	3,54,563,18	hidden
+  TableLayoutPanel	TlProgramName		0,108,569,31	hidden
+    TextBox	TxMenuText		5,5,276,21	hidden
+    TextProgressBar	PbCharCount	1 of 35 chars used.	287,4,279,23	hidden
+  SplitterLine	SplitterLine1		0,84,569,1	hidden
+  SplitterLine	SplitterLine2		0,184,569,1	hidden

@@ -1,0 +1,4 @@
+FORM	RtfThemeManager	322x192	(before Load)
+TableLayoutPanel	LpMain		0,0,322,192	hidden
+  Label	LbDescription	Applying Theme colours  to Notes and RTF files...	3,21,316,119	hidden
+  TextProgressBar	PbProgress	Progress	0,162,322,30	hidden

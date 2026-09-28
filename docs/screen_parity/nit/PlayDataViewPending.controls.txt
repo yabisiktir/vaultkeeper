@@ -1,0 +1,14 @@
+FORM	Pending Game Play Times	532x391
+TableLayoutPanel	LpMain		0,0,526,359
+  TableLayoutPanel	LpActions		0,328,526,31
+    ButtonPlus	BtClose	Close	448,3,75,25
+    ButtonPlus	BtClear	Clear	367,3,75,25
+  TableLayoutPanel	LpMainHdg		0,0,526,38
+    PictureBox	PicPlayTime		3,3,32,32
+    Label	LbMainTitle	Game Play Times for Mods that are not defined in the current Profile	41,10,482,18
+    ButtonLabel	BhPlayTime	ButtonLabel1	501,8,22,22	hidden
+  ListViewPlus	LvPending		0,38,526,289
+    Column	Completed	175
+    Column	Time Played	175
+    Column	User	176
+  SplitterLine	SplitterLine1		0,327,526,1

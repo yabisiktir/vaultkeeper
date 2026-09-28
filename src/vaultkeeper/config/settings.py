@@ -346,6 +346,18 @@ class Settings:
     #: and should not be offered. Off means a project is taken exactly as the
     #: Vault presents it (VB's Download Project rule preferences).
     vault_apply_project_rules: bool = True
+    #: NIT's other rule preferences (VB ``Rules*``, the Download Project dialog's
+    #: rules menu). Each one off empties one table of the rules in force
+    #: (VB ``VaultDownloadRules`` "Apply rule preferences"); ``rules_enabled``
+    #: off empties them all. ``vault_apply_project_rules`` is VB ``RulesProject``.
+    rules_enabled: bool = True
+    rules_project_files: bool = True
+    rules_redirects: bool = True
+    rules_exclude_contains: bool = True
+    rules_exclude_starts_with: bool = True
+    rules_exclude_ends_with: bool = True
+    rules_exclude_extensions: bool = True
+    rules_exclude_files: bool = True
     #: Expand a project's required projects into their files and pre-tick them, so
     #: one download fetches the module and its prerequisites together (VB's
     #: DownloadProject requirements list). Off leaves them shown but unticked — you

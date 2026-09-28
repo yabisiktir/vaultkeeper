@@ -1,0 +1,45 @@
+FORM	Portrait Manager	837x709	(before Load)
+TableLayoutPanel	LpMain		0,0,831,677	hidden
+  RibbonPageToolstrip	RbToolstrip	RibbonPageToolstrip1	0,9,831,40	hidden
+    RibbonButtonSmall	RbPrevious		img	Previous Portrait
+Left Arrow, Up Arrow or Backspace
+    RibbonButtonSmall	RbNext		img	Next Portrait
+Right Arrow, Down Arrow or Enter
+    ToolStripSeparator	ToolStripSeparator1			
+    RibbonButton	RbExclude	Exclude
+Portrait 	img	
+    RibbonButton	RbApplyExcludes	Apply
+Excludes	img	
+    ToolStripSeparator	ToolStripSeparator3			
+    RibbonButton	RbEditPortrait	Edit
+Portrait	img	
+    RibbonButton	RbCreateInstaller	Create
+Installer	img	
+    RibbonButton	RbSelect	Select
+Source	img	
+    RibbonOptionsButton	RbOptions	Options	img	Options
+      ToolStripMenuItem	TsOverride	Include Portraits in Override		
+      ToolStripMenuItem	TsAlwaysSelectNext	Always Select Next Portrait		
+      ToolStripSeparator	ToolStripSeparator4			
+      ToolStripMenuItem	TsInvalidPortraitSizes	Invalid Portrait Size Report	img	
+      ToolStripMenuItem	TsClose	Close	img	
+    RibbonButtonSmall	RbPortraitManagerHelp	RibbonButtonSmall1	img	
+    RibbonButtonSmall	RbLink	Open Web Page	img	Open Web Page
+    ToolStripComboTextBox	TsbSearch	Find Portrait		
+    ToolStripSeparator	ToolStripSeparator2			
+    ComboTextBox	ComboTextBox	Find Portrait	674,9,75,21	hidden
+      TextBoxBorder	TxBox	Find Portrait	0,0,75,21	hidden
+      ComboBoxPlus	CbBox		0,0,75,21	hidden
+  SplitContainer	ScMain		0,59,831,618	hidden
+    SplitterPanel			0,0,559,618	hidden
+      ListViewPlus	LvPortraits		0,0,559,618	hidden
+        Column	Portrait Name	188
+        Column	Installation Source	277
+    SplitterPanel			563,0,268,618	hidden
+      TableLayoutPanel	LpImages		0,0,268,618	hidden
+        PictureBox	PicHuge		6,212,256,400	hidden
+        PictureBox	PicMedium		140,5,64,100	hidden
+        PictureBox	PicLarge		6,5,128,200	hidden
+        PictureBox	PicSmall		210,5,32,50	hidden
+        PictureBox	PicTiny		247,5,16,25	hidden
+  SplitterLine	SplitterLine1		0,58,831,1	hidden

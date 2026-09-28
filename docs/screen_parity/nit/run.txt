@@ -1,138 +1,25 @@
-01:11:07.615 [load-assembly] loaded NWN Installer Tool, Version=8.0.0.80, Culture=neutral, PublicKeyToken=null
-01:11:07.800 [settings] setting PathNit = C:\nitdiff\sb\store
-01:11:07.801 [settings] setting PathExtendedEditionUser = C:\nitdiff\sb\user
-01:11:07.801 [settings] setting PathExtendedEditionLib = C:\nitdiff\sb\eelib
-01:11:07.801 [settings] setting PathGameSaves = C:\nitdiff\sb\user\saves
-01:11:07.802 [settings] setting PathTemp = C:\nitdiff\sb\temp
-01:11:07.802 [settings] setting PathDownloads = C:\nitdiff\sb\downloads
-01:11:07.802 [settings] setting PathStartupSound = 
-01:11:07.802 [settings] setting PrivateOriginalDisabled = True
-01:11:07.803 [settings] setting PrivateCurrentVersion = 8.0.0.80
-01:11:07.803 [settings] setting PrivatePreviousVersion = 8.0.0.80
-01:11:07.835 [guard] sandbox user valid=True, lib valid=True
-01:11:08.178 [nit-load] WordPad path preset to none (LazWorks.Library.Definitions)
-01:11:09.232 [nit-load] form constructed: NWN_Installer_Tool.NIT
-01:11:09.471 [nit-load] startup splash replayed (progress bar=True)
-01:11:14.665 [nit-load] DIALOG answered 'Yes': MsgBoxPlus: Button1 | Yes | No | Do you want to create the missing Profiles sub-folder in your NIT Store?  Yes - Create missing Profiles sub-folder.  No - Terminate NIT so you can restore the NIT Store manually.
-01:11:15.271 [nit-load] DIALOG answered 'OK': MsgBoxPlus: Button1 | Button2 | OK | Changes have been made to the Alias Section of your NWN.ini file.    nwn.ini.bak contains a copy of the original file.    You can view and edit Alias Section entries using the Alias Section Editor (Manage menu, Alias Section).
-01:11:15.939 [nit-load] DIALOG answered 'Continue / Player': MsgOptions: Specify whether you are a Mod Player or Builder. This affects the Mods, files and folders that are excluded when creating Mod Installers.  You can use the Map Exclude page in Advanced Settings to add or remove player specific exclusions at any time. | Continue | RadioButton1 | Player (Adds Player Mod, File and Folder exclusions) | Builder (No additional exclusions are added)
-01:11:18.238 [nit-load] DIALOG answered 'Select / Groups are based on category and usage': MsgOptions: Groups make it easier to view and organise your collection of Mods. I recommend using the default option (the first item in the list).  Click the question mark ( ? ) in the Windows Title Bar to see a list of which Groups are included in each Group Set.  Select a Group Set for Enhanced Edition Mods. | Select | RadioButton1 | Groups are based on category and usage (eg Worth Playing, Evaluating, etc) | Groups are based on a smaller number of usage scenarios (eg New Mods, etc) | Groups are based on Nexus Mods categories | None (ie  will not have any pre-defined Groups)
-01:11:18.925 [nit-load] DIALOG answered 'Yes': MsgBoxPlus: Button1 | Yes | No | Do you want to create Restorers for files installed by Neverwinter Nights?  Recommended so that you can restore original files that get overwritten.  Disk space required: 22 Bytes.
-01:11:21.655 [nit-load] DIALOG answered 'No': MsgBoxPlus: Button1 | Yes | No | Do you want to apply Theme colours to Notes and other Rich Text Format (RTF) files?    If you answer Yes, colour changes will be made to the files in all your Profiles each time you apply a new Theme Colour.    You can change this option at any time on the Preferences page in Advanced Settings.
-01:11:21.871 [post-load-guard] Paths.ExtendedUserPath=C:\nitdiff\sb\user  Paths.Tool=C:\nitdiff\sb\store\NIT Store
-01:11:33.743 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'BikToWbmDialogue'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:11:37.371 [queries] query 'screenshot' failed: System.ArgumentException: TimeSpan does not accept floating point Not-a-Number values.
-   at System.TimeSpan.Interval(Double value, Int32 scale)
-   at System.TimeSpan.FromMilliseconds(Double value)
-   at NWN_Installer_Tool.CalculateCRCs.BgSecondCounter_ProgressChanged(Object sender, ProgressChangedEventArgs e) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\CalculateCRCs.vb:line 755
-   at System.ComponentModel.BackgroundWorker.OnProgressChanged(ProgressChangedEventArgs e)
-   at System.ComponentModel.BackgroundWorker.ProgressReporter(Object arg)
-01:11:49.609 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'CreateInstaller'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:11:55.692 [queries] DIALOG answered '*': MsgBoxPlus: Button1 | Button2 | OK | None of the selected items in the Mod list are eligible for processing.
-01:11:58.076 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'DocOrganiser'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:05.464 [queries] query 'screenshot' failed: System.NullReferenceException: Object reference not set to an instance of an object.
-   at NWN_Installer_Tool.FileConflictsViewer.PopulateFileList(String buttonName, List`1 modList) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\FileConflictsViewer.vb:line 219
-   at NWN_Installer_Tool.FileConflictsViewer.BtSelected_Click(Object sender, EventArgs e) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\FileConflictsViewer.vb:line 125
-   at System.Windows.Forms.Control.OnClick(EventArgs e)
-   at System.Windows.Forms.Button.OnClick(EventArgs e)
-   at System.Windows.Forms.Button.PerformClick()
-   at NWN_Installer_Tool.FileConflictsViewer.FileConflictsViewer_Shown(Object sender, EventArgs e) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\FileConflictsViewer.vb:line 104
-   at System.Windows.Forms.Form.OnShown(EventArgs e)
-   at System.Windows.Forms.Form.CallShownEvent()
-   at System.Windows.Forms.Control.InvokeMarshaledCallbackDo(ThreadMethodEntry tme)
-   at System.Windows.Forms.Control.InvokeMarshaledCallbackHelper(Object obj)
-   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
-   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
-   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state)
-   at System.Windows.Forms.Control.InvokeMarshaledCallback(ThreadMethodEntry tme)
-   at System.Windows.Forms.Control.InvokeMarshaledCallbacks()
-   at System.Windows.Forms.Control.WndProc(Message& m)
-   at System.Windows.Forms.ScrollableControl.WndProc(Message& m)
-   at System.Windows.Forms.Form.WndProc(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.OnMessage(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
-   at System.Windows.Forms.NativeWindow.DebuggableCallback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
-   at System.Windows.Forms.UnsafeNativeMethods.DispatchMessageW(MSG& msg)
-   at System.Windows.Forms.Application.ComponentManager.System.Windows.Forms.UnsafeNativeMethods.IMsoComponentManager.FPushMessageLoop(IntPtr dwComponentID, Int32 reason, Int32 pvLoopData)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoopInner(Int32 reason, ApplicationContext context)
-   at System.Windows.Forms.Application.ThreadContext.RunMessageLoop(Int32 reason, ApplicationContext context)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:25.640 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'MenuItemEditor'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:43.091 [queries] DIALOG answered '*': MsgBoxPlus: Button1 | Button2 | OK | You do not have any Portraits installed.
-01:12:45.409 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'PortraitManager'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:50.720 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'RtfThemeManager'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:57.943 [queries] query 'screenshot' failed: System.NullReferenceException: Object reference not set to an instance of an object.
-   at NWN_Installer_Tool.SlideShow.ShowNextImage(Int32 direction) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\SlideShow.vb:line 288
-   at NWN_Installer_Tool.SlideShow.SlideShow_Load(Object sender, EventArgs e) in E:\Users\Louis\Documents\Visual Studio 2022\Projects\NWN Installer Tool\NWN Installer Tool\SlideShow.vb:line 142
-   at System.Windows.Forms.Form.OnLoad(EventArgs e)
-   at System.Windows.Forms.Form.OnCreateControl()
-   at System.Windows.Forms.Control.CreateControl(Boolean fIgnoreVisible)
-   at System.Windows.Forms.Control.CreateControl()
-   at System.Windows.Forms.Control.WmShowWindow(Message& m)
-   at System.Windows.Forms.Control.WndProc(Message& m)
-   at System.Windows.Forms.ScrollableControl.WndProc(Message& m)
-   at System.Windows.Forms.Form.WmShowWindow(Message& m)
-   at System.Windows.Forms.Form.WndProc(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.OnMessage(Message& m)
-   at System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
-   at System.Windows.Forms.NativeWindow.DebuggableCallback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
-   at System.Windows.Forms.UnsafeNativeMethods.SendMessage(HandleRef hWnd, Int32 msg, Int32 wParam, Int32 lParam)
-   at System.Windows.Forms.Form.SetVisibleCore(Boolean value)
-   at System.Windows.Forms.Form.Show(IWin32Window owner)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
-01:12:58.591 [queries] DIALOG answered '*': MsgBoxPlus: Button1 | Yes | No | Do you want NIT to manage your Neverwinter Nights Start Screen image?
-01:13:01.456 [queries] query 'screenshot' failed: System.ObjectDisposedException: Cannot access a disposed object.
-Object name: 'StartScreenManager'.
-   at System.Windows.Forms.Control.CreateHandle()
-   at System.Windows.Forms.Form.CreateHandle()
-   at System.Windows.Forms.Control.DrawToBitmap(Bitmap bitmap, Rectangle targetBounds)
-   at NitHarness.Screenshot(String name)
-   at NitHarness.Query(Object map, String cmd, String arg)
-   at NitHarness.RunQueries()
+07:41:18.723 [load-assembly] loaded NWN Installer Tool, Version=8.0.0.80, Culture=neutral, PublicKeyToken=null
+07:41:18.923 [settings] setting PathNit = C:\nitdiff\sb\store
+07:41:18.924 [settings] setting PathExtendedEditionUser = C:\nitdiff\sb\user
+07:41:18.925 [settings] setting PathExtendedEditionLib = C:\nitdiff\sb\eelib
+07:41:18.925 [settings] setting PathGameSaves = C:\nitdiff\sb\user\saves
+07:41:18.926 [settings] setting PathTemp = C:\nitdiff\sb\temp
+07:41:18.926 [settings] setting PathDownloads = C:\nitdiff\sb\downloads
+07:41:18.927 [settings] setting PathStartupSound = 
+07:41:18.927 [settings] setting PrivateOriginalDisabled = True
+07:41:18.928 [settings] setting PrivateCurrentVersion = 8.0.0.80
+07:41:18.928 [settings] setting PrivatePreviousVersion = 8.0.0.80
+07:41:18.967 [guard] sandbox user valid=True, lib valid=True
+07:41:19.246 [nit-load] WordPad path preset to none (LazWorks.Library.Definitions)
+07:41:20.420 [nit-load] form constructed: NWN_Installer_Tool.NIT
+07:41:20.592 [nit-load] startup splash replayed (progress bar=True)
+07:41:26.446 [nit-load] DIALOG answered 'Yes': MsgBoxPlus: Button1 | Yes | No | Do you want to create the missing Profiles sub-folder in your NIT Store?  Yes - Create missing Profiles sub-folder.  No - Terminate NIT so you can restore the NIT Store manually.
+07:41:27.117 [nit-load] DIALOG answered 'OK': MsgBoxPlus: Button1 | Button2 | OK | Changes have been made to the Alias Section of your NWN.ini file.    nwn.ini.bak contains a copy of the original file.    You can view and edit Alias Section entries using the Alias Section Editor (Manage menu, Alias Section).
+07:41:27.832 [nit-load] DIALOG answered 'Continue / Player': MsgOptions: Specify whether you are a Mod Player or Builder. This affects the Mods, files and folders that are excluded when creating Mod Installers.  You can use the Map Exclude page in Advanced Settings to add or remove player specific exclusions at any time. | Continue | RadioButton1 | Player (Adds Player Mod, File and Folder exclusions) | Builder (No additional exclusions are added)
+07:41:30.371 [nit-load] DIALOG answered 'Select / Groups are based on category and usage': MsgOptions: Groups make it easier to view and organise your collection of Mods. I recommend using the default option (the first item in the list).  Click the question mark ( ? ) in the Windows Title Bar to see a list of which Groups are included in each Group Set.  Select a Group Set for Enhanced Edition Mods. | Select | RadioButton1 | Groups are based on category and usage (eg Worth Playing, Evaluating, etc) | Groups are based on a smaller number of usage scenarios (eg New Mods, etc) | Groups are based on Nexus Mods categories | None (ie  will not have any pre-defined Groups)
+07:41:31.114 [nit-load] DIALOG answered 'Yes': MsgBoxPlus: Button1 | Yes | No | Do you want to create Restorers for files installed by Neverwinter Nights?  Recommended so that you can restore original files that get overwritten.  Disk space required: 22 Bytes.
+07:41:33.012 [nit-load] DIALOG answered 'No': MsgBoxPlus: Button1 | Yes | No | Do you want to apply Theme colours to Notes and other Rich Text Format (RTF) files?    If you answer Yes, colour changes will be made to the files in all your Profiles each time you apply a new Theme Colour.    You can change this option at any time on the Preferences page in Advanced Settings.
+07:41:33.277 [post-load-guard] Paths.ExtendedUserPath=C:\nitdiff\sb\user  Paths.Tool=C:\nitdiff\sb\store\NIT Store
+07:41:33.723 [queries] DIALOG answered '*': MsgBoxPlus: Button1 | Button2 | OK | You do not have any Portraits installed.
+07:41:46.280 [queries] DIALOG answered '*': MsgBoxPlus: Button1 | Yes | No | Do you want NIT to manage your Neverwinter Nights Start Screen image?
 exit=0 

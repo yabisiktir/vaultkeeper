@@ -121,7 +121,7 @@ class NitHarness
                         if (radio == null) { Log("DIALOG rule matched but no option '" + rule[2] + "': " + text); Environment.Exit(4); }
                         radio.Checked = true;
                     }
-                    answered.Add(f);
+                    answered.Add(f); DialogsAnswered++;
                     Log("DIALOG answered '" + rule[1] + (rule.Length > 2 ? " / " + rule[2] : "") + "': " + text);
                     button.PerformClick();
                 }
@@ -514,33 +514,101 @@ class NitHarness
     // Render one of NIT's forms the way it opens (Load runs, NIT's own main window is
     // loaded behind it) and write its image plus its control tree (type, name, caption,
     // bounds, toolstrip items) for structural comparison with Vaultkeeper's screen.
+    // A form built without showing it: the parameterless constructor, else the one
+    // with the fewest parameters given neutral defaults (null, 0, false, "").
+    static int DialogsAnswered;
+
+    static Form BuildForm(Type t)
+    {
+        var ctor = t.GetConstructor(Type.EmptyTypes);
+        if (ctor != null) return (Form)ctor.Invoke(null);
+        var best = t.GetConstructors().OrderBy(c => c.GetParameters().Length).FirstOrDefault();
+        if (best == null) return null;
+        var args = best.GetParameters().Select(p => Neutral(p.ParameterType.IsByRef
+            ? p.ParameterType.GetElementType() : p.ParameterType)).ToArray();
+        return (Form)best.Invoke(args);
+    }
+
+    // "", 0/false, an empty collection (anything with a parameterless constructor), else null.
+    static object Neutral(Type t)
+    {
+        if (t == typeof(string)) return "";
+        // A path list (GameSavesPathDialogue): an empty one makes NIT terminate.
+        if (t == typeof(List<string>)) return new List<string> { Path.Combine(Root, "sb", "user", "saves") };
+        if (t.IsValueType) return Activator.CreateInstance(t);
+        if (t.GetConstructor(Type.EmptyTypes) != null && !typeof(Control).IsAssignableFrom(t))
+            try { return Activator.CreateInstance(t); } catch { }
+        return null;
+    }
+
+    static List<string> Structure(Form form, string note)
+    {
+        var lines = new List<string> { "FORM\t" + form.Text + "\t" + form.Width + "x" + form.Height + note };
+        DumpControls(form, 0, lines);
+        return lines;
+    }
+
+    static bool SaveBitmap(Form form, string path)
+    {
+        try
+        {
+            var bmp = new System.Drawing.Bitmap(Math.Max(1, form.Width), Math.Max(1, form.Height));
+            form.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height));
+            bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+            return true;
+        }
+        catch { return false; }
+    }
+
     static string Screenshot(string name)
     {
         string dir = Path.Combine(Root, "shots"); Directory.CreateDirectory(dir);
-        Form form;
-        bool own = name != "NIT";
-        if (!own) form = (Form)nitFormRef;
-        else
+        string png = Path.Combine(dir, name + ".png"), txt = Path.Combine(dir, name + ".controls.txt");
+        if (name == "NIT")
         {
-            var t = T(name);
-            if (t == null) return "NO-TYPE";
-            var ctor = t.GetConstructor(Type.EmptyTypes);
-            if (ctor == null) return "NO-DEFAULT-CTOR";
-            form = (Form)ctor.Invoke(null);
+            var main = (Form)nitFormRef;
+            SaveBitmap(main, png);
+            var all = Structure(main, "");
+            File.WriteAllLines(txt, all);
+            return all.Count + " lines";
+        }
+        var t = T(name);
+        if (t == null) return "NO-TYPE";
+        Form form = BuildForm(t);
+        if (form == null) return "NO-CTOR";
+        // The designer's structure, before Load can close the form (several close
+        // themselves when the sandbox has nothing for them to act on).
+        var designed = Structure(form, "\t(before Load)");
+        string how;
+        int dialogsBefore = DialogsAnswered;
+        try
+        {
             form.StartPosition = FormStartPosition.Manual;
             form.Location = new System.Drawing.Point(20, 20);
             form.Show((Form)nitFormRef);
+            var until = DateTime.Now.AddSeconds(2.5);
+            while (DateTime.Now < until && !form.IsDisposed) { Application.DoEvents(); Thread.Sleep(50); }
+            if (form.IsDisposed) throw new ObjectDisposedException(name);
+            SaveBitmap(form, png);
+            var shown = Structure(form, "");
+            File.WriteAllLines(txt, shown);
+            how = shown.Count + " lines";
         }
-        var until = DateTime.Now.AddSeconds(2.5);
-        while (DateTime.Now < until) { Application.DoEvents(); Thread.Sleep(50); }
-        var bmp = new System.Drawing.Bitmap(Math.Max(1, form.Width), Math.Max(1, form.Height));
-        form.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height));
-        bmp.Save(Path.Combine(dir, name + ".png"), System.Drawing.Imaging.ImageFormat.Png);
-        var lines = new List<string> { "FORM\t" + form.Text + "\t" + form.Width + "x" + form.Height };
-        DumpControls(form, 0, lines);
-        File.WriteAllLines(Path.Combine(dir, name + ".controls.txt"), lines);
-        if (own) { try { form.Close(); form.Dispose(); } catch { } }
-        return lines.Count + " lines";
+        catch (Exception ex)
+        {
+            if (ex is TargetInvocationException && ex.InnerException != null) ex = ex.InnerException;
+            File.WriteAllLines(txt, designed);
+            // Draw a second copy that is never shown (no Load for it to close in),
+            // unless Load put up a prompt: drawing can run Load again, and that
+            // prompt, owned by an invisible form, is never answered.
+            bool drawn = false, prompted = DialogsAnswered != dialogsBefore;
+            if (!prompted)
+                try { var copy = BuildForm(t); drawn = SaveBitmap(copy, png); copy.Dispose(); } catch { }
+            how = designed.Count + " lines (before Load; " + ex.GetType().Name
+                + (drawn ? "; unshown render" : prompted ? "; prompted on Load, no render" : "; no render") + ")";
+        }
+        try { if (!form.IsDisposed) { form.Close(); form.Dispose(); } } catch { }
+        return how;
     }
 
     static void DumpControls(Control c, int depth, List<string> lines)

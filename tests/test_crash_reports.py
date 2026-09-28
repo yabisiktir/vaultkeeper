@@ -86,3 +86,25 @@ def test_the_manager_is_shown_after_a_crashing_session(qtbot, tmp_path, monkeypa
     _crash(tmp_path, "nwmain-crash-2.dmp")
     win._report_new_crash_files()
     assert len(shown) == 1
+
+
+def test_submit_shows_the_crash_file_and_opens_beamdogs_crash_page(
+    qtbot, tmp_path, monkeypatch
+) -> None:
+    """VB CrashDumpManager.BtSubmit: Explorer on the file, then BeamdogSupportPage."""
+    from PySide6.QtGui import QDesktopServices
+
+    from vaultkeeper.ui.dialogs.crash_reports import BEAMDOG_CRASH_PAGE, CrashReportsDialog
+
+    controller = _controller(tmp_path)
+    crash = _crash(tmp_path, "nwmain-crash-1728375984.nwcrash")
+    opened = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url) or True)
+    dlg = CrashReportsDialog(controller)
+    qtbot.addWidget(dlg)
+
+    dlg.submit_button.click()
+
+    assert [u.toLocalFile() or u.toString() for u in opened] == [
+        str(crash.parent), BEAMDOG_CRASH_PAGE,
+    ]

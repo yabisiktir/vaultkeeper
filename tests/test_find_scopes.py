@@ -144,3 +144,28 @@ def test_the_file_viewer_can_be_searched(qtbot, tmp_path):
     viewer.find_dialog.text.setText("failed")
     assert viewer.find_dialog.find_next() is True
     assert "failed" in viewer.editor.textCursor().selectedText()
+
+
+def test_whole_word_only_skips_the_word_inside_longer_ones(qtbot):
+    """VB FindDialogue's "Match whole word only", in text and in lists."""
+    from PySide6.QtWidgets import QTextEdit
+
+    editor = QTextEdit()
+    editor.setPlainText("hakpak and a hak")
+    dialog = FindTextDialog(editor)
+    qtbot.addWidget(dialog)
+    dialog.text.setText("hak")
+    dialog.whole_word.setChecked(True)
+    assert dialog.find_next() is True
+    assert editor.textCursor().selectionStart() == len("hakpak and a ")
+
+    tree = QTreeWidget()
+    tree.setHeaderLabels(["File"])
+    for name in ("hakpak.zip", "the hak file"):
+        tree.addTopLevelItem(QTreeWidgetItem([name]))
+    rows = FindTextDialog(tree)
+    qtbot.addWidget(rows)
+    rows.text.setText("HAK")
+    rows.whole_word.setChecked(True)
+    assert rows.find_next() is True
+    assert tree.currentItem().text(0) == "the hak file"

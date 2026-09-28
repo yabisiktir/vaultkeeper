@@ -1,0 +1,17 @@
+FORM	Filter Groups and Ratings	696x456
+TableLayoutPanel	LpMain		0,0,690,424
+  TableLayoutPanel	LpActions		0,395,690,29
+    ButtonPlus	BtApply	Apply	531,3,75,23
+    ButtonPlus	BtCancel	Cancel	612,3,75,23
+  TableLayoutPanel	LpMainHeading		0,0,690,44
+    PictureBox	PicFilters		3,6,32,32
+    Label	LbFilters	Apply filters to Mod lists. Clear the tick boxes to exclude Groups or Ratings from the list.	41,13,646,18
+    ButtonLabel	BhFilters	ButtonLabel1	665,11,22,22	hidden
+  SplitterLine	SplitterLine1		0,44,690,1
+  SplitterLine	SplitterLine2		0,394,690,1
+  TableLayoutPanel	LpFilterLists		0,45,690,349
+    ListViewPlus	LvRatingFilters		345,0,345,349
+      Column	Ratings	345
+    SplitterLine	SplitterLine3		344,0,1,349
+    ListViewPlus	LvGroupFilters		0,0,344,349
+      Column	Group Names	344

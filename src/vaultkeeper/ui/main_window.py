@@ -2716,20 +2716,21 @@ class MainWindow(QMainWindow):
             was_installed = self.controller._mod_installed(name)
             # RunWizard: present the installer wizard's choices before building.
             choice, checked = self._run_installer_wizard(name)
-            result = self.controller.build_installer_payload(
-                name, wizard_choice=choice, wizard_checked=checked
-            )
-            if result["ok"]:
-                built += 1
-                copied += result["copied"]
-                # Install-after-create preference (VB BehaviourInstallerInstall):
-                # every mod built, the ones the rebuild just uninstalled included.
-                if self._install_after_create():
-                    self.controller.install([name])
-                elif settings.installer_restore and was_installed:
-                    # Only put back what was already installed, so the game stops
-                    # running the payload that was just replaced.
-                    self.controller.install([name])
+            with self._phase_progress("Create Mod Installer", name) as on_phase:
+                result = self.controller.build_installer_payload(
+                    name, wizard_choice=choice, wizard_checked=checked, on_phase=on_phase
+                )
+                if result["ok"]:
+                    built += 1
+                    copied += result["copied"]
+                    # Install-after-create preference (VB BehaviourInstallerInstall):
+                    # every mod built, the ones the rebuild just uninstalled included.
+                    if self._install_after_create():
+                        self.controller.install([name], on_phase=on_phase)
+                    elif settings.installer_restore and was_installed:
+                        # Only put back what was already installed, so the game
+                        # stops running the payload that was just replaced.
+                        self.controller.install([name], on_phase=on_phase)
             last_message = result["message"]
         self.refresh()
         if len(names) == 1:
@@ -3641,11 +3642,31 @@ class MainWindow(QMainWindow):
             )
             if not ok or not file_key.strip():
                 return
-        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        # VB CalculateCRCs: the file in hand, a progress bar and Cancel. "All"
+        # reads every mod and game file, which on a large profile takes minutes.
+        from PySide6.QtWidgets import QProgressDialog
+
+        progress = QProgressDialog("Calculating file CRCs…", "Cancel", 0, 0, self)
+        progress.setWindowTitle("Calculate CRCs")
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
+        progress.setMinimumDuration(400)
+        progress.setMinimumWidth(460)
+
+        def on_progress(done: int, total: int, key) -> bool:  # noqa: ANN001
+            if progress.maximum() != total:
+                progress.setMaximum(total)
+            mod = getattr(key, "mod_name", "") or "Installed files"
+            name = getattr(key, "file_key", str(key))
+            progress.setLabelText(f"Processing: {mod}\n{name}\n{done + 1:,} of {total:,}")
+            progress.setValue(done)
+            QApplication.processEvents()
+            return not progress.wasCanceled()
+
         try:
-            message = self.controller.calculate_crcs(mode, file_key)
+            message = self.controller.calculate_crcs(mode, file_key, on_progress)
         finally:
-            QApplication.restoreOverrideCursor()
+            progress.reset()
+            progress.deleteLater()
         self.refresh()
         self.nit_status.set_info(message)
 
@@ -4627,6 +4648,38 @@ class MainWindow(QMainWindow):
                 continue
             kept.append(name)
         return kept
+
+    @contextmanager
+    def _phase_progress(self, title: str, heading: str):
+        """A progress window fed by ``on_phase(label, done, total)`` (VB CreateInstaller).
+
+        Yields the callback. ``total`` 0 shows a busy bar. No Cancel: the work it
+        narrates cannot be stopped half-way without leaving a partial result.
+        """
+        from PySide6.QtWidgets import QApplication, QProgressDialog
+
+        dialog = QProgressDialog(heading, "", 0, 0, self)
+        dialog.setWindowTitle(title)
+        dialog.setCancelButton(None)
+        dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        dialog.setMinimumDuration(400)
+        dialog.setMinimumWidth(460)
+
+        def on_phase(label: str, done: int = 0, total: int = 0) -> None:
+            dialog.setMaximum(max(total, 0))
+            dialog.setLabelText(
+                f"{heading}\n{label}" + (f"\n{done:,} of {total:,}" if total else "")
+            )
+            dialog.setValue(min(done, total) if total else 0)
+            QApplication.processEvents()
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            yield on_phase
+        finally:
+            QApplication.restoreOverrideCursor()
+            dialog.reset()
+            dialog.deleteLater()
 
     @contextmanager
     def _busy_cursor(self):

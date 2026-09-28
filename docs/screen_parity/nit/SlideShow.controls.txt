@@ -1,0 +1,8 @@
+FORM	SlideShow	608x405	(before Load)
+Panel	PnMain		0,0,608,405	hidden
+  Panel	PnActions		0,0,106,30	hidden
+    TableLayoutPanel	LpActions		0,0,106,30	hidden
+      PictureBox	PicClose		66,0,40,29	hidden
+      Label	LbFilename	File Name	3,6,60,18	hidden
+  Panel	PnSlide		0,0,608,405	hidden
+    PictureBox	PicSlide		0,0,608,405	hidden

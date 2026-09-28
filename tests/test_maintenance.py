@@ -79,3 +79,32 @@ def test_maintenance_via_window(qtbot, tmp_path):
     qtbot.addWidget(win)
     win._on_command("MsValidateProfileData")
     assert "Installed File Data validated" in win.nit_status.mg_info.text()
+
+
+def _two_files_without_crcs(tmp_path):
+    controller = _controller(tmp_path)
+    folder = tmp_path / "Profiles" / "P" / "Alpha" / C.MOD_INSTALLER_DIR / "hak"
+    (folder / "b.hak").write_bytes(b"BBB")
+    controller.validate_mods()
+    for fd in controller.pd.file_list.values():
+        fd.file_crc = 0
+    return controller
+
+
+def test_calculate_crcs_reports_each_file_as_nits_dialog_does(tmp_path):
+    controller = _two_files_without_crcs(tmp_path)
+    seen = []
+
+    controller.calculate_crcs("all", on_progress=lambda d, t, k: seen.append((d, t)) or True)
+
+    assert [d for d, _t in seen] == list(range(len(seen)))
+    assert len(seen) >= 2 and all(t == len(seen) for _d, t in seen)
+
+
+def test_cancelling_keeps_what_was_calculated_and_nothing_half_written(tmp_path):
+    controller = _two_files_without_crcs(tmp_path)
+    message = controller.calculate_crcs("missing", on_progress=lambda d, _t, _k: d < 1)
+
+    assert "cancelled after 1 of" in message
+    crcs = sorted(fd.file_crc for fd in controller.pd.file_list.values())
+    assert crcs[0] == 0 and crcs[-1] != 0, "the first file done, the rest untouched"
