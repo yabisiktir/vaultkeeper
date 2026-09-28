@@ -122,3 +122,15 @@ wording differs, so a flagged control may be present under another label (subage
 several StartScreen actions were merely renamed). Always adjudicate each flag against both
 sources before acting. Cheap subagents reliably report present/absent (the factual layer);
 the orchestrator decides THIN-OUT vs BOUNDED.
+
+
+## Status update (2026-09-28, after the logic audit and screen parity)
+
+| Item above | Now |
+|---|---|
+| StartScreen Options ribbon + Slideshow | ✅ done: Options menu (auto-selection, exclusions, report, slide-show interval and continuous mode) and Slide Show |
+| PortraitManager `RbOptions` | ✅ done: Options menu |
+| DependencyManager `BtAuto` | ✅ done: Auto |
+| GameManagerRestore `CmCharacterSummary` / `CmOpen` | still BOUNDED: archived save ranges have Restore and Delete Archive but no Character Summary or Open Folder of their own (the live saves list has both) |
+| AliasSectionEditor `RestoreFolder` / `CmUndo` | still BOUNDED: no per-row "back to the standard folder" or undo of an edit before Save (Close discards everything) |
+| NitDownload (self-update) | still DEFERRED: no update server for Vaultkeeper |

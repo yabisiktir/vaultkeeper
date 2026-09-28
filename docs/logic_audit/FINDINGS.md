@@ -237,7 +237,7 @@ identical; the other two differ only by a NIT artefact (R13).
 | D3 ✅ | Archive-index docs lost the versionless qualifier (Version toggle) |
 | N1 ✅ | Renaming a mod orphaned its notes (then Validate Mods deleted them) |
 | N2 ✅ | Orphaned notes were hard-deleted (NIT recycles) |
-| N4 | Editing NIT-formatted notes drops the formatting (plain-text editor) — owner decision |
+| N4 ✅ | Editing NIT-formatted notes dropped the formatting — owner decision: rich-text editor built (`f30998f`) |
 
 ## Stage 3j — characters (details: `stage3j_characters.md`)
 
@@ -285,4 +285,8 @@ Real-store state changes from the above: "1. Neverwinter Nights (EE)" SOME_AND_O
 
 ## Still open
 
-- Stage 4 residual code review, batch 7 (see `stage4_review.md`); Stage 5 fixes.
+Nothing from the logic audit (2026-09-28): all 726 residual members have a
+verdict (408 same, 209 n/a, 71 fixed, 31 deliberate), every numbered finding
+above is fixed, deliberate, harmless or a NIT artefact, and the owner
+decisions are all carried out. Screen parity continues in
+`docs/screen_parity/README.md`.
