@@ -137,17 +137,8 @@ RECHECK_2026_10: dict[str, tuple[str, str]] = {
         "toggle"
     ),
     "BehaviourRetainProperties": ("PORTED", "retain_properties_on_import"),
-    "BehaviourScreenTip": (
-        "MISSING",
-        "hover Manage your Game Saves shows the latest save's screen.tga; VK has no such "
-        "hover (only the Save Game Editor shows screenshots) (reclassified 2026-10-01: "
-        "this is an image tip, not a text tooltip)"
-    ),
-    "BehaviourScreenTipChar": (
-        "MISSING",
-        "hover the Character Summary text shows the save's screen.tga; see "
-        "BehaviourScreenTip"
-    ),
+    "BehaviourScreenTip": ("PORTED", "screen_tip (ui/screen_tip.py), built 2026-10-01"),
+    "BehaviourScreenTipChar": ("PORTED", "screen_tip_character, built 2026-10-01"),
     "BehaviourSelectGameMod": ("PORTED", "select_game_mod"),
     "BehaviourSelectHistory": ("PORTED", "selection_preference = history"),
     "BehaviourSelectPlayTimeFile": ("PORTED", "selection_preference = play_time"),
@@ -167,9 +158,9 @@ RECHECK_2026_10: dict[str, tuple[str, str]] = {
     "ConfigDisplayStdImages": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
     "ConfigDisplayTgaImages": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
     "ConfigDoubleClickAction": (
-        "MISSING",
-        "NIT offers Install or Uninstall (default) / Open Mod Folder / Ignore Double "
-        "Clicks; VK always installs or uninstalls"
+        "PORTED",
+        "double_click_action: Install or Uninstall / Open Mod Folder / Ignore, "
+        "built 2026-10-01",
     ),
     "ConfigGameManagerEnabled": (
         "DIVERGENCE",
@@ -180,10 +171,7 @@ RECHECK_2026_10: dict[str, tuple[str, str]] = {
     "ConfigPropertiesPanelHeight": ("PORTED", "auto_properties_height (MsPropertiesHeight)"),
     "ConfigRunCreateInstaller": ("PORTED", "run_create_installer"),
     "ConfigRunDocOrganiser": ("PORTED", "run_doc_organiser"),
-    "ConfigSaveScreenCrop": (
-        "MISSING",
-        "crop for the save screenshot tips; see BehaviourScreenTip"
-    ),
+    "ConfigSaveScreenCrop": ("PORTED", "save_screen_crop, built 2026-10-01"),
     "ConfigSavesRetention": ("PORTED", "saves_retention"),
     "ConfigScreenInfoFromFile": (
         "PERF",
@@ -219,7 +207,7 @@ c = Counter(r["status"] for r in rows)
 print(f"classified {len(rows)} VB preferences:")
 for s, n in c.most_common():
     print(f"  {s:11s} {n}")
-print("\nMISSING (open gaps, see DASHBOARD.md):")
-for r in rows:
-    if r["status"] == "MISSING":
-        print(f"  {r['key']:32s} {r['note']}")
+missing = [r for r in rows if r["status"] == "MISSING"]
+print("\nMISSING (open gaps, see DASHBOARD.md):" if missing else "\nNothing is MISSING.")
+for r in missing:
+    print(f"  {r['key']:32s} {r['note']}")

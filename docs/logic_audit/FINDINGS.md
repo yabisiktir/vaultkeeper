@@ -292,6 +292,9 @@ decisions are all carried out. Screen parity continues in
 `docs/screen_parity/README.md`.
 
 The coverage ledger was re-verified on 2026-10-01 (`docs/parity_audit/DASHBOARD.md`,
-"Audit status"). It found no logic bugs, but a few NIT features VK lacks, which
-are listed there for the owner: save-screenshot hover tips, moving the store
-folder, the double-click action choice, and Folder Mapping's per-row Undo.
+"Audit status"). It found no logic bugs but a few NIT features VK lacked: save-screenshot hover
+tips, moving the store folder, the double-click action choice, and Folder
+Mapping's per-row Undo / Rename Extension. All were built on 2026-10-01 at the
+owner's request. Building the Folder Mapping Undo found a real bug: removing any
+map override reset the user's exception prefixes to the defaults, and the next
+prefix save wrote that to disk (fixed in `Mapper._reapply`, with a test).

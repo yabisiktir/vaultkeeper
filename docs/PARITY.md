@@ -33,10 +33,10 @@ was checked against the source:
 | Game Saves Manager "archive-only slice" | ✅ backup / activate / deactivate / delete / reduce / finished / archived saves |
 | 42 disabled commands | ✅ 172 of NIT's 181 menu/ribbon commands are defined in VK, the other 9 categorised (`check_action_bindings.py`: clean). Still unwired on purpose: the shared-store commands (Connect, Synchronise, Open Shared Store) and two debug items |
 
-Still open after this check (owner decisions, see `parity_audit/DASHBOARD.md`):
-the save-screenshot hover tips, moving the store folder from Settings, the mod
-double-click action choice, per-row Undo / Rename Extension in Folder Mapping, and
-whether Download Project should tick nothing by default as NIT does.
+The gaps this check found were all built the same day (owner decisions): the
+save-screenshot hover tips, moving the store folder from Settings, the mod
+double-click action choice, Folder Mapping's per-row Undo and Rename Extension,
+and Download Project ticking nothing by default, as NIT does.
 
 ## How to reproduce (repeatable)
 

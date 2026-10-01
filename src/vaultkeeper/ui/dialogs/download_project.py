@@ -290,10 +290,11 @@ class DownloadProjectDialog(QDialog):
                 ]
             )
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            # Already-downloaded files are unticked by default (don't re-fetch) + dimmed.
-            item.setCheckState(
-                0, Qt.CheckState.Unchecked if downloaded else Qt.CheckState.Checked
-            )
+            # Nothing starts ticked, as in NIT (LvProject items are never Checked
+            # on load): a project with many releases (CEP 3: eleven, 16 GB) must
+            # not be one click from downloading all of them. Downloaded files
+            # are also dimmed.
+            item.setCheckState(0, Qt.CheckState.Unchecked)
             if downloaded:
                 dim = QBrush(QColor(0x88, 0x88, 0x88))
                 for col in range(3):

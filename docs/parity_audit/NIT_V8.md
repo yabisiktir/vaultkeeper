@@ -35,7 +35,7 @@ turned out to be gaps the port had independently of v8.0.
 
 ## Still open
 
-Re-checked 2026-10-01. Of the three items once listed here, two are done:
+Re-checked 2026-10-01: all three are done.
 
 * ✅ **The wizard authoring inside the per-project rules** (`WizardTitle`,
   `SelectOne`, `SelectMany`, `ExtractArchives`, `InstallerExcludes`) is kept as
@@ -44,7 +44,6 @@ Re-checked 2026-10-01. Of the three items once listed here, two are done:
 * ✅ **`If <version>` blocks** (`If EE` / `If NWN` / `If 1.69` / `If 1.68` /
   `If ERF`) are applied by `ProjectRule.for_game`; Enhanced Edition counts as 1.69,
   as in NIT.
-* **Nothing is pre-ticked in NIT's file list.** Vaultkeeper ticks every file not
-  yet downloaded, which on a project with eleven releases (CEP 3) offers 16 GB on
-  one click. Matching NIT would reverse a long-standing default, so it is left
-  for the owner to decide.
+* ✅ **Nothing is pre-ticked in NIT's file list.** Vaultkeeper used to tick every
+  file not yet downloaded, which on a project with eleven releases (CEP 3)
+  offered 16 GB on one click. Owner decision 2026-10-01: tick nothing, as NIT.

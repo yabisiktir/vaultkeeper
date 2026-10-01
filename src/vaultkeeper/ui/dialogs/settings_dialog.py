@@ -365,7 +365,8 @@ class SettingsDialog(QDialog):
         reset = Settings()
         src = self._settings
         for name in (
-            "version", "store_root", "nwn_path", "game_user_path", "active_profile",
+            "version", "store_root", "store_move_to", "nwn_path", "game_user_path",
+            "active_profile",
             "window_geometry", "max_recent_mods", "number_recent_mods",
             "map_overrides", "map_exclude_overrides",
         ):
@@ -550,7 +551,52 @@ class SettingsDialog(QDialog):
             index = 0
         self.portrait_display_size.setCurrentIndex(index)
         form.addRow("Character portrait size:", self.portrait_display_size)
+
+        # VB Advanced › Mod Options › "Mod Double-Click Action".
+        self.double_click_action = QComboBox()
+        self.double_click_action.addItems(self._DOUBLE_CLICK_LABELS)
+        try:
+            index = self._DOUBLE_CLICK_ACTIONS.index(settings.double_click_action)
+        except ValueError:
+            index = 0
+        self.double_click_action.setCurrentIndex(index)
+        self.double_click_action.setToolTip(
+            "What happens when you double-click a mod in the mod list."
+        )
+        form.addRow("Double-clicking a mod:", self.double_click_action)
+
+        # VB BehaviourScreenTip / BehaviourScreenTipChar / ConfigSaveScreenCrop.
+        self.screen_tip = QCheckBox(
+            "Hover over Manage your Game Saves displays the save's screen image"
+        )
+        self.screen_tip.setChecked(settings.screen_tip)
+        form.addRow(self.screen_tip)
+        self.screen_tip_character = QCheckBox(
+            "Hover over the Character Summary text displays the save's screen image"
+        )
+        self.screen_tip_character.setChecked(settings.screen_tip_character)
+        form.addRow(self.screen_tip_character)
+        from PySide6.QtCore import QRegularExpression
+        from PySide6.QtGui import QRegularExpressionValidator
+
+        self.save_screen_crop = QLineEdit(settings.save_screen_crop)
+        self.save_screen_crop.setValidator(
+            QRegularExpressionValidator(QRegularExpression(r"\s*\d{0,3}\s*,?\s*\d{0,3}\s*"))
+        )
+        self.save_screen_crop.setToolTip(
+            "Pixels to crop from the top and bottom of a save's screen image, "
+            "as \"top, bottom\" (each 0 to 206; default \"24, 88\", for 1920 x 1080)."
+        )
+        form.addRow("Crop save screen image (top, bottom):", self.save_screen_crop)
         return page
+
+    #: ``Settings.double_click_action`` values and NIT's captions, in NIT's order.
+    _DOUBLE_CLICK_ACTIONS = ("install", "open_folder", "ignore")
+    _DOUBLE_CLICK_LABELS = (
+        "Install or Uninstall Mod",
+        "Open Mod Folder",
+        "Ignore Double Clicks",
+    )
 
     #: How a Vault project is read, in display order, mapped to the
     #: ``Settings.vault_download_method`` values.
@@ -1301,6 +1347,73 @@ class SettingsDialog(QDialog):
         item.setText(2, chosen)
         self._profile_folder_edits[item.text(0)] = chosen
 
+    def _build_store_row(self) -> QWidget:
+        from pathlib import Path
+
+        self._store_root = Path(self._settings.resolved_store().root)
+        self._pending_store_move = self._settings.store_move_to or ""
+        row = QWidget()
+        layout = QVBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        line = QHBoxLayout()
+        self.store_edit = QLineEdit(str(self._store_root))
+        self.store_edit.setReadOnly(True)
+        self.store_edit.setToolTip(
+            "Where Vaultkeeper keeps your mods, their databases, backups and "
+            "archived saves."
+        )
+        line.addWidget(self.store_edit, 1)
+        self.store_move_button = QPushButton("Move…")
+        self.store_move_button.setToolTip("Choose a new location for the store")
+        self.store_move_button.clicked.connect(self._on_move_store)
+        line.addWidget(self.store_move_button)
+        self.store_cancel_button = QPushButton("Don't Move")
+        self.store_cancel_button.clicked.connect(lambda: self._set_store_move(""))
+        line.addWidget(self.store_cancel_button)
+        layout.addLayout(line)
+        self.store_move_label = QLabel()
+        self.store_move_label.setWordWrap(True)
+        layout.addWidget(self.store_move_label)
+        self._set_store_move(self._pending_store_move)
+        return row
+
+    def _set_store_move(self, chosen: str) -> None:
+        from vaultkeeper.store_move import target_for
+
+        self._pending_store_move = chosen
+        pending = bool(chosen)
+        self.store_cancel_button.setVisible(pending)
+        self.store_move_label.setVisible(pending)
+        if pending:
+            self.store_move_label.setText(
+                f"Moves to {target_for(chosen)} when Vaultkeeper next starts. The "
+                "store is copied and checked first; the old one then goes to the "
+                "recycle bin."
+            )
+
+    def _on_move_store(self) -> None:
+        """VB Locations › NIT Store: choose where the store moves to."""
+        from PySide6.QtWidgets import QMessageBox
+
+        from vaultkeeper.store_move import check_target
+
+        chosen = self._choose_store_folder()
+        if not chosen:
+            return
+        reason = check_target(self._store_root, chosen)
+        if reason:
+            QMessageBox.warning(self, "Move Store", reason)
+            return
+        self._set_store_move(chosen)
+
+    def _choose_store_folder(self) -> str:
+        """The folder picker (a seam for tests)."""
+        from PySide6.QtWidgets import QFileDialog
+
+        return QFileDialog.getExistingDirectory(
+            self, "New location for the Vaultkeeper store", str(self._store_root.parent)
+        )
+
     def _build_locations(self, controller) -> QWidget | None:
         if controller is None:
             self.game_install_edit = None
@@ -1373,6 +1486,10 @@ class SettingsDialog(QDialog):
             "detect it from the install; set it if detection did not find it."
         )
         form.addRow("Steam Workshop Content:", workshop_row)
+
+        # VB Locations "NIT Store" (PathNit → PathNewStore): pick a new folder and
+        # the store moves there when Vaultkeeper next starts (store_move.py).
+        form.addRow("Vaultkeeper store:", self._build_store_row())
         outer.addLayout(form)
 
         # Create a separate game folder for this profile (VB CreateNwnFolder).
@@ -1521,6 +1638,16 @@ class SettingsDialog(QDialog):
         settings.confirm_saves = self.confirm_saves.isChecked()
         settings.debug_options_menu = self.debug_menu.isChecked()
         settings.portrait_display_size = self.portrait_display_size.currentText()
+        settings.double_click_action = self._DOUBLE_CLICK_ACTIONS[
+            self.double_click_action.currentIndex()
+        ]
+        settings.screen_tip = self.screen_tip.isChecked()
+        settings.screen_tip_character = self.screen_tip_character.isChecked()
+        from vaultkeeper.ui.screen_tip import parse_crop
+
+        crop = parse_crop(self.save_screen_crop.text())
+        if crop is not None:  # an invalid entry keeps the previous value
+            settings.save_screen_crop = f"{crop[0]}, {crop[1]}"
         settings.inventory_nwn_style = self.inventory_nwn_style.isChecked()
         settings.hak_item_icons = self.hak_item_icons.isChecked()
         settings.tga_editor_path = self.tga_editor_path.text().strip()
@@ -1556,6 +1683,8 @@ class SettingsDialog(QDialog):
             settings.game_user_path = self.game_user_edit.text().strip() or None
         if getattr(self, "disable_ee_detection", None) is not None:
             settings.disable_ee_detection = self.disable_ee_detection.isChecked()
+        if getattr(self, "store_edit", None) is not None:
+            settings.store_move_to = self._pending_store_move
         if getattr(self, "workshop_dir_edit", None) is not None:
             settings.workshop_content_dir = self.workshop_dir_edit.text().strip()
         if getattr(self, "startup_sound_edit", None) is not None:

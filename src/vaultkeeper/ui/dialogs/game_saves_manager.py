@@ -64,6 +64,12 @@ class GameSavesManager(QDialog):
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self._show_save_menu)
         layout.addWidget(self.table)
+        # VB LbLocation hover: the save's screen image (ScreenTip).
+        from vaultkeeper.ui.screen_tip import ScreenTip
+
+        self.screen_tip = ScreenTip(
+            self.table.viewport(), self._screen_at, crop=self._screen_crop
+        )
 
         self.summary = QLabel()
         layout.addWidget(self.summary)
@@ -235,6 +241,24 @@ class GameSavesManager(QDialog):
 
     # -- Rendering -------------------------------------------------------- #
     # -- Row actions (VB CmCharacterSummary / CmOpen) ---------------------- #
+    def _screen_at(self, pos):
+        """The screen image of the save whose Location is under ``pos``."""
+        from pathlib import Path as _Path
+
+        if self.table.columnAt(pos.x()) != 2:
+            return None
+        item = self.table.itemAt(pos)
+        row = item.data(0, Qt.ItemDataRole.UserRole) if item is not None else None
+        if not row or not row.get("path"):
+            return None
+        screen = _Path(row["path"]) / "screen.tga"
+        return screen if screen.is_file() else None
+
+    def _screen_crop(self) -> str:
+        from vaultkeeper.config.settings import load_settings
+
+        return load_settings().save_screen_crop
+
     def _selected_save(self) -> dict | None:
         item = self.table.currentItem()
         return item.data(0, Qt.ItemDataRole.UserRole) if item is not None else None
@@ -262,10 +286,13 @@ class GameSavesManager(QDialog):
                 f"No character file was found in {name}.",
             )
             return
+        settings = self._controller._settings()
         self._character_viewer = CharacterViewer(
             characters,
             lambda resref, own: self._controller.portrait_path(resref, extra_dirs=[own]),
             self,
+            save_screen_tips=settings.screen_tip_character,
+            screen_crop=settings.save_screen_crop,
         )
         self._character_viewer.show()
 

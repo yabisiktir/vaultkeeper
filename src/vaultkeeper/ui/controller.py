@@ -7178,6 +7178,17 @@ class ProfileController:
             "can_reduce": can_reduce,
         }
 
+    def latest_save_screen(self) -> Path | None:
+        """The latest game save's ``screen.tga`` (VB ``NwGs.CurrentInfo``), if any."""
+        loop = self.play_loop
+        if loop is None:
+            return None
+        info = loop.game_saves().current_info
+        if info is None:
+            return None
+        screen = Path(info.full_name) / "screen.tga"
+        return screen if screen.is_file() else None
+
     def archived_saves_root(self) -> Path:
         """The store's archived-game-saves folder (VB ``Paths.ArchivedSaves``)."""
         from vaultkeeper.game.save_archive import ARCHIVED_SAVES_SUBPATH
@@ -10336,8 +10347,6 @@ class ProfileController:
         there automatically — how ``fnt_`` textures reach ``override`` while
         every other ``.tga`` goes to its own folder (``defineextension.htm``).
         """
-        from vaultkeeper.config.settings import load_settings, save_settings
-
         key = extension.strip().lower()
         if not key:
             return {"ok": False, "message": "Choose an extension first."}
@@ -10362,11 +10371,7 @@ class ProfileController:
         mapper.set_exception_prefixes(key, cleaned)
 
         self._persist_map_overrides()
-        settings = load_settings(self._settings_path)
-        settings.map_exception_prefixes = {
-            k: list(v) for k, v in mapper.exception_prefixes.items()
-        }
-        save_settings(settings, self._settings_path)
+        self._persist_exception_prefixes()
         where = f"→ {folder}" if folder else "with no secondary folder"
         return {
             "ok": True,
@@ -10382,9 +10387,67 @@ class ProfileController:
         return removed
 
     def reset_map_overrides(self) -> None:
-        """Discard all map customisations, restoring the default tables; persist."""
+        """Discard all map customisations, restoring the default tables; persist.
+
+        The exception prefixes go back to the defaults too: they are kept in
+        their own setting, which a reset that skipped it would bring back on
+        the next start.
+        """
         self.ctx.mapper.reset_overrides()
         self._persist_map_overrides()
+        self._persist_exception_prefixes()
+
+    def _persist_exception_prefixes(self) -> None:
+        from vaultkeeper.config.settings import load_settings, save_settings
+
+        settings = load_settings(self._settings_path)
+        settings.map_exception_prefixes = {
+            k: list(v) for k, v in self.ctx.mapper.exception_prefixes.items()
+        }
+        save_settings(settings, self._settings_path)
+
+    def map_snapshot(self) -> dict:
+        """The map customisations as they stand (for Folder Mapping's Undo)."""
+        return self.ctx.mapper.snapshot()
+
+    def restore_map_entry(self, snapshot: dict, table: str, key: str) -> None:
+        """Undo one extension / file / folder entry back to ``snapshot``; persist."""
+        self.ctx.mapper.restore_entry(snapshot, table, key)
+        self._persist_map_overrides()
+        if table == "ext_mapping":
+            self._persist_exception_prefixes()
+
+    def restore_map_exclude(self, snapshot: dict, kind: str, name: str) -> None:
+        """Undo one exclude entry back to ``snapshot``; persist."""
+        self.ctx.mapper.restore_exclude(snapshot, kind, name)
+        self._persist_map_overrides()
+
+    def rename_map_extension(self, old: str, new: str) -> dict:
+        """Move a customised extension mapping to another extension (VB ``CmeRenameExt``).
+
+        The new extension takes the old one's folder, secondary folder and
+        exceptions; the old one goes back to its default, or away if it has
+        none. A built-in mapping is not renamed: defaults can be overridden but
+        not deleted here.
+        """
+        mapper = self.ctx.mapper
+        old_key = old.strip().lower()
+        new_key = new.strip().lower().lstrip(".")
+        if not old_key.startswith("."):
+            old_key = f".{old_key}"
+        if not new_key or not all(c.isalnum() or c in "_-" for c in new_key):
+            return {"ok": False, "message": "Type an extension such as tga or 2da."}
+        new_key = f".{new_key}"
+        if new_key == old_key:
+            return {"ok": False, "message": "That is the same extension."}
+        if not mapper.is_override("ext_mapping", old_key):
+            return {"ok": False, "message": f"{old_key} is a built-in mapping."}
+        if new_key in mapper.ext_mapping:
+            return {"ok": False, "message": f"{new_key} already has a mapping."}
+        mapper.rename_extension(old_key, new_key)
+        self._persist_map_overrides()
+        self._persist_exception_prefixes()
+        return {"ok": True, "message": f"{old_key} renamed to {new_key}."}
 
     def save(self) -> None:
         if self.store_path is not None:

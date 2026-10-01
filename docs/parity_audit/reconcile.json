@@ -212,23 +212,23 @@
    ]
   },
   "nit_store_move": {
-   "status": "MISSING",
-   "note": "Settings > Locations lets NIT move its store (PathNit -> PathNewStore, moved on restart by MoveNitStore). Vaultkeeper picks the store folder at first run and has no way to move it afterwards. Owner decision.",
+   "status": "Ported",
+   "note": "Built 2026-10-01 (owner decision): Settings > Locations > Vaultkeeper store > Move... schedules it (store_move_to); at the next start store_move.py copies the store into <folder>/Vaultkeeper Store, checks every file, rewrites paths into it (settings + the store's JSON), saves the switch, then recycles the old store.",
    "names": [
     "NIT.Common.vb::MoveNitStore"
    ]
   },
   "save_screen_tooltip": {
-   "status": "MISSING",
-   "note": "Hovering Manage your Game Saves (BehaviourScreenTip), the Game Saves Manager's location label, or the Character Summary text (BehaviourScreenTipChar) shows the save's screen.tga, cropped top/bottom by ConfigSaveScreenCrop. Vaultkeeper shows none there (only its Save Game Editor shows a save's screenshot). Owner decision.",
+   "status": "Ported",
+   "note": "Built 2026-10-01 (owner decision): ui/screen_tip.py. Hover the Game Saves ribbon button (latest save, screen_tip), a save's Location in the Game Saves Manager, or a save's Character Summary (screen_tip_character); cropped by save_screen_crop (\"24, 88\", validated as NIT does).",
    "names": [
     "Settings.Advanced.vb::ValidateScreenCrop",
     "Defs.vb::ScreenImageCrop"
    ]
   },
   "map_editor_bounded": {
-   "status": "Partial",
-   "note": "Folder Mapping covers add / remove / reset per table plus secondary folders, edit = remove + add, built-ins overridable not deletable (logic audit: deliberate). Not in Vaultkeeper: NIT's per-row Undo and Rename Extension on the four map pages. Small gap, listed for the owner.",
+   "status": "Ported",
+   "note": "Built 2026-10-01 (owner decision): Folder Mapping marks rows changed since it opened (Undo icon), keeps removed rows struck through until undone, and offers Rename Extension (F2), Undo (Ctrl+Z) and Remove (Del) on right-click. Edit = remove + add and built-ins overridable not deletable stay (logic audit: deliberate).",
    "names": [
     "Settings.MapExtensions.vb::ResetMapExtensions",
     "Settings.MapExtensions.vb::ResetMapExtensionItem",

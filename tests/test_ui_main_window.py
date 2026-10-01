@@ -1296,6 +1296,58 @@ def test_double_click_never_does_what_the_buttons_refuse(qtbot, controller) -> N
     assert not controller.pd.mod_item("Alpha").installed
 
 
+def _set_double_click(action: str) -> None:
+    from vaultkeeper.config.settings import load_settings, save_settings
+
+    settings = load_settings()
+    settings.double_click_action = action
+    save_settings(settings)
+
+
+def test_double_click_can_open_the_mod_folder_instead(qtbot, controller, monkeypatch) -> None:
+    """VB ConfigDoubleClickAction = "Open Mod Folder"."""
+    _set_double_click("open_folder")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    opened = []
+    monkeypatch.setattr(win, "_on_open_mod_folder", lambda: opened.append(True))
+    item = _first_mod_item(win, "Alpha")
+    win._tree.setCurrentItem(item)
+    win._on_mod_double_clicked(item)
+    assert opened == [True]
+    assert not controller.pd.mod_item("Alpha").installed
+
+
+def test_double_click_can_be_ignored(qtbot, controller, monkeypatch) -> None:
+    """VB ConfigDoubleClickAction = "Ignore Double Clicks"."""
+    _set_double_click("ignore")
+    win = MainWindow(controller)
+    qtbot.addWidget(win)
+    win.refresh()
+    monkeypatch.setattr(win, "_on_open_mod_folder", lambda: pytest.fail("opened"))
+    item = _first_mod_item(win, "Alpha")
+    win._tree.setCurrentItem(item)
+    win._on_mod_double_clicked(item)
+    assert not controller.pd.mod_item("Alpha").installed
+
+
+def test_settings_offers_nits_three_double_click_actions(qtbot) -> None:
+    from vaultkeeper.config.settings import Settings
+    from vaultkeeper.ui.dialogs.settings_dialog import SettingsDialog
+
+    dlg = SettingsDialog(Settings(double_click_action="open_folder"))
+    qtbot.addWidget(dlg)
+    combo = dlg.double_click_action
+    assert [combo.itemText(i) for i in range(combo.count())] == [
+        "Install or Uninstall Mod", "Open Mod Folder", "Ignore Double Clicks",
+    ]
+    assert combo.currentText() == "Open Mod Folder"
+    combo.setCurrentIndex(2)
+    settings = Settings()
+    dlg.apply_to(settings)
+    assert settings.double_click_action == "ignore"
+
 # -- Options-menu housekeeping (VB Options menu) ------------------------------- #
 def test_the_options_housekeeping_commands_are_live(qtbot, controller) -> None:
     """All three were greyed as "not yet available" while doing nothing more

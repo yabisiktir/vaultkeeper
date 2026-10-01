@@ -22,16 +22,13 @@ python build_ledger.py ./out ../../src/vaultkeeper:../../../nwn-save-editor/src 
 | Designer controls | 1777 | 1777 (100%) | 0 |
 
 ### Methods/props — status breakdown
-- `Ported`: 1583
+- `Ported`: 1615
 - `Divergence`: 1387
 - `N/A`: 282
-- `Partial`: 29
-- `MISSING`: 3
 
 ### Event handlers — status breakdown
 - `Divergence`: 573
-- `Ported`: 294
-- `Partial`: 11
+- `Ported`: 305
 - `N/A`: 7
 
 ### Designer controls — status breakdown
@@ -103,11 +100,5 @@ All three layers are 100% classified: 0 GAP?, 0 AUTO-PORTED. The name-matched ro
 
 **Re-verified 2026-10-01.** The Deferred/Partial verdicts dated from 2026-08 and most of what they named has been built since. Those rows now take the logic audit's reviewed verdict (`docs/logic_audit/stage4/verdicts.csv`) where it has one, and otherwise the groups in `reconcile.json`, each checked against the source.
 
-### What is still open
-
-| Status | NIT member or control | Why |
-|---|---|---|
-| MISSING | ScreenImageCrop, ValidateScreenCrop | Hovering Manage your Game Saves (BehaviourScreenTip), the Game Saves Manager's location label, or the Character Summary text (BehaviourScreenTipChar) shows the save's screen.tga, cropped top/bottom by ConfigSaveScreenCrop. Vaultkeeper shows none there (only its Save Game Editor shows a save's screenshot). Owner decision. |
-| MISSING | MoveNitStore | Settings > Locations lets NIT move its store (PathNit -> PathNewStore, moved on restart by MoveNitStore). Vaultkeeper picks the store folder at first run and has no way to move it afterwards. Owner decision. |
-| Partial | ResetMapExcludes, ResetMapExcludeSelected, SetMapExcludeSelected, ValidateExclude, CexUndo_Click, CexRemove_Click (+23) | Folder Mapping covers add / remove / reset per table plus secondary folders, edit = remove + add, built-ins overridable not deletable (logic audit: deliberate). Not in Vaultkeeper: NIT's per-row Undo and Rename Extension on the four map pages. Small gap, listed for the owner. |
+**Nothing is open:** every row is Ported, Divergence or N/A.
 

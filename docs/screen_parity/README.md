@@ -100,6 +100,11 @@ blank, so for those forms the dump is the reference.
 | Cancel while creating an installer | As NIT: stop, keep what was copied, warn "may be incomplete", skip the rest of the batch, reinstall nothing | ✅ |
 | Default "Copy from" folder | Add NIT's: a check box in Create NWN Folder, one default per edition, shown on Locations | ✅ |
 | Run/Web menu items | NIT's one-item editor: 35-character limit with a counter, duplicate check, Save only for an existing program or a URL that answers, clipboard URL; New (Insert), Edit (Ctrl+E), Remove (Delete), Move Up/Down with NIT's icons | ✅ Also NIT's Insert Separator (Ctrl+Ins), Move To, Undo (Ctrl+Z), and Remove that marks a saved item until OK |
+| Save screen image on hover (found by the 2026-10-01 ledger recheck) | As NIT: Game Saves button, a save's Location, Character Summary; crop setting | ✅ `ui/screen_tip.py` |
+| Moving the store folder | As NIT, from Settings › Locations, applied at the next start; copy, check, switch, then recycle the old one | ✅ `store_move.py` |
+| Mod double-click action | NIT's three choices in Settings | ✅ |
+| Folder Mapping per-row Undo, Rename Extension | Both | ✅ |
+| Download Project default ticking | Tick nothing, as NIT | ✅ |
 
 ## Re-running
 

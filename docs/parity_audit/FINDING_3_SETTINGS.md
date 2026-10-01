@@ -64,9 +64,9 @@ preferences...), and `settings_prefs.py` now records each one's verdict
 (`RECHECK_2026_10`). Two first-pass verdicts were wrong: `BehaviourScreenTip`
 and `BehaviourScreenTipChar` are **save-screenshot** tips, not text tooltips.
 
-What is still open (`settings_prefs.csv`, `status=MISSING`):
+The four that were still missing were built on 2026-10-01 (owner decisions):
 
-| Preference | NIT | Vaultkeeper |
-|---|---|---|
-| `BehaviourScreenTip`, `BehaviourScreenTipChar`, `ConfigSaveScreenCrop` | hovering Manage your Game Saves (or the Character Summary text) shows the save's screen image, cropped top and bottom | no hover image; only the Save Game Editor shows a save's screenshot |
-| `ConfigDoubleClickAction` | double-click a mod: Install or Uninstall (default), Open Mod Folder, or Ignore | always Install or Uninstall |
+| Preference | Vaultkeeper |
+|---|---|
+| `BehaviourScreenTip`, `BehaviourScreenTipChar`, `ConfigSaveScreenCrop` | `screen_tip`, `screen_tip_character`, `save_screen_crop` (`ui/screen_tip.py`) |
+| `ConfigDoubleClickAction` | `double_click_action`: Install or Uninstall, Open Mod Folder, Ignore Double Clicks |

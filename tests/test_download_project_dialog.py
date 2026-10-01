@@ -16,6 +16,12 @@ from vaultkeeper.vault.http import FakeHttpClient, HttpResponse
 from vaultkeeper.vault.scraper_info import VaultScraperInfo
 
 
+def _tick_all(dlg) -> None:
+    """Tick every file, as a user would: nothing starts ticked (NIT's default)."""
+    for row in range(dlg.file_tree.topLevelItemCount()):
+        dlg.file_tree.topLevelItem(row).setCheckState(0, Qt.CheckState.Checked)
+
+
 def _finish(qtbot, dlg, timeout: int = 10000) -> None:
     """Wait for the dialog's background job to run its course.
 
@@ -252,7 +258,10 @@ def test_dialog_fetch_and_populate(qtbot, tmp_path):
     dlg.url_edit.setText("http://vault/p")
     dlg._on_fetch()
     assert dlg.file_tree.topLevelItemCount() == 2
-    # All rows checked by default.
+    # Nothing is ticked until the user chooses, as in NIT: a project with many
+    # releases must not be one click from downloading all of them.
+    assert dlg.checked_files() == []
+    _tick_all(dlg)
     assert len(dlg.checked_files()) == 2
 
 
@@ -263,6 +272,7 @@ def test_dialog_unchecking_excludes_file(qtbot, tmp_path):
     dlg.populate_files(
         [VaultScraperInfo(description="a.zip"), VaultScraperInfo(description="b.hak")]
     )
+    _tick_all(dlg)
     dlg.file_tree.topLevelItem(1).setCheckState(0, Qt.CheckState.Unchecked)
     checked = dlg.checked_files()
     assert len(checked) == 1
@@ -277,6 +287,7 @@ def test_dialog_download_writes_files(qtbot, tmp_path):
     dlg = DownloadProjectDialog(controller, ["My Mod"], "My Mod")
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+    _tick_all(dlg)
     dlg._on_download()
     _finish(qtbot, dlg)
     downloads = tmp_path / "Profiles" / "P" / "My Mod" / C.DOWNLOADS_DIR
@@ -366,13 +377,12 @@ def test_dialog_marks_already_downloaded(qtbot, tmp_path):
             VaultScraperInfo(description="b.hak", filename="b.hak"),
         ]
     )
-    # a.zip already present -> "Already downloaded" + unticked; b.hak -> ticked.
+    # a.zip already present -> "Already downloaded"; nothing starts ticked (NIT).
     assert dlg.file_tree.topLevelItem(0).text(2) == "Already downloaded"
-    assert dlg.file_tree.topLevelItem(0).checkState(0) == Qt.CheckState.Unchecked
     assert dlg.file_tree.topLevelItem(1).text(2) == ""
-    assert dlg.file_tree.topLevelItem(1).checkState(0) == Qt.CheckState.Checked
-    # Only the not-yet-downloaded file is queued.
-    assert [f.filename for f in dlg.checked_files()] == ["b.hak"]
+    for row in (0, 1):
+        assert dlg.file_tree.topLevelItem(row).checkState(0) == Qt.CheckState.Unchecked
+    assert dlg.checked_files() == []
 
 
 def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
@@ -388,6 +398,7 @@ def test_dialog_install_button_runs_install_flow(qtbot, tmp_path):
     dlg = DownloadProjectDialog(controller, default_mod="Installed Project")
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(direct_url="http://cdn/a.zip", filename="a.zip")])
+    _tick_all(dlg)
     dlg._on_install()
     _finish(qtbot, dlg)
     md = controller.pd.mod_item("Installed Project")
@@ -425,6 +436,8 @@ def test_dialog_install_button_installs_ticked_prerequisites(qtbot, tmp_path):
     )
     assert dlg.required_list.topLevelItem(0).checkState(0) == Qt.CheckState.Checked
 
+    _tick_all(dlg)
+
     dlg._on_install()
     _finish(qtbot, dlg)
 
@@ -449,6 +462,7 @@ def test_download_shows_byte_progress(qtbot, tmp_path):
     seen: list[str] = []
     real = dlg._on_bytes
     dlg._on_bytes = lambda done, total: (real(done, total), seen.append(dlg.status.text()))
+    _tick_all(dlg)
     dlg._on_download()
     _finish(qtbot, dlg)
     assert seen and "9 B of 9 B" in seen[0]
@@ -496,6 +510,7 @@ def test_the_download_does_not_block_the_ui_thread(qtbot, tmp_path):
     """
     controller, dlg = _gated(tmp_path)
     qtbot.addWidget(dlg)
+    _tick_all(dlg)
     dlg._on_download()
     assert dlg._busy  # returned with the transfer still running
     assert controller._http.started.wait(5)
@@ -512,6 +527,7 @@ def test_the_download_does_not_block_the_ui_thread(qtbot, tmp_path):
 def test_cancelling_stops_the_transfer_and_keeps_no_part_file(qtbot, tmp_path):
     controller, dlg = _gated(tmp_path)
     qtbot.addWidget(dlg)
+    _tick_all(dlg)
     dlg._on_download()
     assert controller._http.started.wait(5)
     dlg._on_cancel()
@@ -526,6 +542,7 @@ def test_the_dialog_will_not_close_while_a_transfer_is_running(qtbot, tmp_path):
     """Closing would leave the worker emitting into a deleted dialog."""
     controller, dlg = _gated(tmp_path)
     qtbot.addWidget(dlg)
+    _tick_all(dlg)
     dlg._on_download()
     assert controller._http.started.wait(5)
     dlg.reject()
@@ -547,6 +564,7 @@ def test_a_failing_job_reports_instead_of_taking_the_app_down(qtbot, tmp_path):
         raise RuntimeError("the disk fell off")
 
     controller.download_project = boom
+    _tick_all(dlg)
     dlg._on_download()
     _finish(qtbot, dlg)
     assert "the disk fell off" in dlg.status.text()
@@ -559,6 +577,7 @@ def test_dialog_download_needs_a_mod_name(qtbot, tmp_path):
     qtbot.addWidget(dlg)
     dlg.populate_files([VaultScraperInfo(description="a.zip")])
     dlg.mod_name_edit.clear()
+    _tick_all(dlg)
     dlg._on_download()
     assert "mod folder name" in dlg.status.text().lower()
 
@@ -656,6 +675,7 @@ def test_the_build_and_install_phases_report_progress(qtbot, tmp_path):
     dlg._on_phase = lambda label, done, total: (
         real(label, done, total), said.append((label, done, total))
     )
+    _tick_all(dlg)
     dlg._on_install()
     _finish(qtbot, dlg)
 
@@ -736,6 +756,7 @@ def test_a_new_mod_downloaded_from_a_page_remembers_it(qtbot, tmp_path):
     dlg.url_edit.setText(url)
     dlg._on_fetch()
     dlg.mod_name_edit.setText("Brand New")
+    _tick_all(dlg)
     dlg._on_download()
     _finish(qtbot, dlg)
     assert controller.mod_web_link("Brand New") == url
@@ -846,6 +867,7 @@ def test_a_download_offers_to_clear_the_version_it_replaced(qtbot, tmp_path, mon
         return QDialog.DialogCode.Accepted
 
     monkeypatch.setattr(OldDownloadsDialog, "exec", fake_exec)
+    _tick_all(dlg)
     dlg._on_download()
     _finish(qtbot, dlg)
 
@@ -994,6 +1016,7 @@ def test_a_downloads_block_is_a_whitelist_not_a_set_of_ticks(qtbot, tmp_path):
         for i in range(dlg.file_tree.topLevelItemCount())
     ]
     assert listed == ["cep_3.1.4_-_part_1.7z"]        # the one named
+    _tick_all(dlg)
     assert [f.filename for f in dlg.checked_files()] == ["cep_3.1.4_-_part_1.7z"]
 
 
@@ -1015,7 +1038,7 @@ def test_turning_the_rules_off_takes_the_project_as_the_vault_presents_it(qtbot,
     dlg.url_edit.setText(url)
     dlg._on_fetch()
     assert dlg.file_tree.topLevelItemCount() == 3     # nothing held back
-    assert len(dlg.checked_files()) == 3              # nothing unticked
+    assert dlg.checked_files() == []                  # nothing ticked until chosen
     assert dlg.mod_name_edit.text() != "CEP v3.x"     # the page title, not the rule
 
 

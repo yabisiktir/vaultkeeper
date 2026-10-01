@@ -68,6 +68,9 @@ class Settings:
     version: int = SETTINGS_VERSION
     #: Where Vaultkeeper keeps its own store; ``None`` = use the platform default.
     store_root: str | None = None
+    #: A folder the store moves into at the next start (VB ``PathNewStore``);
+    #: empty when no move is pending. See :mod:`vaultkeeper.store_move`.
+    store_move_to: str = ""
     #: Last used / active NWN install root.
     nwn_path: str | None = None
     #: Override for the game user-data folder (Documents/Neverwinter Nights); ``None``
@@ -272,6 +275,19 @@ class Settings:
     #: ``"Medium"`` (VB ``ConfigPortraitDisplaySize`` → ``Defs.PicSizes`` H/L/M,
     #: default ``"Huge"``).
     portrait_display_size: str = "Huge"
+    #: What double-clicking a mod does: ``"install"`` (install it, or uninstall
+    #: it if installed), ``"open_folder"`` or ``"ignore"`` (VB
+    #: ``ConfigDoubleClickAction``, default Install or Uninstall).
+    double_click_action: str = "install"
+    #: Hovering Manage your Game Saves shows the latest save's screen image
+    #: (VB ``BehaviourScreenTip``, default on).
+    screen_tip: bool = True
+    #: Hovering a save's Character Summary text shows its screen image (VB
+    #: ``BehaviourScreenTipChar``, default off).
+    screen_tip_character: bool = False
+    #: Pixels cropped from the top and bottom of a save's screen image, "top,
+    #: bottom" (VB ``ConfigSaveScreenCrop``, default "24, 88").
+    save_screen_crop: str = "24, 88"
     #: Mod Explorer name-prefix filters (VB ``FilterPrefixList``). Each entry is
     #: ``{"prefix": str, "included": bool}``; an *unchecked* prefix hides every
     #: mod whose name starts with it. A prefix is only matched text — there is no

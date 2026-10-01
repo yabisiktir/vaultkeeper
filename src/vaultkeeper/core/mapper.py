@@ -442,12 +442,80 @@ class Mapper:
         return empty
 
     def _reapply(self) -> None:
-        """Rebuild defaults, then re-merge the tracked folder + exclude overrides."""
+        """Rebuild defaults, then re-merge the tracked folder + exclude overrides.
+
+        The exception prefixes are kept as they are: they are edited in place,
+        not tracked as overrides, so rebuilding the defaults would silently
+        replace the user's prefixes with the stock ones.
+        """
         folder_ov = {t: dict(v) for t, v in self.overrides.items()}
         excludes = {k: list(v) for k, v in self.exclude_overrides.items()}
+        prefixes = {k: list(v) for k, v in self.exception_prefixes.items()}
         self.reset_overrides()
+        self.exception_prefixes = prefixes
         self.apply_overrides(folder_ov)
         self.apply_exclude_overrides(excludes)
+
+    def snapshot(self) -> dict:
+        """Every user customisation as it stands, for :meth:`restore_entry`."""
+        return {
+            "overrides": {t: dict(v) for t, v in self.overrides.items()},
+            "excludes": {k: list(v) for k, v in self.exclude_overrides.items()},
+            "prefixes": {k: list(v) for k, v in self.exception_prefixes.items()},
+        }
+
+    def restore_entry(self, snapshot: dict, table: str, key: str) -> None:
+        """Put one map entry back as it was in ``snapshot`` (VB per-row Undo).
+
+        An extension brings its secondary folder and exception prefixes with
+        it. An entry that was not customised in ``snapshot`` goes back to its
+        default, or away if it has none.
+        """
+        if table not in self._OVERRIDE_TABLES:
+            raise ValueError(f"unknown map table: {table}")
+        low = key.lower()
+        tables = [table, "folder_moves"] if table == "ext_mapping" else [table]
+        for name in tables:
+            was = snapshot["overrides"].get(name, {}).get(low)
+            if was is None:
+                self.overrides[name].pop(low, None)
+            else:
+                self.overrides[name][low] = was
+        if table == "ext_mapping":
+            self.set_exception_prefixes(low, snapshot["prefixes"].get(low, []))
+        self._reapply()
+
+    def rename_extension(self, old: str, new: str) -> None:
+        """Move a customised extension's mapping to ``new`` (VB ``CmeRenameExt``).
+
+        ``new`` takes the folder, secondary folder and exception prefixes; ``old``
+        goes back to its default (prefixes included), or away if it has none.
+        """
+        old, new = old.lower(), new.lower()
+        folder = self.overrides["ext_mapping"].pop(old)
+        secondary = self.overrides["folder_moves"].pop(old, None)
+        prefixes = self.exception_prefixes.pop(old, [])
+        default_prefixes = default_exception_prefixes().get(old)
+        if default_prefixes and old in default_ext_mapping():
+            self.exception_prefixes[old] = list(default_prefixes)
+        self.overrides["ext_mapping"][new] = folder
+        if secondary:
+            self.overrides["folder_moves"][new] = secondary
+        self.set_exception_prefixes(new, prefixes)
+        self._reapply()
+
+    def restore_exclude(self, snapshot: dict, kind: str, name: str) -> None:
+        """Put one exclude entry back as it was in ``snapshot``."""
+        if kind not in self._EXCLUDE_KINDS:
+            raise ValueError(f"unknown exclude kind: {kind}")
+        low = name.lower()
+        for bucket in (kind, f"removed_{kind}"):
+            current = self.exclude_overrides[bucket]
+            if low in current:
+                current.remove(low)
+            if low in snapshot["excludes"].get(bucket, []):
+                current.append(low)
+        self._reapply()
 
     def export_overrides(self) -> dict[str, dict[str, str]]:
         """The current user overrides as a JSON-serialisable dict (for persistence)."""

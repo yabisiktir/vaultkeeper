@@ -12,22 +12,28 @@ restores the default tables. On the Extensions tab there is also the **secondary
 folder** and its **exceptions** — the filename prefixes that send a file there
 instead (``defineextension.htm``); that is how ``fnt_`` textures reach ``override``
 while every other ``.tga`` goes to its own folder. Overrides are shown in bold and
-persist to the settings file. The VB per-list rename-in-place editor and
-import-from-game are deferred with the rest of the Settings subsystem. Column
-captions come from ``Settings.Designer.vb``.
+persist to the settings file. Column captions come from ``Settings.Designer.vb``.
+
+As on NIT's map pages, a row changed since the dialog opened carries the Undo
+icon, a removed one stays listed (struck through) until undone, and right-click
+offers **Rename Extension** (F2, customised extensions), **Undo** (Ctrl+Z) and
+**Remove** (Del). Vaultkeeper saves each edit at once, so Undo puts the entry
+back as it was when the dialog opened. NIT's import-from-game is not ported.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon, QKeySequence, QPalette, QShortcut
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QHBoxLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPushButton,
     QTabWidget,
@@ -55,6 +61,10 @@ _TAB_TABLES = [
     ("dir_mapping", "Source Folder"),
 ]
 
+#: Item data roles: the row changed since the dialog opened / was removed since.
+_CHANGED = Qt.ItemDataRole.UserRole + 1
+_REMOVED = Qt.ItemDataRole.UserRole + 2
+
 #: Common NWN target folders offered in the folder combo (editable — any name allowed).
 _FOLDER_CHOICES = [
     "override", "hak", "tlk", "modules", "nwm", "ambient", "music", "movies",
@@ -71,6 +81,8 @@ class FolderMapping(QDialog):
     ) -> None:
         super().__init__(parent)
         self._controller = controller
+        #: The customisations when the dialog opened: what Undo goes back to.
+        self._snapshot = controller.map_snapshot()
         self.setWindowTitle("Folder Mapping")
         self.setWindowIcon(R.get_icon("MapToFolder_32x"))
         geometry.remember(self, "FolderMapping", 600, 600)
@@ -92,6 +104,17 @@ class FolderMapping(QDialog):
         self.tabs.currentChanged.connect(self._on_tab_changed)
         for tree in (self.extensions, self.files, self.folders, self.excludes):
             tree.itemSelectionChanged.connect(self._update_buttons)
+            tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            tree.customContextMenuRequested.connect(
+                lambda pos, t=tree: self._show_row_menu(t, pos)
+            )
+            # Scoped to the list, so typing in the edit row keeps its keys.
+            for keys, slot in (
+                ("F2", self._on_rename), ("Ctrl+Z", self._on_undo), ("Del", self._on_remove)
+            ):
+                shortcut = QShortcut(QKeySequence(keys), tree)
+                shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+                shortcut.activated.connect(slot)
 
         # -- Edit row ------------------------------------------------------- #
         edit_row = QHBoxLayout()
@@ -104,12 +127,16 @@ class FolderMapping(QDialog):
         self._add_button.clicked.connect(self._on_add)
         self._remove_button = QPushButton("Remove Selected")
         self._remove_button.clicked.connect(self._on_remove)
+        self._undo_button = QPushButton(R.get_icon("Undo_16x"), "Undo")
+        self._undo_button.setToolTip("Put the selected entry back as it was (Ctrl+Z)")
+        self._undo_button.clicked.connect(self._on_undo)
         edit_row.addWidget(self._key_label)
         edit_row.addWidget(self._key_edit, 1)
         edit_row.addWidget(QLabel("→"))
         edit_row.addWidget(self._folder_combo, 1)
         edit_row.addWidget(self._add_button)
         edit_row.addWidget(self._remove_button)
+        edit_row.addWidget(self._undo_button)
         layout.addLayout(edit_row)
 
         # Extensions only: the secondary folder a file may be moved to, and the
@@ -198,6 +225,7 @@ class FolderMapping(QDialog):
                 for r in excludes.get(kind, [])
             ],
         )
+        self._mark_changes()
         self._update_buttons()
 
     @staticmethod
@@ -215,6 +243,152 @@ class FolderMapping(QDialog):
                 for col in range(len(columns)):
                     item.setFont(col, font)
             tree.addTopLevelItem(item)
+
+    # -- Changes since the dialog opened (VB per-row Undo) ------------------ #
+    def _mark_changes(self) -> None:
+        """Flag changed rows and list removed ones, against the opening snapshot."""
+        mapper = self._controller.ctx.mapper
+        now = mapper.snapshot()
+        was = self._snapshot
+        for index, (table, _label) in enumerate(_TAB_TABLES):
+            tree = (self.extensions, self.files, self.folders)[index]
+            tables = [table, "folder_moves"] if table == "ext_mapping" else [table]
+
+            def changed(key: str, tables=tables, table=table) -> bool:
+                differs = any(
+                    was["overrides"].get(t, {}).get(key) != now["overrides"].get(t, {}).get(key)
+                    for t in tables
+                )
+                if table == "ext_mapping":
+                    differs |= was["prefixes"].get(key) != now["prefixes"].get(key)
+                return differs
+
+            shown = set()
+            for row in range(tree.topLevelItemCount()):
+                item = tree.topLevelItem(row)
+                key = item.text(0).lower()
+                shown.add(key)
+                self._set_changed(item, changed(key))
+            for key, folder in sorted(was["overrides"].get(table, {}).items()):
+                if key in shown:
+                    continue
+                columns = [key, folder]
+                if table == "ext_mapping":
+                    columns.append(was["overrides"].get("folder_moves", {}).get(key, ""))
+                self._add_removed(tree, key, columns)
+        shown_excludes = set()
+        for row in range(self.excludes.topLevelItemCount()):
+            item = self.excludes.topLevelItem(row)
+            kind = self._exclude_kind(item)
+            name = item.text(0).lower()
+            shown_excludes.add((kind, name))
+            self._set_changed(item, self._exclude_changed(was, now, kind, name))
+        for kind, label in _EXCLUDE_KINDS.items():
+            gone = set(was["excludes"].get(kind, [])) | (
+                set(now["excludes"].get(f"removed_{kind}", []))
+                - set(was["excludes"].get(f"removed_{kind}", []))
+            )
+            for name in sorted(gone):
+                if (kind, name) not in shown_excludes:
+                    self._add_removed(self.excludes, name, [name, label])
+
+    @staticmethod
+    def _exclude_changed(was: dict, now: dict, kind: str, name: str) -> bool:
+        return any(
+            (name in was["excludes"].get(b, [])) != (name in now["excludes"].get(b, []))
+            for b in (kind, f"removed_{kind}")
+        )
+
+    @staticmethod
+    def _exclude_kind(item: QTreeWidgetItem) -> str:
+        return next(k for k, label in _EXCLUDE_KINDS.items() if label == item.text(1))
+
+    @staticmethod
+    def _set_changed(item: QTreeWidgetItem, changed: bool) -> None:
+        item.setData(0, _CHANGED, changed)
+        item.setIcon(0, R.get_icon("UndoLight_16x") if changed else QIcon())
+
+    def _add_removed(self, tree: QTreeWidget, key: str, columns: list[str]) -> None:
+        """A row removed since the dialog opened: listed, struck through, undoable."""
+        item = QTreeWidgetItem(columns)
+        item.setData(0, Qt.ItemDataRole.UserRole, (key, False))
+        item.setData(0, _REMOVED, True)
+        self._set_changed(item, True)
+        dim = self.palette().color(QPalette.ColorRole.PlaceholderText)
+        for col in range(len(columns)):
+            font = item.font(col)
+            font.setStrikeOut(True)
+            item.setFont(col, font)
+            item.setForeground(col, dim)
+        item.setToolTip(0, "Removed. Undo (Ctrl+Z) puts it back.")
+        tree.addTopLevelItem(item)
+
+    def _show_row_menu(self, tree: QTreeWidget, pos) -> None:
+        """NIT's map-page context menu: Rename Extension, Undo, Remove."""
+        if tree.itemAt(pos) is not None:
+            tree.setCurrentItem(tree.itemAt(pos))
+        self._update_buttons()
+        menu = QMenu(self)
+        if tree is self.extensions:
+            rename = menu.addAction(R.get_icon("RenameBlack"), "Rename Extension", self._on_rename)
+            rename.setShortcut(QKeySequence("F2"))
+            rename.setEnabled(self._can_rename())
+        undo = menu.addAction(R.get_icon("Undo_16x"), "Undo", self._on_undo)
+        undo.setShortcut(QKeySequence("Ctrl+Z"))
+        undo.setEnabled(self._undo_button.isEnabled())
+        remove = menu.addAction(R.get_icon("delete_16x16"), "Remove", self._on_remove)
+        remove.setShortcut(QKeySequence("Del"))
+        remove.setEnabled(self._remove_button.isEnabled())
+        menu.exec(tree.viewport().mapToGlobal(pos))
+
+    def _can_rename(self) -> bool:
+        item = self.extensions.currentItem()
+        return bool(
+            self.tabs.currentIndex() == 0
+            and item is not None
+            and not item.data(0, _REMOVED)
+            and self._controller.ctx.mapper.is_override("ext_mapping", item.text(0))
+        )
+
+    def _on_rename(self) -> None:
+        """VB ``CmeRenameExt``: move a customised extension to another name."""
+        if not self._can_rename():
+            return
+        old = self.extensions.currentItem().text(0)
+        new, ok = QInputDialog.getText(
+            self, "Rename Extension", "New extension:", text=old.lstrip(".")
+        )
+        if not ok or not new.strip():
+            return
+        result = self._controller.rename_map_extension(old, new)
+        if result["ok"]:
+            self.refresh()
+            target = f".{new.strip().lower().lstrip('.')}"
+            for row in range(self.extensions.topLevelItemCount()):
+                if self.extensions.topLevelItem(row).text(0) == target:
+                    self.extensions.setCurrentItem(self.extensions.topLevelItem(row))
+        self.summary.setText(result["message"])
+
+    def _on_undo(self) -> None:
+        """VB ``CmeUndo`` / ``CmdUndo`` / ``CexUndo``: the entry as it was on opening."""
+        item = self._current_tree().currentItem()
+        if item is None or not item.data(0, _CHANGED):
+            return
+        key = item.data(0, Qt.ItemDataRole.UserRole)[0]
+        index = self.tabs.currentIndex()
+        if index == _EXCLUDES_TAB:
+            self._controller.restore_map_exclude(
+                self._snapshot, self._exclude_kind(item), key
+            )
+        else:
+            self._controller.restore_map_entry(self._snapshot, _TAB_TABLES[index][0], key)
+        text = item.text(0)
+        self.refresh()
+        tree = self._current_tree()
+        for row in range(tree.topLevelItemCount()):
+            if tree.topLevelItem(row).text(0) == text:
+                tree.setCurrentItem(tree.topLevelItem(row))
+                break
 
     # -- Edit controls ----------------------------------------------------- #
     def _current_tree(self) -> QTreeWidget:
@@ -239,6 +413,7 @@ class FolderMapping(QDialog):
         item = self._current_tree().currentItem()
         is_override = bool(item and item.data(0, Qt.ItemDataRole.UserRole)[1])
         self._remove_button.setEnabled(is_override)
+        self._undo_button.setEnabled(bool(item and item.data(0, _CHANGED)))
         self._load_secondary()
 
     def _load_secondary(self) -> None:
@@ -246,7 +421,7 @@ class FolderMapping(QDialog):
         if self.tabs.currentIndex() != 0 or self._controller is None:
             return
         item = self.extensions.currentItem()
-        if item is None:
+        if item is None or item.data(0, _REMOVED):
             self._secondary_combo.setCurrentText("")
             self._prefixes_edit.clear()
             self._secondary_button.setEnabled(False)
@@ -298,7 +473,7 @@ class FolderMapping(QDialog):
             return
         index = self.tabs.currentIndex()
         if index == _EXCLUDES_TAB:
-            kind = next(k for k, label in _EXCLUDE_KINDS.items() if label == item.text(1))
+            kind = self._exclude_kind(item)
             self._controller.remove_map_exclude(kind, key)
         else:
             self._controller.remove_map_override(_TAB_TABLES[index][0], key)

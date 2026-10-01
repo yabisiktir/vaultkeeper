@@ -17,8 +17,8 @@ BehaviourRestoreDetailsPosition,PORTED,remember_window_position (geometry)
 BehaviourRestoreNotesPosition,PORTED,remember_window_position (geometry)
 BehaviourRestoreSelections,PORTED,"always on: mods reselected per profile (LoadSelections), Contents per mod; no toggle"
 BehaviourRetainProperties,PORTED,retain_properties_on_import
-BehaviourScreenTip,MISSING,"hover Manage your Game Saves shows the latest save's screen.tga; VK has no such hover (only the Save Game Editor shows screenshots) (reclassified 2026-10-01: this is an image tip, not a text tooltip)"
-BehaviourScreenTipChar,MISSING,hover the Character Summary text shows the save's screen.tga; see BehaviourScreenTip
+BehaviourScreenTip,PORTED,"screen_tip (ui/screen_tip.py), built 2026-10-01"
+BehaviourScreenTipChar,PORTED,"screen_tip_character, built 2026-10-01"
 BehaviourSelectGameMod,PORTED,select_game_mod
 BehaviourSelectHistory,PORTED,selection_preference = history
 BehaviourSelectPlayTimeFile,PORTED,selection_preference = play_time
@@ -41,7 +41,7 @@ ConfigDeleteLetoLogs,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 ConfigDevelopmentFolder,PORTED,enable_development_folder
 ConfigDisplayStdImages,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 ConfigDisplayTgaImages,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
-ConfigDoubleClickAction,MISSING,NIT offers Install or Uninstall (default) / Open Mod Folder / Ignore Double Clicks; VK always installs or uninstalls
+ConfigDoubleClickAction,PORTED,"double_click_action: Install or Uninstall / Open Mod Folder / Ignore, built 2026-10-01"
 ConfigGameManagerEnabled,DIVERGENCE,first-use explanation before the Game Saves Manager; VK opens it directly
 ConfigImportAction,N/A,shared NIT store import (non-goal)
 ConfigKeyDelay,DIVERGENCE,Windows keyboard timing
@@ -61,7 +61,7 @@ ConfigRecentModsCursor,DIVERGENCE,cursor state
 ConfigRestartDelay,DIVERGENCE,Windows restart timing
 ConfigRunCreateInstaller,PORTED,run_create_installer
 ConfigRunDocOrganiser,PORTED,run_doc_organiser
-ConfigSaveScreenCrop,MISSING,crop for the save screenshot tips; see BehaviourScreenTip
+ConfigSaveScreenCrop,PORTED,"save_screen_crop, built 2026-10-01"
 ConfigSavesRetention,PORTED,saves_retention
 ConfigSavesThreshold,PERF,saves count threshold
 ConfigScreenInfoFromFile,PERF,re-read start-screen info each time; VK reads it when needed

@@ -371,6 +371,8 @@ def write_dashboard(dest, members, handlers, controls):
             shown = ", ".join(names[:6]) + (f" (+{len(names) - 6})" if len(names) > 6 else "")
             A(f"| {r['status']} | {shown} | {r['notes']} |")
         A("")
+    else:
+        A("**Nothing is open:** every row is Ported, Divergence or N/A.\n")
 
     (dest / "DASHBOARD.md").write_text("\n".join(lines) + "\n")
 

@@ -195,6 +195,7 @@ class MainWindow(QMainWindow):
         self.ribbon = Ribbon()
         self.ribbon.action_triggered.connect(self._on_command)
         self.ribbon.action_right_clicked.connect(self._on_command_right_clicked)
+        self._install_game_saves_screen_tip()
         self.quick_toolbar = QuickToolbar()
         self.quick_toolbar.action_triggered.connect(self._on_command)
         self.addToolBar(self.quick_toolbar)
@@ -1827,11 +1828,14 @@ class MainWindow(QMainWindow):
         def resolver(resref, own_folder):
             return self.controller.portrait_path(resref, extra_dirs=[own_folder])
 
+        settings = self.controller._settings()
         self._character_viewer = CharacterViewer(
             [cf],
             resolver,
             self,
-            portrait_size=self.controller._settings().portrait_display_size,
+            portrait_size=settings.portrait_display_size,
+            save_screen_tips=settings.screen_tip_character,
+            screen_crop=settings.save_screen_crop,
         )
         self._character_viewer.show()
 
@@ -4292,6 +4296,7 @@ class MainWindow(QMainWindow):
         from vaultkeeper.config.settings import load_settings
 
         was_managing = load_settings().manage_steam_workshop
+        move_before = load_settings().store_move_to
         settings = SettingsDialog.edit(
             parent=self, controller=self.controller, start_tab=start_tab
         )
@@ -4314,6 +4319,8 @@ class MainWindow(QMainWindow):
             if (settings.nwn_path, settings.game_user_path) != before:
                 self._reopen_with_new_paths()
             self.nit_status.set_info("Settings saved.")
+            if settings.store_move_to and settings.store_move_to != move_before:
+                self._offer_close_for_store_move()
             # VB Settings → BehaviourWorkshop changed: turning it off asks what to
             # do with the managed mods (UnsubscribeAll); on, processes them.
             if self.controller is not None and was_managing != settings.manage_steam_workshop:
@@ -4321,6 +4328,21 @@ class MainWindow(QMainWindow):
                     self._sync_workshop_mods()
                 elif self.controller.managed_workshop_mods():
                     self._on_stop_managing_workshop()
+
+    def _offer_close_for_store_move(self) -> None:
+        """The store moves at the next start (VB PathNewStore): offer to close now.
+
+        Closing, not restarting: a new instance started while this one is still
+        saving could copy the store mid-write.
+        """
+        answer = QMessageBox.question(
+            self,
+            "Move Store",
+            "The store moves when Vaultkeeper next starts.\n\n"
+            "Close Vaultkeeper now? Open it again to move the store.",
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            self.close()
 
     def _current_game_paths(self) -> tuple:
         from vaultkeeper.config.settings import load_settings
@@ -4594,17 +4616,45 @@ class MainWindow(QMainWindow):
     def _not_implemented(self) -> None:
         self.nit_status.set_info("That command is not available yet.")
 
-    def _on_mod_double_clicked(self, item, _column: int = 0) -> None:
-        """Install the double-clicked mod, or uninstall it (VB ``FvMods``).
+    def _install_game_saves_screen_tip(self) -> None:
+        """Hovering Manage your Game Saves shows the latest save's screen image.
 
-        Whichever of Install/Uninstall is the one currently offered — the same
-        test the buttons use, so a double-click can never do something the
-        toolbar would refuse. A group header is left to expand and collapse.
+        VB ``RbnGameSaves_MouseHover``, on while ``BehaviourScreenTip`` is set.
+        """
+        button = self.ribbon.button("RbnGameSaves")
+        if button is None:
+            return
+        from vaultkeeper.config.settings import load_settings
+        from vaultkeeper.ui.screen_tip import ScreenTip
+
+        self.game_saves_screen_tip = ScreenTip(
+            button,
+            lambda _pos: self.controller.latest_save_screen() if self.controller else None,
+            enabled=lambda: load_settings().screen_tip,
+            crop=lambda: load_settings().save_screen_crop,
+        )
+
+    def _on_mod_double_clicked(self, item, _column: int = 0) -> None:
+        """Act on a double-clicked mod as Settings says (VB ``SetDoubleClickAction``).
+
+        By default install it, or uninstall it: whichever of Install/Uninstall
+        is the one currently offered — the same test the buttons use, so a
+        double-click can never do something the toolbar would refuse. The other
+        choices open the mod's folder or do nothing. A group header is left to
+        expand and collapse.
         """
         if self.controller is None or item is None:
             return
         if not self._tree.mod_name_of(item):
             return  # a group header: Qt's expand/collapse is the right action
+        from vaultkeeper.config.settings import load_settings
+
+        action = load_settings().double_click_action
+        if action == "ignore":
+            return
+        if action == "open_folder":
+            self._on_open_mod_folder()
+            return
         if self._act_install.isEnabled():
             self._on_install()
         elif self._act_uninstall.isEnabled():

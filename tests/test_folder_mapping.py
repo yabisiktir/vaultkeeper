@@ -214,3 +214,163 @@ def _stage4_controller(tmp_path):
         store_path=tmp_path / "Data" / "P.json",
         settings_path=tmp_path / "settings.json",
     )
+
+
+# -- NIT's per-row Undo and Rename Extension (Settings map pages) ------------- #
+def _row(tree, text):
+    return next(
+        tree.topLevelItem(i)
+        for i in range(tree.topLevelItemCount())
+        if tree.topLevelItem(i).text(0) == text
+    )
+
+
+def _rows(tree):
+    return [tree.topLevelItem(i).text(0) for i in range(tree.topLevelItemCount())]
+
+
+def _mapping_controller(tmp_path):
+    controller = _controller(tmp_path)
+    controller._settings_path = tmp_path / "settings.json"
+    return controller
+
+
+def test_removing_an_override_keeps_the_users_exception_prefixes(tmp_path) -> None:
+    """Rebuilding the defaults after a removal used to reset every extension's
+    exception prefixes to the stock ones, and the next save wrote that back."""
+    controller = _mapping_controller(tmp_path)
+    controller.set_extension_secondary(".tga", "override", ["my_"])
+    controller.set_map_file_exception("mine.hak", "hak")
+    controller.remove_map_override("exception_files", "mine.hak")
+    assert controller.ctx.mapper.exception_prefixes[".tga"] == ["my_"]
+
+
+def test_reset_all_resets_the_saved_prefixes_too(tmp_path) -> None:
+    from vaultkeeper.config.settings import load_settings
+    from vaultkeeper.core.mapper import default_exception_prefixes
+
+    controller = _mapping_controller(tmp_path)
+    controller.set_extension_secondary(".tga", "override", ["my_"])
+    controller.reset_map_overrides()
+    saved = load_settings(controller._settings_path).map_exception_prefixes
+    assert saved.get(".tga", []) == default_exception_prefixes().get(".tga", [])
+
+
+def test_a_changed_row_shows_undo_and_undo_puts_it_back(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    controller.set_map_file_exception("mine.hak", "hak")
+    dialog = FolderMapping(controller, start_tab="Map Files")
+    qtbot.addWidget(dialog)
+    assert not _row(dialog.files, "mine.hak").data(0, Qt.ItemDataRole.UserRole + 1)
+
+    dialog._key_edit.setText("mine.hak")
+    dialog._folder_combo.setCurrentText("patch")
+    dialog._on_add()
+    item = _row(dialog.files, "mine.hak")
+    assert item.data(0, Qt.ItemDataRole.UserRole + 1)  # changed: Undo icon
+    assert not item.icon(0).isNull()
+    dialog.files.setCurrentItem(item)
+    assert dialog._undo_button.isEnabled()
+
+    dialog._on_undo()
+    assert controller.ctx.mapper.get_mapped_folder("mine.hak") == "hak"
+    assert not _row(dialog.files, "mine.hak").data(0, Qt.ItemDataRole.UserRole + 1)
+
+
+def test_a_removed_row_stays_listed_until_undone(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    controller.set_map_file_exception("mine.hak", "hak")
+    dialog = FolderMapping(controller, start_tab="Map Files")
+    qtbot.addWidget(dialog)
+    dialog.files.setCurrentItem(_row(dialog.files, "mine.hak"))
+    dialog._on_remove()
+    assert not controller.ctx.mapper.is_override("exception_files", "mine.hak")
+
+    ghost = _row(dialog.files, "mine.hak")
+    assert ghost.data(0, Qt.ItemDataRole.UserRole + 2)  # removed
+    assert ghost.font(0).strikeOut()
+    dialog.files.setCurrentItem(ghost)
+    assert not dialog._remove_button.isEnabled()
+    dialog._on_undo()
+    assert controller.ctx.mapper.is_override("exception_files", "mine.hak")
+    assert controller.ctx.mapper.get_mapped_folder("mine.hak") == "hak"
+
+
+def test_undo_on_a_new_row_takes_it_away(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    dialog = FolderMapping(controller, start_tab="Map Folders")
+    qtbot.addWidget(dialog)
+    dialog._key_edit.setText("extras")
+    dialog._folder_combo.setCurrentText("override")
+    dialog._on_add()
+    dialog.folders.setCurrentItem(_row(dialog.folders, "extras"))
+    dialog._on_undo()
+    assert "extras" not in _rows(dialog.folders)
+    assert not controller.ctx.mapper.is_override("dir_mapping", "extras")
+
+
+def test_undo_restores_an_extension_with_its_secondary_folder(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    mapper = controller.ctx.mapper
+    before = (mapper.ext_mapping[".tga"], mapper.get_secondary_folder(".tga"),
+              list(mapper.exception_prefixes.get(".tga", [])))
+    dialog = FolderMapping(controller)
+    qtbot.addWidget(dialog)
+    controller.set_map_extension(".tga", "hak")
+    controller.set_extension_secondary(".tga", "patch", ["zz_"])
+    dialog.refresh()
+    dialog.extensions.setCurrentItem(_row(dialog.extensions, ".tga"))
+    dialog._on_undo()
+    assert (mapper.ext_mapping[".tga"], mapper.get_secondary_folder(".tga"),
+            list(mapper.exception_prefixes.get(".tga", []))) == before
+
+
+def test_an_excluded_item_removed_comes_back_with_undo(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    controller.add_map_exclude("files", "junk.txt")
+    dialog = FolderMapping(controller, start_tab="Map Excludes")
+    qtbot.addWidget(dialog)
+    dialog.excludes.setCurrentItem(_row(dialog.excludes, "junk.txt"))
+    dialog._on_remove()
+    assert not controller.ctx.mapper.is_excluded_file("junk.txt")
+    dialog.excludes.setCurrentItem(_row(dialog.excludes, "junk.txt"))
+    dialog._on_undo()
+    assert controller.ctx.mapper.is_excluded_file("junk.txt")
+
+
+def test_rename_extension_moves_a_customised_mapping(tmp_path, qtbot, monkeypatch) -> None:
+    from PySide6.QtWidgets import QInputDialog
+
+    controller = _mapping_controller(tmp_path)
+    controller.set_map_extension(".abc", "hak")
+    controller.set_extension_secondary(".abc", "override", ["x_"])
+    dialog = FolderMapping(controller)
+    qtbot.addWidget(dialog)
+    dialog.extensions.setCurrentItem(_row(dialog.extensions, ".abc"))
+    assert dialog._can_rename()
+    monkeypatch.setattr(QInputDialog, "getText", lambda *a, **k: ("abd", True))
+    dialog._on_rename()
+
+    mapper = controller.ctx.mapper
+    assert mapper.ext_mapping[".abd"] == "hak"
+    assert mapper.get_secondary_folder(".abd") == "override"
+    assert mapper.exception_prefixes[".abd"] == ["x_"]
+    assert ".abc" not in mapper.ext_mapping
+    assert dialog.extensions.currentItem().text(0) == ".abd"
+
+
+def test_a_built_in_extension_is_not_renamed(tmp_path, qtbot) -> None:
+    controller = _mapping_controller(tmp_path)
+    dialog = FolderMapping(controller)
+    qtbot.addWidget(dialog)
+    dialog.extensions.setCurrentItem(_row(dialog.extensions, ".2da"))
+    assert not dialog._can_rename()
+    assert not controller.rename_map_extension(".2da", "x2da")["ok"]
+
+
+def test_rename_refuses_an_extension_that_already_has_a_mapping(tmp_path) -> None:
+    controller = _mapping_controller(tmp_path)
+    controller.set_map_extension(".abc", "hak")
+    result = controller.rename_map_extension(".abc", "tga")
+    assert not result["ok"]
+    assert controller.ctx.mapper.ext_mapping[".abc"] == "hak"

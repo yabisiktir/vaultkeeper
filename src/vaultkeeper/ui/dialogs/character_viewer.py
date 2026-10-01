@@ -79,6 +79,8 @@ class CharacterViewer(QDialog):
         on_skills_filter_changed=None,
         on_open_portrait_manager=None,
         on_select=None,
+        save_screen_tips: bool = False,
+        screen_crop: str = "",
     ) -> None:
         super().__init__(parent)
         #: Called with a mod name when Select is clicked (VB ``BtSelect``).
@@ -140,6 +142,16 @@ class CharacterViewer(QDialog):
         self._tabs = QTabWidget()
         self._summary = QTextEdit()
         self._summary.setReadOnly(True)
+        if save_screen_tips:
+            # VB BehaviourScreenTipChar: a character in a game save shows the
+            # save's screen image while the pointer rests on its summary.
+            from vaultkeeper.ui.screen_tip import DEFAULT_CROP, ScreenTip
+
+            self.screen_tip = ScreenTip(
+                self._summary.viewport(),
+                lambda _pos: self._save_screen(),
+                crop=lambda: screen_crop or DEFAULT_CROP,
+            )
         self._tabs.addTab(self._summary, "Summary")
         self._tabs.addTab(self._build_skills_tab(), "Skills")
         self._tabs.addTab(self._build_feats_tab(), "Feats")
@@ -440,6 +452,15 @@ class CharacterViewer(QDialog):
         cf = self._current_cf
         if cf is not None:
             QApplication.clipboard().setText(level_summary(cf.info))
+
+    def _save_screen(self):
+        """The ``screen.tga`` beside the selected character, when it is in a save."""
+        cf = self._current_cf
+        path = getattr(cf, "path", None)
+        if path is None:
+            return None
+        screen = path.parent / "screen.tga"
+        return screen if screen.is_file() else None
 
     def _populate_skills_and_feats(self, cf) -> None:
         self._skills.clear()

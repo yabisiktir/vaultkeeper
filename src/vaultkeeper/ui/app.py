@@ -61,6 +61,8 @@ def run(controller: ProfileController | None = None, argv: list[str] | None = No
         _offer_data_restore()
     if options.show_settings:
         _show_settings_before_loading()
+    # VB MoveNitStore: "Move the NIT Store before any processing takes place".
+    _apply_pending_store_move()
 
     first_run = False
     if controller is None:
@@ -207,6 +209,62 @@ def _offer_data_restore() -> None:
             )
     except Exception:
         logger.exception("Restoring profile data failed")
+
+
+def _apply_pending_store_move() -> None:
+    """Move the store if Settings › Locations asked for it (VB ``MoveNitStore``).
+
+    Copy and check first, then save the new ``store_root``, and only then send
+    the old store to the recycle bin; any failure keeps the old store in use.
+    """
+    from pathlib import Path
+
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QMessageBox, QProgressDialog
+
+    from vaultkeeper.config.settings import Settings, load_settings, save_settings
+    from vaultkeeper.core.fs import delete
+    from vaultkeeper.store_move import move_store, recycle_old_store, rewrite_settings_paths
+
+    try:
+        settings = load_settings()
+    except Exception:  # noqa: BLE001 - never block start-up on this
+        logger.exception("Could not read settings for a pending store move")
+        return
+    if not settings.store_move_to:
+        return
+    source = Path(settings.resolved_store().root)
+    progress = QProgressDialog("Moving the Vaultkeeper store…", "Cancel", 0, 0)
+    progress.setWindowTitle("Move Store")
+    progress.setWindowModality(Qt.WindowModality.ApplicationModal)
+    progress.setMinimumDuration(0)
+    progress.show()
+
+    def on_progress(done: int, total: int) -> bool:
+        progress.setMaximum(total)
+        progress.setValue(done)
+        progress.setLabelText(f"Copying the store: {done:,} of {total:,} files…")
+        QApplication.processEvents()
+        return not progress.wasCanceled()
+
+    def recycle(path: str) -> None:
+        delete(path, to_trash=True)
+
+    result = move_store(source, settings.store_move_to, recycle=recycle, on_progress=on_progress)
+    progress.close()
+    message = result.message
+    if result.ok:
+        settings = Settings.from_dict(
+            rewrite_settings_paths(settings.to_dict(), source, result.store)
+        )
+        settings.store_root = str(result.store)
+    settings.store_move_to = ""
+    save_settings(settings)
+    if result.ok:
+        message += " " + recycle_old_store(source, recycle)
+        QMessageBox.information(None, "Move Store", message)
+    else:
+        QMessageBox.warning(None, "Move Store", message)
 
 
 def _show_settings_before_loading() -> None:
