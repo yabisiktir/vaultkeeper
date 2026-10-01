@@ -9,6 +9,35 @@ help topic embeds its screenshot).
 and WinForms-on-Windows never pixel-match (native widgets, fonts, chrome, DPI differ).
 "Parity" means the same controls, captions, order, grouping, panes and workflow.
 
+## Status update (2026-10-01)
+
+This report is the July 2026 pass. Most of what it marks 🔷 deferred has been
+built since; the current verdicts live in [`screen_parity/README.md`](screen_parity/README.md)
+(all 47 NIT forms compared) and [`parity_audit/DASHBOARD.md`](parity_audit/DASHBOARD.md)
+(every NIT member, handler and control, re-verified on this date). Each item below
+was checked against the source:
+
+| Deferred here | Now |
+|---|---|
+| Main window: "Played for N mins" / Mod Selector | ✅ both on the main window (`MsPlayedInfo`, the Mod Selector combo) |
+| Doc Organiser: Properties, Reset, multi-mod queue | ✅ Properties; Reset is Refresh. VK lists all selected mods at once instead of NIT's one-at-a-time Next (➖ deliberate) |
+| Wizard Builder: archive views, download-rules wizard | ✅ archive views (`newtopic21`); rules wizard authoring becomes the mod's wizard (`NIT_V8.md`) |
+| Dependency Manager: Auto | ✅ |
+| Mod Play Viewer: rating / end-level filters, Recent, Select | ✅ (screen parity: same actions or more) |
+| Portrait Manager toolbar: Exclude, Apply Excludes, Edit, Create Installer, Select Source, Find | ✅ all, plus Options |
+| Start Screen Manager: slide show, prefix editor, Rename | ✅ |
+| Settings: play-loop actions, start-up sound, the Profiles / Run Menu / Config pages | ✅ copy-on-play, debug mode on play, start-up sound, Run/Web menu pages with NIT's item editor; per-preference pages as curated tabs (➖) |
+| Workshop: network title fetch, Copy MapId Rule | ✅ |
+| Publish Mod: Generate Installation Guide | ✅ |
+| Download Project: per-project extras | ✅ (screen parity: same actions or more; rules preferences added) |
+| Game Saves Manager "archive-only slice" | ✅ backup / activate / deactivate / delete / reduce / finished / archived saves |
+| 42 disabled commands | ✅ 172 of NIT's 181 menu/ribbon commands are defined in VK, the other 9 categorised (`check_action_bindings.py`: clean). Still unwired on purpose: the shared-store commands (Connect, Synchronise, Open Shared Store) and two debug items |
+
+Still open after this check (owner decisions, see `parity_audit/DASHBOARD.md`):
+the save-screenshot hover tips, moving the store folder from Settings, the mod
+double-click action choice, per-row Undo / Rename Extension in Folder Mapping, and
+whether Download Project should tick nothing by default as NIT does.
+
 ## How to reproduce (repeatable)
 
 1. Render the port dialog offscreen:

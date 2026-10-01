@@ -73,6 +73,15 @@ python build_ledger.py ./out "<port src>" .    # ledgers + DASHBOARD.md
 `seeds.json` holds the known statuses (the 42 categorised dead ids + confirmed
 findings); extend it as the sweep verifies rows, then regenerate.
 
+Verdicts are applied in this order, later ones winning: `seeds.json` (by name),
+`verify_files.json` (by VB file), `control_forms.json` (by form); then, for rows
+still `Deferred` / `Partial`, the logic audit's reviewed verdicts
+(`../logic_audit/stage4/verdicts.csv`); then `reconcile.json`, the 2026-10-01
+re-verification, keyed `File.vb::Member` / `Form::Control` / form. **Keep the
+Deferred/Partial set honest:** when a feature lands, add its rows to
+`reconcile.json` and regenerate. A stale "Deferred" hides both progress and
+real gaps, which is what happened between August and October 2026.
+
 ## How to run the sweep
 
 Work `DASHBOARD.md` top-down — files are ranked by `GAP?` density, so effort goes

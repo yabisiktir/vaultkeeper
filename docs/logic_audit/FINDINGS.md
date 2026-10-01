@@ -290,3 +290,8 @@ verdict (408 same, 209 n/a, 71 fixed, 31 deliberate), every numbered finding
 above is fixed, deliberate, harmless or a NIT artefact, and the owner
 decisions are all carried out. Screen parity continues in
 `docs/screen_parity/README.md`.
+
+The coverage ledger was re-verified on 2026-10-01 (`docs/parity_audit/DASHBOARD.md`,
+"Audit status"). It found no logic bugs, but a few NIT features VK lacks, which
+are listed there for the owner: save-screenshot hover tips, moving the store
+folder, the double-click action choice, and Folder Mapping's per-row Undo.

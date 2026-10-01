@@ -1,0 +1,530 @@
+{
+ "_comment": "Re-verification pass of 2026-10-01. The ledger's Deferred/Partial verdicts dated from 2026-08-07 and most named things built since (Installation Manager, Find and Rename, Backup Manager, Crash Dump Manager, Slide Show, Run/Web menu editor, auto-restorers, Validate...). build_ledger.py applies, in order: seeds.json / verify_files.json / control_forms.json, then the logic audit's stage-4 verdicts (docs/logic_audit/stage4/verdicts.csv: same/fixed -> Ported, deliberate -> Divergence, n/a -> N/A) to rows still Deferred/Partial, then the groups below (keys are 'File.vb::Member' for members, 'Form::Control' for controls). Every group was checked against the Vaultkeeper source; 'MISSING' marks a real gap left for an owner decision.",
+ "members": {
+  "built_since": {
+   "status": "Ported",
+   "note": "Built after the 2026-08 sweep; checked against the source 2026-10-01.",
+   "names": [
+    "BackupManager.vb::ActionType",
+    "BackupManager.vb::ActionItem",
+    "BackupManager.vb::ActionText",
+    "BackupManager.vb::DataInfo",
+    "BackupManager.vb::TotalSize",
+    "BackupManager.vb::FolderInfo",
+    "BackupManager.vb::ModInfo",
+    "BackupManager.vb::Initialising",
+    "BackupManager.vb::SelectedSize",
+    "BackupManager.vb::TabPage",
+    "BackupManager.vb::BackupManager_Load",
+    "BackupManager.vb::BackupManager_Shown",
+    "BackupManager.vb::BhBackupManager_Click",
+    "BackupManager.vb::BtAction_SizeChanged",
+    "BackupManager.vb::BtAction_Click",
+    "BackupManager.vb::BackupManager_KeyUp",
+    "BackupManager.vb::TbBackupManager_SelectedIndexChanged",
+    "BackupManager.vb::LvMods_SelectedIndexChanged",
+    "BackupManager.vb::BgBackups_DoWork",
+    "BackupManager.vb::BgSettings_DoWork",
+    "BackupManager.vb::BgStandard_ProgressChanged",
+    "BackupManager.vb::BgMods_DoWork",
+    "BackupManager.vb::BgMods_ProgressChanged",
+    "BackupManager.Methods.vb::DisplaySelectionInfo",
+    "BackupManager.Methods.vb::PopulateStandard",
+    "BackupManager.Methods.vb::UpdateListView",
+    "BackupManager.Methods.vb::RemoveItems",
+    "BackupManager.TypeInfo.vb::DataType",
+    "BackupManager.TypeInfo.vb::ListView",
+    "BackupManager.TypeInfo.vb::ActionAllowed",
+    "BackupManager.TypeInfo.vb::ActionText",
+    "BackupManager.TypeInfo.vb::DeleteText",
+    "BackupManager.TypeInfo.vb::TotalSize",
+    "InstallationManagerEditor.vb::TsPrune_Click",
+    "InstallationManagerEditor.vb::TsDelete_Click",
+    "InstallationManagerEditor.vb::TsSortBy_Click",
+    "InstallationManagerEditor.vb::TsSortOrder_Click",
+    "InstallationManagerEditor.vb::TsGroupSelector_Click",
+    "InstallationManagerEditor.vb::LvSets_Enter",
+    "InstallationManagerEditor.vb::LvSets_RetrieveVirtualItem",
+    "InstallationManagerEditor.vb::LvSets_ItemClicked",
+    "InstallationManagerEditor.vb::LvSets_SelectedIndexChanged",
+    "InstallationManagerEditor.vb::LvGroups_RetrieveVirtualItem",
+    "InstallationManagerEditor.vb::LvGroups_SelectedIndexChanged",
+    "InstallationManagerEditor.vb::LvGroups_ItemClicked",
+    "InstallationManagerEditor.vb::LvMods_RetrieveVirtualItem",
+    "InstallationManagerEditor.vb::LvMods_ItemClicked",
+    "InstallationManagerEditor.vb::LvGroupSelector_ItemCheck",
+    "InstallationManagerEditor.vb::PopulateList",
+    "InstallationManagerEditor.vb::SetSelectorAvailability",
+    "InstallationManagerEditor.vb::SetButtonAvailability",
+    "InstallationManagerEditor.vb::KeepSelected",
+    "InstallationManagerEditor.vb::SetGroupsSelected",
+    "InstallationManagerEditor.vb::SortSets",
+    "SlideShow.vb::CurrentFile",
+    "SlideShow.vb::AutoShowEnabled",
+    "SlideShow.vb::AutoShowInterval",
+    "SlideShow.vb::AutoShowContinuous",
+    "SlideShow.vb::SlideShow_Load",
+    "SlideShow.vb::TiShow_Tick",
+    "SlideShow.vb::PicSlide_Click",
+    "SlideShow.vb::PicSlide_MouseMove",
+    "SlideShow.vb::PicClose_MouseHover",
+    "SlideShow.vb::PicClose_MouseEnter",
+    "SlideShow.vb::PicClose_MouseLeave",
+    "SlideShow.vb::PicClose_Click",
+    "SlideShow.vb::SlideShow_FormClosing",
+    "SlideShow.vb::ShowNextImage",
+    "SlideShow.vb::ShowImage",
+    "CrashDumpManager.vb::FileKey",
+    "CrashDumpManager.vb::Modified",
+    "CrashDumpManager.vb::DisplayText",
+    "CrashDumpManager.vb::CrashFilesDeleted",
+    "CrashDumpManager.vb::FileSizeAdjustment",
+    "CrashDumpManager.vb::CrashDumpManager_Load",
+    "CrashDumpManager.vb::BgOpenSupportPage_DoWork",
+    "CrashDumpManager.vb::LvCrashFiles_ItemClicked",
+    "CrashDumpManager.vb::LvCrashFiles_SelectedIndexChanged",
+    "CrashDumpManager.vb::BtDelete_Click",
+    "ModFindAndRename.vb::LvMods_RetrieveVirtualItem",
+    "ModFindAndRename.vb::LvMods_SelectedIndexChanged",
+    "ModFindAndRename.vb::LvMods_ItemClicked",
+    "ModFindAndRename.vb::OnKeyDown",
+    "ModFindAndRename.vb::ButtonAvailibility",
+    "ModFindAndRename.vb::UndoAvailibility",
+    "ModFindAndRename.ModNameInfo.vb::Index",
+    "ModFindAndRename.ModNameInfo.vb::Changed",
+    "ModFindAndRename.ModNames.vb::SetSelected",
+    "MenuItemEditor.vb::MenuLocation",
+    "MenuItemEditor.vb::MenuText",
+    "MenuItemEditor.vb::UsedCharacters",
+    "MenuItemEditor.vb::MenuTextExists",
+    "MenuItemEditor.vb::DisplayCharacterCount",
+    "Settings.RunMenu.vb::AddRunMenu",
+    "Settings.RunMenu.vb::CmrNewMenu_Click",
+    "Settings.RunMenu.vb::CmrChangeMenu_Click",
+    "Settings.WebMenu.vb::AddWebMenu",
+    "MsgPicture.vb::PicClose_Click",
+    "MsgPicture.vb::PicClose_MouseEnter",
+    "MsgPicture.vb::PicClose_MouseLeave",
+    "StartScreenManager.vb::SlideShowInterval",
+    "StartScreenManager.vb::LoadscreenManager_Load",
+    "StartScreenManager.vb::LoadscreenManager_FormClosing",
+    "StartScreenManager.vb::CreateLoadscreenMod",
+    "StartScreenManager.vb::ValidateLoadscreenFolder",
+    "StartScreenManager.vb::SelectScreenMod",
+    "StartScreenManager.vb::ProcessFvImagesSelectionChanged",
+    "StartScreenManager.vb::SetAutoExclusion",
+    "StartScreenManager.vb::RbInfoReport_Click",
+    "PortraitManager.vb::PortraitManager_Load",
+    "PortraitManager.vb::PortraitManager_Shown",
+    "PortraitManager.vb::LvPortraits_SelectedIndexChanged",
+    "PortraitManager.vb::LpImages_Click",
+    "PortraitManager.vb::PopulatePortraits",
+    "PortraitManager.vb::SetTitleText",
+    "PortraitManager.vb::GetBaseName",
+    "GameManager.vb::TsArchive_Click",
+    "GameManager.vb::TsRestore_Click",
+    "GameManager.vb::TsActivate_Click",
+    "GameManager.vb::TsDeactivate_Click",
+    "GameManager.Methods.vb::GetDisplayName",
+    "GameSaves.vb::TotalSize",
+    "GameSaves.vb::BgSaveScanner_DoWork",
+    "GameSaves.vb::BgFolderSizes_DoWork",
+    "GameSavesNotificationEventArgs.vb::TotalSize",
+    "AliasSectionEditor.vb::RestoreFolder",
+    "DownloadDeleteMsg.vb::BtDelete_Click",
+    "UserResponseEditor.vb::BtDelete_Click",
+    "ExtendedEditionDialogue.vb::BuBrowse_Click",
+    "WizardBuilder.vb::DisplayName",
+    "WizardBuilder.vb::BtAddRemove_Click",
+    "WizardBuilder.vb::BtAddAll_Click",
+    "WizardBuilder.vb::BtDelete_Click",
+    "WizardBuilder.vb::FileThresholdCancel",
+    "WizardBuilder.vb::AddLvItem",
+    "WizardBuilder.vb::AddMany",
+    "WizardBuilder.vb::DisplayNameExists",
+    "BasicSettings.vb::BtApply_Click",
+    "BasicSettings.vb::CbCopyDebugModeOnPlay_CheckedChanged",
+    "CharacterFilter.vb::BtApply_Click",
+    "CommonFiltersDialogue.vb::BtApply_Click",
+    "PublishMod.vb::OnKeyDown",
+    "DependencyManager.vb::LvMods_ItemClicked",
+    "DependencyManager.vb::KeepSelected",
+    "ModExplorer.vb::ModExplorer_Shown",
+    "DailyPlayTimeInfo.vb::InfoFile",
+    "DailyPlayTimeInfo.vb::Save",
+    "PlayDataManager.vb::FormatStartDate",
+    "DownloadProject.Methods.vb::SetTitleText",
+    "DownloadProject.Methods.vb::ProcessOldFiles",
+    "DownloadProject.Methods.vb::DeleteOldFiles",
+    "DownloadProject.Methods.vb::MoveOldFilesToHistory",
+    "DownloadProject.Methods.vb::UpdateWizard",
+    "DownloadProject.Methods.vb::RetrieveProject",
+    "SteamWorkshop.IdInfo.vb::ModFolderName",
+    "SteamWorkshop.IdInfo.vb::UnknownModName",
+    "SteamWorkshop.IdInfo.vb::DisplayName",
+    "SteamWorkshop.IdInfo.vb::IdFolder",
+    "SteamWorkshop.IdInfo.vb::Files",
+    "SteamWorkshop.IdInfo.vb::GetModFolderName",
+    "SteamWorkshop.IdInfo.vb::RefreshSteamFiles",
+    "SteamWorkshop.IdInfo.vb::ModNameFromWeb",
+    "SteamWorkshop.IdInfo.vb::GetSteamPage",
+    "SteamWorkshop.IdInfo.vb::GetSteamTitle",
+    "SteamWorkshop.vb::UnsubscribeAll",
+    "SteamWorkshop.vb::RetainModQuestion",
+    "NIT.Menu.vb::SetNwnExePaths",
+    "NIT.Menu.vb::SetOriginalPortraitsMenuItem",
+    "NIT.Menu.vb::SetDownloadMenuItems",
+    "NIT.Menu.vb::SetCreateOriginalRestorers",
+    "NIT.Menu.vb::SetDebugOptionsMenu",
+    "NIT.Menu.vb::SetMoveToFolder",
+    "NIT.Menu.vb::RbnExportSettings_Click",
+    "NIT.Menu.vb::MsMoveToFolder_Click",
+    "NIT.Menu.vb::MsMoveToHistory_Click",
+    "NIT.Menu.vb::MsBackupManager_Click",
+    "NIT.Menu.vb::MsValidate_Click",
+    "NIT.Menu.vb::MsShowText_Click",
+    "NIT.Menu.vb::ProcessCharacterRestorer",
+    "NIT.Menu.vb::MsConvertRestorer_Click",
+    "NIT.Menu.vb::RbnManageWorkshop_Click",
+    "NIT.Menu.vb::MsMoveToDev",
+    "NIT.ModView.vb::GetCharacterList",
+    "CharacterViewer.vb::PicPortrait_Click",
+    "CharacterViewer.vb::ProcessRestorer",
+    "Defs.vb::CharRestorerPrefix",
+    "NwnFolderInfo.vb::InactivePatchFile",
+    "ProfileData.vb::GetAutoDependencyList",
+    "CreateInstaller.vb::FolderInfo",
+    "CreateInstaller.vb::WriteWizardReport",
+    "FileConflictsViewer.vb::InstalledSuffix",
+    "FileConflictsViewer.vb::ProcessingCount",
+    "FileConflictsViewer.vb::ModFileCount",
+    "VaultDownloadRules.vb::RuleFileVersionInfo",
+    "VaultDownloadRules.vb::RulesMessage",
+    "VaultScraper.vb::ExInfo",
+    "VaultScraper.vb::AdjustTempFilenames",
+    "VaultScraper.vb::GetUnknownTitle",
+    "NIT.Common.vb::ValidateFileKey",
+    "NIT.Common.vb::CreateModDir",
+    "Settings.vb::SettingsStartPage",
+    "Settings.MapExceptions.vb::AddExceptions",
+    "Settings.MapExceptions.vb::ValidateException",
+    "ModFindAndRename.vb::BtApply_Click"
+   ]
+  },
+  "nit_store_move": {
+   "status": "MISSING",
+   "note": "Settings > Locations lets NIT move its store (PathNit -> PathNewStore, moved on restart by MoveNitStore). Vaultkeeper picks the store folder at first run and has no way to move it afterwards. Owner decision.",
+   "names": [
+    "NIT.Common.vb::MoveNitStore"
+   ]
+  },
+  "save_screen_tooltip": {
+   "status": "MISSING",
+   "note": "Hovering Manage your Game Saves (BehaviourScreenTip), the Game Saves Manager's location label, or the Character Summary text (BehaviourScreenTipChar) shows the save's screen.tga, cropped top/bottom by ConfigSaveScreenCrop. Vaultkeeper shows none there (only its Save Game Editor shows a save's screenshot). Owner decision.",
+   "names": [
+    "Settings.Advanced.vb::ValidateScreenCrop",
+    "Defs.vb::ScreenImageCrop"
+   ]
+  },
+  "map_editor_bounded": {
+   "status": "Partial",
+   "note": "Folder Mapping covers add / remove / reset per table plus secondary folders, edit = remove + add, built-ins overridable not deletable (logic audit: deliberate). Not in Vaultkeeper: NIT's per-row Undo and Rename Extension on the four map pages. Small gap, listed for the owner.",
+   "names": [
+    "Settings.MapExtensions.vb::ResetMapExtensions",
+    "Settings.MapExtensions.vb::ResetMapExtensionItem",
+    "Settings.MapExtensions.vb::SetMapExtensionItem",
+    "Settings.MapExtensions.vb::CmeNewExtension_Click",
+    "Settings.MapExtensions.vb::CmeRenameExt_Click",
+    "Settings.MapExtensions.vb::ValidateExtension",
+    "Settings.MapExtensions.vb::CmeFolder_Click",
+    "Settings.MapExtensions.vb::FolderMenu_Clicked",
+    "Settings.MapExtensions.vb::CmeUndo_Click",
+    "Settings.MapExtensions.vb::CmeRemove_Click",
+    "Settings.MapFolders.vb::ResetMapFolders",
+    "Settings.MapFolders.vb::ResetMapFolderSelected",
+    "Settings.MapFolders.vb::LvMapFoldersItemChanged",
+    "Settings.MapFolders.vb::ValidateSourceFolder",
+    "Settings.MapFolders.vb::CmdNwnFolder_Click",
+    "Settings.MapFolders.vb::NwnFolder_Clicked",
+    "Settings.MapFolders.vb::CmdUndo_Click",
+    "Settings.MapFolders.vb::CmdRemove_Click",
+    "Settings.MapExcludes.vb::ResetMapExcludes",
+    "Settings.MapExcludes.vb::ResetMapExcludeSelected",
+    "Settings.MapExcludes.vb::SetMapExcludeSelected",
+    "Settings.MapExcludes.vb::ValidateExclude",
+    "Settings.MapExcludes.vb::CexUndo_Click",
+    "Settings.MapExcludes.vb::CexRemove_Click",
+    "Settings.MapFiles.vb::ResetMapFiles",
+    "Settings.MapFiles.vb::ResetMapFileSelected",
+    "Settings.MapFiles.vb::LvMapFilesItemChanged",
+    "Settings.MapFiles.vb::ValidateFileName",
+    "Settings.MapFiles.vb::CmfNwnFolder_Click"
+   ]
+  },
+  "mapper_model": {
+   "status": "Ported",
+   "note": "core/mapper.py + map_overrides / map_exclude_overrides; player exclusions (asked_player_excludes), mandatory folders, exception prefixes, folder moves. The 'Imported*' members serve NIT's settings import; Vaultkeeper's map overrides live in its settings, so Export / Import Settings carries them.",
+   "names": [
+    "Mapper.vb::ExcludeTypes",
+    "Mapper.vb::PlayerExcludesCount",
+    "Mapper.vb::DatabaseFileMask",
+    "Mapper.vb::ModInstallerList",
+    "Mapper.vb::OldDatabaseExtensions",
+    "Mapper.vb::CheckPlayerExcludes",
+    "Mapper.vb::CreateMandatoryFolders",
+    "Mapper.vb::GetExtensionMap",
+    "Mapper.vb::GetDefaultExtensionMap",
+    "Mapper.vb::ImportedExtensionMap",
+    "Mapper.vb::ExtensionMapDictionary",
+    "Mapper.vb::SetExtensionMap",
+    "Mapper.vb::GetDirMapping",
+    "Mapper.vb::ImportedDirMapping",
+    "Mapper.vb::SetDirMapping",
+    "Mapper.vb::GetExceptionFiles",
+    "Mapper.vb::ImportedExceptionFiles",
+    "Mapper.vb::SetExceptionFiles",
+    "Mapper.vb::GetExceptionPrefixes",
+    "Mapper.vb::SetExceptionPrefixes",
+    "Mapper.vb::GetFolderMoves",
+    "Mapper.vb::SetFolderMoves",
+    "Mapper.vb::GetExcludes",
+    "Mapper.vb::ImportedExcludeMods",
+    "Mapper.vb::ImportedExcludeFiles",
+    "Mapper.vb::ImportedExcludeFolders",
+    "Mapper.vb::IsPlayerExclude",
+    "Mapper.vb::AddPlayerExcludes",
+    "Mapper.vb::RemovePlayerExcludes",
+    "Mapper.vb::SetExcludes",
+    "Mapper.vb::UpdateMapSettings",
+    "Mapper.vb::DevelopmentFolder"
+   ]
+  },
+  "nit_data_migrations": {
+   "status": "N/A",
+   "note": "Upgrades NIT's own older file formats (map versions 6-21, pre-v8 start-screen info, play-time files, rules-file versions). Vaultkeeper never wrote those formats; it imports a current NIT store.",
+   "names": [
+    "Mapper.vb::MapMigrated",
+    "Mapper.vb::MapMigratedText",
+    "Mapper.vb::UpdateFromVersion6",
+    "Mapper.vb::UpdateFromVersion8",
+    "Mapper.vb::UpdateFromVersion9",
+    "Mapper.vb::UpdateFromVersion10",
+    "Mapper.vb::UpdateFromVersion11",
+    "Mapper.vb::UpdateFromVersion12",
+    "Mapper.vb::UpdateFromVersion13",
+    "Mapper.vb::UpdateFromVersion14",
+    "Mapper.vb::UpdateFromVersion15",
+    "Mapper.vb::UpdateFromVersion16",
+    "Mapper.vb::UpdateFromVersion17",
+    "Mapper.vb::UpdateFromVersion18",
+    "Mapper.vb::UpdateFromVersion19",
+    "Mapper.vb::UpdateFromVersion20",
+    "Mapper.vb::UpdateFromVersion21",
+    "StartScreenInfo.vb::StartScreenPrefixFile",
+    "StartScreenInfo.vb::OldInfoFilename",
+    "StartScreenInfo.vb::ExcludeAllButXFile",
+    "StartScreenInfo.vb::MigrateFromOld",
+    "StartScreenInfo.vb::GetPrefixedAvailable",
+    "StartScreenInfo.vb::GetAllPrefixed",
+    "PlayDataManager.vb::MigrateProfiles",
+    "VaultDownloadRules.vb::DeleteOldVersions",
+    "VaultDownloadRules.vb::LogRevisionNumber",
+    "VaultDownloadRules.vb::CountRoloVaultDownloads",
+    "VaultDownloadRules.vb::SetRulesFileLanguage",
+    "NIT.Common.vb::RunAutoModDependencies",
+    "Defs.vb::ModImportAction"
+   ]
+  },
+  "shared_store": {
+   "status": "N/A",
+   "note": "NetworkManager shared NIT store (standing non-goal); Vaultkeeper moves mods between machines with .vkmod export/import.",
+   "names": [
+    "NIT.Common.vb::SynchroniseModsThread",
+    "NIT.Common.vb::ExportedModsAction",
+    "NIT.Common.vb::ClearModPropertySyncFile",
+    "NIT.Common.vb::ModPropertySyncFileReport",
+    "NIT.Menu.vb::SetSharedNitMenuItems",
+    "NIT.Menu.vb::MsOpenSharedStore_Click",
+    "NIT.Workers.vb::ImportStartScreens",
+    "NIT.Workers.vb::ProcessCrypt",
+    "NIT.Workers.vb::Crypt",
+    "PlayTimeInfo.vb::UserName",
+    "Paths.vb::ExportedMods",
+    "Paths.vb::ImportedMods",
+    "BackupManager.vb::AutoImport"
+   ]
+  },
+  "vkmod_export": {
+   "status": "Divergence",
+   "note": "Mod export/import is ported as .vkmod files rather than NIT's shared-store export folder.",
+   "names": [
+    "NIT.Menu.vb::MsExportMods_Click",
+    "NIT.Menu.vb::MsImportMods_Click",
+    "ModExport.vb::ExportFolder",
+    "ModExport.vb::GetExports",
+    "ModExport.vb::ModDataComparer",
+    "ModExport.vb::ModInfo",
+    "ModExport.vb::ModData"
+   ]
+  },
+  "update_check": {
+   "status": "Divergence",
+   "note": "Update Vaultkeeper (vault/app_update.py, MsUpdateNow) checks the GitHub releases and offers the download page; NIT's download-and-replace-itself is deliberately not ported.",
+   "names": [
+    "NIT.Common.vb::GetDownloadInfo",
+    "NIT.Common.vb::GetUpdateMessage",
+    "NIT.Common.vb::PerformVersionCheck",
+    "NIT.Menu.vb::MsGetUpdate_Click",
+    "NIT.Menu.vb::MsGetUpdatePerformClick",
+    "NIT.Workers.vb::UpdateNit",
+    "Defs.vb::ModDownloaded",
+    "Defs.vb::DownloadedNitFile"
+   ]
+  },
+  "gsm_first_use": {
+   "status": "Divergence",
+   "note": "No first-use explanation before the Game Saves Manager opens (NIT GameMangerEnabled); Vaultkeeper opens it directly.",
+   "names": [
+    "NIT.Menu.vb::GameMangerEnabled"
+   ]
+  },
+  "custom_alias": {
+   "status": "Divergence",
+   "note": "No custom alias definitions file, so no Delete, reset-to-standard or per-profile saves suffix; the Alias editor edits nwn.ini directly (logic audit: deliberate).",
+   "names": [
+    "AliasSectionEditor.vb::RestoreDefaults",
+    "AliasSectionEditor.vb::SavesTypeSuffix",
+    "AliasSectionEditor.vb::BtDelete_Click"
+   ]
+  },
+  "owner_decisions": {
+   "status": "Divergence",
+   "note": "Owner decisions: no shared saves folder (logic audit); Workshop names are edited in the Workshop viewer (W9).",
+   "names": [
+    "GameSavesPathDialogue.vb::BuBrowse_Click",
+    "WorkshopNameEditor.vb::BtApply_Click"
+   ]
+  },
+  "inline_apply": {
+   "status": "Divergence",
+   "note": "Doc Organiser's Reset is its Refresh, which rebuilds from disk and so discards pending name changes.",
+   "names": [
+    "DocOrganiser.vb::CmReset_Click"
+   ]
+  }
+ },
+ "controls": {
+  "built_since": {
+   "status": "Ported",
+   "note": "Wired command; checked against main_window's command map 2026-10-01.",
+   "names": [
+    "NIT::MsMoveToFolder",
+    "NIT::MsMoveToHistory",
+    "NIT::MsMoveToDev",
+    "NIT::MsBackupManager",
+    "NIT::RbnExportSettings",
+    "NIT::MsFindAndRename",
+    "NIT::MsRefreshWorkshopFiles",
+    "NIT::RbnManageWorkshop",
+    "NIT::MsOriginalPortraits",
+    "NIT::MsResetWebMenu",
+    "NIT::MsShowText",
+    "NIT::MsValidate",
+    "NIT::MsValidateInstalledData"
+   ]
+  },
+  "new_file": {
+   "status": "Divergence",
+   "note": "New Folder / New Text File / New RTF File are wired; the logic audit marks them deliberate (via Open Mod Folder / the Contents pane).",
+   "names": [
+    "NIT::MsNewFolder",
+    "NIT::MsNewTextFile",
+    "NIT::MsNewRtfFile"
+   ]
+  },
+  "vkmod_export": {
+   "status": "Divergence",
+   "note": "Export / Import Mods are .vkmod files.",
+   "names": [
+    "NIT::MsExportMods",
+    "NIT::MsImportMods"
+   ]
+  },
+  "shared_store": {
+   "status": "N/A",
+   "note": "NetworkManager shared store: standing non-goal.",
+   "names": [
+    "NIT::MsSynchroniseMods",
+    "NIT::MsOpenSharedStore"
+   ]
+  },
+  "update_check": {
+   "status": "Divergence",
+   "note": "Update Vaultkeeper checks releases and opens the download page; no in-place replace.",
+   "names": [
+    "NIT::MsGetUpdate"
+   ]
+  },
+  "original_tables": {
+   "status": "Divergence",
+   "note": "Recreate original NWN file information: Vaultkeeper ships the original-file CRC tables and rebuilds EE ones with Update EE Files (logic audit: BuildOriginalFiles deliberate).",
+   "names": [
+    "NIT::MsSaveNwnInfo"
+   ]
+  }
+ },
+ "forms": {
+  "AliasSectionEditor": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/alias_section_editor.py): sorted aliases, Edit/Undo per row, Save once changed. Delete (custom alias file) is deliberately absent."
+  },
+  "BackupManager": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/backup_manager.py): three tabs, Restore, Delete honouring the recycle preference."
+  },
+  "CrashDumpManager": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/crash_reports.py): Open, Delete, Delete All, Submit, Open Folder."
+  },
+  "DownloadDeleteMsg": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/old_downloads.py): delete or move old downloads to History."
+  },
+  "ExtendedEditionDialogue": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/extended_edition.py) + Disable EE detection on Settings > Locations."
+  },
+  "GameManagerRestore": {
+   "status": "Divergence",
+   "note": "Folded into the Game Saves Manager's Archived section: Restore, Delete Archive, Open with File Explorer, Display Character Summary."
+  },
+  "GameSavesPathDialogue": {
+   "status": "Divergence",
+   "note": "Owner decision: no shared saves folder (logic audit)."
+  },
+  "HakPatchEditor": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/hak_patch_editor.py) with NIT's Move Up/Down arrows and keys."
+  },
+  "InstallationManagerEditor": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/installation_manager.py): NIT's toolstrip incl. Checkpoint, Prune, Sort By, Group Selector."
+  },
+  "ModFindAndRename": {
+   "status": "Ported",
+   "note": "Built (ui/dialogs/find_and_rename.py)."
+  },
+  "NitDownload": {
+   "status": "Divergence",
+   "note": "Update Vaultkeeper checks GitHub releases and opens the download page; NIT's source selector and self-replace are deliberately not ported."
+  },
+  "RtfThemeManager": {
+   "status": "Divergence",
+   "note": "Vaultkeeper's notes follow the theme palette, so no per-file recolouring is needed."
+  },
+  "SlideShow": {
+   "status": "Ported",
+   "note": "Built: the Start Screen Manager's Slide Show with interval and continuous options."
+  }
+ }
+}

@@ -133,4 +133,4 @@ the orchestrator decides THIN-OUT vs BOUNDED.
 | DependencyManager `BtAuto` | ✅ done: Auto |
 | GameManagerRestore `CmCharacterSummary` / `CmOpen` | ✅ done: archived ranges open to their saves; right-click offers Open with File Explorer and Display Character Summary |
 | AliasSectionEditor `RestoreFolder` / `CmUndo` | ✅ done: per-row Edit / Undo (Ctrl+Z) on right-click, Edit/Undo row icons, Save only once something changed |
-| NitDownload (self-update) | still DEFERRED: no update server for Vaultkeeper |
+| NitDownload (self-update) | ✅ divergence by design: Update Vaultkeeper (`MsUpdateNow`, `vault/app_update.py`) checks the GitHub releases and offers the download page. NIT's download source selector and self-replace are deliberately not ported |

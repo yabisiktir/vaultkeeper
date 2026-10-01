@@ -55,9 +55,18 @@ All wired to real behaviour + tested (`tests/test_default_group.py`,
 All ten safe-MISSING settings are now built + wired + tested
 (`tests/test_finding3_settings.py` covers the final three).
 
-## Deferred features (33) — NOT settings gaps
+## Deferred features (33) — re-verified 2026-10-01
 
-These need the underlying feature first (restorer subsystem, slideshow, game-saves
-retention policy, shared-store sync, play-loop copy-config-on-play, doc-organiser
-auto-run, etc.). Tracked in the migration handoff; listed in `settings_prefs.csv`
-with `status=DEFERRED`.
+The 33 preferences filed DEFERRED in July were rechecked against the source.
+Most of the features they waited on have been built since (restorers,
+slide show, saves retention, copy-on-play, Doc Organiser auto-run, selection
+preferences...), and `settings_prefs.py` now records each one's verdict
+(`RECHECK_2026_10`). Two first-pass verdicts were wrong: `BehaviourScreenTip`
+and `BehaviourScreenTipChar` are **save-screenshot** tips, not text tooltips.
+
+What is still open (`settings_prefs.csv`, `status=MISSING`):
+
+| Preference | NIT | Vaultkeeper |
+|---|---|---|
+| `BehaviourScreenTip`, `BehaviourScreenTipChar`, `ConfigSaveScreenCrop` | hovering Manage your Game Saves (or the Character Summary text) shows the save's screen image, cropped top and bottom | no hover image; only the Save Game Editor shows a save's screenshot |
+| `ConfigDoubleClickAction` | double-click a mod: Install or Uninstall (default), Open Mod Folder, or Ignore | always Install or Uninstall |

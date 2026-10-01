@@ -22,23 +22,22 @@ python build_ledger.py ./out ../../src/vaultkeeper:../../../nwn-save-editor/src 
 | Designer controls | 1777 | 1777 (100%) | 0 |
 
 ### Methods/props — status breakdown
-- `Divergence`: 1345
-- `Ported`: 1259
-- `Deferred`: 311
-- `N/A`: 188
-- `Partial`: 181
+- `Ported`: 1583
+- `Divergence`: 1387
+- `N/A`: 282
+- `Partial`: 29
+- `MISSING`: 3
 
 ### Event handlers — status breakdown
-- `Divergence`: 561
-- `Ported`: 193
-- `Deferred`: 86
-- `Partial`: 45
+- `Divergence`: 573
+- `Ported`: 294
+- `Partial`: 11
+- `N/A`: 7
 
 ### Designer controls — status breakdown
-- `Ported`: 1031
-- `Divergence`: 374
-- `Deferred`: 270
-- `N/A`: 102
+- `Ported`: 1239
+- `Divergence`: 434
+- `N/A`: 104
 
 ## Where to look — GAP? density by VB file (methods)
 
@@ -88,7 +87,7 @@ implement it under a different name).
 
 _(0 GAP? methods total; see ledger_members.csv for the full list.)_
 
-## Findings (all FIXED 2026-07-15)
+## Findings of the first pass (all FIXED 2026-07-15)
 
 The three findings that motivated the audit — behavior/layout/depth gaps the
 command-level audit did not catch — are all fixed:
@@ -98,7 +97,17 @@ command-level audit did not catch — are all fixed:
 3. **Settings depth (content gap)** ✅ DIAGNOSED + BUILT — VB exposes 81 real prefs vs ~10 modelled; classified (12 ported / 16 divergence / 10 perf / 33 deferred-features / 10 real add-a-setting gaps); all 10 now built + wired (see FINDING_3_SETTINGS.md).
 Plus 2 MISSING methods fixed (Copy Details / Copy Level in Character Explorer), a Mod Explorer filter bar, a Mod Play Viewer end-level filter, and Portrait Prev/Next.
 
-## Audit status — COMPLETE + VERIFIED
+## Audit status
 
-**All three layers 100% classified AND verified — 0 GAP?, 0 AUTO-PORTED, 0 MISSING.** The name-matched rows were verified in a dedicated pass: distinctive-name matches confirmed genuine (grep), and each VB file's AUTO-PORTED rows resolved at file granularity via `verify_files.json` (ported module → Ported; deferred/divergent subsystems reclassified). Every VB method / handler / control now carries an explicit, evidence-backed status. The only remaining work is optional: build more of the tracked Deferred features.
+All three layers are 100% classified: 0 GAP?, 0 AUTO-PORTED. The name-matched rows were verified in a dedicated pass (2026-08): distinctive-name matches confirmed by grep, and each VB file's AUTO-PORTED rows resolved at file granularity via `verify_files.json`.
+
+**Re-verified 2026-10-01.** The Deferred/Partial verdicts dated from 2026-08 and most of what they named has been built since. Those rows now take the logic audit's reviewed verdict (`docs/logic_audit/stage4/verdicts.csv`) where it has one, and otherwise the groups in `reconcile.json`, each checked against the source.
+
+### What is still open
+
+| Status | NIT member or control | Why |
+|---|---|---|
+| MISSING | ScreenImageCrop, ValidateScreenCrop | Hovering Manage your Game Saves (BehaviourScreenTip), the Game Saves Manager's location label, or the Character Summary text (BehaviourScreenTipChar) shows the save's screen.tga, cropped top/bottom by ConfigSaveScreenCrop. Vaultkeeper shows none there (only its Save Game Editor shows a save's screenshot). Owner decision. |
+| MISSING | MoveNitStore | Settings > Locations lets NIT move its store (PathNit -> PathNewStore, moved on restart by MoveNitStore). Vaultkeeper picks the store folder at first run and has no way to move it afterwards. Owner decision. |
+| Partial | ResetMapExcludes, ResetMapExcludeSelected, SetMapExcludeSelected, ValidateExclude, CexUndo_Click, CexRemove_Click (+23) | Folder Mapping covers add / remove / reset per table plus secondary folders, edit = remove + add, built-ins overridable not deletable (logic audit: deliberate). Not in Vaultkeeper: NIT's per-row Undo and Rename Extension on the four map pages. Small gap, listed for the owner. |
 

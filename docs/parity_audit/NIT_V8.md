@@ -35,14 +35,16 @@ turned out to be gaps the port had independently of v8.0.
 
 ## Still open
 
-* **The wizard authoring inside the per-project rules** — `WizardTitle`,
-  `SelectOne`, `SelectMany`, `ExtractArchives`, `InstallerExcludes` — is parsed
-  and discarded. Reading it would let a download arrive with its installer
-  wizard already authored, which the port's Wizard Builder could then edit.
-* **`If <version>` blocks** name files for NWN 1.68/1.69. Skipped: this port
-  targets Enhanced Edition, and picking between them needs a game version the
-  port does not currently establish.
-* **Nothing is pre-ticked in VB's file list.** The port ticks every file by
-  default, which on a project publishing eleven releases (CEP 3) offers 16 GB on
-  one click. Matching VB would reverse a long-standing default here, so it is
-  flagged rather than changed.
+Re-checked 2026-10-01. Of the three items once listed here, two are done:
+
+* ✅ **The wizard authoring inside the per-project rules** (`WizardTitle`,
+  `SelectOne`, `SelectMany`, `ExtractArchives`, `InstallerExcludes`) is kept as
+  `ProjectRule.wizard_text` and becomes the downloaded mod's wizard
+  (`parse_wizard_text` in the controller).
+* ✅ **`If <version>` blocks** (`If EE` / `If NWN` / `If 1.69` / `If 1.68` /
+  `If ERF`) are applied by `ProjectRule.for_game`; Enhanced Edition counts as 1.69,
+  as in NIT.
+* **Nothing is pre-ticked in NIT's file list.** Vaultkeeper ticks every file not
+  yet downloaded, which on a project with eleven releases (CEP 3) offers 16 GB on
+  one click. Matching NIT would reverse a long-standing default, so it is left
+  for the owner to decide.

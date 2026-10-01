@@ -118,6 +118,53 @@ def initial_status(name, match_kind, seeds):
     return "GAP?", ""
 
 
+#: Logic-audit stage-4 verdict -> ledger status.
+_LOGIC_VERDICTS = {"same": "Ported", "fixed": "Ported", "deliberate": "Divergence", "n/a": "N/A"}
+
+
+def apply_reconciliation(dest: Path, members: list[dict], controls: list[dict]) -> None:
+    """Bring the Deferred/Partial verdicts up to date (2026-10-01 pass).
+
+    First the logic audit's reviewed verdicts (``stage4/verdicts.csv``) for rows
+    still Deferred/Partial, then ``reconcile.json``'s explicit groups, which win.
+    """
+    verdicts_csv = dest.resolve().parent / "logic_audit" / "stage4" / "verdicts.csv"
+    if verdicts_csv.exists():
+        with verdicts_csv.open() as f:
+            verdicts = {(r["file"], r["member"]): r for r in csv.DictReader(f)}
+        for r in members:
+            v = verdicts.get((r["file"], r["member"]))
+            if r["status"] in ("Deferred", "Partial") and v and v["verdict"] in _LOGIC_VERDICTS:
+                r["status"] = _LOGIC_VERDICTS[v["verdict"]]
+                r["notes"] = f"logic audit stage 4: {v['verdict']}" + (
+                    f" ({v['note']})" if v["note"] else ""
+                )
+    path = dest / "reconcile.json"
+    if not path.exists():
+        return
+    spec = json.loads(path.read_text())
+
+    def index(section: str) -> dict[str, tuple[str, str]]:
+        out = {}
+        for group in spec.get(section, {}).values():
+            for name in group["names"]:
+                out[name] = (group["status"], group["note"])
+        return out
+
+    by_member, by_control = index("members"), index("controls")
+    forms = spec.get("forms", {})
+    for r in members:
+        hit = by_member.get(f"{r['file']}::{r['member']}")
+        if hit:
+            r["status"], r["notes"] = hit
+    for r in controls:
+        hit = by_control.get(f"{r['form']}::{r['control']}")
+        if hit:
+            r["status"], r["notes"] = hit
+        elif r["form"] in forms and r["status"] in ("Deferred", "Partial"):
+            r["status"], r["notes"] = forms[r["form"]]["status"], forms[r["form"]]["note"]
+
+
 def main():
     outdir = Path(sys.argv[1])       # denominator CSVs (from extract_vb.py)
     # One or more port src dirs, os.pathsep-separated (the port spans two repos).
@@ -184,6 +231,8 @@ def main():
         else:
             st, note = initial_status(r["control"], mk, seeds)
             r["status"], r["notes"] = st, note
+
+    apply_reconciliation(dest, members, controls)
 
     mfields = ["file", "type", "member", "kind", "handles", "vb_ref",
                "match", "port_hint", "status", "notes"]
@@ -282,7 +331,7 @@ def write_dashboard(dest, members, handlers, controls):
     A(f"\n_({len(gaps)} GAP? methods total; see ledger_members.csv for the full list.)_\n")
 
     # findings that motivated the audit — all now fixed
-    A("## Findings (all FIXED 2026-07-15)\n")
+    A("## Findings of the first pass (all FIXED 2026-07-15)\n")
     A("The three findings that motivated the audit — behavior/layout/depth gaps the")
     A("command-level audit did not catch — are all fixed:\n")
     A("1. **Empty groups not rendered for drag-drop** ✅ FIXED — `controller.groups()` now "
@@ -295,13 +344,33 @@ def write_dashboard(dest, members, handlers, controls):
       "(see FINDING_3_SETTINGS.md).")
     A("Plus 2 MISSING methods fixed (Copy Details / Copy Level in Character Explorer), a Mod "
       "Explorer filter bar, a Mod Play Viewer end-level filter, and Portrait Prev/Next.\n")
-    A("## Audit status — COMPLETE + VERIFIED\n")
-    A("**All three layers 100% classified AND verified — 0 GAP?, 0 AUTO-PORTED, 0 MISSING.** "
-      "The name-matched rows were verified in a dedicated pass: distinctive-name matches confirmed "
-      "genuine (grep), and each VB file's AUTO-PORTED rows resolved at file granularity via "
-      "`verify_files.json` (ported module → Ported; deferred/divergent subsystems reclassified). "
-      "Every VB method / handler / control now carries an explicit, evidence-backed status. The "
-      "only remaining work is optional: build more of the tracked Deferred features.\n")
+    A("## Audit status\n")
+    A("All three layers are 100% classified: 0 GAP?, 0 AUTO-PORTED. The name-matched rows were "
+      "verified in a dedicated pass (2026-08): distinctive-name matches confirmed by grep, "
+      "and each VB file's AUTO-PORTED rows resolved at file granularity via `verify_files.json`.\n")
+    A("**Re-verified 2026-10-01.** The Deferred/Partial verdicts dated from 2026-08 and "
+      "most of what they named has been built since. Those rows now take the logic audit's "
+      "reviewed verdict (`docs/logic_audit/stage4/verdicts.csv`) where it has one, and "
+      "otherwise the groups in "
+      "`reconcile.json`, each checked against the source.\n")
+    open_rows = [r for r in members + controls if r["status"] in ("MISSING", "Partial", "Deferred")]
+    if open_rows:
+        A("### What is still open\n")
+        A("| Status | NIT member or control | Why |")
+        A("|---|---|---|")
+        seen = set()
+        for r in open_rows:
+            key = (r["status"], r["notes"])
+            if key in seen:
+                continue
+            seen.add(key)
+            names = [
+                x.get("member") or x.get("control") for x in open_rows
+                if (x["status"], x["notes"]) == key
+            ]
+            shown = ", ".join(names[:6]) + (f" (+{len(names) - 6})" if len(names) > 6 else "")
+            A(f"| {r['status']} | {shown} | {r['notes']} |")
+        A("")
 
     (dest / "DASHBOARD.md").write_text("\n".join(lines) + "\n")
 

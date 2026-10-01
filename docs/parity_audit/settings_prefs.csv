@@ -1,49 +1,49 @@
 key,status,note
-BehaviourAutoCharacter,DEFERRED,auto character restorer (restorer subsystem)
+BehaviourAutoCharacter,PORTED,auto_character (re-verified 2026-10-01)
 BehaviourCloseSettings,PORTED,dialog closes on save
-BehaviourConfirmActions,MISSING,port confirms some actions; no toggle
-BehaviourConfirmSaves,MISSING,no save-confirm toggle
+BehaviourConfirmActions,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+BehaviourConfirmSaves,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 BehaviourConvertBik,PORTED,convert_bik_files
-BehaviourDisplayImageFiles,MISSING,DisplayInfo shows images; no toggle
-BehaviourGamesManagerClose,DEFERRED,game manager close behaviour
+BehaviourDisplayImageFiles,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+BehaviourGamesManagerClose,DIVERGENCE,NIT's 'Close the Game Saves Manager' tick on the after-play uninstall prompt; VK's Finished flow runs inside the Game Saves Manager
 BehaviourInstallerInstall,PORTED,install_after_create
-BehaviourInstallerRestore,DEFERRED,installer restore-on-create
-BehaviourMoveAddedMods,MISSING,add-mods exists; no move-to-group-on-add toggle
+BehaviourInstallerRestore,PORTED,installer_restore
+BehaviourMoveAddedMods,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 BehaviourNumberRecentMods,PORTED,number_recent_mods
 BehaviourPlayStartup,PORTED,startup_sound
 BehaviourPropertiesPanel,DIVERGENCE,Qt splitter
-BehaviourPropertiesToolTip,DIVERGENCE,Qt tooltips automatic
+BehaviourPropertiesToolTip,DIVERGENCE,hover help on the Properties heading; VK uses Help buttons
 BehaviourRestoreDetailsPosition,PORTED,remember_window_position (geometry)
 BehaviourRestoreNotesPosition,PORTED,remember_window_position (geometry)
-BehaviourRestoreSelections,DEFERRED,restore selection on load
-BehaviourRetainProperties,DEFERRED,retain props on rename/move
-BehaviourScreenTip,DIVERGENCE,Qt tooltips automatic
-BehaviourScreenTipChar,DIVERGENCE,Qt tooltips automatic
-BehaviourSelectGameMod,DEFERRED,select-game-mod on play
-BehaviourSelectHistory,DEFERRED,selection history
-BehaviourSelectPlayTimeFile,DEFERRED,prompt for play-time file
-BehaviourSelectTextFile,DEFERRED,prompt for text file
-BehaviourSyncNotes,DEFERRED,sync notes across shared store
-BehaviourSyncProperties,DEFERRED,sync props across shared store
-BehaviourToolTipText,DIVERGENCE,Qt tooltips automatic
-BehaviourUninstallDependencies,MISSING,dep graph + uninstall exist; no cascade toggle
+BehaviourRestoreSelections,PORTED,"always on: mods reselected per profile (LoadSelections), Contents per mod; no toggle"
+BehaviourRetainProperties,PORTED,retain_properties_on_import
+BehaviourScreenTip,MISSING,"hover Manage your Game Saves shows the latest save's screen.tga; VK has no such hover (only the Save Game Editor shows screenshots) (reclassified 2026-10-01: this is an image tip, not a text tooltip)"
+BehaviourScreenTipChar,MISSING,hover the Character Summary text shows the save's screen.tga; see BehaviourScreenTip
+BehaviourSelectGameMod,PORTED,select_game_mod
+BehaviourSelectHistory,PORTED,selection_preference = history
+BehaviourSelectPlayTimeFile,PORTED,selection_preference = play_time
+BehaviourSelectTextFile,PORTED,selection_preference = text_file
+BehaviourSyncNotes,N/A,shared NIT store (non-goal)
+BehaviourSyncProperties,N/A,shared NIT store (non-goal)
+BehaviourToolTipText,DIVERGENCE,one tooltip style from the theme
+BehaviourUninstallDependencies,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 BehaviourWindows,PORTED,remember_window_position
-BehaviourWorkshop,DEFERRED,workshop enable/refresh partly deferred
+BehaviourWorkshop,PORTED,manage_steam_workshop + workshop_content_dir
 ConfigAutoDayConversionFactor,PERF,play-time day factor
-ConfigAutoLoadscreen,DEFERRED,auto loadscreen install
+ConfigAutoLoadscreen,PORTED,auto_loadscreen
 ConfigCancelMode,DIVERGENCE,WinForms cancel semantics
-ConfigCharacterRestorerPrefix,DEFERRED,restorer subsystem
-ConfigCopyDebugModeOnPlay,DEFERRED,debug mode on play
-ConfigCopyOnPlay,DEFERRED,copy config on play (play-loop pref)
+ConfigCharacterRestorerPrefix,PORTED,character_restorer_prefix
+ConfigCopyDebugModeOnPlay,PORTED,copy_debug_mode_on_play
+ConfigCopyOnPlay,PORTED,copy_mod_name_on_play
 ConfigDayConversionFactor,PERF,play-time day factor
-ConfigDefaultGroup,MISSING,new mods go to GROUP_NONE; no default-group setting
-ConfigDeleteLetoLogs,MISSING,remove_leto_log_files command exists; no auto toggle
-ConfigDevelopmentFolder,DEFERRED,dev folder mapping (Settings map editor)
-ConfigDisplayStdImages,MISSING,ImageViewer shows std images; no toggle
-ConfigDisplayTgaImages,MISSING,ImageViewer shows TGA; no toggle
-ConfigDoubleClickAction,DEFERRED,mod double-click action choice
-ConfigGameManagerEnabled,DEFERRED,game manager enable
-ConfigImportAction,DEFERRED,legacy import action pref
+ConfigDefaultGroup,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+ConfigDeleteLetoLogs,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+ConfigDevelopmentFolder,PORTED,enable_development_folder
+ConfigDisplayStdImages,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+ConfigDisplayTgaImages,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
+ConfigDoubleClickAction,MISSING,NIT offers Install or Uninstall (default) / Open Mod Folder / Ignore Double Clicks; VK always installs or uninstalls
+ConfigGameManagerEnabled,DIVERGENCE,first-use explanation before the Game Saves Manager; VK opens it directly
+ConfigImportAction,N/A,shared NIT store import (non-goal)
 ConfigKeyDelay,DIVERGENCE,Windows keyboard timing
 ConfigKeyDelayed,PERF,timing
 ConfigLinkProgress,DIVERGENCE,progress-dialog preference
@@ -53,30 +53,30 @@ ConfigMaxLinkThreads,PERF,download link threads
 ConfigMaxRecentMods,PORTED,max_recent_mods
 ConfigMaxRtfTasks,PERF,RTF task count
 ConfigMinPlayTime,PERF,min play time to record
-ConfigPortraitDisplaySize,MISSING,PortraitManager shows 5 sizes; no default-size pref
+ConfigPortraitDisplaySize,PORTED,setting added 2026-07 (FINDING_3_SETTINGS.md)
 ConfigProgressPreferences,DIVERGENCE,port builds synchronously
 ConfigPropertiesPanelAdjust,DIVERGENCE,Qt splitter
-ConfigPropertiesPanelHeight,DEFERRED,MsPropertiesHeight (divergence)
+ConfigPropertiesPanelHeight,PORTED,auto_properties_height (MsPropertiesHeight)
 ConfigRecentModsCursor,DIVERGENCE,cursor state
 ConfigRestartDelay,DIVERGENCE,Windows restart timing
-ConfigRunCreateInstaller,DEFERRED,auto-run create installer
-ConfigRunDocOrganiser,DEFERRED,auto-run doc organiser
-ConfigSaveScreenCrop,DEFERRED,start-screen crop
-ConfigSavesRetention,DEFERRED,game-saves retention policy
+ConfigRunCreateInstaller,PORTED,run_create_installer
+ConfigRunDocOrganiser,PORTED,run_doc_organiser
+ConfigSaveScreenCrop,MISSING,crop for the save screenshot tips; see BehaviourScreenTip
+ConfigSavesRetention,PORTED,saves_retention
 ConfigSavesThreshold,PERF,saves count threshold
-ConfigScreenInfoFromFile,DEFERRED,start-screen info source
+ConfigScreenInfoFromFile,PERF,re-read start-screen info each time; VK reads it when needed
 ConfigSettingsStartPage,PORTED,SettingsDialog start_tab
 ConfigShowCharStats,DIVERGENCE,CharacterViewer already shows stats
 ConfigShowDotNet,DIVERGENCE,".NET version display, N/A"
-ConfigSlideShowContinuous,DEFERRED,start-screen slideshow
-ConfigSlideShowInterval,DEFERRED,start-screen slideshow
+ConfigSlideShowContinuous,PORTED,slideshow_continuous
+ConfigSlideShowInterval,PORTED,slideshow_interval
 ConfigSplitterWidth,DIVERGENCE,"Qt splitters, not a stored width"
 ConfigSystemTrayMinimise,DIVERGENCE,Windows system tray
 ConfigToolbar,PORTED,MsShowToolbar toggle
-ConfigUseLocalRules,DEFERRED,local download rules toggle
+ConfigUseLocalRules,N/A,NIT testing switch ('Please do not change this setting'); VK has vault_rules_online
 ConfigWizardFileThreshold,PERF,wizard file-count threshold
-FileCompressModFolder,DEFERRED,compress mod folder on op
-FileOverwrite,DEFERRED,overwrite-without-prompt policy
+FileCompressModFolder,N/A,Windows NTFS compression
+FileOverwrite,PORTED,status-bar Overwrite toggle (logic audit 3f F3; default deliberately on)
 FileRecycleBin,PORTED,recycle_on_delete
-FileRecycleBinForGames,DEFERRED,per-category recycle (games)
-FileRecycleBinForInstallers,DEFERRED,per-category recycle (installers)
+FileRecycleBinForGames,PORTED,recycle_game_saves
+FileRecycleBinForInstallers,DIVERGENCE,VK always recycles replaced installers (logic audit 3b B9: safer)

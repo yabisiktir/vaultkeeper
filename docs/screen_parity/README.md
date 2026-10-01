@@ -87,7 +87,7 @@ blank, so for those forms the dump is the reference.
 | Create NWN Folder | NIT can make the chosen source the default "Copy from" folder. | ✅ Added (owner decision below): a check box makes the source the default, one per edition, shown in Settings → Locations. |
 | Menu Item Editor | NIT edits one Run/Web item at a time, with a 35-character limit and a clipboard URL. | ✅ NIT's editor added (owner decision below), opened from the Run/Web Menu pages in Settings. |
 | Game Manager Restore | NIT's separate restore window. | ➖ VK's Game Saves Manager has an Archived section with Restore and Delete Archive. |
-| Movie conversion, RTF theme recolouring, Slide Show, NIT update | Progress or utility windows. | ➖ VK converts movies inside the installer build (now shown by its progress window); VK notes follow the theme, so no recolouring is needed; the Start Screen Manager has a Slide Show; self-update is deferred. |
+| Movie conversion, RTF theme recolouring, Slide Show, NIT update | Progress or utility windows. | ➖ VK converts movies inside the installer build (now shown by its progress window); VK notes follow the theme, so no recolouring is needed; the Start Screen Manager has a Slide Show; Update Vaultkeeper checks for a release and opens its page (it does not replace itself, by design). |
 | Screen Position Adjust | Positions NIT's pop-up message. | ➖ VK has no such pop-up. |
 | Workshop Name Editor, Game Saves Path | NIT prompts. | ➖ Owner decisions: VK renames in the Workshop viewer (W9), and has no shared saves folder (logic audit). |
 | NIT main window, Debug menu | Developer reports (Action List, Selection History, Text Scroll Position, title-bar colour…). | ➖ Developer tools, not user features. |

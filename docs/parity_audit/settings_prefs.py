@@ -10,6 +10,7 @@ classification of each (orchestrator judgement, grounded in the port's known mod
   PERF        internal performance/threshold tuning — low value, N/A by default
   MISSING     genuine user-facing pref whose behaviour the port DOES implement but
               exposes no toggle  -> safe to add (a real setting)
+  N/A         belongs to a NIT feature that is a non-goal here (shared store, NTFS)
   DEFERRED    genuine pref whose BEHAVIOUR is not ported -> a feature, not a toggle
               (do NOT add a hollow setting)
 
@@ -111,6 +112,103 @@ CLASSIFY: dict[str, tuple[str, str]] = {
     "ConfigPropertiesPanelHeight": ("DEFERRED", "MsPropertiesHeight (divergence)"),
 }
 
+# Re-verified 2026-10-01 against the source (docs/parity_audit/DASHBOARD.md, Audit status):
+# the first pass's DEFERRED / MISSING rows were mostly built since, and BehaviourScreenTip*
+# had been filed as text tooltips when they are save-screenshot tips.
+RECHECK_2026_10: dict[str, tuple[str, str]] = {
+    "BehaviourAutoCharacter": ("PORTED", "auto_character (re-verified 2026-10-01)"),
+    "BehaviourConfirmActions": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "BehaviourConfirmSaves": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "BehaviourDisplayImageFiles": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "BehaviourGamesManagerClose": (
+        "DIVERGENCE",
+        "NIT's 'Close the Game Saves Manager' tick on the after-play uninstall prompt; "
+        "VK's Finished flow runs inside the Game Saves Manager"
+    ),
+    "BehaviourInstallerRestore": ("PORTED", "installer_restore"),
+    "BehaviourMoveAddedMods": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "BehaviourPropertiesToolTip": (
+        "DIVERGENCE",
+        "hover help on the Properties heading; VK uses Help buttons"
+    ),
+    "BehaviourRestoreSelections": (
+        "PORTED",
+        "always on: mods reselected per profile (LoadSelections), Contents per mod; no "
+        "toggle"
+    ),
+    "BehaviourRetainProperties": ("PORTED", "retain_properties_on_import"),
+    "BehaviourScreenTip": (
+        "MISSING",
+        "hover Manage your Game Saves shows the latest save's screen.tga; VK has no such "
+        "hover (only the Save Game Editor shows screenshots) (reclassified 2026-10-01: "
+        "this is an image tip, not a text tooltip)"
+    ),
+    "BehaviourScreenTipChar": (
+        "MISSING",
+        "hover the Character Summary text shows the save's screen.tga; see "
+        "BehaviourScreenTip"
+    ),
+    "BehaviourSelectGameMod": ("PORTED", "select_game_mod"),
+    "BehaviourSelectHistory": ("PORTED", "selection_preference = history"),
+    "BehaviourSelectPlayTimeFile": ("PORTED", "selection_preference = play_time"),
+    "BehaviourSelectTextFile": ("PORTED", "selection_preference = text_file"),
+    "BehaviourSyncNotes": ("N/A", "shared NIT store (non-goal)"),
+    "BehaviourSyncProperties": ("N/A", "shared NIT store (non-goal)"),
+    "BehaviourToolTipText": ("DIVERGENCE", "one tooltip style from the theme"),
+    "BehaviourUninstallDependencies": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "BehaviourWorkshop": ("PORTED", "manage_steam_workshop + workshop_content_dir"),
+    "ConfigAutoLoadscreen": ("PORTED", "auto_loadscreen"),
+    "ConfigCharacterRestorerPrefix": ("PORTED", "character_restorer_prefix"),
+    "ConfigCopyDebugModeOnPlay": ("PORTED", "copy_debug_mode_on_play"),
+    "ConfigCopyOnPlay": ("PORTED", "copy_mod_name_on_play"),
+    "ConfigDefaultGroup": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "ConfigDeleteLetoLogs": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "ConfigDevelopmentFolder": ("PORTED", "enable_development_folder"),
+    "ConfigDisplayStdImages": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "ConfigDisplayTgaImages": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "ConfigDoubleClickAction": (
+        "MISSING",
+        "NIT offers Install or Uninstall (default) / Open Mod Folder / Ignore Double "
+        "Clicks; VK always installs or uninstalls"
+    ),
+    "ConfigGameManagerEnabled": (
+        "DIVERGENCE",
+        "first-use explanation before the Game Saves Manager; VK opens it directly"
+    ),
+    "ConfigImportAction": ("N/A", "shared NIT store import (non-goal)"),
+    "ConfigPortraitDisplaySize": ("PORTED", "setting added 2026-07 (FINDING_3_SETTINGS.md)"),
+    "ConfigPropertiesPanelHeight": ("PORTED", "auto_properties_height (MsPropertiesHeight)"),
+    "ConfigRunCreateInstaller": ("PORTED", "run_create_installer"),
+    "ConfigRunDocOrganiser": ("PORTED", "run_doc_organiser"),
+    "ConfigSaveScreenCrop": (
+        "MISSING",
+        "crop for the save screenshot tips; see BehaviourScreenTip"
+    ),
+    "ConfigSavesRetention": ("PORTED", "saves_retention"),
+    "ConfigScreenInfoFromFile": (
+        "PERF",
+        "re-read start-screen info each time; VK reads it when needed"
+    ),
+    "ConfigSlideShowContinuous": ("PORTED", "slideshow_continuous"),
+    "ConfigSlideShowInterval": ("PORTED", "slideshow_interval"),
+    "ConfigUseLocalRules": (
+        "N/A",
+        "NIT testing switch ('Please do not change this setting'); VK has "
+        "vault_rules_online"
+    ),
+    "FileCompressModFolder": ("N/A", "Windows NTFS compression"),
+    "FileOverwrite": (
+        "PORTED",
+        "status-bar Overwrite toggle (logic audit 3f F3; default deliberately on)"
+    ),
+    "FileRecycleBinForGames": ("PORTED", "recycle_game_saves"),
+    "FileRecycleBinForInstallers": (
+        "DIVERGENCE",
+        "VK always recycles replaced installers (logic audit 3b B9: safer)"
+    ),
+}
+CLASSIFY.update(RECHECK_2026_10)
+
 rows = [{"key": k, "status": s, "note": n} for k, (s, n) in sorted(CLASSIFY.items())]
 with (AUDIT / "settings_prefs.csv").open("w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=["key", "status", "note"])
@@ -121,7 +219,7 @@ c = Counter(r["status"] for r in rows)
 print(f"classified {len(rows)} VB preferences:")
 for s, n in c.most_common():
     print(f"  {s:11s} {n}")
-print("\nMISSING (safe to add — behaviour already ported):")
+print("\nMISSING (open gaps, see DASHBOARD.md):")
 for r in rows:
     if r["status"] == "MISSING":
         print(f"  {r['key']:32s} {r['note']}")

@@ -527,7 +527,7 @@ profile-store backup, since an archive needs unpacking and that is what Restore
 Data is for; Delete honours the recycle-bin preference. Exports now default to
 the store's own *Exported Mods* folder so the third tab has something to list.
 
-Still open from that sweep: `bhnitdownload.htm` (self-update).
+That sweep's last open row, `bhnitdownload.htm`, is closed too: Update Vaultkeeper checks the releases and offers the download page (`vault/app_update.py`); replacing the running app's own files is deliberately left out.
 
 ## Fonts and colours — ported to the size of *this* application
 
@@ -782,10 +782,10 @@ read to the end. Reviewed:
 
 | Where | Behaviour | Port |
 |---|---|---|
-| Mod list | **Double-click a mod → Install, or Uninstall if installed** | **GAP** — everyday interaction, entirely absent |
-| Character status icon | Right-click → Character Summary | **GAP** |
-| Play ribbon button | Right-click → Start Screen Manager (Ctrl: preview the installed screen; Shift: auto loadscreen) | **GAP** |
-| Portrait Manager command | Right-click → open the portrait image web page | **GAP** — and the setting it needs (`portrait_image_web_page`) is one nothing reads |
+| Mod list | **Double-click a mod → Install, or Uninstall if installed** | ~~GAP~~ → **Ported** (`MainWindow._on_mod_double_clicked`) |
+| Character status icon | Right-click → Character Summary | ~~GAP~~ → **Ported** (rows below) |
+| Play ribbon button | Right-click → Start Screen Manager (Ctrl: preview the installed screen; Shift: auto loadscreen) | ~~GAP~~ → **Ported** (rows below) |
+| Portrait Manager command | Right-click → open the portrait image web page | ~~GAP~~ → **Ported** (rows below) |
 | Character Explorer skills/feats | Double-click → the description | Different shape: shown in a panel beside the list |
 | Play Data Viewer game row | Right-click → set the start date | **Ported** (this session) |
 | Character status icon | Right-click → Character Summary | **Ported** |
